@@ -110,7 +110,7 @@ public class CryptoDlmsSecuritySupport extends AbstractSecuritySupport implement
     }
 
     private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties oldTypedProperties) {
-        final BigDecimal client =  loadCorrectClientMacAddressPropertyValue(oldTypedProperties);
+        final BigDecimal client = loadCorrectClientMacAddressPropertyValue(oldTypedProperties);
 
         final TypedProperties result = TypedProperties.empty();
         result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, 0, getAuthenticationAccessLevels()));

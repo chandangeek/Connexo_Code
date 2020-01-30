@@ -243,4 +243,13 @@ class TaskOccurrenceImpl implements TaskOccurrence {
             save();
         }
     }
+
+    @Override
+    public void setToFailed() {
+        if (!status.isFinal()) {
+            this.endDate = clock.instant();
+            this.status = this.status.fail();
+            save();
+        }
+    }
 }

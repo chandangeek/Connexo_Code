@@ -116,7 +116,7 @@ Ext.define('Uni.grid.column.Action', {
         if (selection.length > 0) {
             selectedRecord = selection[0];
 
-            if (grid.getStore().indexOf(selectedRecord) !== rowIndex) {
+            if (selection.length > 1 || grid.getStore().indexOf(selectedRecord) !== rowIndex) {
                 selectionModel.select(rowIndex);
             }
         } else if (selection.length === 0 && grid.getStore().getCount() > 0) {
