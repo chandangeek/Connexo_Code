@@ -215,6 +215,8 @@ public class DataExportTaskHistoryInfoFactory {
         } else {
             info.statusPrefix = statusTranslation;
         }
+        info.statusId = dataExportStatus.ordinal();
+
     }
 
     private static Long calculateDuration(Instant startedOn, Instant finishedOn) {

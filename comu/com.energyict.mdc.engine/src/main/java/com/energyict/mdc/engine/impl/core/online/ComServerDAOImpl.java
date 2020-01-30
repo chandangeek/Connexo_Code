@@ -323,10 +323,16 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
-        try (Fetcher<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPlannedComTaskExecutionsFor(comPort)) {
-            ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
-            return comJobFactoryFor.consume(comTaskExecutions.iterator());
-        }
+        long start = System.currentTimeMillis();
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPlannedComTaskExecutionsListFor(comPort);
+        long fetchComTaskDuration = System.currentTimeMillis() - start;
+        ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
+        start = System.currentTimeMillis();
+        List<ComJob> comJobs = comJobFactoryFor.consume(comTaskExecutions.iterator());
+        long addToGroupDuration = System.currentTimeMillis() - start;
+        LOGGER.warning("perf - fetchComTaskDuration=" + fetchComTaskDuration + ", addToGroupDuration=" + addToGroupDuration);
+
+        return comJobs;
     }
 
     @Override
@@ -979,7 +985,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.serviceProvider.mdcReadingTypeUtilService(), this);
-        if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() != null || !channelInfo.getReadingTypeMRID().isEmpty())) {
+        if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty())) {
             PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, currentDate);
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
                 Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();

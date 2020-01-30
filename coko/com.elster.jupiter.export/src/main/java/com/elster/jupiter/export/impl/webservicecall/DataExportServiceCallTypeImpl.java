@@ -12,6 +12,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -36,6 +37,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -178,6 +180,17 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                 .filter(Where.where(WebServiceDataExportDomainExtension.FieldNames.UUID.javaName()).isEqualToIgnoreCase(uuid))
                 .findAny()
                 .map(WebServiceDataExportDomainExtension::getServiceCall);
+    }
+
+    @Override
+    public List<ServiceCall> findServiceCalls(EnumSet<DefaultState> states) {
+        List<String> stateKeys = states.stream().map(DefaultState::getKey).collect(Collectors.toList());
+        return dataModel.stream(WebServiceDataExportDomainExtension.class)
+                .join(ServiceCall.class)
+                .join(State.class)
+                .filter(Where.where(WebServiceDataExportDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name").in(stateKeys))
+                .map(WebServiceDataExportDomainExtension::getServiceCall)
+                .collect(Collectors.toList());
     }
 
     @Override

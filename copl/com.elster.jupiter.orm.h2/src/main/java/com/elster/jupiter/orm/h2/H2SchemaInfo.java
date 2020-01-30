@@ -17,4 +17,9 @@ public class H2SchemaInfo implements SchemaInfoProvider {
     public List<? extends TableSpec> getSchemaInfoTableSpec() {
         return Arrays.asList(H2TableSpecs.values());
     }
+
+    @Override
+    public boolean isTestSchemaProvider() {
+        return true;
+    }
 }
