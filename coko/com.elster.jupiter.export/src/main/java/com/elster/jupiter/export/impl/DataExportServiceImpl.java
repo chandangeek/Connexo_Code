@@ -446,9 +446,13 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
                             .build());
 
-            try (TransactionContext transactionContext = transactionService.getContext()) {
+            if (transactionService.isInTransaction()) {
                 failOngoingExportTaskOccurrences();
-                transactionContext.commit();
+            } else {
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    failOngoingExportTaskOccurrences();
+                    transactionContext.commit();
+                }
             }
         } catch (RuntimeException e) {
             e.printStackTrace();
