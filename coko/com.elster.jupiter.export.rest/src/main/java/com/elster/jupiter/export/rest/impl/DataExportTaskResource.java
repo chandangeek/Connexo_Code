@@ -139,7 +139,7 @@ public class DataExportTaskResource {
         String applicationName = getApplicationNameFromCode(appCode);
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
         finder.setStart(queryParameters.getStart().orElse(0));
-        finder.setLimit(queryParameters.getLimit().orElse(0) + 1);
+        queryParameters.getLimit().ifPresent(finder::setLimit);
         List<DataExportTaskInfo> infos = finder.stream()
                 .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
                 .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
