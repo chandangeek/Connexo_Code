@@ -395,15 +395,18 @@ public class DeviceTypeResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
         }
         if (alarmRules.size() > 0 || issueRules.size() > 0) {
-            LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(MessageSeeds.THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE, DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
+            LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format() + " "
+                            + thesaurus.getSimpleFormat(MessageSeeds.CLARIFICATION_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format(),
+                    DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
             return Response.ok(lifeCycleChangeInfo).build();
         }
-        LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(MessageSeeds.LIFE_CYCLE_CHANGED, DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
+        LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.SUCCESSFULLY_CHANGED_LIFE_CYCLE).format(),
+                DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
         return Response.ok(lifeCycleChangeInfo).build();
     }
 
-    private LifeCycleChangeInfo createChangeCreationRulesInfo(MessageSeeds messageSeeds, DeviceTypeInfo deviceTypeInfo, List<String> alarmRules, List<String> issueRules) {
-        return new LifeCycleChangeInfo(thesaurus.getSimpleFormat(messageSeeds).format(),
+    private LifeCycleChangeInfo createChangeCreationRulesInfo(String message, DeviceTypeInfo deviceTypeInfo, List<String> alarmRules, List<String> issueRules) {
+        return new LifeCycleChangeInfo(message,
                 deviceTypeInfo,
                 thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ALARM_RULES).format(String.join(", ", alarmRules)),
                 thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ISSUE_RULES).format(String.join(", ", issueRules)));

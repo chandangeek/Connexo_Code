@@ -69,10 +69,12 @@ public enum MessageSeeds implements MessageSeed {
     SECACC_WRAPPER_IN_USE_BY_DEV(235, Keys.SEC_ACCESSOR_WRAPPER_IN_USE_BY_DEV, "Security accessor is declared as wrapper by another key ({0}) on device {1}"),
     HSM_NOT_CONFIGURED(236, Keys.HSM_NOT_CONFIGURED, "HSM not configured on your system"),
     NO_SUCH_CUSTOMPROPERTYSET(237, "noSuchCPS", "No custom property set with id {0}."),
-    THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE(239, "TheNewLifeCycleMightNotHaveFullCompliance", "The new life cycle might not have full compliance with the states and transitions of the old life cycle. If at least one previously selected state/transition on an alarm or issue rule is missing on the new lifecycle, all states/transitions of the new lifecycle will be selected. Please check and adjust if necessary the following rules."),
+    THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE(239, "TheNewLifeCycleMightNotHaveFullCompliance", "The new life cycle might not have full compliance with the states and transitions of the old life cycle."),
     AFFECTED_ALARM_RULES(240, "AffectedAlarmRules", "Affected alarm rules: ''{0}''"),
     AFFECTED_ISSUE_RULES(241, "AffectedIssueRules", "Affected issue rules: ''{0}''"),
-    LIFE_CYCLE_CHANGED(242, "LifeCycleChanged", "Life cycle changed successfully");
+    SUCCESSFULLY_CHANGED_LIFE_CYCLE(242, "SuccessfullyChangedDeviceLifeCycle", "Successfully changed device life cycle"),
+    CLARIFICATION_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE(243, "ClarificationIfNewLifeCycleMightNotHaveFullCompliance", "If at least one previously selected state/transition on an alarm or issue rule is missing on the new lifecycle, all states/transitions of the new lifecycle will be selected. Please check and adjust if necessary the following rules."),
+    ;
 
     private final int number;
     private final String key;
