@@ -144,10 +144,10 @@ public class UsagePointBuilder {
             @Override
             public com.elster.jupiter.metering.UsagePoint create() throws FaultMessage {
                 basicFaultMessage = MessageSeeds.UNABLE_TO_CREATE_USAGE_POINT;
-                try{
+                try {
                     return UsagePointBuilder.this.create();
-                }catch(ConstraintViolationException constraintViolationException){
-                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,MessageSeeds.DUPLICATE_USAGE_POINT_NAME).get();
+                } catch (ConstraintViolationException constraintViolationException) {
+                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.DUPLICATE_USAGE_POINT_NAME).get();
                 }
             }
 
