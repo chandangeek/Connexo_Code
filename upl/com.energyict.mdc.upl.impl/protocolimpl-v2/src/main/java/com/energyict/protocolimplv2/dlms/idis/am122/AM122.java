@@ -60,6 +60,6 @@ public class AM122 extends AM540 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-02-28 16:22:14 +0300 (Thu, 28 Feb 2019)$";
+        return "$Date: 2020-01-31 16:22:14 +0300 (Fri, 31 Jan 2020)$";
     }
 }

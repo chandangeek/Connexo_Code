@@ -8,7 +8,7 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -75,10 +75,10 @@ public class MeterTopology implements MasterMeter {
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
             if (uo != null) {
                 ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(
-                        new DLMSAttribute(serialObisCode, MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
-                        new DLMSAttribute(serialObisCode, MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), uo.getClassID()),
-                        new DLMSAttribute(serialObisCode, MbusClientAttributes.VERSION.getAttributeNumber(), uo.getClassID()),
-                        new DLMSAttribute(serialObisCode, MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), uo.getClassID()));
+                        new DLMSAttribute(serialObisCode, MBusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
+                        new DLMSAttribute(serialObisCode, MBusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), uo.getClassID()),
+                        new DLMSAttribute(serialObisCode, MBusClientAttributes.VERSION.getAttributeNumber(), uo.getClassID()),
+                        new DLMSAttribute(serialObisCode, MBusClientAttributes.DEVICE_TYPE.getAttributeNumber(), uo.getClassID()));
                 dlmsAttributes.add(cMbusSerial.getManufacturerId());
                 dlmsAttributes.add(cMbusSerial.getIdentificationNumber());
                 dlmsAttributes.add(cMbusSerial.getVersion());

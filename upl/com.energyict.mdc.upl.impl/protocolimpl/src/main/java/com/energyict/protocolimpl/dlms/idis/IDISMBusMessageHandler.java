@@ -20,7 +20,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -211,7 +210,7 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
     }
 
     private MBusClient getMBusClient() throws IOException {
-        return idis.getCosemObjectFactory().getMbusClient(getMBusClientObisCode(), MbusClientAttributes.VERSION10);
+        return idis.getCosemObjectFactory().getMbusClient(getMBusClientObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
     }
 
     /**

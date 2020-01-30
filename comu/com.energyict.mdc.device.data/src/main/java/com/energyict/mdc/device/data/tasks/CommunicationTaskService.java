@@ -166,7 +166,21 @@ public interface CommunicationTaskService {
      */
     Map<ConnectionFunction,List<ComTaskExecution>> findComTasksUsingConnectionFunction(Device device);
 
+    @Deprecated
+    /**
+     * Finds all pending communication tasks with the given ComPort belonging to the ComPortPool of the associated connection method
+     * @param comPort the ComPort executing the query
+     * @return a Fetcher that can be used to individually retrieve the records
+     */
     Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort);
+
+    /**
+     * Finds all pending communication tasks with the given ComPort belonging to the ComPortPool of the associated connection method.
+     * The advantage over getPlannedComTaskExecutionsFor is that connectionTasks are fetched too, so no roundtrip needed for each of them
+     * @param comPort
+     * @return a list of ComTaskExecutions already having the connectionTask fetched
+     */
+    List<ComTaskExecution> getPlannedComTaskExecutionsListFor(OutboundComPort comPort);
 
     /**
      * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds
