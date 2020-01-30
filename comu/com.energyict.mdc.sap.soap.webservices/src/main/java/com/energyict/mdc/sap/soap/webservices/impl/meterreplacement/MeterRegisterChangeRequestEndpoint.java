@@ -78,7 +78,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                         MeterRegisterChangeMessage message = MeterRegisterChangeMessageBuilder
-                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
+                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.LRN_END_INTERVAL))
                                 .from(requestMessage)
                                 .build();
                         SetMultimap<String, String> values = HashMultimap.create();

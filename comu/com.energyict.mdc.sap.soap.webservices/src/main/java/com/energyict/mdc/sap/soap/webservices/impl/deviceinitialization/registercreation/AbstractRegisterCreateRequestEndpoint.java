@@ -68,6 +68,10 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         return thesaurus;
     }
 
+    WebServiceActivator getWebServiceActivator() {
+        return webServiceActivator;
+    }
+
     void handleRequestMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage) {
 
         SetMultimap<String, String> values = HashMultimap.create();

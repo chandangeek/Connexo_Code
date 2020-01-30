@@ -8,6 +8,8 @@ import com.elster.jupiter.util.Checks;
 import java.time.Instant;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 public class UtilitiesDeviceRegisterMessage {
     private String obis;
     private String recurrenceCode;
@@ -58,25 +60,27 @@ public class UtilitiesDeviceRegisterMessage {
         private Builder() {
         }
 
-        public UtilitiesDeviceRegisterMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+        public UtilitiesDeviceRegisterMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage,
+                                                           Integer lrnEndInterval) {
             setObis(getObis(requestMessage));
             setRecurrenceCode(getRecurrenceCode(requestMessage));
             setLrn(getLrn(requestMessage));
             setDivisionCategory(getDivisionCategory(requestMessage));
             setStartDate(requestMessage.getStartDate());
-            setEndDate(requestMessage.getEndDate());
+            setEndDate(requestMessage.getEndDate(), lrnEndInterval);
             setTimeZone(getTimeZone(requestMessage));
 
             return this;
         }
 
-        public UtilitiesDeviceRegisterMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+        public UtilitiesDeviceRegisterMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage,
+                                                           Integer lrnEndInterval) {
             setObis(getObis(requestMessage));
             setRecurrenceCode(getRecurrenceCode(requestMessage));
             setLrn(getLrn(requestMessage));
             setDivisionCategory(getDivisionCategory(requestMessage));
             setStartDate(requestMessage.getStartDate());
-            setEndDate(requestMessage.getEndDate());
+            setEndDate(requestMessage.getEndDate(), lrnEndInterval);
             setTimeZone(getTimeZone(requestMessage));
 
             return this;
@@ -106,8 +110,8 @@ public class UtilitiesDeviceRegisterMessage {
             UtilitiesDeviceRegisterMessage.this.startDate = startDate;
         }
 
-        private void setEndDate(Instant endDate) {
-            UtilitiesDeviceRegisterMessage.this.endDate = endDate;
+        private void setEndDate(Instant endDate, Integer addInterval) {
+            UtilitiesDeviceRegisterMessage.this.endDate = endDate.plus(addInterval, MINUTES);
         }
 
         private void setTimeZone(String timeZone) {

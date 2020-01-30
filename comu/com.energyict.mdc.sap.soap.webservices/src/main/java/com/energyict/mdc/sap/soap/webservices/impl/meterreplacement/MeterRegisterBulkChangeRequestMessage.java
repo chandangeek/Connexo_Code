@@ -15,14 +15,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class MeterRegisterBulkChangeRequestMessage {
-    private final Integer meterReplacementAddInterval;
+    private final Integer lrnEndInterval;
 
     private String requestId;
     private String uuid;
     private List<MeterRegisterChangeMessage> meterRegisterChangeMessages = new ArrayList<>();
 
-    private MeterRegisterBulkChangeRequestMessage(Integer meterReplacementAddInterval) {
-        this.meterReplacementAddInterval = meterReplacementAddInterval;
+    private MeterRegisterBulkChangeRequestMessage(Integer lrnEndInterval) {
+        this.lrnEndInterval = lrnEndInterval;
     }
 
     public String getRequestId() {
@@ -37,8 +37,8 @@ public class MeterRegisterBulkChangeRequestMessage {
         return meterRegisterChangeMessages;
     }
 
-    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer meterReplacementAddInterval) {
-        return new MeterRegisterBulkChangeRequestMessage(meterReplacementAddInterval).new Builder();
+    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer lrnEndInterval) {
+        return new MeterRegisterBulkChangeRequestMessage(lrnEndInterval).new Builder();
     }
 
     public boolean isValid() {
@@ -60,7 +60,7 @@ public class MeterRegisterBulkChangeRequestMessage {
             requestMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeRequestMessage()
                     .forEach(message ->
                             meterRegisterChangeMessages.add(MeterRegisterChangeBulkMessageBuilder
-                                    .builder(meterReplacementAddInterval)
+                                    .builder(lrnEndInterval)
                                     .from(message)
                                     .build()));
             return this;

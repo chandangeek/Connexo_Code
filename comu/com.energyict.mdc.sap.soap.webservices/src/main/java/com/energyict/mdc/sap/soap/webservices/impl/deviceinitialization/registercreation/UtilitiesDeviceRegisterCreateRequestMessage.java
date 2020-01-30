@@ -50,7 +50,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
         private Builder() {
         }
 
-        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage) {
+        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage, Integer lrnEndInterval) {
             bulk = false;
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
@@ -60,12 +60,12 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
 
             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                     .builder()
-                    .from(requestMessage)
+                    .from(requestMessage, lrnEndInterval)
                     .build());
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg requestMessage) {
+        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg requestMessage, Integer lrnEndInterval) {
             bulk = true;
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
@@ -77,7 +77,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
                     .forEach(message ->
                             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                                     .builder()
-                                    .from(message)
+                                    .from(message, lrnEndInterval)
                                     .build()));
             return this;
         }
