@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.elster.jupiter.util.Checks;
 
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MeterRegisterBulkChangeRequestMessage {
+public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
     private final Integer meterReplacementAddInterval;
 
     private String requestId;
@@ -41,10 +42,6 @@ public class MeterRegisterBulkChangeRequestMessage {
         return new MeterRegisterBulkChangeRequestMessage(meterReplacementAddInterval).new Builder();
     }
 
-    public boolean isValid() {
-        return requestId != null || uuid != null;
-    }
-
     public class Builder {
 
         private Builder() {
@@ -67,6 +64,9 @@ public class MeterRegisterBulkChangeRequestMessage {
         }
 
         public MeterRegisterBulkChangeRequestMessage build() {
+            if (requestId == null && uuid == null) {
+                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             return MeterRegisterBulkChangeRequestMessage.this;
         }
 

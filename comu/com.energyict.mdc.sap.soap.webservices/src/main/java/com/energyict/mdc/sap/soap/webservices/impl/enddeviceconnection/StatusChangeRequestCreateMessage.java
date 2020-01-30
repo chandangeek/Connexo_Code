@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts;
@@ -22,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class StatusChangeRequestCreateMessage {
+public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
 
     private Instant plannedProcessingDateTime;
     private Map<String, String> deviceConnectionStatus;

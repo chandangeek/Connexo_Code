@@ -76,7 +76,7 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
                             .build();
             sendMessage(confirmationMessage, message.isBulk());
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
         }
     }
 
@@ -202,11 +202,11 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
         }
     }
 
-    private void sendProcessError(MeterReadingDocumentCancellationRequestMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(MeterReadingDocumentCancellationRequestMessage message, MessageSeeds messageSeed, Object ...messageSeedArgs) {
+        log(LogLevel.WARNING, messageSeed.getDefaultFormat(messageSeedArgs));
         MeterReadingDocumentCancellationConfirmationMessage confirmationMessage =
                 MeterReadingDocumentCancellationConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId())
+                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

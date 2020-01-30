@@ -93,7 +93,7 @@ public class ServiceCallCommands {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, message);
             }
         } else {
-            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message);
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message, message.getNotValidFields());
         }
     }
 
@@ -107,7 +107,7 @@ public class ServiceCallCommands {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages, message);
             }
         } else {
-            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages, message);
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages, message, message.getNotValidFields());
         }
     }
 
@@ -137,10 +137,10 @@ public class ServiceCallCommands {
                     }
                 });
             } else {
-                sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages);
+                sendProcessError(messages, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             }
         } else {
-            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages);
+            sendProcessError(messages, MessageSeeds.INVALID_MESSAGE_FORMAT, messages.getNotValidFields());
         }
     }
 
@@ -154,7 +154,7 @@ public class ServiceCallCommands {
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
         }
     }
 
@@ -497,34 +497,34 @@ public class ServiceCallCommands {
         }
     }
 
-    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
+    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message, Object ...messageArgs) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed.translate(thesaurus, messageArgs), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
 
-    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage message) {
+    private void sendProcessError(StatusChangeRequestBulkCreateMessage message, MessageSeeds messageSeed, Object ...messageArgs) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                        .from(message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed.translate(thesaurus, messageArgs), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
 
-    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message) {
+    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, Object ...messageArgs) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                        .from(messages, message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(messages, message, messageSeed.translate(thesaurus, messageArgs), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
 
-    private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed) {
+    private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed, Object ...messageArgs) {
         MeterReadingDocumentRequestConfirmationMessage confirmationMessage =
                 MeterReadingDocumentRequestConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId())
+                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId(), messageArgs)
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

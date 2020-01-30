@@ -3,10 +3,12 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeterRegisterChangeMessage {
+public class MeterRegisterChangeMessage extends AbstractSapMessage {
     private String id;
     private String uuid;
     private String deviceId;

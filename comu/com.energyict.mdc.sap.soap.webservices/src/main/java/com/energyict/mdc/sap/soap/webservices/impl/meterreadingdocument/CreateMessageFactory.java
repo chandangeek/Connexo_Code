@@ -71,11 +71,12 @@ public class CreateMessageFactory {
     public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
                                                          MessageSeeds messageSeeds,
                                                          Instant now,
-                                                         String senderBusinessSystemId) {
+                                                         String senderBusinessSystemId,
+                                                         Object ...messageSeedArgs) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
 
         confirmationMessage.setMessageHeader(createHeader(requestMessage, now, senderBusinessSystemId));
-        confirmationMessage.setLog(createLog(messageSeeds, PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, ProcessingResultCode.FAILED.getCode()));
+        confirmationMessage.setLog(createLog(messageSeeds, PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, ProcessingResultCode.FAILED.getCode(), messageSeedArgs));
         requestMessage.getMeterReadingDocumentCreateMessages()
                 .forEach(message -> {
                     confirmationMessage.setMeterReadingDocument(createBody(message));

@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
+
 import java.time.Instant;
 
-public class RegisterChangeMessage {
+public class RegisterChangeMessage extends AbstractSapMessage {
 
     private String lrn;
     private Instant endDate;

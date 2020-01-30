@@ -47,13 +47,13 @@ public class CancellationBulkConfirmationMessageFactory {
     }
 
     /* Construct failed message */
-    public SmrtMtrMtrRdngDocERPBulkCanclnConfMsg createMessage(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId) {
+    public SmrtMtrMtrRdngDocERPBulkCanclnConfMsg createMessage(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object ...messageSeedArgs) {
         SmrtMtrMtrRdngDocERPBulkCanclnConfMsg bulkConfirmationMessage = objectFactory.createSmrtMtrMtrRdngDocERPBulkCanclnConfMsg();
         bulkConfirmationMessage.setMessageHeader(createMessageHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now, senderBusinessSystemId));
         Log log = createLog(messageSeed,
                 PROCESSING_ERROR_CATEGORY_CODE,
                 UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
-                ProcessingResultCode.FAILED.getCode());
+                ProcessingResultCode.FAILED.getCode(), messageSeedArgs);
         bulkConfirmationMessage.setLog(log);
         return bulkConfirmationMessage;
     }

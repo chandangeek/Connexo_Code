@@ -2,6 +2,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancell
 
 import com.elster.jupiter.util.Checks;
 
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationrequest.SmrtMtrMtrRdngDocERPCanclnReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcancellationrequest.SmrtMtrMtrRdngDocERPBulkCanclnReqMsg;
 
@@ -9,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MeterReadingDocumentCancellationRequestMessage {
+public class MeterReadingDocumentCancellationRequestMessage extends AbstractSapMessage {
+    private final static String METER_DOCUMENT_XML_NAME = "MeterReadingDocument/UtilitiesDeviceSmartMeter";
+
     private String requestID;
     private String uuid;
     private boolean bulk;
@@ -36,10 +39,6 @@ public class MeterReadingDocumentCancellationRequestMessage {
 
     static MeterReadingDocumentCancellationRequestMessage.Builder builder() {
         return new MeterReadingDocumentCancellationRequestMessage().new Builder();
-    }
-
-    public boolean isValid() {
-        return (requestID != null || uuid != null) && !meterReadingDocumentIds.isEmpty();
     }
 
     public class Builder {
@@ -74,6 +73,12 @@ public class MeterReadingDocumentCancellationRequestMessage {
         }
 
         public MeterReadingDocumentCancellationRequestMessage build() {
+            if (requestID == null && uuid == null) {
+                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (meterReadingDocumentIds.isEmpty()) {
+                addNotValidField(METER_DOCUMENT_XML_NAME);
+            }
             return MeterReadingDocumentCancellationRequestMessage.this;
         }
 

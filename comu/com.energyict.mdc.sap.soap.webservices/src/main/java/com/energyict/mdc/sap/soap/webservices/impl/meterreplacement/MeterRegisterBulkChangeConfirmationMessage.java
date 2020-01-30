@@ -79,23 +79,23 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
             UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confMsg.setUtilitiesDevice(createChildBody(message.getDeviceId()));
 
             confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(confMsg);
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
 
             createBody(confirmationMessage, messages, senderBusinessSystemId, now);
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
             return this;
         }
 

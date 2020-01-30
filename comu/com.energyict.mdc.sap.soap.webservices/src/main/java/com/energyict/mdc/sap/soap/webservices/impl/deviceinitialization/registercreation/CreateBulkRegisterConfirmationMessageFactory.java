@@ -75,7 +75,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         return bulkConfirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
         bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), senderBusinessSystemId, now));
         requestMessage.getUtilitiesDeviceRegisterCreateMessages()
@@ -85,7 +85,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
                             .add(createFailedChildMessage(item, senderBusinessSystemId, now));
 
                 });
-        bulkConfirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+        bulkConfirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
         return bulkConfirmationMessage;
     }
 

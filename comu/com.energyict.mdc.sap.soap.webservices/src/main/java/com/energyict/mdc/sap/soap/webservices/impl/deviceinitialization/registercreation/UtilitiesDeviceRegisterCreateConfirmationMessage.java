@@ -47,11 +47,11 @@ public class UtilitiesDeviceRegisterCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+        public Builder from(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, senderBusinessSystemId, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, senderBusinessSystemId, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             }
             return this;
         }

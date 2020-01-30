@@ -116,7 +116,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
         }
     }
 
@@ -139,7 +139,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getNotValidFields());
         }
     }
 
@@ -157,11 +157,11 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         return false;
     }
 
-    private void sendProcessError(MeterRegisterChangeMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(MeterRegisterChangeMessage message, MessageSeeds messageSeed, Object ...messageSeedArgs) {
+        log(LogLevel.WARNING, messageSeed.getDefaultFormat(messageSeedArgs));
         MeterRegisterChangeConfirmationMessage confirmationMessage =
                 MeterRegisterChangeConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -188,7 +188,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             if (register.isValid()) {
                 createChildServiceCall(subParent, register);
             } else {
-                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, register.getNotValidFields());
             }
         });
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {

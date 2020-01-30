@@ -118,7 +118,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
         }
     }
 
@@ -139,7 +139,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
                     if (bodyMessage.isValid()) {
                         createSubParentServiceCall(serviceCall, requestMessage, bodyMessage);
                     } else {
-                        sendProcessError(requestMessage, bodyMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+                        sendProcessError(requestMessage, bodyMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, bodyMessage.getNotValidFields());
                     }
                 });
         if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
@@ -163,20 +163,20 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         return false;
     }
 
-    private void sendProcessError(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, Object ...messageSeedArgs) {
+        log(LogLevel.WARNING, messageSeed.getDefaultFormat(messageSeedArgs));
         MeterRegisterBulkChangeConfirmationMessage confirmationMessage =
                 MeterRegisterBulkChangeConfirmationMessage.builder()
-                        .from(messages, message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(messages, message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage);
     }
 
-    private void sendProcessError(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, Object ...messageSeedArgs) {
+        log(LogLevel.WARNING, messageSeed.getDefaultFormat(messageSeedArgs));
         MeterRegisterBulkChangeConfirmationMessage confirmationMessage =
                 MeterRegisterBulkChangeConfirmationMessage.builder()
-                        .from(messages, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(messages, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -203,7 +203,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
             if (register.isValid()) {
                 createChildServiceCall(subParent, register);
             } else {
-                sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+                sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT, register.getNotValidFields());
             }
         });
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {

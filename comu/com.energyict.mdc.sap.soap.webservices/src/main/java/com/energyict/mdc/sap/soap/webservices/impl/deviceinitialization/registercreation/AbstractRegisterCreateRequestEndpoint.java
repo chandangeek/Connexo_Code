@@ -104,7 +104,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
         }
     }
 
@@ -182,12 +182,12 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         serviceCallBuilder.create();
     }
 
-    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed) {
+    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed, Object ...messageSeedArgs) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage = null;
         confirmationMessage =
                 UtilitiesDeviceRegisterCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
