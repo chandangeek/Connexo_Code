@@ -153,7 +153,6 @@ public class DataExportTaskResource {
         return PagedInfoList.fromPagedList("dataExportTasks", getListOfDataExportTasksInfo(finder), queryParameters);
     }
 
-
     @GET
     @Path("/usagepoint/{usagePointId}/{purposeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
