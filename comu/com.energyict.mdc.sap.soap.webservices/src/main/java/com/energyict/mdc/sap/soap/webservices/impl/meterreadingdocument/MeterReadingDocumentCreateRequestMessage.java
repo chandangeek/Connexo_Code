@@ -40,10 +40,6 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
         return meterReadingDocumentCreateMessages;
     }
 
-    public boolean isValid() {
-        return id != null || uuid != null;
-    }
-
     public boolean isBulk() {
         return bulk;
     }
@@ -98,6 +94,9 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
         }
 
         public MeterReadingDocumentCreateRequestMessage build() {
+            if (id == null && uuid == null) {
+                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             return MeterReadingDocumentCreateRequestMessage.this;
         }
 

@@ -12,7 +12,7 @@ public abstract class AbstractSapMessage {
     protected static final String UTILITIES_DEVICE_ID_XML_NAME = "UtilitiesDevice.UtilitiesDeviceID";
     protected static final String POD_ID_XML_NAME = "UtilitiesMeasurementTask.UtilitiesPointOfDeliveryAssignment.UtilitiesPointOfDeliveryPartyID";
 
-    protected static final String AT_LEAST_ONE_OF = " (at least one of)";
+    private static final String AT_LEAST_ONE_OF = " (at least one of)";
     private Set<String> notValidXmlNames = new HashSet<>();
 
     protected void addNotValidField(String xmlName) {

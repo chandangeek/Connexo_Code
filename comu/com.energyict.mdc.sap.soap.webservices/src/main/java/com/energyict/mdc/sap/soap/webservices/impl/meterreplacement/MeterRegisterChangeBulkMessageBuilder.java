@@ -40,6 +40,7 @@ public class MeterRegisterChangeBulkMessageBuilder {
     }
 
     public MeterRegisterChangeMessage build() {
+        message.validate();
         return message;
     }
 
@@ -85,11 +86,11 @@ public class MeterRegisterChangeBulkMessageBuilder {
     }
 
     private RegisterChangeMessage getRegister(UtilsDvceERPSmrtMtrRegChgReqReg reg) {
-        RegisterChangeMessage register = new RegisterChangeMessage();
-        register.setLrn(getLrn(reg));
-        register.setEndDate(calculateEndDate(reg));
-        register.setTimeZone(getTimeZone(reg));
-        return register;
+        RegisterChangeMessage.Builder registerBuilder = new RegisterChangeMessage.Builder();
+        registerBuilder.setLrn(getLrn(reg));
+        registerBuilder.setEndDate(calculateEndDate(reg));
+        registerBuilder.setTimeZone(getTimeZone(reg));
+        return registerBuilder.build();
     }
 
     private String getLrn(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {

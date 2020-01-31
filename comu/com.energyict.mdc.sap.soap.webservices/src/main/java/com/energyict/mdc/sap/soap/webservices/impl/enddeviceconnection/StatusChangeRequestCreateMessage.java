@@ -25,6 +25,11 @@ import java.util.stream.Collectors;
 
 public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
 
+    private final static String ID_XML_NAME = "UtilitiesConnectionStatusChangeRequest.ID";
+    private final static String CATEGORY_CODE_XML_NAME = "UtilitiesConnectionStatusChangeRequest.CategoryCode";
+    private final static String PLANNED_PROCESS_XML_NAME = "UtilitiesConnectionStatusChangeRequest.PlannedProcessingDateTime";
+    private final static String CONNECTION_STATUS_XML_NAME = "UtilitiesConnectionStatusChangeRequest.DeviceConnectionStatus";
+
     private Instant plannedProcessingDateTime;
     private Map<String, String> deviceConnectionStatus;
     private String id;
@@ -67,11 +72,6 @@ public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
 
     public boolean isBulk() {
         return bulk;
-    }
-
-    public boolean isValid() {
-        return (requestId != null || uuid != null) && id != null && categoryCode != null && plannedProcessingDateTime != null &&
-                !deviceConnectionStatus.isEmpty();
     }
 
     public static Builder builder() {
@@ -148,6 +148,21 @@ public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
         }
 
         public StatusChangeRequestCreateMessage build() {
+            if (requestId == null && uuid == null) {
+                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (id == null) {
+                addNotValidField(ID_XML_NAME);
+            }
+            if (categoryCode == null) {
+                addNotValidField(CATEGORY_CODE_XML_NAME);
+            }
+            if (plannedProcessingDateTime == null) {
+                addNotValidField(PLANNED_PROCESS_XML_NAME);
+            }
+            if (deviceConnectionStatus.isEmpty()) {
+                addNotValidField(CONNECTION_STATUS_XML_NAME);
+            }
             return StatusChangeRequestCreateMessage.this;
         }
 

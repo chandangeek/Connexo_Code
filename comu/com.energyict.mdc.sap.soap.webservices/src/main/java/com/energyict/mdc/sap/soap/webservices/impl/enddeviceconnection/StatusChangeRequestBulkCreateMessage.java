@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
+    private static final String REQUEST_XML_NAME = "SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestMessage.UtilitiesConnectionStatusChangeRequest";
 
     private String id;
     private String uuid;
@@ -48,10 +49,6 @@ public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
 
     public List<StatusChangeRequestCreateMessage> getRequests() {
         return requests;
-    }
-
-    public boolean isValid() {
-        return (id != null || uuid != null) && !requests.isEmpty();
     }
 
     public class Builder {
@@ -97,6 +94,12 @@ public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
         }
 
         public StatusChangeRequestBulkCreateMessage build() {
+            if (id == null && uuid == null) {
+                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (requests.isEmpty()) {
+                addNotValidField(REQUEST_XML_NAME);
+            }
             return StatusChangeRequestBulkCreateMessage.this;
         }
 

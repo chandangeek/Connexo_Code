@@ -5,12 +5,20 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import java.time.Instant;
 import java.util.Optional;
 
-public class MeterReadingDocumentCreateMessage {
+public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
+
+    private static final String ID_XML_NAME = "MeterReadingDocument.ID";
+    private static final String DEVICE_ID_XML_NAME = "MeterReadingDocument.UtiltiesMeasurementTask.UtilitiesDevice.UtilitiesDeviceID";
+    private static final String LRN_XML_NAME = "MeterReadingDocument.UtiltiesMeasurementTask.UtilitiesMeasurementTaskID.UtilitiesDeviceID";
+    private static final String READING_REASON_CODE_XML_NAME = "MeterReadingDocument.MeterReadingReasonCode";
+    private static final String SCHEDULED_DATE_XML_NAME = "MeterReadingDocument.ScheduledMeterReadingDate";
+
 
     /* headerId headerUUID used only for bulk request */
     private String headerId;
@@ -51,10 +59,6 @@ public class MeterReadingDocumentCreateMessage {
 
     public String getHeaderUUID(){
         return headerUUID;
-    }
-
-    public boolean isValid() {
-        return id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null;
     }
 
     public boolean isReasonCodeSupported(boolean bulk) {
@@ -117,7 +121,6 @@ public class MeterReadingDocumentCreateMessage {
             return this;
         }
 
-
         public Builder setDeviceId(String deviceId) {
             MeterReadingDocumentCreateMessage.this.deviceId = deviceId;
             return this;
@@ -139,6 +142,21 @@ public class MeterReadingDocumentCreateMessage {
         }
 
         public MeterReadingDocumentCreateMessage build() {
+            if (id == null) {
+                addNotValidField(ID_XML_NAME);
+            }
+            if (deviceId == null) {
+                addNotValidField(DEVICE_ID_XML_NAME);
+            }
+            if (lrn == null) {
+                addNotValidField(LRN_XML_NAME);
+            }
+            if (readingReasonCode == null) {
+                addNotValidField(READING_REASON_CODE_XML_NAME);
+            }
+            if (scheduledMeterReadingDate == null) {
+                addNotValidField(SCHEDULED_DATE_XML_NAME);
+            }
             return MeterReadingDocumentCreateMessage.this;
         }
 
@@ -235,6 +253,5 @@ public class MeterReadingDocumentCreateMessage {
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
-
     }
 }
