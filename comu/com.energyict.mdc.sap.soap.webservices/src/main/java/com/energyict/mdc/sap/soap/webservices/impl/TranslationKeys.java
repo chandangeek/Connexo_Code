@@ -61,7 +61,6 @@ public enum TranslationKeys implements TranslationKey {
     OBIS("obis", "OBIS code"),
     START_DATE("startDate", "Time slice start date"),
     END_DATE("endDate", "Time slice end date"),
-    CREATE_END_DATE("createEndDate","Time slice end date for create request"),
     RETURN_CODE("returnCode", "Return code"),
     SERIAL_ID("serialId", "Serial id"),
     RECURRENCE_CODE("recurrenceCode", "Recurrence Code"),

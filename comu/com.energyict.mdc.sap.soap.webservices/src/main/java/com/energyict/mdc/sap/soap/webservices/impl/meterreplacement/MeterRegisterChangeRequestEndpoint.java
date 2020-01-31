@@ -212,7 +212,6 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setEndDate(message.getEndDate());
-        childDomainExtension.setCreateEndDate(message.getCreateEndDate());
         childDomainExtension.setTimeZone(message.getTimeZone());
         childDomainExtension.setObis(message.getObis());
         childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());
