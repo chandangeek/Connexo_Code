@@ -29,6 +29,7 @@ import com.google.common.collect.TreeRangeMap;
 import com.google.common.collect.TreeRangeSet;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,6 +71,7 @@ public class TableImpl<T> implements Table<T> {
     private String name;
     @SuppressWarnings("unused")
     private int position;
+    private boolean cacheWholeTable = false;
     private Long cacheTtl;
     private long cacheMaximumSize = 10000;
     private boolean cacheRecordStat=true;
@@ -196,6 +198,11 @@ public class TableImpl<T> implements Table<T> {
     }
 
     @Override
+    public boolean isWholeTableCached() {
+        return cacheWholeTable;
+    }
+
+    @Override
     public void cache() {
         this.cacheTtl = 600000L;
     }
@@ -203,6 +210,20 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public void cache(long cacheTtl, long maximumSize, boolean recordStat) {
         this.cacheTtl = cacheTtl;
+        this.cacheMaximumSize = maximumSize;
+        this.cacheRecordStat = recordStat;
+    }
+
+    @Override
+    public void cacheWholeTable(boolean recordStat) {
+        this.cacheTtl = null;
+        this.cacheWholeTable = true;
+    }
+
+    @Override
+    public void cacheWholeTable(long maximumSize, boolean recordStat){
+        this.cacheWholeTable = true;
+        this.cacheTtl = null;
         this.cacheMaximumSize = maximumSize;
         this.cacheRecordStat = recordStat;
     }
@@ -822,7 +843,11 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
-        cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        if (isWholeTableCached()) {
+            cache = new TableCache.WholeTableCache<>(this, cacheRecordStat);
+        } else {
+            cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        }
     }
 
     private void checkMapped(Column column) {
