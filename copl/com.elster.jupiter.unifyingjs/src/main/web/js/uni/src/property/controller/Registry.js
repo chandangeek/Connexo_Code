@@ -120,7 +120,7 @@ Ext.define('Uni.property.controller.Registry', {
         LONG: 'Uni.property.view.property.Number',
         NONE_OR_TIMEDURATION: 'Uni.property.view.property.NoneOrTimeDuration',
         NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
-        NUMBER: 'Uni.property.view.property.DecimalNumber',
+        NUMBER: 'Uni.property.view.property.BigDecimal',
         OBISCODE: 'Uni.property.view.property.ObisCode',
         PASSWORD: 'Uni.property.view.property.Password',
         QUANTITY: 'Uni.property.view.property.Quantity',
