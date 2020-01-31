@@ -9,23 +9,11 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.HistoricalIssueNotEstimatedBlock;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.OpenIssueNotEstimatedBlock;
-import com.energyict.mdc.issue.datavalidation.impl.entity.HistoricalIssueDataValidationImpl;
-import com.energyict.mdc.issue.datavalidation.impl.entity.HistoricalIssueNotEstimatedBlockImpl;
-import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
-import com.energyict.mdc.issue.datavalidation.impl.entity.NotEstimatedBlockImpl;
-import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
-import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueNotEstimatedBlockImpl;
+import com.elster.jupiter.orm.*;
+import com.energyict.mdc.issue.datavalidation.*;
+import com.energyict.mdc.issue.datavalidation.impl.entity.*;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -40,15 +28,17 @@ public enum TableSpecs {
             table.setJournalTableName(name() + "JRNL").upTo(version(10, 2));
 
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("SUSPECT_OCCURRENCE_DATETIME").number().conversion(NUMBER2INSTANT).map(IssueDataValidationImpl.Fields.SUSPECT_OCCURRENCE_DATETIME.fieldName()).since(version(10, 7)).add();
+            table.column("OCCURRENCES_NUMBER").number().conversion(NUMBER2LONG).map(IssueDataValidationImpl.Fields.OCCURRENCES_NUMBER.fieldName()).since(version(10, 7)).add();
 
             table.addAuditColumns();
             table.primaryKey("IDV_ISSUE_OPEN_PK").on(issueColRef).add();
             table
-                .foreignKey("IDV_ISSUE_OPEN_FK_TO_ISSUE")
-                .on(issueColRef)
-                .references(OpenIssue.class)
-                .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
-                .add();
+                    .foreignKey("IDV_ISSUE_OPEN_FK_TO_ISSUE")
+                    .on(issueColRef)
+                    .references(OpenIssue.class)
+                    .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
+                    .add();
         }
     },
 
@@ -60,15 +50,17 @@ public enum TableSpecs {
             table.setJournalTableName(name() + "JRNL").upTo(version(10, 2));
 
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("SUSPECT_OCCURRENCE_DATETIME").number().conversion(NUMBER2INSTANT).map(IssueDataValidationImpl.Fields.SUSPECT_OCCURRENCE_DATETIME.fieldName()).since(version(10, 7)).add();
+            table.column("OCCURRENCES_NUMBER").number().conversion(NUMBER2LONG).map(IssueDataValidationImpl.Fields.OCCURRENCES_NUMBER.fieldName()).since(version(10, 7)).add();
 
             table.addAuditColumns();
             table.primaryKey("IDV_ISSUE_HIST_PK").on(issueColRef).add();
             table
-                .foreignKey("IDV_ISSUE_HIST_FK_TO_ISSUE")
-                .on(issueColRef)
-                .references(HistoricalIssue.class)
-                .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
-                .add();
+                    .foreignKey("IDV_ISSUE_HIST_FK_TO_ISSUE")
+                    .on(issueColRef)
+                    .references(HistoricalIssue.class)
+                    .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
+                    .add();
         }
     },
 
@@ -80,15 +72,17 @@ public enum TableSpecs {
             table.doNotAutoInstall();//because it is mapped to view
 
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("SUSPECT_OCCURRENCE_DATETIME").number().conversion(NUMBER2INSTANT).map(IssueDataValidationImpl.Fields.SUSPECT_OCCURRENCE_DATETIME.fieldName()).since(version(10, 7)).add();
+            table.column("OCCURRENCES_NUMBER").number().conversion(NUMBER2LONG).map(IssueDataValidationImpl.Fields.OCCURRENCES_NUMBER.fieldName()).since(version(10, 7)).add();
 
             table.addAuditColumns();
             table.primaryKey("IDV_ISSUE_PK").on(issueColRef).add();
             table
-                .foreignKey("IDV_ISSUE_FK_TO_ISSUE")
-                .on(issueColRef)
-                .references(IssueService.COMPONENT_NAME, "ISU_ISSUE_ALL")
-                .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
-                .add();
+                    .foreignKey("IDV_ISSUE_FK_TO_ISSUE")
+                    .on(issueColRef)
+                    .references(IssueService.COMPONENT_NAME, "ISU_ISSUE_ALL")
+                    .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
+                    .add();
         }
     },
 
