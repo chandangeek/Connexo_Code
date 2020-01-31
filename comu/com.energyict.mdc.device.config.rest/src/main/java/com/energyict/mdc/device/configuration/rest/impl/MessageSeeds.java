@@ -72,7 +72,7 @@ public enum MessageSeeds implements MessageSeed {
     THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE(239, "TheNewLifeCycleMightNotHaveFullCompliance", "The new life cycle might not have full compliance with the states and transitions of the old life cycle."),
     AFFECTED_ALARM_RULES(240, "AffectedAlarmRules", "Affected alarm rules: ''{0}''"),
     AFFECTED_ISSUE_RULES(241, "AffectedIssueRules", "Affected issue rules: ''{0}''"),
-    SUCCESSFULLY_CHANGED_LIFE_CYCLE(242, "SuccessfullyChangedDeviceLifeCycle", "Successfully changed device life cycle"),
+    SUCCESSFULLY_CHANGED_LIFE_CYCLE(242, "SuccessfullyChangedDeviceLifeCycle", "Successfully changed device life cycle."),
     CLARIFICATION_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE(243, "ClarificationIfNewLifeCycleMightNotHaveFullCompliance", "If at least one previously selected state/transition on an alarm or issue rule is missing on the new lifecycle, all states/transitions of the new lifecycle will be selected. Please check and adjust if necessary the following rules."),
     ;
 
