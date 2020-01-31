@@ -20,6 +20,7 @@ public enum AdditionalProperties {
     CHECK_STATUS_CHANGE_TIMEOUT("com.elster.jupiter.sap.statuschangetimeout", 60),
     CHECK_STATUS_CHANGE_FREQUENCY("com.elster.jupiter.sap.statuschangetaskfrequency", 30),
     UPDATE_SAP_EXPORT_TASK_PROPERTY("com.elster.jupiter.sap.updatesapexporttaskinterval", 7),
+    BACKWARD_READING_DATE_WINDOW("com.elster.jupiter.sap.backwardreadingdatewindow", 0),
     ;
 
     private String key;
