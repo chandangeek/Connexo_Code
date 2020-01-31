@@ -151,11 +151,11 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         }
     }
 
-    private void sendProcessError(MeterRegisterChangeMessage message, MessageSeeds messageSeed) {
+    private void sendProcessError(MeterRegisterChangeMessage message, MessageSeeds messageSeed, Object ...messageSeedArgs) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         MeterRegisterChangeConfirmationMessage confirmationMessage =
                 MeterRegisterChangeConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage);
     }

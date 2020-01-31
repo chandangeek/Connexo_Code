@@ -89,19 +89,14 @@ public class MeterRegisterChangeBulkMessageBuilder {
     private RegisterChangeMessage getRegister(UtilsDvceERPSmrtMtrRegChgReqReg reg) {
         RegisterChangeMessage.Builder registerBuilder = new RegisterChangeMessage.Builder();
         registerBuilder.setLrn(getLrn(reg));
+        registerBuilder.setStartDate(reg.getStartDate());
         registerBuilder.setEndDate(calculateEndDate(reg));
+        registerBuilder.setCreateEndDate(reg.getEndDate());
         registerBuilder.setTimeZone(getTimeZone(reg));
+        registerBuilder.setObis(getObis(reg));
+        registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
+        registerBuilder.setDivisionCategory(getDivisionCategory(reg));
         return registerBuilder.build();
-        RegisterChangeMessage register = new RegisterChangeMessage();
-        register.setLrn(getLrn(reg));
-        register.setStartDate(reg.getStartDate());
-        register.setEndDate(calculateEndDate(reg));
-        register.setCreateEndDate(reg.getEndDate());
-        register.setTimeZone(getTimeZone(reg));
-        register.setObis(getObis(reg));
-        register.setRecurrenceCode(getRecurrenceCode(reg));
-        register.setDivisionCategory(getDivisionCategory(reg));
-        return register;
     }
 
     private String getLrn(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {

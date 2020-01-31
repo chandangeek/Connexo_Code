@@ -4,9 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -59,10 +57,6 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
 
     public String getHeaderUUID() {
         return headerUUID;
-    }
-
-    public boolean isValid() {
-        return id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null;
     }
 
     static MeterReadingDocumentCreateMessage.Builder builder() {

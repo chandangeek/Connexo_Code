@@ -28,24 +28,12 @@ public class RegisterChangeMessage extends AbstractSapMessage {
         return lrn;
     }
 
-    public void setLrn(String lrn) {
-        this.lrn = lrn;
-    }
-
     public Instant getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
     public Instant getCreateEndDate() {
         return createEndDate;
-    }
-
-    public void setCreateEndDate(Instant createEndDate) {
-        this.createEndDate = createEndDate;
     }
 
     public Instant getEndDate() {
@@ -60,12 +48,12 @@ public class RegisterChangeMessage extends AbstractSapMessage {
         return obis;
     }
 
-    public void setObis(String obis) {
-        this.obis = obis;
-    }
-
     public String getRecurrenceCode() {
         return recurrenceCode;
+    }
+
+    public String getDivisionCategory() {
+        return divisionCategory;
     }
 
     private void validate() {
@@ -97,21 +85,29 @@ public class RegisterChangeMessage extends AbstractSapMessage {
             registerChangeMessage.timeZone = timeZone;
         }
 
+        public void setRecurrenceCode(String recurrenceCode) {
+            registerChangeMessage.recurrenceCode = recurrenceCode;
+        }
+
+        public void setCreateEndDate(Instant createEndDate) {
+            registerChangeMessage.createEndDate = createEndDate;
+        }
+
+        public void setStartDate(Instant startDate) {
+            registerChangeMessage.startDate = startDate;
+        }
+
+        public void setDivisionCategory(String divisionCategory) {
+            registerChangeMessage.divisionCategory = divisionCategory;
+        }
+
+        public void setObis(String obis) {
+            registerChangeMessage.obis = obis;
+        }
+
         public RegisterChangeMessage build() {
             registerChangeMessage.validate();
             return registerChangeMessage;
         }
-    }
-
-    public void setRecurrenceCode(String recurrenceCode) {
-        this.recurrenceCode = recurrenceCode;
-    }
-
-    public String getDivisionCategory() {
-        return divisionCategory;
-    }
-
-    public void setDivisionCategory(String divisionCategory) {
-        this.divisionCategory = divisionCategory;
     }
 }
