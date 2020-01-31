@@ -60,7 +60,6 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
-import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -372,7 +371,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
         Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
         stream.forEach(e -> {
-            Range<Instant> range = e.getRange();
+            Range<Instant> range = e.getInterval().toOpenClosedRange();
             Optional<Range<Instant>> cutRange = cutRange(range);
             if (cutRange.isPresent()) {
                 Optional<Device> device = deviceService.findDeviceById(e.getDeviceId());
@@ -518,7 +517,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Condition getOverlappedCondition(Range<Instant> range) {
-        return Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range);
+        return Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(range);
     }
 
     private Condition getIntervalAfterDateCondition(Instant date) {
@@ -534,7 +533,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (start != null && end != null) {
             if (start.isBefore(end)) {
                 if (end.equals(range.upperEndpoint())) {
-                    return Optional.of(Range.closedOpen(start, end));
+                    return Optional.of(Range.openClosed(start, end));
                 } else {
                     return Optional.of(Range.closed(start, end));
                 }
@@ -573,7 +572,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isEqualTo(lrn))
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(when))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(when))
                 .findAny()
                 .map(ext -> Pair.of(ext.getDeviceId(), ext.getChannelSpec().getReadingType()));
     }
@@ -584,7 +583,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .join(RegisterSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isEqualTo(lrn))
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(when))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(when))
                 .findAny()
                 .map(ext -> Pair.of(ext.getDeviceId(), ext.getRegisterSpec().getReadingType()));
     }
@@ -621,38 +620,30 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Map<String, RangeSet<Instant>> getLrn(Device device, Channel channel, Range<Instant> range) {
-        return anyPoint(range).flatMap(instant -> channel.isRegular() ?
-                getChannelSpec(device, channel.getReadingTypes(), instant)
-                        .map(spec -> getLrn(device, spec, range)) :
-                getRegisterSpec(device, channel.getReadingTypes(), instant)
-                        .map(spec -> getLrn(device, spec, range)))
-                .orElseGet(Collections::emptyMap);
+        return channel.isRegular() ?
+                getChannelSpec(device, channel.getReadingTypes()).map(spec -> getLrn(device, spec, range)).orElseGet(Collections::emptyMap) :
+                getRegisterSpec(device, channel.getReadingTypes()).map(spec -> getLrn(device, spec, range)).orElseGet(Collections::emptyMap);
     }
 
     private Map<String, RangeSet<Instant>> getProfileId(Device device, Channel channel, Range<Instant> range) {
         Map<String, RangeSet<Instant>> profileIdIntervals = new HashMap<>();
         if (channel.isRegular()) {
-            Optional<Instant> any = anyPoint(range);
-            if (any.isPresent()) {
-                Optional<ChannelSpec> spec = getChannelSpec(device, channel.getReadingTypes(), any.get());
-                if (spec.isPresent()) {
-                    return getProfileId(device, spec.get(), range);
-                }
+            Optional<ChannelSpec> spec = getChannelSpec(device, channel.getReadingTypes());
+            if (spec.isPresent()) {
+                return getProfileId(device, spec.get(), range);
             }
         }
         return profileIdIntervals;
     }
 
-    private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
+    private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes) {
         return device.getDeviceConfiguration().getChannelSpecs().stream()
                 .filter(spec -> readingTypes.contains(spec.getReadingType())).findAny();
     }
 
-    private Optional<RegisterSpec> getRegisterSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
-        return device.getHistory(when)
-                .map(Device::getDeviceConfiguration)
-                .map(DeviceConfiguration::getRegisterSpecs)
-                .flatMap(specs -> specs.stream().filter(spec -> readingTypes.contains(spec.getReadingType())).findAny());
+    private Optional<RegisterSpec> getRegisterSpec(Device device, List<? extends ReadingType> readingTypes) {
+        return device.getDeviceConfiguration().getRegisterSpecs().stream()
+                .filter(spec -> readingTypes.contains(spec.getReadingType())).findAny();
     }
 
     private Map<String, RangeSet<Instant>> getProfileId(Device device, ChannelSpec channelSpec, Range<Instant> range) {
@@ -660,7 +651,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(channelSpec))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range));
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(range));
         Map<String, RangeSet<Instant>> map = new HashMap<>();
         extensions.forEach(ext -> {
             if (ext.getLogicalRegisterNumber().isPresent() && ext.getProfileId().isPresent()) {
@@ -668,7 +659,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 if (rangeSet == null) {
                     rangeSet = TreeRangeSet.create();
                 }
-                rangeSet.add(ext.getRange().intersection(range));
+                rangeSet.add(ext.getInterval().toOpenClosedRange().intersection(range));
                 map.put(ext.getProfileId().get(), rangeSet);
             }
         });
@@ -680,8 +671,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(channelSpec))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range))
-                .map(ext -> ext.getLogicalRegisterNumber().map(lrn -> Pair.of(lrn, ImmutableRangeSet.of(ext.getRange().intersection(range)))))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(range))
+                .map(ext -> ext.getLogicalRegisterNumber().map(lrn -> Pair.of(lrn, ImmutableRangeSet.of(ext.getInterval().toOpenClosedRange().intersection(range)))))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, RangeSets::union));
     }
@@ -691,20 +682,10 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(registerSpec))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range))
-                .map(ext -> ext.getLogicalRegisterNumber().map(lrn -> Pair.of(lrn, ImmutableRangeSet.of(ext.getRange().intersection(range)))))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(range))
+                .map(ext -> ext.getLogicalRegisterNumber().map(lrn -> Pair.of(lrn, ImmutableRangeSet.of(ext.getInterval().toOpenClosedRange().intersection(range)))))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, RangeSets::union));
-    }
-
-    private static Optional<Instant> anyPoint(Range<Instant> range) {
-        return range.isEmpty() ? Optional.empty() : Optional.of(
-                range.hasLowerBound() ?
-                        range.lowerBoundType() == BoundType.CLOSED ? range.lowerEndpoint() : range.lowerEndpoint().plus(LESS_THAN_TIME_STEP) :
-                        range.hasUpperBound() ?
-                                range.upperBoundType() == BoundType.CLOSED ? range.upperEndpoint() : range.upperEndpoint().minus(LESS_THAN_TIME_STEP) :
-                                Instant.EPOCH
-        );
     }
 
     private DataModel getDataModel(String modelName) {
@@ -902,8 +883,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                         conflictingCustomPropertySetValues.setProperty(prop, conflict.getValues().getProperty(prop));
                     }
                     conflictingCustomPropertySetValues.setProperty(property, value);
-                    if (range.intersection(conflict.getConflictingRange()).hasUpperBound()) {
-                        range = getTimeInterval(range.intersection(conflict.getConflictingRange()).upperEndpoint(), range.upperEndpoint());
+                    Range<Instant> intersection = range.intersection(conflict.getConflictingRange());
+                    if (intersection.hasUpperBound() && intersection.upperEndpoint().isBefore(range.upperEndpoint())) {
+                        range = getTimeInterval(intersection.upperEndpoint(), range.upperEndpoint());
                     }
                 }
             }
@@ -978,56 +960,36 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Instant> getStartDate(Device device) {
-        Optional<Instant> activationDate = getLastActivationDate(device.getMeter());
-        if (activationDate.isPresent()) {
-            Optional<Instant> lrnAfterDate = getFirstLrnDateAfterDate(device.getId(), activationDate.get());
-            if (lrnAfterDate.isPresent()) {
-                return lrnAfterDate;
-            }
-            return activationDate;
+    public Optional<Instant> getStartDate(Device device, Instant now) {
+        Optional<Instant> activeLrnStartDate = getFirstActiveLrnStartDate(device.getId(), now);
+        if (activeLrnStartDate.isPresent()) {
+            return activeLrnStartDate;
         }
         return Optional.empty();
     }
 
-    //get last date when device is moved from pre-operational to operational stage
-    private Optional<Instant> getLastActivationDate(Meter meter) {
-        Iterator<StateTimeSlice> stateTimeSliceIterator = meter.getStateTimeline().get().getSlices().listIterator();
-        boolean previouslyPreoperational = true;
-        StateTimeSlice fromPreOpToOpSlices = null;
-        while (stateTimeSliceIterator.hasNext()) {
-            StateTimeSlice currentSlice = stateTimeSliceIterator.next();
-            if (currentSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent()) {
-                if (previouslyPreoperational) {
-                    fromPreOpToOpSlices = currentSlice;
-                }
-            }
-            previouslyPreoperational = currentSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.PRE_OPERATIONAL.getKey())).isPresent();
-
-        }
-        return Optional.ofNullable(fromPreOpToOpSlices).map(slice -> slice.getPeriod().lowerEndpoint());
-    }
-
-    private Optional<Instant> getFirstLrnDateAfterDate(long deviceId, Instant date) {
+    private Optional<Instant> getFirstActiveLrnStartDate(long deviceId, Instant now) {
         Range<Instant> registerDateRange = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .sorted(Order.ascending("startTime"))
-                .map(DeviceRegisterSAPInfoDomainExtension::getRange)
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
+                .map(ext -> ext.getInterval().toOpenClosedRange())
                 .findFirst()
                 .orElse(null);
-        Optional<Instant> registerDate = getLowerBound(registerDateRange, date);
+        Optional<Instant> registerDate = getLowerBound(registerDateRange);
         Range<Instant> channelDateRange = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .sorted(Order.ascending("startTime"))
-                .map(DeviceChannelSAPInfoDomainExtension::getRange)
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
+                .map(ext -> ext.getInterval().toOpenClosedRange())
                 .findFirst()
                 .orElse(null);
 
-        Optional<Instant> channelDate = getLowerBound(channelDateRange, date);
+        Optional<Instant> channelDate = getLowerBound(channelDateRange);
         if (registerDate.isPresent()) {
             if (channelDate.isPresent() && registerDate.get().isAfter(channelDate.get())) {
                 return channelDate;
@@ -1037,9 +999,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return channelDate;
     }
 
-    private Optional<Instant> getLowerBound(Range<Instant> range, Instant date) {
+    private Optional<Instant> getLowerBound(Range<Instant> range) {
         if (Optional.ofNullable(range).isPresent()) {
-            return (range.hasLowerBound() && range.lowerEndpoint().isAfter(date)) ? Optional.of(range.lowerEndpoint()) : Optional.empty();
+            return range.hasLowerBound() ? Optional.of(range.lowerEndpoint()) : Optional.empty();
         }
         return Optional.empty();
     }

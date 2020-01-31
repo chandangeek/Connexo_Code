@@ -35,6 +35,10 @@ public class UpgraderV10_7_2 implements Upgrader {
     private static final String START_PROCESS_SERVICE_CALL_ISSUE_ACTION = "com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction";
     private static final String START_PROCESS_ACTION = "com.elster.jupiter.issue.impl.actions.ProcessAction";
     private static final String START_PROCESS_PROPERTY_NAME = "ProcessAction.processesCombobox";
+    private static final String START_PROCESS_WEBSERVICE_PROPERTY_NAME = "StartProcessWebServiceIssueAction.startprocess";
+    private static final String START_PROCESSS_SERVICE_CALL_PROPERTY_NAME = "servicecall.issue.action.process";
+
+
 
     @Inject
     UpgraderV10_7_2(DataModel dataModel, IssueActionService issueActionService) {
@@ -81,7 +85,7 @@ public class UpgraderV10_7_2 implements Upgrader {
         for (PhaseContent content : contentList) {
             if (content.actionTypeId != actionTypeIdToKeep) {
                 connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
-                connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = %s where CREATIONRULEACTION = %s", START_PROCESS_PROPERTY_NAME, content.actionId));
+                connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = '%s' where CREATIONRULEACTION = %s and ( NAME = '%s' or NAME = '%s')" ,START_PROCESS_PROPERTY_NAME, content.actionId, START_PROCESS_WEBSERVICE_PROPERTY_NAME, START_PROCESSS_SERVICE_CALL_PROPERTY_NAME));
             }
         }
     }

@@ -440,4 +440,10 @@ public final class OrmServiceImpl implements OrmService {
             return new Class<?>[]{TransactionEvent.class};
         }
     }
+
+    @Override
+    public boolean isTest() {
+        return Optional.ofNullable(schemaInfoProvider).map(SchemaInfoProvider::isTestSchemaProvider)
+                .orElse(false);
+    }
 }

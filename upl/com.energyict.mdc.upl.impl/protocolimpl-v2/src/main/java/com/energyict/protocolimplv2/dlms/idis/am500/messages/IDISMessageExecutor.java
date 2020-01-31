@@ -32,7 +32,6 @@ import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DataParseException;
@@ -299,7 +298,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         for (int channel = 1; channel <= getMaxMBusSlaves(); channel++) {                     //Check the available 4 (or 6 in case of am130) channels, install the slave meter on a free channel client.
             ObisCode obisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);   //Find the right MBus client object
             try {
-                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10);
+                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(obisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
                 if (mbusClient.getIdentificationNumber().getValue() == 0) {     //Find a free channel client
                     mbusClient.invoke(1, new Unsigned8(0).getBEREncodedByteArray());
                     return collectedMessage;

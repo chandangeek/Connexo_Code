@@ -280,7 +280,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     private void createDeviceStructure() {
         Stream.of(
                 DeviceTypeTpl.AM540_DLMS,
-                DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE
+                DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE,
+                DeviceTypeTpl.ELSTER_AS220_AS1440_AM100_MBUS_SLAVE
         ).forEach(deviceTypeTpl -> {
             executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
         });
@@ -291,7 +292,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 DeviceTypeTpl.Landis_Gyr_ZMD,
                 DeviceTypeTpl.Siemens_7ED,
                 DeviceTypeTpl.BEACON_3100,
-                DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_DLMS)
+                DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_DLMS,
+                DeviceTypeTpl.ELSTER_AS220_AS1440_AM100_DLMS)
                 .forEach(deviceTypeTpl -> {
                     executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
                     executeTransaction(() -> createDevices(deviceTypeTpl));
@@ -304,7 +306,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440) {
             deviceCount = (int) Math.floor(deviceCount / 2);
         }
-        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Iskra_38 || deviceTypeTpl == DeviceTypeTpl.Landis_Gyr_ZMD) {
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Iskra_38 || deviceTypeTpl == DeviceTypeTpl.Landis_Gyr_ZMD
+                || deviceTypeTpl == DeviceTypeTpl.ELSTER_AS220_AS1440_AM100_DLMS) {
             createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 ||
@@ -337,6 +340,11 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE).get();
                 createSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AS220_SLAVE).withDeviceType(deviceType).get(),
                          serialNumber, "Slave " + Constants.Device.GAS_PREFIX, DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE, deviceName);
+            }  else if (deviceTypeTpl == DeviceTypeTpl.ELSTER_AS220_AS1440_AM100_DLMS) {
+                String deviceName = createDevice(configuration, serialNumber, deviceTypeTpl);
+                DeviceType deviceType = Builders.from(DeviceTypeTpl.ELSTER_AS220_AS1440_AM100_MBUS_SLAVE).get();
+                createSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AS220_AM100_SLAVE).withDeviceType(deviceType).get(),
+                        serialNumber, "Slave " + Constants.Device.STANDARD_PREFIX, DeviceTypeTpl.ELSTER_AS220_AS1440_AM100_MBUS_SLAVE, deviceName);
             } else {
                 String devicename = createDevice(configuration, serialNumber, deviceTypeTpl);
                 if (deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
@@ -366,6 +374,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS, deviceTypeTpl);
         } else if (deviceTypeTpl == DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE) {
             createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.DEFAULT_AS220_SLAVE, deviceTypeTpl);
+        } else if (deviceTypeTpl == DeviceTypeTpl.ELSTER_AS220_AS1440_AM100_MBUS_SLAVE) {
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.DEFAULT_AS220_AM100_SLAVE, deviceTypeTpl);
         } else if (deviceTypeTpl != DeviceTypeTpl.BEACON_3100 && deviceTypeTpl != DeviceTypeTpl.AM540_DLMS) {
             createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS, deviceTypeTpl);
             createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS, deviceTypeTpl);

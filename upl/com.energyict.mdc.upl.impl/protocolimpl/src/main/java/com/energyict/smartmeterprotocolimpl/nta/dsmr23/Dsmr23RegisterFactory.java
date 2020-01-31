@@ -23,7 +23,7 @@ import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
@@ -264,16 +264,16 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                         this.registerMap.put(register, new DLMSAttribute(CORE_FIRMWARE_SIGNATURE, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                         dlmsAttributes.add(this.registerMap.get(register));
                     } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_IDENTIFICATION_NUMBER)) {
-                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_MANUFACTURER_ID)) {
-                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_VERSION)) {
-                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_DEVICE_TYPE)) {
-                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }  else {
                             this.protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");

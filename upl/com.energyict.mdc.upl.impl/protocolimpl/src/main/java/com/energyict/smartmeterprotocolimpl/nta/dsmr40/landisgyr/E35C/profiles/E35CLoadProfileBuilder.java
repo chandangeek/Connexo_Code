@@ -24,8 +24,9 @@ public class E35CLoadProfileBuilder extends LGLoadProfileBuilder {
     }
 
     @Override
-    protected void enableDsmr40SelectiveAccessFormat(ProfileGeneric profile) {
+    protected boolean useDsmr4SelectiveAccessFormat() {
         // Not needed for the E35C module
+        return false;
     }
 
     @Override
