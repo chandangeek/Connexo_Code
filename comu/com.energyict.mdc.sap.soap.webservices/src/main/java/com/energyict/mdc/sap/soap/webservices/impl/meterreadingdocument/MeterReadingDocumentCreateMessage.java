@@ -53,28 +53,16 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
         return scheduledMeterReadingDate;
     }
 
-    public String getHeaderId(){
+    public String getHeaderId() {
         return headerId;
     }
 
-    public String getHeaderUUID(){
+    public String getHeaderUUID() {
         return headerUUID;
     }
 
-    public boolean isReasonCodeSupported(boolean bulk) {
-        return bulk ? isBulkSupported() : isSingleSupported();
-    }
-
-    public boolean isSingleSupported() {
-        return WebServiceActivator.findReadingReasonProvider(readingReasonCode)
-                .map(SAPMeterReadingDocumentReason::isSingle)
-                .orElse(false);
-    }
-
-    public boolean isBulkSupported() {
-        return WebServiceActivator.findReadingReasonProvider(readingReasonCode)
-                .map(SAPMeterReadingDocumentReason::isBulk)
-                .orElse(false);
+    public boolean isValid() {
+        return id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null;
     }
 
     static MeterReadingDocumentCreateMessage.Builder builder() {
@@ -111,15 +99,16 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
             return this;
         }
 
-        public Builder setHeaderId(String headerId){
+        public Builder setHeaderId(String headerId) {
             MeterReadingDocumentCreateMessage.this.headerId = headerId;
             return this;
         }
 
-        public Builder setHeaderUUID(String headerUUID){
+        public Builder setHeaderUUID(String headerUUID) {
             MeterReadingDocumentCreateMessage.this.headerUUID = headerUUID;
             return this;
         }
+
 
         public Builder setDeviceId(String deviceId) {
             MeterReadingDocumentCreateMessage.this.deviceId = deviceId;
@@ -240,18 +229,19 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
                     .orElse(null);
         }
 
-        private String getHeaderId(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader header){
+        private String getHeaderId(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getID())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
-        private String getHeaderUUID(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader header){
+        private String getHeaderUUID(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getUUID())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
+
     }
 }

@@ -15,6 +15,10 @@ public class ServiceCallHelper {
         return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
     }
 
+    public static boolean isLastPausedChild(List<ServiceCall> serviceCalls) {
+        return serviceCalls.stream().allMatch(sc -> !sc.getState().isOpen() || sc.getState().equals(DefaultState.PAUSED));
+    }
+
     public static boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
@@ -26,6 +30,4 @@ public class ServiceCallHelper {
     public static boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
     }
-
-
 }

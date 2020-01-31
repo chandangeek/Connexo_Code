@@ -32,12 +32,10 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     public List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions) {
         while (comTaskExecutions.hasNext()) {
             ComTaskExecution comTaskExecution = comTaskExecutions.next();
-            if (!comTaskExecution.shouldExecuteWithPriority()) {
-                if (continueFetching(comTaskExecution)) {
-                    add(comTaskExecution);
-                } else {
-                    break;
-                }
+            if (continueFetching(comTaskExecution)) {
+                add(comTaskExecution);
+            } else {
+                break;
             }
         }
         jobs.addAll(groups.values());

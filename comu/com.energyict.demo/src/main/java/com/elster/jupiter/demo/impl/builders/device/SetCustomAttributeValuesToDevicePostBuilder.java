@@ -8,15 +8,11 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.demo.impl.builders.type.AttachDeviceChannelSAPInfoCPSPostBuilder;
-import com.elster.jupiter.demo.impl.builders.type.AttachDeviceRegisterSAPInfoCPSPostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceSAPInfoCPSPostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachEMeterInfoCPSPostBuilder;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
-import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.data.Register;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -46,8 +42,6 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
         random = new Random(device.getId());
         setEMeterInfoCPS(device);
         setDeviceSAPInfoCPS(device);
-        setDeviceRegisterSAPInfoCPS(device);
-        setDeviceChannelSAPInfoCPS(device);
     }
 
     private void setEMeterInfoCPS(Device device) {
@@ -65,38 +59,6 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
             values.setProperty("maxVoltage", Quantity.create(BigDecimal.valueOf(voltages[random.nextInt(voltages.length)]), 0, "V"));
 
             this.customPropertySetService.setValuesFor(customPropertySet.get(), device, values);
-        }
-    }
-
-    private void setDeviceChannelSAPInfoCPS(Device device) {
-        for (Channel channel : device.getChannels()) {
-            Optional<CustomPropertySet> customPropertySet = device.getDeviceType()
-                    .getLoadProfileTypeCustomPropertySet(channel.getLoadProfile().getLoadProfileSpec().getLoadProfileType())
-                    .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                    .filter(cps -> cps.getId().equals(AttachDeviceChannelSAPInfoCPSPostBuilder.CPS_ID));
-            if (customPropertySet.isPresent()) {
-                CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
-                values.setProperty("device", device.getId());
-                values.setProperty("channelSpec", channel.getChannelSpec());
-                this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), channel.getChannelSpec(), values,
-                        values.getEffectiveRange(), device.getId());
-            }
-        }
-    }
-
-    private void setDeviceRegisterSAPInfoCPS(Device device) {
-        for (Register register : device.getRegisters()) {
-            Optional<CustomPropertySet> customPropertySet = device.getDeviceType()
-                    .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
-                    .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                    .filter(cps -> cps.getId().equals(AttachDeviceRegisterSAPInfoCPSPostBuilder.CPS_ID));
-            if (customPropertySet.isPresent()) {
-                CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
-                values.setProperty("device", device.getId());
-                values.setProperty("registerSpec", register.getRegisterSpec());
-                this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), register.getRegisterSpec(), values,
-                        values.getEffectiveRange(), device.getId());
-            }
         }
     }
 

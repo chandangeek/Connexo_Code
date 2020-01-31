@@ -13,8 +13,13 @@ public class RegisterChangeMessage extends AbstractSapMessage {
     private static final String END_DATE_XML_NAME = "UtilitiesDevice.Register.EndDate";
 
     private String lrn;
+    private Instant startDate;
     private Instant endDate;
+    private Instant createEndDate;
     private String timeZone;
+    private String obis;
+    private String recurrenceCode;
+    private String divisionCategory;
 
     private RegisterChangeMessage() {
     }
@@ -23,12 +28,44 @@ public class RegisterChangeMessage extends AbstractSapMessage {
         return lrn;
     }
 
+    public void setLrn(String lrn) {
+        this.lrn = lrn;
+    }
+
+    public Instant getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
+    public Instant getCreateEndDate() {
+        return createEndDate;
+    }
+
+    public void setCreateEndDate(Instant createEndDate) {
+        this.createEndDate = createEndDate;
+    }
+
     public Instant getEndDate() {
         return endDate;
     }
 
     public String getTimeZone() {
         return timeZone;
+    }
+
+    public String getObis() {
+        return obis;
+    }
+
+    public void setObis(String obis) {
+        this.obis = obis;
+    }
+
+    public String getRecurrenceCode() {
+        return recurrenceCode;
     }
 
     private void validate() {
@@ -66,4 +103,15 @@ public class RegisterChangeMessage extends AbstractSapMessage {
         }
     }
 
+    public void setRecurrenceCode(String recurrenceCode) {
+        this.recurrenceCode = recurrenceCode;
+    }
+
+    public String getDivisionCategory() {
+        return divisionCategory;
+    }
+
+    public void setDivisionCategory(String divisionCategory) {
+        this.divisionCategory = divisionCategory;
+    }
 }

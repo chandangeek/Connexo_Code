@@ -65,7 +65,7 @@ public class ComScheduleInfo {
         boolean isStartTimeAfterNow = comSchedule.getStartDate().isAfter(instant);
 
         if (isStartTimeAfterNow) {
-            comScheduleInfo.plannedDate = comSchedule.getPlannedDate().orElse(comSchedule.getStartDate());
+            comScheduleInfo.plannedDate = comSchedule.getPlannedDate().orElseGet(comSchedule::getStartDate);
 
         } else {
             Optional<ZonedDateTime> nextOccurrence = comSchedule.getTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant((isStartTimeAfterNow ? comSchedule.getStartDate() : instant), ZoneId.systemDefault()));

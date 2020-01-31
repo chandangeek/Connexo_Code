@@ -246,6 +246,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
+    public Optional<? extends ExportTask> findAndLockReadingTypeDataExportTaskByName(String name) {
+        Optional<? extends ExportTask> exportTask = getReadingTypeDataExportTaskByName(name);
+        return Optional.ofNullable(exportTask.map(et -> dataModel.mapper(IExportTask.class).lock(et.getId())).orElse(null));
+    }
+
+    @Override
     public Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name) {
         Query<IExportTask> query =
                 queryService.wrap(dataModel.query(IExportTask.class, RecurrentTask.class));
@@ -440,9 +446,13 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
                             .build());
 
-            try (TransactionContext transactionContext = transactionService.getContext()) {
+            if (transactionService.isInTransaction()) {
                 failOngoingExportTaskOccurrences();
-                transactionContext.commit();
+            } else {
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    failOngoingExportTaskOccurrences();
+                    transactionContext.commit();
+                }
             }
         } catch (RuntimeException e) {
             e.printStackTrace();

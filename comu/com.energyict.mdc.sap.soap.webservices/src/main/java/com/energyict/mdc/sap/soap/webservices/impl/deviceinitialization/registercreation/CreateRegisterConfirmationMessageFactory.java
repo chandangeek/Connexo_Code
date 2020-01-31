@@ -78,11 +78,11 @@ public class CreateRegisterConfirmationMessageFactory {
                         }
                     }
                 }else if (deviceServiceCall.getState() == CANCELLED) {
-                    confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 }
                 break;
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             default:
                 // No specific action required for these states

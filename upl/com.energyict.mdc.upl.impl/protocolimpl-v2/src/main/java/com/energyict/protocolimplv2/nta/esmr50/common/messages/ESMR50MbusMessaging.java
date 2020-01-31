@@ -16,12 +16,13 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ESMR50MbusMessaging extends com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging {
+public class ESMR50MbusMessaging extends Dsmr23MbusMessaging {
 
     public ESMR50MbusMessaging(AbstractNtaMbusDevice mbusProtocol, PropertySpecService propertySpecService,
                                NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor,

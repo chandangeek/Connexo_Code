@@ -54,7 +54,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
         switch (parent.getState()) {
             case CANCELLED:
-                bulkConfirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                bulkConfirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             case SUCCESSFUL:
                 bulkConfirmationMessage.setLog(createSuccessfulLog());
@@ -154,7 +154,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
                 }
                 break;
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             default:
                 // No specific action required for these states
