@@ -110,8 +110,8 @@ public class UtilitiesDeviceRegisterMessage {
             UtilitiesDeviceRegisterMessage.this.startDate = startDate;
         }
 
-        private void setEndDate(Instant endDate, Integer addInterval) {
-            UtilitiesDeviceRegisterMessage.this.endDate = endDate.plus(addInterval, MINUTES);
+        private void setEndDate(Instant endDate, Integer lrnEndInterval) {
+            UtilitiesDeviceRegisterMessage.this.endDate = endDate.plus(Optional.ofNullable(lrnEndInterval).orElse(0), MINUTES);
         }
 
         private void setTimeZone(String timeZone) {

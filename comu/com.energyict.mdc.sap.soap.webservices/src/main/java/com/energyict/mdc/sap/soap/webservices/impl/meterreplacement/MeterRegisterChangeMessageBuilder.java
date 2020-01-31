@@ -114,7 +114,7 @@ public class MeterRegisterChangeMessageBuilder {
     }
 
     private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
-        return requestRegister.getEndDate().plus(lrnEndInterval, MINUTES);
+        return requestRegister.getEndDate().plus(Optional.ofNullable(lrnEndInterval).orElse(0), MINUTES);
     }
 
     private String getObis(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
