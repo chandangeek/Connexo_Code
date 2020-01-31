@@ -224,5 +224,9 @@
             <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
     </dependencies>
 </project>

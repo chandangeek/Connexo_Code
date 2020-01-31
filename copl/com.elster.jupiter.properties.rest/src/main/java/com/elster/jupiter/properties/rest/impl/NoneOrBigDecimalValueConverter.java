@@ -52,7 +52,7 @@ public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
             if (domainValue instanceof NoneOrBigDecimal) {
-                return domainValue;
+                return String.valueOf(domainValue);
             }
         }
         return null;

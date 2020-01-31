@@ -283,6 +283,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             queriedForTasks();
             scheduleAll(jobs, start);
         } else {
+            getLogger().storeTaskQueueIsFull(storeTaskQueueLoadPercentage);
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
@@ -315,7 +316,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     ScheduledComTaskExecutionGroup newComTaskGroup(ComJob groupComJob) {
-        long connectionTask = groupComJob.getConnectionTaskId();
         ScheduledComTaskExecutionGroup group = newComTaskGroup((ScheduledConnectionTask) groupComJob.getConnectionTask());
         groupComJob.getComTaskExecutions().forEach(group::add);
         return group;
@@ -483,6 +483,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         @Override
         public void unexpectedError(String comPortThreadName, String message) {
             this.loggers.forEach(each -> each.unexpectedError(comPortThreadName, message));
+        }
+
+        @Override
+        public void storeTaskQueueIsFull(int queueLoadPercentage) {
+            this.loggers.forEach(each -> each.storeTaskQueueIsFull(queueLoadPercentage));
         }
 
     }

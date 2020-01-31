@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                         },
                         previewComponent: {
                             xtype: 'messages-grid',
-                            itemId: 'mdc-commands-grid'
+                            itemId: 'mdc-messages-grid'
                         }
                     }
                 ]
