@@ -23,6 +23,7 @@ public class UtilitiesDeviceCreateConfirmationMessage {
     public Optional<UtilsDvceERPSmrtMtrCrteConfMsg> getConfirmationMessage() {
         return Optional.ofNullable(confirmationMessage);
     }
+
     public Optional<UtilsDvceERPSmrtMtrBlkCrteConfMsg> getBulkConfirmationMessage() {
         return Optional.ofNullable(bulkConfirmationMessage);
     }
@@ -45,7 +46,7 @@ public class UtilitiesDeviceCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
+        public Builder from(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             if (message.isBulk()) {
                 bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(message, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             } else {

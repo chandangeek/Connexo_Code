@@ -72,13 +72,13 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
                     });
 
             requestMessage.getUtilitiesDeviceERPSmartMeterCreateRequestMessage()
-                    .forEach(message ->utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
+                    .forEach(message -> utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
                             .builder()
                             .from(message)
                             .build())
                     );
             if (requestID == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             return this;
         }

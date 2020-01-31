@@ -126,19 +126,19 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
 
         public MeterReadingDocumentCreateMessage build() {
             if (id == null) {
-                addNotValidField(ID_XML_NAME);
+                addMissingField(ID_XML_NAME);
             }
             if (deviceId == null) {
-                addNotValidField(DEVICE_ID_XML_NAME);
+                addMissingField(DEVICE_ID_XML_NAME);
             }
             if (lrn == null) {
-                addNotValidField(LRN_XML_NAME);
+                addMissingField(LRN_XML_NAME);
             }
             if (readingReasonCode == null) {
-                addNotValidField(READING_REASON_CODE_XML_NAME);
+                addMissingField(READING_REASON_CODE_XML_NAME);
             }
             if (scheduledMeterReadingDate == null) {
-                addNotValidField(SCHEDULED_DATE_XML_NAME);
+                addMissingField(SCHEDULED_DATE_XML_NAME);
             }
             return MeterReadingDocumentCreateMessage.this;
         }

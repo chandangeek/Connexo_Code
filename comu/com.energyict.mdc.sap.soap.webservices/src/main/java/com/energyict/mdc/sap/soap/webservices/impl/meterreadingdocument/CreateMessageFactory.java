@@ -59,7 +59,7 @@ public class CreateMessageFactory {
                                                          MessageSeeds messageSeeds,
                                                          Instant now,
                                                          String senderBusinessSystemId,
-                                                         Object ...messageArgs) {
+                                                         Object... messageArgs) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
 
         confirmationMessage.setMessageHeader(createHeader(requestMessage.getId(), requestMessage.getUuid(), now, senderBusinessSystemId));

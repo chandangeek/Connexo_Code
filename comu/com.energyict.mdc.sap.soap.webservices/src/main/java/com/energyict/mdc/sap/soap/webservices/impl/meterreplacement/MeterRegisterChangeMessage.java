@@ -46,10 +46,10 @@ public class MeterRegisterChangeMessage extends AbstractSapMessage {
 
     public void validate() {
         if (id == null && uuid == null) {
-            addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
         }
         if (deviceId == null) {
-            addNotValidField(DEVICE_ID_XML_NAME);
+            addMissingField(DEVICE_ID_XML_NAME);
         }
     }
 }

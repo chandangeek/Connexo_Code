@@ -93,7 +93,7 @@ public class ServiceCallCommands {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, message);
             }
         } else {
-            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message, message.getNotValidFields());
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message, message.getMissingFields());
         }
     }
 
@@ -107,7 +107,7 @@ public class ServiceCallCommands {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages, message);
             }
         } else {
-            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages, message, message.getNotValidFields());
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages, message, message.getMissingFields());
         }
     }
 
@@ -140,7 +140,7 @@ public class ServiceCallCommands {
                 sendProcessError(messages, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             }
         } else {
-            sendProcessError(messages, MessageSeeds.INVALID_MESSAGE_FORMAT, messages.getNotValidFields());
+            sendProcessError(messages, MessageSeeds.INVALID_MESSAGE_FORMAT, messages.getMissingFields());
         }
     }
 
@@ -154,7 +154,7 @@ public class ServiceCallCommands {
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
         }
     }
 
@@ -408,7 +408,7 @@ public class ServiceCallCommands {
             } else {
                 sendMessage(MeterReadingDocumentRequestConfirmationMessage
                         .builder()
-                        .from(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, clock.instant(), webServiceActivator.getMeteringSystemId(), requestMessage.getNotValidFields())
+                        .from(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, clock.instant(), webServiceActivator.getMeteringSystemId(), requestMessage.getMissingFields())
                         .build(), requestMessage.isBulk());
             }
         }
@@ -490,7 +490,7 @@ public class ServiceCallCommands {
         }
     }
 
-    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message, Object ...messageArgs) {
+    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message, Object... messageArgs) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
                         .from(message, messageSeed.translate(thesaurus, messageArgs), webServiceActivator.getMeteringSystemId(), clock.instant())
@@ -498,7 +498,7 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage);
     }
 
-    private void sendProcessError(StatusChangeRequestBulkCreateMessage message, MessageSeeds messageSeed, Object ...messageArgs) {
+    private void sendProcessError(StatusChangeRequestBulkCreateMessage message, MessageSeeds messageSeed, Object... messageArgs) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                         .from(message, messageSeed.translate(thesaurus, messageArgs), webServiceActivator.getMeteringSystemId(), clock.instant())
@@ -506,7 +506,7 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage);
     }
 
-    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, Object ...messageArgs) {
+    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, Object... messageArgs) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                         .from(messages, message, messageSeed.translate(thesaurus, messageArgs), webServiceActivator.getMeteringSystemId(), clock.instant())
@@ -514,7 +514,7 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage);
     }
 
-    private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed, Object ...messageArgs) {
+    private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed, Object... messageArgs) {
         MeterReadingDocumentRequestConfirmationMessage confirmationMessage =
                 MeterReadingDocumentRequestConfirmationMessage.builder()
                         .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId(), messageArgs)

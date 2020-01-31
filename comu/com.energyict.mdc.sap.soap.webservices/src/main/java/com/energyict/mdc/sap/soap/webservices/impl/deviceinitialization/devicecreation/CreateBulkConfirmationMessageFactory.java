@@ -69,7 +69,7 @@ public class CreateBulkConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
+    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
         confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         message.getUtilitiesDeviceCreateMessages()
@@ -128,10 +128,10 @@ public class CreateBulkConfirmationMessageFactory {
     private BusinessDocumentMessageHeader createChildHeader(String requestId, String uuid, String senderBusinessSystemId, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
-        if (!Strings.isNullOrEmpty(uuid)){
+        if (!Strings.isNullOrEmpty(uuid)) {
             header.setReferenceUUID(createUUID(uuid));
         }
         header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
@@ -145,11 +145,11 @@ public class CreateBulkConfirmationMessageFactory {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
         header.setUUID(createUUID(uuid));
-        if (!Strings.isNullOrEmpty(referenceUuid)){
+        if (!Strings.isNullOrEmpty(referenceUuid)) {
             header.setReferenceUUID(createUUID(referenceUuid));
         }
         header.setSenderBusinessSystemID(senderBusinessSystemId);

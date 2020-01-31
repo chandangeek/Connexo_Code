@@ -79,7 +79,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
             UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
@@ -90,7 +90,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
 
@@ -160,7 +160,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             if (!Strings.isNullOrEmpty(id)) {
                 header.setReferenceID(createID(id));
             }
-            if (!Strings.isNullOrEmpty(uuid)){
+            if (!Strings.isNullOrEmpty(uuid)) {
                 header.setReferenceUUID(createUUID(uuid));
             }
             header.setSenderBusinessSystemID(senderBusinessSystemId);

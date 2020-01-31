@@ -56,13 +56,13 @@ public class StatusChangeRequestCancellationRequestMessage extends AbstractSapMe
             setUuid(getUuid(requestMessage));
             setCategoryCode(getCategoryCode(requestMessage));
             if (requestId == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (categoryCode == null) {
-                addNotValidField(CATEGORY_CODE_XML_NAME);
+                addMissingField(CATEGORY_CODE_XML_NAME);
             }
             if (id == null) {
-                addNotValidField(ID_XML_NAME);
+                addMissingField(ID_XML_NAME);
             }
             return this;
         }

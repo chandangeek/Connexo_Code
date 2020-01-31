@@ -58,10 +58,10 @@ public class RegisterChangeMessage extends AbstractSapMessage {
 
     private void validate() {
         if (lrn == null) {
-            addNotValidField(LRN_XMl_NAME);
+            addMissingField(LRN_XMl_NAME);
         }
         if (endDate == null) {
-            addNotValidField(END_DATE_XML_NAME);
+            addMissingField(END_DATE_XML_NAME);
         }
     }
 
@@ -69,7 +69,7 @@ public class RegisterChangeMessage extends AbstractSapMessage {
 
         private RegisterChangeMessage registerChangeMessage;
 
-        Builder () {
+        Builder() {
             registerChangeMessage = new RegisterChangeMessage();
         }
 

@@ -95,7 +95,7 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
 
         public MeterReadingDocumentCreateRequestMessage build() {
             if (id == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             return MeterReadingDocumentCreateRequestMessage.this;
         }

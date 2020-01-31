@@ -82,7 +82,7 @@ public class MeasurementTaskAssignmentChangeRequestMessage extends AbstractSapMe
                         setRoles(getRoles(сhangeRequest));
                     });
             if (id == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             return this;
         }

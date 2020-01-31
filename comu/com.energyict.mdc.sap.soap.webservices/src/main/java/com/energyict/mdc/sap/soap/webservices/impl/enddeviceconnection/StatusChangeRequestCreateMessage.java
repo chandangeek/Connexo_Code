@@ -149,19 +149,19 @@ public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
 
         public StatusChangeRequestCreateMessage build() {
             if (requestId == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (id == null) {
-                addNotValidField(ID_XML_NAME);
+                addMissingField(ID_XML_NAME);
             }
             if (categoryCode == null) {
-                addNotValidField(CATEGORY_CODE_XML_NAME);
+                addMissingField(CATEGORY_CODE_XML_NAME);
             }
             if (plannedProcessingDateTime == null) {
-                addNotValidField(PLANNED_PROCESS_XML_NAME);
+                addMissingField(PLANNED_PROCESS_XML_NAME);
             }
             if (deviceConnectionStatus.isEmpty()) {
-                addNotValidField(CONNECTION_STATUS_XML_NAME);
+                addMissingField(CONNECTION_STATUS_XML_NAME);
             }
             return StatusChangeRequestCreateMessage.this;
         }

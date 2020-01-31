@@ -78,11 +78,11 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
                         log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(message.deviceId));
                     }
                 } else {
-                    log(LogLevel.WARNING, MessageSeeds.INVALID_MESSAGE_FORMAT.getDefaultFormat(message.getNotValidFields()));
+                    log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(message.getMissingFields()));
                 }
             });
         } else {
-            log(LogLevel.WARNING, MessageSeeds.INVALID_MESSAGE_FORMAT.getDefaultFormat(bulkMsg.getNotValidFields()));
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(bulkMsg.getMissingFields()));
         }
     }
 
@@ -95,7 +95,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
             requestId = getRequestId(msg);
             uuid = getUuid(msg);
             if (requestId == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             msg.getUtilitiesDeviceERPSmartMeterLocationNotificationMessage()
                     .forEach(message -> {
@@ -133,10 +133,10 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
             deviceId = getDeviceId(msg);
             locationId = getLocationId(msg);
             if (deviceId == null) {
-                addNotValidField(UTILITIES_DEVICE_ID_XML_NAME);
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
             }
             if (locationId == null) {
-                addNotValidField(LOCATION_ID_XML_NAME);
+                addMissingField(LOCATION_ID_XML_NAME);
             }
         }
 

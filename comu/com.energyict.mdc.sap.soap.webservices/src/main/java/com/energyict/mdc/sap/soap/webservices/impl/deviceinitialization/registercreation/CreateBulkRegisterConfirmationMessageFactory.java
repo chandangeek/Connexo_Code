@@ -75,7 +75,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         return bulkConfirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
+    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
         bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), senderBusinessSystemId, now));
         requestMessage.getUtilitiesDeviceRegisterCreateMessages()
@@ -93,11 +93,11 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         String uuid = UUID.randomUUID().toString();
 
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
         header.setUUID(createUUID(uuid));
-        if (!Strings.isNullOrEmpty(referenceUuid)){
+        if (!Strings.isNullOrEmpty(referenceUuid)) {
             header.setReferenceUUID(createUUID(referenceUuid));
         }
         header.setSenderBusinessSystemID(senderBusinessSystemId);
@@ -164,7 +164,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
     }
 
     private UtilsDvceERPSmrtMtrRegCrteConfMsg createFailedChildMessage(UtilitiesDeviceRegisterCreateMessage message, String senderBusinessSystemId, Instant now) {
-             UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
+        UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
         confirmationMessage.setMessageHeader(createChildHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));
         confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
         confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_ITEM_PROCESSING_WAS_NOT_STARTED.getDefaultFormat(null)));
@@ -183,7 +183,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
                 .filter(child -> child.getState() == FAILED || child.getState() == CANCELLED)
                 .map(child -> {
                     UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-                    return "["+ extension.getLrn() + "] - " + extension.getErrorMessage();
+                    return "[" + extension.getLrn() + "] - " + extension.getErrorMessage();
                 }).collect(Collectors.joining("; "));
     }
 
@@ -200,10 +200,10 @@ public class CreateBulkRegisterConfirmationMessageFactory {
     private BusinessDocumentMessageHeader createChildHeader(String requestId, String uuid, String senderBusinessSystemId, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
-        if (!Strings.isNullOrEmpty(uuid)){
+        if (!Strings.isNullOrEmpty(uuid)) {
             header.setReferenceUUID(createUUID(uuid));
         }
         header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));

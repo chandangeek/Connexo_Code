@@ -83,7 +83,7 @@ public class MeterRegisterChangeMessageBuilder {
     }
 
     private List<RegisterChangeMessage> getRegisters(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
-       return requestMessage.getUtilitiesDevice().getRegister().stream().map(reg -> getRegister(reg)).collect(Collectors.toList());
+        return requestMessage.getUtilitiesDevice().getRegister().stream().map(reg -> getRegister(reg)).collect(Collectors.toList());
     }
 
     private RegisterChangeMessage getRegister(UtilsDvceERPSmrtMtrRegChgReqReg reg) {

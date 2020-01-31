@@ -68,12 +68,13 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
                 log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(podMsg.deviceId));
             }
         } else {
-            log(LogLevel.WARNING, MessageSeeds.INVALID_MESSAGE_FORMAT.getDefaultFormat(podMsg.getNotValidFields()));
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(podMsg.getMissingFields()));
         }
     }
 
     private class PodMessage extends AbstractSapMessage {
         private static final String UTILITIES_DEVICE_ID_XML_NAME = "UtilitiesMeasurementTask." + AbstractSapMessage.UTILITIES_DEVICE_ID_XML_NAME;
+        private static final String POD_ID_XML_NAME = "UtilitiesMeasurementTask.UtilitiesPointOfDeliveryAssignment.UtilitiesPointOfDeliveryPartyID";
         private String requestId;
         private String uuid;
         private String deviceId;
@@ -85,13 +86,13 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
             deviceId = getDeviceId(msg);
             podId = getPodId(msg);
             if (requestId == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (deviceId == null) {
-                addNotValidField(UTILITIES_DEVICE_ID_XML_NAME);
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
             }
             if (podId == null) {
-                addNotValidField(POD_ID_XML_NAME);
+                addMissingField(POD_ID_XML_NAME);
             }
         }
 

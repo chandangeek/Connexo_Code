@@ -47,7 +47,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
+        public Builder from(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             if (requestMessage.isBulk()) {
                 bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             } else {

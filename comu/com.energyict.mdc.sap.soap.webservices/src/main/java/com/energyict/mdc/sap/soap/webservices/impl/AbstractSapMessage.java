@@ -10,24 +10,23 @@ public abstract class AbstractSapMessage {
     protected static final String REQUEST_ID_XML_NAME = "MessageHeader.ID";
     protected static final String UUID_XML_NAME = "MessageHeader.UUID";
     protected static final String UTILITIES_DEVICE_ID_XML_NAME = "UtilitiesDevice.UtilitiesDeviceID";
-    protected static final String POD_ID_XML_NAME = "UtilitiesMeasurementTask.UtilitiesPointOfDeliveryAssignment.UtilitiesPointOfDeliveryPartyID";
 
-    private static final String AT_LEAST_ONE_OF = " (at least one of)";
-    private Set<String> notValidXmlNames = new HashSet<>();
+    private static final String AT_LEAST_ONE_OF = "at least one of";
+    private Set<String> missingXmlNames = new HashSet<>();
 
-    protected void addNotValidField(String xmlName) {
-        notValidXmlNames.add(xmlName);
+    protected void addMissingField(String xmlName) {
+        missingXmlNames.add(xmlName);
     }
 
-    protected void addAtLeastOneNotValid(String ...xmlName) {
-        notValidXmlNames.add(Arrays.stream(xmlName).collect(Collectors.joining("/")) + AT_LEAST_ONE_OF);
+    protected void addAtLeastOneMissingField(String... xmlName) {
+        missingXmlNames.add(AT_LEAST_ONE_OF + '[' + Arrays.stream(xmlName).collect(Collectors.joining(", ", "'", "'")) + ']');
     }
 
-    public String getNotValidFields() {
-        return notValidXmlNames.stream().collect(Collectors.joining(", ", "'", "'"));
+    public String getMissingFields() {
+        return missingXmlNames.stream().collect(Collectors.joining(", ", "'", "'"));
     }
 
     public boolean isValid() {
-        return notValidXmlNames.isEmpty();
+        return missingXmlNames.isEmpty();
     }
 }

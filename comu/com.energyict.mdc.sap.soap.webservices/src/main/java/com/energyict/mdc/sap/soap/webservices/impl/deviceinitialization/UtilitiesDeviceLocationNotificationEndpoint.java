@@ -54,7 +54,7 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
 
     private void handleMessage(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
         LocationMessage locationMsg = new LocationMessage(msg);
-        saveRelatedAttribute( SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), locationMsg.deviceId);
+        saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), locationMsg.deviceId);
         if (locationMsg.isValid()) {
             Optional<Device> device = sapCustomPropertySets.getDevice(locationMsg.deviceId);
             if (device.isPresent()) {
@@ -67,7 +67,7 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
                 log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(locationMsg.deviceId));
             }
         } else {
-            log(LogLevel.WARNING, MessageSeeds.INVALID_MESSAGE_FORMAT.getDefaultFormat(locationMsg.getNotValidFields()));
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(locationMsg.getMissingFields()));
         }
     }
 
@@ -85,13 +85,13 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
             deviceId = getDeviceId(msg);
             locationId = getLocationId(msg);
             if (requestId == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (deviceId == null) {
-                addNotValidField(UTILITIES_DEVICE_ID_XML_NAME);
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
             }
             if (locationId == null) {
-                addNotValidField(LOCATION_ID_XML_NAME);
+                addMissingField(LOCATION_ID_XML_NAME);
             }
         }
 

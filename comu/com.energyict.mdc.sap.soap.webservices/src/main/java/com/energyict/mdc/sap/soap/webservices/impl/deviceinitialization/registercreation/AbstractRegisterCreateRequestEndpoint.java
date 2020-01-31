@@ -104,7 +104,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
         }
     }
 
@@ -138,7 +138,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getNotValidFields());
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getMissingFields());
         }
     }
 
@@ -182,8 +182,8 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         serviceCallBuilder.create();
     }
 
-    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed, Object ...messageSeedArgs) {
-        log(LogLevel.WARNING, messageSeed.getDefaultFormat(messageSeedArgs));
+    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
         UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage = null;
         confirmationMessage =
                 UtilitiesDeviceRegisterCreateConfirmationMessage.builder()
@@ -216,6 +216,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
                     }
                 });
     }
+
     public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());

@@ -95,10 +95,10 @@ public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
 
         public StatusChangeRequestBulkCreateMessage build() {
             if (id == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (requests.isEmpty()) {
-                addNotValidField(REQUEST_XML_NAME);
+                addMissingField(REQUEST_XML_NAME);
             }
             return StatusChangeRequestBulkCreateMessage.this;
         }

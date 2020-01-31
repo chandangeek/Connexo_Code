@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class MeterReadingDocumentCancellationRequestMessage extends AbstractSapMessage {
-    private final static String METER_DOCUMENT_XML_NAME = "MeterReadingDocument/UtilitiesDeviceSmartMeter";
+    private final static String METER_DOCUMENT_XML_NAME = "MeterReadingDocument.UtilitiesDeviceSmartMeter";
 
     private String requestID;
     private String uuid;
@@ -74,10 +74,10 @@ public class MeterReadingDocumentCancellationRequestMessage extends AbstractSapM
 
         public MeterReadingDocumentCancellationRequestMessage build() {
             if (requestID == null && uuid == null) {
-                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (meterReadingDocumentIds.isEmpty()) {
-                addNotValidField(METER_DOCUMENT_XML_NAME);
+                addMissingField(METER_DOCUMENT_XML_NAME);
             }
             return MeterReadingDocumentCancellationRequestMessage.this;
         }

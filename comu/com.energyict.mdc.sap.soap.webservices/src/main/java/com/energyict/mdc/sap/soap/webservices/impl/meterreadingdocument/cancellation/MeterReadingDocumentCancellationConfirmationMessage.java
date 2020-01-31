@@ -42,7 +42,7 @@ public class MeterReadingDocumentCancellationConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object ...messageSeedArgs) {
+        public Builder from(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object... messageSeedArgs) {
             if (requestMessage.isBulk()) {
                 bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId, messageSeedArgs);
             } else {

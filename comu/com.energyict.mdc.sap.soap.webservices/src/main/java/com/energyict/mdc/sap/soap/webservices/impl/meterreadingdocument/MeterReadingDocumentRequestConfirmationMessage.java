@@ -46,7 +46,7 @@ public class MeterReadingDocumentRequestConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object ...messageSeedArgs) {
+        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object... messageSeedArgs) {
             if (requestMessage.isBulk()) {
                 bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId, messageSeedArgs);
             } else {
