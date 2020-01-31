@@ -400,11 +400,17 @@ public class ServiceCallCommands {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            MessageSeeds errorMessage = requestMessage.isBulk() ? MessageSeeds.ONE_OF_MRD_IS_INVALID : MessageSeeds.INVALID_MESSAGE_FORMAT;
-            sendMessage(MeterReadingDocumentRequestConfirmationMessage
-                    .builder()
-                    .from(requestMessage, errorMessage, clock.instant(), webServiceActivator.getMeteringSystemId())
-                    .build(), requestMessage.isBulk());
+            if (requestMessage.isBulk()) {
+                sendMessage(MeterReadingDocumentRequestConfirmationMessage
+                        .builder()
+                        .from(requestMessage, MessageSeeds.ONE_OF_MRD_IS_INVALID, clock.instant(), webServiceActivator.getMeteringSystemId())
+                        .build(), requestMessage.isBulk());
+            } else {
+                sendMessage(MeterReadingDocumentRequestConfirmationMessage
+                        .builder()
+                        .from(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, clock.instant(), webServiceActivator.getMeteringSystemId(), requestMessage.getNotValidFields())
+                        .build(), requestMessage.isBulk());
+            }
         }
     }
 

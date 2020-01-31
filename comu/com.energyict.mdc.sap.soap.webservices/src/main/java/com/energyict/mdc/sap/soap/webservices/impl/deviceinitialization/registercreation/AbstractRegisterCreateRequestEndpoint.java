@@ -138,7 +138,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getNotValidFields());
         }
     }
 
@@ -183,7 +183,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
     }
 
     private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed, Object ...messageSeedArgs) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+        log(LogLevel.WARNING, messageSeed.getDefaultFormat(messageSeedArgs));
         UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage = null;
         confirmationMessage =
                 UtilitiesDeviceRegisterCreateConfirmationMessage.builder()

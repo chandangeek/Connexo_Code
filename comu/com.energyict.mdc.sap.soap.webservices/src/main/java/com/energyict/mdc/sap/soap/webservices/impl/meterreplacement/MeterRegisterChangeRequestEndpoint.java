@@ -147,7 +147,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getNotValidFields());
         }
     }
 
@@ -191,14 +191,14 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         } else if (message.getRegisters().size() > 1) {
             register = message.getRegisters().get(message.getRegisters().size() - 1);
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
             subParent.requestTransition(DefaultState.REJECTED);
             return;
         }
         if (register.isValid()) {
             createChildServiceCall(subParent, register);
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, register.getNotValidFields());
         }
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
             subParent.requestTransition(DefaultState.PENDING);
