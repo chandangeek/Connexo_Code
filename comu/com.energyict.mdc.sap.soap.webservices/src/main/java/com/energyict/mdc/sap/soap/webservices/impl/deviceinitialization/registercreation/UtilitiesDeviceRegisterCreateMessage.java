@@ -45,7 +45,8 @@ public class UtilitiesDeviceRegisterCreateMessage {
         private Builder() {
         }
 
-        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage) {
+        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage,
+                                                                 Integer lrnEndInterval) {
             setRequestId(getRequestId(requestMessage.getMessageHeader()));
             setUuid(getUuid(requestMessage.getMessageHeader()));
             Optional.ofNullable(requestMessage.getUtilitiesDevice())
@@ -56,13 +57,14 @@ public class UtilitiesDeviceRegisterCreateMessage {
                                 .forEach(message ->
                                         utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
                                                 .builder()
-                                                .from(message)
+                                                .from(message, lrnEndInterval)
                                                 .build()));
                     });
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage) {
+        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage,
+                                                                 Integer lrnEndInterval) {
             setRequestId(getRequestId(requestMessage.getMessageHeader()));
             setUuid(getUuid(requestMessage.getMessageHeader()));
             Optional.ofNullable(requestMessage.getUtilitiesDevice())
@@ -73,7 +75,7 @@ public class UtilitiesDeviceRegisterCreateMessage {
                                 .forEach(message ->
                                         utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
                                                 .builder()
-                                                .from(message)
+                                                .from(message, lrnEndInterval)
                                                 .build()));
                     });
             return this;

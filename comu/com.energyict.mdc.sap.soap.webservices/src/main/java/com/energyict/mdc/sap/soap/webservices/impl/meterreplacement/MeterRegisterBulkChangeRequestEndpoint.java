@@ -78,7 +78,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                         MeterRegisterBulkChangeRequestMessage message = MeterRegisterBulkChangeRequestMessage
-                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
+                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.LRN_END_INTERVAL))
                                 .from(requestMessage)
                                 .build();
                         SetMultimap<String, String> values = HashMultimap.create();
@@ -228,7 +228,6 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setEndDate(message.getEndDate());
-        childDomainExtension.setCreateEndDate(message.getCreateEndDate());
         childDomainExtension.setTimeZone(message.getTimeZone());
         childDomainExtension.setObis(message.getObis());
         childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());

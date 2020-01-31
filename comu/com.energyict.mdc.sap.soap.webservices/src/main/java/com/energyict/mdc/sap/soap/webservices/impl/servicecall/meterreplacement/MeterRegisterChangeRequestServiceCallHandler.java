@@ -179,7 +179,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
             if (channels.size() == 1) {
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
-                        TimeUtils.convertFromTimeZone(extension.getCreateEndDate(), extension.getTimeZone()));
+                        TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
