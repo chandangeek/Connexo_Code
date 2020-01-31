@@ -136,7 +136,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     public PagedInfoList getDataExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
-        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(getApplicationNameFromCode(appCode);
+        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(getApplicationNameFromCode(appCode));
         finder.setStart(queryParameters.getStart().orElse(0));
         finder.setLimit(queryParameters.getLimit().orElse(0) + 1);
         return PagedInfoList.fromPagedList("dataExportTasks", getListOfDataExportTasksInfo(finder), queryParameters);
