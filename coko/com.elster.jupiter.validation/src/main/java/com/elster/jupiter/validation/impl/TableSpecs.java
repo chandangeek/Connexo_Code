@@ -58,6 +58,7 @@ public enum TableSpecs {
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
             table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn).upTo(version(10, 3)).add();
             table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn, qualitySystemColumn).since(version(10, 3)).add();
+            table.cacheWholeTable(true);
         }
     },
     VAL_VALIDATIONRULESETVERSION {

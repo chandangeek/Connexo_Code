@@ -157,6 +157,10 @@ public interface Table<T> {
 
     void cache(long cacheTtl, long maximumSize, boolean recordStat);
 
+    void cacheWholeTable(boolean recordStat);
+
+    void cacheWholeTable(long maximumSize, boolean recordStat);
+
     CacheStats getCacheStats();
 
     void indexOrganized(int compressCount);
@@ -187,7 +191,7 @@ public interface Table<T> {
     boolean hasJournal(Version version);
 
     boolean isCached();
-
+    boolean isWholeTableCached();
     boolean isIndexOrganized();
 
     String getQualifiedName(Version version);

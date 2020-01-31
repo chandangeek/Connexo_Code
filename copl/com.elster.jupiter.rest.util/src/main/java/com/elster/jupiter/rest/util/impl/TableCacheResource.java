@@ -36,6 +36,15 @@ public class TableCacheResource {
                 .collect(Collectors.toMap(Table::getName, this::getCacheDetails));
     }
 
+
+    @GET
+    @Path("/wholecachedtablestatus")
+    public Map<String, String> getWholeCachedTableStatus(){
+        return ormService.getDataModels().stream().flatMap(dataModel -> dataModel.getTables().stream())
+                .filter(Table::isWholeTableCached).filter(table -> Objects.nonNull(((Table) table).getCacheStats()))
+                .collect(Collectors.toMap(Table::getName, this::getCacheDetails));
+    }
+
     private String getCacheDetails(Table table){
         CacheStats stats = table.getCacheStats();
         long total = stats.requestCount();

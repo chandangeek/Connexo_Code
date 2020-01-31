@@ -95,6 +95,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -272,6 +273,7 @@ public enum TableSpecs {
                     .add();
             table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).upTo(Version.version(10,8)).add();
             table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn, obsoleteDate).since(Version.version(10,8)).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -299,6 +301,7 @@ public enum TableSpecs {
                     .reverseMap("loadProfileSpecs")
                     .composition()
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -343,6 +346,7 @@ public enum TableSpecs {
                     reverseMap("channelSpecs").
                     composition().
                     add();
+            table.cacheWholeTable(true);
         }
     },
 
