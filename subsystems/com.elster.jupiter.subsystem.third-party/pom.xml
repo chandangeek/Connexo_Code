@@ -383,6 +383,16 @@
         <dependency>
             <groupId>com.elster.jupiter.bundles</groupId>
             <artifactId>com.elster.jupiter.bundles.opensaml</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>

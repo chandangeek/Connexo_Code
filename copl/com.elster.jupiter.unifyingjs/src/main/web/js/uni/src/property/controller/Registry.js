@@ -81,7 +81,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.WebServiceCombo',
         'Uni.property.view.property.CloseIssueForm',
         'Uni.property.view.property.DynamicCombobox',
-        'Uni.property.view.property.ValidationRuleCombo'
+        'Uni.property.view.property.ValidationRuleCombo',
+        'Uni.property.view.property.BigDecimal'
     ],
 
     /**
