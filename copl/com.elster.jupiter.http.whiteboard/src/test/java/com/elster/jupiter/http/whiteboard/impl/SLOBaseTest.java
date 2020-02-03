@@ -12,6 +12,7 @@ import org.glassfish.jersey.test.TestProperties;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,6 +75,9 @@ public class SLOBaseTest extends JerseyTest {
     protected SAMLSingleLogoutService samlSingleLogoutService;
 
     @Mock
+    protected HttpServletResponse httpServletResponse;
+
+    @Mock
     protected TokenService tokenService;
 
     @Mock
@@ -91,7 +95,7 @@ public class SLOBaseTest extends JerseyTest {
 
         samlSingleLogoutService = new SAMLSingleLogoutServiceImpl(tokenService, userService);
 
-        return new SLOTestApplication(samlSingleLogoutService, tokenService, userService);
+        return new SLOTestApplication(samlSingleLogoutService, tokenService, userService, httpServletResponse);
     }
 
     protected void configureUserService() {
@@ -103,11 +107,13 @@ public class SLOBaseTest extends JerseyTest {
         private volatile SAMLSingleLogoutService samlSingleLogoutService;
         private volatile TokenService tokenService;
         private volatile UserService userService;
+        private volatile HttpServletResponse httpServletResponse;
 
-        public SLOTestApplication(SAMLSingleLogoutService samlSingleLogoutService, TokenService tokenService, UserService userService) {
+        public SLOTestApplication(SAMLSingleLogoutService samlSingleLogoutService, TokenService tokenService, UserService userService, HttpServletResponse httpServletResponse) {
             this.samlSingleLogoutService = samlSingleLogoutService;
             this.tokenService = tokenService;
             this.userService = userService;
+            this.httpServletResponse = httpServletResponse;
         }
 
         @Override
@@ -131,6 +137,7 @@ public class SLOBaseTest extends JerseyTest {
                     bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);
                     bind(tokenService).to(TokenService.class);
                     bind(userService).to(UserService.class);
+                    bind(httpServletResponse).to(HttpServletResponse.class);
                 }
             };
         }

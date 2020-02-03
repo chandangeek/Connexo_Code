@@ -6,6 +6,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class SLOResourceTest extends SLOBaseTest {
 
     @Test
@@ -19,7 +21,7 @@ public class SLOResourceTest extends SLOBaseTest {
                 .buildPost(Entity.entity("TEST", MediaType.TEXT_PLAIN_TYPE))
                 .invoke();
 
-        final int status = response.getStatus();
+        assertThat(Response.Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getStatus());
     }
 
 }
