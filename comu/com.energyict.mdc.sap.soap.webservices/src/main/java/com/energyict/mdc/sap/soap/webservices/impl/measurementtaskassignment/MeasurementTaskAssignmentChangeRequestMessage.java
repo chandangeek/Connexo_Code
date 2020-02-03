@@ -29,6 +29,7 @@ public class MeasurementTaskAssignmentChangeRequestMessage extends AbstractSapMe
     private String uuid;
     private String profileId;
     private List<MeasurementTaskAssignmentChangeRequestRole> roles;
+
     private Thesaurus thesaurus;
 
     private MeasurementTaskAssignmentChangeRequestMessage(Thesaurus thesaurus) {
@@ -82,7 +83,7 @@ public class MeasurementTaskAssignmentChangeRequestMessage extends AbstractSapMe
                         setRoles(getRoles(сhangeRequest));
                     });
             if (id == null && uuid == null) {
-                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             return this;
         }

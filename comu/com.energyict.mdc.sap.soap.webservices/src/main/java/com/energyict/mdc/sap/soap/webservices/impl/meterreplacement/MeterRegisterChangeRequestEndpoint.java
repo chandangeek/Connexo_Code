@@ -80,7 +80,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                         MeterRegisterChangeMessage message = MeterRegisterChangeMessageBuilder
                                 .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
                                 .from(requestMessage)
-                                .build();
+                                .build(thesaurus);
                         SetMultimap<String, String> values = HashMultimap.create();
                         message.getRegisters().forEach(register -> {
                             Optional.ofNullable(register.getLrn())

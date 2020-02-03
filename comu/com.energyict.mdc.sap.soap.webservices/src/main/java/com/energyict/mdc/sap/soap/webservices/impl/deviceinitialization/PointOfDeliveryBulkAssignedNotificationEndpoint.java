@@ -96,7 +96,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
             requestId = getRequestId(msg);
             uuid = getUuid(msg);
             if (requestId == null && uuid == null) {
-                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             msg.getSmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationMessage()
                     .forEach(message -> {

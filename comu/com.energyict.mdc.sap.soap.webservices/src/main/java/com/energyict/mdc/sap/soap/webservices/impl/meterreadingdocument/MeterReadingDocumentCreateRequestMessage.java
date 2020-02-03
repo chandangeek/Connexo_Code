@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPBulkCrteReqMsg;
@@ -20,8 +21,10 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
     private String id;
     private String uuid;
     private List<MeterReadingDocumentCreateMessage> meterReadingDocumentCreateMessages = new ArrayList<>();
+    private Thesaurus thesaurus;
 
-    private MeterReadingDocumentCreateRequestMessage() {
+    private MeterReadingDocumentCreateRequestMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public String getId() {
@@ -44,8 +47,8 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
         return bulk;
     }
 
-    static MeterReadingDocumentCreateRequestMessage.Builder builder() {
-        return new MeterReadingDocumentCreateRequestMessage().new Builder();
+    static MeterReadingDocumentCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
+        return new MeterReadingDocumentCreateRequestMessage(thesaurus).new Builder();
     }
 
     public class Builder {
@@ -95,7 +98,7 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
 
         public MeterReadingDocumentCreateRequestMessage build() {
             if (id == null && uuid == null) {
-                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             return MeterReadingDocumentCreateRequestMessage.this;
         }

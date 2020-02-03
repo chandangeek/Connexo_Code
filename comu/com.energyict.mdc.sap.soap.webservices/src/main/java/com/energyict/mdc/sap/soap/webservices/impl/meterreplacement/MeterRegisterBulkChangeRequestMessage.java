@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
@@ -21,9 +22,11 @@ public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
     private String requestId;
     private String uuid;
     private List<MeterRegisterChangeMessage> meterRegisterChangeMessages = new ArrayList<>();
+    private Thesaurus thesaurus;
 
-    private MeterRegisterBulkChangeRequestMessage(Integer meterReplacementAddInterval) {
+    private MeterRegisterBulkChangeRequestMessage(Integer meterReplacementAddInterval, Thesaurus thesaurus) {
         this.meterReplacementAddInterval = meterReplacementAddInterval;
+        this.thesaurus = thesaurus;
     }
 
     public String getRequestId() {
@@ -38,8 +41,8 @@ public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
         return meterRegisterChangeMessages;
     }
 
-    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer meterReplacementAddInterval) {
-        return new MeterRegisterBulkChangeRequestMessage(meterReplacementAddInterval).new Builder();
+    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer meterReplacementAddInterval, Thesaurus thesaurus) {
+        return new MeterRegisterBulkChangeRequestMessage(meterReplacementAddInterval, thesaurus).new Builder();
     }
 
     public class Builder {
@@ -59,13 +62,13 @@ public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
                             meterRegisterChangeMessages.add(MeterRegisterChangeBulkMessageBuilder
                                     .builder(meterReplacementAddInterval)
                                     .from(message)
-                                    .build()));
+                                    .build(thesaurus)));
             return this;
         }
 
         public MeterRegisterBulkChangeRequestMessage build() {
             if (requestId == null && uuid == null) {
-                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             return MeterRegisterBulkChangeRequestMessage.this;
         }

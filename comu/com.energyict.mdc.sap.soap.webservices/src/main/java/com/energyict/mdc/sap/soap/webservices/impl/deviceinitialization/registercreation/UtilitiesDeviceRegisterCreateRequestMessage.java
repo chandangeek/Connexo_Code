@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegBulkCrteReqMsg;
@@ -79,9 +80,9 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateRequestMessage build() {
+        public UtilitiesDeviceRegisterCreateRequestMessage build(Thesaurus thesaurus) {
             if (requestID == null && uuid == null) {
-                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             return UtilitiesDeviceRegisterCreateRequestMessage.this;
         }

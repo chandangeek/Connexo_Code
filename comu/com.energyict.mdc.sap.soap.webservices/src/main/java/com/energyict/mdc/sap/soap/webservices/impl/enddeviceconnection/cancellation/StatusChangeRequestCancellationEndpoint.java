@@ -83,7 +83,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                                     StatusChangeRequestCancellationConfirmation.NAME);
                         }
-                        handleMessage(StatusChangeRequestCancellationRequestMessage.builder()
+                        handleMessage(StatusChangeRequestCancellationRequestMessage.builder(thesaurus)
                                 .from(requestMessage)
                                 .build());
                     });

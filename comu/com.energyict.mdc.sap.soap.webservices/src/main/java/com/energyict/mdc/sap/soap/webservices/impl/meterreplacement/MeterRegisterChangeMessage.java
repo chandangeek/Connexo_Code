@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
 import java.util.ArrayList;
@@ -44,9 +45,9 @@ public class MeterRegisterChangeMessage extends AbstractSapMessage {
         return registers;
     }
 
-    public void validate() {
+    public void validate(Thesaurus thesaurus) {
         if (id == null && uuid == null) {
-            addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
         }
         if (deviceId == null) {
             addMissingField(DEVICE_ID_XML_NAME);

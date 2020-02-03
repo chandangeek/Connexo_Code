@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.BusinessDocumentMessageID;
@@ -31,12 +32,14 @@ public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
     private String uuid;
 
     private List<StatusChangeRequestCreateMessage> requests = new ArrayList<>();
+    private Thesaurus thesaurus;
 
-    private StatusChangeRequestBulkCreateMessage() {
+    private StatusChangeRequestBulkCreateMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
-    public static StatusChangeRequestBulkCreateMessage.Builder builder() {
-        return new StatusChangeRequestBulkCreateMessage().new Builder();
+    public static StatusChangeRequestBulkCreateMessage.Builder builder(Thesaurus thesaurus) {
+        return new StatusChangeRequestBulkCreateMessage(thesaurus).new Builder();
     }
 
     public String getId() {
@@ -90,12 +93,12 @@ public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
                     getUtilitiesServiceDisconnectionReasonCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     msg.getUtilitiesConnectionStatusChangeRequest() != null ? msg.getUtilitiesConnectionStatusChangeRequest().getPlannedProcessingDateTime() : null,
                     getDeviceConnectionStatus(msg.getUtilitiesConnectionStatusChangeRequest()),
-                    true).build();
+                    true).build(thesaurus);
         }
 
         public StatusChangeRequestBulkCreateMessage build() {
             if (id == null && uuid == null) {
-                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (requests.isEmpty()) {
                 addMissingField(REQUEST_XML_NAME);

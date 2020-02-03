@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceID;
@@ -40,8 +41,8 @@ public class MeterRegisterChangeMessageBuilder {
         return this;
     }
 
-    public MeterRegisterChangeMessage build() {
-        message.validate();
+    public MeterRegisterChangeMessage build(Thesaurus thesaurus) {
+        message.validate(thesaurus);
         return message;
     }
 

@@ -72,7 +72,7 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
     }
 
     private class LocationMessage extends AbstractSapMessage {
-        private static final String LOCATION_ID_XML_NAME = "UtilitiesDevice.Location.InstallationPointID";
+        private static final String LOCATION_ID_XML_NAME = "InstallationPointID";
 
         private String requestId;
         private String uuid;
@@ -85,7 +85,7 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
             deviceId = getDeviceId(msg);
             locationId = getLocationId(msg);
             if (requestId == null && uuid == null) {
-                addAtLeastOneMissingField(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
             if (deviceId == null) {
                 addMissingField(UTILITIES_DEVICE_ID_XML_NAME);

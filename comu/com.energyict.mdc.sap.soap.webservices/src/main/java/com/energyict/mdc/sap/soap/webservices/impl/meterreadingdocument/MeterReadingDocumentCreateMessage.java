@@ -12,10 +12,10 @@ import java.util.Optional;
 public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
 
     private static final String ID_XML_NAME = "MeterReadingDocument.ID";
-    private static final String DEVICE_ID_XML_NAME = "MeterReadingDocument.UtiltiesMeasurementTask.UtilitiesDevice.UtilitiesDeviceID";
-    private static final String LRN_XML_NAME = "MeterReadingDocument.UtiltiesMeasurementTask.UtilitiesMeasurementTaskID.UtilitiesDeviceID";
-    private static final String READING_REASON_CODE_XML_NAME = "MeterReadingDocument.MeterReadingReasonCode";
-    private static final String SCHEDULED_DATE_XML_NAME = "MeterReadingDocument.ScheduledMeterReadingDate";
+    private static final String DEVICE_ID_XML_NAME = "UtilitiesDevice.UtilitiesDeviceID";
+    private static final String LRN_XML_NAME = "UtilitiesMeasurementTaskID.UtilitiesDeviceID";
+    private static final String READING_REASON_CODE_XML_NAME = "MeterReadingReasonCode";
+    private static final String SCHEDULED_DATE_XML_NAME = "ScheduledMeterReadingDate";
 
 
     /* headerId headerUUID used only for bulk request */
