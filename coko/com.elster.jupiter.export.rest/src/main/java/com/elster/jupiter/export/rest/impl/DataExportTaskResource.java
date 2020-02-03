@@ -851,7 +851,7 @@ public class DataExportTaskResource {
         }
         return occurrencesFinder
                 .withExportTask(exportTaskIds)
-                .find()
+                .findWithoutDefaultOrder()
                 .stream()
                 .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(occurrence.getTask().getHistory(), occurrence))
                 .collect(Collectors.toList());

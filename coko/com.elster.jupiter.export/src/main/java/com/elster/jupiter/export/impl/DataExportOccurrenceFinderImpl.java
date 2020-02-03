@@ -116,4 +116,9 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
         return queryStream;
     }
 
+    @Override
+    public List<? extends DataExportOccurrence> findWithoutDefaultOrder() {
+        return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class, RecurrentTask.class)
+                .select(condition, sortingColumns, true, null, start + 1, start + limit);
+    }
 }
