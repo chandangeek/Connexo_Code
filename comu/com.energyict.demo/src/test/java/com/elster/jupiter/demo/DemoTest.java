@@ -187,7 +187,7 @@ import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.templates.AbstractDataCollectionTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate;
+import com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.datavalidation.impl.IssueDataValidationModule;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.IssueDeviceLifecycleModule;
