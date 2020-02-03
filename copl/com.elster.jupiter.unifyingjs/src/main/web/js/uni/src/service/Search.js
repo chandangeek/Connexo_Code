@@ -35,6 +35,7 @@ Ext.define('Uni.service.Search', {
     changedFiltersNotYetApplied: false,
     previouslyAppliedFiltersAsString: undefined,
     previouslyAppliedState: undefined,
+    bulkAction: undefined,
 
     constructor: function (config) {
         var me = this;
@@ -313,6 +314,7 @@ Ext.define('Uni.service.Search', {
         me.previouslyAppliedState = me.getState();
         me.previouslyAppliedFiltersAsString = JSON.stringify(filters);
         me.changedFiltersNotYetApplied = false;
+        me.bulkAction = false;
         searchResults.clearFilter(true);
         if (filters && filters.length) {
             if (router && router.currentRoute == 'search') {
@@ -619,7 +621,7 @@ Ext.define('Uni.service.Search', {
         });
 
         me.saveState();
-        me.changedFiltersNotYetApplied = true;
+        me.changedFiltersNotYetApplied = me.bulkAction == true ? false : true;
     },
 
     setFilter: function (filter) {
@@ -629,7 +631,6 @@ Ext.define('Uni.service.Search', {
         me.filters.add(filter);
         me.onFilterChange(filter);
         me.saveState();
-        me.changedFiltersNotYetApplied = true;
         Ext.resumeLayouts(true);
     },
 
@@ -683,6 +684,7 @@ Ext.define('Uni.service.Search', {
             });
 
         }
+        me.changedFiltersNotYetApplied = me.bulkAction;
         me.fireEvent('change', me.filters, filter);
 
     },
