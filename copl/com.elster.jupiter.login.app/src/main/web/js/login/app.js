@@ -15,8 +15,5 @@ Ext.onReady(function () {
 
     Ext.Ajax.on("requestcomplete", function(conn, response){
 
-        if(response.getResponseHeader('X-CSRF-TOKEN')){
-            Ext.util.Cookies.set('X-CSRF-TOKEN', response.getResponseHeader('X-CSRF-TOKEN'));
-        }
     });
 });
