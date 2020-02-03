@@ -123,8 +123,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
     }
 
     private class PodMessage extends AbstractSapMessage {
-        private static final String UTILITIES_DEVICE_ID_XML_NAME = "UtilitiesMeasurementTask." + AbstractSapMessage.UTILITIES_DEVICE_ID_XML_NAME;
-        private static final String POD_ID_XML_NAME = "UtilitiesMeasurementTask.UtilitiesPointOfDeliveryAssignment.UtilitiesPointOfDeliveryPartyID";
+        private static final String POD_ID_XML_NAME = "UtilitiesPointOfDeliveryPartyID";
         private String deviceId;
         private String podId;
 
