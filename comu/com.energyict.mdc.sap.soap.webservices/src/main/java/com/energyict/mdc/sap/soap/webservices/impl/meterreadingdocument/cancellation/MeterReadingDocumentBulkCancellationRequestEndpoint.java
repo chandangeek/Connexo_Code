@@ -35,7 +35,7 @@ public class MeterReadingDocumentBulkCancellationRequestEndpoint extends Abstrac
             }
 
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> handleMessage(MeterReadingDocumentCancellationRequestMessage.builder()
+                    .ifPresent(requestMessage -> handleMessage(MeterReadingDocumentCancellationRequestMessage.builder(getThesaurus())
                             .from(requestMessage)
                             .build()));
             return null;

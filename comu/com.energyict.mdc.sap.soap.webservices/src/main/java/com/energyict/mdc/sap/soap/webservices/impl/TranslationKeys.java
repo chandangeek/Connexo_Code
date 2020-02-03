@@ -84,6 +84,7 @@ public enum TranslationKeys implements TranslationKey {
     COM_TASK_EXECUTION_ID("comTaskExecutionId", "Communication task execution id"),
     DIVISION_CATEGORY("divisionCategory", "Division category code"),
     REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "Requested scheduled reading date"),
+    AT_LEAST_ONE_OF("at.least.one.of", "at least one of"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),

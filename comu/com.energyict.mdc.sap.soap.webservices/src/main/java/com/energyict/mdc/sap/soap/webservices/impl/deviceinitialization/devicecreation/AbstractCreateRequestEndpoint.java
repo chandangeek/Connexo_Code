@@ -50,7 +50,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
 
     @Inject
     public AbstractCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                         Clock clock,WebServiceActivator webServiceActivator, DeviceService deviceService, ServiceCallService serviceCallService) {
+                                         Clock clock, WebServiceActivator webServiceActivator, DeviceService deviceService, ServiceCallService serviceCallService) {
         this.thesaurus = webServiceActivator.getThesaurus();
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
@@ -95,7 +95,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
         }
     }
 
@@ -128,15 +128,15 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getMissingFields());
         }
     }
 
-    private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
         UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
                 UtilitiesDeviceCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -186,6 +186,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
                     }
                 });
     }
+
     public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
