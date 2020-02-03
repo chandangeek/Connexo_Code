@@ -32,6 +32,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -216,6 +217,7 @@ public class InMemoryIntegrationPersistence {
     private PropertyValueInfoService propertyValueInfoService;
     private MdcPropertyUtils mdcPropertyUtils;
     private Injector injector;
+    private MessageService messageService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -362,6 +364,7 @@ public class InMemoryIntegrationPersistence {
             this.propertyValueInfoService = injector.getInstance(PropertyValueInfoService.class);
             this.mdcPropertyUtils = new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService);
             injector.getInstance(CustomPropertySetService.class);
+            this.messageService = injector.getInstance(MessageService.class);
             initializePrivileges();
             ctx.commit();
         }
@@ -375,7 +378,7 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializePrivileges() {
-        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
+        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService, messageService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
                         .stream().toArray(String[]::new)));
         new com.energyict.mdc.device.data.impl.InstallerV10_2Impl(userService, meteringService, injector.getInstance(ServiceCallService.class), injector.getInstance(CustomPropertySetService.class))
