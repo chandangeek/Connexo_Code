@@ -116,33 +116,28 @@ Ext.onReady(function () {
     loader.initPackages(packages);
     // </debug>
     Ext.Ajax.on("beforerequest", function(conn, options){
-        if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {
-            Ext.Ajax.request({
-                url: '../../api/usr/csrf/token',
-                async: false,
-                method: 'GET',
-                success: function (data) {
-                    conn.token = data.responseText;
-                },
-                failure: function (data) {
-                    console.log(data);
-                }
-            });
-            conn.defaultHeaders['X-CSRF-TOKEN'] = conn.token;
-        }
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
         conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : xAuthToken;
 
         if (!options.headers) {
             options.headers = {};
         }
+        if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {
+            options.headers['X-CSRF-TOKEN'] = Ext.util.Cookies.get('X-CSRF-TOKEN') || "";
+
+        }
+
+
 
     });
-
     Ext.Ajax.on("requestcomplete", function(conn, response){
+
         if(response.request && JSON.stringify(response.request.headers).match('"X-Requested-With":"XMLHttpRequest"'))
             localStorage.setItem('X-AUTH-TOKEN', response.getResponseHeader('X-AUTH-TOKEN'));
 
+        if(response.getResponseHeader('X-CSRF-TOKEN')){
+            Ext.util.Cookies.set('X-CSRF-TOKEN', response.getResponseHeader('X-CSRF-TOKEN'));
+        }
     });
 
     loader.onReady(function () {
@@ -184,7 +179,5 @@ Ext.onReady(function () {
         Uni.store.Apps.load(onDependenciesLoad);
         Uni.util.CheckAppStatus.checkInsightAppStatus(onDependenciesLoad);
     });
-
 });
-
 

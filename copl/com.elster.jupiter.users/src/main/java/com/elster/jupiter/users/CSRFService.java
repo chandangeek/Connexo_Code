@@ -9,8 +9,6 @@ package com.elster.jupiter.users;
 
 import aQute.bnd.annotation.ProviderType;
 
-import javax.inject.Inject;
-
 /**
  * Insert your comments here.
  *
@@ -22,6 +20,4 @@ public interface CSRFService {
     public String getCSRFToken(String sessionId);
     public void addCSRFToken(String sessionId, String token);
     public void romoveToken(String sessionId);
-
-
 }
