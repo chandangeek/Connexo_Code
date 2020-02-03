@@ -118,7 +118,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
         Instant shipmentDate = lifecycleDates.getReceivedDate().orElseGet(device::getCreateTime);
         if (startDate.isBefore(shipmentDate)) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_THEN_SHIPMENT_DATE);
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
         }
     }
 

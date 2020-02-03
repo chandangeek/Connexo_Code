@@ -86,7 +86,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             CIMLifecycleDates lifecycleDates = device.get().getLifecycleDates();
             Instant shipmentDate = lifecycleDates.getReceivedDate().orElse(device.get().getCreateTime());
             if (extension.getStartDate().isBefore(shipmentDate)) {
-                failServiceCall(extension, MessageSeeds.START_DATE_IS_BEFORE_THEN_SHIPMENT_DATE);
+                failServiceCall(extension, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
                 return;
             }
 
