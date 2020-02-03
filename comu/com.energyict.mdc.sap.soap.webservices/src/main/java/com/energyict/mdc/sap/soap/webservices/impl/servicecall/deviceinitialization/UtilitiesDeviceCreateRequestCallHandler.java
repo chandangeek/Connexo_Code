@@ -93,9 +93,9 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
             processDeviceCreation(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception ex) {
-            if(ex instanceof LocalizedException){
-                extension.setError(((LocalizedException)ex).getMessageSeed(), ((LocalizedException)ex).getMessageArgs());
-            }else{
+            if (ex instanceof LocalizedException) {
+                extension.setError(((LocalizedException) ex).getMessageSeed(), ((LocalizedException) ex).getMessageArgs());
+            } else {
                 extension.setError(MessageSeeds.ERROR_PROCESSING_METER_CREATE_REQUEST, ex.getLocalizedMessage());
             }
 
@@ -116,9 +116,9 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
 
     private void validateShipmentDate(Device device, Instant startDate) {
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-        Instant shipmentDate = lifecycleDates.getReceivedDate().orElse(device.getCreateTime());
-        if(startDate.isBefore(shipmentDate)){
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_LESS_THEN_SHIPMENT_DATE);
+        Instant shipmentDate = lifecycleDates.getReceivedDate().orElseGet(device::getCreateTime);
+        if (startDate.isBefore(shipmentDate)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_THEN_SHIPMENT_DATE);
         }
     }
 

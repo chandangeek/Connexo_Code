@@ -85,8 +85,8 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
 
             CIMLifecycleDates lifecycleDates = device.get().getLifecycleDates();
             Instant shipmentDate = lifecycleDates.getReceivedDate().orElse(device.get().getCreateTime());
-            if(extension.getStartDate().isBefore(shipmentDate)){
-                failServiceCall(extension, MessageSeeds.START_DATE_IS_LESS_THEN_SHIPMENT_DATE);
+            if (extension.getStartDate().isBefore(shipmentDate)) {
+                failServiceCall(extension, MessageSeeds.START_DATE_IS_BEFORE_THEN_SHIPMENT_DATE);
                 return;
             }
 
@@ -130,7 +130,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         Set<Channel> channels = findChannelByObis(device, obis, period);
 
-        if(cimPattern != null) {
+        if (cimPattern != null) {
             channels.addAll(findChannelByReadingType(device, period, cimPattern));
         }
         if (!channels.isEmpty()) {
