@@ -9,7 +9,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserInGroup;
+import com.elster.jupiter.users.UserSecuritySettings;
+import com.elster.jupiter.users.WorkGroup;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -18,12 +25,21 @@ import javax.validation.constraints.Size;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.UUID_MAX_LENGHT;
+import static com.elster.jupiter.orm.Table.UUID_LENGHT;
 import static com.elster.jupiter.util.Checks.is;
 
 public final class UserImpl implements User {
@@ -32,7 +48,7 @@ public final class UserImpl implements User {
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
 
-    @Size(max = UUID_MAX_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
+    @Size(max = UUID_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
     private String externalId;
     private String authenticationName;
     @Size(max = SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")

@@ -13,7 +13,13 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserInGroup;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.google.common.collect.ImmutableList;
 
@@ -21,11 +27,18 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.UUID_LENGHT;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -38,7 +51,7 @@ final class GroupImpl implements Group {
     @SuppressWarnings("unused")
     private long id;
 
-    @Size(max = UUID_MAX_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
+    @Size(max = UUID_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
     private String externalId;
 
     @Size(max = NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")

@@ -10,7 +10,11 @@ import com.elster.jupiter.util.HasName;
 
 import java.security.Principal;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface User extends Principal, HasName, HasExternalId {

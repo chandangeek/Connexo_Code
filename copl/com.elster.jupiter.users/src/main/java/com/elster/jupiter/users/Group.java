@@ -5,7 +5,6 @@
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.users.impl.ApplicationPrivilege;
 import com.elster.jupiter.util.HasExternalId;
 import com.elster.jupiter.util.HasName;
 
