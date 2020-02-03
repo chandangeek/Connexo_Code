@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.export.webservicecall.DataExportSCCustomInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
@@ -12,7 +13,7 @@ import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -49,6 +50,7 @@ public interface DataExportWebService extends EndPointProp {
 
     @ProviderType
     interface ExportContext {
-        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources);
+        //interface: customInformation getName, toString, fromString + Map<ReadingTypeDataExportItem, CustomInformation>
+        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> dataSources);
     }
 }

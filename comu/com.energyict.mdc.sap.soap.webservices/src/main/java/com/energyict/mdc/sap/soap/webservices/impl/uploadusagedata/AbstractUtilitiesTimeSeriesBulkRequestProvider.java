@@ -8,6 +8,8 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.webservicecall.DataExportSCCustomInfo;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -42,6 +44,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -132,6 +135,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     abstract List<TS> prepareTimeSeries(MeterReadingData item, Instant now);
 
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
+    abstract String getCustomInfo(List<TS> list);
 
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
@@ -173,16 +177,14 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         for (Long key : listToSend) {
             seriesMultimap.removeAll(key)
                     .forEach(timeSeriesWrapper -> sendPartOfData(endPointConfiguration, context,
-                            timeSeriesWrapper.getTimeSeries(),
-                            Collections.singletonList(timeSeriesWrapper.getMeterReadingData()),
+                            Collections.singletonList(timeSeriesWrapper),
                             now,
                             timeout)
                     );
         }
 
         long timeSeriesNumber = 0;
-        List<TS> timeSeriesListToSend = new ArrayList<>();
-        List<MeterReadingData> meterReadingDataListToSend = new ArrayList<>();
+        List<TimeSeriesWrapper<TS>> timeSeriesWrapperListToSend = new ArrayList<>();
         Set<Long> keys = seriesMultimap.keySet();
         while (!seriesMultimap.isEmpty()) {
             long diff = numberOfReadingsPerMsg - timeSeriesNumber;
@@ -193,17 +195,14 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             if (!key.isPresent()) {
                 /* No readings can be added to message. So send all that we already have in message */
                 sendPartOfData(endPointConfiguration, context,
-                        timeSeriesListToSend,
-                        meterReadingDataListToSend,
+                        timeSeriesWrapperListToSend,
                         now, timeout);
-                timeSeriesListToSend.clear();
-                meterReadingDataListToSend.clear();
+                timeSeriesWrapperListToSend.clear();
                 timeSeriesNumber = 0;
             } else {
                 List<TimeSeriesWrapper<TS>> timeSeriesWrapperList = seriesMultimap.get(key.get());
                 TimeSeriesWrapper<TS> timeSeriesWrapper = timeSeriesWrapperList.remove(0);
-                timeSeriesListToSend.addAll(timeSeriesWrapper.getTimeSeries());
-                meterReadingDataListToSend.add(timeSeriesWrapper.getMeterReadingData());
+                timeSeriesWrapperListToSend.add(timeSeriesWrapper);
 
                 timeSeriesNumber = timeSeriesNumber + key.get();
                 if (timeSeriesWrapperList.isEmpty()) {
@@ -212,39 +211,53 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 if (seriesMultimap.isEmpty()) {
                     sendPartOfData(endPointConfiguration,
                             context,
-                            timeSeriesListToSend,
-                            meterReadingDataListToSend,
+                            timeSeriesWrapperListToSend,
                             now,
                             timeout);
-                    timeSeriesListToSend.clear();
-                    meterReadingDataListToSend.clear();
+                    timeSeriesWrapperListToSend.clear();
                     timeSeriesNumber = 0;
                 }
             }
         }
     }
 
+    //timeseries+exportData->TimeSeriesWrapper
     private void sendPartOfData(EndPointConfiguration endPointConfiguration, ExportContext context,
-                                List<TS> timeSeries, List<MeterReadingData> exportData,
+                                //List<TS> timeSeries, List<MeterReadingData> exportData,
+                                List<TimeSeriesWrapper<TS>> timeSeriesWrappers,
                                 Instant now,
                                 TimeDuration timeout) {
         String uuid = UUID.randomUUID().toString();
         try {
-            SetMultimap<String, String> values = HashMultimap.create();
-            MSG message = createMessageFromTimeSeries(timeSeries, uuid, values, now);
-            if (message != null) {
-                Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
-                        .toEndpoints(endPointConfiguration)
-                        .withRelatedAttributes(values)
-                        .send(message)
-                        .keySet();
-                if (!processedEndpoints.contains(endPointConfiguration)) {
-                    throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
-                }
-                Optional.ofNullable(timeout)
-                        .map(TimeDuration::getMilliSeconds)
-                        .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, exportData.stream().map(MeterReadingData::getItem).collect(Collectors.toList())));
+
+            Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data = new HashMap<>();
+            List<TS> list = new ArrayList<>();
+            for (TimeSeriesWrapper<TS> ts : timeSeriesWrappers) {
+                List<TS> series = ts.getTimeSeries();
+                data.put(ts.getMeterReadingData().getItem(), new ProfileIdCustomInfo(getCustomInfo(series)));
+                list.addAll(series);
             }
+
+            SetMultimap<String, String> values = HashMultimap.create();
+
+            for (TimeSeriesWrapper<TS> timeSeriesWrapper : timeSeriesWrappers) {
+                List<TS> series = timeSeriesWrapper.getTimeSeries();
+                list.addAll(series);
+            }
+            MSG message = createMessageFromTimeSeries(list, uuid, values, now);
+                if (message != null) {
+                    Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
+                            .toEndpoints(endPointConfiguration)
+                            .withRelatedAttributes(values)
+                            .send(message)
+                            .keySet();
+                    if (!processedEndpoints.contains(endPointConfiguration)) {
+                        throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
+                    }
+                    Optional.ofNullable(timeout)
+                            .map(TimeDuration::getMilliSeconds)
+                            .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, data));
+                }
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
             throw ex;

@@ -13,6 +13,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> itemList);
+    ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> itemList);
 
     /**
      * Creates and starts a new service call in a new thread.
@@ -34,7 +35,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout, Collection<ReadingTypeDataExportItem> itemList);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> itemList);
 
 
     /**

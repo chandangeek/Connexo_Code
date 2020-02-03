@@ -4,6 +4,8 @@
 package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildCustomPropertySet;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildDomainExtension;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -26,18 +28,24 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchange
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmBulkChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmChgConfUtilsTmeSers;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
+import org.jvnet.hk2.internal.Collector;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper.findChildren;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
@@ -87,13 +95,53 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
             Optional<String> uuid = findReferenceUuid(confirmation);
             ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
                     .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
-            if (isConfirmed(confirmation)) {
-                dataExportServiceCallType.tryPassingServiceCall(serviceCall);
-            } else {
-                dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+            switch (getResultCode(confirmation)) {
+                case SUCCESSFUL:
+                    dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+                    break;
+                case PARTIALLY_SUCCESSFUL:
+                    List<String> succeedProfileId = getSucceedProfileId(confirmation);
+                    findChildren(serviceCall).forEach(child->{
+                        WebServiceDataExportChildDomainExtension extension = child.getExtensionFor(new WebServiceDataExportChildCustomPropertySet())
+                                .orElseThrow(() -> new IllegalStateException("Can not find domain extension for parent service call"));
+                        List<String> pr = Arrays.asList(extension.getCustomInfo().split(","));
+                        if(succeedProfileId.containsAll(pr)){
+                            dataExportServiceCallType.tryPassingServiceCall(child);
+                        }
+                        else{
+                            dataExportServiceCallType.tryFailingServiceCall(child, null);
+                        }
+                        succeedProfileId.removeAll(pr);
+                    });
+                    break;
+                case FAILED:
+                case RECEIVED:
+                case IN_PROCESS:
+                    dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+                    break;
             }
             return null;
         });
+    }
+
+    private static List<String> getSucceedProfileId(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+        return Optional.ofNullable(confirmation)
+                .map(UtilsTmeSersERPItmBulkChgConfMsg::getUtilitiesTimeSeriesERPItemChangeConfirmationMessage)
+                .map(List::stream)
+                .orElseGet(Stream::empty)
+                .filter(UtilitiesTimeSeriesBulkChangeConfirmationReceiver::isChildConfirmed)
+                .map(UtilsTmeSersERPItmChgConfMsg::getUtilitiesTimeSeries)
+                .map(UtilsTmeSersERPItmChgConfUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue)
+                .collect(Collectors.toList());
+    }
+
+    private static boolean isChildConfirmed(UtilsTmeSersERPItmChgConfMsg item) {
+        return Optional.ofNullable(item)
+                .map(UtilsTmeSersERPItmChgConfMsg::getLog)
+                .map(Log::getBusinessDocumentProcessingResultCode)
+                .filter(code->code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
+                .isPresent();
     }
 
     private static List<UtilsTmeSersERPItmChgConfMsg> getChangeConfirmationMessages(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
@@ -119,12 +167,12 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
         return Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue);
     }
 
-    private static boolean isConfirmed(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+    private static ProcessingResultCode getResultCode(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .filter(Predicates.not(FAILURE_CODES::contains))
-                .isPresent();
+                .map(ProcessingResultCode::valueOf)
+                .orElse(ProcessingResultCode.FAILED);
     }
 
     private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {

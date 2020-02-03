@@ -18,7 +18,8 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
         DOMAIN("serviceCall", "SERVICE_CALL"),
         DATA_SOURCE_ID("dataSourceId", "DATA_SOURCE_ID"),
         DEVICE_NAME("deviceName", "DEVICE_NAME"),
-        READING_TYPE_MRID("readingTypeMRID", "READING_TYPE_MRID");
+        READING_TYPE_MRID("readingTypeMRID", "READING_TYPE_MRID"),
+        CUSTOM_INFO("customInfo", "CUSTOM_INFO");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -45,6 +46,9 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + '}')
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + '}')
     private String readingTypeMRID;
+
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + '}')
+    private String customInfo;
 
     private long dataSourceId;
 
@@ -75,6 +79,14 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
         this.dataSourceId = dataSourceId;
     }
 
+    public String getCustomInfo(){
+        return this.customInfo;
+    }
+
+    public void setCustomInfo(String customInfo){
+        this.customInfo = customInfo;
+    }
+
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -85,6 +97,7 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
         setDeviceName((String) propertyValues.getProperty(FieldNames.DEVICE_NAME.javaName()));
         setReadingTypeMRID((String) propertyValues.getProperty(FieldNames.READING_TYPE_MRID.javaName()));
         setDataSourceId((long) propertyValues.getProperty(FieldNames.DATA_SOURCE_ID.javaName()));
+        setCustomInfo((String) propertyValues.getProperty(FieldNames.CUSTOM_INFO.javaName()));
     }
 
     @Override
@@ -92,6 +105,7 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
         propertySetValues.setProperty(FieldNames.DEVICE_NAME.javaName(), getDeviceName());
         propertySetValues.setProperty(FieldNames.READING_TYPE_MRID.javaName(), getReadingTypeMRID());
         propertySetValues.setProperty(FieldNames.DATA_SOURCE_ID.javaName(), getDataSourceId());
+        propertySetValues.setProperty(FieldNames.CUSTOM_INFO.javaName(), getCustomInfo());
     }
 
     @Override

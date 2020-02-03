@@ -72,7 +72,10 @@ public class WebServiceDataExportChildPersistentSupport implements PersistenceSu
                 .map(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName())
                 .notNull()
                 .add();
-
+        table.column(WebServiceDataExportChildDomainExtension.FieldNames.CUSTOM_INFO.databaseName())
+                .varChar()
+                .map(WebServiceDataExportChildDomainExtension.FieldNames.CUSTOM_INFO.javaName())
+                .add();
     }
 
     @Override

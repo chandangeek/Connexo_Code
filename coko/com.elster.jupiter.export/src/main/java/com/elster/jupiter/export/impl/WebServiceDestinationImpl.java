@@ -11,6 +11,7 @@ import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.WebServiceDestination;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportServiceCallHandler;
+import com.elster.jupiter.export.webservicecall.DataExportSCCustomInfo;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,10 +31,10 @@ import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -310,7 +311,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
 
         @Override
-        public ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources) {
+        public ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> dataSources) {
             ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, dataSources);
             openServiceCalls.add(serviceCall);
             return serviceCall;

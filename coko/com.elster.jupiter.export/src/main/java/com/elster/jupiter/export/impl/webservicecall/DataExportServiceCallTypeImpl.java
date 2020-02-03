@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
+import com.elster.jupiter.export.webservicecall.DataExportSCCustomInfo;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.fsm.State;
@@ -40,6 +41,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -104,7 +106,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
+    public ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
         if (transactionService.isInTransaction()) {
             return doStartServiceCall(uuid, timeout, data);
         } else {
@@ -113,7 +115,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCallAsync(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
+    public ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
         Principal principal = threadPrincipalService.getPrincipal();
         try {
             return CompletableFuture.supplyAsync(() -> {
@@ -127,20 +129,21 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    private void createChildServiceCalls(ServiceCall parent, Collection<ReadingTypeDataExportItem> data) {
-        data.stream()
-                .distinct()
-                .forEach(item -> createChild(parent,
-                        item.getDomainObject().getName(),
-                        item.getReadingType().getMRID(),
-                        item.getId()));
+    private void createChildServiceCalls(ServiceCall parent,Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
+        //distinct
+        data.forEach((k,v) -> createChild(parent,
+                        k.getDomainObject().getName(),
+                        k.getReadingType().getMRID(),
+                        k.getId(),
+                v));
     }
 
-    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
+    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId, DataExportSCCustomInfo customInformation){
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
         childSrvCallProperties.setDeviceName(deviceName);
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
         childSrvCallProperties.setDataSourceId(itemId);
+        childSrvCallProperties.setCustomInfo(customInformation.toString());
 
         ServiceCallType srvCallChildType = findOrCreateChildType();
 
@@ -153,11 +156,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
 
-    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Collection<ReadingTypeDataExportItem>  data) {
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo>  data) {
         return transactionService.execute(() -> doStartServiceCall(uuid, timeout, data));
     }
 
-    private ServiceCall doStartServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
+    private ServiceCall doStartServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);

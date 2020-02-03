@@ -22,12 +22,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 @Component(name = WebServiceDataExportServiceCallHandler.NAME,
         service = ServiceCallHandler.class,
@@ -70,10 +72,20 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
             case ONGOING:
                 process(serviceCall);
                 break;
+            case SUCCESSFUL:
+                findChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryPassingServiceCall(sc));
+                break;
+            case FAILED:
+                findChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryFailingServiceCall(sc, null));
+                break;
             default:
                 // No specific action required for these states
                 break;
         }
+    }
+
+    private static List<ServiceCall> findChildren(ServiceCall serviceCall) {
+        return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
     private void process(ServiceCall serviceCall) {
