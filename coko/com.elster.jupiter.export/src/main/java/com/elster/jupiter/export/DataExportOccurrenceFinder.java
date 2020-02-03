@@ -35,7 +35,5 @@ public interface DataExportOccurrenceFinder {
 
     List<? extends DataExportOccurrence> find();
 
-    List<? extends DataExportOccurrence> findWithoutDefaultOrder();
-
     QueryStream<DataExportOccurrence> stream();
 }

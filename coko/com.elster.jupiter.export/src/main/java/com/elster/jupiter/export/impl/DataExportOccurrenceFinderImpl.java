@@ -17,6 +17,9 @@ import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -29,10 +32,7 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     private Integer start;
     private Integer limit;
 
-    DataExportOccurrenceFinderImpl() {}
-
     DataExportOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
-        this();
         this.dataModel = dataModel;
         this.condition = condition;
         this.defaultOrder = order;
@@ -105,8 +105,14 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
         QueryStream<DataExportOccurrence> queryStream = dataModel.stream(DataExportOccurrence.class)
                 .join(TaskOccurrence.class)
                 .join(RecurrentTask.class)
-                .filter(condition)
-                .sorted(defaultOrder, sortingColumns);
+                .filter(condition);
+
+        if(sortingColumns.length == 0){
+            queryStream.sorted(defaultOrder, sortingColumns);
+        }else {
+            queryStream.sorted(sortingColumns[0], sortingColumns);
+        }
+
         if (start != null) {
             queryStream.skip(start);
         }
@@ -114,11 +120,5 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
             queryStream.limit(limit);
         }
         return queryStream;
-    }
-
-    @Override
-    public List<? extends DataExportOccurrence> findWithoutDefaultOrder() {
-        return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class, RecurrentTask.class)
-                .select(condition, sortingColumns, true, null, start + 1, start + limit);
     }
 }
