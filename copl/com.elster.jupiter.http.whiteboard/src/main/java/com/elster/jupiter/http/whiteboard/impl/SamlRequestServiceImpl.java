@@ -94,7 +94,7 @@ public class SamlRequestServiceImpl implements SamlRequestService {
         try {
             AuthnRequest authnRequest = this.createAuthnRequest(acsEndpoint, UUID.randomUUID().toString(), DateTime.now(), request.getRequestURL().toString());
             String convertedAuthnRequest = this.convertXmlObjectToString(authnRequest);
-            return Optional.of(Base64.encodeBase64String(CompressionUtils.deflate(SamlUtils.getBytesWithCatch(convertedAuthnRequest, SamlUtils.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64))));
+            return Optional.of(Base64.encodeBase64String(CompressionUtils.deflate(SAMLUtilities.getBytesWithCatch(convertedAuthnRequest, SAMLUtilities.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64))));
 
         } catch (SAMLException e) {
             LOGGER.log(Level.SEVERE, "Error while trying to create SAML Request", e);

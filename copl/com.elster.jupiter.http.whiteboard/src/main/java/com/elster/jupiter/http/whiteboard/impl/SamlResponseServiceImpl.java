@@ -40,7 +40,7 @@ public class SamlResponseServiceImpl implements SamlResponseService {
     @Override
     public Response createSamlResponse(String samlResponse) {
         try {
-            String xml = new String(Base64.decodeBase64(SamlUtils.getBytesWithCatch(samlResponse, SamlUtils.ERROR_PROBLEM_DECODE_RESPONSE_FROM_BASE64)));
+            String xml = new String(Base64.decodeBase64(SAMLUtilities.getBytesWithCatch(samlResponse, SAMLUtilities.ERROR_PROBLEM_DECODE_RESPONSE_FROM_BASE64)));
             XMLObject xmlObject = this.convertStringToXmlObject(xml);
             Response response = this.getResponseFromXmlObject(xmlObject);
             checkStatusCode(response);
@@ -62,14 +62,14 @@ public class SamlResponseServiceImpl implements SamlResponseService {
             return XMLObjectProviderRegistrySupport.getUnmarshallerFactory().getUnmarshaller(root).unmarshall(root);
         } catch (XMLParserException | UnmarshallingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new SAMLException(SamlUtils.ERROR_PROBLEM_PARSING_XML_OF_THE_RESPONSE, e);
+            throw new SAMLException(SAMLUtilities.ERROR_PROBLEM_PARSING_XML_OF_THE_RESPONSE, e);
         }
     }
 
     @Override
     public Response getResponseFromXmlObject(XMLObject response) throws SAMLException {
         if (!Response.class.isInstance(response)) {
-            throw new SAMLException(SamlUtils.ERROR_XMLOBJECT_NOT_CAST_TO_RESPONSE);
+            throw new SAMLException(SAMLUtilities.ERROR_XMLOBJECT_NOT_CAST_TO_RESPONSE);
         }
         return (Response) response;
     }
@@ -143,7 +143,7 @@ public class SamlResponseServiceImpl implements SamlResponseService {
     public void checkStatusCode(Response response) throws SAMLException {
         String statusCode = response.getStatus().getStatusCode().getValue();
         if (!StringUtils.equals(statusCode, StatusCode.SUCCESS)) {
-            throw new SAMLException(SamlUtils.ERROR_STATUS_CODE_NOT_SUCCESS);
+            throw new SAMLException(SAMLUtilities.ERROR_STATUS_CODE_NOT_SUCCESS);
         }
     }
 
@@ -151,8 +151,8 @@ public class SamlResponseServiceImpl implements SamlResponseService {
     public void checkConditions(Assertion assertion) throws SAMLException {
         Conditions conditions = assertion.getConditions();
         Date now = DateTime.now().toDate();
-        Date conditionNotBefore = conditions.getNotBefore().minusSeconds(SamlUtils.BACKLASH_FOR_MESSAGE_IN_SECONDS).toDate();
-        Date conditionNotOnOrAfter = conditions.getNotOnOrAfter().plusSeconds(SamlUtils.BACKLASH_FOR_MESSAGE_IN_SECONDS).toDate();
+        Date conditionNotBefore = conditions.getNotBefore().minusSeconds(SAMLUtilities.BACKLASH_FOR_MESSAGE_IN_SECONDS).toDate();
+        Date conditionNotOnOrAfter = conditions.getNotOnOrAfter().plusSeconds(SAMLUtilities.BACKLASH_FOR_MESSAGE_IN_SECONDS).toDate();
         if (now.before(conditionNotBefore)) {
             throw new SAMLException("Conditions are not yet active");
         } else if (now.after(conditionNotOnOrAfter) || now.equals(conditionNotOnOrAfter)) {

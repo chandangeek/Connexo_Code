@@ -1,6 +1,7 @@
 package com.elster.jupiter.http.whiteboard;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.users.User;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -25,7 +26,7 @@ public interface TokenService {
      * @param customClaims - set of custom claims
      * @return the signed JWT for targeted user
      */
-    SignedJWT createSignedJWT(Map<String, Object> customClaims);
+    SignedJWT createSignedJWT(User user, Map<String, Object> customClaims);
 
     /**
      * Creates a signed JWT (JSON Web Token) with specified expiration date time.
@@ -34,7 +35,7 @@ public interface TokenService {
      * @param expirationDateTime - expiration date time
      * @return the signed JWT for targeted user
      */
-    SignedJWT createSignedJWT(Map<String, Object> customClaims, Instant expirationDateTime);
+    SignedJWT createSignedJWT(User user, Map<String, Object> customClaims, Instant expirationDateTime);
 
     /**
      * Validates a signed JWT (JSON Web Token)
@@ -52,5 +53,7 @@ public interface TokenService {
      * @param signedJWT- a signed JWT token
      */
     void invalidateSignedJWT(SignedJWT signedJWT);
+
+    void invalidateSignedJWTByUser(User user);
 
 }

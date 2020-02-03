@@ -6,6 +6,7 @@ import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.users.User;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import org.osgi.service.component.annotations.Component;
@@ -39,31 +40,36 @@ public class InMemoryCacheBasedTokenService implements TokenService {
     private int TOKEN_REFRESH_MAX_COUNT;
     private int TOKEN_EXPIRATION_TIME;
 
+    @Override
+    public SignedJWT createSignedJWT(User user, Map<String, Object> customClaims) {
+        return null;
+    }
+
+    @Override
+    public SignedJWT createSignedJWT(User user, Map<String, Object> customClaims, Instant expirationDateTime) {
+        return null;
+    }
+
+    @Override
+    public void validateSignedJWT(SignedJWT signedJWT) throws JOSEException {
+
+    }
+
+    @Override
+    public void invalidateSignedJWT(SignedJWT signedJWT) {
+
+    }
+
+    @Override
+    public void invalidateSignedJWTByUser(User user) {
+
+    }
+
 //    @Activate
 //    public void activate(final BundleContext bundleContext) {
 //        initializeDataModel();
 //        initializeSecurityTokenImplementation();
 //    }
-
-    @Override
-    public SignedJWT createSignedJWT(final Map<String, Object> customClaims) {
-        return null;
-    }
-
-    @Override
-    public SignedJWT createSignedJWT(final Map<String, Object> customClaims, final Instant expirationDateTime) {
-        return null;
-    }
-
-    @Override
-    public void validateSignedJWT(final SignedJWT signedJWT) throws JOSEException {
-
-    }
-
-    @Override
-    public void invalidateSignedJWT(final SignedJWT signedJWT) {
-
-    }
 
 //    private void initializeDataModel() {
 //        dataModel.register(new AbstractModule() {
@@ -103,30 +109,4 @@ public class InMemoryCacheBasedTokenService implements TokenService {
 //        return Optional.empty();
 //    }
 
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(WhiteBoardImpl.COMPONENTNAME, "HTTP Whiteboard");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
-    }
-
-    @Reference
-    public void setDataVaultService(DataVaultService dataVaultService) {
-        this.dataVaultService = dataVaultService;
-    }
-
-    @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    @Reference
-    public void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
-    public void setSecurityToken(SecurityTokenImpl securityToken) {
-        this.securityToken = securityToken;
-    }
 }

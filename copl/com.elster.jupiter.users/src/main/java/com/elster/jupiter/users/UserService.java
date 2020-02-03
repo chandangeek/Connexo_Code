@@ -51,9 +51,13 @@ public interface UserService {
 
     Optional<User> findUser(String authenticationName, String userDirectoryName);
 
+    Optional<User> findUserByExternalId(String externalId);
+
     Optional<Resource> findResource(String name);
 
     Optional<Group> findGroup(String name);
+
+    Optional<Group> findGroupByExternalId(String externalId);
 
     Optional<Group> getGroup(long id);
 

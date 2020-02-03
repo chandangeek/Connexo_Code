@@ -163,10 +163,10 @@ public class GroupIT extends EqualsContractTest {
         injector.getInstance(TransactionService.class).execute(() -> {
             final UserService userService = injector.getInstance(UserService.class);
 
-            final Group expectedGroup = userService.createGroup("TEST_GROUP", "TEST_DESCRIPTION");
+            final Group expectedGroup = userService.createGroup(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
             expectedGroup.update();
 
-            final Optional<Group> actualGroupOptional = userService.findGroup("TEST_GROUP");
+            final Optional<Group> actualGroupOptional = userService.findGroup(TEST_GROUP_NAME);
 
             assertThat(actualGroupOptional.get()).isNotNull();
 
@@ -189,10 +189,10 @@ public class GroupIT extends EqualsContractTest {
             final UserService userService = injector.getInstance(UserService.class);
 
             final String RANDOM_EXTERNAL_ID = UUID.randomUUID().toString();
-            final Group expectedSCIMGroup = userService.createSCIMGroup("TEST_GROUP", "TEST_DESCRIPTION", RANDOM_EXTERNAL_ID);
+            final Group expectedSCIMGroup = userService.createSCIMGroup(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION, RANDOM_EXTERNAL_ID);
             expectedSCIMGroup.update();
 
-            final Optional<Group> actualSCIMGroupOptional = userService.findGroup("TEST_GROUP");
+            final Optional<Group> actualSCIMGroupOptional = userService.findGroup(TEST_GROUP_NAME);
 
             assertThat(actualSCIMGroupOptional.get()).isNotNull();
 
@@ -204,6 +204,22 @@ public class GroupIT extends EqualsContractTest {
                     "description",
                     "createTime",
                     "modTime");
+
+            return null;
+        });
+    }
+
+    @Test
+    public void shouldFindGroupByExternalId() {
+        injector.getInstance(TransactionService.class).execute(() -> {
+            final UserService userService = injector.getInstance(UserService.class);
+
+            final Group expectedSCIMGroup = userService.createSCIMGroup(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION, TEST_GROUP_EXTERNAL_ID);
+            expectedSCIMGroup.update();
+
+            final Optional<Group> actualSCIMGroupOptional = userService.findGroupByExternalId(TEST_GROUP_EXTERNAL_ID);
+
+            assertThat(actualSCIMGroupOptional.get()).isNotNull();
 
             return null;
         });

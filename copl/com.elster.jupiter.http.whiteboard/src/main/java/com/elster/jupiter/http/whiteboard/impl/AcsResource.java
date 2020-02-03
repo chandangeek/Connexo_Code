@@ -7,18 +7,10 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import net.shibboleth.utilities.java.support.xml.XMLParserException;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.LogoutRequest;
-import org.opensaml.saml.saml2.core.LogoutResponse;
-import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
-import org.opensaml.xmlsec.signature.Signature;
-import org.w3c.dom.Element;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -26,14 +18,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
@@ -100,25 +89,6 @@ public class AcsResource {
         }
 
         httpServletResponse.sendRedirect(URI.create(relayState).toString());
-    }
-
-    @POST
-    @Path("logout")
-    @Consumes(MediaType.APPLICATION_XML)
-    public LogoutResponse logout(@Context HttpServletRequest httpServletRequest) throws SAMLException, XMLParserException {
-        // Getting LogoutRequest out of the HttpServletRequest
-        String samlRequest = httpServletRequest.getParameter("SAMLRequest");
-        String xml = new String(Base64.decodeBase64(SamlUtils.getBytesWithCatch(samlRequest, SamlUtils.ERROR_PROBLEM_DECODE_RESPONSE_FROM_BASE64)));
-        Element root = XMLObjectProviderRegistrySupport.getParserPool().parse(new ByteArrayInputStream(xml.getBytes())).getDocumentElement();
-        final LogoutRequestBuilder logoutRequestBuilder = new LogoutRequestBuilder();
-        final LogoutRequest logoutRequest = logoutRequestBuilder.buildObject(root);
-
-        // Validating signature of SINGLE LOGOUT REQUEST
-        final Signature signature = logoutRequest.getSignature();
-        samlResponseService.validateSignature(signature, authenticationService.getSsoX509Certificate());
-
-        // Terminate user session and invalidate token
-        return authenticationService.singleLogout(logoutRequest.getNameID());
     }
 
     private boolean checkFlowFactsPrivileges(String relayState, User user) {

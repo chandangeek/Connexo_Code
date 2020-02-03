@@ -53,9 +53,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.Checks.is;
 
-@Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
-        property = {"name=" + BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
-        immediate = true, service = {HttpAuthenticationService.class})
+@Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService", property = {"name=" + BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"}, immediate = true, service = {HttpAuthenticationService.class})
 public final class BasicAuthentication implements HttpAuthenticationService {
 
     public static final String COMPONENT_NAME = "HTW";
@@ -67,24 +65,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     // Resources used by the login page so access is required before authenticating
     private static final String[] RESOURCES_NOT_SECURED = {
             // Anything below will only be used in development.
-            "/apps/sky/",
-            "/apps/uni/",
-            "/apps/ext/",
-            "/api/apps/security/acs"
-    };
+            "/apps/sky/", "/apps/uni/", "/apps/ext/", "/api/apps/security/acs"};
 
     // No caching for index.html files, so that authentication will be verified first;
     // Note that resources used in these files are still cached
-    private static final String[] RESOURCES_NOT_CACHED = {
-            "index.html",
-            "index-dev.html"
-    };
+    private static final String[] RESOURCES_NOT_CACHED = {"index.html", "index-dev.html"};
 
     // Rest resources return UNAUTHORIZED rather than redirecting to the login page
-    private static final String[] RESOURCES_UNAUTHORIZED = {
-            "/api/",
-            "/public/api/"
-    };
+    private static final String[] RESOURCES_UNAUTHORIZED = {"/api/", "/public/api/"};
 
     private static final String SSO_ENABLED_PROPERTY = "sso.enabled";
     private static final String SSO_IDP_ENDPOINT_PROPERTY = "sso.idp.endpoint";
@@ -120,9 +108,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> ssoAdminUser;
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService, BundleContext context) throws
-            InvalidKeySpecException,
-            NoSuchAlgorithmException {
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService, BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
         setUserService(userService);
         setOrmService(ormService);
         setDataVaultService(dataVaultService);
@@ -225,7 +211,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         ClassLoader loader = thread.getContextClassLoader();
         thread.setContextClassLoader(InitializationService.class.getClassLoader());
         try {
-            SamlUtils.initializeOpenSAML();
+            SAMLUtilities.initializeOpenSAML();
         } catch (InitializationException e) {
             throw new RuntimeException(e);
         } finally {
@@ -275,9 +261,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (keyStore.isPresent()) {
 
             try {
-                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()),
-                        dataVaultService.decrypt(keyStore.get().getPrivateKey()),
-                        tokenExpTime, tokenRefreshMaxCount, timeout);
+                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()), dataVaultService.decrypt(keyStore.get().getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeout);
                 securityToken.setEventService(eventService);
                 securityToken.preventEventGeneration(false);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -360,7 +344,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (ssoEnabled) {
-                if (isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
+                if(isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
                 ssoAuthentication(request, response);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
@@ -376,7 +360,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }
     }
 
-    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request) {
+    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request){
         return request.getRequestURI().startsWith(LOGIN_URL) &&
                 (StringUtils.isEmpty(request.getParameter("page")) || request.getParameterMap().containsKey("logout"));
     }
@@ -385,9 +369,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
         if (ssoAuthenticationRequestOptional.isPresent()) {
             String redirectUrl;
-            if (StringUtils.isEmpty(request.getParameter("page"))) {
+            if(StringUtils.isEmpty(request.getParameter("page"))){
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-            } else {
+            }else{
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getParameter("page"));
             }
             response.sendRedirect(redirectUrl);
@@ -479,7 +463,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
-        if (isUserLocked(user)) {
+        if(isUserLocked(user)){
             return denyAccountLocked(request, response);
         } else if (isAuthenticated(user)) {
             User returnedUserByAuthentication = user.get();
@@ -524,14 +508,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return true;
     }
 
-    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response) {
+    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response)   {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         try {
             response.getWriter().write(ACCOUNT_LOCKED);
             response.getWriter().flush();
             response.getWriter().close();
-        } catch (IOException exception) {
-        }
+        } catch(IOException exception){}
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
@@ -551,7 +534,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return false;
     }
 
-    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response) {
+    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
@@ -577,7 +560,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean unsecureAllowed(String uri) {
-        if (!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
+        if(!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
         return Stream.of(RESOURCES_NOT_SECURED)
                 .filter(uri::startsWith)
                 .findAny().isPresent();

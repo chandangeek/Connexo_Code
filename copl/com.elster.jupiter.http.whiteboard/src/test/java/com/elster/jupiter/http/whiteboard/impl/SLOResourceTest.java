@@ -10,8 +10,11 @@ public class SLOResourceTest extends SLOBaseTest {
 
     @Test
     public void shouldInvalidateUserSessionAndReturnOK() {
+        configureUserService();
+
         final Response response = target(SLO_ENDPOINT_PATH)
-                .queryParam(SLO_REQUEST_QUERY_PARAM_NAME, SLO_REQUEST_QUERY_PARAM_VALUE)
+                .queryParam(SLO_NAME_LOGOUT_REQUEST, SLO_VALUE_LOGOUT_REQUEST)
+                .queryParam(SLO_NAME_RELAY_STATE, SLO_VALUE_RELAY_STATE)
                 .request()
                 .buildPost(Entity.entity("TEST", MediaType.TEXT_PLAIN_TYPE))
                 .invoke();

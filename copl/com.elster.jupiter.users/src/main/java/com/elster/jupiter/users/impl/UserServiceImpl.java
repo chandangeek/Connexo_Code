@@ -7,16 +7,46 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.*;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DoesNotExistException;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.FoundUserIsNotActiveException;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.MessageSeeds;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.NoDefaultDomainException;
+import com.elster.jupiter.users.NoDomainFoundException;
+import com.elster.jupiter.users.NoDomainIdFoundException;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegeCategory;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceBuilder;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserDirectorySecurityProvider;
+import com.elster.jupiter.users.UserInGroup;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserSecuritySettings;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
 import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.elster.jupiter.users.security.Privileges;
@@ -26,7 +56,11 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
@@ -34,7 +68,15 @@ import javax.validation.MessageInterpolator;
 import java.security.KeyStore;
 import java.security.Principal;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -241,7 +283,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
 
-        if(user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())){
+        if (user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())) {
             logMessage(ACCOUNT_LOCKED, userName, domain, ipAddr);
         } else if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
             logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
@@ -333,6 +375,19 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public Optional<Group> findGroupByExternalId(String externalId) {
+        Condition groupCondition = Operator.EQUALIGNORECASE.compare("externalId", externalId);
+        final List<Group> possibleGroups = dataModel.query(Group.class).select(groupCondition);
+
+        if (possibleGroups.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(possibleGroups.get(0));
+
+    }
+
+    @Override
     public Optional<Resource> findResource(String name) {
         Condition condition = Operator.EQUALIGNORECASE.compare("name", name);
         List<Resource> resources = dataModel.query(Resource.class).select(condition);
@@ -365,6 +420,18 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findUserByExternalId(String externalId) {
+        Condition userCondition = Operator.EQUALIGNORECASE.compare("externalId", externalId);
+        final List<User> possibleUsers = dataModel.query(User.class).select(userCondition);
+
+        if (possibleUsers.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(possibleUsers.get(0));
     }
 
     @Override
@@ -857,8 +924,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public UserSecuritySettings findOrCreateUserSecuritySettings(boolean activate, int numberOfAttempts, int numberOfMinutes) {
-        if(getLockingAccountSettings().isPresent())
-            return  getLockingAccountSettings().get();
+        if (getLockingAccountSettings().isPresent())
+            return getLockingAccountSettings().get();
         else
             return createUserSecuritySettings(activate, numberOfAttempts, numberOfMinutes);
     }

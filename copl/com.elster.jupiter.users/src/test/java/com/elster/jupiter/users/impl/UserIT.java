@@ -251,5 +251,21 @@ public class UserIT extends EqualsContractTest {
         });
     }
 
+    @Test
+    public void shouldFindUserByExternalId() {
+        injector.getInstance(TransactionService.class).execute(() -> {
+            final UserService userService = injector.getInstance(UserService.class);
+
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            final User expectedSCIMUser = userDirectory.newUser(TEST_USER_NAME, TEST_USER_DESCRIPTION, false, true, TEST_USER_EXTERNAL_ID);
+            expectedSCIMUser.update();
+
+            final Optional<User> actualSCIMUserOptional = userService.findUserByExternalId(TEST_USER_EXTERNAL_ID);
+
+            assertThat(actualSCIMUserOptional.get()).isNotNull();
+
+            return null;
+        });
+    }
 
 }
