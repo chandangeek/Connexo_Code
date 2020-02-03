@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class CSRFContollerService {
     @GET
     @Path("/token")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public String getToken(HttpServletRequest request) {
+    public String getToken(@Context HttpServletRequest request) {
         Optional<Cookie> sessionId = getSessionCookie(request);
         String csrfToken = csrfService.getCSRFToken(sessionId.get().getValue());
         if(null != csrfToken) {
