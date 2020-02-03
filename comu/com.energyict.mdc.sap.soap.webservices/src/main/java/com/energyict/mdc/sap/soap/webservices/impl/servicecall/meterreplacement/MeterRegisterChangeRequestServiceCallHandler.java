@@ -15,6 +15,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.TimeUtils;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
@@ -28,6 +29,7 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -90,6 +92,13 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         Optional<Device> device = sapCustomPropertySets.getDevice(subParentExtension.getDeviceId());
         if (device.isPresent()) {
             try {
+                CIMLifecycleDates lifecycleDates = device.get().getLifecycleDates();
+                Instant shipmentDate = lifecycleDates.getReceivedDate().orElse(device.get().getCreateTime());
+                if (extension.getStartDate().isBefore(shipmentDate)) {
+                    failServiceCall(extension, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
+                    return;
+                }
+
                 if (!subParentExtension.isCreateRequest()) {
                     sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -112,7 +121,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         serviceCall.update(extension);
     }
 
-    private void failServiceCall(MeterRegisterChangeRequestDomainExtension extension, MessageSeed messageSeed, Object... args){
+    private void failServiceCall(MeterRegisterChangeRequestDomainExtension extension, MessageSeed messageSeed, Object... args) {
         ServiceCall serviceCall = extension.getServiceCall();
 
         extension.setError(messageSeed, args);
@@ -120,7 +129,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         serviceCall.requestTransition(DefaultState.FAILED);
     }
 
-    private void failServiceCallWithException(MeterRegisterChangeRequestDomainExtension extension, SAPWebServiceException e){
+    private void failServiceCallWithException(MeterRegisterChangeRequestDomainExtension extension, SAPWebServiceException e) {
         ServiceCall serviceCall = extension.getServiceCall();
 
         extension.setErrorCode(e.getErrorCode());
@@ -172,7 +181,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         MeterRegisterChangeRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
         Set<Channel> channels = findChannelByObis(device, obis, period);
 
-        if(cimPattern != null) {
+        if (cimPattern != null) {
             channels.addAll(findChannelByReadingType(device, period, cimPattern));
         }
         if (!channels.isEmpty()) {
