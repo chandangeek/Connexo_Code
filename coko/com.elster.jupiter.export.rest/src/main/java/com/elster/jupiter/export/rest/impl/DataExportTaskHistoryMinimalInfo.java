@@ -20,5 +20,5 @@ public class DataExportTaskHistoryMinimalInfo {
     public Instant exportPeriodTo;
     public Instant statusDate;
     public String statusPrefix;
-
+    public long statusId;
 }

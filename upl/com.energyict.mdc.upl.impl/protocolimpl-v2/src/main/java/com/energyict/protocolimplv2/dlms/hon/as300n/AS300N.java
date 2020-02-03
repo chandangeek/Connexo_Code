@@ -266,4 +266,9 @@ public class AS300N extends AbstractDlmsProtocol implements SerialNumberSupport 
         }
         return profileDataReader;
     }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
+    }
 }

@@ -33,14 +33,17 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     private final ServiceCallService serviceCallService;
     private final TransactionService transactionService;
     private final Clock clock;
+    private final WebServiceActivator webServiceActivator;
 
     public ConnectionStatusChangeHandler(JsonService jsonService, SAPCustomPropertySets sapCustomPropertySets,
-                                         ServiceCallService serviceCallService, TransactionService transactionService, Clock clock) {
+                                         ServiceCallService serviceCallService, TransactionService transactionService,
+                                         Clock clock, WebServiceActivator webServiceActivator) {
         this.jsonService = jsonService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.transactionService = transactionService;
         this.clock = clock;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -89,7 +92,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
                 if (extension.isBulk()) {
                     StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
                             .builder(sapCustomPropertySets)
-                            .from(parentLocked, ServiceCallHelper.findChildren(parentLocked), clock.instant())
+                            .from(parentLocked, ServiceCallHelper.findChildren(parentLocked), webServiceActivator.getMeteringSystemId(), clock.instant())
                             .build();
 
                     WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> {
@@ -103,7 +106,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
                 } else {
                     StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                             .builder(sapCustomPropertySets)
-                            .from(parentLocked, ServiceCallHelper.findChildren(parentLocked), clock.instant())
+                            .from(parentLocked, ServiceCallHelper.findChildren(parentLocked), webServiceActivator.getMeteringSystemId(), clock.instant())
                             .build();
 
                     WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {

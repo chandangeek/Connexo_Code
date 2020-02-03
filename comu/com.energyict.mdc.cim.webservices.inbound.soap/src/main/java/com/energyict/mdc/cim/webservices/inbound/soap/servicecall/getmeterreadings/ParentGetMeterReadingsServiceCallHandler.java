@@ -222,7 +222,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                                     .map(Optional::get)
                                     .max(Comparator.naturalOrder());
 
-                            if (lastReading.isPresent() && !lastReading.get().equals(loadProfile.getLastReading().toInstant())) {
+                            if (lastReading.isPresent() && (loadProfile.getLastReading() == null || !lastReading.get().equals(loadProfile.getLastReading().toInstant()))) {
                                 device.getLoadProfileUpdaterFor(loadProfile).setLastReading(lastReading.get()).update();
                             }
                         });
@@ -308,6 +308,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         devices.stream()
                 .map(device -> device.getLoadProfiles())
                 .flatMap(Collection::stream)
+                .filter(lp -> lp.getLastReading() != null)
                 .forEach(loadProfile -> {
                     loadProfile.getLoadProfileSpec().getLoadProfileType().getChannelTypes().stream()
                             .map(ct -> ct.getReadingType().getMRID())

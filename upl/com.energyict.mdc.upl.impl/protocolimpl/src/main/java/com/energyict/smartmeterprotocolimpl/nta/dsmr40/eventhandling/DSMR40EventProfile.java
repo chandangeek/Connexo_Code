@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -71,7 +71,7 @@ public class DSMR40EventProfile extends EventProfile {
                 }
 
                 UniversalObject mbusClient = getMeterConfig().getMbusClient(mbusDevices.getPhysicalAddress() - 1);
-                long mbusStatus = getCosemObjectFactory().getGenericRead(new DLMSAttribute(mbusClient.getObisCode(), MbusClientAttributes.STATUS)).getValue();
+                long mbusStatus = getCosemObjectFactory().getGenericRead(new DLMSAttribute(mbusClient.getObisCode(), MBusClientAttributes.STATUS)).getValue();
                 if ((mbusStatus & 0x10) == 0x10) {
                     int eventId = Integer.parseInt("1" + (mbusDevices.getPhysicalAddress() - 1) + "5");
                     eventList.add(mbusLogs.createNewMbusEventLogbookEvent(new Date(), eventId));

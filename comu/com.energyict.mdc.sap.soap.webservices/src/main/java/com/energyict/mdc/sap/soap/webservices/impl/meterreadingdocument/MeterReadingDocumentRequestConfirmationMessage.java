@@ -3,11 +3,14 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 
 import java.time.Instant;
+import java.util.List;
 
 public class MeterReadingDocumentRequestConfirmationMessage {
 
@@ -16,7 +19,6 @@ public class MeterReadingDocumentRequestConfirmationMessage {
 
     private SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage;
     private SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage;
-    private String url;
 
     public SmrtMtrMtrRdngDocERPBulkCrteConfMsg getBulkConfirmationMessage() {
         return bulkConfirmationMessage;
@@ -24,10 +26,6 @@ public class MeterReadingDocumentRequestConfirmationMessage {
 
     public SmrtMtrMtrRdngDocERPCrteConfMsg getConfirmationMessage() {
         return confirmationMessage;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public static Builder builder() {
@@ -39,20 +37,20 @@ public class MeterReadingDocumentRequestConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
-            if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, now);
+        public Builder from(MasterMeterReadingDocumentCreateRequestDomainExtension extension, List<ServiceCall> children, Instant now, String senderBusinessSystemId) {
+            if (extension.isBulk()) {
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(extension, children, now, senderBusinessSystemId);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(extension, children.get(0), now, senderBusinessSystemId);
             }
             return this;
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId);
             }
             return this;
         }

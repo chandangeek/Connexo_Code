@@ -11,7 +11,6 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
@@ -30,27 +29,24 @@ public class SearchDataSourceHandler implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
         findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
                 .stream()
                 .forEach(serviceCall -> {
                     serviceCall = lock(serviceCall);
                     MasterMeterReadingDocumentCreateRequestDomainExtension domainExtension = serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class).get();
                     BigDecimal currentAttempt = domainExtension.getAttemptNumber();
-                    if (currentAttempt.compareTo(attempts) == -1) {
-                        domainExtension.setAttemptNumber(currentAttempt.add(BigDecimal.ONE));
-                        serviceCall.update(domainExtension);
-                        switch (serviceCall.getState()) {
-                            case SCHEDULED:
-                                serviceCall.requestTransition(DefaultState.PENDING);
-                                break;
-                            case PAUSED:
-                                serviceCall.requestTransition(DefaultState.ONGOING);
-                                break;
-                        }
-                    } else {
-                        serviceCall.requestTransition(DefaultState.CANCELLED);
+
+                    domainExtension.setAttemptNumber(currentAttempt.add(BigDecimal.ONE));
+                    serviceCall.update(domainExtension);
+                    switch (serviceCall.getState()) {
+                        case SCHEDULED:
+                            serviceCall.requestTransition(DefaultState.PENDING);
+                            break;
+                        case PAUSED:
+                            serviceCall.requestTransition(DefaultState.ONGOING);
+                            break;
                     }
+
                 });
     }
 

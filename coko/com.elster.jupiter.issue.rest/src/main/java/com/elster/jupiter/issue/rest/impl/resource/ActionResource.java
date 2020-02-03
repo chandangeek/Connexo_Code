@@ -19,23 +19,12 @@ import com.elster.jupiter.util.conditions.Condition;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.CREATED_ACTIONS;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.PHASE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/actions")
@@ -54,6 +43,7 @@ public class ActionResource extends BaseResource {
     public PagedInfoList getAllActionTypes(@QueryParam(ISSUE_TYPE) String issueTypeParam,
                                            @QueryParam(REASON) String reasonParam,
                                            @QueryParam(PHASE) String phaseParam,
+                                           @QueryParam(RULE_TEMPLATE) String ruleTemplateParam,
                                            @QueryParam(CREATED_ACTIONS) List<Long> createdActionTypeIds,
                                            @BeanParam JsonQueryParameters params) {
         Optional<IssueType> issueType = getIssueService().findIssueType(issueTypeParam);
@@ -69,6 +59,7 @@ public class ActionResource extends BaseResource {
         List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
                 .filter(issueActionType -> issueActionType.createIssueAction().isPresent() && !createdActionTypeIds.contains(issueActionType.getId()))
                 .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds, issueReason))
+                .filter(at -> filterByIssueRuleTemplateId(at, ruleTemplateParam))
                 .map(issueActionType -> actionInfoFactory.asInfo(issueActionType, reasonParam, issueType.orElse(null), issueReason.orElse(null)))
                 .collect(Collectors.toList());
 
@@ -93,6 +84,15 @@ public class ActionResource extends BaseResource {
         final Map<Long, String> resultMap = new HashMap<>();
         createdActionTypeIds.forEach(id -> resultMap.put(id, getCreatedActionTypeClassName(id)));
         return resultMap;
+    }
+
+    // TODO: Hardcoded solution for E926, must be reworked in future, we need to have possibility to filter ActionTypes by template
+    private boolean filterByIssueRuleTemplateId(final IssueActionType issueActionType, final String issueRuleTemplate) {
+        if (Objects.nonNull(issueRuleTemplate)) {
+            return !issueRuleTemplate.equalsIgnoreCase("Isu.model.CreationRuleTemplate-SuspectCreationRuleTemplate")
+                    || !issueActionType.getClassName().equalsIgnoreCase("com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction");
+        }
+        return true;
     }
 
     private boolean additionalRestrictionOnActions(final IssueActionType issueActionType, final List<Long> createdActionTypeIds, Optional<IssueReason> issueReason) {

@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
 
@@ -245,7 +246,22 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     @Override
     public void updateExportedDataRange(Range<Instant> instantRange) {
+        exportedDataRange = instantRange;
         exportedDataInterval = Interval.of(instantRange);
         exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+    }
+
+    @Override
+    public void setToFailed() {
+        if(getStatus().equals(DataExportStatus.BUSY)) {
+            this.getTaskOccurrence().setToFailed();
+            status = DataExportStatus.FAILED;
+            failureReason = thesaurus.getSimpleFormat(MessageSeeds.OCCURRENCE_HAS_BEEN_SET_TO_FAILED).format();
+            dataModel.mapper(DataExportOccurrenceImpl.class).update(this, "status", "failureReason");
+
+            Logger logger = Logger.getAnonymousLogger();
+            logger.addHandler(getTaskOccurrence().createTaskLogHandler(getRecurrentTask()).asHandler());
+            logger.info(failureReason);
+        }
     }
 }

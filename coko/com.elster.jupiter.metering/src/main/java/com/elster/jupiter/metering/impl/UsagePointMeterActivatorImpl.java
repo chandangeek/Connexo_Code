@@ -143,12 +143,15 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
                     meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
         }
-        meter.getStateTimeline().ifPresent(stateTimeline -> stateTimeline.getSlices().forEach(stateTimeSlice -> {
-            Optional<Stage> stage = stateTimeSlice.getState().getStage();
-            if (stage.isPresent() && EndDeviceStage.fromKey(stage.get().getName()).equals(EndDeviceStage.POST_OPERATIONAL)) {
-                throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
-                        meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
-            }
+        meter.getStateTimeline().ifPresent(stateTimeline -> stateTimeline.getSlices().stream()
+                .max(Comparator.comparing(stateTimeSlice -> stateTimeSlice.getPeriod().lowerEndpoint())).ifPresent(stateTimeSlice -> {
+                    Optional<Stage> stage = stateTimeSlice.getState().getStage();
+                    if (stage.isPresent()
+                            && isPeriodInPresentOrFuture(stateTimeSlice.getPeriod())
+                            && EndDeviceStage.fromKey(stage.get().getName()).equals(EndDeviceStage.POST_OPERATIONAL)) {
+                        throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
+                                meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
+                    }
         }));
     }
 
@@ -170,6 +173,25 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private String formatDate(Instant date) {
         DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
         return dateTimeFormatter.format(LocalDateTime.ofInstant(date, ZoneId.systemDefault()));
+    }
+
+    /**
+     * Checks if the given period contains the present or is in the future
+     *
+     * @param period the rage of time
+     * @return true if the period contains the present or is in the future
+     */
+    private boolean isPeriodInPresentOrFuture(Range period) {
+        Instant instantNow = Instant.now();
+        if (period.contains(instantNow)) {
+            return true;
+        } else if (period.hasUpperBound() && period.upperEndpoint().compareTo(instantNow) > 0) {
+            return true;
+        } else if (!period.hasUpperBound()) { // to infinite future
+            return true;
+        }
+
+        return false;
     }
 
     @Override

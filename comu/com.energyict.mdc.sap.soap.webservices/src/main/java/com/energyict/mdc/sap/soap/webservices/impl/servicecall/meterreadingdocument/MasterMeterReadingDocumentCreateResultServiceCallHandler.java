@@ -56,13 +56,14 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         switch (newState) {
             case ONGOING:
                 if (!oldState.equals(DefaultState.WAITING)) {
-                    sendResultMessage(serviceCall);
-                    setConfirmationTime(serviceCall);
-                    serviceCall.requestTransition(DefaultState.WAITING);
+                    if (sendResultMessage(serviceCall)) {
+                        setConfirmationTime(serviceCall);
+                        serviceCall.requestTransition(DefaultState.WAITING);
+                    }
                 }
                 break;
             case CANCELLED:
-                if (!oldState.equals(DefaultState.WAITING)) {
+                if (!isConfirmationTimeAlreadySet(serviceCall)) {
                     List<ServiceCall> children = findChildren(serviceCall);
                     if (!areAllCancelledBySap(children)) {
                         sendResultMessage(serviceCall);
@@ -93,9 +94,13 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                         resultTransition(parentServiceCall, children);
                     } else if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        // All children are closed - close parent even if it was still pending
+                        resultTransition(parentServiceCall, children);
                     } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
                         parentServiceCall.requestTransition(DefaultState.PENDING);
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        // All children are closed - close parent even if it was still scheduled
+                        resultTransition(parentServiceCall, children);
                     }
                 } else if (areAllWaitingOrCancelled(children)) {
                     parentServiceCall = lock(parentServiceCall);
@@ -150,11 +155,19 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 .allMatch(sc -> sc.getState().equals(DefaultState.WAITING) || sc.getState().equals(DefaultState.CANCELLED));
     }
 
-    private void sendResultMessage(ServiceCall serviceCall) {
+    private boolean sendResultMessage(ServiceCall serviceCall) {
         MeterReadingDocumentCreateResultMessage resultMessage = MeterReadingDocumentCreateResultMessage
                 .builder()
-                .from(serviceCall, findChildren(serviceCall), clock.instant())
+                .from(serviceCall, findChildren(serviceCall), clock.instant(), webServiceActivator.getMeteringSystemId())
                 .build();
+
+        if (resultMessage.isBulk() && resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().isEmpty()){
+            return false;
+        }
+
+        if (!resultMessage.isBulk() && resultMessage.getResultMessage().getMeterReadingDocument() == null) {
+            return false;
+        }
 
         int childrenTotal = resultMessage.getDocumentsTotal();
         int childrenCanceledBySap = resultMessage.getDocumentsCancelledBySap();
@@ -171,6 +184,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         } else {
             WebServiceActivator.METER_READING_DOCUMENT_RESULTS.forEach(sender -> sender.call(resultMessage));
         }
+        return true;
     }
 
     private void setConfirmationTime(ServiceCall serviceCall) {
@@ -178,6 +192,11 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         Integer interval = webServiceActivator.getSapProperty(AdditionalProperties.CONFIRMATION_TIMEOUT); // in mins
         masterExtension.setConfirmationTime(clock.instant().plusSeconds(interval * 60));
         serviceCall.update(masterExtension);
+    }
+
+    private boolean isConfirmationTimeAlreadySet(ServiceCall serviceCall) {
+        MasterMeterReadingDocumentCreateResultDomainExtension masterExtension = serviceCall.getExtensionFor(new MasterMeterReadingDocumentCreateResultCustomPropertySet()).get();
+        return masterExtension.getConfirmationTime() != null;
     }
 
     private boolean areAllCancelledBySap(List<ServiceCall> children) {

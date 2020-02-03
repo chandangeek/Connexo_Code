@@ -41,15 +41,15 @@ public class CreateBulkConfirmationMessageFactory {
     public CreateBulkConfirmationMessageFactory() {
     }
 
-    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(ServiceCall parent, List<ServiceCall> children, Instant now) {
+    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(ServiceCall parent, List<ServiceCall> children, String senderBusinessSystemId, Instant now) {
         MasterUtilitiesDeviceCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
-        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), now));
+        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
 
         switch (parent.getState()) {
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             case SUCCESSFUL:
                 confirmationMessage.setLog(createSuccessfulLog());
@@ -64,19 +64,19 @@ public class CreateBulkConfirmationMessageFactory {
                 // No specific action required for these states
                 break;
         }
-        createBody(confirmationMessage, children, now);
+        createBody(confirmationMessage, children, senderBusinessSystemId, now);
 
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Instant now) {
+    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
-        confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), now));
+        confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         message.getUtilitiesDeviceCreateMessages()
                 .forEach(item -> {
                     confirmationMessage
                             .getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage()
-                            .add(createFailedChildMessage(item, now));
+                            .add(createFailedChildMessage(item, senderBusinessSystemId, now));
 
                 });
         confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
@@ -84,19 +84,19 @@ public class CreateBulkConfirmationMessageFactory {
     }
 
     private void createBody(UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage,
-                            List<ServiceCall> children, Instant now) {
+                            List<ServiceCall> children, String senderBusinessSystemId, Instant now) {
 
         children.forEach(child -> {
             confirmationMessage.getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage()
-                    .add(createChildMessage(child, now));
+                    .add(createChildMessage(child, senderBusinessSystemId, now));
         });
     }
 
-    private UtilsDvceERPSmrtMtrCrteConfMsg createChildMessage(ServiceCall childServiceCall, Instant now) {
+    private UtilsDvceERPSmrtMtrCrteConfMsg createChildMessage(ServiceCall childServiceCall, String senderBusinessSystemId, Instant now) {
         UtilitiesDeviceCreateRequestDomainExtension extension = childServiceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmationMessage.setMessageHeader(createChildHeader(now));
+        confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
         confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
         if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
             confirmationMessage.setLog(createSuccessfulLog());
@@ -106,12 +106,12 @@ public class CreateBulkConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    private UtilsDvceERPSmrtMtrCrteConfMsg createFailedChildMessage(UtilitiesDeviceCreateMessage message, Instant now) {
+    private UtilsDvceERPSmrtMtrCrteConfMsg createFailedChildMessage(UtilitiesDeviceCreateMessage message, String senderBusinessSystemId, Instant now) {
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmationMessage.setMessageHeader(createChildHeader(now));
+        confirmationMessage.setMessageHeader(createChildHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));
         confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
-        confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_ITEM_PROCESSING_WAS_NOT_STARTED.getDefaultFormat(null)));
+        confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_ITEM_PROCESSING_WAS_NOT_STARTED.getDefaultFormat(new Object[0])));
         return confirmationMessage;
     }
 
@@ -125,14 +125,23 @@ public class CreateBulkConfirmationMessageFactory {
         return device;
     }
 
-    private BusinessDocumentMessageHeader createChildHeader(Instant now) {
+    private BusinessDocumentMessageHeader createChildHeader(String requestId, String uuid, String senderBusinessSystemId, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
+        if (!Strings.isNullOrEmpty(requestId)){
+            header.setReferenceID(createID(requestId));
+        }
+        if (!Strings.isNullOrEmpty(uuid)){
+            header.setReferenceUUID(createUUID(uuid));
+        }
+        header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
@@ -143,6 +152,8 @@ public class CreateBulkConfirmationMessageFactory {
         if (!Strings.isNullOrEmpty(referenceUuid)){
             header.setReferenceUUID(createUUID(referenceUuid));
         }
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
@@ -163,7 +174,7 @@ public class CreateBulkConfirmationMessageFactory {
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
-        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(null),
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(new Object[0]),
                 SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
                 null));
         setMaximumLogItemSeverityCode(log);
@@ -174,7 +185,7 @@ public class CreateBulkConfirmationMessageFactory {
     private Log createPartiallySuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
-        log.getItem().add(createLogItem(MessageSeeds.PARTIALLY_SUCCESSFUL.getDefaultFormat(null),
+        log.getItem().add(createLogItem(MessageSeeds.PARTIALLY_SUCCESSFUL.getDefaultFormat(new Object[0]),
                 UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, SeverityCode.ERROR.getCode(),
                 null));
         setMaximumLogItemSeverityCode(log);

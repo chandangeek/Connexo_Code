@@ -46,15 +46,15 @@ public class CreateBulkRegisterConfirmationMessageFactory {
     public CreateBulkRegisterConfirmationMessageFactory() {
     }
 
-    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(ServiceCall parent, List<ServiceCall> children, Instant now) {
+    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(ServiceCall parent, List<ServiceCall> children, String senderBusinessSystemId, Instant now) {
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
 
-        bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
+        bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
         switch (parent.getState()) {
             case CANCELLED:
-                bulkConfirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                bulkConfirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             case SUCCESSFUL:
                 bulkConfirmationMessage.setLog(createSuccessfulLog());
@@ -70,26 +70,26 @@ public class CreateBulkRegisterConfirmationMessageFactory {
                 break;
         }
 
-        createBody(bulkConfirmationMessage, children, now);
+        createBody(bulkConfirmationMessage, children, senderBusinessSystemId, now);
 
         return bulkConfirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
+        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), senderBusinessSystemId, now));
         requestMessage.getUtilitiesDeviceRegisterCreateMessages()
                 .forEach(item -> {
                     bulkConfirmationMessage
                             .getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage()
-                            .add(createFailedChildMessage(item, now));
+                            .add(createFailedChildMessage(item, senderBusinessSystemId, now));
 
                 });
         bulkConfirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
         return bulkConfirmationMessage;
     }
 
-    private BusinessDocumentMessageHeader createHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         String uuid = UUID.randomUUID().toString();
 
@@ -100,6 +100,8 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         if (!Strings.isNullOrEmpty(referenceUuid)){
             header.setReferenceUUID(createUUID(referenceUuid));
         }
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
 
         return header;
@@ -119,18 +121,18 @@ public class CreateBulkRegisterConfirmationMessageFactory {
     }
 
     private void createBody(UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage,
-                            List<ServiceCall> children, Instant now) {
+                            List<ServiceCall> children, String senderBusinessSystemId, Instant now) {
         children.forEach(child -> {
             bulkConfirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage()
-                    .add(createChildMessage(child, now));
+                    .add(createChildMessage(child, senderBusinessSystemId, now));
         });
     }
 
-    private UtilsDvceERPSmrtMtrRegCrteConfMsg createChildMessage(ServiceCall childServiceCall, Instant now) {
+    private UtilsDvceERPSmrtMtrRegCrteConfMsg createChildMessage(ServiceCall childServiceCall, String senderBusinessSystemId, Instant now) {
         SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = childServiceCall.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        confirmationMessage.setMessageHeader(createChildHeader(now));
+        confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
         confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
 
         List<ServiceCall> children = findChildren(childServiceCall);
@@ -152,7 +154,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
                 }
                 break;
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             default:
                 // No specific action required for these states
@@ -161,9 +163,9 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    private UtilsDvceERPSmrtMtrRegCrteConfMsg createFailedChildMessage(UtilitiesDeviceRegisterCreateMessage message, Instant now) {
+    private UtilsDvceERPSmrtMtrRegCrteConfMsg createFailedChildMessage(UtilitiesDeviceRegisterCreateMessage message, String senderBusinessSystemId, Instant now) {
              UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        confirmationMessage.setMessageHeader(createChildHeader(now));
+        confirmationMessage.setMessageHeader(createChildHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));
         confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
         confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_ITEM_PROCESSING_WAS_NOT_STARTED.getDefaultFormat(null)));
         return confirmationMessage;
@@ -195,9 +197,18 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         return device;
     }
 
-    private BusinessDocumentMessageHeader createChildHeader(Instant now) {
+    private BusinessDocumentMessageHeader createChildHeader(String requestId, String uuid, String senderBusinessSystemId, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
+        if (!Strings.isNullOrEmpty(requestId)){
+            header.setReferenceID(createID(requestId));
+        }
+        if (!Strings.isNullOrEmpty(uuid)){
+            header.setReferenceUUID(createUUID(uuid));
+        }
+        header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }

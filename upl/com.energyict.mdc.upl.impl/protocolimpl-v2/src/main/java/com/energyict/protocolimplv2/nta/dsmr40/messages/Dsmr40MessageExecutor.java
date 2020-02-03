@@ -1,7 +1,14 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
 import com.energyict.dlms.aso.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.mdc.upl.NotInObjectListException;
@@ -36,7 +43,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientDeviceType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientManufacturerId;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientVersion;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortId;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
 /**
  * @author sva
@@ -152,7 +166,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), 9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
         mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
@@ -169,7 +183,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
 
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, 9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
         mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties()
                 .getFixMbusHexShortId()));
@@ -244,7 +258,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
             securityContext.setFrameCounter(1);
             securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
-        };
+        }
     }
 
     @Override
@@ -450,8 +464,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         String captureObjects = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.captureObjectListAttributeName);
 
-        String[] splitCaptureObjects = captureObjects.split(";");
-        List <String> rawCapturedObjectDefinitions = Arrays.asList(splitCaptureObjects);
+        String[] rawCapturedObjectDefinitions = captureObjects.split(";");
+
         List <String> filteredCaptureObjects = new ArrayList<>();
         for(String capturedObject : rawCapturedObjectDefinitions){
             filteredCaptureObjects.add( normalizeDLMSObjectDefinition(capturedObject));
@@ -467,6 +481,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             if (profileGeneric == null) {
                 getProtocol().journal(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " not found in object list");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                return collectedMessage;
             }
 
             Array capturedObjects = new Array();
@@ -512,7 +527,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                 .replace("-", ".");
     }
 
-    protected CollectedMessage writeCapturePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected CollectedMessage writeCapturePeriod(OfflineDeviceMessage pendingMessage) {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         ObisCode obisCode = ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE;
         String messageAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue();

@@ -27,6 +27,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.ConnectionStatusProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
@@ -49,10 +50,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -66,17 +67,20 @@ public class ServiceCallCommands {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     public ServiceCallCommands(Clock clock, MessageService messageService, MeteringService meteringService,
                                SAPCustomPropertySets sapCustomPropertySets, ServiceCallService serviceCallService,
-                               Thesaurus thesaurus) {
+                               Thesaurus thesaurus,
+                               WebServiceActivator webServiceActivator) {
         this.clock = clock;
         this.messageService = messageService;
         this.meteringService = meteringService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
+        this.webServiceActivator = webServiceActivator;
     }
 
     public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message) {
@@ -97,7 +101,7 @@ public class ServiceCallCommands {
         if (message.isValid()) {
             if (!hasConnectionStatusChangeServiceCall(message.getId(), message.getUuid())) {
                 getServiceCallType(ServiceCallTypes.CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
-                    createChildServiceCall(serviceCallType, message, parent);
+                    createChildServiceCall(serviceCallType, messages, message, parent);
                 });
             } else {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages, message);
@@ -146,7 +150,7 @@ public class ServiceCallCommands {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 getServiceCallType(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST).ifPresent(serviceCallType -> {
-                    sendMessage(createServiceCall(serviceCallType, message), message.isBulk());
+                    createServiceCall(serviceCallType, message);
                 });
             }
         } else {
@@ -198,7 +202,8 @@ public class ServiceCallCommands {
     }
 
     private void createAndSendCommand(String id, EndDevice endDevice, ServiceCall serviceCall,
-                                      HeadEndInterface headEndInterface, StatusChangeRequestCreateMessage message) {
+                                      HeadEndInterface headEndInterface, StatusChangeRequestCreateMessage message,
+                                      StatusChangeRequestBulkCreateMessage messages) {
         EndDeviceCommand deviceCommand;
 
         switch (CategoryCode.findByCode(message.getCategoryCode())) {
@@ -214,11 +219,11 @@ public class ServiceCallCommands {
         }
 
         if (deviceCommand == null) {
-            sendProcessErrorWithStatus(MessageSeeds.INVALID_CATEGORY_CODE, message, id);
+            sendProcessErrorWithStatus(MessageSeeds.INVALID_CATEGORY_CODE, messages, message, id);
         } else {
             CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand,
                     message.getPlannedProcessingDateTime()
-                            .isBefore(clock.instant()) ? clock.instant().plusSeconds(60) : message.getPlannedProcessingDateTime(),
+                            .isBefore(clock.instant()) ? clock.instant() : message.getPlannedProcessingDateTime(),
                     serviceCall);
             messageService.getDestinationSpec(ConnectionStatusChangeMessageHandlerFactory.DESTINATION)
                     .ifPresent(destinationSpec -> completionOptions
@@ -227,11 +232,11 @@ public class ServiceCallCommands {
         }
     }
 
-    private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message) {
+    private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message, StatusChangeRequestBulkCreateMessage messages) {
         serviceCall.log(LogLevel.INFO, "Handling breaker operations for device with SAP id " + deviceId);
         Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
         if (device.isPresent() && !device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
-            sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, message, deviceId);
+            sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, messages, message, deviceId);
             return;
         }
         Optional<EndDevice> endDevice = device.isPresent()
@@ -246,20 +251,20 @@ public class ServiceCallCommands {
                     .ifPresent(de -> headEndInterface
                             .ifPresent(hei -> {
                                 try {
-                                    createAndSendCommand(deviceId, ed, serviceCall, hei, message);
+                                    createAndSendCommand(deviceId, ed, serviceCall, hei, message, messages);
                                 } catch (LocalizedException le) {
-                                    sendProcessErrorWithStatus(le.getLocalizedMessage(), message, deviceId);
+                                    sendProcessErrorWithStatus(le.getLocalizedMessage(), messages, message, deviceId);
                                 }
                             }));
 
             if (!headEndInterface.isPresent()) {
-                sendProcessErrorWithStatus(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, message, deviceId);
+                sendProcessErrorWithStatus(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, messages, message, deviceId);
             } else if (!connectionStatusChangeDomainExtension.isPresent()) {
-                sendProcessErrorWithStatus(MessageSeeds.COULD_NOT_FIND_DOMAIN_EXTENSION, message, deviceId);
+                sendProcessErrorWithStatus(MessageSeeds.COULD_NOT_FIND_DOMAIN_EXTENSION, messages, message, deviceId);
             }
         });
         if (!endDevice.isPresent()) {
-            sendProcessErrorWithStatus(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, message, deviceId);
+            sendProcessErrorWithStatus(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, messages, message, deviceId);
         }
     }
 
@@ -272,6 +277,9 @@ public class ServiceCallCommands {
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
+        childDomainExtension.setReferenceID(message.getHeaderId());
+        childDomainExtension.setReferenceUuid(message.getHeaderUUID());
+        childDomainExtension.setRequestedScheduledReadingDate(message.getScheduledMeterReadingDate());
 
         Optional<SAPMeterReadingDocumentReason> provider = WebServiceActivator.findReadingReasonProvider(childDomainExtension.getReadingReasonCode());
         if (provider.isPresent()) {
@@ -318,7 +326,7 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(DefaultState.ONGOING);
 
         message.getDeviceConnectionStatus()
-                .forEach((key, value) -> sendCommand(serviceCall, key, message));
+                .forEach((key, value) -> sendCommand(serviceCall, key, message, null));
 
         List<ServiceCall> children = findChildren(serviceCall);
 
@@ -329,7 +337,7 @@ public class ServiceCallCommands {
         }
     }
 
-    private void createChildServiceCall(ServiceCallType serviceCallType, StatusChangeRequestCreateMessage message, ServiceCall parent) {
+    private void createChildServiceCall(ServiceCallType serviceCallType, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, ServiceCall parent) {
         ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
@@ -350,7 +358,7 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(DefaultState.ONGOING);
 
         message.getDeviceConnectionStatus()
-                .forEach((key, value) -> sendCommand(serviceCall, key, message));
+                .forEach((key, value) -> sendCommand(serviceCall, key, message, messages));
 
         List<ServiceCall> children = findChildren(serviceCall);
 
@@ -369,7 +377,7 @@ public class ServiceCallCommands {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
-    private MeterReadingDocumentRequestConfirmationMessage createServiceCall(ServiceCallType serviceCallType, MeterReadingDocumentCreateRequestMessage requestMessage) {
+    private void createServiceCall(ServiceCallType serviceCallType, MeterReadingDocumentCreateRequestMessage requestMessage) {
         MasterMeterReadingDocumentCreateRequestDomainExtension meterReadingDocumentDomainExtension =
                 new MasterMeterReadingDocumentCreateRequestDomainExtension();
         meterReadingDocumentDomainExtension.setRequestID(requestMessage.getId());
@@ -381,86 +389,77 @@ public class ServiceCallCommands {
                 .extendedWith(meterReadingDocumentDomainExtension)
                 .create();
 
-        requestMessage.getMeterReadingDocumentCreateMessages()
-                .forEach(bodyMessage -> {
-                    if (bodyMessage.isValid() && bodyMessage.isReasonCodeSupported(requestMessage.isBulk())) {
+        if (requestMessage.getMeterReadingDocumentCreateMessages().stream().allMatch(bodyMessage -> bodyMessage.isValid())) {
+            requestMessage.getMeterReadingDocumentCreateMessages()
+                    .forEach(bodyMessage -> {
                         createChildServiceCall(serviceCall, bodyMessage);
-                    }
-                });
+                    });
+        }
 
         if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
+            MessageSeeds errorMessage = requestMessage.isBulk() ? MessageSeeds.ONE_OF_MRD_IS_INVALID : MessageSeeds.INVALID_MESSAGE_FORMAT;
+            sendMessage(MeterReadingDocumentRequestConfirmationMessage
+                    .builder()
+                    .from(requestMessage, errorMessage, clock.instant(), webServiceActivator.getMeteringSystemId())
+                    .build(), requestMessage.isBulk());
         }
-
-        return MeterReadingDocumentRequestConfirmationMessage
-                .builder()
-                .from(requestMessage, clock.instant())
-                .build();
     }
 
     public Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());
     }
 
-    public Finder<ServiceCall> findAvailableServiceCalls(ServiceCallTypes serviceCallType) {
+    public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
+        Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).forEach(filter.states::add);
         return serviceCallService.getServiceCallFinder(filter);
     }
 
     private boolean hasConnectionStatusChangeServiceCall(String id, String uuid) {
-        if (id != null) {
-            return findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getId() != null)
-                    .anyMatch(domainExtension -> domainExtension.getId().equals(id));
-        } else {
-            return findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getUuid() != null)
-                    .anyMatch(domainExtension -> domainExtension.getUuid().equals(uuid));
-        }
-    }
-
-    private boolean hasMasterConnectionStatusChangeServiceCall(String id, String uuid) {
-        if (id != null) {
-            return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getRequestID() != null)
-                    .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
-        } else {
-            return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getUuid() != null)
-                    .anyMatch(domainExtension -> domainExtension.getUuid().equals(uuid));
-        }
-    }
-
-    private boolean hasMeterReadingRequestServiceCall(String id, String uuid) {
-        return findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
+        return findAvailableOpenServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
                 .stream()
-                .map(serviceCall -> serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class))
-                .filter(Objects::nonNull)
+                .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(domainExtension -> {
                     if (id != null) {
-                        return domainExtension.getRequestID() != null && domainExtension.getRequestID().equals(id);
+                        return id.equals(domainExtension.getId());
                     } else {
-                        return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
+                        return uuid.equals(domainExtension.getUuid());
+                    }
+                });
+    }
+
+    private boolean hasMasterConnectionStatusChangeServiceCall(String id, String uuid) {
+        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> {
+                    if (id != null) {
+                        return id.equals(domainExtension.getRequestID());
+                    } else {
+                        return uuid.equals(domainExtension.getUuid());
+                    }
+                });
+    }
+
+    private boolean hasMeterReadingRequestServiceCall(String id, String uuid) {
+        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> {
+                    if (id != null) {
+                        return id.equals(domainExtension.getRequestID());
+                    } else {
+                        return uuid.equals(domainExtension.getUuid());
                     }
                 });
     }
@@ -486,25 +485,17 @@ public class ServiceCallCommands {
     }
 
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
-        if (message.isBulk()) {
-            StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
-                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, messageSeed.translate(thesaurus), clock.instant())
-                            .build();
-            sendMessage(confirmationMessage);
-        } else {
-            StatusChangeRequestCreateConfirmationMessage confirmationMessage =
-                    StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, messageSeed.translate(thesaurus), clock.instant())
-                            .build();
-            sendMessage(confirmationMessage);
-        }
+        StatusChangeRequestCreateConfirmationMessage confirmationMessage =
+                StatusChangeRequestCreateConfirmationMessage.builder()
+                        .from(message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .build();
+        sendMessage(confirmationMessage);
     }
 
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage message) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                        .from(message, messageSeed.translate(thesaurus), clock.instant())
+                        .from(message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -512,7 +503,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                        .from(messages, message, messageSeed.translate(thesaurus), clock.instant())
+                        .from(messages, message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -520,42 +511,42 @@ public class ServiceCallCommands {
     private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed) {
         MeterReadingDocumentRequestConfirmationMessage confirmationMessage =
                 MeterReadingDocumentRequestConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
 
-    private void sendProcessErrorWithStatus(String exceptionInfo, StatusChangeRequestCreateMessage message, String deviceId) {
-        if (message.isBulk()) {
+    private void sendProcessErrorWithStatus(String exceptionInfo, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String deviceId) {
+        if (message.isBulk() && messages != null) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, exceptionInfo, clock.instant())
-                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .from(messages, message, exceptionInfo, webServiceActivator.getMeteringSystemId(), clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, exceptionInfo, clock.instant())
-                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .from(message, exceptionInfo, webServiceActivator.getMeteringSystemId(), clock.instant())
+                            .withStatus(deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
     }
 
-    private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message, String deviceId) {
-        if (message.isBulk()) {
+    private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String deviceId) {
+        if (message.isBulk() && messages != null) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
-                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .from(messages, message, messageSeed.translate(thesaurus, deviceId), webServiceActivator.getMeteringSystemId(), clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
-                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .from(message, messageSeed.translate(thesaurus, deviceId), webServiceActivator.getMeteringSystemId(), clock.instant())
+                            .withStatus(deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
@@ -566,6 +557,4 @@ public class ServiceCallCommands {
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
     }
-
-
 }

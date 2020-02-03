@@ -5,6 +5,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ComServerAliveLoopImpl implements Runnable {
+public class ComServerAliveLoopImpl implements Runnable, EngineService.DeactivationNotificationListener {
 
     private final ScheduledThreadPoolExecutor executor;
     private final Clock clock;
@@ -58,5 +59,10 @@ public class ComServerAliveLoopImpl implements Runnable {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void engineServiceDeactivationStarted() {
+        executor.shutdownNow();
     }
 }

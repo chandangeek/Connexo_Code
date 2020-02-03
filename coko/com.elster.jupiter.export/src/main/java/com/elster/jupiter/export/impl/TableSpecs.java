@@ -212,8 +212,7 @@ enum TableSpecs {
             table.column("LASTEXPORTEDPERIODEND").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastExportedPeriodEnd").since(Version.version(10, 7, 1)).add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
             table.column("ACTIVE").bool().notNull().map("active").add();
-            table.column("READINGINTERVALUNIT").number().conversion(NUMBER2INT).map("readingInterval" + ".timeUnitCode").since(Version.version(10, 7, 1)).add();
-            table.column("READINGINTERVALCOUNT").number().conversion(NUMBER2INT).map("readingInterval" + ".count").since(Version.version(10, 7, 1)).add();
+            table.column("READING_INTERVAL").varChar().map("readingInterval").since(Version.version(10, 7, 2)).add();
 
             table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();
             table.foreignKey("DES_FK_RTEXPITEM_SELECTOR").on(selector).references(DES_RTDATASELECTOR.name())

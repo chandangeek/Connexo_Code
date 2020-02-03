@@ -1873,7 +1873,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         getPartialConnectionTasks().forEach(partialConnectionTask -> ((ServerPartialConnectionTask) partialConnectionTask)
                 .cloneForDeviceConfig(clone));
         getComTaskEnablements().forEach(comTaskEnablement -> ((ServerComTaskEnablement) comTaskEnablement).cloneForDeviceConfig(clone));
-        getDeviceMessageEnablements().forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement)
+        getDeviceMessageEnablements().stream().filter(dme -> DeviceMessageId.find(dme.getDeviceMessageDbValue()).isPresent())
+                .forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement)
                 .cloneForDeviceConfig(clone));
         getRegisterSpecs().forEach(registerSpec -> ((ServerRegisterSpec) registerSpec).cloneForDeviceConfig(clone));
         getLogBookSpecs().forEach(logBookSpec -> ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone));

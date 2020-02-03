@@ -134,7 +134,7 @@ public final class ProtocolTools {
         byte[] bytes = new byte[length];
         for (int i = 0; i < bytes.length; i++) {
             int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 5) ? (byte) ((value >> (i * 8))) : 0x00;
+            bytes[ptr] = (i < 8) ? (byte) ((value >> (i * 8))) : 0x00;
         }
         return bytes;
     }

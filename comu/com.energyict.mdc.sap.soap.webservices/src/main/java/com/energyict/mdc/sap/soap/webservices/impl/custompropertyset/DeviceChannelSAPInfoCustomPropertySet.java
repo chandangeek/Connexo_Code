@@ -31,7 +31,8 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 
 public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<ChannelSpec, DeviceChannelSAPInfoDomainExtension> {
     public static final String CPS_ID = DeviceChannelSAPInfoCustomPropertySet.class.getName();
-    static final String MODEL_NAME = "DI2";
+    public static final String MODEL_NAME = "DI2";
+    public static final String TABLE_NAME = "SAP_CAS_DI2";
 
     // Common for all domain objects
     private final PropertySpecService propertySpecService;
@@ -106,7 +107,6 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ChannelSpec, DeviceChannelSAPInfoDomainExtension> {
-        private final String TABLE_NAME = "SAP_CAS_DI2";
         private final String FK = "FK_SAP_CAS_DI2";
         private final String IDX = "IDX_SAP_CAS_DI2_LRN";
         private final String IDX_P = "IDX_SAP_CAS_DI2_PROFILE_ID";

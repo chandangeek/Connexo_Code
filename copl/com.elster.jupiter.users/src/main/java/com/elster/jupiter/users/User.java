@@ -92,7 +92,13 @@ public interface User extends Principal, HasName {
 
     Instant getLastUnSuccessfulLogin();
 
-    void setLastUnSuccessfulLogin(Instant lastLoginFail);
+    void setLastUnSuccessfulLogin(Instant lastLoginFail, Optional<UserSecuritySettings> loginSettings);
 
     List<WorkGroup> getWorkGroups();
+
+    boolean isUserLocked(Optional<UserSecuritySettings> loginSettings);
+
+    int getUnSuccessfulLoginCount();
+
+    void setUnSuccessfulLoginCount(int unSuccessfulLoginCount);
 }

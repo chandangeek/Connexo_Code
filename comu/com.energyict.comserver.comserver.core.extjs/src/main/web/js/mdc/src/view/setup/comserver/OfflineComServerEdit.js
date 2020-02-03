@@ -47,6 +47,7 @@ Ext.define('Mdc.view.setup.comserver.OfflineComServerEdit', {
                     itemId: 'txt-communication-server-name',
                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     maxLength: 75,
+                    allowBlank: false,
                     required: true,
                     width: 600,
                     listeners: {
@@ -187,15 +188,18 @@ Ext.define('Mdc.view.setup.comserver.OfflineComServerEdit', {
                     name: 'serverName',
                     width: 600,
                     required: true,
+                    allowBlank: false,
                     blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
                 },
                 {
                     xtype: 'combobox',
+                    itemId: 'onlineComServer',
                     name: 'onlineComServerId',
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.server.onlineServer', 'MDC', 'Online ComServer'),
                     store: 'Mdc.store.ComServers',
                     queryMode: 'local',
                     required: true,
+                    allowBlank: false,
                     displayField: 'name',
                     valueField: 'id'
                 },

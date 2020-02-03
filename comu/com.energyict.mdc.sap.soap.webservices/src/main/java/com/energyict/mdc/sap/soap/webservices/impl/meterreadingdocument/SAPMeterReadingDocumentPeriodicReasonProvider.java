@@ -3,7 +3,10 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
@@ -18,6 +21,7 @@ import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 @Component(name = "com.energyict.mdc.sap.meterreadingdocument.periodicreason.provider",
@@ -25,8 +29,10 @@ import java.util.List;
 public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterReadingDocumentReason {
     private static final String REASON_CODES_PERIODIC = "com.elster.jupiter.sap.reasoncodes.periodic";
     private static final String REASON_CODES_PERIODIC_DEFAULT_VALUE = "1";
+    private static final String MRO_DATASOURCE_INTERVAL = "com.elster.jupiter.sap.mro.datasource.interval";
 
     private static List<String> codes;
+    private static Pair<String, String> dataSourceInterval;
     private volatile WebServiceActivator webServiceActivator;
 
     @Activate
@@ -34,8 +40,16 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
         String valueCodes = bundleContext.getProperty(REASON_CODES_PERIODIC);
         if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
             codes = Collections.singletonList(REASON_CODES_PERIODIC_DEFAULT_VALUE);
-        }else{
+        } else {
             codes = Arrays.asList((valueCodes.split(",")));
+        }
+
+        String valueDataSourceInterval = bundleContext.getProperty(MRO_DATASOURCE_INTERVAL);
+        if (Checks.is(valueDataSourceInterval).emptyOrOnlyWhiteSpace()) {
+            dataSourceInterval = Pair.of("0", "0");
+        } else {
+            String[] intervals = valueDataSourceInterval.split(",");
+            dataSourceInterval = Pair.of(intervals[0].trim(), intervals[1].trim());
         }
     }
 
@@ -56,7 +70,12 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
 
     @Override
     public long getShiftDate() {
-        return webServiceActivator.getSapProperty(AdditionalProperties.SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC)* SECONDS_IN_DAY;
+        return webServiceActivator.getSapProperty(AdditionalProperties.SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC) * SECONDS_IN_DAY;
+    }
+
+    @Override
+    public Optional<Pair<String, String>> getExtraDataSourceMacroAndMeasuringCodes() {
+        return Optional.of(dataSourceInterval);
     }
 
     @Override
@@ -65,17 +84,12 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     }
 
     @Override
-    public boolean isBulk() {
-        return true;
-    }
-
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
-
-    @Override
     public void process(SAPMeterReadingDocumentCollectionData collectionData) {
         collectionData.calculate();
+    }
+
+    @Override
+    public boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular, ReadingType readingType) {
+        return true;
     }
 }

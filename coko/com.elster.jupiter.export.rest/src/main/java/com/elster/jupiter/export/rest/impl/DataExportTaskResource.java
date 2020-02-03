@@ -453,7 +453,9 @@ public class DataExportTaskResource {
         task.setLogLevel(info.logLevel);
         task.setScheduleExpression(getScheduleExpression(info));
         task.setNextExecution(info.nextRun);
-        task.setSuspendUntil(info.suspendUntilExport);
+        if(info.suspendUntilExport != null){
+            task.setSuspendUntil(info.suspendUntilExport);
+        }
 
         if (info.standardDataSelector != null) {
             if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
@@ -640,6 +642,25 @@ public class DataExportTaskResource {
                             .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
 
                     exportTask.retryNow(dataExportOccurrence);
+                });
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("history/{historyId}/setToFailed")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
+    public Response setToFailedDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
+        dataExportService.findExportTask(historyInfo.task.id)
+                .ifPresent(exportTask ->
+                {
+                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
+                            .setId(historyId).stream()
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
+
+                    dataExportOccurrence.setToFailed();
                 });
         return Response.status(Response.Status.OK).build();
     }

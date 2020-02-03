@@ -13,7 +13,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchan
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.LogItemCategoryCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.ObjectFactory;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilsTmeSersERPMsmtTskAssgmtChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers;
 
 import com.google.common.base.Strings;
 
@@ -35,18 +37,23 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         return confirmationMessage;
     }
 
-    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid) {
-        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id, uuid);
+    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid, String meteringSystemId, String profileId) {
+        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id, uuid, meteringSystemId, profileId);
     }
 
     public class Builder {
 
-        private Builder(Instant now, String id, String uuid) {
+        private Builder(Instant now, String id, String uuid, String meteringSystemId, String profileId) {
             confirmationMessage = OBJECT_FACTORY.createUtilsTmeSersERPMsmtTskAssgmtChgConfMsg();
-            confirmationMessage.setMessageHeader(createHeader(now, id, uuid));
+            confirmationMessage.setMessageHeader(createHeader(now, id, uuid, meteringSystemId));
+            UtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers timeSeries = OBJECT_FACTORY.createUtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers();
+            UtilitiesTimeSeriesID timeSeriesId = OBJECT_FACTORY.createUtilitiesTimeSeriesID();
+            timeSeriesId.setValue(profileId);
+            timeSeries.setID(timeSeriesId);
+            confirmationMessage.setUtilitiesTimeSeries(timeSeries);
         }
 
-        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder create() {
+        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder successful() {
             confirmationMessage.setLog(createSuccessfulLog());
             return this;
         }
@@ -60,7 +67,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             return MeasurementTaskAssignmentChangeConfirmationMessage.this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(Instant now, String id, String uuid) {
+        private BusinessDocumentMessageHeader createHeader(Instant now, String id, String uuid, String meteringSystemId) {
             BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UUID newUUID = OBJECT_FACTORY.createUUID();
             newUUID.setValue(UUID.randomUUID().toString());
@@ -75,6 +82,9 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
                 referenceUUID.setValue(uuid);
                 messageHeader.setReferenceUUID(referenceUUID);
             }
+
+            messageHeader.setSenderBusinessSystemID(meteringSystemId);
+            messageHeader.setReconciliationIndicator(true);
             messageHeader.setCreationDateTime(now);
             return messageHeader;
         }

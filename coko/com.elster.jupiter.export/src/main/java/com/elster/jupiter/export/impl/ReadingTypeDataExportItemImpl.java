@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
@@ -17,14 +18,16 @@ import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
 import com.elster.jupiter.time.TimeDuration;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -44,7 +47,10 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
-    private TimeDuration readingInterval;
+    private boolean exportPostponed;
+    @Size(min = 3, // 1 symbol per count + space + 1 symbol per unit
+            max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
+    private String readingInterval;
 
     private transient DataModel dataModel;
     private transient ReadingType readingType;
@@ -109,7 +115,13 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
 
     @Override
     public Optional<TimeDuration> getRequestedReadingInterval() {
-        return Optional.ofNullable(readingInterval);
+        return Optional.ofNullable(readingInterval)
+                .map(TimeDuration::new);
+    }
+
+    @Override
+    public boolean isExportPostponed() {
+        return exportPostponed;
     }
 
     @Override
@@ -128,8 +140,13 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
+    public void postponeExport() {
+        this.exportPostponed = true;
+    }
+
+    @Override
     public void overrideReadingInterval(TimeDuration readingInterval) {
-        this.readingInterval = readingInterval;
+        this.readingInterval = readingInterval.toString();
     }
 
     @Override

@@ -53,7 +53,8 @@ public class UsersApplication extends Application implements MessageSeedProvider
                 UsersFieldResource.class,
                 FindGroupResource.class,
                 FindUserResource.class,
-                WorkGroupResource.class);
+                WorkGroupResource.class,
+                UserSecuritySettingsResource.class);
     }
     
     @Reference

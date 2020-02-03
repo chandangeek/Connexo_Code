@@ -2,22 +2,22 @@
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.energyict</groupId>
-    <artifactId>mdc.parent</artifactId>
-      <version>2.0.0-Heracles-SNAPSHOT</version>
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>mdc.parent</artifactId>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
+    </parent>
 
-  </parent>
-
-  <artifactId>mdc.issue.datavalidation</artifactId>
-  <packaging>bundle</packaging>
-  <name>[MDC] mdc.issue.datavalidation [init IDV]</name>
-  <description>
-    Contains MDC data validation issue templates
-  </description>
+    <artifactId>mdc.issue.datavalidation</artifactId>
+    <packaging>bundle</packaging>
+    <name>[MDC] mdc.issue.datavalidation [init IDV]</name>
+    <description>
+        Contains MDC data validation issue templates
+    </description>
 
     <dependencies>
         <dependency>
@@ -59,6 +59,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.json</artifactId>
         </dependency>
 
         <!-- Jupiter modules -->
@@ -130,18 +134,25 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
         </dependency>
-
-        <!-- Test dependencies -->
-<!--         <dependency> -->
-<!--             <groupId>com.elster.jupiter</groupId> -->
-<!--             <artifactId>metering.groups</artifactId> -->
-<!--             <scope>test</scope> -->
-<!--         </dependency> -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
-            <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <!--         <dependency> -->
+        <!--             <groupId>com.elster.jupiter</groupId> -->
+        <!--             <artifactId>metering.groups</artifactId> -->
+        <!--             <scope>test</scope> -->
+        <!--         </dependency> -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
@@ -175,11 +186,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>time</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -275,11 +281,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.json</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
