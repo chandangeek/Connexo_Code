@@ -17,9 +17,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
