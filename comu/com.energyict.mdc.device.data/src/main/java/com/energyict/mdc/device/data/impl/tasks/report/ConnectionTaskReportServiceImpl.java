@@ -231,7 +231,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     private long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(boolean waitingOnly, EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder(" select count(*) from ");
-        sqlBuilder.append(" CTLCSWithAtLeastOneFailedT ct");
+        sqlBuilder.append(" MV_CTLCSWithAtLstOneFT ct");
         sqlBuilder.append(" where 1=1 ");
         if(deviceGroup != null) {
             this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
@@ -270,7 +270,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     @Override
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount() {
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append("  CTLCSSuccessIndicatorCount ct ");
+        sqlBuilder.append("  MV_CTLCSSucIndCount ct ");
         sqlBuilder.append("  group by ct.lastSessionSuccessIndicator ");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
@@ -278,7 +278,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     @Override
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append("  CTLCSSuccessIndicatorCount ct ");
+        sqlBuilder.append("  MV_CTLCSSucIndCount ct ");
         sqlBuilder.append("  where 1=1 ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
         sqlBuilder.append("  group by ct.lastSessionSuccessIndicator ");
@@ -565,7 +565,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
                         .stream()
                         .map(this::connectionTypeHeatMapFailureIndicatorCaseClause)
                         .collect(Collectors.joining(",")));
-        sqlBuilder.append("        from connectionTypeHeatMap ct");
+        sqlBuilder.append("        from MV_ConnectionTypeHeatMap ct");
         sqlBuilder.append("       where 1=1 ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
         sqlBuilder.append("       )");
