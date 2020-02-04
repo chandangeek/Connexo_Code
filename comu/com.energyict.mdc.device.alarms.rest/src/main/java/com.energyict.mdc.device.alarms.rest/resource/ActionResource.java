@@ -68,7 +68,6 @@ public class ActionResource extends BaseAlarmResource {
                 .filter(issueActionType -> isStartProcessApplicable(issueReason, issueActionType))
                 .filter(issueActionType -> additionalRestrictionOnActions(issueActionType, createdActionTypeIds))
                 .map(i -> actionInfoFactory.asInfo(i, issueReason.map(IssueReason::getName).orElse(null), issueType.orElse(null), issueReason.orElse(null)))
-            //    .filter(item -> !(phaseParam.equals("OVERDUE") && item.name.equals("Email")))
                 .sorted(Comparator.comparing(a -> a.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
