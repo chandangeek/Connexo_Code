@@ -6,12 +6,7 @@ package com.energyict.mdc.issue.datavalidation.impl.entity;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -33,7 +28,9 @@ public class IssueDataValidationImpl implements IssueDataValidation {
 
     public enum Fields {
         BASEISSUE("baseIssue"),
-        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),;
+        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),
+        SUSPECT_OCCURRENCE_DATETIME("lastSuspectOccurrenceDatetime"),
+        OCCURRENCES_NUMBER("totalOccurrencesNumber");
 
         private final String javaFieldName;
 
@@ -47,6 +44,10 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     private Reference<Issue> baseIssue = ValueReference.absent();
+
+    // Additional fields that store information about suspect created events
+    private Instant lastSuspectOccurrenceDatetime;
+    private long totalOccurrencesNumber;
 
     // Audit fields
     private long version;
@@ -133,7 +134,7 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public void setUsagePoint(UsagePoint usagePoint){
+    public void setUsagePoint(UsagePoint usagePoint) {
         getBaseIssue().setUsagePoint(usagePoint);
     }
 
@@ -195,6 +196,26 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     @Override
     public long getVersion() {
         return getBaseIssue().getVersion();
+    }
+
+    @Override
+    public Instant getLastSuspectOccurrenceDatetime() {
+        return lastSuspectOccurrenceDatetime;
+    }
+
+    @Override
+    public void setLastSuspectOccurrenceDatetime(Instant lastSuspectOccurrenceDatetime) {
+        this.lastSuspectOccurrenceDatetime = lastSuspectOccurrenceDatetime;
+    }
+
+    @Override
+    public long getTotalOccurrencesNumber() {
+        return totalOccurrencesNumber;
+    }
+
+    @Override
+    public void setTotalOccurrencesNumber(long totalOccurrencesNumber) {
+        this.totalOccurrencesNumber = totalOccurrencesNumber;
     }
 
     @Override

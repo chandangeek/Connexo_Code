@@ -85,6 +85,7 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
                 if (webServiceClient.call(issue, endPointConfig)) {
                     assignIssueSubAction(issue);
                     closeIssueSubAction(issue);
+                    issue.update();
                     result.success(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CALLED).format());
                 } else {
                     result.fail(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CALLED_FAILED).format());

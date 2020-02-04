@@ -8,21 +8,7 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListReadingQualityFactory;
 import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
-import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
-import com.elster.jupiter.properties.rest.DeviceGroupPropertyFactory;
-import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
-import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
-import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
-import com.elster.jupiter.properties.rest.EndDeviceGroupPropertyFactory;
-import com.elster.jupiter.properties.rest.ExcludedComTaskPropertyFactory;
-import com.elster.jupiter.properties.rest.EndPointConfigurationPropertyFactory;
-import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
-import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.properties.rest.ServiceCallStateInfoPropertyFactory;
-import com.elster.jupiter.properties.rest.ServiceCallTypeInfoPropertyFactory;
-import com.elster.jupiter.properties.rest.SimplePropertyType;
-import com.elster.jupiter.properties.rest.TaskPropertyFacory;
+import com.elster.jupiter.properties.rest.*;
 import com.elster.jupiter.util.HasId;
 
 import java.util.List;
@@ -54,6 +40,9 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof DeviceLifeCycleInDeviceTypePropertyFactory) {
             return SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof ValidationRulePropertyFactory) {
+            return SimplePropertyType.VALIDATION_RULES_DROPDOWN;
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof DeviceLifeCycleTransitionPropertyFactory) {
             return SimplePropertyType.LIFECYCLETRANSITION;
