@@ -7,13 +7,13 @@ package com.energyict.mdc.sap.soap.webservices.impl.task;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -47,28 +47,29 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
+        Optional<EnumeratedEndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME))
+                .filter(EnumeratedEndDeviceGroup.class::isInstance)
+                .map(EnumeratedEndDeviceGroup.class::cast);
         Optional<? extends ExportTask> exportTask = dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
         if (endDeviceGroup.isPresent()) {
             if (exportTask.isPresent()) {
-                if (exportTask.get().getReadingDataSelectorConfig().isPresent()) {
-                    Map<IdentifiedObject, List<ReadingTypeDataExportItem>> exportItemsMap = exportTask.get().getReadingDataSelectorConfig().get().getExportItems().stream()
+                exportTask.get().getReadingDataSelectorConfig().ifPresent(config -> {
+                    Map<IdentifiedObject, List<ReadingTypeDataExportItem>> exportItemsMap = config.getExportItems().stream()
                             .collect(Collectors.groupingBy(ReadingTypeDataExportItem::getDomainObject));
-                    ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).getEntries().stream()
-                            .filter(endDevice -> deviceCanBeRemoved(exportTask.get(), exportItemsMap, endDevice.getMember()))
-                            .forEach(device -> ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).remove(device));
-                }
+                    endDeviceGroup.get().getEntries().stream()
+                            .filter(endDevice -> canDeviceBeRemoved(endDevice.getMember(), config, exportItemsMap.getOrDefault(endDevice.getMember(), Collections.emptyList())))
+                            .forEach(device -> endDeviceGroup.get().remove(device));
+                });
             } else {
                 endDeviceGroup.get().delete();
             }
         }
     }
 
-    private boolean deviceCanBeRemoved(ExportTask exportTask, Map<IdentifiedObject, List<ReadingTypeDataExportItem>> exportItemsMap, EndDevice member) {
-        List<? extends ReadingTypeDataExportItem> exportItems = exportItemsMap.getOrDefault(member, Collections.emptyList());
+    private boolean canDeviceBeRemoved(EndDevice member, ReadingDataSelectorConfig config, List<ReadingTypeDataExportItem> exportItems) {
         if (exportItems.isEmpty()) {
             if (member instanceof Meter) {
-                Set<ReadingType> readingTypeSet = exportTask.getReadingDataSelectorConfig().get().getReadingTypes();
+                Set<ReadingType> readingTypeSet = config.getReadingTypes();
                 return ((Meter) member).getChannelsContainers().stream()
                         .map(ChannelsContainer::getChannels)
                         .flatMap(List::stream)
