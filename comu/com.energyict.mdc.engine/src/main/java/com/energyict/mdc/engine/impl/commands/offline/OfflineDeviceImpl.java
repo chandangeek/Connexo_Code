@@ -446,7 +446,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
-    @XmlAttribute
+    @XmlElement(type = OfflineDeviceImpl.class)
     public List<OfflineDevice> getAllSlaveDevices() {
         return slaveDevices;
     }
