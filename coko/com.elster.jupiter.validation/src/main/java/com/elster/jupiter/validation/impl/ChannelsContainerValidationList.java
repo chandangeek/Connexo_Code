@@ -5,28 +5,16 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AggregatedChannel;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
-
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -93,7 +81,7 @@ class ChannelsContainerValidationList {
             channelsContainerValidations.forEach(channelsContainerValidation ->
                     channelsContainerValidation.validate(channelsContainerValidation.getChannelsContainer().getChannels(), until, logger)
             );
-            eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), new ValidationScopeImpl(channelsContainer, validationScopeByChannelMap));
+            markValidationAsSuccessful(validationScopeByChannelMap);
         }
     }
 
@@ -101,7 +89,21 @@ class ChannelsContainerValidationList {
         Map<Channel, Range<Instant>> validationScopeByChannelMap = channels.stream()
                 .collect(Collectors.toMap(Function.identity(), this::getValidationScope));
         channelsContainerValidations.forEach(channelsContainerValidation -> channelsContainerValidation.validate(channels, until, logger));
-        eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), new ValidationScopeImpl(channelsContainer, validationScopeByChannelMap));
+        markValidationAsSuccessful(validationScopeByChannelMap);
+    }
+
+    private void markValidationAsSuccessful(final Map<Channel, Range<Instant>> validationScopeByChannelMap) {
+        final ValidationScopeImpl validationScope = new ValidationScopeImpl(channelsContainer, validationScopeByChannelMap);
+
+        eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), validationScope);
+
+        final List<ReadingQualityRecord> listOfSuspectReadings = validationScope.getChannelsContainer().getChannels().stream()
+                .filter(channel -> Objects.nonNull(channel.findReadingQualities()))
+                .map(channel -> channel.findReadingQualities().collect().stream().filter(ReadingQualityRecord::isSuspect).collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        validationService.postSuspectCreatedEvents(listOfSuspectReadings);
     }
 
     private Range<Instant> getValidationScope(Channel channel) {
@@ -112,8 +114,8 @@ class ChannelsContainerValidationList {
      * Only updates the lastChecked in memory!!! For performance optimization COPL-882.
      *
      * @param rangeByChannelIdMap: Map of channelId-range to move the last checked before.
-     * Channel must be identified by id here because there can be {@link AggregatedChannel}
-     * that is just a wrapping on {@link Channel} with the same id.
+     *                             Channel must be identified by id here because there can be {@link AggregatedChannel}
+     *                             that is just a wrapping on {@link Channel} with the same id.
      */
     void moveLastCheckedBefore(Map<Long, Range<Instant>> rangeByChannelIdMap) {
         channelsContainerValidations.forEach(channelsContainerValidation -> channelsContainerValidation.moveLastCheckedBefore(rangeByChannelIdMap));
