@@ -258,7 +258,6 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .map(IntervalBlock::getIntervals)
                 .flatMap(List::stream)
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
-                .distinct()
                 .sorted(Comparator.comparing(BaseReading::getTimeStamp))
                 .map(reading -> createItem(reading, interval, unit,
                         item, statuses))

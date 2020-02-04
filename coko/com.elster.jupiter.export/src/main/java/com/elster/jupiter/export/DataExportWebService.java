@@ -47,12 +47,6 @@ public interface DataExportWebService extends EndPointProp {
         CHANGE
     }
 
-    enum Data {
-        CREATED,
-        CHANGED,
-        CREATED_AND_CHANGED
-    }
-
     @ProviderType
     interface ExportContext {
         ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources);

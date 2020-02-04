@@ -158,20 +158,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 .map(MeterReadingData.class::cast)
                 .collect(Collectors.toList());
 
-        Map<ReadingTypeDataExportItem, List<MeterReadingData>> dataMap = new HashMap<>();
-        while (!readingDataList.isEmpty()) {
-            MeterReadingData readingData = readingDataList.remove(0);
-            List<MeterReadingData> list = readingDataList.stream()
-                    .filter(rd -> rd.getItem().equals(readingData.getItem()))
-                    .collect(Collectors.toList());
-            if (list.isEmpty()) {
-                dataMap.put(readingData.getItem(), Collections.singletonList(readingData));
-            } else {
-                list.add(readingData);
-                dataMap.put(readingData.getItem(), list);
-            }
-            readingDataList.removeAll(list);
-        }
+        Map<ReadingTypeDataExportItem, List<MeterReadingData>> dataMap = readingDataList.stream()
+                .collect(Collectors.groupingBy(MeterReadingData::getItem));
 
         dataMap.forEach((item, readingList) -> {
             List<TS> timeSeriesListFromMeterData = prepareTimeSeries(item, readingList, now);

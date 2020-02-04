@@ -62,6 +62,12 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
     }
 
+    enum Data {
+        CREATED,
+        CHANGED,
+        CREATED_AND_CHANGED
+    }
+
     private final ThreadPrincipalService threadPrincipalService;
     private final DataExportServiceCallType dataExportServiceCallType;
 
@@ -117,25 +123,20 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 timeout = changeTimeout;
             }
         } else {
+            if (getChangeWebServiceEndpoint().isPresent()) {
+                isCreateAndChange = true;
+            }
             createList = data;
-            isCreateAndChange = true;
             serviceCalls.add(callServiceAsync(createService, createEndPoint, createList, createDataResult, !timeout.isEmpty()));
         }
         execute(serviceCalls, timeout);
         DataSendingStatus.Builder dataSendingStatusBuilder = DataSendingStatus.builder();
-        if (isCreateAndChange) {
-            if (!createList.isEmpty()) {
-                processErrors(createDataResult, createList, dataSendingStatusBuilder, logger, DataExportWebService.Data.CREATED_AND_CHANGED);
-            }
-        } else {
-            if (!createList.isEmpty()) {
-                processErrors(createDataResult, createList, dataSendingStatusBuilder, logger, DataExportWebService.Data.CREATED);
-            }
-            if (!changeList.isEmpty()) {
-                processErrors(changeDataResult, changeList, dataSendingStatusBuilder, logger, DataExportWebService.Data.CHANGED);
-            }
+        if (!createList.isEmpty()) {
+            processErrors(createDataResult, createList, dataSendingStatusBuilder, logger, isCreateAndChange ? Data.CREATED_AND_CHANGED : Data.CREATED);
         }
-
+        if (!changeList.isEmpty()) {
+            processErrors(changeDataResult, changeList, dataSendingStatusBuilder, logger, Data.CHANGED);
+        }
         return dataSendingStatusBuilder.build();
     }
 
@@ -164,11 +165,11 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .orElseThrow(() -> new DestinationFailedException(getThesaurus(), MessageSeeds.NO_WEBSERVICE_FOUND, endPoint.getName()));
     }
 
-    private void processErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, DataExportWebService.Data operation) {
+    private void processErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, Data operation) {
         getTransactionService().run(() -> doProcessErrors(dataSendingResult, data, statusBuilder, logger, operation));
     }
 
-    private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, DataExportWebService.Data operation) {
+    private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, Data operation) {
         List<ServiceCallStatus> states = dataSendingResult.getFinalStatuses();
         Set<ServiceCall> unsuccessfulServiceCalls = states.stream()
                 .filter(Predicates.not(ServiceCallStatus::isSuccessful))
@@ -230,7 +231,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
     }
 
-    private void updateStatusBuilder(DataSendingStatus.Builder statusBuilder, DataExportWebService.Data operation) {
+    private void updateStatusBuilder(DataSendingStatus.Builder statusBuilder, Data operation) {
         switch (operation) {
             case CREATED:
                 statusBuilder.withAllDataSourcesFailedForNewData();
@@ -244,7 +245,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
     }
 
-    private void updateStatusBuilder(DataSendingStatus.Builder statusBuilder, DataExportWebService.Data operation, Set<ReadingTypeDataExportItem> dataSources) {
+    private void updateStatusBuilder(DataSendingStatus.Builder statusBuilder, Data operation, Set<ReadingTypeDataExportItem> dataSources) {
         switch (operation) {
             case CREATED:
                 statusBuilder.withFailedDataSourcesForNewData(dataSources);
