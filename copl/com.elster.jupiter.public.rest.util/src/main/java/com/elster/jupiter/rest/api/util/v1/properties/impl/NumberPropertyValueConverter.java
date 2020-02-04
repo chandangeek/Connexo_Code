@@ -35,6 +35,6 @@ public class NumberPropertyValueConverter implements PropertyValueConverter {
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        return domainValue;
+        return String.valueOf(domainValue);
     }
 }

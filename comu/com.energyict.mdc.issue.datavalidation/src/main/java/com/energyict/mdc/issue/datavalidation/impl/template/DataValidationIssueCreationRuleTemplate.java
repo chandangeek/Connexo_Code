@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.issue.datavalidation.impl;
+package com.energyict.mdc.issue.datavalidation.impl.template;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -34,7 +34,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
-
+import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.osgi.service.component.annotations.Component;
@@ -56,7 +56,7 @@ import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDevice
         service = CreationRuleTemplate.class, immediate = true)
 public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemplate {
 
-    static final String NAME = "DataValidationIssueCreationRuleTemplate";
+    public static final String NAME = "DataValidationIssueCreationRuleTemplate";
 
     public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
 
@@ -287,7 +287,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     }
 
     @XmlRootElement
-    static class DeviceConfigurationInfo extends HasIdAndName {
+    public static class DeviceConfigurationInfo extends HasIdAndName {
 
         private transient DeviceConfiguration deviceConfiguration;
 
