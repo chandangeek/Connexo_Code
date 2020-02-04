@@ -51,11 +51,13 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
         Optional<? extends ExportTask> exportTask = dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
         if (endDeviceGroup.isPresent()) {
             if (exportTask.isPresent()) {
-                Map<IdentifiedObject, List<ReadingTypeDataExportItem>> exportItemsMap = exportTask.get().getReadingDataSelectorConfig().get().getExportItems().stream()
-                        .collect(Collectors.groupingBy(item -> item.getDomainObject()));
-                ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).getEntries().stream()
-                        .filter(endDevice -> deviceCanBeRemoved(exportTask.get(), exportItemsMap, endDevice.getMember()))
-                        .forEach(device -> ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).remove(device));
+                if (exportTask.get().getReadingDataSelectorConfig().isPresent()) {
+                    Map<IdentifiedObject, List<ReadingTypeDataExportItem>> exportItemsMap = exportTask.get().getReadingDataSelectorConfig().get().getExportItems().stream()
+                            .collect(Collectors.groupingBy(ReadingTypeDataExportItem::getDomainObject));
+                    ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).getEntries().stream()
+                            .filter(endDevice -> deviceCanBeRemoved(exportTask.get(), exportItemsMap, endDevice.getMember()))
+                            .forEach(device -> ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).remove(device));
+                }
             } else {
                 endDeviceGroup.get().delete();
             }
@@ -63,25 +65,20 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
     }
 
     private boolean deviceCanBeRemoved(ExportTask exportTask, Map<IdentifiedObject, List<ReadingTypeDataExportItem>> exportItemsMap, EndDevice member) {
-        boolean isSelectorConfigPresent = exportTask.getReadingDataSelectorConfig().isPresent();
-        if (isSelectorConfigPresent) {
-            List<? extends ReadingTypeDataExportItem> exportItems = exportItemsMap.getOrDefault(member, Collections.emptyList());
-            if (exportItems.isEmpty()) {
-                if (member instanceof Meter) {
-                    Set<ReadingType> readingTypeSet = exportTask.getReadingDataSelectorConfig().get().getReadingTypes();
-                    return ((Meter) member).getChannelsContainers().stream()
-                            .map(ChannelsContainer::getChannels)
-                            .flatMap(List::stream)
-                            .map(Channel::getReadingTypes)
-                            .flatMap(List::stream)
-                            .noneMatch(readingTypeSet::contains);
-                }
-                return true;
-            } else {
-                return exportItems.stream().allMatch(item -> isNothingToExportOnDataSource(item, member));
+        List<? extends ReadingTypeDataExportItem> exportItems = exportItemsMap.getOrDefault(member, Collections.emptyList());
+        if (exportItems.isEmpty()) {
+            if (member instanceof Meter) {
+                Set<ReadingType> readingTypeSet = exportTask.getReadingDataSelectorConfig().get().getReadingTypes();
+                return ((Meter) member).getChannelsContainers().stream()
+                        .map(ChannelsContainer::getChannels)
+                        .flatMap(List::stream)
+                        .map(Channel::getReadingTypes)
+                        .flatMap(List::stream)
+                        .noneMatch(readingTypeSet::contains);
             }
+            return true;
         } else {
-            return false;
+            return exportItems.stream().allMatch(item -> isNothingToExportOnDataSource(item, member));
         }
     }
 
