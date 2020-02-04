@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -42,6 +43,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -129,17 +131,17 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         );
     }
 
-    abstract List<TS> prepareTimeSeries(MeterReadingData item, Instant now);
+    abstract List<TS> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now);
 
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
 
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
-    BigDecimal getRoundedBigDecimal(BigDecimal value, MeterReadingData mrData) {
+    BigDecimal getRoundedBigDecimal(BigDecimal value, ReadingTypeDataExportItem item) {
         Optional<Integer> numberOfFractionDigits = Optional.empty();
-        if (mrData.getItem().getReadingContainer() instanceof Meter) {
-            numberOfFractionDigits = deviceService.findDeviceByMrid(((Meter) mrData.getItem().getReadingContainer()).getMRID())
-                    .flatMap(device -> device.getChannels().stream().filter(c -> c.getReadingType().equals(mrData.getItem().getReadingType()))
+        if (item.getReadingContainer() instanceof Meter) {
+            numberOfFractionDigits = deviceService.findDeviceByMrid(((Meter) item.getReadingContainer()).getMRID())
+                    .flatMap(device -> device.getChannels().stream().filter(c -> c.getReadingType().equals(item.getReadingType()))
                             .findFirst()
                             .map(com.energyict.mdc.common.device.data.Channel::getNrOfFractionDigits));
         }
@@ -156,16 +158,20 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 .map(MeterReadingData.class::cast)
                 .collect(Collectors.toList());
 
-        for (MeterReadingData meterReadingData : readingDataList) {
-            List<TS> timeSeriesListFromMeterData = prepareTimeSeries(meterReadingData, now);
+        Map<ReadingTypeDataExportItem, List<MeterReadingData>> dataMap = readingDataList.stream()
+                .collect(Collectors.groupingBy(MeterReadingData::getItem));
+
+        dataMap.forEach((item, readingList) -> {
+            List<TS> timeSeriesListFromMeterData = prepareTimeSeries(item, readingList, now);
 
             /* Calculate number of readings that should be sent for this meterReadingData.
              * numberOfItemsToSend is key for seriesMultimap */
-            Long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
+            long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
             if (numberOfItemsToSend != 0) {
-                seriesMultimap.put(numberOfItemsToSend, new TimeSeriesWrapper<>(timeSeriesListFromMeterData, meterReadingData));
+                seriesMultimap.put(numberOfItemsToSend, new TimeSeriesWrapper<>(timeSeriesListFromMeterData, item));
             }
-        }
+        });
+
         /* Send one by one readings that exceed numberOfReadingsPerMsg */
         List<Long> listToSend = seriesMultimap.keySet().stream()
                 .filter(numberOfItemsToSend -> numberOfItemsToSend >= numberOfReadingsPerMsg)
@@ -174,7 +180,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             seriesMultimap.removeAll(key)
                     .forEach(timeSeriesWrapper -> sendPartOfData(endPointConfiguration, context,
                             timeSeriesWrapper.getTimeSeries(),
-                            Collections.singletonList(timeSeriesWrapper.getMeterReadingData()),
+                            Collections.singletonList(timeSeriesWrapper.getReadingTypeDataExportItem()),
                             now,
                             timeout)
                     );
@@ -182,7 +188,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
         long timeSeriesNumber = 0;
         List<TS> timeSeriesListToSend = new ArrayList<>();
-        List<MeterReadingData> meterReadingDataListToSend = new ArrayList<>();
+        List<ReadingTypeDataExportItem> readingTypeDataExportItemListToSend = new ArrayList<>();
         Set<Long> keys = seriesMultimap.keySet();
         while (!seriesMultimap.isEmpty()) {
             long diff = numberOfReadingsPerMsg - timeSeriesNumber;
@@ -194,16 +200,16 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 /* No readings can be added to message. So send all that we already have in message */
                 sendPartOfData(endPointConfiguration, context,
                         timeSeriesListToSend,
-                        meterReadingDataListToSend,
+                        readingTypeDataExportItemListToSend,
                         now, timeout);
                 timeSeriesListToSend.clear();
-                meterReadingDataListToSend.clear();
+                readingTypeDataExportItemListToSend.clear();
                 timeSeriesNumber = 0;
             } else {
                 List<TimeSeriesWrapper<TS>> timeSeriesWrapperList = seriesMultimap.get(key.get());
                 TimeSeriesWrapper<TS> timeSeriesWrapper = timeSeriesWrapperList.remove(0);
                 timeSeriesListToSend.addAll(timeSeriesWrapper.getTimeSeries());
-                meterReadingDataListToSend.add(timeSeriesWrapper.getMeterReadingData());
+                readingTypeDataExportItemListToSend.add(timeSeriesWrapper.getReadingTypeDataExportItem());
 
                 timeSeriesNumber = timeSeriesNumber + key.get();
                 if (timeSeriesWrapperList.isEmpty()) {
@@ -213,11 +219,11 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                     sendPartOfData(endPointConfiguration,
                             context,
                             timeSeriesListToSend,
-                            meterReadingDataListToSend,
+                            readingTypeDataExportItemListToSend,
                             now,
                             timeout);
                     timeSeriesListToSend.clear();
-                    meterReadingDataListToSend.clear();
+                    readingTypeDataExportItemListToSend.clear();
                     timeSeriesNumber = 0;
                 }
             }
@@ -225,7 +231,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     }
 
     private void sendPartOfData(EndPointConfiguration endPointConfiguration, ExportContext context,
-                                List<TS> timeSeries, List<MeterReadingData> exportData,
+                                List<TS> timeSeries, List<ReadingTypeDataExportItem> exportData,
                                 Instant now,
                                 TimeDuration timeout) {
         String uuid = UUID.randomUUID().toString();
@@ -243,7 +249,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 }
                 Optional.ofNullable(timeout)
                         .map(TimeDuration::getMilliSeconds)
-                        .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, exportData.stream().map(MeterReadingData::getItem).collect(Collectors.toList())));
+                        .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, exportData));
             }
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
@@ -262,11 +268,13 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 .map(TimeDuration.class::cast);
     }
 
-    static Range<Instant> getRange(MeterReading meterReading) {
-        Optional<Range<Instant>> intervalRange = getRange(meterReading.getIntervalBlocks().stream()
+    static Range<Instant> getRange(List<MeterReading> meterReading) {
+        Optional<Range<Instant>> intervalRange = getRange(meterReading.stream()
+                .map(MeterReading::getIntervalBlocks)
+                .flatMap(List::stream)
                 .map(IntervalBlock::getIntervals)
                 .flatMap(List::stream));
-        Optional<Range<Instant>> registerRange = getRange(meterReading.getReadings().stream());
+        Optional<Range<Instant>> registerRange = getRange(meterReading.stream().map(MeterReading::getReadings).flatMap(List::stream));
         if (intervalRange.isPresent()) {
             return registerRange.map(intervalRange.get()::span).orElseGet(intervalRange::get);
         } else {
@@ -307,19 +315,19 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
     private static class TimeSeriesWrapper<TS> {
         private List<TS> timeSeries;
-        private MeterReadingData meterReadingData;
+        private ReadingTypeDataExportItem item;
 
-        TimeSeriesWrapper(List<TS> timeSeries, MeterReadingData meterReadingData) {
+        TimeSeriesWrapper(List<TS> timeSeries, ReadingTypeDataExportItem item) {
             this.timeSeries = timeSeries;
-            this.meterReadingData = meterReadingData;
+            this.item = item;
         }
 
         List<TS> getTimeSeries() {
             return timeSeries;
         }
 
-        MeterReadingData getMeterReadingData() {
-            return this.meterReadingData;
+        ReadingTypeDataExportItem getReadingTypeDataExportItem() {
+            return this.item;
         }
     }
 }

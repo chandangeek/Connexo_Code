@@ -265,13 +265,12 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForNewData(source2)).isFalse();
         assertThat(status.isFailedForChangedData(source2)).isFalse();
 
-        verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
-        verify(webServiceChange, times(2)).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
-        assertThat(dataStreamCaptor.getAllValues().stream().map(stream -> stream.collect(Collectors.toList())).collect(Collectors.toList()))
-                .containsOnly(Collections.singletonList(newData), Collections.singletonList(updatedData));
+        verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
+        verify(webServiceChange, times(1)).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
+        assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, updatedData);
         verifyNoMoreInteractions(webServiceChange);
         verifyZeroInteractions(webServiceCreate);
-        verify(serviceCallType, times(2)).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType, times(1)).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verifyNoMoreInteractions(serviceCallType);
     }
