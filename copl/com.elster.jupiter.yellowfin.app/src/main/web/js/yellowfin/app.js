@@ -16,6 +16,8 @@ Ext.onReady(function () {
 
         Ext.Ajax.on("beforerequest", function (conn, options) {
             var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
+            delete conn.defaultHeaders['X-CSRF-TOKEN'];
+
             if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {
                 Ext.Ajax.request({
                     url: '../../api/usr/csrf/token',

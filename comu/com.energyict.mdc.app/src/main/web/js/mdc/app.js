@@ -116,6 +116,8 @@ Ext.onReady(function () {
     loader.initPackages(packages);
     // </debug>
     Ext.Ajax.on("beforerequest", function(conn, options){
+        delete conn.defaultHeaders['X-CSRF-TOKEN'];
+
         if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {
             Ext.Ajax.request({
                 url: '../../api/usr/csrf/token',
