@@ -192,13 +192,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     @Override
     Optional<T> findByPrimaryKey(KeyValue keyValue) {
         TableCache<? super T> cache = getCache();
-        if (cache.tableShouldBeLoaded()){
-            List<T> objects = this.find();
-            for (T object : objects ){
-                cache.put(table.getPrimaryKey(object), object);
-            }
-            cache.tableLoaded();
-        }
+        cache.loadTableIfNeeded((Finder)this);
         Object cacheVersion = cache.get(keyValue);
         if (cacheVersion != null) {
             if (api.isInstance(cacheVersion)) {

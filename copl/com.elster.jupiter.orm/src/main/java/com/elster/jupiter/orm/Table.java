@@ -159,8 +159,6 @@ public interface Table<T> {
 
     void cacheWholeTable(boolean recordStat);
 
-    void cacheWholeTable(long maximumSize, boolean recordStat);
-
     CacheStats getCacheStats();
 
     void indexOrganized(int compressCount);

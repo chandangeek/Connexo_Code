@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.CacheClearedEvent;
+import com.elster.jupiter.orm.Finder;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.pubsub.Publisher;
 
@@ -13,16 +14,20 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 interface TableCache<T> {
 	T get(KeyValue key);
-	void put(KeyValue key , T value);
+
+	void put(KeyValue key, T value);
+
 	void remove(T entity);
+
 	void renew();
-	boolean tableShouldBeLoaded();
-	void tableLoaded();
+
+	void loadTableIfNeeded(Finder<T> finder);
 
 	CacheStats getCacheStats();
 
@@ -40,12 +45,12 @@ interface TableCache<T> {
 
 		@Override
 		public void remove(T entity) {
-            // NoCache means no cache
+			// NoCache means no cache
 		}
 
 		@Override
 		public void renew() {
-            // NoCache means no cache
+			// NoCache means no cache
 		}
 
 		@Override
@@ -54,13 +59,7 @@ interface TableCache<T> {
 		}
 
 		@Override
-		public boolean tableShouldBeLoaded(){
-			return false;
-		}
-
-		@Override
-		public void tableLoaded(){
-
+		public void loadTableIfNeeded(Finder<T> finder) {
 		}
 	}
 
@@ -73,73 +72,7 @@ interface TableCache<T> {
 			this.table = table;
 			CacheBuilder cacheBuilder = CacheBuilder.newBuilder().maximumSize(maximumSize)
 					.expireAfterWrite(ttl, TimeUnit.MILLISECONDS);
-			if(recordStats){
-				cacheBuilder = cacheBuilder.recordStats();
-			}
-			this.cache = cacheBuilder.build();
-		}
-
-		private void cacheChange() {
-			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
-			publisher.publish(new InvalidateCacheRequest(table.getComponentName(), table.getName()));
-		}
-
-		public synchronized void renew() {
-			this.cache.invalidateAll();
-			cacheCleared();
-		}
-
-		private void cacheCleared() {
-			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
-			publisher.publish(new CacheClearedEvent(table.getComponentName(), table.getName()));
-		}
-
-		private KeyValue getKey(T entity) {
-			return table.getPrimaryKey(entity);
-		}
-
-		@Override
-        public synchronized T get(KeyValue key) {
-			return cache.getIfPresent(key);
-		}
-
-		@Override
-        public synchronized void put(KeyValue key, T value) {
-			cache.put(key,value);
-		}
-
-		@Override
-        public synchronized void remove(T entity) {
-			if (cache != null) {
-				cache.invalidate(getKey(entity));
-			}
-			cacheChange();
-		}
-
-		@Override
-		public CacheStats getCacheStats() {
-			return cache.stats();
-		}
-
-		@Override
-		public boolean tableShouldBeLoaded(){
-			return false;
-		}
-
-		@Override
-		public void tableLoaded(){
-		}
-	}
-
-	class WholeTableCache<T> implements  TableCache<T> {
-		private final TableImpl<T> table;
-		private Cache<KeyValue, T> cache;
-		private boolean tableShouldBeLoaded = true;
-
-		WholeTableCache(TableImpl<T> table, boolean recordStats) {
-			this.table = table;
-			CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
-			if(recordStats){
+			if (recordStats) {
 				cacheBuilder = cacheBuilder.recordStats();
 			}
 			this.cache = cacheBuilder.build();
@@ -171,7 +104,7 @@ interface TableCache<T> {
 
 		@Override
 		public synchronized void put(KeyValue key, T value) {
-			cache.put(key,value);
+			cache.put(key, value);
 		}
 
 		@Override
@@ -188,16 +121,76 @@ interface TableCache<T> {
 		}
 
 		@Override
-		public boolean tableShouldBeLoaded(){
-			return tableShouldBeLoaded;
+		public void loadTableIfNeeded(Finder<T> finder) {
+		}
+	}
+
+	class WholeTableCache<T> implements TableCache<T> {
+		private final TableImpl<T> table;
+		private Cache<KeyValue, T> cache;
+		private boolean tableShouldBeLoaded = true;
+
+		WholeTableCache(TableImpl<T> table, boolean recordStats) {
+			this.table = table;
+			CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
+			if (recordStats) {
+				cacheBuilder = cacheBuilder.recordStats();
+			}
+			this.cache = cacheBuilder.build();
+		}
+
+		private void cacheChange() {
+			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
+			publisher.publish(new InvalidateCacheRequest(table.getComponentName(), table.getName()));
+		}
+
+		public synchronized void renew() {
+			this.cache.invalidateAll();
+			cacheCleared();
+		}
+
+		private void cacheCleared() {
+			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
+			publisher.publish(new CacheClearedEvent(table.getComponentName(), table.getName()));
+		}
+
+		private KeyValue getKey(T entity) {
+			return table.getPrimaryKey(entity);
 		}
 
 		@Override
-		public void tableLoaded(){
-			tableShouldBeLoaded = false;
+		public synchronized T get(KeyValue key) {
+			return cache.getIfPresent(key);
 		}
 
-	}
+		@Override
+		public synchronized void put(KeyValue key, T value) {
+			cache.put(key, value);
+		}
 
+		@Override
+		public synchronized void remove(T entity) {
+			if (cache != null) {
+				cache.invalidate(getKey(entity));
+			}
+			cacheChange();
+		}
+
+		@Override
+		public CacheStats getCacheStats() {
+			return cache.stats();
+		}
+
+		@Override
+		synchronized public void loadTableIfNeeded(Finder<T> finder) {
+			if (tableShouldBeLoaded) {
+				List<T> objects = finder.find();
+				for (T object : objects) {
+					cache.put(table.getPrimaryKey(object), object);
+				}
+				tableShouldBeLoaded = false;
+			}
+		}
+	}
 }
 
