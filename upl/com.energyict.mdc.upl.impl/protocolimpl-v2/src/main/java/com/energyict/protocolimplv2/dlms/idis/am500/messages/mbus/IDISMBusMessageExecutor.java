@@ -16,7 +16,6 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -148,7 +147,7 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private MBusClient getMBusClient(OfflineDeviceMessage offlineDeviceMessage) throws ProtocolException {
-        return getCosemObjectFactory().getMbusClient(getMBusClientObisCode(offlineDeviceMessage), MbusClientAttributes.VERSION10);
+        return getCosemObjectFactory().getMbusClient(getMBusClientObisCode(offlineDeviceMessage), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
     }
 
     /**

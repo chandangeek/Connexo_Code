@@ -80,7 +80,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
 
     private void cancelServiceCall(ServiceCall serviceCall) {
         UtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
-        extension.setError(MessageSeeds.SERVICE_CALL_WAS_CANCELLED);
+        extension.setError(MessageSeeds.REQUEST_CANCELLED);
         serviceCall.update(extension);
     }
 

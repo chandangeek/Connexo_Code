@@ -101,7 +101,7 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void useUncorrectedValues(OfflineDeviceMessage pendingMessage) throws IOException {
-        MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage));
+        MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         Array capDef = new Array();
         Structure struct = new Structure();
         OctetString dib = OctetString.fromByteArray(new byte[]{(byte) 0x0C});
@@ -113,7 +113,7 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void useCorrectedValues(OfflineDeviceMessage pendingMessage) throws IOException {
-        MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage));
+        MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         Array capDef = new Array();
         Structure struct = new Structure();
         OctetString dib = OctetString.fromByteArray(new byte[]{0x0C});
@@ -128,13 +128,13 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
         String openKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, openKeyAttributeName).getValue();
         String transferKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, transferKeyAttributeName).getValue();
 
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage));
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         mbusClient.setEncryptionKey(ProtocolTools.getBytesFromHexString(openKey, ""));
         mbusClient.setTransportKey(ProtocolTools.getBytesFromHexString(transferKey, ""));
     }
 
     private void decommission(OfflineDeviceMessage pendingMessage) throws IOException {
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage));
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         mbusClient.deinstallSlave();
     }
 

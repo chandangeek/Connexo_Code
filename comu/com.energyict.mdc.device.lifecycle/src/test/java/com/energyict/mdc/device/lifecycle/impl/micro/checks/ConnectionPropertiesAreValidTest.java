@@ -7,11 +7,14 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
@@ -21,8 +24,12 @@ import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -72,8 +79,10 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionPropertiesAreValid microCheck = this.getTestInstance();
         ScheduledConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        when(ct1.getName()).thenReturn("connectionTaskName");
         ScheduledConnectionTask ct2 = mock(ScheduledConnectionTask.class);
         when(ct2.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        when(ct2.getName()).thenReturn("connectionTaskName2");
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
 
@@ -89,8 +98,10 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionPropertiesAreValid microCheck = this.getTestInstance();
         ScheduledConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
+        when(ct1.getName()).thenReturn("connectionTaskName");
         ScheduledConnectionTask ct2 = mock(ScheduledConnectionTask.class);
         when(ct2.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
+        when(ct2.getName()).thenReturn("connectionTaskName2");
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
 
@@ -156,8 +167,12 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         ConnectionTaskProperty prop = mock(ConnectionTaskProperty.class);
         when(prop.getConnectionTask()).thenReturn(ct1);
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggableClass.getPropertySpecs()).thenReturn(Collections.emptyList());
         SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         when(prop.getValue()).thenReturn(securityAccessorType);
+        when(ct1.getName()).thenReturn("connectionTaskName");
+        when(ct1.getPluggableClass()).thenReturn(pluggableClass);
         when(ct1.getProperties()).thenReturn(Collections.singletonList(prop));
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
@@ -173,6 +188,7 @@ public class ConnectionPropertiesAreValidTest {
         ComTaskEnablement comTaskEnablement2 = mock(ComTaskEnablement.class);
         when(comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
 
+        when(this.device.getConnectionTasks()).thenReturn(Collections.singletonList(ct1));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         when(this.device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2));
         TypedProperties typedProperties = mock(TypedProperties.class);
@@ -198,8 +214,12 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         ConnectionTaskProperty prop = mock(ConnectionTaskProperty.class);
         when(prop.getConnectionTask()).thenReturn(ct1);
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggableClass.getPropertySpecs()).thenReturn(Collections.emptyList());
         SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         when(prop.getValue()).thenReturn(securityAccessorType);
+        when(ct1.getName()).thenReturn("connectionTaskName");
+        when(ct1.getPluggableClass()).thenReturn(pluggableClass);
         when(ct1.getProperties()).thenReturn(Collections.singletonList(prop));
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
@@ -213,6 +233,7 @@ public class ConnectionPropertiesAreValidTest {
         ComTaskEnablement comTaskEnablement2 = mock(ComTaskEnablement.class);
         when(comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
 
+        when(this.device.getConnectionTasks()).thenReturn(Collections.singletonList(ct1));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         when(this.device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2));
         TypedProperties typedProperties = mock(TypedProperties.class);
@@ -239,8 +260,12 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         ConnectionTaskProperty prop = mock(ConnectionTaskProperty.class);
         when(prop.getConnectionTask()).thenReturn(ct1);
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggableClass.getPropertySpecs()).thenReturn(Collections.emptyList());
         SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         when(prop.getValue()).thenReturn(securityAccessorType);
+        when(ct1.getName()).thenReturn("connectionTaskName");
+        when(ct1.getPluggableClass()).thenReturn(pluggableClass);
         when(ct1.getProperties()).thenReturn(Collections.singletonList(prop));
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
@@ -256,6 +281,7 @@ public class ConnectionPropertiesAreValidTest {
         ComTaskEnablement comTaskEnablement2 = mock(ComTaskEnablement.class);
         when(comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
 
+        when(this.device.getConnectionTasks()).thenReturn(Collections.singletonList(ct1));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         when(this.device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2));
         TypedProperties typedProperties = mock(TypedProperties.class);

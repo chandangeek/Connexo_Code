@@ -13,7 +13,6 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -141,7 +140,7 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
     }
 
     protected MBusClient getMBusClient(String serialNumber) throws IOException {
-        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
+        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION0_D_S_M_R_23_SPEC);
     }
 
     protected ObisCode getMbusClientObisCode(String serialNumber) throws IOException {

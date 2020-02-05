@@ -3,7 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -20,8 +20,8 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestE
 
     @Inject
     UtilitiesDeviceCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                         Clock clock, OrmService ormService, WebServiceActivator webServiceActivator, DeviceService deviceService) {
-        super(serviceCallCommands, endPointConfigurationService, clock, ormService, webServiceActivator, deviceService);
+                                         Clock clock, WebServiceActivator webServiceActivator, DeviceService deviceService, ServiceCallService serviceCallService) {
+        super(serviceCallCommands, endPointConfigurationService, clock, webServiceActivator, deviceService, serviceCallService);
     }
 
     @Override

@@ -97,9 +97,12 @@ class Installer implements FullInstaller {
                 IssueDataValidationService.COMPONENT_NAME,
                 Layer.DOMAIN,
                 whereCorrelationId()
-                        .isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
-                        .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.READINGQUALITY_DELETED.getTopic())));
+                        .like("com/elster/jupiter/validation/suspect/%")
+                        .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.READINGQUALITY_DELETED.getTopic())
+                                .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic()))
+                                .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.SUSPECT_VALUE_CREATED.getTopic()))));
     }
+
     private void run(Runnable runnable, String explanation, Logger logger) {
         doTry(
                 explanation,

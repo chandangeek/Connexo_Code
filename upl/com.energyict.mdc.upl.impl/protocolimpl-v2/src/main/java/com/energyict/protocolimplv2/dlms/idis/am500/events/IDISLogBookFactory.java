@@ -41,7 +41,7 @@ import java.util.List;
  * @author khe
  * @since 6/01/2015 - 9:42
  */
-public class IDISLogBookFactory implements DeviceLogBookSupport {
+public class IDISLogBookFactory<T extends AM500> implements DeviceLogBookSupport {
 
     protected static ObisCode DISCONNECTOR_CONTROL_LOG = ObisCode.fromString("0.0.99.98.2.255");
     protected static ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
@@ -58,7 +58,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public IDISLogBookFactory(AM500 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public IDISLogBookFactory(T protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
@@ -80,8 +80,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric = null;
                 try {
-                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
-                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
+                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode(), protocol.useDsmr4SelectiveAccessFormat());
                 } catch (NotInObjectListException e) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
@@ -136,8 +135,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
 
     protected List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal, LogBookReader logBookReader) throws IOException {
         ObisCode mBusControlLogObisCode = getMBusControlLogObisCode(logBookReader.getMeterSerialNumber());
-        ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode);
-        profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
+        ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode, protocol.useDsmr4SelectiveAccessFormat());
         DataContainer mBusControlLogDC = profileGeneric.getBuffer(fromCal, toCal);
         AbstractEvent mBusControlLog;
         switch (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber())) {
