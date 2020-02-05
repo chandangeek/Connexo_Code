@@ -11,10 +11,10 @@ import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -30,7 +30,7 @@ import java.util.List;
 
 public class CreateHANDeviceCommand {
     private static final List<DeviceTypeTpl> SPE_DEVICE_TYPES = Arrays.asList(DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Elster_A1800,
-            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38);
+            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38, DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_DLMS);
 
     private final DeviceService deviceService;
     private final TopologyService topologyService;

@@ -17,6 +17,7 @@ Ext.define('Uni.view.menu.ActionsMenu', {
     SECTION_EDIT: 2,
     SECTION_VIEW: 3,
     SECTION_REMOVE: 4,
+    SECTION_UNLOCK: 5,
 
     initComponent: function() {
         var me = this;

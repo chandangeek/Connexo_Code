@@ -110,6 +110,7 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
 
     @Override
     public List<MessageSeed> getSeeds() {
+        // FIXME: this leads to an NPE but returning empty list here crashes Connexo at all
         return null;
     }
 

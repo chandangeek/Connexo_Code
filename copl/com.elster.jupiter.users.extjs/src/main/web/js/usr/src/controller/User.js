@@ -109,7 +109,11 @@ Ext.define('Usr.controller.User', {
             },
             'usr-search-overview uni-view-search-results uni-actioncolumn': {
                 edit: this.editUser,
-                activate: this.userActivation
+                activate: this.userActivation,
+                unlock: this.userUnlock
+            },
+            'userBrowse userDetails menuitem[action=unlock]': {
+                click: this.unlockUserMenu
             },
             'usr-search-overview search-criteria-selector menu menucheckitem': {
                 checkchange: function (field, checked) {
@@ -216,7 +220,9 @@ Ext.define('Usr.controller.User', {
             currentGroups = record.raw.groups,
             detailsRoles = form.down('[name=roles]');
         page.down('userDetails').setTitle(Ext.String.htmlEncode(record.get('authenticationName')));
-        page.down('userDetails').down('user-action-menu').record = record;
+        if(page.down('userDetails').down('user-action-menu')){
+            page.down('userDetails').down('user-action-menu').record = record;
+        }
         form.loadRecord(record);
         for (var i = 0; i < currentGroups.length; i++) {
             roles += '- ' + Ext.String.htmlEncode(currentGroups[i].name) + '<br/>';
@@ -227,6 +233,11 @@ Ext.define('Usr.controller.User', {
     activateUserMenu: function (button) {
         var record = button.up('#userDetails').down('#userDetailsForm').getRecord();
         this.userActivation(record);
+    },
+
+    unlockUserMenu: function (button) {
+        var record = button.up('#userBrowse').down('#userDetailsForm').getRecord();
+        this.userUnlock(record);
     },
 
     userActivation: function (record) {
@@ -250,6 +261,7 @@ Ext.define('Usr.controller.User', {
                     record.raw.active = updatedRecord.active;
                     record.raw.version = updatedRecord.version;
                     record.set(updatedRecord);
+
                     record.set('statusDisplay', updatedRecord.active
                         ? Uni.I18n.translate('general.active', 'USR', 'Active')
                         : Uni.I18n.translate('general.inactive', 'USR', 'Inactive'));
@@ -261,6 +273,43 @@ Ext.define('Usr.controller.User', {
                 me.getApplication().fireEvent('acknowledge', updatedRecord.active
                     ? Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated')
                     : Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    userUnlock: function (record) {
+        var me = this,
+            form = me.getUserBrowse().down('#userDetailsForm'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading();
+        Ext.Ajax.request({
+            url: '/api/usr/users/' + record.get('id') + '/unlock',
+            jsonData: _.pick(record.raw, 'version'),
+            isNotEdit: true,
+            method: 'PUT',
+            success: function (response) {
+                var decoded = response.responseText ? Ext.decode(response.responseText, true) : null,
+                    updatedRecord = decoded ? decoded : null;
+
+                if (updatedRecord){
+                    record.beginEdit();
+                    record.raw.isUserLocked = updatedRecord.isUserLocked;
+                    record.raw.version = updatedRecord.version;
+                    record.set(updatedRecord);
+                    record.set('isUserLocked', updatedRecord.isUserLocked
+                        ? Uni.I18n.translate('general.userLocked', 'USR', 'Yes')
+                        : Uni.I18n.translate('general.userUnlocked', 'USR', 'No'));
+                    record.endEdit();
+                }
+
+                if (form.rendered) {
+                    form.loadRecord(record);
+                }
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.unlockSuccessMsg', 'USR', 'User unlocked'));
             },
             callback: function () {
                 viewport.setLoading(false);

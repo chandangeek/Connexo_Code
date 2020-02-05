@@ -247,8 +247,8 @@ public class GSMDiagnosticsIC extends AbstractCosemObject {
      * @return
      * @throws IOException
      */
-    public Integer64Unsigned readTotalTXBytes() throws IOException {
-        return readDataType(GSMDiagnosticsAttributes.TOTAL_TX_BYTES, Integer64Unsigned.class);
+    public Unsigned64 readTotalTXBytes() throws IOException {
+        return readDataType(GSMDiagnosticsAttributes.TOTAL_TX_BYTES, Unsigned64.class);
     }
 
     /**
@@ -258,8 +258,8 @@ public class GSMDiagnosticsIC extends AbstractCosemObject {
      * @return
      * @throws IOException
      */
-    public Integer64Unsigned readTotalRXBytes() throws IOException {
-        return readDataType(GSMDiagnosticsAttributes.TOTAL_RX_BYTES, Integer64Unsigned.class);
+    public Unsigned64 readTotalRXBytes() throws IOException {
+        return readDataType(GSMDiagnosticsAttributes.TOTAL_RX_BYTES, Unsigned64.class);
     }
 
 }

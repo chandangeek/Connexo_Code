@@ -49,11 +49,11 @@ public class CreateRegisterConfirmationMessageFactory {
     public CreateRegisterConfirmationMessageFactory() {
     }
 
-    public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(ServiceCall parent, ServiceCall deviceServiceCall, Instant now) {
+    public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(ServiceCall parent, ServiceCall deviceServiceCall, String senderBusinessSystemId, Instant now) {
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
+        confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
 
         SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension subExtension = deviceServiceCall.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
@@ -78,11 +78,11 @@ public class CreateRegisterConfirmationMessageFactory {
                         }
                     }
                 }else if (deviceServiceCall.getState() == CANCELLED) {
-                    confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 }
                 break;
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             default:
                 // No specific action required for these states
@@ -94,9 +94,9 @@ public class CreateRegisterConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+    public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        confirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
+        confirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), senderBusinessSystemId, now));
         if(!requestMessage.getUtilitiesDeviceRegisterCreateMessages().isEmpty()) {
             confirmationMessage.setUtilitiesDevice(createUtilsDvce(requestMessage.getUtilitiesDeviceRegisterCreateMessages().get(0).getDeviceId()));
         }
@@ -126,7 +126,7 @@ public class CreateRegisterConfirmationMessageFactory {
                 }).collect(Collectors.joining("; "));
     }
 
-    private BusinessDocumentMessageHeader createHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
         if (!Strings.isNullOrEmpty(requestId)){
@@ -138,6 +138,8 @@ public class CreateRegisterConfirmationMessageFactory {
 
         String uuid = UUID.randomUUID().toString();
         header.setUUID(createUUID(uuid));
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
 
         return header;

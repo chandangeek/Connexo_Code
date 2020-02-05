@@ -49,7 +49,7 @@ public class MbusProvider {
 	 *             if some MBus attributes could not be retrieved
 	 */
 	public String getMbusSerialNumber(ObisCode obisCode) throws IOException{
-		MBusClient mClient = this.cosemObjectFactory.getMbusClient(obisCode);
+		MBusClient mClient = this.cosemObjectFactory.getMbusClient(obisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
 		Unsigned16 manId = mClient.getManufacturerID();
 		Unsigned32 idNum = mClient.getIdentificationNumber();
 		Unsigned8 version =	mClient.getVersion();

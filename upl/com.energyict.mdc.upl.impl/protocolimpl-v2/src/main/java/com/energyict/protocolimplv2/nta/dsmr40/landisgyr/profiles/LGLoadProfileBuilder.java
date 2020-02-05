@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -15,7 +16,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -32,9 +31,9 @@ import java.util.logging.Level;
  * @author khe
  * @since 19/12/2014 - 9:28
  */
-public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
+public class LGLoadProfileBuilder<T extends AbstractDlmsProtocol> extends Dsmr40LoadProfileBuilder<T> {
 
-    public LGLoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public LGLoadProfileBuilder(T meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
@@ -43,7 +42,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
      * <p/>
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels({com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
      * </p>
      * <p>
@@ -70,8 +69,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
                 try {
                     List<ChannelInfo> channelInfos = this.getChannelInfoMap().get(lpr);
-                    profile = this.getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
-                    profile.setDsmr4SelectiveAccessFormat(true);
+                    profile = this.getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode , getMeterProtocol().useDsmr4SelectiveAccessFormat());
                     profileData = new ProfileData(lpr.getLoadProfileId());
                     profileData.setChannelInfos(channelInfos);
                     Calendar fromCalendar = Calendar.getInstance(this.getMeterProtocol().getTimeZone());

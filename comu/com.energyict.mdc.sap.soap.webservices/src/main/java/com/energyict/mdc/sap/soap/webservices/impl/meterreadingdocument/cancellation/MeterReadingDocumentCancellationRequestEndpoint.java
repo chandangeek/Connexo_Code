@@ -7,6 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentCancellationConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationrequest.SmartMeterMeterReadingDocumentERPCancellationRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationrequest.SmrtMtrMtrRdngDocERPCanclnReqMsg;
 
@@ -19,8 +20,9 @@ public class MeterReadingDocumentCancellationRequestEndpoint extends AbstractCan
 
     @Inject
     MeterReadingDocumentCancellationRequestEndpoint(EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus,
-                                                    ServiceCallService serviceCallService, Clock clock, OrmService ormService) {
-        super(endPointConfigurationService, serviceCallService, thesaurus, clock, ormService);
+                                                    ServiceCallService serviceCallService, Clock clock, OrmService ormService,
+                                                    WebServiceActivator webServiceActivator) {
+        super(endPointConfigurationService, serviceCallService, thesaurus, clock, ormService, webServiceActivator);
     }
 
     @Override

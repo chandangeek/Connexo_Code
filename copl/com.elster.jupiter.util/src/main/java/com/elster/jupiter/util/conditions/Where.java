@@ -5,6 +5,7 @@
 package com.elster.jupiter.util.conditions;
 
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -79,17 +80,17 @@ public final class Where {
      */
     public static String toOracleSql(String value) {
         // escape sql like operators
-        for (String keyword: Arrays.asList("\\", "_", "%")) {
-            value=value.replace(keyword,"\\"+keyword);
+        for (String keyword : Arrays.asList("\\", "_", "%")) {
+            value = value.replace(keyword, "\\" + keyword);
         }
         // transform un-escaped wildcards * and ? to sql like operators
-        value=replaceAll(value, "([^\\\\]|^)\\*", "$1%");
+        value = replaceAll(value, "([^\\\\]|^)\\*", "$1%");
         value = replaceAll(value, "([^\\\\]|^)\\?", "$1_");
 
         // transform escaped wildcards * and ? to their unescaped literal that does not have any meaning in SQL anyway
         // We need to search for double escape: it was doubled in the little loop on top of this method
-        value=value.replaceAll("\\\\\\\\\\*", "*");
-        value=value.replaceAll("\\\\\\\\\\?", "?");
+        value = value.replaceAll("\\\\\\\\\\*", "*");
+        value = value.replaceAll("\\\\\\\\\\?", "?");
 
         return value;
     }
@@ -167,21 +168,41 @@ public final class Where {
         return where(field + ".start").isLessThanOrEqual(instant.toEpochMilli()).and(where(field + ".end").isGreaterThan(instant.toEpochMilli()));
     }
 
+    public Condition isEffectiveOpenClosed(Instant instant) {
+        return where(field + ".start").isLessThan(instant.toEpochMilli()).and(where(field + ".end").isGreaterThanOrEqual(instant.toEpochMilli()));
+    }
+
     public Condition isEffective(Range<Instant> range) {
-    	// for isEffective we know the interval has to interpreted as closedOpen
-    	Condition result = Condition.TRUE;
-    	if (range.hasLowerBound()) {
-    		Where end = Where.where(field + ".end");
-    		long endpoint = range.lowerEndpoint().toEpochMilli();
+        // for isEffective we know the interval has to interpreted as closedOpen
+        Condition result = Condition.TRUE;
+        if (range.hasLowerBound()) {
+            Where end = Where.where(field + ".end");
+            long endpoint = range.lowerEndpoint().toEpochMilli();
             result = result.and(end.isGreaterThan(endpoint));
-    	}
-    	if (range.hasUpperBound()) {
-    		boolean open = range.upperBoundType().equals(BoundType.OPEN);
-    		Where start = Where.where(field + ".start");
-    		long endpoint = range.upperEndpoint().toEpochMilli();
+        }
+        if (range.hasUpperBound()) {
+            boolean open = range.upperBoundType().equals(BoundType.OPEN);
+            Where start = Where.where(field + ".start");
+            long endpoint = range.upperEndpoint().toEpochMilli();
             result = result.and(open ? start.isLessThan(endpoint) : start.isLessThanOrEqual(endpoint));
-    	}
-    	return result;
+        }
+        return result;
+    }
+
+    public Condition isEffectiveOpenClosed(Range<Instant> range) {
+        Condition result = Condition.TRUE;
+        if (range.hasLowerBound()) {
+            boolean open = range.lowerBoundType().equals(BoundType.OPEN);
+            Where end = Where.where(field + ".end");
+            long endpoint = range.lowerEndpoint().toEpochMilli();
+            result = result.and(open ? end.isGreaterThan(endpoint) : end.isGreaterThanOrEqual(endpoint));
+        }
+        if (range.hasUpperBound()) {
+            Where start = Where.where(field + ".start");
+            long endpoint = range.upperEndpoint().toEpochMilli();
+            result = result.and(start.isLessThan(endpoint));
+        }
+        return result;
     }
 
     public Condition in(List<?> values) {

@@ -35,6 +35,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.device.config.ChannelSpec;
@@ -69,6 +70,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -89,6 +92,8 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     public static final String DEFAULT_TASK_NAME = "Device data exporter";
     public static final String DEFAULT_GROUP_NAME = "Export device group";
 
+    private static final Lock deviceGroupExportTaskLock = new ReentrantLock();
+
     private volatile Clock clock;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DataExportService dataExportService;
@@ -99,6 +104,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile TimeService timeService;
     private volatile Thesaurus thesaurus;
+    private volatile TransactionService transactionService;
 
     public void process(MeasurementTaskAssignmentChangeRequestMessage message, String selectorName) {
         String profileId = message.getProfileId();
@@ -117,67 +123,75 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
             lrns.put(lrn, rangeSet);
         }
 
-        if (!lrns.isEmpty()) {
-            // unset profile id after the end date of the range
-            lrns.entrySet().stream().forEach(entry -> {
-                Instant endDate = Instant.EPOCH;
-                boolean unset = true;
-                for (Range<Instant> range : entry.getValue().asRanges()) {
-                    if (range.hasUpperBound()) {
-                        if (range.upperEndpoint().isAfter(endDate)) {
-                            endDate = range.upperEndpoint();
+        deviceGroupExportTaskLock.lock();
+        try {
+            transactionService.runInIndependentTransaction(() -> {
+                if (!lrns.isEmpty()) {
+                    // unset profile id after the end date of the range
+                    lrns.entrySet().stream().forEach(entry -> {
+                        Instant endDate = Instant.EPOCH;
+                        boolean unset = true;
+                        for (Range<Instant> range : entry.getValue().asRanges()) {
+                            if (range.hasUpperBound()) {
+                                if (range.upperEndpoint().isAfter(endDate)) {
+                                    endDate = range.upperEndpoint();
+                                }
+                            } else {
+                                unset = false;
+                                break;
+                            }
                         }
+                        if (unset) {
+                            sapCustomPropertySets.getChannelInfosAfterDate(entry.getKey(), profileId, endDate).stream()
+                                    .forEach(csi -> {
+                                        unsetProfileId(csi.getFirst(), csi.getLast(), entry.getKey(), profileId);
+                                    });
+                        }
+                    });
+
+                    // set profile id
+                    Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> profileIntervals = findChannelInfos(lrns);
+                    for (Map.Entry<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> entry : profileIntervals.entrySet()) {
+                        entry.getValue().stream().forEach(e -> setProfileId(profileId, entry.getKey().getFirst(),
+                                entry.getKey().getLast(), e.getFirst(), e.getLast()));
+                    }
+
+                    // update/create end device group for export task
+                    String groupName = WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME);
+                    Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findAndLockEndDeviceGroupByName(groupName);
+                    Set<Long> deviceIds = getDeviceIds(profileIntervals);
+                    if (endDeviceGroup.isPresent()) {
+                        addDevicesToEnumeratedGroup((EnumeratedEndDeviceGroup) endDeviceGroup.get(), deviceIds);
                     } else {
-                        unset = false;
-                        break;
+                        endDeviceGroup = Optional.of(createEnumeratedEndDeviceGroup(deviceIds));
+                    }
+
+                    // update/create export task
+                    String exportName = WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME);
+                    Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
+                            .findAndLockReadingTypeDataExportTaskByName(exportName);
+                    Set<ReadingType> readingTypes = getReadingTypes(profileIntervals);
+                    if (exportTask.isPresent()) {
+                        updateExportTask(exportTask.get(), readingTypes, true);
+                    } else {
+                        createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
+                    }
+                } else {
+                    String exportName = WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME);
+                    Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
+                            .findAndLockReadingTypeDataExportTaskByName(exportName);
+                    if (exportTask.isPresent()) {
+                        Set<ReadingType> readingTypes = sapCustomPropertySets.findReadingTypesForProfileId(profileId);
+                        // remove reading types from the data export task
+                        updateExportTask(exportTask.get(), readingTypes, false);
+                        if (getNumberOfReadingTypes(exportTask.get()) == 0) {
+                            exportTask.get().delete();
+                        }
                     }
                 }
-                if (unset) {
-                    sapCustomPropertySets.getChannelInfosAfterDate(entry.getKey(), profileId, endDate).stream()
-                            .forEach(csi -> {
-                                unsetProfileId(csi.getFirst(), csi.getLast(), entry.getKey(), profileId);
-                            });
-                }
-
             });
-
-            // set profile id
-            Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> profileIntervals = findChannelInfos(lrns);
-            for (Map.Entry<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> entry : profileIntervals.entrySet()) {
-                entry.getValue().stream().forEach(e -> setProfileId(profileId, entry.getKey().getFirst(),
-                        entry.getKey().getLast(), e.getFirst(), e.getLast()));
-            }
-
-            // update/create end device group for export task
-            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
-            Set<Long> deviceIds = getDeviceIds(profileIntervals);
-            if (endDeviceGroup.isPresent()) {
-                addDevicesToEnumeratedGroup((EnumeratedEndDeviceGroup) endDeviceGroup.get(), deviceIds);
-            } else {
-                endDeviceGroup = Optional.of(createEnumeratedEndDeviceGroup(deviceIds));
-            }
-
-            if (endDeviceGroup.isPresent()) {
-                // update/create export task
-                Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
-                        .getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
-                Set<ReadingType> readingTypes = getReadingTypes(profileIntervals);
-                if (exportTask.isPresent()) {
-                    updateExportTask(exportTask.get(), readingTypes, true);
-                } else {
-                    createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
-                }
-            }
-        } else {
-            Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
-            if (exportTask.isPresent()) {
-                Set<ReadingType> readingTypes = sapCustomPropertySets.findReadingTypesForProfileId(profileId);
-                // remove reading types from the data export task
-                updateExportTask(exportTask.get(), readingTypes, false);
-                if (getNumberOfReadingTypes(exportTask.get()) == 0) {
-                    exportTask.get().delete();
-                }
-            }
+        } finally {
+            deviceGroupExportTaskLock.unlock();
         }
     }
 
@@ -497,5 +511,10 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(getComponentName(), getLayer());
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 }

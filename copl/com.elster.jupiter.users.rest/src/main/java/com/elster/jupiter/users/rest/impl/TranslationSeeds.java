@@ -15,7 +15,8 @@ public enum TranslationSeeds implements TranslationKey {
     CREATETIME("createdOn", "Created on"),
     MODTIME("modifiedOn", "Modified on"),
     LASTSUCCESSFULLOGIN("lastSuccessfulLogin", "Last successful login"),
-    LASTUNSUCCESSFULLOGIN("lastUnSuccessfulLogin", "Last unsuccessful login");
+    LASTUNSUCCESSFULLOGIN("lastUnSuccessfulLogin", "Last unsuccessful login"),
+    ISUSERLOCKED("isUserLocked", "Locked");
 
     private final String key;
     private final String defaultFormat;

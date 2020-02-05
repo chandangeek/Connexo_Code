@@ -80,7 +80,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
 
     private void cancelServiceCall(ServiceCall serviceCall) {
         UtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
-        extension.setError(MessageSeeds.SERVICE_CALL_WAS_CANCELLED);
+        extension.setError(MessageSeeds.REQUEST_CANCELLED);
         serviceCall.update(extension);
     }
 
@@ -137,7 +137,11 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         deviceBuilder.withSerialNumber(extension.getSerialId());
         deviceBuilder.withManufacturer(extension.getManufacturer());
         deviceBuilder.withModelNumber(extension.getModelNumber());
-        return deviceBuilder.create();
+        Device device = deviceBuilder.create();
+        ServiceCall serviceCall = extension.getServiceCall();
+        serviceCall.setTargetObject(device);
+        serviceCall.save();
+        return device;
     }
 
     private DeviceConfiguration findDeviceConfiguration(String deviceTypeName) {

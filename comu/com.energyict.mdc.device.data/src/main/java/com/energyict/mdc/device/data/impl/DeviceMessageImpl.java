@@ -261,6 +261,12 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public void revoke() {
+        revokeWithNoUpdateNotification();
+        this.notifyUpdated();
+    }
+
+    @Override
+    public void revokeWithNoUpdateNotification() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
         this.oldReleaseDate = releaseDate.toEpochMilli();
         this.oldDeviceMessageStatus = getStatus().dbValue();
@@ -268,7 +274,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         checkRevokeAllowed();
         Save.UPDATE.validate(this.getDataModel(), this, Save.Update.class);
         this.update("deviceMessageStatus");
-        this.notifyUpdated();
         this.revokeChecker = null;
     }
 

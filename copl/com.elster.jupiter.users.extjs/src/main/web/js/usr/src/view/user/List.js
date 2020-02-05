@@ -29,7 +29,15 @@ Ext.define('Usr.view.user.List', {
                 {
                     header: Uni.I18n.translate('general.name', 'USR', 'Name'),
                     dataIndex: 'authenticationName',
-                    flex: 2
+                    flex: 2,
+                    renderer: function (val, metaData, record) {
+                        var isUserLocked = record.get('isUserLocked'),
+                            res = record.get('authenticationName');
+                        if (isUserLocked) {
+                            res = '<span>' + record.get('authenticationName') + '</span><span class="icon-lock2" style="display:inline-block; color:rgba(255, 0, 0, 0.3);position:relative; left:5px;"></span>';
+                        }
+                        return res;
+                    },
                 },
                 {
                     header: Uni.I18n.translate('general.description', 'USR', 'Description'),

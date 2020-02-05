@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -15,6 +14,7 @@ import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
@@ -33,6 +33,9 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(EndDevice endDevice);
 
+    /**
+     * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
+     */
     @Deprecated
     Optional<String> getSapDeviceId(String deviceName);
 
@@ -89,15 +92,10 @@ public interface SAPCustomPropertySets {
 
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
 
-    /**
-     * This method returns first date of the Profile id set for the reading container
-     * In case of the first range doesn't have lower bound, then 1970-01-01T00:00:00Z date is returned.
-     */
-    Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType);
+    Map<String, RangeSet<Instant>> getProfileId(ReadingContainer readingContainer, ReadingType readingType, Range<Instant> range);
 
     /**
-     * This method returns start of the first LRN after the latest transition to operational stage
-     * or the date of this transition, if no such LRN is present.
+     * This method returns start of the first active LRN.
      */
-    Optional<Instant> getStartDate(Device device);
+    Optional<Instant> getStartDate(Device device, Instant now);
 }

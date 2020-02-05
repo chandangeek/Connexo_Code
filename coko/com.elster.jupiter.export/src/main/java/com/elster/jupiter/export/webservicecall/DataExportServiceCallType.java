@@ -5,11 +5,13 @@
 package com.elster.jupiter.export.webservicecall;
 
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,7 +25,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
+    ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> itemList);
 
     /**
      * Creates and starts a new service call in a new thread.
@@ -32,7 +34,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, Collection<ReadingTypeDataExportItem> itemList);
 
 
     /**
@@ -40,6 +42,12 @@ public interface DataExportServiceCallType {
      * @return {@link Optional} of found service call, or empty if not found.
      */
     Optional<ServiceCall> findServiceCall(String uuid);
+
+    /**
+     * @param states EnumSet<DefaultState> set of the service call states.
+     * @return {@link List} of found service calls.
+     */
+    List<ServiceCall> findServiceCalls(EnumSet<DefaultState> states);
 
     /**
      * Tries failing a given service call. If it is already closed, does nothing.
@@ -65,5 +73,7 @@ public interface DataExportServiceCallType {
 
     List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls);
 
-    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall);
+    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCall);
+
+    Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> serviceCalls);
 }

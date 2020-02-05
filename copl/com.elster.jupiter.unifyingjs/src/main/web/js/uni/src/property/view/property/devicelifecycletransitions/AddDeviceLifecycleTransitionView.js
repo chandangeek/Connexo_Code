@@ -24,7 +24,8 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.AddDeviceLifec
                     itemId: 'form-errors',
                     xtype: 'uni-form-error-message',
                     name: 'form-errors',
-                    hidden: true
+                    hidden: true,
+                    width: 460
                 },
                 {
                     itemId: 'deviceType',
@@ -37,6 +38,9 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.AddDeviceLifec
                     queryMode: 'local',
                     displayField: 'name',
                     valueField: 'name',
+                    editable: false,
+                    msgTarget: 'under',
+                    allowBlank: false,
                     store: 'Uni.property.store.PropertyDeviceLifecycleTransition',
                     listeners:{
                         select: function(combo, records){
@@ -68,6 +72,8 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.AddDeviceLifec
                     displayField: 'name',
                     valueField: 'name',
                     disabled: true,
+                    editable: false,
+                    allowBlank: false,
                     listeners:{
                         select: function(combo, records){
                             var follow = me.down('#transition');
@@ -95,6 +101,8 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.AddDeviceLifec
                     displayField: 'name',
                     valueField: 'name',
                     disabled: true,
+                    editable: false,
+                    allowBlank: false,
                     listeners:{
                         select: function(combo, records){
                             var follow = me.down('#fromTransition');
@@ -120,6 +128,8 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.AddDeviceLifec
                     displayField: 'name',
                     valueField: 'name',
                     disabled: true,
+                    editable: false,
+                    allowBlank: false,
                     listeners:{
                         select: function(combo, records){
                             var follow = me.down('#toTransition');
@@ -142,7 +152,9 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.AddDeviceLifec
                     width: 456,
                     displayField: 'name',
                     valueField: 'name',
-                    disabled: true
+                    disabled: true,
+                    editable: false,
+                    allowBlank: false
 
                 },
                 {

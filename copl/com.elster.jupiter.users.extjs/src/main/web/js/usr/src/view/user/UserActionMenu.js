@@ -24,6 +24,12 @@ Ext.define('Usr.view.user.UserActionMenu', {
                 itemId: 'editUser',
                 action: 'edit',
                 section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.unlock', 'USR', 'Unlock'),
+                itemId: 'unlock-user',
+                action: 'unlock',
+                section: this.SECTION_UNLOCK
             }
         ];
         this.callParent(arguments);
@@ -33,10 +39,12 @@ Ext.define('Usr.view.user.UserActionMenu', {
         beforeshow: function (menu) {
             var activate = menu.down('#activate-user'),
                 deactivate = menu.down('#deactivate-user'),
-                active = menu.record.raw.active;
+                active = menu.record.raw.active,
+                locked =  menu.record.raw.isUserLocked;
 
             activate && activate.setVisible(!active);
             deactivate && deactivate.setVisible(active);
+            menu.down('#unlock-user').setVisible(locked);
         }
     }
 });

@@ -50,7 +50,7 @@ Ext.define('Scs.view.PreviewForm', {
                         router: me.router,
                         renderer: function (value) {
                             if (value.name) {
-                                return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '">' + value.name + '</a>';
+                                return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '/">' + value.name + '</a>';
                             }
                             return '-'
                         }
@@ -245,6 +245,8 @@ Ext.define('Scs.view.PreviewForm', {
                 isEdit: false,
                 defaults: {
                     xtype: 'container',
+                    style: {'word-break': 'break-all'},
+                    layout: 'fit',
                     resetButtonHidden: true,
                     labelWidth: 250
                 }

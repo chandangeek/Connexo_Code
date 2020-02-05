@@ -41,7 +41,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
-import com.energyict.protocolimplv2.eict.webrtuz3.loadprofile.LoadProfileBuilder;
+import com.energyict.protocolimplv2.eict.webrtuz3.loadprofile.WebRtuZ3LoadProfileBuilder;
 import com.energyict.protocolimplv2.eict.webrtuz3.logbooks.LogBookParser;
 import com.energyict.protocolimplv2.eict.webrtuz3.messages.WebRTUZ3Messaging;
 import com.energyict.protocolimplv2.eict.webrtuz3.properties.WebRTUZ3ConfigurationSupport;
@@ -68,7 +68,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     private final TariffCalendarExtractor calendarExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
-    private LoadProfileBuilder loadProfileBuilder;
+    private WebRtuZ3LoadProfileBuilder loadProfileBuilder;
     private LogBookParser logBookParser;
     private WebRTUZ3RegisterFactory registerFactory;
     private WebRTUZ3Messaging webRTUZ3Messaging;
@@ -133,9 +133,9 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
-    public LoadProfileBuilder getLoadProfileBuilder() {
+    public WebRtuZ3LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
+            this.loadProfileBuilder = new WebRtuZ3LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return this.loadProfileBuilder;
     }

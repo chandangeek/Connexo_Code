@@ -281,6 +281,12 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
+    public Optional<EndDeviceGroup> findAndLockEndDeviceGroupByName(String name) {
+        Optional<EndDeviceGroup> group = findEndDeviceGroupByName(name);
+        return Optional.ofNullable(group.map(endDeviceGroup -> dataModel.mapper(EndDeviceGroup.class).lock(endDeviceGroup.getId())).orElse(null));
+    }
+
+    @Override
     public Optional<UsagePointGroup> findAndLockUsagePointGroupByIdAndVersion(long id, long version) {
         return dataModel.mapper(UsagePointGroup.class).lockObjectIfVersion(version, id);
     }

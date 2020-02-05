@@ -25,6 +25,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.hon.as300n.AS300N;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 
 import java.io.IOException;
@@ -51,11 +52,11 @@ public class AS300NProfileDataReader {
     private Map<ObisCode, Boolean> hasStatus = new HashMap<>();
 
 
-    public AS300NProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AS300NProfileDataReader(AS300N protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS, collectedDataFactory, issueFactory);
     }
 
-    public AS300NProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AS300NProfileDataReader(AS300N protocol, long limitMaxNrOfDays, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
         this.limitMaxNrOfDays = limitMaxNrOfDays;
         this.collectedDataFactory = collectedDataFactory;
@@ -80,8 +81,7 @@ public class AS300NProfileDataReader {
             if (isSupported(loadProfileReader) && (channelInfos != null)) {
 
                 try {
-                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode);
-                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer = profileGeneric.getBuffer(getFromCalendar(loadProfileReader), getToCalendar(loadProfileReader));
                     Object[] loadProfileEntries = buffer.getRoot().getElements();
                     List<IntervalData> intervalDatas = new ArrayList<>();

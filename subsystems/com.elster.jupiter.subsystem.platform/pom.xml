@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>2.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform</artifactId>
@@ -176,11 +176,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm.oracle</artifactId>
-        </dependency>
-        <!-- TODO do not included as this is more for development troubleshooting -->
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>osgi.goodies</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

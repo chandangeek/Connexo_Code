@@ -14,6 +14,9 @@ import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
 import javax.inject.Inject;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import static com.energyict.mdc.firmware.impl.MessageSeeds.DEVICE_PART_OF_CAMPAIGN;
 
 public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandler {
@@ -45,7 +48,12 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
         if (serviceCall.getTargetObject().isPresent()) {
             serviceCallFilter.targetObject = serviceCall.getTargetObject().get();
-            if (serviceCallService.getServiceCallFinder(serviceCallFilter).stream().anyMatch(sc -> !sc.equals(serviceCall) && sc.getState().isOpen())) {
+            serviceCallFilter.states = Arrays.stream(DefaultState.values())
+                    .filter(DefaultState::isOpen)
+                    .map(DefaultState::name)
+                    .collect(Collectors.toList());
+            serviceCallFilter.types.add(serviceCall.getType().getName());
+            if (serviceCallService.getServiceCallFinder(serviceCallFilter).stream().anyMatch(sc -> !sc.equals(serviceCall))) {
                 throw new FirmwareCampaignException(thesaurus, DEVICE_PART_OF_CAMPAIGN);
             }
         }
