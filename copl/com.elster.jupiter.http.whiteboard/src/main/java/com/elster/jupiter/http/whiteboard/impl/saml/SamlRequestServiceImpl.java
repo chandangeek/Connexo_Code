@@ -1,5 +1,6 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard.impl.saml;
 
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.common.util.CompressionUtils;
 import org.joda.time.DateTime;

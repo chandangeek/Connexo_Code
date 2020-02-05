@@ -1,4 +1,4 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard;
 
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;

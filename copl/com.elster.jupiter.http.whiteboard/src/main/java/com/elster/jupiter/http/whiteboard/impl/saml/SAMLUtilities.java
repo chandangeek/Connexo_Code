@@ -1,4 +1,4 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard.impl.saml;
 
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.apache.cxf.common.util.CompressionUtils;

@@ -1,5 +1,7 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard.impl.saml;
 
+import com.elster.jupiter.http.whiteboard.SamlResponseService;
+import com.elster.jupiter.http.whiteboard.impl.SecurityTokenImpl;
 import com.elster.jupiter.users.User;
 import com.nimbusds.jose.JOSEException;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;

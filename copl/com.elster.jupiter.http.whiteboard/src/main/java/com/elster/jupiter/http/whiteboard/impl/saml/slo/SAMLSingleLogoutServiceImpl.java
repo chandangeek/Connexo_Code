@@ -1,7 +1,8 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard.impl.saml.slo;
 
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import org.opensaml.saml.saml2.core.LogoutRequest;
@@ -14,8 +15,9 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
-import static com.elster.jupiter.http.whiteboard.impl.SAMLUtilities.createLogoutResponse;
+import static com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities.createLogoutResponse;
 
 public class SAMLSingleLogoutServiceImpl implements SAMLSingleLogoutService {
 
@@ -52,7 +54,12 @@ public class SAMLSingleLogoutServiceImpl implements SAMLSingleLogoutService {
         }
 
         final User user = userByExternalId.get();
-        tokenService.invalidateSignedJWTByUser(user);
+
+        try {
+            tokenService.invalidateUserJWT(user);
+        } catch (ExecutionException e) {
+            return createLogoutResponse(StatusCode.REQUEST_DENIED);
+        }
 
         return createLogoutResponse(StatusCode.SUCCESS);
     }

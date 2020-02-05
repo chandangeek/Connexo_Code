@@ -6,6 +6,8 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.http.whiteboard.*;
+import com.elster.jupiter.http.whiteboard.impl.saml.sso.AcsResource;
+import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.BinderProvider;

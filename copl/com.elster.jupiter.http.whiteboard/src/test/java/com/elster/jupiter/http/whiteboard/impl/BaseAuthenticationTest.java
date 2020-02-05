@@ -3,6 +3,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;

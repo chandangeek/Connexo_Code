@@ -2,6 +2,8 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.impl.saml.slo.SAMLSingleLogoutServiceImpl;
+import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;

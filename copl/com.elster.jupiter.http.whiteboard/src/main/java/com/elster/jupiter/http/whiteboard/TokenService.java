@@ -1,12 +1,14 @@
 package com.elster.jupiter.http.whiteboard;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
 import com.elster.jupiter.users.User;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 
-import java.time.Instant;
+import java.text.ParseException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * By implementing this interface you can create
@@ -17,7 +19,12 @@ import java.util.Map;
  */
 
 @ProviderType
-public interface TokenService {
+public interface TokenService<T> {
+
+    /**
+     * Initialize Token Service with set of keys and lifecycle information
+     */
+    void initialize(byte[] publicKey, byte[] privateKey, long tokenExpirationTime, long tokenRefreshThershold, long timeout);
 
     /**
      * Creates a signed JWT (JSON Web Token) with expiration date time used
@@ -26,16 +33,12 @@ public interface TokenService {
      * @param customClaims - set of custom claims
      * @return the signed JWT for targeted user
      */
-    SignedJWT createSignedJWT(User user, Map<String, Object> customClaims);
+    T createUserJWT(User user, Map<String, Object> customClaims) throws JOSEException;
 
     /**
-     * Creates a signed JWT (JSON Web Token) with specified expiration date time.
      *
-     * @param customClaims       - set of custom claims
-     * @param expirationDateTime - expiration date time
-     * @return the signed JWT for targeted user
      */
-    SignedJWT createSignedJWT(User user, Map<String, Object> customClaims, Instant expirationDateTime);
+    T getUserJWT(User user);
 
     /**
      * Validates a signed JWT (JSON Web Token)
@@ -43,17 +46,15 @@ public interface TokenService {
      * @param signedJWT - a signed JWT token
      * @throws JOSEException encryption exception in case of failed validation
      */
-    void validateSignedJWT(SignedJWT signedJWT) throws JOSEException;
+    TokenValidation validateSignedJWT(SignedJWT signedJWT) throws JOSEException, ParseException;
 
     /**
      * Invalidates a signed JWT (JSON Web Token)
      * <p>
      * This token can not be used for any further operations.
      *
-     * @param signedJWT- a signed JWT token
+     * @param user - a user which tokens are going to be invalidated
      */
-    void invalidateSignedJWT(SignedJWT signedJWT);
-
-    void invalidateSignedJWTByUser(User user);
+    void invalidateUserJWT(final User user) throws ExecutionException;
 
 }

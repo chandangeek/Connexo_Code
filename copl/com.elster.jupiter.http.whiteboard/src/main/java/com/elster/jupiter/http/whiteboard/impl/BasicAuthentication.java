@@ -8,6 +8,9 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
+import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -344,7 +347,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (ssoEnabled) {
-                if(isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
+                if (isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
                 ssoAuthentication(request, response);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
@@ -360,7 +363,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }
     }
 
-    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request){
+    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request) {
         return request.getRequestURI().startsWith(LOGIN_URL) &&
                 (StringUtils.isEmpty(request.getParameter("page")) || request.getParameterMap().containsKey("logout"));
     }
@@ -369,9 +372,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
         if (ssoAuthenticationRequestOptional.isPresent()) {
             String redirectUrl;
-            if(StringUtils.isEmpty(request.getParameter("page"))){
+            if (StringUtils.isEmpty(request.getParameter("page"))) {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-            }else{
+            } else {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getParameter("page"));
             }
             response.sendRedirect(redirectUrl);
@@ -428,12 +431,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
-        SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
+        TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
                 .getRemoteAddr());
         return handleTokenValidation(validation, tokenCookie.getValue(), request, response);
     }
 
-    private boolean handleTokenValidation(SecurityTokenImpl.TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
+    private boolean handleTokenValidation(TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
         if (validation.isValid() && isAuthenticated(validation.getUser())) {
             if (!originalToken.equals(validation.getToken())) {
                 response.addCookie(createTokenCookie(validation.getToken(), "/"));
@@ -457,13 +460,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
-        SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
+        TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
         return handleTokenValidation(tokenValidation, token, request, response);
     }
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
-        if(isUserLocked(user)){
+        if (isUserLocked(user)) {
             return denyAccountLocked(request, response);
         } else if (isAuthenticated(user)) {
             User returnedUserByAuthentication = user.get();
@@ -508,13 +511,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return true;
     }
 
-    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response)   {
+    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         try {
             response.getWriter().write(ACCOUNT_LOCKED);
             response.getWriter().flush();
             response.getWriter().close();
-        } catch(IOException exception){}
+        } catch (IOException exception) {}
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
@@ -534,7 +537,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return false;
     }
 
-    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
+    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
@@ -560,7 +563,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean unsecureAllowed(String uri) {
-        if(!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
+        if (!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
         return Stream.of(RESOURCES_NOT_SECURED)
                 .filter(uri::startsWith)
                 .findAny().isPresent();

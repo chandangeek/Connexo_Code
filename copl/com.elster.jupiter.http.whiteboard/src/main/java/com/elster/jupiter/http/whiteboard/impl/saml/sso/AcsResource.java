@@ -1,7 +1,8 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard.impl.saml.sso;
 
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.http.whiteboard.MessageSeeds;
+import com.elster.jupiter.http.whiteboard.SamlResponseService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.Privilege;

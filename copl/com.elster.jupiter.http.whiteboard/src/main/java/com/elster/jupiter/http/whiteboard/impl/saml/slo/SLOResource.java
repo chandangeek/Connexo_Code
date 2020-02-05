@@ -1,6 +1,7 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard.impl.saml.slo;
 
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
+import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;

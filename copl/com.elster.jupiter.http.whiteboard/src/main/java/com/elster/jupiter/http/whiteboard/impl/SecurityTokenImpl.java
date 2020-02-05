@@ -5,6 +5,7 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -133,39 +134,6 @@ public class SecurityTokenImpl {
 
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
-    }
-
-    class TokenValidation {
-        private final boolean valid;
-        private final User user;
-        private final String token;
-
-        TokenValidation(boolean valid, User user, String token) {
-            this.valid = valid;
-            this.user = user;
-            this.token = token;
-        }
-
-
-        public boolean isValid() {
-            return valid;
-        }
-
-        public Optional<User> getUser() {
-            if (isValid()) {
-                return Optional.ofNullable(user);
-            } else {
-                return Optional.empty();
-            }
-        }
-
-        public String getToken() {
-            if (valid) {
-                return token;
-            } else {
-                return null;
-            }
-        }
     }
 
     public TokenValidation verifyToken(String token, UserService userService, String ipAddr) {
