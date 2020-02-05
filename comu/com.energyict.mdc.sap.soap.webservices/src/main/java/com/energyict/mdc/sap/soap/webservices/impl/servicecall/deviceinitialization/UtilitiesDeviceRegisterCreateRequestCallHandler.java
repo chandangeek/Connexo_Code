@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.TimeUtils;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 
@@ -26,6 +27,7 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -81,6 +83,13 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             String divisionCategory = extension.getDivisionCategory();
             CIMPattern cimPattern = null;
 
+            CIMLifecycleDates lifecycleDates = device.get().getLifecycleDates();
+            Instant shipmentDate = lifecycleDates.getReceivedDate().orElse(device.get().getCreateTime());
+            if (extension.getStartDate().isBefore(shipmentDate)) {
+                failServiceCall(extension, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
+                return;
+            }
+
             if (recurrence == null) {
                 recurrence = "0";
             }
@@ -121,7 +130,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         Set<Channel> channels = findChannelByObis(device, obis, period);
 
-        if(cimPattern != null) {
+        if (cimPattern != null) {
             channels.addAll(findChannelByReadingType(device, period, cimPattern));
         }
         if (!channels.isEmpty()) {

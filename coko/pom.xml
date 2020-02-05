@@ -393,11 +393,11 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>issue.webservice.extjs</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>issue.webservice.extjs</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

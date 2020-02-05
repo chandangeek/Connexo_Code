@@ -132,18 +132,18 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         );
     }
 
-    abstract List<TS> prepareTimeSeries(MeterReadingData item, Instant now);
+    abstract List<TS> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now);
 
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
     abstract String getCustomInfo(List<TS> list);
 
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
-    BigDecimal getRoundedBigDecimal(BigDecimal value, MeterReadingData mrData) {
+    BigDecimal getRoundedBigDecimal(BigDecimal value, ReadingTypeDataExportItem item) {
         Optional<Integer> numberOfFractionDigits = Optional.empty();
-        if (mrData.getItem().getReadingContainer() instanceof Meter) {
-            numberOfFractionDigits = deviceService.findDeviceByMrid(((Meter) mrData.getItem().getReadingContainer()).getMRID())
-                    .flatMap(device -> device.getChannels().stream().filter(c -> c.getReadingType().equals(mrData.getItem().getReadingType()))
+        if (item.getReadingContainer() instanceof Meter) {
+            numberOfFractionDigits = deviceService.findDeviceByMrid(((Meter) item.getReadingContainer()).getMRID())
+                    .flatMap(device -> device.getChannels().stream().filter(c -> c.getReadingType().equals(item.getReadingType()))
                             .findFirst()
                             .map(com.energyict.mdc.common.device.data.Channel::getNrOfFractionDigits));
         }
@@ -160,16 +160,20 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 .map(MeterReadingData.class::cast)
                 .collect(Collectors.toList());
 
-        for (MeterReadingData meterReadingData : readingDataList) {
-            List<TS> timeSeriesListFromMeterData = prepareTimeSeries(meterReadingData, now);
+        Map<ReadingTypeDataExportItem, List<MeterReadingData>> dataMap = readingDataList.stream()
+                .collect(Collectors.groupingBy(MeterReadingData::getItem));
+
+        dataMap.forEach((item, readingList) -> {
+            List<TS> timeSeriesListFromMeterData = prepareTimeSeries(item, readingList, now);
 
             /* Calculate number of readings that should be sent for this meterReadingData.
              * numberOfItemsToSend is key for seriesMultimap */
-            Long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
+            long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
             if (numberOfItemsToSend != 0) {
-                seriesMultimap.put(numberOfItemsToSend, new TimeSeriesWrapper<>(timeSeriesListFromMeterData, meterReadingData));
+                seriesMultimap.put(numberOfItemsToSend, new TimeSeriesWrapper<>(timeSeriesListFromMeterData, item));
             }
-        }
+        });
+
         /* Send one by one readings that exceed numberOfReadingsPerMsg */
         List<Long> listToSend = seriesMultimap.keySet().stream()
                 .filter(numberOfItemsToSend -> numberOfItemsToSend >= numberOfReadingsPerMsg)
@@ -234,7 +238,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             List<TS> list = new ArrayList<>();
             for (TimeSeriesWrapper<TS> ts : timeSeriesWrappers) {
                 List<TS> series = ts.getTimeSeries();
-                data.put(ts.getMeterReadingData().getItem(), new ProfileIdCustomInfo(getCustomInfo(series)));
+                data.put(ts.getReadingTypeDataExportItem(), new ProfileIdCustomInfo(getCustomInfo(series)));
                 list.addAll(series);
             }
 
@@ -275,11 +279,13 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 .map(TimeDuration.class::cast);
     }
 
-    static Range<Instant> getRange(MeterReading meterReading) {
-        Optional<Range<Instant>> intervalRange = getRange(meterReading.getIntervalBlocks().stream()
+    static Range<Instant> getRange(List<MeterReading> meterReading) {
+        Optional<Range<Instant>> intervalRange = getRange(meterReading.stream()
+                .map(MeterReading::getIntervalBlocks)
+                .flatMap(List::stream)
                 .map(IntervalBlock::getIntervals)
                 .flatMap(List::stream));
-        Optional<Range<Instant>> registerRange = getRange(meterReading.getReadings().stream());
+        Optional<Range<Instant>> registerRange = getRange(meterReading.stream().map(MeterReading::getReadings).flatMap(List::stream));
         if (intervalRange.isPresent()) {
             return registerRange.map(intervalRange.get()::span).orElseGet(intervalRange::get);
         } else {
@@ -320,19 +326,19 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
     private static class TimeSeriesWrapper<TS> {
         private List<TS> timeSeries;
-        private MeterReadingData meterReadingData;
+        private ReadingTypeDataExportItem item;
 
-        TimeSeriesWrapper(List<TS> timeSeries, MeterReadingData meterReadingData) {
+        TimeSeriesWrapper(List<TS> timeSeries, ReadingTypeDataExportItem item) {
             this.timeSeries = timeSeries;
-            this.meterReadingData = meterReadingData;
+            this.item = item;
         }
 
         List<TS> getTimeSeries() {
             return timeSeries;
         }
 
-        MeterReadingData getMeterReadingData() {
-            return this.meterReadingData;
+        ReadingTypeDataExportItem getReadingTypeDataExportItem() {
+            return this.item;
         }
     }
 }

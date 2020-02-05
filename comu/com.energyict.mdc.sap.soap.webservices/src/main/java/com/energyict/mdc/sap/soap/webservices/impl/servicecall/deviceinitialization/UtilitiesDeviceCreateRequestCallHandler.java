@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceBuilder;
@@ -24,6 +25,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Component(name = UtilitiesDeviceCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,
@@ -91,9 +93,9 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
             processDeviceCreation(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception ex) {
-            if(ex instanceof LocalizedException){
-                extension.setError(((LocalizedException)ex).getMessageSeed(), ((LocalizedException)ex).getMessageArgs());
-            }else{
+            if (ex instanceof LocalizedException) {
+                extension.setError(((LocalizedException) ex).getMessageSeed(), ((LocalizedException) ex).getMessageArgs());
+            } else {
                 extension.setError(MessageSeeds.ERROR_PROCESSING_METER_CREATE_REQUEST, ex.getLocalizedMessage());
             }
 
@@ -108,7 +110,16 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
 
         validateSapDeviceIdUniqueness(sapDeviceId, serialId);
         Device device = getOrCreateDevice(extension);
+        validateShipmentDate(device, extension.getShipmentDate());
         sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+    }
+
+    private void validateShipmentDate(Device device, Instant startDate) {
+        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
+        Instant shipmentDate = lifecycleDates.getReceivedDate().orElseGet(device::getCreateTime);
+        if (startDate.isBefore(shipmentDate)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
+        }
     }
 
     private void validateSapDeviceIdUniqueness(String sapDeviceId, String serialId) {
