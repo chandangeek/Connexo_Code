@@ -201,20 +201,15 @@ Ext.define('Mdc.model.ComServerComPort', {
             persist: false,
             mapping: function (data) {
                 var comPortPools = data.outboundComPortPoolIds,
-                    loaded = true,
-                    portPoolsStore = Ext.getStore('Mdc.store.ComPortPools'),
                     result = undefined;
-                loaded=!portPoolsStore.isLoading();
-                if (loaded) {
-                    if (Ext.isArray(comPortPools) && comPortPools.length && portPoolsStore.getCount()) {
-                        result = '';
-                        Ext.Array.each(comPortPools, function (item) {
-                            var comPortPool = portPoolsStore.getById(item.id);
-                            comPortPool && (result += '<a href="#/administration/comportpools/' + item.id + '">' + Ext.String.htmlEncode(comPortPool.get('name')) + '</a><br>');
-                        });
-                    }
-                    return result;
+                if (Ext.isArray(comPortPools) && comPortPools.length) {
+                    result = '';
+                    Ext.Array.each(comPortPools, function (item) {
+
+                        (result += '<a href="#/administration/comportpools/' + item.id + '">' + item.name + '</a><br>');
+                    });
                 }
+                return result;
             }
         },
         {
