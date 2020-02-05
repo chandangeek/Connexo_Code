@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceConfigChangeAction;
 import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -54,7 +55,15 @@ public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem {
                         updateConnectionTaskWithNewConnectionStrategy(matchedConnectionTask.getDestination(), connectionTask);
                         updateConnectionTaskWithNewPartialConnectionTask(matchedConnectionTask.getDestination(), connectionTask);
                     }));
-        removeItems.forEach(partialConnectionTask -> device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == partialConnectionTask.getId()).findAny().ifPresent(device::removeConnectionTask));
+        List<ConnectionTask> removedConnectionTasks = new ArrayList<>();
+        removeItems.forEach(partialConnectionTask -> device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == partialConnectionTask.getId()).findAny().ifPresent(ct -> {
+            device.removeConnectionTask(ct);
+            device.removePermanentlyConnectionTask(ct);
+            removedConnectionTasks.add(ct);
+        }));
+        if (!removedConnectionTasks.isEmpty()){
+            device.save();
+        }
     }
 
     private void removeConnectionsTasksFromDevice(ServerDeviceForConfigChange device, DeviceConfigConflictMapping deviceConfigConflictMapping) {
