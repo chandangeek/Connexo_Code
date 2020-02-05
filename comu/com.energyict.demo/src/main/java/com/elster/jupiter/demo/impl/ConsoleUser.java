@@ -225,6 +225,11 @@ public class ConsoleUser implements User {
     @Override
     public boolean isUserLocked(Optional<UserSecuritySettings> userSecuritySettings) { return false; }
 
+    @Override
+    public String getExternalId() {
+        return null;
+    }
+
     private static class CustomPropertySetPrivilege implements Privilege {
         private final String privilege;
 
