@@ -130,7 +130,7 @@ Ext.onReady(function () {
                     console.log(data);
                 }
             });
-            conn.defaultHeaders['X-CSRF-TOKEN'] = conn.token;
+            conn.defaultHeaders['X-CSRF-TOKEN'] = unescape(conn.token);
         }
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
         conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : xAuthToken;
