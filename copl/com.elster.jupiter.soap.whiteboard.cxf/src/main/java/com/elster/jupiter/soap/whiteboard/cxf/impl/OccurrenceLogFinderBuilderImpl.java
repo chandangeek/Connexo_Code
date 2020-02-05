@@ -41,7 +41,8 @@ public class OccurrenceLogFinderBuilderImpl implements OccurrenceLogFinderBuilde
 
     public Finder<EndPointLog> build() {
         return DefaultFinder.of(EndPointLog.class, condition, dataModel)
-                .defaultSortColumn("timestamp", false);
+                .defaultSortColumn("timestamp", false)
+                .sorted("id", false);
     }
 }
 
