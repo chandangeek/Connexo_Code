@@ -395,7 +395,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDevice> table = dataModel.addTable(name(), EndDevice.class);
             table.map(EndDeviceImpl.IMPLEMENTERS);
-            table.cache(30000, 10000, true);
             table.setJournalTableName("MTR_ENDDEVICEJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
