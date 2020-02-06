@@ -59,6 +59,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -199,7 +200,8 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Override
-    List<UtilsTmeSersERPItmCrteReqMsg> prepareTimeSeries(ReadingTypeDataExportItem item, Integer numberOfFractionDigits, List<MeterReadingData> readingList, Instant now) {
+    List<UtilsTmeSersERPItmCrteReqMsg> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now) {
+        OptionalInt numberOfFractionDigits = getNumberOfFractionDigits(item);
         ReadingType readingType = item.getReadingType();
         Optional<TimeDuration> requestedReadingInterval = item.getRequestedReadingInterval();
         TemporalAmount interval = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : readingType.getIntervalLength().orElse(Duration.ZERO);
@@ -241,7 +243,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
 
     private UtilsTmeSersERPItmCrteReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, List<MeterReading> meterReading, TemporalAmount interval,
-                                                           String unit, Instant now, Integer numberOfFractionDigits, Map<Instant, String> statuses) {
+                                                           String unit, Instant now, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmCrteReqMsg msg = new UtilsTmeSersERPItmCrteReqMsg();
         msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
         msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, numberOfFractionDigits, statuses));
@@ -249,7 +251,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     private UtilsTmeSersERPItmCrteReqUtilsTmeSers createTimeSeries(String profileId, RangeSet<Instant> rangeSet, List<MeterReading> meterReading,
-                                                                   TemporalAmount interval, String unit, Integer numberOfFractionDigits, Map<Instant, String> statuses) {
+                                                                   TemporalAmount interval, String unit, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmCrteReqUtilsTmeSers timeSeries = new UtilsTmeSersERPItmCrteReqUtilsTmeSers();
         timeSeries.setID(createTimeSeriesID(profileId));
 
@@ -271,7 +273,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         return id;
     }
 
-    private UtilsTmeSersERPItmCrteReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, Integer numberOfFractionDigits, Map<Instant, String> statuses) {
+    private UtilsTmeSersERPItmCrteReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmCrteReqItm crteReqItm = new UtilsTmeSersERPItmCrteReqItm();
         crteReqItm.setUTCValidityStartDateTime(reading.getTimeStamp().minus(interval));
         crteReqItm.setUTCValidityEndDateTime(reading.getTimeStamp());
