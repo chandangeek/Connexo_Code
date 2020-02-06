@@ -18,7 +18,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -27,7 +26,6 @@ import java.security.Key;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -56,8 +54,6 @@ class KeyStoreDataVault implements DataVault {
 
     // we use same password for both store and keys within
     private final char[] password = {'1', '#', 'g', 'W', 'X', 'i', 'A', 'E', 'y', '9', 'R', 'n', 'b', '6', 'M', '%', 'C', 'o', 'j', 'E'};
-
-    private Cipher cipher;
 
     @Inject
     KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
@@ -134,21 +130,20 @@ class KeyStoreDataVault implements DataVault {
     }
 
     private Cipher getEncryptionCipherForKey(int keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException {
-        cipher = getCipher();
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.encrypt.asInt(), createKeySpecForKey(keyAlias));
         return cipher;
     }
 
-    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        cipher = getCipher();
+    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws
+            NoSuchAlgorithmException,
+            KeyStoreException,
+            UnrecoverableKeyException,
+            NoSuchPaddingException,
+            InvalidKeyException,
+            InvalidAlgorithmParameterException {
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
-        return cipher;
-    }
-
-    private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-        if (cipher == null) {
-            cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
-        }
         return cipher;
     }
 
