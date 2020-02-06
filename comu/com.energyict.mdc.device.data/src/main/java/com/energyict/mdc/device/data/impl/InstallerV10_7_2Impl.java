@@ -15,6 +15,7 @@ public class InstallerV10_7_2Impl implements FullInstaller {
     private final DataModel dataModel;
     private final OrmService ormService;
 
+
     @Inject
     public InstallerV10_7_2Impl(DataModel dataModel, OrmService ormService) {
         this.dataModel = dataModel;

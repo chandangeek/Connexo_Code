@@ -226,12 +226,14 @@ public class TableImpl<T> implements Table<T> {
         this.cacheTtl = cacheTtl;
         this.cacheMaximumSize = maximumSize;
         this.cacheRecordStat = recordStat;
+        this.cacheWholeTable = false;
     }
 
     @Override
     public void cacheWholeTable(boolean recordStat) {
-        this.cacheTtl = null;
+        this.cached = true;
         this.cacheWholeTable = true;
+        this.cacheRecordStat = recordStat;
     }
 
     @Override

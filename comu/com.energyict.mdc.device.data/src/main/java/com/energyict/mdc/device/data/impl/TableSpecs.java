@@ -146,7 +146,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG")
                     .on(configuration)
                     .references(DeviceConfiguration.class)
-                    .map(DeviceFields.DEVICECONFIGURATION.fieldName(), DeviceType.class)
+                    .map(DeviceFields.DEVICECONFIGURATION.fieldName())
                     .add();
             table.foreignKey("FK_DDC_DEVICE_DEVICETYPE")
                     .on(deviceType)
@@ -226,7 +226,6 @@ public enum TableSpecs {
                     .reverseMap("loadProfiles")
                     .composition()
                     .add();
-            table.cacheWholeTable(true);
         }
     },
 

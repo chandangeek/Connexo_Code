@@ -203,7 +203,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         }
         try {
             Optional<T> result;
-            if (getTable().isCached()) {
+            if (getTable().isCached() && !getTable().isWholeTableCached()) {
                 result = getEager(keyValue.getKey());
             } else {
                 result = reader.findByPrimaryKey(keyValue);
