@@ -10,29 +10,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.rest.PredefinedPropertyValuesInfo;
-import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyType;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
-import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.properties.rest.*;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -90,10 +76,10 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
     @Override
     public PropertyValueConverter getConverter(PropertySpec propertySpec) {
         return Optional.ofNullable(dedicatedConverters.get(propertySpec.getName())).orElseGet(() ->
-             this.converters.stream()
-                .filter(converter -> converter.canProcess(propertySpec))
-                .findAny()
-                .orElse(DEFAULT_CONVERTER)
+                this.converters.stream()
+                        .filter(converter -> converter.canProcess(propertySpec))
+                        .findAny()
+                        .orElse(DEFAULT_CONVERTER)
         );
     }
 
@@ -229,7 +215,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.SERVICE_CALL_STATE
                 && propertyType != SimplePropertyType.CUSTOM_EVENT_TYPE
                 && propertyType != SimplePropertyType.ENDPOINT_CONFIGURATION_LIST
-                ) {
+                && propertyType != SimplePropertyType.VALIDATION_RULES_DROPDOWN
+        ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
         }
@@ -246,7 +233,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                         || propertyType == SimplePropertyType.IDWITHNAMELIST
                         || propertyType == SimplePropertyType.BPM_PROCESS
                         || propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT
-                        || propertyType == SimplePropertyType.CUSTOM_EVENT_TYPE) {
+                        || propertyType == SimplePropertyType.CUSTOM_EVENT_TYPE
+                        || propertyType == SimplePropertyType.VALIDATION_RULES_DROPDOWN) {
                     Object idWithName = possibleValues.getAllValues().get(i);
                     possibleObjects[i] = idWithName instanceof HasIdAndName
                             ? asInfo(((HasIdAndName) idWithName).getId(), ((HasIdAndName) idWithName).getName())
