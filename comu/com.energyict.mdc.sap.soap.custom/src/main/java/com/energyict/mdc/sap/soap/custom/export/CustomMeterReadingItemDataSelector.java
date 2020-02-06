@@ -166,11 +166,14 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     }
 
     private Stream<? extends BaseReadingRecord> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
-        return item.getReadingContainer().getReadings(exportInterval, item.getReadingType()).stream();
+        return item.getReadingContainer().getReadings(exportInterval, item.getReadingType()).stream()
+                .filter(r -> r.getValue() != null);
     }
 
     private List<BaseReading> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
-        return new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since));
+        return item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since).stream()
+                .filter(r -> r.getValue() != null)
+                .collect(Collectors.toList());
     }
 
     private Optional<? extends ReadingDataSelectorConfig> getDataSelectorConfig(DataExportOccurrence occurrence) {
@@ -198,7 +201,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getInterval().toOpenClosedRange() : Range.all();
         Range<Instant> exportWindowInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
         Optional<Instant> exportStart = item.getLastExportedPeriodEnd();
-        RangeSet<Instant> profileIdIntervals =  exportStart.map(start -> getRangeSinceRequestedDate(exportWindowInterval, start)) // start from the previous period end if exists
+        RangeSet<Instant> profileIdIntervals = exportStart.map(start -> getRangeSinceRequestedDate(exportWindowInterval, start)) // start from the previous period end if exists
                 .orElse(Optional.of(exportWindowInterval))
                 .map(interval -> getAllProfileIdsRangeSet(item, interval)) // take only the intervals where profile id is set
                 .orElseGet(TreeRangeSet::create); // everything is exported
