@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -137,7 +138,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
-    BigDecimal getRoundedBigDecimal(BigDecimal value, ReadingTypeDataExportItem item) {
+    OptionalInt getNumberOfFractionDigits(ReadingTypeDataExportItem item) {
         Optional<Integer> numberOfFractionDigits = Optional.empty();
         if (item.getReadingContainer() instanceof Meter) {
             numberOfFractionDigits = deviceService.findDeviceByMrid(((Meter) item.getReadingContainer()).getMRID())
@@ -145,8 +146,11 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                             .findFirst()
                             .map(com.energyict.mdc.common.device.data.Channel::getNrOfFractionDigits));
         }
+        return numberOfFractionDigits.isPresent() ? OptionalInt.of(numberOfFractionDigits.get()) : OptionalInt.empty();
+    }
 
-        return numberOfFractionDigits.isPresent() ? value.setScale(numberOfFractionDigits.get(), BigDecimal.ROUND_UP) : value;
+    BigDecimal getRoundedBigDecimal(BigDecimal value, OptionalInt numberOfFractionDigits) {
+        return numberOfFractionDigits.isPresent() ? value.setScale(numberOfFractionDigits.getAsInt(), BigDecimal.ROUND_UP) : value;
     }
 
     @Override

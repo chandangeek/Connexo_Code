@@ -59,6 +59,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -200,6 +201,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     @Override
     List<UtilsTmeSersERPItmCrteReqMsg> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now) {
+        OptionalInt numberOfFractionDigits = getNumberOfFractionDigits(item);
         ReadingType readingType = item.getReadingType();
         Optional<TimeDuration> requestedReadingInterval = item.getRequestedReadingInterval();
         TemporalAmount interval = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : readingType.getIntervalLength().orElse(Duration.ZERO);
@@ -226,7 +228,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, RangeSets::union));
         return profileRanges.entrySet().stream()
                 .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
-                        meterReading, interval, unit, now, item, statuses))
+                        meterReading, interval, unit, now, numberOfFractionDigits, statuses))
                 .collect(Collectors.toList());
     }
 
@@ -241,15 +243,15 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
 
     private UtilsTmeSersERPItmCrteReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, List<MeterReading> meterReading, TemporalAmount interval,
-                                                           String unit, Instant now, ReadingTypeDataExportItem item, Map<Instant, String> statuses) {
+                                                           String unit, Instant now, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmCrteReqMsg msg = new UtilsTmeSersERPItmCrteReqMsg();
         msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
-        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, item, statuses));
+        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, numberOfFractionDigits, statuses));
         return msg;
     }
 
     private UtilsTmeSersERPItmCrteReqUtilsTmeSers createTimeSeries(String profileId, RangeSet<Instant> rangeSet, List<MeterReading> meterReading,
-                                                                   TemporalAmount interval, String unit, ReadingTypeDataExportItem item, Map<Instant, String> statuses) {
+                                                                   TemporalAmount interval, String unit, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmCrteReqUtilsTmeSers timeSeries = new UtilsTmeSersERPItmCrteReqUtilsTmeSers();
         timeSeries.setID(createTimeSeriesID(profileId));
 
@@ -260,7 +262,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
                 .sorted(Comparator.comparing(BaseReading::getTimeStamp))
                 .map(reading -> createItem(reading, interval, unit,
-                        item, statuses))
+                        numberOfFractionDigits, statuses))
                 .forEach(timeSeries.getItem()::add);
         return timeSeries;
     }
@@ -271,11 +273,11 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         return id;
     }
 
-    private UtilsTmeSersERPItmCrteReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, ReadingTypeDataExportItem item, Map<Instant, String> statuses) {
+    private UtilsTmeSersERPItmCrteReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmCrteReqItm crteReqItm = new UtilsTmeSersERPItmCrteReqItm();
         crteReqItm.setUTCValidityStartDateTime(reading.getTimeStamp().minus(interval));
         crteReqItm.setUTCValidityEndDateTime(reading.getTimeStamp());
-        crteReqItm.setQuantity(createQuantity(getRoundedBigDecimal(reading.getValue(), item), unit));
+        crteReqItm.setQuantity(createQuantity(getRoundedBigDecimal(reading.getValue(), numberOfFractionDigits), unit));
         crteReqItm.getItemStatus().add(createStatus(statuses != null ? statuses.get(reading.getTimeStamp()) : "0"));
         return crteReqItm;
     }

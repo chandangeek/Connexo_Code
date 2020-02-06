@@ -60,6 +60,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -201,6 +202,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     /* Prepare list of time series that should be sent */
     @Override
     List<UtilsTmeSersERPItmChgReqMsg> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now) {
+        OptionalInt numberOfFractionDigits = getNumberOfFractionDigits(item);
         ReadingType readingType = item.getReadingType();
         Optional<TimeDuration> requestedReadingInterval = item.getRequestedReadingInterval();
         TemporalAmount interval = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : readingType.getIntervalLength().orElse(Duration.ZERO);
@@ -227,7 +229,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, RangeSets::union));
         return profileRanges.entrySet().stream()
                 .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
-                        meterReading, interval, unit, now, item, statuses))
+                        meterReading, interval, unit, now, numberOfFractionDigits, statuses))
                 .collect(Collectors.toList());
     }
 
@@ -242,15 +244,15 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
 
     private UtilsTmeSersERPItmChgReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, List<MeterReading> meterReading, TemporalAmount interval,
-                                                          String unit, Instant now, ReadingTypeDataExportItem item, Map<Instant, String> statuses) {
+                                                          String unit, Instant now, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmChgReqMsg msg = new UtilsTmeSersERPItmChgReqMsg();
         msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
-        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, item, statuses));
+        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, numberOfFractionDigits, statuses));
         return msg;
     }
 
     private UtilsTmeSersERPItmChgReqUtilsTmeSers createTimeSeries(String profileId, RangeSet<Instant> rangeSet, List<MeterReading> meterReading,
-                                                                  TemporalAmount interval, String unit, ReadingTypeDataExportItem item, Map<Instant, String> statuses) {
+                                                                  TemporalAmount interval, String unit, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmChgReqUtilsTmeSers timeSeries = new UtilsTmeSersERPItmChgReqUtilsTmeSers();
         timeSeries.setID(createTimeSeriesID(profileId));
 
@@ -260,14 +262,14 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .flatMap(List::stream)
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
                 .sorted(Comparator.comparing(BaseReading::getTimeStamp))
-                .map(reading -> createItem(reading, interval, unit, item, statuses))
+                .map(reading -> createItem(reading, interval, unit, numberOfFractionDigits, statuses))
                 .forEach(timeSeries.getItem()::add);
 
         meterReading.stream().map(MeterReading::getReadings)
                 .flatMap(List::stream)
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
                 .sorted(Comparator.comparing(BaseReading::getTimeStamp))
-                .map(reading -> createItem(reading, unit, item, statuses))
+                .map(reading -> createItem(reading, unit, numberOfFractionDigits, statuses))
                 .forEach(timeSeries.getItem()::add);
         return timeSeries;
     }
@@ -278,19 +280,19 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         return id;
     }
 
-    private UtilsTmeSersERPItmChgReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, ReadingTypeDataExportItem item, Map<Instant, String> statuses) {
+    private UtilsTmeSersERPItmChgReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmChgReqItm chgReqItm = new UtilsTmeSersERPItmChgReqItm();
         chgReqItm.setUTCValidityStartDateTime(reading.getTimeStamp().minus(interval));
         chgReqItm.setUTCValidityEndDateTime(reading.getTimeStamp());
-        chgReqItm.setQuantity(createQuantity(getRoundedBigDecimal(reading.getValue(), item), unit));
+        chgReqItm.setQuantity(createQuantity(getRoundedBigDecimal(reading.getValue(), numberOfFractionDigits), unit));
         chgReqItm.getItemStatus().add(createStatus(statuses != null ? statuses.get(reading.getTimeStamp()) : "0"));
         return chgReqItm;
     }
 
-    private UtilsTmeSersERPItmChgReqItm createItem(Reading reading, String unit, ReadingTypeDataExportItem item, Map<Instant, String> statuses) {
+    private UtilsTmeSersERPItmChgReqItm createItem(Reading reading, String unit, OptionalInt numberOfFractionDigits, Map<Instant, String> statuses) {
         UtilsTmeSersERPItmChgReqItm chgReqItm = new UtilsTmeSersERPItmChgReqItm();
         chgReqItm.setUTCValidityEndDateTime(reading.getTimeStamp());
-        chgReqItm.setQuantity(createQuantity(getRoundedBigDecimal(reading.getValue(), item), unit));
+        chgReqItm.setQuantity(createQuantity(getRoundedBigDecimal(reading.getValue(), numberOfFractionDigits), unit));
         chgReqItm.getItemStatus().add(createStatus(statuses != null ? statuses.get(reading.getTimeStamp()) : "0"));
         return chgReqItm;
     }
