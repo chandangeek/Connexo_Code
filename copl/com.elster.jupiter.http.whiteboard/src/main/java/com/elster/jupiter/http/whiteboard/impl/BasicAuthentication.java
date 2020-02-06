@@ -364,6 +364,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         } else if (authentication != null && authentication.startsWith("Bearer ")) {
             return doBearerAuthorization(request, response, authentication);
         } else {
+            if (isFormSubmitRequest(request) && !validateCSRFRequest(request)) {
+                return deny(request, response);
+            }
             Optional<Cookie> tokenCookie = getTokenCookie(request);
             if (tokenCookie.isPresent()) {
                 return doCookieAuthorization(tokenCookie.get(), request, response);
