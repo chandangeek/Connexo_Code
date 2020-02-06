@@ -249,12 +249,16 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
         return dlmsConfigurationSupport;
     }
 
-    private DlmsProperties getNewInstanceOfProperties() {
+    protected DlmsProperties getNewInstanceOfProperties() {
         return new A2Properties();
     }
 
     public void setDlmsSession(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     protected Logger getLogger() {
