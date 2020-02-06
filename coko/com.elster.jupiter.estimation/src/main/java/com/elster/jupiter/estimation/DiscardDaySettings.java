@@ -8,8 +8,6 @@ package com.elster.jupiter.estimation;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Event;
 
-import com.sun.javafx.scene.layout.region.Margins;
-
 public class DiscardDaySettings implements CalendarWithEventSettings {
     private boolean discardDay;
     private Calendar calendar;
