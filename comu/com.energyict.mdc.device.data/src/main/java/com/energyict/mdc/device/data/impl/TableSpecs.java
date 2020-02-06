@@ -142,7 +142,6 @@ public enum TableSpecs {
             Column meterId = table.column("METERID").number().since(version(10, 2)).add();
             Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
             table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).installValue("'N'").add();
-
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG")
                     .on(configuration)
                     .references(DeviceConfiguration.class)
