@@ -131,13 +131,13 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         );
     }
 
-    abstract List<TS> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now);
+    abstract List<TS> prepareTimeSeries(ReadingTypeDataExportItem item, Integer numberOfFractionDigits, List<MeterReadingData> readingList, Instant now);
 
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
 
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
-    BigDecimal getRoundedBigDecimal(BigDecimal value, ReadingTypeDataExportItem item) {
+    Integer getNumberOfFractionDigits(ReadingTypeDataExportItem item) {
         Optional<Integer> numberOfFractionDigits = Optional.empty();
         if (item.getReadingContainer() instanceof Meter) {
             numberOfFractionDigits = deviceService.findDeviceByMrid(((Meter) item.getReadingContainer()).getMRID())
@@ -145,8 +145,11 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                             .findFirst()
                             .map(com.energyict.mdc.common.device.data.Channel::getNrOfFractionDigits));
         }
+        return numberOfFractionDigits.isPresent() ? numberOfFractionDigits.get() : null;
+    }
 
-        return numberOfFractionDigits.isPresent() ? value.setScale(numberOfFractionDigits.get(), BigDecimal.ROUND_UP) : value;
+    BigDecimal getRoundedBigDecimal(BigDecimal value, Integer numberOfFractionDigits) {
+        return numberOfFractionDigits != null ? value.setScale(numberOfFractionDigits, BigDecimal.ROUND_UP) : value;
     }
 
     @Override
@@ -162,7 +165,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 .collect(Collectors.groupingBy(MeterReadingData::getItem));
 
         dataMap.forEach((item, readingList) -> {
-            List<TS> timeSeriesListFromMeterData = prepareTimeSeries(item, readingList, now);
+            List<TS> timeSeriesListFromMeterData = prepareTimeSeries(item, getNumberOfFractionDigits(item), readingList, now);
 
             /* Calculate number of readings that should be sent for this meterReadingData.
              * numberOfItemsToSend is key for seriesMultimap */
