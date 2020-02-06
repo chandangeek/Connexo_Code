@@ -380,6 +380,7 @@ public enum TableSpecs {
                     .previously(oldPrimaryKey)
                     .add();
             table.unique("UK_PKI_SECACCESSORNAME").on(nameColumn).since(version(10, 4)).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -427,6 +428,7 @@ public enum TableSpecs {
                     .since(Version.version(10, 4))
                     .previously(oldPrimaryKey)
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 

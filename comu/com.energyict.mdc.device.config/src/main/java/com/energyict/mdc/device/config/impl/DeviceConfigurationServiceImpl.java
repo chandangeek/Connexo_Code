@@ -275,7 +275,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Optional<DeviceType> findDeviceType(long deviceTypeId) {
-        return this.getDataModel().mapper((DeviceType.class)).getUnique("id", deviceTypeId);
+        return this.getDataModel().mapper((DeviceType.class)).getOptional(deviceTypeId);
     }
 
     @Override
@@ -324,7 +324,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Optional<DeviceConfiguration> findDeviceConfiguration(long id) {
-        return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", id);
+        return this.getDataModel().mapper((DeviceConfiguration.class)).getOptional(id);
     }
 
     @Override
@@ -339,7 +339,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Optional<ChannelSpec> findChannelSpec(long channelSpecId) {
-        return this.getDataModel().mapper((ChannelSpec.class)).getUnique("id", channelSpecId);
+        return this.getDataModel().mapper((ChannelSpec.class)).getOptional(channelSpecId);
     }
 
     @Override
@@ -402,7 +402,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Optional<LoadProfileSpec> findLoadProfileSpec(long loadProfileSpecId) {
-        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId);
+        return this.getDataModel().mapper(LoadProfileSpec.class).getOptional(loadProfileSpecId);
     }
 
     @Override
