@@ -679,6 +679,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public boolean attemptUnlockComTaskExecution(ComTaskExecution comTaskExecution) {
+        Optional<ComTaskExecution> lockResult = deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockNoWait(comTaskExecution.getId());
+        if (lockResult.isPresent()) {
+            getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
         //Avoid OptimisticLockException
         refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
@@ -983,7 +994,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public List<ComTaskExecution> findComTaskExecutionsWhichAreExecuting(ComPort comPort) {
+    public List<ComTaskExecution> findLockedByComPort(ComPort comPort) {
         Condition condition = where(ComTaskExecutionFields.COMPORT.fieldName()).isEqualTo(comPort);
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(condition);
     }
