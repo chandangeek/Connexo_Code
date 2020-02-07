@@ -1101,6 +1101,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public void removePermanentlyConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        this.connectionTasks.remove(connectionTask);
+    }
+
+    @Override
     public List<ComTaskExecution> getComTaskExecutions() {
         return comTaskExecutions.stream()
                 .filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate())

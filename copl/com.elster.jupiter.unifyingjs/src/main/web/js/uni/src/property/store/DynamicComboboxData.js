@@ -11,6 +11,9 @@ Ext.define('Uni.property.store.DynamicComboboxData', {
     proxy: {
         type: 'rest',
         url: '',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json'
         },
