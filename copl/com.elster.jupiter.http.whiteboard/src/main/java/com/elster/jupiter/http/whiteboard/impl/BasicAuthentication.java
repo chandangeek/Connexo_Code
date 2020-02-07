@@ -515,6 +515,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 boolean test =  csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
                 securityToken.createCSRFToken(sessionId.get().getValue(), csrfService);
                 return test;
+            } else if(request.getContentType().contains("multipart/form-data")){
+                return true;
             }
         }
         return false;
