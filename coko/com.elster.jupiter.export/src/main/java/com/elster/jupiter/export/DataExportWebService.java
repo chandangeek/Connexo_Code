@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.export;
 
-import com.elster.jupiter.export.webservicecall.DataExportSCCustomInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
@@ -50,7 +49,6 @@ public interface DataExportWebService extends EndPointProp {
 
     @ProviderType
     interface ExportContext {
-        //interface: customInformation getName, toString, fromString + Map<ReadingTypeDataExportItem, CustomInformation>
-        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> dataSources);
+        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> dataSources);
     }
 }

@@ -9,7 +9,6 @@ import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.webservicecall.DataExportSCCustomInfo;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -135,7 +134,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     abstract List<TS> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now);
 
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
-    abstract String getCustomInfo(List<TS> list);
+    abstract String createCustomInfo(List<TS> list);
 
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
@@ -234,21 +233,17 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         String uuid = UUID.randomUUID().toString();
         try {
 
-            Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data = new HashMap<>();
-            List<TS> list = new ArrayList<>();
+            Map<ReadingTypeDataExportItem, String> data = new HashMap<>();
+            List<TS> timeSeriesList = new ArrayList<>();
             for (TimeSeriesWrapper<TS> ts : timeSeriesWrappers) {
                 List<TS> series = ts.getTimeSeries();
-                data.put(ts.getReadingTypeDataExportItem(), new ProfileIdCustomInfo(getCustomInfo(series)));
-                list.addAll(series);
+                data.put(ts.getReadingTypeDataExportItem(), createCustomInfo(series));
+                timeSeriesList.addAll(series);
             }
 
             SetMultimap<String, String> values = HashMultimap.create();
 
-            for (TimeSeriesWrapper<TS> timeSeriesWrapper : timeSeriesWrappers) {
-                List<TS> series = timeSeriesWrapper.getTimeSeries();
-                list.addAll(series);
-            }
-            MSG message = createMessageFromTimeSeries(list, uuid, values, now);
+            MSG message = createMessageFromTimeSeries(timeSeriesList, uuid, values, now);
                 if (message != null) {
                     Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                             .toEndpoints(endPointConfiguration)

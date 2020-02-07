@@ -73,10 +73,10 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
                 process(serviceCall);
                 break;
             case SUCCESSFUL:
-                findChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryPassingServiceCall(sc));
+                findOpenChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryPassingServiceCall(sc));
                 break;
             case FAILED:
-                findChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryFailingServiceCall(sc, null));
+                findOpenChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryFailingServiceCall(sc, null));
                 break;
             default:
                 // No specific action required for these states
@@ -84,8 +84,8 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
         }
     }
 
-    private static List<ServiceCall> findChildren(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
+    private static List<ServiceCall> findOpenChildren(ServiceCall serviceCall) {
+        return serviceCall.findChildren().stream().filter(s->s.getState().isOpen()).collect(Collectors.toList());
     }
 
     private void process(ServiceCall serviceCall) {

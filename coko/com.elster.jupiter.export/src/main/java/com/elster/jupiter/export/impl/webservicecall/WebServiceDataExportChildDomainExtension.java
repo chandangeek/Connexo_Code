@@ -47,7 +47,7 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + '}')
     private String readingTypeMRID;
 
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + '}')
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_TOO_LONG + '}')
     private String customInfo;
 
     private long dataSourceId;

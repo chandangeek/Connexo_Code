@@ -4,8 +4,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildCustomPropertySet;
-import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildDomainExtension;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -13,7 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
@@ -32,7 +29,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchange
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
-import org.jvnet.hk2.internal.Collector;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -101,18 +97,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                     break;
                 case PARTIALLY_SUCCESSFUL:
                     List<String> succeedProfileId = getSucceedProfileId(confirmation);
-                    findChildren(serviceCall).forEach(child->{
-                        WebServiceDataExportChildDomainExtension extension = child.getExtensionFor(new WebServiceDataExportChildCustomPropertySet())
-                                .orElseThrow(() -> new IllegalStateException("Can not find domain extension for parent service call"));
-                        List<String> pr = Arrays.asList(extension.getCustomInfo().split(","));
-                        if(succeedProfileId.containsAll(pr)){
-                            dataExportServiceCallType.tryPassingServiceCall(child);
-                        }
-                        else{
-                            dataExportServiceCallType.tryFailingServiceCall(child, null);
-                        }
-                        succeedProfileId.removeAll(pr);
-                    });
+                    dataExportServiceCallType.tryPartialPassingChildServiceCall(serviceCall, succeedProfileId);
                     break;
                 case FAILED:
                 case RECEIVED:
@@ -171,7 +156,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .map(ProcessingResultCode::valueOf)
+                .map(ProcessingResultCode::valueFor)
                 .orElse(ProcessingResultCode.FAILED);
     }
 

@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import com.google.inject.Module;
@@ -75,6 +76,7 @@ public class WebServiceDataExportChildPersistentSupport implements PersistenceSu
         table.column(WebServiceDataExportChildDomainExtension.FieldNames.CUSTOM_INFO.databaseName())
                 .varChar()
                 .map(WebServiceDataExportChildDomainExtension.FieldNames.CUSTOM_INFO.javaName())
+                .since(Version.version(10, 7, 2))
                 .add();
     }
 

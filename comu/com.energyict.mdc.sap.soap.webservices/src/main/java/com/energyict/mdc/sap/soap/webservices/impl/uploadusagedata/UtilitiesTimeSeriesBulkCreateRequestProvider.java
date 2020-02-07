@@ -183,7 +183,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Override
-    String getCustomInfo(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList) {
+    String createCustomInfo(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList) {
         return timeSeriesList
                 .stream()
                 .map(UtilsTmeSersERPItmCrteReqMsg::getUtilitiesTimeSeries)

@@ -74,6 +74,11 @@ class ServiceCallStatusImpl implements ServiceCallStatus {
     }
 
     @Override
+    public boolean isPartialSuccessful() {
+        return DefaultState.PARTIAL_SUCCESS == state;
+    }
+
+    @Override
     public boolean isFailed() {
         return DefaultState.FAILED == state;
     }

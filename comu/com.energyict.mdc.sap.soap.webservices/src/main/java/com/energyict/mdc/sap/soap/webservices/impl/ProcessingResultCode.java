@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
+import java.util.stream.Stream;
+
 public enum ProcessingResultCode {
     RECEIVED("1"),
     IN_PROCESS("2"),
@@ -18,5 +20,13 @@ public enum ProcessingResultCode {
 
     public String getCode() {
         return code;
+    }
+
+    public static ProcessingResultCode valueFor(String code) {
+        return Stream
+                .of(values())
+                .filter(each -> each.getCode().equals(code))
+                .findAny()
+                .orElse(null);
     }
 }

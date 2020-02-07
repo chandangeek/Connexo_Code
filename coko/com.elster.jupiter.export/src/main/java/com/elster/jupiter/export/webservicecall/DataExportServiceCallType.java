@@ -26,7 +26,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> itemList);
+    ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> itemList);
 
     /**
      * Creates and starts a new service call in a new thread.
@@ -35,7 +35,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> itemList);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> itemList);
 
 
     /**
@@ -64,6 +64,13 @@ public interface DataExportServiceCallType {
      * @return Actual {@link ServiceCallStatus} after the attempt to pass.
      */
     ServiceCallStatus tryPassingServiceCall(ServiceCall serviceCall);
+
+    /**
+     * Tries passing a given service call. If it is already closed, does nothing.
+     * @param serviceCall Service call to close.
+     * @return Actual {@link ServiceCallStatus} after the attempt to pass.
+     */
+    ServiceCallStatus tryPartialPassingChildServiceCall(ServiceCall serviceCall, List<String> succeedProfileId);
 
     /**
      * Re-reads the service call status from database.

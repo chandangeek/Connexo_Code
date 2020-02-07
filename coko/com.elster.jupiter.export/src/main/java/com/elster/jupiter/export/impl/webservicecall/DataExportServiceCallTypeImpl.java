@@ -10,7 +10,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
-import com.elster.jupiter.export.webservicecall.DataExportSCCustomInfo;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.fsm.State;
@@ -78,7 +77,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         this.ormService = ormService;
     }
 
-    public ServiceCallType findOrCreate() {
+    public ServiceCallType findOrCreateParentType() {
         return serviceCallService.findServiceCallType(NAME, VERSION).orElseGet(() -> {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
@@ -91,7 +90,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         });
     }
 
-    private ServiceCallType findOrCreateChildType() {
+    public ServiceCallType findOrCreateChildType() {
         serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
         return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)
@@ -106,7 +105,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
+    public ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data) {
         if (transactionService.isInTransaction()) {
             return doStartServiceCall(uuid, timeout, data);
         } else {
@@ -115,7 +114,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
+    public ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data) {
         Principal principal = threadPrincipalService.getPrincipal();
         try {
             return CompletableFuture.supplyAsync(() -> {
@@ -129,21 +128,20 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    private void createChildServiceCalls(ServiceCall parent,Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
-        //distinct
-        data.forEach((k,v) -> createChild(parent,
-                        k.getDomainObject().getName(),
-                        k.getReadingType().getMRID(),
-                        k.getId(),
-                v));
+    private void createChildServiceCalls(ServiceCall parent, Map<ReadingTypeDataExportItem, String> data) {
+        data.forEach((item, customInfo) -> createChild(parent,
+                item.getDomainObject().getName(),
+                item.getReadingType().getMRID(),
+                item.getId(),
+                customInfo));
     }
 
-    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId, DataExportSCCustomInfo customInformation){
+    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId, String customInfo) {
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
         childSrvCallProperties.setDeviceName(deviceName);
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
         childSrvCallProperties.setDataSourceId(itemId);
-        childSrvCallProperties.setCustomInfo(customInformation.toString());
+        childSrvCallProperties.setCustomInfo(customInfo);
 
         ServiceCallType srvCallChildType = findOrCreateChildType();
 
@@ -152,19 +150,18 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         ServiceCall child = serviceCallBuilder.create();
         child.requestTransition(DefaultState.PENDING);
         child.requestTransition(DefaultState.ONGOING);
-        child.requestTransition(DefaultState.SUCCESSFUL);
     }
 
 
-    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo>  data) {
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data) {
         return transactionService.execute(() -> doStartServiceCall(uuid, timeout, data));
     }
 
-    private ServiceCall doStartServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, DataExportSCCustomInfo> data) {
+    private ServiceCall doStartServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);
-        ServiceCallType serviceCallType = findOrCreate();
+        ServiceCallType serviceCallType = findOrCreateParentType();
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin(WebServiceDataExportPersistenceSupport.APPLICATION_NAME)
                 .extendedWith(serviceCallProperties)
@@ -230,6 +227,15 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
+    @Override
+    public ServiceCallStatus tryPartialPassingChildServiceCall(ServiceCall serviceCall, List<String> succeedProfileId) {
+        if (transactionService.isInTransaction()) {
+            return doTryPartialPassingChildServiceCall(serviceCall, succeedProfileId);
+        } else {
+            return transactionService.execute(() -> doTryPartialPassingChildServiceCall(serviceCall, succeedProfileId));
+        }
+    }
+
     private ServiceCallStatus doTryPassingServiceCall(ServiceCall serviceCall) {
         try {
             serviceCall = lock(serviceCall);
@@ -239,6 +245,36 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
             // not intended to do anything if the service call is already closed
             return new ServiceCallStatusImpl(serviceCallService, serviceCall);
         }
+    }
+
+    private ServiceCallStatus doTryPartialPassingChildServiceCall(ServiceCall serviceCall, List<String> succeedProfileId) {
+        findChildren(serviceCall).forEach(child -> {
+            WebServiceDataExportChildDomainExtension extension = child.getExtensionFor(new WebServiceDataExportChildCustomPropertySet())
+                    .orElseThrow(() -> new IllegalStateException("Can not find domain extension for parent service call"));
+            List<String> pr = Arrays.asList(extension.getCustomInfo().split(","));
+            try {
+                if (succeedProfileId.containsAll(pr)) {
+                    child = lock(child);
+                    child.requestTransition(DefaultState.SUCCESSFUL);
+                } else {
+                    child = lock(child);
+                    child.requestTransition(DefaultState.FAILED);
+                }
+            } catch (NoTransitionException e) {
+                // not intended to do anything if the service call is already closed
+            }
+            succeedProfileId.removeAll(pr);
+        });
+
+        try {
+            serviceCall = lock(serviceCall);
+            serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
+            return new ServiceCallStatusImpl(serviceCall, DefaultState.PARTIAL_SUCCESS, null);
+        } catch (NoTransitionException e) {
+            // not intended to do anything if the service call is already closed
+            return new ServiceCallStatusImpl(serviceCallService, serviceCall);
+        }
+
     }
 
     @Override
@@ -256,6 +292,10 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 
+    private static List<ServiceCall> findChildren(ServiceCall serviceCall) {
+        return serviceCall.findChildren().stream().collect(Collectors.toList());
+    }
+
     @Override
     public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCalls) {
         return doGetDataSources(Arrays.asList(serviceCalls));
@@ -270,10 +310,12 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         if (serviceCalls.isEmpty()) {
             return new HashSet<>();
         }
+        List<Long> list = serviceCalls.stream().map(s->s.getId()).collect(Collectors.toList());
         Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
                 .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
-                .asSubquery(Where.where("serviceCall.parent").in(serviceCalls), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
+                .asSubquery(Where.where("serviceCall.id").in(list),
+                        WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
         return ormService.getDataModel(DataExportService.COMPONENTNAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
                 .stream(ReadingTypeDataExportItem.class)
