@@ -32,10 +32,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
@@ -48,7 +45,6 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private static final ObisCode LOAD_PROFILES_TO_READ = DAILY_LOAD_PROFILE_OBISCODE;
 
-    private CollectedRegisterList collectedRegisters;
     private List<CollectedLoadProfile> collectedLoadProfiles;
 
     public EI7DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
@@ -228,17 +224,23 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         byte entriesNumber = compactFrame[offset++];
         List<IntervalData> collectedIntervalData = new ArrayList<>();
         for (int i = 0; i < entriesNumber; i++) {
-            List<IntervalValue> intervalValues = new ArrayList<>();
             Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, offset, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned16 dailyDiagnostic = new Unsigned16(getByteArray(compactFrame, offset + 4, 2, AxdrType.LONG_UNSIGNED), 0);
             Unsigned32 currentIndexOfConvertedVolume = new Unsigned32(getByteArray(compactFrame, offset + 6, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, offset + 10, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            intervalValues.add(new IntervalValue(currentIndexOfConvertedVolume.intValue(), 0, getEiServerStatus(0)));
-            intervalValues.add(new IntervalValue(currentIndexOfConvertedVolumeUnderAlarm.intValue(), 0, getEiServerStatus(0)));
-            collectedIntervalData.add(new IntervalData(new Date(unixTime.longValue() * 1000), getEiServerStatus(0), 0, 0, intervalValues));
+            createCollectedIntervalData(collectedIntervalData, unixTime, currentIndexOfConvertedVolume, currentIndexOfConvertedVolumeUnderAlarm);
             offset += 14;
         }
         return collectedIntervalData;
+    }
+
+    private void createCollectedIntervalData(List<IntervalData> collectedIntervalData, Unsigned32 unixTime, Unsigned32 currentIndexOfConvertedVolume, Unsigned32 currentIndexOfConvertedVolumeUnderAlarm) {
+        List<IntervalValue> intervalValues = new ArrayList<>();
+        intervalValues.add(new IntervalValue(currentIndexOfConvertedVolume.intValue(), 0, getEiServerStatus(0)));
+        intervalValues.add(new IntervalValue(currentIndexOfConvertedVolumeUnderAlarm.intValue(), 0, getEiServerStatus(0)));
+        Calendar dateTime = Calendar.getInstance(getDeviceTimeZone());
+        dateTime.setTimeInMillis(unixTime.longValue()*1000);
+        collectedIntervalData.add(new IntervalData(dateTime.getTime(), getEiServerStatus(0), 0, 0, intervalValues));
     }
 
     private List<ChannelInfo> getDeviceChannelInfo(OfflineLoadProfile offlineLoadProfile) {
@@ -289,5 +291,4 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         }
         return this.collectedLoadProfiles;
     }
-
 }
