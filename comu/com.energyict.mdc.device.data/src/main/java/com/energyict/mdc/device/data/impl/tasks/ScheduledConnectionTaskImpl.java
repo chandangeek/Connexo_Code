@@ -297,7 +297,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         } else {
             this.schedule(comTask.getNextExecutionTimestamp());
         }
-        this.executionRescheduled();
+        setExecutingComPort(null);
+        update();
     }
 
     @Override
