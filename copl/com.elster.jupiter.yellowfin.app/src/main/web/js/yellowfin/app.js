@@ -30,6 +30,12 @@ Ext.onReady(function () {
                         console.log(data);
                     }
                 });
+                if(options.headers &&
+                    options.headers['Content-type'] === 'multipart/form-data' && options.url ){
+
+                    options.url = options.url.indexOf('X-CSRF-TOKEN') > 0 ? options.url :
+                       options.url + '?X-CSRF-TOKEN=' + conn.token;
+                }
                 conn.defaultHeaders['X-CSRF-TOKEN'] = unescape(conn.token);
             }
             conn.defaultHeaders.Authorization = xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ") + 1)) : xAuthToken;

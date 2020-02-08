@@ -511,12 +511,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> sessionId =  getSessionCookie(request);
         if(sessionId.isPresent()){
             String csrfToken = request.getHeader("X-CSRF-TOKEN");
+            if(null == csrfToken && request.getContentType().contains("multipart/form-data")) {
+                csrfToken = request.getParameter("X-CSRF-TOKEN");
+            }
             if(null != csrfToken){
                 boolean test =  csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
                 securityToken.createCSRFToken(sessionId.get().getValue(), csrfService);
                 return test;
-            } else if(request.getContentType().contains("multipart/form-data")){
-                return true;
             }
         }
         return false;
