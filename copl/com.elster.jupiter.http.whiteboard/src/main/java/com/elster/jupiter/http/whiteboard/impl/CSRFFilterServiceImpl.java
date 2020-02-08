@@ -92,12 +92,13 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
         Optional<Cookie> sessionId =  getCookie(request, USER_SESSIONID);
         if(sessionId.isPresent()){
             String csrfToken = request.getHeader(X_CSRF_TOKEN);
+            if(null == csrfToken && request.getContentType().contains("multipart/form-data")) {
+                csrfToken = request.getParameter(X_CSRF_TOKEN);
+            }
             if(null != csrfToken){
                 boolean valid =  csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
                 createCSRFToken(sessionId.get().getValue());
                 return valid;
-            } else if(request.getContentType().contains("multipart/form-data")){
-                return true;
             }
         }
         return false;
