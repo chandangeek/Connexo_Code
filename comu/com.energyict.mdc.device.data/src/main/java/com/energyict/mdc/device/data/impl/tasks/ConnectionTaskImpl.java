@@ -574,7 +574,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @JsonIgnore
     @XmlTransient
     public PCTT getPartialConnectionTask() {
-        if (this.partialConnectionTask.isPresent())
+        if (this.partialConnectionTask.isPresent() && this.partialConnectionTask.getOptional().isPresent())
             return this.partialConnectionTask.get();
         return null;
     }

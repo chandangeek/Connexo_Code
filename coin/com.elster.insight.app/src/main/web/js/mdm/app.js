@@ -86,7 +86,7 @@ Ext.onReady(function () {
                     console.log(data);
                 }
             });
-            conn.defaultHeaders['X-CSRF-TOKEN'] = conn.token;
+            conn.defaultHeaders['X-CSRF-TOKEN'] = unescape(conn.token);
         }
         conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
 

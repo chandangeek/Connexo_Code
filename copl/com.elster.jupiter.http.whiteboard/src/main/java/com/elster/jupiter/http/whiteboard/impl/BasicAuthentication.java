@@ -364,6 +364,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         } else if (authentication != null && authentication.startsWith("Bearer ")) {
             return doBearerAuthorization(request, response, authentication);
         } else {
+            if (isFormSubmitRequest(request) && !validateCSRFRequest(request)) {
+                return deny(request, response);
+            }
             Optional<Cookie> tokenCookie = getTokenCookie(request);
             if (tokenCookie.isPresent()) {
                 return doCookieAuthorization(tokenCookie.get(), request, response);
@@ -508,8 +511,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> sessionId =  getSessionCookie(request);
         if(sessionId.isPresent()){
             String csrfToken = request.getHeader("X-CSRF-TOKEN");
-            if(null != csrfToken)
-                return csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
+            if(null != csrfToken){
+                boolean test =  csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
+                securityToken.createCSRFToken(sessionId.get().getValue(), csrfService);
+                return test;
+            } else if(request.getContentType().contains("multipart/form-data")){
+                return true;
+            }
         }
         return false;
     }
