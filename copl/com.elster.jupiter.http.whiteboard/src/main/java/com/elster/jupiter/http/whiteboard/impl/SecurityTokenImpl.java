@@ -5,13 +5,10 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -26,6 +23,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -33,6 +31,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -87,11 +86,6 @@ public class SecurityTokenImpl {
 
     public String generateSessionId(){
         return base64Encode(UUID.randomUUID().toString());
-    }
-
-    public void createCSRFToken(String sessionId, CSRFService csrfService) {
-        String csrfToken = base64Encode(sessionId + System.currentTimeMillis());
-        csrfService.addCSRFToken(sessionId, csrfToken);
     }
 
     private String createToken(User user, long count, String ipAddr, Date tokenExpiration) {

@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.PrivilegeThesaurus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
@@ -46,6 +47,8 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     PrivilegeThesaurus privilegeThesaurus;
     @Mock
     SecurityManagementService securityManagementService;
+    @Mock
+    CSRFService csrfService;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -75,6 +78,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setThreadPrincipalService(threadPrincipalService);
         application.setNlsService(nlsService);
         application.setSecurityManagementService(securityManagementService);
+        application.setCSRFService(csrfService);
         return application;
     }
 
