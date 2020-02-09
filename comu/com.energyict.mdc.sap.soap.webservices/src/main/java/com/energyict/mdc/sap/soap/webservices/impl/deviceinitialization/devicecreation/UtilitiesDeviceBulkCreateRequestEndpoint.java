@@ -29,7 +29,7 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractCreateRequ
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                                 UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder()
-                                        .from(requestMessage)
+                                        .from(requestMessage, getThesaurus())
                                         .build();
 
                                 handleRequestMessage(message);

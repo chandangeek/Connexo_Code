@@ -117,6 +117,7 @@ Ext.define('Uni.view.widget.WorkList', {
             dataview = me.down('#dtv-work-list');
 
         me.setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
         Ext.Ajax.request({
             url: workItem.get('workItem').url,
             method: 'GET',
@@ -144,6 +145,9 @@ Ext.define('Uni.view.widget.WorkList', {
                     }
                 ]);
                 me.setLoading(false);
+            },
+            callback: function(){
+                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },
