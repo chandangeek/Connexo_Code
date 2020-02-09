@@ -49,6 +49,6 @@ public interface DataExportWebService extends EndPointProp {
 
     @ProviderType
     interface ExportContext {
-        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> dataSources);
+        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data);
     }
 }

@@ -73,10 +73,10 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
                 process(serviceCall);
                 break;
             case SUCCESSFUL:
-                findOpenChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryPassingServiceCall(sc));
+                findOpenChildren(serviceCall).forEach(child->dataExportServiceCallType.tryPassingServiceCall(child));
                 break;
             case FAILED:
-                findOpenChildren(serviceCall).forEach(sc->dataExportServiceCallType.tryFailingServiceCall(sc, null));
+                findOpenChildren(serviceCall).forEach(child->dataExportServiceCallType.tryFailingServiceCall(child));
                 break;
             default:
                 // No specific action required for these states

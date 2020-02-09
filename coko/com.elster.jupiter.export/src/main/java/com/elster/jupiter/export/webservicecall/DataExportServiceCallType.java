@@ -24,18 +24,20 @@ public interface DataExportServiceCallType {
      * The service call will be performed asynchronously after commit of this transaction.
      * @param uuid UUID identifying the service call.
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
+     * @param data a map containing custom information per ReadingTypeDataExportItem.
      * @return A new service call.
      */
-    ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> itemList);
+    ServiceCall startServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data);
 
     /**
      * Creates and starts a new service call in a new thread.
      * The service call will be performed asynchronously right after calling this method.
      * @param uuid UUID identifying the service call.
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
+     * @param data a map containing custom information per ReadingTypeDataExportItem.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> itemList);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data);
 
 
     /**
@@ -59,6 +61,13 @@ public interface DataExportServiceCallType {
     ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall, String errorMessage);
 
     /**
+     * Tries failing a given service call. If it is already closed, does nothing.
+     * @param serviceCall Service call to close.
+     * @return Actual {@link ServiceCallStatus} after the attempt to fail.
+     */
+    ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall);
+
+    /**
      * Tries passing a given service call. If it is already closed, does nothing.
      * @param serviceCall Service call to close.
      * @return Actual {@link ServiceCallStatus} after the attempt to pass.
@@ -66,11 +75,15 @@ public interface DataExportServiceCallType {
     ServiceCallStatus tryPassingServiceCall(ServiceCall serviceCall);
 
     /**
-     * Tries passing a given service call. If it is already closed, does nothing.
+     * Tries moving service call to partial success state.
+     * Before moving tries close child service calls by custom info (profile ids)
+     * If it is already closed, does nothing.
      * @param serviceCall Service call to close.
+     * @param successfulProfileIds list of successful profile ids
+     * @param errorMessage Error message to close the service call with.
      * @return Actual {@link ServiceCallStatus} after the attempt to pass.
      */
-    ServiceCallStatus tryPartialPassingChildServiceCall(ServiceCall serviceCall, List<String> succeedProfileId);
+    ServiceCallStatus tryPartialPassingServiceCallByProfileIds(ServiceCall serviceCall, List<String> successfulProfileIds, String errorMessage);
 
     /**
      * Re-reads the service call status from database.

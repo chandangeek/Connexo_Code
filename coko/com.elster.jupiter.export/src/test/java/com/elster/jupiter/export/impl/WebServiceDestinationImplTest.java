@@ -55,6 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollectionOf;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -113,6 +114,7 @@ public class WebServiceDestinationImplTest {
     private MeterReading meterReading;
 
     private Map<ServiceCall, ServiceCallStatus> serviceCallStatuses; // container for current stubbing of service call statuses in a test method
+    private static Map<ReadingTypeDataExportItem, String> data1, data2;
 
     @Before
     public void setUp() {
@@ -123,6 +125,10 @@ public class WebServiceDestinationImplTest {
                         .collect(Collectors.toList()));
         newData = createData(source1, false);
         updatedData = createData(source2, true);
+        data1 = new HashMap<>();
+        data2 = new HashMap<>();
+        data1.put(source1, "");
+        data2.put(source2, "");
 
         when(createEndPoint.getProperties()).thenReturn(Collections.singletonList(timeout));
         when(changeEndPoint.getProperties()).thenReturn(Collections.singletonList(timeout));
@@ -134,12 +140,12 @@ public class WebServiceDestinationImplTest {
         when(dataExportService.getExportWebService(WEB_SERVICE_CREATE)).thenReturn(Optional.of(webServiceCreate));
         when(dataExportService.getExportWebService(WEB_SERVICE_CHANGE)).thenReturn(Optional.of(webServiceChange));
 
-        when(serviceCallType.startServiceCallAsync(eq("uuidCr"), eq(1L), anyCollectionOf(ReadingTypeDataExportItem.class))).thenReturn(createServiceCall);
-        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCr", 1, Collections.singleton(source1)))
+        when(serviceCallType.startServiceCallAsync(eq("uuidCr"), eq(1L), anyMapOf(ReadingTypeDataExportItem.class, String.class))).thenReturn(createServiceCall);
+        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCr", 1, data1))
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
         when(serviceCallType.getDataSources(Collections.singleton(createServiceCall))).thenReturn(Collections.singleton(source1));
-        when(serviceCallType.startServiceCallAsync(eq("uuidCh"), eq(2L), anyCollectionOf(ReadingTypeDataExportItem.class))).thenReturn(changeServiceCall);
-        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCh", 2, Collections.singleton(source2)))
+        when(serviceCallType.startServiceCallAsync(eq("uuidCh"), eq(2L), anyMapOf(ReadingTypeDataExportItem.class, String.class))).thenReturn(changeServiceCall);
+        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCh", 2, data2))
                 .when(webServiceChange).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
         when(serviceCallType.getDataSources(Collections.singleton(changeServiceCall))).thenReturn(Collections.singleton(source2));
         when(dataExportService.getDataExportServiceCallType()).thenReturn(serviceCallType);
@@ -170,8 +176,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -197,8 +203,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(Collections.emptySet());
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -223,8 +229,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(Collections.emptySet());
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -270,7 +276,7 @@ public class WebServiceDestinationImplTest {
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, updatedData);
         verifyNoMoreInteractions(webServiceChange);
         verifyZeroInteractions(webServiceCreate);
-        verify(serviceCallType, times(1)).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType, times(1)).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -291,7 +297,7 @@ public class WebServiceDestinationImplTest {
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, newData);
         verifyNoMoreInteractions(webServiceCreate);
         verifyZeroInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -312,7 +318,7 @@ public class WebServiceDestinationImplTest {
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData, updatedData);
         verifyNoMoreInteractions(webServiceChange);
         verifyZeroInteractions(webServiceCreate);
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -333,7 +339,7 @@ public class WebServiceDestinationImplTest {
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, newData);
         verifyNoMoreInteractions(webServiceCreate);
         verifyZeroInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -360,8 +366,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(createServiceCall));
         verifyNoMoreInteractions(serviceCallType);
@@ -389,8 +395,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall));
         verifyNoMoreInteractions(serviceCallType);
@@ -421,8 +427,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(createServiceCall));
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall));
@@ -451,8 +457,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(createServiceCall));
         verifyNoMoreInteractions(serviceCallType);
@@ -480,8 +486,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall));
         verifyNoMoreInteractions(serviceCallType);
@@ -497,23 +503,30 @@ public class WebServiceDestinationImplTest {
         stubStatus(changeServiceCall1, DefaultState.SUCCESSFUL, null);
         ReadingTypeDataExportItem source3 = mock(ReadingTypeDataExportItem.class);
         ReadingTypeDataExportItem source4 = mock(ReadingTypeDataExportItem.class);
+        Map<ReadingTypeDataExportItem, String> data134 = new HashMap<>();
+        data134.put(source1, "");
+        data134.put(source3, "");
+        data134.put(source4, "");
+        Map<ReadingTypeDataExportItem, String> data24 = new HashMap<>();
+        data24.put(source2, "");
+        data24.put(source4, "");
         when(serviceCallType.getDataSources(Collections.singleton(createServiceCall))).thenReturn(ImmutableSet.of(source1, source3, source4));
         when(serviceCallType.getDataSources(Collections.singleton(createServiceCall1))).thenReturn(ImmutableSet.of(source2));
         when(serviceCallType.getDataSources(Collections.singleton(changeServiceCall))).thenReturn(ImmutableSet.of(source1));
         when(serviceCallType.getDataSources(Collections.singleton(changeServiceCall1))).thenReturn(ImmutableSet.of(source2, source4));
-        when(serviceCallType.startServiceCallAsync("uuidCr1", 3, Collections.singleton(source2))).thenReturn(createServiceCall1);
+        when(serviceCallType.startServiceCallAsync("uuidCr1", 3, data2)).thenReturn(createServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startAndRegisterServiceCall("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
-            context.startAndRegisterServiceCall("uuidCr1", 3, Collections.singleton(source2));
+            context.startAndRegisterServiceCall("uuidCr", 1, data134);
+            context.startAndRegisterServiceCall("uuidCr1", 3, data2);
             return null;
         })
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
-        when(serviceCallType.startServiceCallAsync("uuidCh1", 4, ImmutableSet.of(source2, source4))).thenReturn(changeServiceCall1);
+        when(serviceCallType.startServiceCallAsync("uuidCh1", 4, data24)).thenReturn(changeServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startAndRegisterServiceCall("uuidCh", 2, Collections.singleton(source1));
-            context.startAndRegisterServiceCall("uuidCh1", 4, ImmutableSet.of(source2, source4));
+            context.startAndRegisterServiceCall("uuidCh", 2, data1);
+            context.startAndRegisterServiceCall("uuidCh1", 4, data24);
             return null;
         })
                 .when(webServiceChange).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
@@ -548,10 +561,10 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData, updatedData1, updatedData4);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCr1", 3, Collections.singleton(source2));
-        verify(serviceCallType).startServiceCallAsync("uuidCh1", 4, ImmutableSet.of(source2, source4));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data134);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCr1", 3, data2);
+        verify(serviceCallType).startServiceCallAsync("uuidCh1", 4, data24);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(createServiceCall)); // per failed created data
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall)); // per failed changed data
@@ -601,7 +614,7 @@ public class WebServiceDestinationImplTest {
     public void testMultipleDataNotFullySentDueToTimeout() {
         doAnswer(invocation -> {
             Thread.sleep(WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1000);
-            invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCr", 1, Collections.singleton(source1));
+            invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCr", 1, data1);
             return null;
         })
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
@@ -622,7 +635,7 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.emptySet()); // per passed service calls for created data to find untracked data sources
         verifyNoMoreInteractions(serviceCallType);
@@ -638,24 +651,31 @@ public class WebServiceDestinationImplTest {
         stubStatus(changeServiceCall1, DefaultState.SUCCESSFUL, null);
         ReadingTypeDataExportItem source3 = mock(ReadingTypeDataExportItem.class);
         ReadingTypeDataExportItem source4 = mock(ReadingTypeDataExportItem.class);
+        Map<ReadingTypeDataExportItem, String> data134 = new HashMap<>();
+        data134.put(source1, "");
+        data134.put(source3, "");
+        data134.put(source4, "");
+        Map<ReadingTypeDataExportItem, String> data24 = new HashMap<>();
+        data24.put(source2, "");
+        data24.put(source4, "");
         when(serviceCallType.getDataSources(Collections.singleton(createServiceCall))).thenReturn(Sets.newHashSet(source1, source3, source4));
         when(serviceCallType.getDataSources(Collections.singleton(createServiceCall1))).thenReturn(Sets.newHashSet(source2));
         when(serviceCallType.getDataSources(Collections.singleton(changeServiceCall))).thenReturn(Sets.newHashSet(source1));
         when(serviceCallType.getDataSources(Collections.singleton(changeServiceCall1))).thenReturn(Sets.newHashSet(source2, source4));
-        when(serviceCallType.startServiceCallAsync("uuidCr1", 3, Collections.singleton(source2))).thenReturn(createServiceCall1);
+        when(serviceCallType.startServiceCallAsync("uuidCr1", 3, data2)).thenReturn(createServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startAndRegisterServiceCall("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
-            context.startAndRegisterServiceCall("uuidCr1", 3, Collections.singleton(source2));
+            context.startAndRegisterServiceCall("uuidCr", 1, data134);
+            context.startAndRegisterServiceCall("uuidCr1", 3, data2);
             return null;
         })
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
-        when(serviceCallType.startServiceCallAsync("uuidCh1", 4, ImmutableSet.of(source2, source4))).thenReturn(changeServiceCall1);
+        when(serviceCallType.startServiceCallAsync("uuidCh1", 4, data24)).thenReturn(changeServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startAndRegisterServiceCall("uuidCh", 2, Collections.singleton(source1));
+            context.startAndRegisterServiceCall("uuidCh", 2, data1);
             Thread.sleep(WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1000);
-            context.startAndRegisterServiceCall("uuidCh1", 4, ImmutableSet.of(source2, source4));
+            context.startAndRegisterServiceCall("uuidCh1", 4, data24);
             return null;
         })
                 .when(webServiceChange).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
@@ -686,9 +706,9 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData, updatedData1, updatedData4);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
-        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source1));
-        verify(serviceCallType).startServiceCallAsync("uuidCr1", 3, Collections.singleton(source2));
+        verify(serviceCallType).startServiceCallAsync("uuidCr", 1, data134);
+        verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data1);
+        verify(serviceCallType).startServiceCallAsync("uuidCr1", 3, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall)); // per passed changed data, called to find out untracked data sources
         verifyNoMoreInteractions(serviceCallType);

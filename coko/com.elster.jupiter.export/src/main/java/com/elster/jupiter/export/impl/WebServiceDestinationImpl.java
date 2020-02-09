@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -179,6 +180,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                     String error;
                     switch (status.getState()) {
                         case FAILED:
+                        case PARTIAL_SUCCESS:
                             error = status.getErrorMessage()
                                     .orElseGet(() -> getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE).format());
                             break;
@@ -201,6 +203,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .flatMap(Finder::stream)
                 .filter(s->s.getState().equals(DefaultState.FAILED))
                 .collect(Collectors.toSet());
+
         Set<ReadingTypeDataExportItem> failedDataSources = Collections.emptySet();
         if (!unsuccessfulServiceCalls.isEmpty()) {
             failedDataSources = dataExportServiceCallType.getDataSources(unsuccessfulServiceCalls);
@@ -213,19 +216,12 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         if (!dataSendingResult.sent) {
             // some service calls are possibly not created yet
             Set<ServiceCall> successfulServiceCalls = states.stream()
-                    .filter(ServiceCallStatus::isSuccessful)
-                    .map(ServiceCallStatus::getServiceCall)
-                    .map(ServiceCall::findChildren)
-                    .flatMap(Finder::stream)
-                    .collect(Collectors.toSet());
-            Set<ServiceCall> successfulServiceCalls2 = states.stream()
-                    .filter(ServiceCallStatus::isPartialSuccessful)
+                    .filter(Predicates.not(ServiceCallStatus::isFailed))
                     .map(ServiceCallStatus::getServiceCall)
                     .map(ServiceCall::findChildren)
                     .flatMap(Finder::stream)
                     .filter(s->s.getState().equals(DefaultState.SUCCESSFUL))
                     .collect(Collectors.toSet());
-            successfulServiceCalls.addAll(successfulServiceCalls2);
             Set<ReadingTypeDataExportItem> trackedDataSources = dataExportServiceCallType.getDataSources(successfulServiceCalls);
             trackedDataSources.addAll(failedDataSources);
             Set<ReadingTypeDataExportItem> untrackedDataSources = new HashSet<>();
@@ -348,8 +344,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
 
         @Override
-        public ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> dataSources) {
-            ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, dataSources);
+        public ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data) {
+            ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, data);
             openServiceCalls.add(serviceCall);
             return serviceCall;
         }

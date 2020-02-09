@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateConfirmationReceiver",
@@ -87,13 +88,40 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
             Optional<String> uuid = findReferenceUuid(confirmation);
             ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
                     .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
-            if (isConfirmed(confirmation)) {
-                dataExportServiceCallType.tryPassingServiceCall(serviceCall);
-            } else {
-                dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+            switch (getResultCode(confirmation)) {
+                case SUCCESSFUL:
+                    dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+                    break;
+                case PARTIALLY_SUCCESSFUL:
+                    List<String> successfulProfileIds = getSuccessfulProfileIds(confirmation);
+                    dataExportServiceCallType.tryPartialPassingServiceCallByProfileIds(serviceCall, successfulProfileIds, getSeverestError(confirmation).orElse(null));
+                    break;
+                case FAILED:
+                    dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+                    break;
             }
             return null;
         });
+    }
+
+    private static List<String> getSuccessfulProfileIds(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
+        return Optional.ofNullable(confirmation)
+                .map(UtilsTmeSersERPItmBulkCrteConfMsg::getUtilitiesTimeSeriesERPItemCreateConfirmationMessage)
+                .map(List::stream)
+                .orElseGet(Stream::empty)
+                .filter(UtilitiesTimeSeriesBulkCreateConfirmationReceiver::isChildConfirmed)
+                .map(UtilsTmeSersERPItmCrteConfMsg::getUtilitiesTimeSeries)
+                .map(UtilsTmeSersERPItmCrteConfUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue)
+                .collect(Collectors.toList());
+    }
+
+    private static boolean isChildConfirmed(UtilsTmeSersERPItmCrteConfMsg item) {
+        return Optional.ofNullable(item)
+                .map(UtilsTmeSersERPItmCrteConfMsg::getLog)
+                .map(Log::getBusinessDocumentProcessingResultCode)
+                .filter(code->code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
+                .isPresent();
     }
 
     private static List<UtilsTmeSersERPItmCrteConfMsg> getCreateConfirmationMessages(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
@@ -119,12 +147,12 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
         return Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue);
     }
 
-    private static boolean isConfirmed(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
+    private static ProcessingResultCode getResultCode(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkCrteConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .filter(Predicates.not(FAILURE_CODES::contains))
-                .isPresent();
+                .map(ProcessingResultCode::valueFor)
+                .orElse(ProcessingResultCode.FAILED);
     }
 
     private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {

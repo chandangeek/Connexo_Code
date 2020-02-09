@@ -219,6 +219,26 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
+    public ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall) {
+        if (transactionService.isInTransaction()) {
+            return doTryFailingServiceCall(serviceCall);
+        } else {
+            return transactionService.execute(() -> doTryFailingServiceCall(serviceCall));
+        }
+    }
+
+    private ServiceCallStatus doTryFailingServiceCall(ServiceCall serviceCall) {
+        try {
+            serviceCall = lock(serviceCall);
+            serviceCall.requestTransition(DefaultState.FAILED);
+            return new ServiceCallStatusImpl(serviceCall, DefaultState.FAILED, null);
+        } catch (NoTransitionException e) {
+            // not intended to do anything if the service call is already closed
+            return new ServiceCallStatusImpl(serviceCallService, serviceCall);
+        }
+    }
+
+    @Override
     public ServiceCallStatus tryPassingServiceCall(ServiceCall serviceCall) {
         if (transactionService.isInTransaction()) {
             return doTryPassingServiceCall(serviceCall);
@@ -228,11 +248,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCallStatus tryPartialPassingChildServiceCall(ServiceCall serviceCall, List<String> succeedProfileId) {
+    public ServiceCallStatus tryPartialPassingServiceCallByProfileIds(ServiceCall serviceCall, List<String> successfulProfileIds, String errorMessage) {
         if (transactionService.isInTransaction()) {
-            return doTryPartialPassingChildServiceCall(serviceCall, succeedProfileId);
+            return doTryPartialPassingServiceCallByProfileIds(serviceCall, successfulProfileIds, errorMessage);
         } else {
-            return transactionService.execute(() -> doTryPartialPassingChildServiceCall(serviceCall, succeedProfileId));
+            return transactionService.execute(() -> doTryPartialPassingServiceCallByProfileIds(serviceCall, successfulProfileIds, errorMessage));
         }
     }
 
@@ -247,13 +267,13 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    private ServiceCallStatus doTryPartialPassingChildServiceCall(ServiceCall serviceCall, List<String> succeedProfileId) {
-        findChildren(serviceCall).forEach(child -> {
+    private ServiceCallStatus doTryPartialPassingServiceCallByProfileIds(ServiceCall serviceCall, List<String> successfulProfileIds, String errorMessage) {
+        serviceCall.findChildren().stream().forEach(child -> {
             WebServiceDataExportChildDomainExtension extension = child.getExtensionFor(new WebServiceDataExportChildCustomPropertySet())
                     .orElseThrow(() -> new IllegalStateException("Can not find domain extension for parent service call"));
-            List<String> pr = Arrays.asList(extension.getCustomInfo().split(","));
+            List<String> extensionProfileIds = Arrays.asList(extension.getCustomInfo().split(","));
             try {
-                if (succeedProfileId.containsAll(pr)) {
+                if (successfulProfileIds.containsAll(extensionProfileIds)) {
                     child = lock(child);
                     child.requestTransition(DefaultState.SUCCESSFUL);
                 } else {
@@ -263,13 +283,18 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
             } catch (NoTransitionException e) {
                 // not intended to do anything if the service call is already closed
             }
-            succeedProfileId.removeAll(pr);
+            successfulProfileIds.removeAll(extensionProfileIds);
         });
 
         try {
             serviceCall = lock(serviceCall);
             serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
-            return new ServiceCallStatusImpl(serviceCall, DefaultState.PARTIAL_SUCCESS, null);
+            serviceCall.getExtension(WebServiceDataExportDomainExtension.class)
+                    .ifPresent(serviceCallProperties -> {
+                        serviceCallProperties.setErrorMessage(errorMessage);
+                        Save.UPDATE.save(dataModel, serviceCallProperties);
+                    });
+            return new ServiceCallStatusImpl(serviceCall, DefaultState.PARTIAL_SUCCESS, errorMessage);
         } catch (NoTransitionException e) {
             // not intended to do anything if the service call is already closed
             return new ServiceCallStatusImpl(serviceCallService, serviceCall);
@@ -292,10 +317,6 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 
-    private static List<ServiceCall> findChildren(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
-    }
-
     @Override
     public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCalls) {
         return doGetDataSources(Arrays.asList(serviceCalls));
@@ -310,7 +331,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         if (serviceCalls.isEmpty()) {
             return new HashSet<>();
         }
-        List<Long> list = serviceCalls.stream().map(s->s.getId()).collect(Collectors.toList());
+        List<Long> list = serviceCalls.stream().map(s -> s.getId()).collect(Collectors.toList());
         Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
                 .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)

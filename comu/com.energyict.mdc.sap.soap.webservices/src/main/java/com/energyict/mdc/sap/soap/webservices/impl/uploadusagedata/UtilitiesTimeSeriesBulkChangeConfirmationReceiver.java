@@ -33,15 +33,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper.findChildren;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
@@ -96,12 +93,10 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                     dataExportServiceCallType.tryPassingServiceCall(serviceCall);
                     break;
                 case PARTIALLY_SUCCESSFUL:
-                    List<String> succeedProfileId = getSucceedProfileId(confirmation);
-                    dataExportServiceCallType.tryPartialPassingChildServiceCall(serviceCall, succeedProfileId);
+                    List<String> successfulProfileIds = getSuccessfulProfileIds(confirmation);
+                    dataExportServiceCallType.tryPartialPassingServiceCallByProfileIds(serviceCall, successfulProfileIds, getSeverestError(confirmation).orElse(null));
                     break;
                 case FAILED:
-                case RECEIVED:
-                case IN_PROCESS:
                     dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
                     break;
             }
@@ -109,7 +104,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
         });
     }
 
-    private static List<String> getSucceedProfileId(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+    private static List<String> getSuccessfulProfileIds(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getUtilitiesTimeSeriesERPItemChangeConfirmationMessage)
                 .map(List::stream)

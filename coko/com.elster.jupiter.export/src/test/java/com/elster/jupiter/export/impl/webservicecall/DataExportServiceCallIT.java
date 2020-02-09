@@ -91,6 +91,7 @@ import org.osgi.service.log.LogService;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -145,6 +146,7 @@ public class DataExportServiceCallIT {
     private static long dataSourceId1;
     private static long dataSourceId2;
     private static List<ReadingTypeDataExportItem> itemList;
+    private static Map<ReadingTypeDataExportItem, String> data;
 
     @Rule
     public TestRule transactional = new TransactionalRule(transactionService);
@@ -252,6 +254,10 @@ public class DataExportServiceCallIT {
                     .getId();
 
             itemList = selectorConfig.getExportItems();
+            data = new HashMap<>();
+            for (ReadingTypeDataExportItem item : itemList) {
+                data.put(item, "");
+            }
 
             return null;
         });
@@ -265,7 +271,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStart() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
@@ -292,7 +298,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStartAsync() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, data);
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -322,7 +328,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStartAsyncWithNoDataSources() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, Collections.emptyList());
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, Collections.emptyMap());
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         assertThat(serviceCall.findChildren().stream().collect(Collectors.toList())).isEmpty();
@@ -338,7 +344,7 @@ public class DataExportServiceCallIT {
     public void testFindServiceCall() {
         assertThat(dataExportServiceCallType.findServiceCall(UUID)).isEmpty();
 
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
@@ -367,7 +373,7 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testFailServiceCall() {
         String error = "Errorrrr";
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
@@ -400,7 +406,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testPassServiceCall() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryPassingServiceCall(serviceCall);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -433,7 +439,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetOngoingStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -465,7 +471,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetSuccessfulStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryPassingServiceCall(serviceCall);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
 
@@ -499,7 +505,7 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testGetFailedStatus() {
         String error = "myError";
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -531,7 +537,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetAnotherStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         serviceCall.requestTransition(DefaultState.PAUSED);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -550,9 +556,9 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetStatuses() {
-        ServiceCall serviceCall1 = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall1 = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryFailingServiceCall(serviceCall1, "Fail!");
-        ServiceCall serviceCall2 = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall2 = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, data);
         Map<ServiceCall, ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(ImmutableSet.of(serviceCall1, serviceCall2)).stream()
                 .collect(Collectors.toMap(ServiceCallStatus::getServiceCall, Function.identity()));
 
@@ -595,7 +601,7 @@ public class DataExportServiceCallIT {
     public void testServiceCallHandlerExecutionExceptionFailsServiceCall() {
         long timeout = WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1500; // 1.5 times the pause before status check
         String error = "Error mess";
-        ServiceCall realServiceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, itemList);
+        ServiceCall realServiceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, data);
         ServiceCall serviceCall = mock(ServiceCall.class);
         WebServiceDataExportDomainExtension extension = mock(WebServiceDataExportDomainExtension.class);
         when(serviceCall.getExtensionFor(serviceCallCPS)).thenReturn(Optional.of(extension));
@@ -621,7 +627,7 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testServiceCallHandlerTimeoutExceptionFailsServiceCall() {
         long timeout = 1; // less than the pause before status check
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, data);
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
@@ -647,7 +653,7 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testServiceCallHandlerPasses() {
         long timeout = WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1500; // 1.5 times the pause before status check
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, data);
         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -682,11 +688,13 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetDataSources() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         assertThat(dataExportServiceCallType.getDataSources(serviceCall)).containsOnly(itemList.toArray(new ReadingTypeDataExportItem[itemList.size()]));
-        serviceCall = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, Collections.emptyList());
+        serviceCall = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, Collections.emptyMap());
         assertThat(dataExportServiceCallType.getDataSources(serviceCall)).isEmpty();
-        serviceCall = dataExportServiceCallType.startServiceCall("UUID", TIMEOUT, itemList.subList(0, 1));
+        Map<ReadingTypeDataExportItem, String> one = new HashMap<>();
+        one.put(itemList.get(0), "");
+        serviceCall = dataExportServiceCallType.startServiceCall("UUID", TIMEOUT, one);
         assertThat(dataExportServiceCallType.getDataSources(serviceCall)).containsOnly(itemList.get(0));
     }
 

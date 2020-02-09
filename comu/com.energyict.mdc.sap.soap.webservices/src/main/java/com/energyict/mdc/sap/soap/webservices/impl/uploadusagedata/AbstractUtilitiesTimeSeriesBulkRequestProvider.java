@@ -224,9 +224,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         }
     }
 
-    //timeseries+exportData->TimeSeriesWrapper
     private void sendPartOfData(EndPointConfiguration endPointConfiguration, ExportContext context,
-                                //List<TS> timeSeries, List<MeterReadingData> exportData,
                                 List<TimeSeriesWrapper<TS>> timeSeriesWrappers,
                                 Instant now,
                                 TimeDuration timeout) {
