@@ -1,7 +1,9 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationrequest.SmrtMtrMtrRdngDocERPCanclnReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcancellationrequest.SmrtMtrMtrRdngDocERPBulkCanclnReqMsg;
 
@@ -9,13 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MeterReadingDocumentCancellationRequestMessage {
+public class MeterReadingDocumentCancellationRequestMessage extends AbstractSapMessage {
+    private final static String METER_DOCUMENT_XML_NAME = "UtilitiesDeviceSmartMeter";
+
     private String requestID;
     private String uuid;
     private boolean bulk;
     private List<String> meterReadingDocumentIds = new ArrayList<>();
+    private Thesaurus thesaurus;
 
-    private MeterReadingDocumentCancellationRequestMessage() {
+    private MeterReadingDocumentCancellationRequestMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public boolean isBulk() {
@@ -34,12 +40,8 @@ public class MeterReadingDocumentCancellationRequestMessage {
         return new ArrayList(meterReadingDocumentIds);
     }
 
-    static MeterReadingDocumentCancellationRequestMessage.Builder builder() {
-        return new MeterReadingDocumentCancellationRequestMessage().new Builder();
-    }
-
-    public boolean isValid() {
-        return (requestID != null || uuid != null) && !meterReadingDocumentIds.isEmpty();
+    static MeterReadingDocumentCancellationRequestMessage.Builder builder(Thesaurus thesaurus) {
+        return new MeterReadingDocumentCancellationRequestMessage(thesaurus).new Builder();
     }
 
     public class Builder {
@@ -74,6 +76,12 @@ public class MeterReadingDocumentCancellationRequestMessage {
         }
 
         public MeterReadingDocumentCancellationRequestMessage build() {
+            if (requestID == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (meterReadingDocumentIds.isEmpty()) {
+                addMissingField(METER_DOCUMENT_XML_NAME);
+            }
             return MeterReadingDocumentCancellationRequestMessage.this;
         }
 

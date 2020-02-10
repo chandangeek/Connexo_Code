@@ -3,7 +3,9 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPBulkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
 
@@ -12,15 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MeterReadingDocumentCreateRequestMessage {
+public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage {
 
     private boolean bulk;
     private BigDecimal attemptNumber = BigDecimal.ZERO;
     private String id;
     private String uuid;
     private List<MeterReadingDocumentCreateMessage> meterReadingDocumentCreateMessages = new ArrayList<>();
+    private Thesaurus thesaurus;
 
-    private MeterReadingDocumentCreateRequestMessage() {
+    private MeterReadingDocumentCreateRequestMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public String getId() {
@@ -39,16 +43,12 @@ public class MeterReadingDocumentCreateRequestMessage {
         return meterReadingDocumentCreateMessages;
     }
 
-    public boolean isValid() {
-        return id != null || uuid != null;
-    }
-
     public boolean isBulk() {
         return bulk;
     }
 
-    static MeterReadingDocumentCreateRequestMessage.Builder builder() {
-        return new MeterReadingDocumentCreateRequestMessage().new Builder();
+    static MeterReadingDocumentCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
+        return new MeterReadingDocumentCreateRequestMessage(thesaurus).new Builder();
     }
 
     public class Builder {
@@ -97,6 +97,9 @@ public class MeterReadingDocumentCreateRequestMessage {
         }
 
         public MeterReadingDocumentCreateRequestMessage build() {
+            if (id == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             return MeterReadingDocumentCreateRequestMessage.this;
         }
 

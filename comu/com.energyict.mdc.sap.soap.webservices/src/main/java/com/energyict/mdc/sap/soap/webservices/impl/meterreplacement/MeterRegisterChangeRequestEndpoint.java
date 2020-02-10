@@ -80,7 +80,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                         MeterRegisterChangeMessage message = MeterRegisterChangeMessageBuilder
                                 .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
                                 .from(requestMessage)
-                                .build();
+                                .build(thesaurus);
                         SetMultimap<String, String> values = HashMultimap.create();
                         message.getRegisters().forEach(register -> {
                             Optional.ofNullable(register.getLrn())
@@ -123,7 +123,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
         }
     }
 
@@ -146,15 +146,15 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getMissingFields());
         }
     }
 
-    private void sendProcessError(MeterRegisterChangeMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(MeterRegisterChangeMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
         MeterRegisterChangeConfirmationMessage confirmationMessage =
                 MeterRegisterChangeConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -190,14 +190,14 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         } else if (message.getRegisters().size() > 1) {
             register = message.getRegisters().get(message.getRegisters().size() - 1);
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
             subParent.requestTransition(DefaultState.REJECTED);
             return;
         }
         if (register.isValid()) {
             createChildServiceCall(subParent, register);
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, register.getMissingFields());
         }
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
             subParent.requestTransition(DefaultState.PENDING);
@@ -238,6 +238,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                     }
                 });
     }
+
     public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
