@@ -294,7 +294,7 @@ public enum TableSpecs {
                     .notAudited()
                     .add();
             table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.CONNECTION_STRATEGY.fieldName()).add();
-            table.column("PRIORITY").number().conversion(NUMBER2INT).map(ConnectionTaskFields.PRIORITY.fieldName()).add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map(ConnectionTaskFields.PRIORITY.fieldName()).notAudited().add();
             table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2INT).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
             Column initiator = table.column("INITIATOR").number().add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().since(Version.version(10, 3));
