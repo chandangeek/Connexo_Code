@@ -221,7 +221,7 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized."),
     WRONG_STATUS(2194, Keys.WRONG_STATUS, "Wrong status value. Possible values: {0}"),
     WRONG_CARD_FORMAT(2195, Keys.WRONG_CARD_FORMAT, "Wrong card format value. Possible values: {0}"),
-    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\"),
+    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\, !, *, ', (, ), :, @, &, =, $, ,, [, ]"),
     NO_COMTASK_EXECUTION(2197, Keys.NO_COMTASK_EXECUTION, "A communication task execution for the device messages can''t be located or it is inactive."),
     NO_STATUS_INFORMATION_COMTASK_EXECUTION(2198, Keys.NO_STATUS_INFORMATION_COMTASK_EXECUTION, "A communication task execution to read out the status information can''t be located or it is inactive."),
     ;
