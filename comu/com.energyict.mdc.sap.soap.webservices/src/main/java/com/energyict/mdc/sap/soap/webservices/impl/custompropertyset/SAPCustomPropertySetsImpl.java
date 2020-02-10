@@ -731,22 +731,18 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     private boolean isAnyRegisterLrnForDate(long deviceId, Instant date) {
         return getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
-                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
-                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(date))
-                .findAny()
-                .isPresent();
+                .anyMatch(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId)
+                        .and(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                        .and(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(date)));
     }
 
 
     private boolean isAnyChannelLrnForDate(long deviceId, Instant date) {
         return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
-                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
-                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(date))
-                .findAny()
-                .isPresent();
+                .anyMatch(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId)
+                        .and(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                        .and(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(date)));
     }
 
     private Range<Instant> getTimeInterval(Instant startDateTime, Instant endDateTime) {

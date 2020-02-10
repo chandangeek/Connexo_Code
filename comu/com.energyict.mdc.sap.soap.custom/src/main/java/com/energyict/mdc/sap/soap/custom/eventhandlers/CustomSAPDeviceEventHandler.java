@@ -171,7 +171,7 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         try {
             EndDeviceEventRecord source = (EndDeviceEventRecord) localEvent.getSource();
-            if (sapCustomPropertySets.isAnyLrnPresentForDate(source.getEndDevice().getId(), source.getCreatedDateTime())) {
+            if (sapCustomPropertySets.isAnyLrnPresentForDate(Long.parseLong(source.getEndDevice().getAmrId()), source.getCreatedDateTime())) {
                 createBulkMessage(source).ifPresent(meterEventCreateRequestProvider::send);
             }
         } catch (Exception e) {
@@ -181,7 +181,7 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
 
     public void handle(EndDeviceEventRecord eventRecord) {
         try {
-            if (sapCustomPropertySets.isAnyLrnPresentForDate(eventRecord.getEndDevice().getId(), eventRecord.getCreatedDateTime())) {
+            if (sapCustomPropertySets.isAnyLrnPresentForDate(Long.parseLong(eventRecord.getEndDevice().getAmrId()), eventRecord.getCreatedDateTime())) {
                 createBulkMessage(eventRecord).ifPresent(meterEventCreateRequestProvider::send);
             }
         } catch (Exception e) {
