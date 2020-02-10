@@ -61,13 +61,6 @@ public interface DataExportServiceCallType {
     ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall, String errorMessage);
 
     /**
-     * Tries failing a given service call. If it is already closed, does nothing.
-     * @param serviceCall Service call to close.
-     * @return Actual {@link ServiceCallStatus} after the attempt to fail.
-     */
-    ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall);
-
-    /**
      * Tries passing a given service call. If it is already closed, does nothing.
      * @param serviceCall Service call to close.
      * @return Actual {@link ServiceCallStatus} after the attempt to pass.

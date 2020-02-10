@@ -203,6 +203,15 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     private ServiceCallStatus doTryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
+        serviceCall.findChildren().stream().forEach(child -> {
+            try {
+                child = lock(child);
+                child.requestTransition(DefaultState.FAILED);
+            } catch (NoTransitionException e) {
+                // not intended to do anything if the service call is already closed
+            }
+        });
+
         try {
             serviceCall = lock(serviceCall);
             serviceCall.requestTransition(DefaultState.FAILED);
@@ -212,26 +221,6 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                         Save.UPDATE.save(dataModel, serviceCallProperties);
                     });
             return new ServiceCallStatusImpl(serviceCall, DefaultState.FAILED, errorMessage);
-        } catch (NoTransitionException e) {
-            // not intended to do anything if the service call is already closed
-            return new ServiceCallStatusImpl(serviceCallService, serviceCall);
-        }
-    }
-
-    @Override
-    public ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall) {
-        if (transactionService.isInTransaction()) {
-            return doTryFailingServiceCall(serviceCall);
-        } else {
-            return transactionService.execute(() -> doTryFailingServiceCall(serviceCall));
-        }
-    }
-
-    private ServiceCallStatus doTryFailingServiceCall(ServiceCall serviceCall) {
-        try {
-            serviceCall = lock(serviceCall);
-            serviceCall.requestTransition(DefaultState.FAILED);
-            return new ServiceCallStatusImpl(serviceCall, DefaultState.FAILED, null);
         } catch (NoTransitionException e) {
             // not intended to do anything if the service call is already closed
             return new ServiceCallStatusImpl(serviceCallService, serviceCall);
@@ -257,6 +246,15 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     private ServiceCallStatus doTryPassingServiceCall(ServiceCall serviceCall) {
+        serviceCall.findChildren().stream().forEach(child -> {
+            try {
+                child = lock(child);
+                child.requestTransition(DefaultState.SUCCESSFUL);
+            } catch (NoTransitionException e) {
+                // not intended to do anything if the service call is already closed
+            }
+        });
+
         try {
             serviceCall = lock(serviceCall);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -288,7 +286,14 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
         try {
             serviceCall = lock(serviceCall);
-            serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
+            List<ServiceCall> children = findChildren(serviceCall);
+            if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+                serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
+            } else {
+                serviceCall.requestTransition(DefaultState.FAILED);
+            }
             serviceCall.getExtension(WebServiceDataExportDomainExtension.class)
                     .ifPresent(serviceCallProperties -> {
                         serviceCallProperties.setErrorMessage(errorMessage);
@@ -300,6 +305,18 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
             return new ServiceCallStatusImpl(serviceCallService, serviceCall);
         }
 
+    }
+
+    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
+    }
+
+    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
+    }
+
+    private List<ServiceCall> findChildren(ServiceCall serviceCall) {
+        return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
     @Override

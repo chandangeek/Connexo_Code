@@ -11,7 +11,6 @@ import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.WebServiceDestination;
-import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportServiceCallHandler;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.nls.Thesaurus;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -71,6 +69,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         CREATED_AND_CHANGED
     }
 
+    private static final int CHECK_PAUSE_IN_SECONDS = 10;
     private final ThreadPrincipalService threadPrincipalService;
     private final DataExportServiceCallType dataExportServiceCallType;
 
@@ -188,6 +187,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                         case PENDING:
                         case ONGOING:
                             error = getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_CONFIRMATION).format();
+                            dataExportServiceCallType.tryFailingServiceCall(status.getServiceCall(),
+                                    getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_CONFIRMATION).format());
                             break;
                         default:
                             // this case should not happen actually
@@ -201,7 +202,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .map(ServiceCallStatus::getServiceCall)
                 .map(ServiceCall::findChildren)
                 .flatMap(Finder::stream)
-                .filter(s->s.getState().equals(DefaultState.FAILED))
+                .filter(s -> s.getState().equals(DefaultState.FAILED))
                 .collect(Collectors.toSet());
 
         Set<ReadingTypeDataExportItem> failedDataSources = Collections.emptySet();
@@ -220,7 +221,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                     .map(ServiceCallStatus::getServiceCall)
                     .map(ServiceCall::findChildren)
                     .flatMap(Finder::stream)
-                    .filter(s->s.getState().equals(DefaultState.SUCCESSFUL))
+                    .filter(s -> s.getState().equals(DefaultState.SUCCESSFUL))
                     .collect(Collectors.toSet());
             Set<ReadingTypeDataExportItem> trackedDataSources = dataExportServiceCallType.getDataSources(successfulServiceCalls);
             trackedDataSources.addAll(failedDataSources);
@@ -302,7 +303,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         if (waitForServiceCalls && !result.openServiceCalls.isEmpty()) {
             while (result.hasOpenServiceCalls()) {
                 try {
-                    Thread.sleep(1000L * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS);
+                    Thread.sleep(1000L * CHECK_PAUSE_IN_SECONDS);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
