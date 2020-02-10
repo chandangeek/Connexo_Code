@@ -626,6 +626,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     // ComServer is no longer active, shutdown
                     shutdown();
                 } else {
+                    if(newVersion instanceof OutboundCapableComServer) {
+                        shutdownTimeOutMonitor(true);
+                    }
                     comPortPoolsComPortBelongsToCache = new HashMap<>(); // Flush the cache
                     resetLoggerHolder(newVersion);
                     applyChanges((InboundCapable) newVersion);
@@ -637,6 +640,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     if (!oldComServerName.equals(newVersion.getName())) {
                         // Name changed, notify the ManagementBeanFactory
                         serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
+                    }
+                    if(newVersion instanceof OutboundCapableComServer) {
+                        initializeTimeoutMonitor((OutboundCapableComServer) comServer);
                     }
                 }
             }
