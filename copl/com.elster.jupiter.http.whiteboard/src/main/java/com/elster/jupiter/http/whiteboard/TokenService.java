@@ -8,6 +8,7 @@ import com.nimbusds.jwt.SignedJWT;
 
 import java.text.ParseException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -38,7 +39,7 @@ public interface TokenService<T> {
     /**
      *
      */
-    T getUserJWT(User user);
+    T getUserJWT(UUID jwtId);
 
     /**
      * Validates a signed JWT (JSON Web Token)
@@ -53,8 +54,9 @@ public interface TokenService<T> {
      * <p>
      * This token can not be used for any further operations.
      *
-     * @param user - a user which tokens are going to be invalidated
+     * @param jwtId - a user which tokens are going to be invalidated
      */
-    void invalidateUserJWT(final User user) throws ExecutionException;
+    void invalidateUserJWT(final UUID jwtId) throws ExecutionException;
 
+    void invalidateAllUserJWTsForUser(final User user);
 }

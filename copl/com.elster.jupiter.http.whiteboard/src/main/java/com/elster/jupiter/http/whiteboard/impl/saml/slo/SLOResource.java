@@ -2,6 +2,7 @@ package com.elster.jupiter.http.whiteboard.impl.saml.slo;
 
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
+import com.google.common.collect.ImmutableMap;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;
@@ -17,6 +18,8 @@ import javax.ws.rs.core.Context;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
@@ -37,8 +40,15 @@ public class SLOResource {
                        @Context HttpServletResponse httpServletResponse) throws XMLParserException, UnmarshallingException, DataFormatException, IOException, MarshallingException, TransformerException {
         final LogoutRequest logoutRequest = SAMLUtilities.createLogoutRequest(base64EncodedAndDeflatedSLORequest);
         final LogoutResponse logoutResponse = samlSingleLogoutService.initializeSingleLogout(logoutRequest);
-        httpServletResponse.encodeURL(SAMLUtilities.marshallLogoutResponse(logoutResponse));
-        httpServletResponse.sendRedirect(URI.create(relayState).toString());
+        final String serializedLogoutResponse = URLEncoder.encode(SAMLUtilities.marshallLogoutResponse(logoutResponse), "UTF-8");
+        final ImmutableMap<String, String> queryParameters = ImmutableMap.of("LogoutResponse", serializedLogoutResponse);
+        httpServletResponse.sendRedirect(URI.create(createRedirectUrl(relayState, queryParameters)).toString());
+    }
+
+    private String createRedirectUrl(final String relayState, final Map<String, String> queryParameters) {
+        final StringBuffer stringBuffer = new StringBuffer(relayState).append("?");
+        queryParameters.forEach((key, value) -> stringBuffer.append(key).append("=").append(value));
+        return stringBuffer.toString();
     }
 
 }

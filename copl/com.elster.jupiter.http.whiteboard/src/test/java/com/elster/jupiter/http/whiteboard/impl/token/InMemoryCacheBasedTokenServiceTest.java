@@ -21,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
@@ -98,16 +99,16 @@ public class InMemoryCacheBasedTokenServiceTest {
         final UserJWT userJWT = inMemoryCacheBasedTokenService.createUserJWT(userMock, inMemoryCacheBasedTokenService.createCustomClaimsForUser(userMock, 0));
         assertThat(userJWT).isNotNull();
 
-        final UserJWT validUserJWTshouldNotBeNull = inMemoryCacheBasedTokenService.getUserJWT(userJWT.getUser());
+        final UserJWT validUserJWTshouldNotBeNull = inMemoryCacheBasedTokenService.getUserJWT(extractJwtIdfromUserJWT(userJWT));
         assertThat(validUserJWTshouldNotBeNull).isNotNull();
 
         when(userService.getLoggedInUser(anyLong())).thenAnswer(invocationOnMock -> Optional.of(userMock));
         final TokenValidation tokenValidation = inMemoryCacheBasedTokenService.validateSignedJWT(userJWT.getSignedJWT());
         assertThat(tokenValidation.isValid()).isTrue();
 
-        inMemoryCacheBasedTokenService.invalidateUserJWT(userJWT.getUser());
+        inMemoryCacheBasedTokenService.invalidateUserJWT(extractJwtIdfromUserJWT(userJWT));
 
-        final UserJWT invalidatedUserJWTshouldBeNull = inMemoryCacheBasedTokenService.getUserJWT(userMock);
+        final UserJWT invalidatedUserJWTshouldBeNull = inMemoryCacheBasedTokenService.getUserJWT(extractJwtIdfromUserJWT(userJWT));
         assertThat(invalidatedUserJWTshouldBeNull).isNull();
 
         verify(userMock).getId();
@@ -144,7 +145,6 @@ public class InMemoryCacheBasedTokenServiceTest {
         LOG.info(String.format("TOKEN_SERVICE_TEST: 100 000 user tokens were validated in %f seconds", executionTime / 1000D));
     }
 
-
     private List<User> createListOfUserMocks(final long count) {
         when(userMock.getId()).thenAnswer(invocationOnMock -> new SecureRandom().nextLong());
         when(userMock.getGroups()).thenReturn(new ArrayList<>());
@@ -176,7 +176,7 @@ public class InMemoryCacheBasedTokenServiceTest {
 
     private long invalidateTokensForUsers(final List<User> userList) {
         long startTime = System.currentTimeMillis();
-        userList.parallelStream().forEach(inMemoryCacheBasedTokenService::invalidateUserJWT);
+        userList.parallelStream().forEach(inMemoryCacheBasedTokenService::invalidateAllUserJWTsForUser);
         return System.currentTimeMillis() - startTime;
     }
 
@@ -190,6 +190,10 @@ public class InMemoryCacheBasedTokenServiceTest {
             }
         });
         return System.currentTimeMillis() - startTime;
+    }
+
+    private UUID extractJwtIdfromUserJWT(final UserJWT userJWT) throws ParseException {
+        return UUID.fromString(userJWT.getSignedJWT().getJWTClaimsSet().getJWTID());
     }
 
 }

@@ -3,6 +3,7 @@ package com.elster.jupiter.http.whiteboard.impl.saml.slo;
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
+import com.elster.jupiter.http.whiteboard.impl.token.UserJWT;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import org.opensaml.saml.saml2.core.LogoutRequest;
@@ -11,25 +12,38 @@ import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities.createLogoutResponse;
 
+@Component(
+        name = "com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService",
+        property = {
+                "name=" + SAMLSingleLogoutServiceImpl.SERVICE_NAME
+        },
+        immediate = true,
+        service = {
+                SAMLSingleLogoutService.class
+        }
+)
 public class SAMLSingleLogoutServiceImpl implements SAMLSingleLogoutService {
+
+    public static final String SERVICE_NAME = "SLO";
 
     private static SAMLUtilities samlUtilities = SAMLUtilities.getInstance();
 
-    @Inject
-    private TokenService tokenService;
+    private volatile TokenService<UserJWT> tokenService;
 
-    @Inject
-    private UserService userService;
+    private volatile UserService userService;
 
-    public SAMLSingleLogoutServiceImpl(TokenService tokenService, UserService userService) {
+    public SAMLSingleLogoutServiceImpl() {
+    }
+
+    public SAMLSingleLogoutServiceImpl(TokenService<UserJWT> tokenService, UserService userService) {
         this.tokenService = tokenService;
         this.userService = userService;
     }
@@ -55,12 +69,18 @@ public class SAMLSingleLogoutServiceImpl implements SAMLSingleLogoutService {
 
         final User user = userByExternalId.get();
 
-        try {
-            tokenService.invalidateUserJWT(user);
-        } catch (ExecutionException e) {
-            return createLogoutResponse(StatusCode.REQUEST_DENIED);
-        }
+        tokenService.invalidateAllUserJWTsForUser(user);
 
         return createLogoutResponse(StatusCode.SUCCESS);
+    }
+
+    @Reference
+    public void setTokenService(TokenService<UserJWT> tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 }

@@ -18,10 +18,11 @@ public class SLOResourceTest extends SLOBaseTest {
                 .queryParam(SLO_NAME_LOGOUT_REQUEST, SLO_VALUE_LOGOUT_REQUEST)
                 .queryParam(SLO_NAME_RELAY_STATE, SLO_VALUE_RELAY_STATE)
                 .request()
+                .acceptEncoding("gzip", "deflated")
                 .buildPost(Entity.entity("TEST", MediaType.TEXT_PLAIN_TYPE))
                 .invoke();
 
-        assertThat(Response.Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getStatus());
+                assertThat(Response.Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getStatus());
     }
 
 }

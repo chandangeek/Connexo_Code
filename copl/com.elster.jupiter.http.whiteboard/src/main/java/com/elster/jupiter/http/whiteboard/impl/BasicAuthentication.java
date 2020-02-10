@@ -9,18 +9,23 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
 import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
+import com.elster.jupiter.http.whiteboard.impl.token.UserJWT;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
@@ -47,9 +52,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -68,7 +77,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     // Resources used by the login page so access is required before authenticating
     private static final String[] RESOURCES_NOT_SECURED = {
             // Anything below will only be used in development.
-            "/apps/sky/", "/apps/uni/", "/apps/ext/", "/api/apps/security/acs"};
+            "/apps/sky/", "/apps/uni/", "/apps/ext/", "/api/apps/security/acs", "/api/apps/saml/v2/logout"};
 
     // No caching for index.html files, so that authentication will be verified first;
     // Note that resources used in these files are still cached
@@ -96,6 +105,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile SamlRequestService samlRequestService;
+    private volatile TokenService<UserJWT> tokenService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -172,6 +182,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.samlRequestService = samlRequestService;
     }
 
+    @Reference
+    public void setTokenService(TokenService<UserJWT> tokenService) {
+        this.tokenService = tokenService;
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -184,6 +199,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
+                bind(TokenService.class).toInstance(tokenService);
             }
         });
         timeout = getIntParameter(TIMEOUT, context, 300);
@@ -220,6 +236,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         } finally {
             thread.setContextClassLoader(loader);
         }
+
+        Optional<KeyStoreImpl> keyStore = getKeyPair();
+        keyStore.ifPresent(store -> tokenService.initialize(dataVaultService.decrypt(store.getPublicKey()), dataVaultService.decrypt(store.getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeout));
     }
 
     public void createNewTokenKey(String... args) {
@@ -431,9 +450,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
-        TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
-                .getRemoteAddr());
-        return handleTokenValidation(validation, tokenCookie.getValue(), request, response);
+//        TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
+//                .getRemoteAddr());
+        TokenValidation validation = null;
+        try {
+            validation = tokenService.validateSignedJWT(SignedJWT.parse(tokenCookie.getValue()));
+        } catch (JOSEException | ParseException e) {
+            e.printStackTrace();
+        }
+        return handleTokenValidation(Objects.requireNonNull(validation), tokenCookie.getValue(), request, response);
     }
 
     private boolean handleTokenValidation(TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
@@ -460,8 +485,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
-        TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
-        return handleTokenValidation(tokenValidation, token, request, response);
+//        TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
+        TokenValidation tokenValidation = null;
+        try {
+            tokenValidation = tokenService.validateSignedJWT(SignedJWT.parse(token));
+        } catch (JOSEException | ParseException e) {
+            e.printStackTrace();
+        }
+        return handleTokenValidation(Objects.requireNonNull(tokenValidation), token, request, response);
     }
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
@@ -472,7 +503,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             User returnedUserByAuthentication = user.get();
             //required because user returned by auth has not yet lastSuccessfulLogin set.... This is a vamp. the login mechanism should be changed.
             User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
-            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
+            UserJWT userJWT = null;
+            try {
+                userJWT = tokenService.createUserJWT(usr, createCustomClaimsForUser(usr, 0));
+            } catch (JOSEException e) {
+                e.printStackTrace();
+            }
+//            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
+            String token = Objects.requireNonNull(userJWT).getSignedJWT().serialize();
             response.addCookie(createTokenCookie(token, "/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
@@ -606,6 +644,32 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         stringBuilder.append(URLEncoder.encode(requestUrl, "UTF-8").trim());
 
         return stringBuilder.toString();
+    }
+
+    public Map<String, Object> createCustomClaimsForUser(final User user, long count) {
+        List<Group> userGroups = user.getGroups();
+        List<RoleClaimInfo> roles = new ArrayList<>();
+        List<String> privileges = new ArrayList<>();
+        for (Group group : userGroups) {
+
+            group.getPrivileges().forEach((key, value) -> {
+                if (key.equals("BPM") || key.equals("YFN"))
+                    value.forEach(p -> privileges.add(p.getName()));
+            });
+
+            privileges.add("privilege.public.api.rest");
+            privileges.add("privilege.pulse.public.api.rest");
+            privileges.add("privilege.view.userAndRole");
+
+            roles.add(new RoleClaimInfo(group.getId(), group.getName()));
+        }
+
+        final HashMap<String, Object> result = new HashMap<>();
+        result.put("username", user.getName());
+        result.put("roles", roles);
+        result.put("privileges", privileges);
+        result.put("cnt", count);
+        return result;
     }
 
 }

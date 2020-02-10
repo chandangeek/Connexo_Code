@@ -39,10 +39,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 @Component(
-        name = "com.elster.jupiter.http.whiteboard.InMemoryCacheBasedTokenService",
+        name = "com.elster.jupiter.http.whiteboard.token.InMemoryCacheBasedTokenService",
         property = {
                 "name=" + InMemoryCacheBasedTokenService.SERVICE_NAME
         },
@@ -59,7 +60,7 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
 
     private volatile UserService userService;
 
-    private volatile Cache<User, UserJWT> CASHE;
+    private volatile Cache<UUID, UserJWT> CASHE;
 
     private KeyFactory keyFactory;
 
@@ -112,7 +113,8 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
     @Override
     public UserJWT createUserJWT(User user, Map<String, Object> customClaims) throws JOSEException {
         JWTClaimsSet claimsSet = new JWTClaimsSet();
-        claimsSet.setJWTID(UUID.randomUUID().toString());
+        final UUID jwtId = UUID.randomUUID();
+        claimsSet.setJWTID(jwtId.toString());
         claimsSet.setSubject(Long.toString(user.getId()));
         claimsSet.setIssuer(ISSUER_NAME);
         claimsSet.setIssueTime(new Date());
@@ -125,7 +127,7 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
                 Instant.ofEpochMilli(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME * 1000)
         );
 
-        CASHE.put(user, userJWT);
+        CASHE.put(jwtId, userJWT);
 
         return userJWT;
     }
@@ -139,25 +141,25 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
 
 
     @Override
-    public UserJWT getUserJWT(final User user) {
-        return CASHE.getIfPresent(user);
+    public UserJWT getUserJWT(final UUID jwtId) {
+        return CASHE.getIfPresent(jwtId);
     }
 
     @Override
     public TokenValidation validateSignedJWT(final SignedJWT signedJWT) throws JOSEException, ParseException {
         final ReadOnlyJWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
 
-        final User user = verifyUserAssignedToThisJWT(Long.parseLong(jwtClaimsSet.getSubject()));
+        final User user = getAssociatedUser(Long.parseLong(jwtClaimsSet.getSubject()));
 
         final boolean result = Objects.nonNull(user)
-                & verifyJWTSignature(signedJWT)
-                & verifyJWTIssuer(jwtClaimsSet.getIssuer())
-                & verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime());
+                && verifyJWTSignature(signedJWT)
+                && verifyJWTIssuer(jwtClaimsSet.getIssuer())
+                && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime());
 
         return new TokenValidation(result, user, signedJWT.serialize());
     }
 
-    private User verifyUserAssignedToThisJWT(final long userId) {
+    private User getAssociatedUser(final long userId) {
         return userService.getLoggedInUser(userId).orElse(null);
     }
 
@@ -175,16 +177,30 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
     }
 
     @Override
-    public void invalidateUserJWT(final User user) {
-        CASHE.invalidate(user);
+    public void invalidateUserJWT(final UUID jwtId) {
+        CASHE.invalidate(jwtId);
+    }
+
+    @Override
+    public void invalidateAllUserJWTsForUser(final User user) {
+        final List<UUID> userJWTS = CASHE.asMap().entrySet().stream()
+                .filter(uuidUserJWTEntry -> filterUserJWTEntryByUser(uuidUserJWTEntry, user))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        CASHE.invalidateAll(userJWTS);
+    }
+
+    private boolean filterUserJWTEntryByUser(final Map.Entry<UUID, UserJWT> userJWTEntry, final User user) {
+        return userJWTEntry.getValue().getUser().equals(user);
     }
 
     public Map<String, Object> createCustomClaimsForUser(final User user, long count) {
         List<Group> userGroups = user.getGroups();
         List<RoleClaimInfo> roles = new ArrayList<>();
         List<String> privileges = new ArrayList<>();
-        for (Group group : userGroups) {
 
+        userGroups.forEach(group -> {
             group.getPrivileges().forEach((key, value) -> {
                 if (key.equals("BPM") || key.equals("YFN"))
                     value.forEach(p -> privileges.add(p.getName()));
@@ -195,7 +211,7 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
             privileges.add("privilege.view.userAndRole");
 
             roles.add(new RoleClaimInfo(group.getId(), group.getName()));
-        }
+        });
 
         final HashMap<String, Object> result = new HashMap<>();
         result.put("username", user.getName());

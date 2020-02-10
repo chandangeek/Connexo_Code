@@ -1,5 +1,6 @@
 package com.elster.jupiter.http.whiteboard;
 
+import aQute.bnd.annotation.ProviderType;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 
@@ -7,6 +8,7 @@ import org.opensaml.saml.saml2.core.LogoutResponse;
  * Use this interface to define your own
  * implementation of SAML Single Logout Flow.
  */
+@ProviderType
 public interface SAMLSingleLogoutService {
 
     /**
