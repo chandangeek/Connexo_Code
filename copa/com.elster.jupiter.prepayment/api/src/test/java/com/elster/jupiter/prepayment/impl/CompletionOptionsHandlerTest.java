@@ -175,7 +175,7 @@ public class CompletionOptionsHandlerTest {
     }
 
     @Test
-    @Expected(value = IllegalStateException.class, message = "Could not find service call with ID 1.")
+    @Expected(value = IllegalStateException.class, message = "Couldn't find service call with ID 1.")
     public void testProcessServiceCallNotFound() throws Exception {
         when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.empty());
 
@@ -210,7 +210,7 @@ public class CompletionOptionsHandlerTest {
     }
 
     @Test
-    @Expected(value = IllegalArgumentException.class, message = "Not possible to send back the response, as the callback uri was not specified.")
+    @Expected(value = IllegalArgumentException.class, message = "Not possible to send back the response, as the callback uri wasn't specified.")
     public void testInvalidCallBackURI() throws Exception {
         when(contactorOperationDomainExtension.providedResponse()).thenReturn(PROVIDED_RESPONSE);
         when(contactorOperationDomainExtension.getCallback()).thenReturn(null);
