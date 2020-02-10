@@ -61,6 +61,7 @@ public class ActionResource extends BaseResource {
                 .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds, issueReason))
                 .filter(at -> filterByIssueRuleTemplateId(at, ruleTemplateParam))
                 .map(issueActionType -> actionInfoFactory.asInfo(issueActionType, reasonParam, issueType.orElse(null), issueReason.orElse(null)))
+                .sorted(Comparator.comparing(a -> a.name))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);

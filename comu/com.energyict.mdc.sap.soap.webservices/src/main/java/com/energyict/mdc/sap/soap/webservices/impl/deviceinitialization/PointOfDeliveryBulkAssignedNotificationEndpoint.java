@@ -12,6 +12,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageID;
@@ -78,15 +79,15 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
                         log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(message.deviceId));
                     }
                 } else {
-                    log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+                    log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(message.getMissingFields()));
                 }
             });
         } else {
-            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(bulkMsg.getMissingFields()));
         }
     }
 
-    private class PodBulkMessage {
+    private class PodBulkMessage extends AbstractSapMessage {
         private String requestId;
         private String uuid;
         private List<PodMessage> podMessages = new ArrayList<>();
@@ -94,15 +95,14 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
         private PodBulkMessage(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
             requestId = getRequestId(msg);
             uuid = getUuid(msg);
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             msg.getSmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationMessage()
                     .forEach(message -> {
                         PodMessage podMsg = new PodMessage(message);
                         podMessages.add(podMsg);
                     });
-        }
-
-        private boolean isValid() {
-            return requestId != null || uuid != null;
         }
 
         private String getRequestId(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
@@ -122,17 +122,20 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
         }
     }
 
-    private class PodMessage {
+    private class PodMessage extends AbstractSapMessage {
+        private static final String POD_ID_XML_NAME = "UtilitiesPointOfDeliveryPartyID";
         private String deviceId;
         private String podId;
 
         private PodMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             deviceId = getDeviceId(msg);
             podId = getPodId(msg);
-        }
-
-        private boolean isValid() {
-            return deviceId != null && podId != null;
+            if (deviceId == null) {
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
+            }
+            if (podId == null) {
+                addMissingField(POD_ID_XML_NAME);
+            }
         }
 
         private String getDeviceId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
