@@ -98,7 +98,7 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can''t change the load profile configuration of an existing channel configuration"),
     CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(11025, Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
     CHANNEL_SPEC_OVERFLOW_VALUE_INVALID(11026, Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be larger than 0 and smaller than " + Integer.MAX_VALUE),
-    CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_SIX(11027, Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED, "The maximum value is 6."),
+    CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_SIX(11027, Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED, "The maximum value is {max}."),
     DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required"),
     DEVICE_CONFIGURATION_DEVICE_TYPE_IS_REQUIRED(12002, "deviceConfig.deviceType.required", "The device type of the device configuration is required"),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_DELETE(12003, "deviceConfig.active", "You can''t remove an active device configuration"),

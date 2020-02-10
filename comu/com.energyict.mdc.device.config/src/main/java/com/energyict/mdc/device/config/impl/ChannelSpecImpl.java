@@ -81,7 +81,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     private final Reference<ChannelType> channelType = ValueReference.absent();
     private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
-    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED + "}")
+    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED  + "}")
     private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
