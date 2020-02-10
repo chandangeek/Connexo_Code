@@ -14,10 +14,8 @@ import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -47,7 +45,6 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.TimeUtils;
 import com.energyict.mdc.common.device.config.ChannelSpec;
-import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
@@ -302,6 +299,11 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Override
     public boolean isAnyLrnPresent(long deviceId) {
         return isAnyRegisterLrn(deviceId) || isAnyChannelLrn(deviceId);
+    }
+
+    @Override
+    public boolean isAnyLrnPresentForDate(long deviceId, Instant dateTime) {
+        return isAnyRegisterLrnForDate(deviceId, dateTime) || isAnyChannelLrnForDate(deviceId, dateTime);
     }
 
     @Override
@@ -722,6 +724,27 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .findAny()
+                .isPresent();
+    }
+
+    private boolean isAnyRegisterLrnForDate(long deviceId, Instant date) {
+        return getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceRegisterSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(date))
+                .findAny()
+                .isPresent();
+    }
+
+
+    private boolean isAnyChannelLrnForDate(long deviceId, Instant date) {
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(date))
                 .findAny()
                 .isPresent();
     }
