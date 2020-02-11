@@ -408,8 +408,8 @@ public class DeviceTypeResource {
     private LifeCycleChangeInfo createChangeCreationRulesInfo(String message, DeviceTypeInfo deviceTypeInfo, List<String> alarmRules, List<String> issueRules) {
         return new LifeCycleChangeInfo(message,
                 deviceTypeInfo,
-                thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ALARM_RULES).format(String.join(", ", alarmRules)),
-                thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ISSUE_RULES).format(String.join(", ", issueRules)));
+                alarmRules.size() > 0 ? thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ALARM_RULES).format(String.join(", ", alarmRules)) : "",
+                issueRules.size() > 0 ? thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ISSUE_RULES).format(String.join(", ", issueRules)) : "");
     }
 
 

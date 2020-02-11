@@ -16,6 +16,6 @@ public class LifeCycleChangeInfo {
     public LifeCycleChangeInfo(String message, DeviceTypeInfo deviceType, String... affectedRules) {
         this.message = message;
         this.deviceType = deviceType;
-        this.affectedRules = Arrays.stream(affectedRules).collect(Collectors.toList());
+        this.affectedRules = Arrays.stream(affectedRules).filter(rule -> !rule.isEmpty()).collect(Collectors.toList());
     }
 }
