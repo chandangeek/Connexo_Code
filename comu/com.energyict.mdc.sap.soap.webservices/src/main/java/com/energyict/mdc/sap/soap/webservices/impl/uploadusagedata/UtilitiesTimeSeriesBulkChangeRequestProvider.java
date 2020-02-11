@@ -183,6 +183,16 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         return null;
     }
 
+    @Override
+    String createCustomInfo(List<UtilsTmeSersERPItmChgReqMsg> timeSeriesList) {
+        return timeSeriesList
+                .stream()
+                .map(UtilsTmeSersERPItmChgReqMsg::getUtilitiesTimeSeries)
+                .map(UtilsTmeSersERPItmChgReqUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue)
+                .collect(Collectors.joining(","));
+    }
+
     private BusinessDocumentMessageHeader createMessageHeader(String uuid, Instant now) {
         BusinessDocumentMessageHeader header = new BusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));

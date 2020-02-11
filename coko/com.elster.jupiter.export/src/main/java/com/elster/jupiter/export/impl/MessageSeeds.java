@@ -33,6 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}."),
     MISSING_INTERVAL(1020, "dataexport.item.missinginterval", "The interval(s) starting from {0} till {1} with missing data are not exported for item {2}", Level.INFO),
     MISSING_WINDOW(1021, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for item {2}", Level.INFO),
+    FIELD_TOO_LONG(1022, Keys.FIELD_TOO_LONG, "Field mustn''t exceed {max} characters."),
 
     SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported for item {2}", Level.INFO),
     SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO),
@@ -144,6 +145,7 @@ public enum MessageSeeds implements MessageSeed {
         String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
         String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
         String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
+        String FIELD_TOO_LONG = "FieldTooLong";
     }
 }
 

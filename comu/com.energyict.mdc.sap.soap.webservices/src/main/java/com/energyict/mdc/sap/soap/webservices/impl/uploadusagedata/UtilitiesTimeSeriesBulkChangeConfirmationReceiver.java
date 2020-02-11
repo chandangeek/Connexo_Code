@@ -11,7 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
@@ -26,6 +25,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchange
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmBulkChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmChgConfUtilsTmeSers;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
@@ -33,10 +33,13 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeConfirmationReceiver",
@@ -87,13 +90,48 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
             Optional<String> uuid = findReferenceUuid(confirmation);
             ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
                     .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
-            if (isConfirmed(confirmation)) {
-                dataExportServiceCallType.tryPassingServiceCall(serviceCall);
-            } else {
-                dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+            switch (getResultCode(confirmation)) {
+                case SUCCESSFUL:
+                    dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+                    break;
+                case PARTIALLY_SUCCESSFUL:
+                    List<String> successfulProfileIds = getSuccessfulProfileIds(confirmation);
+                    List<ServiceCall> successfulChildren = new ArrayList<>();
+                    serviceCall.findChildren().stream().forEach(child -> {
+                        List<String> extensionProfileIds = Arrays.asList(dataExportServiceCallType.getCustomInfoFromChildServiceCall(child).split(","));
+                        if (successfulProfileIds.containsAll(extensionProfileIds)) {
+                            successfulChildren.add(child);
+                        }
+                        successfulProfileIds.removeAll(extensionProfileIds);
+                    });
+                    dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, successfulChildren, getSeverestError(confirmation).orElse(null));
+                    break;
+                case FAILED:
+                    dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+                    break;
             }
             return null;
         });
+    }
+
+    private static List<String> getSuccessfulProfileIds(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+        return Optional.ofNullable(confirmation)
+                .map(UtilsTmeSersERPItmBulkChgConfMsg::getUtilitiesTimeSeriesERPItemChangeConfirmationMessage)
+                .map(List::stream)
+                .orElseGet(Stream::empty)
+                .filter(UtilitiesTimeSeriesBulkChangeConfirmationReceiver::isChildConfirmed)
+                .map(UtilsTmeSersERPItmChgConfMsg::getUtilitiesTimeSeries)
+                .map(UtilsTmeSersERPItmChgConfUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue)
+                .collect(Collectors.toList());
+    }
+
+    private static boolean isChildConfirmed(UtilsTmeSersERPItmChgConfMsg item) {
+        return Optional.ofNullable(item)
+                .map(UtilsTmeSersERPItmChgConfMsg::getLog)
+                .map(Log::getBusinessDocumentProcessingResultCode)
+                .filter(code -> code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
+                .isPresent();
     }
 
     private static List<UtilsTmeSersERPItmChgConfMsg> getChangeConfirmationMessages(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
@@ -119,12 +157,12 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
         return Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue);
     }
 
-    private static boolean isConfirmed(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+    private static ProcessingResultCode getResultCode(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .filter(Predicates.not(FAILURE_CODES::contains))
-                .isPresent();
+                .flatMap(ProcessingResultCode::fromCode)
+                .orElse(ProcessingResultCode.FAILED);
     }
 
     private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {

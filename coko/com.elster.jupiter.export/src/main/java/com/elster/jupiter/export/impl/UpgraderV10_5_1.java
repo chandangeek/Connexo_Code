@@ -27,6 +27,6 @@ public class UpgraderV10_5_1 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, VERSION);
-        dataExportServiceCallType.findOrCreate();
+        dataExportServiceCallType.findOrCreateParentType();
     }
 }

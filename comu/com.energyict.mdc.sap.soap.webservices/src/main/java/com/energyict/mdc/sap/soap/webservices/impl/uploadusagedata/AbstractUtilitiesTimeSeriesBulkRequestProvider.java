@@ -136,6 +136,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
 
+    abstract String createCustomInfo(List<TS> list);
+
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
     OptionalInt getNumberOfFractionDigits(ReadingTypeDataExportItem item) {
@@ -183,16 +185,14 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         for (Long key : listToSend) {
             seriesMultimap.removeAll(key)
                     .forEach(timeSeriesWrapper -> sendPartOfData(endPointConfiguration, context,
-                            timeSeriesWrapper.getTimeSeries(),
-                            Collections.singletonList(timeSeriesWrapper.getReadingTypeDataExportItem()),
+                            Collections.singletonList(timeSeriesWrapper),
                             now,
                             timeout)
                     );
         }
 
         long timeSeriesNumber = 0;
-        List<TS> timeSeriesListToSend = new ArrayList<>();
-        List<ReadingTypeDataExportItem> readingTypeDataExportItemListToSend = new ArrayList<>();
+        List<TimeSeriesWrapper<TS>> timeSeriesWrapperListToSend = new ArrayList<>();
         Set<Long> keys = seriesMultimap.keySet();
         while (!seriesMultimap.isEmpty()) {
             long diff = numberOfReadingsPerMsg - timeSeriesNumber;
@@ -203,17 +203,14 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             if (!key.isPresent()) {
                 /* No readings can be added to message. So send all that we already have in message */
                 sendPartOfData(endPointConfiguration, context,
-                        timeSeriesListToSend,
-                        readingTypeDataExportItemListToSend,
+                        timeSeriesWrapperListToSend,
                         now, timeout);
-                timeSeriesListToSend.clear();
-                readingTypeDataExportItemListToSend.clear();
+                timeSeriesWrapperListToSend.clear();
                 timeSeriesNumber = 0;
             } else {
                 List<TimeSeriesWrapper<TS>> timeSeriesWrapperList = seriesMultimap.get(key.get());
                 TimeSeriesWrapper<TS> timeSeriesWrapper = timeSeriesWrapperList.remove(0);
-                timeSeriesListToSend.addAll(timeSeriesWrapper.getTimeSeries());
-                readingTypeDataExportItemListToSend.add(timeSeriesWrapper.getReadingTypeDataExportItem());
+                timeSeriesWrapperListToSend.add(timeSeriesWrapper);
 
                 timeSeriesNumber = timeSeriesNumber + key.get();
                 if (timeSeriesWrapperList.isEmpty()) {
@@ -222,12 +219,10 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 if (seriesMultimap.isEmpty()) {
                     sendPartOfData(endPointConfiguration,
                             context,
-                            timeSeriesListToSend,
-                            readingTypeDataExportItemListToSend,
+                            timeSeriesWrapperListToSend,
                             now,
                             timeout);
-                    timeSeriesListToSend.clear();
-                    readingTypeDataExportItemListToSend.clear();
+                    timeSeriesWrapperListToSend.clear();
                     timeSeriesNumber = 0;
                 }
             }
@@ -235,13 +230,23 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     }
 
     private void sendPartOfData(EndPointConfiguration endPointConfiguration, ExportContext context,
-                                List<TS> timeSeries, List<ReadingTypeDataExportItem> exportData,
+                                List<TimeSeriesWrapper<TS>> timeSeriesWrappers,
                                 Instant now,
                                 TimeDuration timeout) {
         String uuid = UUID.randomUUID().toString();
         try {
+
+            Map<ReadingTypeDataExportItem, String> data = new HashMap<>();
+            List<TS> timeSeriesList = new ArrayList<>();
+            for (TimeSeriesWrapper<TS> ts : timeSeriesWrappers) {
+                List<TS> series = ts.getTimeSeries();
+                data.put(ts.getReadingTypeDataExportItem(), createCustomInfo(series));
+                timeSeriesList.addAll(series);
+            }
+
             SetMultimap<String, String> values = HashMultimap.create();
-            MSG message = createMessageFromTimeSeries(timeSeries, uuid, values, now);
+
+            MSG message = createMessageFromTimeSeries(timeSeriesList, uuid, values, now);
             if (message != null) {
                 Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                         .toEndpoints(endPointConfiguration)
@@ -253,7 +258,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 }
                 Optional.ofNullable(timeout)
                         .map(TimeDuration::getMilliSeconds)
-                        .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, exportData));
+                        .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, data));
             }
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
