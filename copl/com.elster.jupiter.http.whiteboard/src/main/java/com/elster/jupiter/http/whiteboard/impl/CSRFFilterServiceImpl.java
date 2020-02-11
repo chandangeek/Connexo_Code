@@ -42,8 +42,10 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     private static final String PUT = "PUT";
     private static final String DELETE = "DELETE";
 
-
     private volatile CSRFService csrfService;
+
+    public CSRFFilterServiceImpl(){
+    }
 
     @Inject
     public CSRFFilterServiceImpl(CSRFService csrfService){
