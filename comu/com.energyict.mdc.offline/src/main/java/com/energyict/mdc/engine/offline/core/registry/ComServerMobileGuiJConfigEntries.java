@@ -23,11 +23,12 @@ public class ComServerMobileGuiJConfigEntries {
     private static final String TEMP_SYSTEM_FILES_DIRECTORY = "tempsystemfilesdirectory";
     private static final String TEMP_DATA_FILES_DIRECTORY = "tempdatafilesdirectory";
     private static final String DATA_DIRECTORY = "data";
+    private static final String SYSTEM_DIRECTORY = "system";
 
     static {
-        map.put(SYSTEM_FILES_DIRECTORY, new ConfigEntry(SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
+        map.put(SYSTEM_FILES_DIRECTORY, new ConfigEntry(SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + SYSTEM_DIRECTORY));
         map.put(DATA_FILES_DIRECTORY, new ConfigEntry(DATA_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForDataFiles"),ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
-        map.put(TEMP_SYSTEM_FILES_DIRECTORY, new ConfigEntry(TEMP_SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
+        map.put(TEMP_SYSTEM_FILES_DIRECTORY, new ConfigEntry(TEMP_SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + SYSTEM_DIRECTORY));
         map.put(TEMP_DATA_FILES_DIRECTORY, new ConfigEntry(TEMP_DATA_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForDataFiles"),ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
     }
 
@@ -37,6 +38,6 @@ public class ComServerMobileGuiJConfigEntries {
 
     static public String getWorkingDir() {
         String connexoHome = System.getProperty("connexo.home", "");
-        return  new File(connexoHome).getAbsolutePath()+ "\\";
+        return  new File(connexoHome).getAbsolutePath()+ "\\store\\";
     }
 }

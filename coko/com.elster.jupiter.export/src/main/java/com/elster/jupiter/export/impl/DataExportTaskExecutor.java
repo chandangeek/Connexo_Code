@@ -29,7 +29,6 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.streams.Predicates;
 
 import java.nio.file.Path;
 import java.time.Clock;
@@ -182,10 +181,21 @@ class DataExportTaskExecutor implements TaskExecutor {
         if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
-                        .filter(Predicates.not(dataSendingStatus::isFailed))
-                        .peek(item -> {
-                            item.setLastExportedDate(occurrence.getTriggerTime());
-                            occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedPeriodEnd(s.getExportedDataInterval().upperEndpoint()));
+                        .filter(item -> {
+                            boolean needToUpdate = false;
+                            if (!dataSendingStatus.isFailedForNewData(item) && !item.isExportPostponed()) {
+                                // move lastExportedPeriodEnd not to send these data as 'new' anymore
+                                // if we move lastExportedDate as well, unsent changed data will be lost next time
+                                occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedPeriodEnd(s.getExportedDataInterval().upperEndpoint()));
+                                needToUpdate = true;
+                            }
+                            if (!dataSendingStatus.isFailedForChangedData(item)) {
+                                // move lastExportedDate not to send these changed data anymore
+                                // if we move lastExportedPeriodEnd as well, unsent new data will be lost next time
+                                item.setLastExportedDate(occurrence.getTriggerTime());
+                                needToUpdate = true;
+                            }
+                            return needToUpdate;
                         })
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();

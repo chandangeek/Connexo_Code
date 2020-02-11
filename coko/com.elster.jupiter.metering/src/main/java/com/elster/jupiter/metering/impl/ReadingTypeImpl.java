@@ -69,94 +69,100 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     }
 
     // persistent fields
-	private String mRID;
-	private String aliasName;
-	private String fullAliasName;
+    private String mRID;
+    private long id;
+    private String aliasName;
+    private String fullAliasName;
     private String description;
     private boolean active;
-	private long version;
-	@SuppressWarnings("unused")
-	private Instant createTime;
-	@SuppressWarnings("unused")
-	private Instant modTime;
-	@SuppressWarnings("unused")
-	private String userName;
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
     private boolean equidistant;
 
-	// transient fields
-	private MacroPeriod macroPeriod;
-	private Aggregate aggregate;
-	private TimeAttribute measuringPeriod;
-	private Accumulation accumulation;
-	private FlowDirection flowDirection;
-	private com.elster.jupiter.cbo.Commodity commodity;
-	private MeasurementKind measurementKind;
-	private RationalNumber interharmonic;
-	private RationalNumber argument;
-	private int tou;
-	private int cpp;
-	private int consumptionTier;
-	private Phase phases;
-	private MetricMultiplier multiplier;
-	private ReadingTypeUnit unit;
-	private Currency currency;
+    // transient fields
+    private MacroPeriod macroPeriod;
+    private Aggregate aggregate;
+    private TimeAttribute measuringPeriod;
+    private Accumulation accumulation;
+    private FlowDirection flowDirection;
+    private com.elster.jupiter.cbo.Commodity commodity;
+    private MeasurementKind measurementKind;
+    private RationalNumber interharmonic;
+    private RationalNumber argument;
+    private int tou;
+    private int cpp;
+    private int consumptionTier;
+    private Phase phases;
+    private MetricMultiplier multiplier;
+    private ReadingTypeUnit unit;
+    private Currency currency;
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
-	private transient Optional<ReadingType> calculatedReadingType = Optional.empty();
+    private transient Optional<ReadingType> calculatedReadingType = Optional.empty();
 
     @Inject
-	ReadingTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
 
-	ReadingTypeImpl init(String mRID, String aliasName) {
-		this.mRID = mRID;
-		this.aliasName = aliasName;
-		this.active = true;
-		setTransientFields();
-		buildFullAliasName();
+    ReadingTypeImpl init(String mRID, String aliasName) {
+        this.mRID = mRID;
+        this.aliasName = aliasName;
+        this.active = true;
+        setTransientFields();
+        buildFullAliasName();
         return this;
-	}
+    }
 
-	static Currency getCurrency(int isoCode, Thesaurus thesaurus) {
-		if (isoCode == 0) {
-			isoCode = 999;
-		}
-		for (Currency each : Currency.getAvailableCurrencies()) {
-			if (each.getNumericCode() == isoCode) {
-				return each;
-			}
-		}
-		throw new IllegalCurrencyCodeException(thesaurus, isoCode);
-	}
+    static Currency getCurrency(int isoCode, Thesaurus thesaurus) {
+        if (isoCode == 0) {
+            isoCode = 999;
+        }
+        for (Currency each : Currency.getAvailableCurrencies()) {
+            if (each.getNumericCode() == isoCode) {
+                return each;
+            }
+        }
+        throw new IllegalCurrencyCodeException(thesaurus, isoCode);
+    }
 
-	static int getCurrencyId(Currency currency) {
-		int result = currency.getNumericCode();
-		return result == 999 ? 0 : result;
-	}
+    static int getCurrencyId(Currency currency) {
+        int result = currency.getNumericCode();
+        return result == 999 ? 0 : result;
+    }
 
-	@Override
-	public void postLoad() {
-		setTransientFields();
-	}
+    @Override
+    public void postLoad() {
+        setTransientFields();
+    }
 
-	@Override
-	public String getMRID() {
-		return mRID;
-	}
+    @Override
+    public String getMRID() {
+        return mRID;
+    }
 
-	@Override
-	public String getAliasName() {
-		return aliasName;
-	}
+    @Override
+    public long getId() {
+        return id;
+    }
 
-	private void setTransientFields() {
-		String[] parts = mRID.split("\\.");
-		if (parts.length != MRID_FIELD_COUNT) {
-			throw new IllegalMRIDFormatException(thesaurus, mRID);
-		}
+    @Override
+    public String getAliasName() {
+        return aliasName;
+    }
+
+    private void setTransientFields() {
+        String[] parts = mRID.split("\\.");
+        if (parts.length != MRID_FIELD_COUNT) {
+            throw new IllegalMRIDFormatException(thesaurus, mRID);
+        }
         try {
             macroPeriod = MacroPeriod.get(parse(parts[MACRO_PERIOD]));
             aggregate = Aggregate.get(parse(parts[AGGREGATE]));
@@ -165,8 +171,8 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
             flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION]));
             commodity = com.elster.jupiter.cbo.Commodity.get(parse(parts[COMMODITY]));
             measurementKind = MeasurementKind.get(parse(parts[MEASUREMENT_KIND]));
-            interharmonic = asRational(parts,INTERHARMONIC_NUMERATOR,INTERHARMONIC_DENOMINATOR);
-            argument = asRational(parts,ARGUMENT_NUMERATOR,ARGUMENT_DENOMINATOR);
+            interharmonic = asRational(parts, INTERHARMONIC_NUMERATOR, INTERHARMONIC_DENOMINATOR);
+            argument = asRational(parts, ARGUMENT_NUMERATOR, ARGUMENT_DENOMINATOR);
             tou = parse(parts[TOU]);
             cpp = parse(parts[CPP]);
             consumptionTier = parse(parts[CONSUMPTION_TIER]);
@@ -174,104 +180,104 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
             multiplier = MetricMultiplier.with(parse(parts[MULTIPLIER]));
             unit = ReadingTypeUnit.get(parse(parts[UNIT]));
             currency = getCurrency(parse(parts[CURRENCY]), thesaurus);
-		} catch (IllegalEnumValueException | IllegalCurrencyCodeException | NumberFormatException e) {
-			throw new IllegalMRIDFormatException(mRID, e, thesaurus);
+        } catch (IllegalEnumValueException | IllegalCurrencyCodeException | NumberFormatException e) {
+            throw new IllegalMRIDFormatException(mRID, e, thesaurus);
         }
         equidistant = getIntervalLength().isPresent();
     }
 
-	private int parse(String intString) {
-		return Integer.parseInt(intString);
-	}
+    private int parse(String intString) {
+        return Integer.parseInt(intString);
+    }
 
-	private RationalNumber asRational(String[] parts , int numeratorOffset , int denominatorOffset) {
-		int numerator = parse(parts[numeratorOffset]);
-		int denominator = parse(parts[denominatorOffset]);
-		if (numerator == 0 && denominator == 0) {
-			return RationalNumber.NOTAPPLICABLE;
-		} else {
-			return new RationalNumber(numerator, denominator);
-		}
-	}
+    private RationalNumber asRational(String[] parts, int numeratorOffset, int denominatorOffset) {
+        int numerator = parse(parts[numeratorOffset]);
+        int denominator = parse(parts[denominatorOffset]);
+        if (numerator == 0 && denominator == 0) {
+            return RationalNumber.NOTAPPLICABLE;
+        } else {
+            return new RationalNumber(numerator, denominator);
+        }
+    }
 
-	public String getName() {
-		StringBuilder builder = new StringBuilder();
-		Holder<String> connector = first("").andThen(" ");
-		if (macroPeriod.isApplicable()) {
-			builder.append(connector.get()).append(macroPeriod.getDescription());
-		}
-		if (aggregate.isApplicable()) {
-			builder.append(connector.get()).append(aggregate.getDescription());
-		}
-		if (measuringPeriod.isApplicable()) {
-			builder.append(connector.get()).append(measuringPeriod.getDescription());
-		}
-		if (accumulation.isApplicable()) {
-			builder.append(connector.get()).append(accumulation.getDescription());
-		}
-		if (flowDirection.isApplicable()) {
-			builder.append(connector.get()).append(flowDirection.getDescription());
-		}
-		if (commodity.isApplicable()) {
-			builder.append(connector.get()).append(commodity.getDescription());
-		}
-		if (measurementKind.isApplicable()) {
-			builder.append(connector.get()).append(measurementKind.getDescription());
-		}
-		if (interharmonic.getDenominator() != 0) {
-			builder.append(connector.get()).append("Interharmonic: ").append(interharmonic);
-		}
-		if (argument.getDenominator() != 0) {
-			builder.append(connector.get()).append("Argument: ").append(argument);
-		}
-		if (tou > 0) {
-			builder.append(connector.get()).append("Tou: ").append(tou);
-		}
-		if (cpp > 0) {
-			builder.append(connector.get()).append("Cpp: ").append(cpp);
-		}
-		if (consumptionTier > 0) {
-			builder.append(connector.get()).append("Consumption Tier: ").append(consumptionTier);
-		}
-		if (phases.isApplicable()) {
-			builder.append(connector.get()).append(phases.getDescription());
-		}
-		if (unit.isApplicable()) {
-			builder.append(connector.get()).append('(');
-			builder.append(multiplier.getSymbol());
-			builder.append(unit.getSymbol());
-			builder.append(')');
-		}
-		if (getCurrencyId(currency) != 0) {
+    public String getName() {
+        StringBuilder builder = new StringBuilder();
+        Holder<String> connector = first("").andThen(" ");
+        if (macroPeriod.isApplicable()) {
+            builder.append(connector.get()).append(macroPeriod.getDescription());
+        }
+        if (aggregate.isApplicable()) {
+            builder.append(connector.get()).append(aggregate.getDescription());
+        }
+        if (measuringPeriod.isApplicable()) {
+            builder.append(connector.get()).append(measuringPeriod.getDescription());
+        }
+        if (accumulation.isApplicable()) {
+            builder.append(connector.get()).append(accumulation.getDescription());
+        }
+        if (flowDirection.isApplicable()) {
+            builder.append(connector.get()).append(flowDirection.getDescription());
+        }
+        if (commodity.isApplicable()) {
+            builder.append(connector.get()).append(commodity.getDescription());
+        }
+        if (measurementKind.isApplicable()) {
+            builder.append(connector.get()).append(measurementKind.getDescription());
+        }
+        if (interharmonic.getDenominator() != 0) {
+            builder.append(connector.get()).append("Interharmonic: ").append(interharmonic);
+        }
+        if (argument.getDenominator() != 0) {
+            builder.append(connector.get()).append("Argument: ").append(argument);
+        }
+        if (tou > 0) {
+            builder.append(connector.get()).append("Tou: ").append(tou);
+        }
+        if (cpp > 0) {
+            builder.append(connector.get()).append("Cpp: ").append(cpp);
+        }
+        if (consumptionTier > 0) {
+            builder.append(connector.get()).append("Consumption Tier: ").append(consumptionTier);
+        }
+        if (phases.isApplicable()) {
+            builder.append(connector.get()).append(phases.getDescription());
+        }
+        if (unit.isApplicable()) {
+            builder.append(connector.get()).append('(');
+            builder.append(multiplier.getSymbol());
+            builder.append(unit.getSymbol());
+            builder.append(')');
+        }
+        if (getCurrencyId(currency) != 0) {
             builder.append(connector.get());
-			builder.append('(');
-			builder.append(currency.getCurrencyCode());
-			builder.append(')');
-		}
-		return builder.toString();
-	}
+            builder.append('(');
+            builder.append(currency.getCurrencyCode());
+            builder.append(')');
+        }
+        return builder.toString();
+    }
 
-	@Override
-	public ReadingTypeCodeBuilder builder() {
-		return
-			ReadingTypeCodeBuilder.of(commodity)
-				.period(macroPeriod)
-				.aggregate(aggregate)
-				.period(measuringPeriod)
-				.accumulate(accumulation)
-				.flow(flowDirection)
-				.measure(measurementKind)
-				.harmonic((int) interharmonic.getNumerator(), (int) interharmonic.getDenominator())
-				.argument((int) argument.getNumerator(), (int) argument.getDenominator())
-				.tou(tou)
-				.cpp(cpp)
-				.tier(consumptionTier)
-				.phase(phases)
-				.in(multiplier,unit)
-				.currency(currency);
-	}
+    @Override
+    public ReadingTypeCodeBuilder builder() {
+        return
+                ReadingTypeCodeBuilder.of(commodity)
+                        .period(macroPeriod)
+                        .aggregate(aggregate)
+                        .period(measuringPeriod)
+                        .accumulate(accumulation)
+                        .flow(flowDirection)
+                        .measure(measurementKind)
+                        .harmonic((int) interharmonic.getNumerator(), (int) interharmonic.getDenominator())
+                        .argument((int) argument.getNumerator(), (int) argument.getDenominator())
+                        .tou(tou)
+                        .cpp(cpp)
+                        .tier(consumptionTier)
+                        .phase(phases)
+                        .in(multiplier, unit)
+                        .currency(currency);
+    }
 
-	@Override
+    @Override
     public String getDescription() {
         return description;
     }
@@ -288,12 +294,12 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 
     public void persist() {
         dataModel.mapper(ReadingType.class).persist(this);
-	}
+    }
 
-	@Override
-	public Optional<TemporalAmount> getIntervalLength() {
+    @Override
+    public Optional<TemporalAmount> getIntervalLength() {
         switch (getMacroPeriod()) {
-	        case YEARLY:
+            case YEARLY:
                 return Optional.of(Period.ofYears(1));
             case MONTHLY:
                 return Optional.of(Period.ofMonths(1));
@@ -326,23 +332,23 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 
     @Override
     public boolean isRegular() {
-    	return equidistant;
+        return equidistant;
     }
 
-	@Override
-	@XmlTransient
-	public Optional<ReadingType> getCalculatedReadingType() {
-		if (isCumulative() && !calculatedReadingType.isPresent()) {
-			ReadingTypeCodeBuilder builder = this.builder();
-			builder.accumulate(Accumulation.DELTADELTA);
-			calculatedReadingType = dataModel.mapper(ReadingType.class).getOptional(builder.code());
-		}
-		return calculatedReadingType;
-	}
+    @Override
+    @XmlTransient
+    public Optional<ReadingType> getCalculatedReadingType() {
+        if (isCumulative() && !calculatedReadingType.isPresent()) {
+            ReadingTypeCodeBuilder builder = this.builder();
+            builder.accumulate(Accumulation.DELTADELTA);
+            calculatedReadingType = dataModel.mapper(ReadingType.class).getOptional(builder.code());
+        }
+        return calculatedReadingType;
+    }
 
     @Override
     public Optional<ReadingType> getBulkReadingType() {
-        if (!isCumulative()){
+        if (!isCumulative()) {
             ReadingTypeCodeBuilder builder = this.builder();
             builder.accumulate(Accumulation.BULKQUANTITY);
             return dataModel.mapper(ReadingType.class).getOptional(builder.code());
@@ -350,28 +356,28 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         return Optional.empty();
     }
 
-	@Override
-	public boolean isBulkQuantityReadingType(ReadingType readingType) {
-		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
-		return
-			this.macroPeriod.equals(other.macroPeriod) &&
-			this.aggregate.equals(other.aggregate) &&
-			this.measuringPeriod.equals(other.measuringPeriod) &&
-			this.accumulation.equals(Accumulation.DELTADELTA) &&
-			(other.accumulation.isCumulative()) &
-			this.flowDirection.equals(other.flowDirection) &&
-			this.commodity.equals(other.commodity) &&
-			this.measurementKind.equals(other.measurementKind) &&
-			this.interharmonic.equals(other.interharmonic) &&
-			this.argument.equals(other.argument) &&
-			this.tou == other.tou &&
-			this.cpp == other.cpp &&
-			this.consumptionTier == other.consumptionTier &&
-			this.phases.equals(other.phases) &&
-			this.multiplier.equals(other.multiplier) &&
-			this.unit.equals(other.unit) &&
-			this.currency.equals(other.currency);
-	}
+    @Override
+    public boolean isBulkQuantityReadingType(ReadingType readingType) {
+        ReadingTypeImpl other = (ReadingTypeImpl) readingType;
+        return
+                this.macroPeriod.equals(other.macroPeriod) &&
+                        this.aggregate.equals(other.aggregate) &&
+                        this.measuringPeriod.equals(other.measuringPeriod) &&
+                        this.accumulation.equals(Accumulation.DELTADELTA) &&
+                        (other.accumulation.isCumulative()) &
+                                this.flowDirection.equals(other.flowDirection) &&
+                        this.commodity.equals(other.commodity) &&
+                        this.measurementKind.equals(other.measurementKind) &&
+                        this.interharmonic.equals(other.interharmonic) &&
+                        this.argument.equals(other.argument) &&
+                        this.tou == other.tou &&
+                        this.cpp == other.cpp &&
+                        this.consumptionTier == other.consumptionTier &&
+                        this.phases.equals(other.phases) &&
+                        this.multiplier.equals(other.multiplier) &&
+                        this.unit.equals(other.unit) &&
+                        this.currency.equals(other.currency);
+    }
 
     @Override
     public long getVersion() {
@@ -379,84 +385,84 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     }
 
     @Override
-	public MacroPeriod getMacroPeriod() {
-		return macroPeriod;
-	}
+    public MacroPeriod getMacroPeriod() {
+        return macroPeriod;
+    }
 
     @Override
-	public Aggregate getAggregate() {
-		return aggregate;
-	}
+    public Aggregate getAggregate() {
+        return aggregate;
+    }
 
     @Override
-	public TimeAttribute getMeasuringPeriod() {
-		return measuringPeriod;
-	}
+    public TimeAttribute getMeasuringPeriod() {
+        return measuringPeriod;
+    }
 
     @Override
-	public Accumulation getAccumulation() {
-		return accumulation;
-	}
+    public Accumulation getAccumulation() {
+        return accumulation;
+    }
 
     @Override
-	public FlowDirection getFlowDirection() {
-		return flowDirection;
-	}
+    public FlowDirection getFlowDirection() {
+        return flowDirection;
+    }
 
     @Override
     public com.elster.jupiter.cbo.Commodity getCommodity() {
-		return commodity;
-	}
+        return commodity;
+    }
 
     @Override
-	public MeasurementKind getMeasurementKind() {
-		return measurementKind;
-	}
+    public MeasurementKind getMeasurementKind() {
+        return measurementKind;
+    }
 
     @Override
     public RationalNumber getInterharmonic() {
-		return interharmonic;
-	}
+        return interharmonic;
+    }
 
     @Override
     public RationalNumber getArgument() {
-		return argument;
-	}
+        return argument;
+    }
 
     @Override
-	public int getTou() {
-		return tou;
-	}
+    public int getTou() {
+        return tou;
+    }
 
     @Override
     public int getCpp() {
-		return cpp;
-	}
+        return cpp;
+    }
 
     @Override
-	public int getConsumptionTier() {
-		return consumptionTier;
-	}
+    public int getConsumptionTier() {
+        return consumptionTier;
+    }
 
     @Override
     public Phase getPhases() {
-		return phases;
-	}
+        return phases;
+    }
 
     @Override
-	public MetricMultiplier getMultiplier() {
-		return multiplier;
-	}
+    public MetricMultiplier getMultiplier() {
+        return multiplier;
+    }
 
     @Override
     public ReadingTypeUnit getUnit() {
-		return unit;
-	}
+        return unit;
+    }
 
     @Override
     public Currency getCurrency() {
-		return currency;
-	}
+        return currency;
+    }
 
     @Override
     public boolean isActive() {
@@ -480,58 +486,58 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     }
 
     static TimeAttribute extractTimeAttribute(String mRID) {
-		String[] parts = mRID.split("\\.");
-		if (parts.length != MRID_FIELD_COUNT) {
-			throw new IllegalArgumentException();
-		}
-		return TimeAttribute.get(Integer.parseInt(parts[2]));
-	}
+        String[] parts = mRID.split("\\.");
+        if (parts.length != MRID_FIELD_COUNT) {
+            throw new IllegalArgumentException();
+        }
+        return TimeAttribute.get(Integer.parseInt(parts[2]));
+    }
 
-	@Override
+    @Override
     public Quantity toQuantity(BigDecimal value) {
-    	if (value == null) {
-    		return null;
-    	} else {
-    		return this.unit.getUnit().amount(value,this.multiplier.getMultiplier());
-    	}
+        if (value == null) {
+            return null;
+        } else {
+            return this.unit.getUnit().amount(value, this.multiplier.getMultiplier());
+        }
     }
 
     private void buildFullAliasName() {
-		List<String> fullAliasNameElements = new ArrayList<>();
-		if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
-			fullAliasNameElements.add(ReadingTypeTranslationKeys.MeasuringPeriod.getFullAliasNameElement(this.getMeasuringPeriod(), this.thesaurus));
-		} else if (this.recurringMacroPeriods().contains(this.getMacroPeriod())) {
-			fullAliasNameElements.add(ReadingTypeTranslationKeys.MacroPeriod.getFullAliasNameElement(this.getMacroPeriod(), this.thesaurus));
-		}
-		fullAliasNameElements.add(ReadingTypeTranslationKeys.Commodity.getFullAliasNameElement(this.getCommodity(), this.thesaurus));
-		fullAliasNameElements.add(ReadingTypeTranslationKeys.Accumulation.getFullAliasNameElement(this.getAccumulation(), this.thesaurus));
-		fullAliasNameElements.add(this.getAliasName());
-		if (this.getUnit().isApplicable()) {
-			fullAliasNameElements.add(ReadingTypeTranslationKeys.UnitWithMultiplier.getFullAliasNameElement(this.getMultiplier(), this.getUnit(), this.thesaurus));
-		}
-		if (this.getPhases().isApplicable()) {
-			fullAliasNameElements.add(ReadingTypeTranslationKeys.Phase.getFullAliasNameElement(this.getPhases(), this.thesaurus));
-		}
-		if (this.getTou() != 0) {
-			fullAliasNameElements.add(ReadingTypeTranslationKeys.TimeOfUse.getFullAliasNameElement(this.getTou(), this.thesaurus));
-		}
-		fullAliasName = fullAliasNameElements.stream().filter(s -> !Checks.is(s).emptyOrOnlyWhiteSpace()).collect(Collectors.joining(" "));
-	}
+        List<String> fullAliasNameElements = new ArrayList<>();
+        if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
+            fullAliasNameElements.add(ReadingTypeTranslationKeys.MeasuringPeriod.getFullAliasNameElement(this.getMeasuringPeriod(), this.thesaurus));
+        } else if (this.recurringMacroPeriods().contains(this.getMacroPeriod())) {
+            fullAliasNameElements.add(ReadingTypeTranslationKeys.MacroPeriod.getFullAliasNameElement(this.getMacroPeriod(), this.thesaurus));
+        }
+        fullAliasNameElements.add(ReadingTypeTranslationKeys.Commodity.getFullAliasNameElement(this.getCommodity(), this.thesaurus));
+        fullAliasNameElements.add(ReadingTypeTranslationKeys.Accumulation.getFullAliasNameElement(this.getAccumulation(), this.thesaurus));
+        fullAliasNameElements.add(this.getAliasName());
+        if (this.getUnit().isApplicable()) {
+            fullAliasNameElements.add(ReadingTypeTranslationKeys.UnitWithMultiplier.getFullAliasNameElement(this.getMultiplier(), this.getUnit(), this.thesaurus));
+        }
+        if (this.getPhases().isApplicable()) {
+            fullAliasNameElements.add(ReadingTypeTranslationKeys.Phase.getFullAliasNameElement(this.getPhases(), this.thesaurus));
+        }
+        if (this.getTou() != 0) {
+            fullAliasNameElements.add(ReadingTypeTranslationKeys.TimeOfUse.getFullAliasNameElement(this.getTou(), this.thesaurus));
+        }
+        fullAliasName = fullAliasNameElements.stream().filter(s -> !Checks.is(s).emptyOrOnlyWhiteSpace()).collect(Collectors.joining(" "));
+    }
 
-	private Set<MacroPeriod> recurringMacroPeriods() {
+    private Set<MacroPeriod> recurringMacroPeriods() {
         return EnumSet.of(MacroPeriod.DAILY, MacroPeriod.MONTHLY, MacroPeriod.YEARLY);
     }
 
     @Override
     public String getFullAliasName() {
-	    if (this.fullAliasName == null) {
-		    this.buildFullAliasName();
-	    }
-	    return fullAliasName;
+        if (this.fullAliasName == null) {
+            this.buildFullAliasName();
+        }
+        return fullAliasName;
     }
 
-	@Override
-	public String toString() {
-		return getMRID();
-	}
+    @Override
+    public String toString() {
+        return getMRID();
+    }
 }

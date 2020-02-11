@@ -58,7 +58,16 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
      * Creates a new instance of ProfileGeneric
      */
     public ProfileGeneric(ProtocolLink protocolLink, ObjectReference objectReference) {
-        super(protocolLink, objectReference);
+        this(protocolLink, objectReference, false);
+    }
+
+    /**
+     * Enable this to use the DSMR4.0 selective access range descriptor.
+     * The from/to date will contain a specified DOW, specific hundredths of seconds, a specified timezone deviation.
+     */
+
+    public ProfileGeneric(ProtocolLink protocolLink, ObjectReference objectReference, boolean dsmr4SelectiveAccessFormat) {
+        super(protocolLink, objectReference, dsmr4SelectiveAccessFormat);
     }
 
     public DataContainer getBuffer() throws IOException {
@@ -79,14 +88,6 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         DataContainer dataContainer = new DataContainer();
         dataContainer.parseObjectList(responseData, protocolLink.getLogger());
         return dataContainer;
-    }
-
-    /**
-     * Enable this to use the DSMR4.0 selective access range descriptor.
-     * The from/to date will contain a specified DOW, specific hundredths of seconds, a specified timezone deviation.
-     */
-    public void setDsmr4SelectiveAccessFormat(boolean dsmr4SelectiveAccessFormat) {
-        this.dsmr4SelectiveAccessFormat = dsmr4SelectiveAccessFormat;
     }
 
     public DataContainer getBuffer(long fromCalendar, long toCalendar) throws IOException {

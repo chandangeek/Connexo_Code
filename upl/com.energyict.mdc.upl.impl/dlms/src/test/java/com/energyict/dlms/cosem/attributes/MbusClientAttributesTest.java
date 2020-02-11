@@ -1,5 +1,6 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.MBusClient;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -16,31 +17,31 @@ public class MbusClientAttributesTest {
 
     @Test
     public final void forVersionTest() {
-        assertEquals(0x00, MbusClientAttributes.LOGICAL_NAME.forVersion(version9).getShortName());
-        assertEquals(0x10, MbusClientAttributes.MBUS_PORT_REFERENCE.forVersion(version9).getShortName());
-        assertEquals(0x18, MbusClientAttributes.CAPTURE_DEFINITION.forVersion(version9).getShortName());
-        assertEquals(0x20, MbusClientAttributes.CAPTURE_PERIOD.forVersion(version9).getShortName());
-        assertEquals(0x28, MbusClientAttributes.PRIMARY_ADDRESS.forVersion(version9).getShortName());
-        assertEquals(0x30, MbusClientAttributes.IDENTIFICATION_NUMBER.forVersion(version9).getShortName());
-        assertEquals(0x38, MbusClientAttributes.MANUFACTURER_ID.forVersion(version9).getShortName());
-        assertEquals(0x40, MbusClientAttributes.VERSION.forVersion(version9).getShortName());
-        assertEquals(0x48, MbusClientAttributes.DEVICE_TYPE.forVersion(version9).getShortName());
-        assertEquals(0x50, MbusClientAttributes.ACCESS_NUMBER.forVersion(version9).getShortName());
-        assertEquals(0x58, MbusClientAttributes.STATUS.forVersion(version9).getShortName());
-        assertEquals(0x60, MbusClientAttributes.ALARM.forVersion(version9).getShortName());
+        assertEquals(0x00, MBusClientAttributes.LOGICAL_NAME.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x10, MBusClientAttributes.MBUS_PORT_REFERENCE.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x18, MBusClientAttributes.CAPTURE_DEFINITION.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x20, MBusClientAttributes.CAPTURE_PERIOD.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x28, MBusClientAttributes.PRIMARY_ADDRESS.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x30, MBusClientAttributes.IDENTIFICATION_NUMBER.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x38, MBusClientAttributes.MANUFACTURER_ID.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x40, MBusClientAttributes.VERSION.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x48, MBusClientAttributes.DEVICE_TYPE.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x50, MBusClientAttributes.ACCESS_NUMBER.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x58, MBusClientAttributes.STATUS.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
+        assertEquals(0x60, MBusClientAttributes.ALARM.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
 
-        assertEquals(0x00, MbusClientAttributes.LOGICAL_NAME.forVersion(version10).getShortName());
-        assertEquals(0x08, MbusClientAttributes.MBUS_PORT_REFERENCE.forVersion(version10).getShortName());
-        assertEquals(0x10, MbusClientAttributes.CAPTURE_DEFINITION.forVersion(version10).getShortName());
-        assertEquals(0x18, MbusClientAttributes.CAPTURE_PERIOD.forVersion(version10).getShortName());
-        assertEquals(0x20, MbusClientAttributes.PRIMARY_ADDRESS.forVersion(version10).getShortName());
-        assertEquals(0x28, MbusClientAttributes.IDENTIFICATION_NUMBER.forVersion(version10).getShortName());
-        assertEquals(0x30, MbusClientAttributes.MANUFACTURER_ID.forVersion(version10).getShortName());
-        assertEquals(0x38, MbusClientAttributes.VERSION.forVersion(version10).getShortName());
-        assertEquals(0x40, MbusClientAttributes.DEVICE_TYPE.forVersion(version10).getShortName());
-        assertEquals(0x48, MbusClientAttributes.ACCESS_NUMBER.forVersion(version10).getShortName());
-        assertEquals(0x50, MbusClientAttributes.STATUS.forVersion(version10).getShortName());
-        assertEquals(0x58, MbusClientAttributes.ALARM.forVersion(version10).getShortName());
+        assertEquals(0x00, MBusClientAttributes.LOGICAL_NAME.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x08, MBusClientAttributes.MBUS_PORT_REFERENCE.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x10, MBusClientAttributes.CAPTURE_DEFINITION.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x18, MBusClientAttributes.CAPTURE_PERIOD.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x20, MBusClientAttributes.PRIMARY_ADDRESS.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x28, MBusClientAttributes.IDENTIFICATION_NUMBER.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x30, MBusClientAttributes.MANUFACTURER_ID.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x38, MBusClientAttributes.VERSION.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x40, MBusClientAttributes.DEVICE_TYPE.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x48, MBusClientAttributes.ACCESS_NUMBER.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x50, MBusClientAttributes.STATUS.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
+        assertEquals(0x58, MBusClientAttributes.ALARM.forVersion(MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
     }
 
 }

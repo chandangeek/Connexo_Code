@@ -3,7 +3,15 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.Log;
@@ -15,66 +23,85 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.UUID;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
+import java.util.OptionalInt;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateMessageFactory {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
-    public CreateMessageFactory() {
+    CreateMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
+    public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MasterMeterReadingDocumentCreateRequestDomainExtension extension, ServiceCall childServiceCall, Instant now, String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
-        confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
+        confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now, senderBusinessSystemId));
 
-        requestMessage.getMeterReadingDocumentCreateMessages()
-                .forEach(message -> {
-                    if (!message.isValid()) {
-                        confirmationMessage
-                                .setLog(createLog(MessageSeeds.INVALID_METER_READING_DOCUMENT, message.getId()));
-                    } else if (!message.isSingleSupported()) {
-                        confirmationMessage
-                                .setLog(createLog(MessageSeeds.UNSUPPORTED_REASON_CODE, message.getId()));
-                    } else {
-                        confirmationMessage.setMeterReadingDocument(createBody(message));
-                    }
-                });
+        MeterReadingDocumentCreateRequestDomainExtension extensionChild = childServiceCall.getExtensionFor(new MeterReadingDocumentCreateRequestCustomPropertySet()).get();
+
+        if (childServiceCall.getState().equals(DefaultState.SUCCESSFUL)) {
+            confirmationMessage.setLog(createSuccessfulLog());
+        } else if (childServiceCall.getState().equals(DefaultState.FAILED) || childServiceCall.getState().equals(DefaultState.CANCELLED)) {
+            confirmationMessage.setLog(createFailedLog(extensionChild.getErrorMessage()));
+        }
+        confirmationMessage.setMeterReadingDocument(createBody(extensionChild.getMeterReadingDocumentId()));
 
         return confirmationMessage;
     }
 
     public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
-                                                         MessageSeeds messageSeeds, Instant now) {
+                                                         MessageSeeds messageSeeds,
+                                                         Instant now,
+                                                         String senderBusinessSystemId,
+                                                         Object... messageArgs) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
 
-        confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
-        confirmationMessage.setLog(createLog(messageSeeds));
-
+        confirmationMessage.setMessageHeader(createHeader(requestMessage.getId(), requestMessage.getUuid(), now, senderBusinessSystemId));
+        confirmationMessage.setLog(createFailedLog(messageSeeds.getDefaultFormat(messageArgs)));
+        requestMessage.getMeterReadingDocumentCreateMessages()
+                .forEach(message -> confirmationMessage.setMeterReadingDocument(createBody(message.getId())));
         return confirmationMessage;
     }
 
-    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
-        BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
-        messageID.setValue(requestMessage.getId());
+    private BusinessDocumentMessageHeader createHeader(String requestId, String requestUuid, Instant now, String senderBusinessSystemId) {
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-        messageHeader.setReferenceID(messageID);
-        UUID uuid = OBJECT_FACTORY.createUUID();
-        uuid.setValue(requestMessage.getUuid());
-        messageHeader.setReferenceUUID(uuid);
+        String uuid = java.util.UUID.randomUUID().toString();
+
+        if (!Strings.isNullOrEmpty(requestId)) {
+            BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
+            messageID.setValue(requestId);
+            messageHeader.setReferenceID(messageID);
+        }
+
+        messageHeader.setUUID(createUUID(uuid));
+        if (!Strings.isNullOrEmpty(requestUuid)) {
+            messageHeader.setReferenceUUID(createUUID(requestUuid));
+        }
+
         messageHeader.setCreationDateTime(now);
+        messageHeader.setSenderBusinessSystemID(senderBusinessSystemId);
+        messageHeader.setReconciliationIndicator(true);
+
 
         return messageHeader;
     }
 
+    private UUID createUUID(String uuid) {
+        UUID messageUUID = OBJECT_FACTORY.createUUID();
+        messageUUID.setValue(uuid);
+        return messageUUID;
+    }
 
-    private SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc createBody(MeterReadingDocumentCreateMessage message) {
+    private SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc createBody(String meterReadingDocumentId) {
         MeterReadingDocumentID meterReadingDocumentID = OBJECT_FACTORY.createMeterReadingDocumentID();
-        meterReadingDocumentID.setValue(message.getId());
+        meterReadingDocumentID.setValue(meterReadingDocumentId);
 
         SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc meterReadingDocument = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc();
         meterReadingDocument.setID(meterReadingDocumentID);
@@ -82,17 +109,50 @@ public class CreateMessageFactory {
         return meterReadingDocument;
     }
 
-    private Log createLog(MessageSeeds messageSeeds, Object... args) {
-        LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
-        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
-
-        LogItem logItem = OBJECT_FACTORY.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-        logItem.setCategoryCode(logItemCategoryCode);
-        logItem.setNote(messageSeeds.getDefaultFormat(args));
-
+    private Log createSuccessfulLog() {
         Log log = OBJECT_FACTORY.createLog();
-        log.getItem().add(logItem);
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(new Object[0]),
+                SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
+                null));
+        setMaximumLogItemSeverityCode(log);
+
         return log;
     }
+
+    private Log createFailedLog(String message) {
+        Log log = OBJECT_FACTORY.createLog();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        log.getItem().add(createLogItem(message, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                SeverityCode.ERROR.getCode(), PROCESSING_ERROR_CATEGORY_CODE));
+        setMaximumLogItemSeverityCode(log);
+
+        return log;
+    }
+
+    private LogItem createLogItem(String message, String typeId, String severityCode, String categoryCode) {
+        LogItem logItem = OBJECT_FACTORY.createLogItem();
+        if (!Strings.isNullOrEmpty(categoryCode)) {
+            LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
+            logItemCategoryCode.setValue(categoryCode);
+            logItem.setCategoryCode(logItemCategoryCode);
+        }
+        logItem.setSeverityCode(severityCode);
+        logItem.setTypeID(typeId);
+        logItem.setNote(message);
+
+        return logItem;
+    }
+
+    private void setMaximumLogItemSeverityCode(Log log) {
+        OptionalInt maxInt = log.getItem().stream().map(LogItem::getSeverityCode)
+                .filter(Predicates.not(Strings::isNullOrEmpty))
+                .mapToInt(Integer::parseInt)
+                .max();
+        if (maxInt.isPresent()) {
+            int value = maxInt.getAsInt();
+            log.setMaximumLogItemSeverityCode(Integer.toString(value));
+        }
+    }
+
 }

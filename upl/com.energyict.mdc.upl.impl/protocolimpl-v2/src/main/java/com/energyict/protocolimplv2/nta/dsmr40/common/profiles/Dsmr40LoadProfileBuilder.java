@@ -10,11 +10,11 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,16 +26,21 @@ import java.util.List;
  * @author khe
  * @since 19/12/2014 - 9:28
  */
-public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
+public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends LoadProfileBuilder<T> {
+
+    public static final ObisCode MBUS_LP1_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
+
+    // Gas Hourly load profile
+    public static final ObisCode MBUS_GAS_HOURLY_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.1.255");
 
     private boolean cumulativeCaptureTimeChannel = false;
 
     /**
      * Default constructor
      *
-     * @param meterProtocol the {@link #meterProtocol}
+     * @param meterProtocol the {com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol}
      */
-    public Dsmr40LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public Dsmr40LoadProfileBuilder(T meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 

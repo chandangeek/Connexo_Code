@@ -109,12 +109,12 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         List<FormattedExportData> formattedExportData = Stream.concat(
                 readings.stream()
                         .map(reading ->
-                                writeReading(reading, asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType))),
+                                writeReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : ValidationResult.NOT_VALIDATED)),
                 intervalBlocks.stream()
                         .map(IntervalBlock::getIntervals)
                         .flatMap(Collection::stream)
                         .map(reading ->
-                                writeReading(reading, asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType))))
+                                writeReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : ValidationResult.NOT_VALIDATED)))
                 .flatMap(Functions.asStream())
                 .map(line -> TextLineExportData.of(createStructureMarker(exportData, main, update), line))
                 .collect(Collectors.toList());

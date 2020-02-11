@@ -27,7 +27,6 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
@@ -77,8 +76,8 @@ public class FirmwareCampaignHandlerTest {
     private ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
     private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     private DeviceInFirmwareCampaign firmwareItem = mock(DeviceInFirmwareCampaign.class);
-    private FirmwareCampaign firmwareCampaign = createMockCampaign();
-    private FirmwareCampaign firmwareCampaign2 = createMockCampaign();
+    private FirmwareCampaignDomainExtension firmwareCampaign = createMockCampaign();
+    private ServiceCall parentSc = mock(ServiceCall.class);
 
     private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
     private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
@@ -92,11 +91,10 @@ public class FirmwareCampaignHandlerTest {
         when(firmwareVersion.getId()).thenReturn(2L);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
-        when(firmwareCampaign2.getFirmwareVersion()).thenReturn(firmwareVersion);
         when(firmwareService.getFirmwareCampaignService()).thenReturn(firmwareCampaignService);
         when(firmwareComTaskExecution.isFirmware()).thenReturn(true);
         when(firmwareCampaignService.getCampaignOn(firmwareComTaskExecution)).thenReturn(Optional.of(firmwareCampaign));
-        when(firmwareCampaignService.getCampaignOn(verificationComTaskExecution)).thenReturn(Optional.of(firmwareCampaign2));
+        when(firmwareCampaignService.getCampaignOn(verificationComTaskExecution)).thenReturn(Optional.of(firmwareCampaign));
         when(firmwareCampaignService.getFirmwareService()).thenReturn(firmwareService);
         when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochMilli(0));
         when(firmwareCampaignService.findActiveFirmwareItemByDevice(any())).thenReturn(Optional.of(firmwareItem));
@@ -106,6 +104,7 @@ public class FirmwareCampaignHandlerTest {
         when(firmwareItem.getServiceCall()).thenReturn(serviceCall);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(firmwareItem), QueryStream.class);
         when(firmwareCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
+        when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(firmwareCampaign));
         firmwareCampaignHandler = new FirmwareCampaignHandler(firmwareService, clock, serviceCallService, thesaurus, threadPrincipalService, transactionService);
     }
 
@@ -128,6 +127,9 @@ public class FirmwareCampaignHandlerTest {
         when(firmwareComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(FIRMWARE_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(firmwareComTaskExecution);
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        //  when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
@@ -139,6 +141,9 @@ public class FirmwareCampaignHandlerTest {
         when(firmwareComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(FIRMWARE_COMTASKEXECUTION_FAILED);
         when(event.getSource()).thenReturn(firmwareComTaskExecution);
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        // when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
@@ -147,12 +152,14 @@ public class FirmwareCampaignHandlerTest {
     public void testVerificationTaskCompletedSuccessful() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
-        when(firmwareCampaign2.isWithVerification()).thenReturn(true);
+        when(firmwareCampaign.isWithVerification()).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
         when(firmwareItem.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(true);
         when(firmwareItem.getDevice()).thenReturn(device);
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
@@ -161,11 +168,13 @@ public class FirmwareCampaignHandlerTest {
     public void testVerificationTaskCompletedFailed() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
-        when(firmwareCampaign2.isWithVerification()).thenReturn(true);
+        when(firmwareCampaign.isWithVerification()).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
         when(firmwareItem.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(false);
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
@@ -173,11 +182,13 @@ public class FirmwareCampaignHandlerTest {
     @Test
     public void testVerificationTaskFailed() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
-        when(firmwareCampaign2.isWithVerification()).thenReturn(true);
+        when(firmwareCampaign.isWithVerification()).thenReturn(true);
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_FAILED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
@@ -213,8 +224,8 @@ public class FirmwareCampaignHandlerTest {
         return comTaskExecution;
     }
 
-    private FirmwareCampaign createMockCampaign() {
-        FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
+    private FirmwareCampaignDomainExtension createMockCampaign() {
+        FirmwareCampaignDomainExtension firmwareCampaign = mock(FirmwareCampaignDomainExtension.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getCreationTime()).thenReturn(Instant.ofEpochSecond(111));

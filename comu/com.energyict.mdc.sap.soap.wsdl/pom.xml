@@ -6,8 +6,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>2.0.0-Heracles-SNAPSHOT</version>
-
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.sap.soap.wsdl</artifactId>
@@ -479,7 +478,7 @@
                             </wsdlFiles>
                             <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterBulkCreateRequest_C_In.wsdl</wsdlLocation>
                             <packageName>
-                                com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest
+                                com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest
                             </packageName>
                         </configuration>
                     </execution>

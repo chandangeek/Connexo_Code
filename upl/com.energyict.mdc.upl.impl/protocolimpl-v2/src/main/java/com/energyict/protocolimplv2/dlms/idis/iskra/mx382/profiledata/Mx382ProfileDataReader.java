@@ -6,11 +6,12 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
+import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.Mx382;
 
 /**
  * Created by cisac on 1/19/2016.
  */
-public class Mx382ProfileDataReader extends IDISProfileDataReader {
+public final class Mx382ProfileDataReader<T extends Mx382> extends IDISProfileDataReader<Mx382> {
 
     private static final ObisCode QUARTER_HOURLY_MAXDEMAND_LOAD_PROFILE = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode DAILY_MAXDEMAND_LOAD_PROFILE = ObisCode.fromString("0.0.98.2.0.255");
@@ -20,7 +21,7 @@ public class Mx382ProfileDataReader extends IDISProfileDataReader {
     private static final int PROFILE_STATUS_POWER_RETURNED = 0x40;
     private static final int PROFILE_STATUS_POWER_FAILURE = 0x80;
 
-    public Mx382ProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, long limitMaxNrOfDays) {
+    public Mx382ProfileDataReader(Mx382 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, long limitMaxNrOfDays) {
         super(protocol, limitMaxNrOfDays, collectedDataFactory, issueFactory);
         supportedLoadProfiles.add(QUARTER_HOURLY_MAXDEMAND_LOAD_PROFILE);
         supportedLoadProfiles.add(DAILY_MAXDEMAND_LOAD_PROFILE);

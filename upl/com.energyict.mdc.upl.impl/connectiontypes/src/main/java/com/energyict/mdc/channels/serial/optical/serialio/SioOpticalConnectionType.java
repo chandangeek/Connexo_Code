@@ -23,8 +23,13 @@ public class SioOpticalConnectionType extends SioSerialConnectionType implements
     public SioOpticalConnectionType() {
         super();
     }
+
     public SioOpticalConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
+    }
+
+    public boolean enableHHUSignOn() {
+        return true;
     }
 
 }

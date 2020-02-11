@@ -155,9 +155,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             '#mdc-security-accessor-key-type-combobox': {
                 change: me.keyTypeChanged
             },
-            '#mdc-security-accessor-jss-keytype-combobox': {
-                change: me.keySubTypeChange
-            },
             '#mdc-security-accessor-purpose-radio': {
                 change: me.purposeChanged
             },
@@ -520,12 +517,15 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 me.deviceType = deviceType;
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 view = Ext.widget('security-accessor-add-to-device-type-form', {deviceTypeId: deviceTypeId});
-                store.load();
-                store.on('load', function (store, records, success) {
-                      if (records === null || records.length === 0) {
-                           view.down('#btn-add-security-accessors').hide();
-                      }
-                 })
+                me.getApplication().on('changecontentevent', function(){
+                    store.on('load', function (store, records, success) {
+                          if (records === null || records.length === 0) {
+                               var btnAddSecurityAccessors = view && view.down('#btn-add-security-accessors');
+                               if (btnAddSecurityAccessors) btnAddSecurityAccessors.hide();
+                          }
+                    })
+                    store.load();
+                });
                 me.getApplication().fireEvent('changecontentevent', view);
             }
         });
@@ -852,12 +852,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-renew-capability-combobox').setRawValue(record.get('renewCapability'));
                             view.down('#mdc-security-accessor-label-end-point-combobox').setDisabled(false);
                             view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('label'));
-                            var keySubType = record.get('hsmJssKeyType');
-                            if (keySubType == 'HLSECRET' || keySubType == 'AES') {
-                                view.down('#mdc-security-accessor-key-size').setVisible(true);
-                                view.down('#mdc-security-accessor-key-size').setDisabled(false);
-                                view.down('#mdc-security-accessor-key-size').setValue(record.get('keySize'));
-                            }
+                            view.down('#mdc-security-accessor-key-size').setDisabled(false);
+                            view.down('#mdc-security-accessor-key-size').setValue(record.get('keySize'));
                             view.down('#mdc-security-accessor-isReversible-checkbox').setDisabled(false);
                             view.down('#mdc-security-accessor-isReversible-checkbox').setValue(record.get('isReversible'));
 
@@ -980,6 +976,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             importCapabiltyCombo = form.down('#mdc-security-accessor-import-capability-combobox'),
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
+            keySizeInput = form.down('#mdc-security-accessor-key-size');
             isReversibleCheckBox = form.down('#mdc-security-accessor-isReversible-checkbox'),
             isWrapper = form.down('#mdc-security-accessor-isWrapper-checkbox'),
 
@@ -993,6 +990,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             renewCapabiltyCombo.setVisible(true);
             labelEndPointCombo.setVisible(true);
             isReversibleCheckBox.setVisible(true);
+            keySizeInput.setVisible(true);
         }
         else {
             hsmJssKeyTypeCombo.setVisible(false);
@@ -1000,6 +998,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             renewCapabiltyCombo.setVisible(false);
             labelEndPointCombo.setVisible(false);
             isReversibleCheckBox.setVisible(false);
+            keySizeInput.setVisible(false);
         }
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
@@ -1031,18 +1030,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 }
             }, me, {single: true});
             keyEncryptionMethodStore.load();
-        }
-    },
-
-    keySubTypeChange: function(combobox, newValue, oldValue) {
-        var form = combobox.up('form'),
-            keySizeFieldInput = form.down('#mdc-security-accessor-key-size');
-
-        if (newValue == 'HLSECRET' || newValue == 'AES' ) {
-            keySizeFieldInput.setVisible(true);
-        }
-        else {
-            keySizeFieldInput.setVisible(false);
         }
     },
 

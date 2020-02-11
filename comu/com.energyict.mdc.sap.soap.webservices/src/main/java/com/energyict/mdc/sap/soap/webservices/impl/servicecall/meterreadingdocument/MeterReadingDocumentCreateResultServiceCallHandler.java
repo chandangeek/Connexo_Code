@@ -8,6 +8,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
@@ -30,6 +31,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
     private volatile Clock clock;
     private volatile MeteringService meteringService;
     private volatile WebServiceActivator webServiceActivator;
+    private volatile DeviceService deviceService;
 
     @Reference
     public void setClock(Clock clock) {
@@ -44,6 +46,11 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
     @Reference
     public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -104,7 +111,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
         if (domainExtension.isFutureCase() && domainExtension.getProcessingDate().isAfter(clock.instant())) {
             serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
         } else if (domainExtension.getChannelId() == null) {
-            serviceCall.log(LogLevel.SEVERE, "Channel/register id is null");
+            serviceCall.log(LogLevel.SEVERE, "The channel/register isn't found");
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
             Optional.of(domainExtension)
@@ -117,7 +124,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
     }
 
     private SAPMeterReadingDocumentCollectionData createCollectionDataBuilder(ServiceCall serviceCall) {
-        return SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock, webServiceActivator.getSapProperties())
+        return SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock, webServiceActivator.getSapProperties(), deviceService)
                 .from(serviceCall)
                 .build();
     }

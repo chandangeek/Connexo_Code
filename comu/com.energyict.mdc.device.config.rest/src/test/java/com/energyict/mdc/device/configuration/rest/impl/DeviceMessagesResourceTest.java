@@ -122,6 +122,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         privileges.add(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
         when(deviceConfiguration.getDeviceMessageEnablements()).thenReturn(Arrays.asList(enamblement));
         when(enamblement.getDeviceMessageId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME);
+        when(enamblement.getDeviceMessageDbValue()).thenReturn(DeviceMessageId.CLOCK_SET_TIME.dbValue());
         when(enamblement.getUserActions()).thenReturn(privileges);
 
         String response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().get(String.class);
@@ -276,7 +277,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         Set<DeviceMessageUserAction> privileges = new HashSet<>();
         privileges.add(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
         when(deviceConfiguration.getDeviceMessageEnablements()).thenReturn(Arrays.asList(enablement));
-        when(enablement.getDeviceMessageId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME);
+        when(enablement.getDeviceMessageDbValue()).thenReturn(DeviceMessageId.CLOCK_SET_TIME.dbValue());
         when(enablement.getUserActions()).thenReturn(privileges);
 
         DeviceMessageEnablementInfo requestBody = new DeviceMessageEnablementInfo();

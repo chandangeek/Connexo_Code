@@ -55,7 +55,7 @@ public abstract class AbstractCimChannel implements CimChannel {
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReading baseReading) {
         ReadingQualityRecordImpl readingQualityRecord = doCreateReadingQualityRecord(type, baseReading);
-        readingQualityRecord.doSave();
+        readingQualityRecord.save();
         return readingQualityRecord;
     }
 
@@ -66,14 +66,14 @@ public abstract class AbstractCimChannel implements CimChannel {
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, Instant timestamp) {
         ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, this, timestamp);
-        readingQualityRecord.doSave();
+        readingQualityRecord.save();
         return readingQualityRecord;
     }
 
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReading baseReading, String comment) {
         ReadingQualityRecordImpl readingQualityRecord = doCreateReadingQualityRecord(type, baseReading, comment);
-        readingQualityRecord.doSave();
+        readingQualityRecord.save();
         return readingQualityRecord;
     }
 

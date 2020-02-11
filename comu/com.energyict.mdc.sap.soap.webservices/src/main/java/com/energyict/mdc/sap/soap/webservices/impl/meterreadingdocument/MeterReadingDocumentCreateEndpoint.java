@@ -3,9 +3,11 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmartMeterMeterReadingDocumentERPCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
@@ -18,17 +20,22 @@ import java.util.Optional;
 public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint implements SmartMeterMeterReadingDocumentERPCreateRequestCIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
+    private final WebServiceActivator webServiceActivator;
+    private final Thesaurus thesaurus;
 
     @Inject
-    MeterReadingDocumentCreateEndpoint(ServiceCallCommands serviceCallCommands) {
+    MeterReadingDocumentCreateEndpoint(ServiceCallCommands serviceCallCommands,
+                                       WebServiceActivator webServiceActivator, Thesaurus thesaurus) {
         this.serviceCallCommands = serviceCallCommands;
+        this.webServiceActivator = webServiceActivator;
+        this.thesaurus = thesaurus;
     }
 
     @Override
     public void smartMeterMeterReadingDocumentERPCreateRequestCIn(SmrtMtrMtrRdngDocERPCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request).ifPresent(requestMessage -> {
-                MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder()
+                MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder(thesaurus)
                         .from(requestMessage)
                         .build();
                 SetMultimap<String, String> values = HashMultimap.create();

@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ abstract class AbstractDataSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
+        occurrence.getDefaultSelectorOccurrence().ifPresent(o -> o.updateExportedDataRange(Range.closed(Instant.EPOCH, o.getExportedDataInterval().upperEndpoint())));
         Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
         Map<Long, Optional<Instant>> previousSuccessfulRuns = activeItems.stream()
                 .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedDate));

@@ -28,4 +28,8 @@ public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implemen
         super(propertySpecService);
     }
 
+    public boolean enableHHUSignOn() {
+        return true;
+    }
+
 }

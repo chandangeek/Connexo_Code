@@ -4,13 +4,23 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
 import java.time.Instant;
 import java.util.Optional;
 
-public class MeterReadingDocumentCreateMessage {
+public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
+
+    private static final String ID_XML_NAME = "MeterReadingDocument.ID";
+    private static final String DEVICE_ID_XML_NAME = "UtilitiesDevice.UtilitiesDeviceID";
+    private static final String LRN_XML_NAME = "UtilitiesMeasurementTaskID.UtilitiesDeviceID";
+    private static final String READING_REASON_CODE_XML_NAME = "MeterReadingReasonCode";
+    private static final String SCHEDULED_DATE_XML_NAME = "ScheduledMeterReadingDate";
+
+
+    /* headerId headerUUID used only for bulk request */
+    private String headerId;
+    private String headerUUID;
 
     private String id;
     private String deviceId;
@@ -41,24 +51,12 @@ public class MeterReadingDocumentCreateMessage {
         return scheduledMeterReadingDate;
     }
 
-    public boolean isValid() {
-        return id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null;
+    public String getHeaderId() {
+        return headerId;
     }
 
-    public boolean isReasonCodeSupported(boolean bulk) {
-        return bulk ? isBulkSupported() : isSingleSupported();
-    }
-
-    public boolean isSingleSupported() {
-        return WebServiceActivator.findReadingReasonProvider(readingReasonCode)
-                .map(SAPMeterReadingDocumentReason::isSingle)
-                .orElse(false);
-    }
-
-    public boolean isBulkSupported() {
-        return WebServiceActivator.findReadingReasonProvider(readingReasonCode)
-                .map(SAPMeterReadingDocumentReason::isBulk)
-                .orElse(false);
+    public String getHeaderUUID() {
+        return headerUUID;
     }
 
     static MeterReadingDocumentCreateMessage.Builder builder() {
@@ -70,11 +68,13 @@ public class MeterReadingDocumentCreateMessage {
         private Builder() {
         }
 
-        public MeterReadingDocumentCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc requestMessage) {
+        public MeterReadingDocumentCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg requestMessage) {
             Optional.ofNullable(requestMessage)
-                    .ifPresent(bulkRequestMessage -> setValues(getId(bulkRequestMessage),
-                            getDeviceId(bulkRequestMessage), getLrn(bulkRequestMessage),
-                            getReadingReasonCode(bulkRequestMessage), bulkRequestMessage.getScheduledMeterReadingDate()));
+                    .ifPresent(bulkRequestMessage -> setValues(getId(bulkRequestMessage.getMeterReadingDocument()),
+                            getDeviceId(bulkRequestMessage.getMeterReadingDocument()), getLrn(bulkRequestMessage.getMeterReadingDocument()),
+                            getReadingReasonCode(bulkRequestMessage.getMeterReadingDocument()), bulkRequestMessage.getMeterReadingDocument().getScheduledMeterReadingDate(),
+                            getHeaderId(bulkRequestMessage.getMessageHeader()),
+                            getHeaderUUID(bulkRequestMessage.getMessageHeader())));
             return this;
         }
 
@@ -92,6 +92,17 @@ public class MeterReadingDocumentCreateMessage {
             MeterReadingDocumentCreateMessage.this.id = id;
             return this;
         }
+
+        public Builder setHeaderId(String headerId) {
+            MeterReadingDocumentCreateMessage.this.headerId = headerId;
+            return this;
+        }
+
+        public Builder setHeaderUUID(String headerUUID) {
+            MeterReadingDocumentCreateMessage.this.headerUUID = headerUUID;
+            return this;
+        }
+
 
         public Builder setDeviceId(String deviceId) {
             MeterReadingDocumentCreateMessage.this.deviceId = deviceId;
@@ -114,6 +125,21 @@ public class MeterReadingDocumentCreateMessage {
         }
 
         public MeterReadingDocumentCreateMessage build() {
+            if (id == null) {
+                addMissingField(ID_XML_NAME);
+            }
+            if (deviceId == null) {
+                addMissingField(DEVICE_ID_XML_NAME);
+            }
+            if (lrn == null) {
+                addMissingField(LRN_XML_NAME);
+            }
+            if (readingReasonCode == null) {
+                addMissingField(READING_REASON_CODE_XML_NAME);
+            }
+            if (scheduledMeterReadingDate == null) {
+                addMissingField(SCHEDULED_DATE_XML_NAME);
+            }
             return MeterReadingDocumentCreateMessage.this;
         }
 
@@ -124,6 +150,17 @@ public class MeterReadingDocumentCreateMessage {
             setLrn(lrn);
             setReadingReasonCode(code);
             setScheduledMeterReadingDate(date);
+        }
+
+        void setValues(String id, String deviceId, String lrn, String code,
+                       Instant date, String headerId, String headerUUID) {
+            setId(id);
+            setDeviceId(deviceId);
+            setLrn(lrn);
+            setReadingReasonCode(code);
+            setScheduledMeterReadingDate(date);
+            setHeaderId(headerId);
+            setHeaderUUID(headerUUID);
         }
 
         private String getId(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc meterReadingDocument) {
@@ -185,5 +222,20 @@ public class MeterReadingDocumentCreateMessage {
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
+
+        private String getHeaderId(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getHeaderUUID(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
     }
 }

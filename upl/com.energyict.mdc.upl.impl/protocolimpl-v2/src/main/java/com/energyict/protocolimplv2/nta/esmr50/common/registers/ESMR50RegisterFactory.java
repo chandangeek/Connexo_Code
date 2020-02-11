@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.registers;
 
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
@@ -13,7 +12,18 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DefinableLoadProfileAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.GSMDiagnosticAttributes;
+import com.energyict.dlms.cosem.attributes.LTEConnectionRejectionAttributes;
+import com.energyict.dlms.cosem.attributes.LTEMonitoringAttributes;
+import com.energyict.dlms.cosem.attributes.LTESetupAttributes;
+import com.energyict.dlms.cosem.attributes.MBusDiagnosticAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
+import com.energyict.dlms.cosem.attributes.PPPSetupAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -24,18 +34,38 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
-import com.energyict.protocolimplv2.nta.esmr50.common.attributes.ESMR50MbusClientAttributes;
-import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.*;
-
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.EMeterConfigurationObject;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.GSMDiagnosticPSStatusVersion1;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEConnectionRejection;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticAdjacentCells;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticCSAttachement;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticCellInfo;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticStatus;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEMonitoringWrapper;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEMonitoringWrapperVersion0;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEPingAddress;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusConfigurationObject;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusEncryptionKeyStatus;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusFUAKStatus;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusFWTransferStatus;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
+
+import static com.energyict.cbo.BaseUnit.ACTIVEENERGY;
+import static com.energyict.cbo.BaseUnit.AMPERE;
+import static com.energyict.cbo.BaseUnit.APPARENTENERGY;
+import static com.energyict.cbo.BaseUnit.DECIBELMILLIWAT;
+import static com.energyict.cbo.BaseUnit.REACTIVEENERGY;
+import static com.energyict.cbo.BaseUnit.SECOND;
+import static com.energyict.cbo.BaseUnit.UNITLESS;
+import static com.energyict.cbo.BaseUnit.VOLT;
+import static java.util.logging.Level.FINEST;
+import static java.util.logging.Level.WARNING;
 
 public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     //Firmware
@@ -192,8 +222,6 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN_CE_r13 = ObisCode.fromString("0.1.25.11.30.255");
     public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN_CE1_r13 = ObisCode.fromString("0.1.25.11.31.255");
 
-
-
     /**
      * LTE FW Upgrade
      **/
@@ -242,49 +270,48 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
 
                 return new RegisterValue(register, null, null, null, null, capturedTime, 0, sb.toString());
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_STATISTICS_NUMBER_MISSED_C)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)));
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_STATISTICS_NUMBER_MISSED_T)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)));
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_STATISTICS_AVERAGE_MISSED_C)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)));
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_STATISTICS_AVERAGE_MISSED_T)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)));
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_MASTER_VALUE_5_MIN)) {
                 return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
                 //return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBus P1 5 Minute Master Value: " + Long.toString(abstractDataType.longValue())));
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_CONFIGURATION)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBus Configuration: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "MBus Configuration: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_CAPTURE_PERIOD)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             }
             else if (rObisCode.equalsIgnoreBChannel(MBUS_PRIMARY_ADDRESS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             }
             else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
-//                String bcd = ProtocolTools.getBCD(abstractDataType.longValue()); TODO implement getBCD in ProtocolTools
-                String bcd = "";
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, bcd);
+                String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
+                return new RegisterValue(register, bcd);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_TYPE)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_ACCESS_NUMBER)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_STATUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             }
             else if (rObisCode.equalsIgnoreBChannel(MBUS_ALARM)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBus alarm: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "MBus alarm: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_ENCRYPTION_KEY_STATUS)) {
                 int statusId = abstractDataType.intValue();
                 String ekStatus = MBusEncryptionKeyStatus.getDescriptionForId(statusId);
-                return new RegisterValue(register, new Quantity(statusId, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, ekStatus);
+                return new RegisterValue(register, new Quantity(statusId, Unit.get(UNITLESS)), null, null, null, new Date(), 0, ekStatus);
             }  else if (rObisCode.equalsIgnoreBChannel(MBUS_FUAK_STATUS)) {
                 int statusId = abstractDataType.intValue();
                 String fuakStatus = MBusFUAKStatus.getDescriptionForId(statusId);
-                return new RegisterValue(register, new Quantity(statusId, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, fuakStatus);
+                return new RegisterValue(register, new Quantity(statusId, Unit.get(UNITLESS)), null, null, null, new Date(), 0, fuakStatus);
             } else if (rObisCode.equalsIgnoreBChannel(PHY_RANDOMISATION)) {
                 if (abstractDataType.isStructure()) {
                     Structure structure = abstractDataType.getStructure();
@@ -295,7 +322,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             } else if (rObisCode.equalsIgnoreBChannel(LTE_SETUP_APN)) {
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equalsIgnoreBChannel(LTE_SETUP_PIN)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             } else if (rObisCode.equalsIgnoreBChannel(LTE_SETUP_QOS)) {
                 if (abstractDataType!=null){
                     if (abstractDataType.isStructure()){
@@ -325,70 +352,70 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_STATUS)) {
                 int statusId = abstractDataType.getTypeEnum().intValue();
                 String diagnosticStatus = LTEDiagnosticStatus.getDescriptionForId(statusId);
-                return new RegisterValue(register, new Quantity(statusId, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, diagnosticStatus);
+                return new RegisterValue(register, new Quantity(statusId, Unit.get(UNITLESS)), null, null, null, new Date(), 0, diagnosticStatus);
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_OPERATOR)) {
                 return new RegisterValue(register, abstractDataType.getVisibleString().getStr());
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CS_ATTACHMENT)) {
                 int id = abstractDataType.getTypeEnum().intValue();
                 String desc = LTEDiagnosticCSAttachement.getDescriptionForId(id);
-                return new RegisterValue(register, new Quantity(id, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, desc);
+                return new RegisterValue(register, new Quantity(id, Unit.get(UNITLESS)), null, null, null, new Date(), 0, desc);
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_PS_STATUS)) {
                 int id = abstractDataType.getTypeEnum().intValue();
                 String desc = GSMDiagnosticPSStatusVersion1.getDescriptionForId(id);
-                return new RegisterValue(register, new Quantity(id, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, desc);
+                return new RegisterValue(register, new Quantity(id, Unit.get(UNITLESS)), null, null, null, new Date(), 0, desc);
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_BASE)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getCellId(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getCellId(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_CELL_ID)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getCellId(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getCellId(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_LOCATION_ID)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getLocationId(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getLocationId(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_SIGNAL_QUALITY)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getSignalQuality(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getSignalQuality(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_BER)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getBer(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getBer(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_MCC)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getMcc(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getMcc(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_MNC)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getMnc(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getMnc(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_CHANNEL_NUMBER)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
                 if (cellInfo.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(cellInfo.getChannelNumber(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
+                    return new RegisterValue(register, new Quantity(cellInfo.getChannelNumber(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, cellInfo.toString());
                 } else {
                     return new RegisterValue(register, null, null, null, null, new Date(), 0, abstractDataType.getStructure().toString());
                 }
@@ -402,14 +429,14 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID)) {
                 LTEDiagnosticAdjacentCells adjacentCells = new LTEDiagnosticAdjacentCells(abstractDataType.getArray());
                 if (adjacentCells.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(adjacentCells.getCellId(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, adjacentCells.toString());
+                    return new RegisterValue(register, new Quantity(adjacentCells.getCellId(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, adjacentCells.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.getArray().toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY)) {
                 LTEDiagnosticAdjacentCells adjacentCells = new LTEDiagnosticAdjacentCells(abstractDataType.getArray());
                 if (adjacentCells.isDecoded()) {
-                    return new RegisterValue(register, new Quantity(adjacentCells.getSignalQuality(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, adjacentCells.toString());
+                    return new RegisterValue(register, new Quantity(adjacentCells.getSignalQuality(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, adjacentCells.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.getArray().toString());
                 }
@@ -423,42 +450,42 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402)){
                 LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getT3402(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
+                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getT3402(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412)){
                 LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getT3412(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
+                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getT3412(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             } else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ)){
                 LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrq(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
+                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrq(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ)){
                 LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrq(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
+                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrq(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRP)){
                 LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrp(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
+                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrp(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN)){
                 LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getqRxlevMin(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
+                    return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getqRxlevMin(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
@@ -472,28 +499,28 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_LAST_REJECTED_CAUSE)){
                 LTEConnectionRejection lteConnectionRejection = new LTEConnectionRejection(abstractDataType, protocol.getTimeZone());
                 if (lteConnectionRejection.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getLast_reject_cause(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
+                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getLast_reject_cause(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_LAST_REJECTED_MCC)){
                 LTEConnectionRejection lteConnectionRejection = new LTEConnectionRejection(abstractDataType, protocol.getTimeZone());
                 if (lteConnectionRejection.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getLast_rejected_mcc(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
+                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getLast_rejected_mcc(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_LAST_REJECTED_MNC)){
                 LTEConnectionRejection lteConnectionRejection = new LTEConnectionRejection(abstractDataType, protocol.getTimeZone());
                 if (lteConnectionRejection.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getLast_rejected_mnc(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
+                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getLast_rejected_mnc(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_TIMESTAMP_LAST_REJECTION)){
                 LTEConnectionRejection lteConnectionRejection = new LTEConnectionRejection(abstractDataType, protocol.getTimeZone());
                 if (lteConnectionRejection.isDecoded()){
-                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getTimestamp_last_rejection().toString(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
+                    return new RegisterValue(register, new Quantity(lteConnectionRejection.getTimestamp_last_rejection().toString(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, lteConnectionRejection.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
@@ -501,82 +528,82 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             else if (rObisCode.equals(EMETER_CONFIGURATION_OBJECT)) {
                 EMeterConfigurationObject configurationObject = new EMeterConfigurationObject(abstractDataType);
                 if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(configurationObject.getFlags(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.toString());
+                    return new RegisterValue(register, new Quantity(configurationObject.getFlags(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, configurationObject.toString());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }
             else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_L1_Q_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_L1_Q_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_L1_Q_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_L1_Q_MINUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_L1_Q_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_L1_Q_MINUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_L1_Q_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_L1_Q_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_L1_Q_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_ACTIVE_POWER_L2_P_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_POWER_L2_P_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_POWER_L2_P_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_ACTIVE_POWER_L2_P_MINUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_POWER_L2_P_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_POWER_L2_P_MINUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_REACTIVE_POWER_L2_Q2_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_POWER_L2_P_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_POWER_L2_P_MINUS value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(AVERAGE_REACTIVE_POWER_L2_Q2_MINUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_POWER_L2_P_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_POWER_L2_P_MINUS value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(AVERAGE_CURRENT_L1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("AVERAGE_CURRENT_L1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "AVERAGE_CURRENT_L1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_VOLTAGE_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("AVERAGE_VOLTAGE_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "AVERAGE_VOLTAGE_L3 value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(AVERAGE_VOLTAGE_L1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("AVERAGE_VOLTAGE_L1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "AVERAGE_VOLTAGE_L1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_L2_Q_MINUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_L2_Q_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_L2_Q_MINUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_L2_Q_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_L2_Q_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_L2_Q_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_L3_Q_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_L3_Q_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_L3_Q_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_L3_Q_MINUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_L3_Q_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_L3_Q_MINUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_ACTIVE_POWER_ABS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.ACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_ACTIVE_POWER_ABS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(ACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_ACTIVE_POWER_ABS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_Q_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_Q_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_Q_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_REACTIVE_POWER_Q_MINUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.REACTIVEENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_REACTIVE_POWER_Q_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(REACTIVEENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_REACTIVE_POWER_Q_MINUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_APPARENT_POWER_S_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.APPARENTENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_APPARENT_POWER_S_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(APPARENTENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_APPARENT_POWER_S_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_APPARENT_POWER_S_MINUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.APPARENTENERGY)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_APPARENT_POWER_S_MINUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(APPARENTENERGY)), null, null, null, new Date(), 0, "INSTANTANEOUS_APPARENT_POWER_S_MINUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_CURRENT)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_CURRENT value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "INSTANTANEOUS_CURRENT value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_CURRENT_L2)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_CURRENT_L2 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_CURRENT_L2 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_CURRENT_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_CURRENT_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_CURRENT_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_VOLTAGE_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.VOLT)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_VOLTAGE_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(VOLT)), null, null, null, new Date(), 0, "INSTANTANEOUS_VOLTAGE_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_CURRENT_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_CURRENT_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "INSTANTANEOUS_CURRENT_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_ACTIVE_POWER_P_PLUS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_ACTIVE_POWER_P_PLUS value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "INSTANTANEOUS_ACTIVE_POWER_P_PLUS value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_ACTIVE_POWER_P_PLUS_L1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_POWER_P_PLUS_L1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_POWER_P_PLUS_L1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_ACTIVE_POWER_P_MINUS_L1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_POWER_P_MINUS_L1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_POWER_P_MINUS_L1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_REACTIVE_POWER_Q_PLUS_L1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_REACTIVE_POWER_Q_PLUS_L1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_REACTIVE_POWER_Q_PLUS_L1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_REACTIVE_POWER_Q_MINUS_L1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_REACTIVE_POWER_Q_MINUS_L1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_REACTIVE_POWER_Q_MINUS_L1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_ACTIVE_POWER_P_PLUS_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_POWER_P_PLUS_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_POWER_P_PLUS_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_ACTIVE_P_MINUS_POWER_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_ACTIVE_P_MINUS_POWER_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_ACTIVE_P_MINUS_POWER_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_ACTIVE_POVER_P_PLUS_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_ACTIVE_POVER_P_PLUS_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "INSTANTANEOUS_ACTIVE_POVER_P_PLUS_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(INSTANTANEOUS_ACTIVE_POVER_P_MINUS_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("INSTANTANEOUS_ACTIVE_POVER_P_MINUS_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "INSTANTANEOUS_ACTIVE_POVER_P_MINUS_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_REACTIVE_POVER_Q_PLUS_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_REACTIVE_POVER_Q_PLUS_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_REACTIVE_POVER_Q_PLUS_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(AVERAGE_REACTIVE_POVER_Q_MINUS_L3)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.AMPERE)), null, null, null, new Date(), 0, new String("AVERAGE_REACTIVE_POVER_Q_MINUS_L3 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(AMPERE)), null, null, null, new Date(), 0, "AVERAGE_REACTIVE_POVER_Q_MINUS_L3 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(DEVICE_ID_1)) {
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equalsIgnoreBChannel(DEVICE_ID_2)) {
@@ -584,21 +611,21 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             } else if (rObisCode.equalsIgnoreBChannel(DEVICE_ID_5)) {
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equalsIgnoreBChannel(POWER_QUALITY_PROFILE1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("POWER_QUALITY_PROFILE1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "POWER_QUALITY_PROFILE1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(POWER_QUALITY_PROFILE2)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("POWER_QUALITY_PROFILE1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "POWER_QUALITY_PROFILE1 value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(VOLTAGE_QUALITY_EVENT_LOG)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("VOLTAGE_QUALITY_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "VOLTAGE_QUALITY_EVENT_LOG value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(COMMUNICATION_SESSION_EVENT_LOG)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("COMMUNICATION_SESSION_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "COMMUNICATION_SESSION_EVENT_LOG value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(BILLING_PERIODS)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("BILLING_PERIODS value: " + Long.toString(abstractDataType.longValue())));
-            } else if (rObisCode.equalsIgnoreBChannel(ERROR_REGISTER)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ERROR_REGISTER value: " + abstractDataType.getInteger64()));
-            } else if (rObisCode.equalsIgnoreBChannel(ALARM_REGISTER)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_REGISTER value: " + abstractDataType.getInteger64()));
-            } else if (rObisCode.equalsIgnoreBChannel(ALARM_FILTER)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_FILTER value: " + abstractDataType.getInteger64()));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "BILLING_PERIODS value: " + abstractDataType.longValue());
+            } else if (rObisCode.equalsIgnoreBChannel(ERROR_REGISTER)) {
+                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "ERROR_REGISTER value: " + abstractDataType.getInteger64());
+            } else if (rObisCode.equalsIgnoreBChannel(ALARM_REGISTER)) {
+                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "ALARM_REGISTER value: " + abstractDataType.getInteger64());
+            } else if (rObisCode.equalsIgnoreBChannel(ALARM_FILTER)) {
+                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "ALARM_FILTER value: " + abstractDataType.getInteger64());
             } else if (rObisCode.equals(MODEM_FIRMWARE_SIGNATURE_OBISCODE)) {
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equals(AUXILIARY_FIRMWARE_VERSION)) {
@@ -610,69 +637,69 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             } else if(rObisCode.equalsIgnoreBChannel(P1_PORT_DSMR_VERSION)){
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
-                return new RegisterValue(adjustToMbusOC(rObisCode), new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(adjustToMbusOC(rObisCode), new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0, "MBUS_EVENT_LOG value: " + abstractDataType.longValue());
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
                 if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getContent());
+                    return new RegisterValue(register, new Quantity(1, Unit.get(UNITLESS)), null, null, null, new Date(), 0, configurationObject.getContent());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION value:" +abstractDataType.toString()));
+                    return new RegisterValue(register, new Quantity(1, Unit.get(UNITLESS)), null, null, null, new Date(), 0, "MBUS_DEVICE_CONFIGURATION value:" + abstractDataType.toString());
                 }
-            }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_METEROLOGICAL_FIRMWARE)) {
+            } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_METEROLOGICAL_FIRMWARE)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
-                if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getMeterologicalFirmware());
+                if (configurationObject.isDecoded()) {
+                    return new RegisterValue(register, configurationObject.getMeterologicalFirmware());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, abstractDataType.toString());
+                    return new RegisterValue(register, new Quantity(1, Unit.get(UNITLESS)), null, null, null, new Date(), 0, abstractDataType.toString());
                 }
-            }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE)) {
+            } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
-                if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getOperationalFirmware());
+                if (configurationObject.isDecoded()) {
+                    return new RegisterValue(register, configurationObject.getOperationalFirmware());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE value:" +abstractDataType.toString()));
+                    return new RegisterValue(register, new Quantity(1, Unit.get(UNITLESS)), null, null, null, new Date(), 0, "MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE value:" +abstractDataType.toString());
                 }
-            }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE)) {
+            } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
-                if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getAdditionalFirmware());
+                if (configurationObject.isDecoded()) {
+                    return new RegisterValue(register, configurationObject.getAdditionalFirmware());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE value:" +abstractDataType.toString()));
+                    return new RegisterValue(register, new Quantity(1, Unit.get(UNITLESS)), null, null, null, new Date(), 0, "MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE value:" +abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_FW_UPGRADE_STATUS)) {
                 int statusId = abstractDataType.getTypeEnum().intValue();
                 String fwStatus = "Status:"+statusId;
-                return new RegisterValue(register, new Quantity(statusId, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, fwStatus);
+                return new RegisterValue(register, new Quantity(statusId, Unit.get(UNITLESS)), null, null, null, new Date(), 0, fwStatus);
             }else if (rObisCode.equals(EMETER_FW_UPGRADE_STATUS)) {
                 int statusId = abstractDataType.getTypeEnum().intValue();
                 String fwStatus = "Status:"+statusId;
-                return new RegisterValue(register, new Quantity(statusId, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, fwStatus);
+                return new RegisterValue(register, new Quantity(statusId, Unit.get(UNITLESS)), null, null, null, new Date(), 0, fwStatus);
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_FW_UPGRADE_STATUS_X)) {
                 int statusId = abstractDataType.intValue();
                 String fwStatus = MBusFWTransferStatus.getDescriptionForId(statusId);
-                return new RegisterValue(register, new Quantity(statusId, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, fwStatus);
+                return new RegisterValue(register, new Quantity(statusId, Unit.get(UNITLESS)), null, null, null, new Date(), 0, fwStatus);
 
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_OPERATIONAL_FW_UPGRADE_STATUS_X)) {
                 int statusId = abstractDataType.intValue();
                 String fwStatus = MBusFWTransferStatus.getDescriptionForId(statusId);
-                return new RegisterValue(register, new Quantity(statusId, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, fwStatus);
+                return new RegisterValue(register, new Quantity(statusId, Unit.get(UNITLESS)), null, null, null, new Date(), 0, fwStatus);
 
             }else if (rObisCode.equalsIgnoreBChannel(THRESHOLD_SHORT_VOLTAGE_SAG1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.VOLT)), null, null, null, new Date(), 0, new String("THRESHOLD_SHORT_VOLTAGE_SAG value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(VOLT)), null, null, null, new Date(), 0, "THRESHOLD_SHORT_VOLTAGE_SAG value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(TIME_THRESHOLD_VOLTAGE_SAG1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, new String("TIME_THRESHOLD_VOLTAGE_SAG value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(SECOND)), null, null, null, new Date(), 0, "TIME_THRESHOLD_VOLTAGE_SAG value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(THRESHOLD_SHORT_VOLTAGE_SAG2)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.VOLT)), null, null, null, new Date(), 0, new String("THRESHOLD_SHORT_VOLTAGE_SAG value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(VOLT)), null, null, null, new Date(), 0, "THRESHOLD_SHORT_VOLTAGE_SAG value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(TIME_THRESHOLD_VOLTAGE_SAG2)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, new String("TIME_THRESHOLD_VOLTAGE_SAG value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(SECOND)), null, null, null, new Date(), 0, "TIME_THRESHOLD_VOLTAGE_SAG value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(TIME_THRESHOLD_VOLTAGE_SWELL_SAG1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, new String("TIME_THRESHOLD_VOLTAGE_SWELL_SAG1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(SECOND)), null, null, null, new Date(), 0, "TIME_THRESHOLD_VOLTAGE_SWELL_SAG1 value: " + abstractDataType.longValue());
             }else if (rObisCode.equalsIgnoreBChannel(THRESHOLD_VOLTAGE_SWELL_SAG1)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.VOLT)), null, null, null, new Date(), 0, new String("THRESHOLD_VOLTAGE_SWELL_SAG1 value: " + Long.toString(abstractDataType.longValue())));
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(VOLT)), null, null, null, new Date(), 0, "THRESHOLD_VOLTAGE_SWELL_SAG1 value: " + abstractDataType.longValue());
             }else if(rObisCode.equals(LTE_PING_ADDRESS)){
                 LTEPingAddress ltePingAddress = new LTEPingAddress(abstractDataType);
                 return new RegisterValue(register, ltePingAddress.toString());
@@ -680,7 +707,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
 
             protocol.journal(" > register " + register.getObisCode() + " for " + register.getSerialNumber() + " was translated as " + rObisCode.toString() + " and could not be handled by ESMR5 register factory. Asking ancestors.");
         }catch (Exception ex){
-            protocol.journal(Level.WARNING, " Error while interpreting value for " + register.getObisCode() + ": " + ex.getMessage());
+            protocol.journal(WARNING, " Error while interpreting value for " + register.getObisCode() + ": " + ex.getMessage());
         }
 
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
@@ -704,15 +731,14 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     @Override
     protected ComposedCosemObject constructComposedObjectFromRegisterList(final List<OfflineRegister> registers, final boolean supportsBulkRequest) {
         if (registers != null) {
-            List<OfflineRegister> registersForSuper = new ArrayList<OfflineRegister>();
+            List<OfflineRegister> registersForSuper = new ArrayList<>();
 
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (OfflineRegister register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
                 if (rObisCode.equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
-                    ObisCode adjustedObisCode = rObisCode;
-                    DLMSAttribute valueAttribute = new DLMSAttribute(adjustedObisCode, MBusDiagnosticAttributes.RSSI.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC.getClassId());
-                    DLMSAttribute captureTimeAttribute = new DLMSAttribute(adjustedObisCode, MBusDiagnosticAttributes.CAPTURE_TIME.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC);
+                    DLMSAttribute valueAttribute = new DLMSAttribute(rObisCode, MBusDiagnosticAttributes.RSSI.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC.getClassId());
+                    DLMSAttribute captureTimeAttribute = new DLMSAttribute(rObisCode, MBusDiagnosticAttributes.CAPTURE_TIME.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC);
                     ComposedRegister composedRegister = new ComposedRegister(valueAttribute, null, captureTimeAttribute);
 
                     dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
@@ -757,40 +783,40 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), -1 , DLMSClassId.IMAGE_TRANSFER));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }  else if (rObisCode.equalsIgnoreBChannel(MBUS_CONFIGURATION)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.CONFIGURATION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.CONFIGURATION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_CAPTURE_PERIOD)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_PRIMARY_ADDRESS)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.PRIMARY_ADDRESS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.PRIMARY_ADDRESS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_TYPE)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_ACCESS_NUMBER)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ACCESS_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.ACCESS_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_ALARM)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ALARM.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.ALARM.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_ENCRYPTION_KEY_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_FUAK_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), ESMR50MbusClientAttributes.FUAK_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.FUAK_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(DEVICE_ID_1)) {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA.getClassId()));
@@ -814,23 +840,22 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                     this.registerMap.put(register, new DLMSAttribute(base, LTESetupAttributes.QoS.getAttributeNumber(), DLMSClassId.GPRS_SETUP));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(PPP_SETUP_AUTH_USERNAME) || rObisCode.equals(PPP_SETUP_AUTH_PASSWORD)) {
-                    // TODO  PPPSetup.ATTRB_PPP_AUTHENTICATION has private access, hardcoded to 5
-                    this.registerMap.put(register, new DLMSAttribute(PPP_SETUP_base, 5, DLMSClassId.PPP_SETUP.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(PPP_SETUP_base, PPPSetupAttributes.PPP_AUTHENTICATION.getAttributeNumber(), DLMSClassId.PPP_SETUP.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(BILLING_PERIOD)) {
-                    this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.SINGLE_ACTION_SCHEDULE.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.SINGLE_ACTION_SCHEDULE));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_ENCRYPTION_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(POWER_LONG_FAILURE_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(POWER_FAILURE_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(PHY_RANDOMISATION)) {
-                    this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE)) {
                     this.registerMap.put(register, new DLMSAttribute(ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
@@ -908,19 +933,19 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                     this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.TIMESTAMP_LAST_REJECTION.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION)) {
-                    this.registerMap.put(register, new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_METEROLOGICAL_FIRMWARE)) {
-                    this.registerMap.put(register, new DLMSAttribute(this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, register.getSerialNumber()), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, register.getSerialNumber()), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE)) {
-                    this.registerMap.put(register, new DLMSAttribute(this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, register.getSerialNumber()), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, register.getSerialNumber()), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE)) {
-                    this.registerMap.put(register, new DLMSAttribute(this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, register.getSerialNumber()), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, register.getSerialNumber()), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_BASE)) {
-                    this.registerMap.put(register, new DLMSAttribute(rObisCode, LTEMonitoringAttributes.LTE_QOS.getAttributeNumber(), DLMSClassId.LTE_MONITORING.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(rObisCode, LTEMonitoringAttributes.LTE_QOS.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402)) { //TODO create LTEMonitoringAttributes.T3402.getAttributeNumber()
                     this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, 21, DLMSClassId.LTE_MONITORING));
@@ -975,46 +1000,51 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     @Override
     protected RegisterValue readComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
         if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
-            ScalerUnit su = new ScalerUnit(Unit.get(BaseUnit.DECIBELMILLIWAT)); // dbm = 70;
-            try {
-                protocol.journal("Handling MBUS Diagnostic: "+register.getObisCode().toString());
-                DLMSAttribute registerCaptureTime = this.getComposedRegisterMap().get(register).getRegisterCaptureTime();
-                protocol.journal("  > fetching capture_time :"+registerCaptureTime.toString());
-                AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
-                if (attribute.isStructure()) {
-                    Structure structure = attribute.getStructure();
-                    structure.getNextDataType();
-                    AbstractDataType captureStructure = structure.getNextDataType();
-                    if(isValidDateTime(captureStructure)){
-                        Date captureTime = ((DateTime) captureStructure).getCalendar(protocol.getDlmsSession().getTimeZone()).getTime();
-                        protocol.journal(Level.FINEST, "  > decoded captured time = " + captureTime.toString());
-                        return new RegisterValue(
-                                register,
-                                new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()), captureTime);
-                    }
-                    else {
-                        protocol.journal("decoded capture time is not a valid date");
-                        protocol.journal("Creating register without timestamp.");
-                        return new RegisterValue(
-                                register,
-                                new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()));
-                    }
-                } else {
-                    protocol.journal(Level.WARNING, "Data in MBus Diagnostic object from attribute #"+registerCaptureTime.getAttribute()+" of "+register.getObisCode()+" is not a structure, as expected from specs. The capture time will be current date/time.");
-                }
-
-
-            } catch (Exception ex){
-                protocol.journal(Level.WARNING, "Could not handle composed register MBusDiagnostic "+register.getObisCode()+": "+ex.getMessage());
-            }
-
+            return readMBUSDiagnosticsComposedRegister(registerComposedCosemObject, register);
         } else {
             return super.readComposedRegister(registerComposedCosemObject, register);
         }
 
-        return new RegisterValue(register);
+    }
+
+    private RegisterValue readMBUSDiagnosticsComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) {
+        try {
+            ScalerUnit su = new ScalerUnit(Unit.get(DECIBELMILLIWAT)); // dbm = 70;
+            protocol.journal("Handling MBUS Diagnostic: "+register.getObisCode().toString());
+            DLMSAttribute registerCaptureTime = this.getComposedRegisterMap().get(register).getRegisterCaptureTime();
+            protocol.journal("  > fetching capture_time :"+registerCaptureTime.toString());
+            AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
+            if (attribute.isStructure()) {
+                Structure structure = attribute.getStructure();
+                structure.getNextDataType();
+                AbstractDataType captureStructure = structure.getNextDataType();
+                if(isValidDateTime(captureStructure)){
+                    Date captureTime = ((DateTime) captureStructure).getCalendar(protocol.getDlmsSession().getTimeZone()).getTime();
+                    protocol.journal(FINEST, "  > decoded captured time = " + captureTime.toString());
+                    return new RegisterValue(
+                            register,
+                            new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
+                                    su.getEisUnit()), captureTime);
+                }
+                else {
+                    protocol.journal("decoded capture time is not a valid date");
+                    protocol.journal("Creating register without timestamp.");
+                    return new RegisterValue(
+                            register,
+                            new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
+                                    su.getEisUnit()));
+                }
+            } else {
+                protocol.journal(WARNING, "Data in MBus Diagnostic object from attribute #"+registerCaptureTime.getAttribute()+" of "+register.getObisCode()+" is not a structure, as expected from specs. The capture time will be current date/time.");
+                return new RegisterValue(register);
+
+            }
+
+        } catch (Exception ex){
+            protocol.journal(WARNING, "Could not handle composed register MBusDiagnostic "+register.getObisCode()+": "+ex.getMessage());
+            return new RegisterValue(register);
+        }
+
     }
 
     private boolean isValidDateTime(AbstractDataType captureStructure) {

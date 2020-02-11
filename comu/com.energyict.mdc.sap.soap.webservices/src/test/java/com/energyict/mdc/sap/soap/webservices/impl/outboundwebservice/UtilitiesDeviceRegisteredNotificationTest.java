@@ -5,10 +5,12 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedException;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOutService;
@@ -19,7 +21,9 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.AbstractModule;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +45,10 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
     private MeteringService meteringService;
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private WebServiceActivator webServiceActivator;
+    @Mock
+    private Device device;
 
     private String deviceId;
     private UtilitiesDeviceRegisteredNotificationProvider provider;
@@ -57,8 +65,13 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
                 bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(DeviceService.class).toInstance(deviceService);
+                bind(WebServiceActivator.class).toInstance(webServiceActivator);
+
             }
         });
+        when(sapCustomPropertySets.getDevice(anyString())).thenReturn(Optional.of(device));
+        when(sapCustomPropertySets.getStartDate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(Instant.EPOCH));
+        when(webServiceActivator.getMeteringSystemId()).thenReturn(WebServiceActivator.DEFAULT_METERING_SYSTEM_ID);
     }
 
     @Test

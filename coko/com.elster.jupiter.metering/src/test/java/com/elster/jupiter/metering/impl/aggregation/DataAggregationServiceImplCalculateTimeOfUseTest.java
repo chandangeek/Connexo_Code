@@ -207,6 +207,8 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(this.configuration.getRequirements()).thenReturn(Collections.singletonList(consumption));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
 
+        IReadingType consumptionIReadingType15min = mock15minIReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
+
         // Setup configuration deliverables
         ReadingTypeDeliverable peakConsumption = mock(ReadingTypeDeliverable.class);
         when(peakConsumption.getName()).thenReturn("peakConsumption");
@@ -236,7 +238,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
         ChannelContract consumptionChannel = mock(ChannelContract.class);
-        when(consumptionChannel.getMainReadingType()).thenReturn(consumptionReadingType15min);
+        when(consumptionChannel.getMainReadingType()).thenReturn(consumptionIReadingType15min);
         when(consumptionChannel.getZoneId()).thenReturn(ZoneOffset.UTC);
         SqlFragment consumptionTimeSeriesRawSql = mock(SqlFragment.class);
         TimeSeries consumptionTimeSeries = mock(TimeSeries.class);
@@ -328,6 +330,8 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(this.configuration.getRequirements()).thenReturn(Collections.singletonList(consumption));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
 
+        IReadingType consumptionIReadingType15min = mock15minIReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
+
         // Setup configuration deliverables
         ReadingTypeDeliverable peakConsumption = mock(ReadingTypeDeliverable.class);
         when(peakConsumption.getName()).thenReturn("peakConsumption");
@@ -357,7 +361,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
         ChannelContract consumptionChannel = mock(ChannelContract.class);
-        when(consumptionChannel.getMainReadingType()).thenReturn(consumptionReadingType15min);
+        when(consumptionChannel.getMainReadingType()).thenReturn(consumptionIReadingType15min);
         when(consumptionChannel.getZoneId()).thenReturn(ZoneOffset.UTC);
         SqlFragment consumptionTimeSeriesRawSql = mock(SqlFragment.class);
         TimeSeries consumptionTimeSeries = mock(TimeSeries.class);

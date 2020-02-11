@@ -33,20 +33,20 @@ public class MeterReadingDocumentCancellationConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(String requestId, String uuid, List<CancelledMeterReadingDocument> documents, Instant now, boolean isBulk) {
+        public Builder from(String requestId, String uuid, List<CancelledMeterReadingDocument> documents, Instant now, boolean isBulk, String senderBusinessSystemId) {
             if (isBulk) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestId, uuid, documents, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestId, uuid, documents, now, senderBusinessSystemId);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestId, uuid, documents.get(0), now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestId, uuid, documents.get(0), now, senderBusinessSystemId);
             }
             return this;
         }
 
-        public Builder from(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+        public Builder from(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object... messageSeedArgs) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId, messageSeedArgs);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId, messageSeedArgs);
             }
             return this;
         }

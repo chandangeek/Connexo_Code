@@ -190,7 +190,8 @@ public class ServiceCallImpl implements ServiceCall {
         return this.targetObject.getOptional();
     }
 
-    void setTargetObject(Object targetObject) {
+    @Override
+    public void setTargetObject(Object targetObject) {
         this.targetObject = dataModel.asRefAny(targetObject);
     }
 

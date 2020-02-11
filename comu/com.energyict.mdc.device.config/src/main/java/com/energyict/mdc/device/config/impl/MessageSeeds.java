@@ -186,7 +186,8 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(15032, "securityAccessorTypeIsNotHSM", "The security accessor type ''{0}'' is not HSM"),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(15033, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),
     SECURITY_ACCESSOR_WRAPPER_IN_USE(15034, Keys.SECURITY_ACCESSOR_WRAPPER_IN_USE, "Security accessor is defined as wrapper for another security accessor"),
-    SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND(15035, Keys.SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND, "Found multiple security accessor type with name: {0}");
+    SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND(15035, Keys.SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND, "Found multiple security accessor type with name: {0}"),
+    VETO_DEVICETYPE_DELETION(15036, Keys.VETO_DEVICETYPE_DELETION_KEY, "Device type {0} is still in use by a device group", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -322,6 +323,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SECURITY_ACCESSOR_TYPE_NOT_FOUND = "security.accessor.type.not.found";
         public static final String SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND = "security.accessor.type.multiple";
         public static final String SECURITY_ACCESSOR_WRAPPER_IN_USE = "security.accessor.type.in.use";
+        public static final String VETO_DEVICETYPE_DELETION_KEY = "devicetype.still.in.use.by.devicegroup";
+
 
     }
 }

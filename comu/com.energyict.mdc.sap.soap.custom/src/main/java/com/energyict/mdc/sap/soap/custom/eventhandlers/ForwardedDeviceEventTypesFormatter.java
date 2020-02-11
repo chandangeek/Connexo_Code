@@ -31,9 +31,14 @@ class ForwardedDeviceEventTypesFormatter {
     private final Map<String, SAPDeviceEventType> forwardedEventTypesByDeviceEventCode = new HashMap<>();
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final SAPCustomPropertySets sapCustomPropertySets;
+    private boolean disablePropertyTag = true;
 
     ForwardedDeviceEventTypesFormatter(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    public void setDisablePropertyTag(boolean disablePropertyTag) {
+        this.disablePropertyTag = disablePropertyTag;
     }
 
     void add(SAPDeviceEventType eventType) {
@@ -71,7 +76,9 @@ class ForwardedDeviceEventTypesFormatter {
         info.setSeverityCode(formatSeverityCode(eventType));
         info.setOriginTypeCode(formatOriginTypeCode(eventType));
         info.setDateTime(eventRecord.getCreatedDateTime());
-        eventRecord.getProperties().forEach((key, value) -> info.getProperty().add(formatProperty(key, value)));
+        if (!disablePropertyTag) {
+            eventRecord.getProperties().forEach((key, value) -> info.getProperty().add(formatProperty(key, value)));
+        }
         return Optional.of(info);
     }
 
@@ -120,9 +127,12 @@ class ForwardedDeviceEventTypesFormatter {
 
     private UtilitiesSmartMeterEventID formatEventId(String sapDeviceId, SAPDeviceEventType eventType, Instant time) {
         UtilitiesSmartMeterEventID utilitiesSmartMeterEventID = objectFactory.createUtilitiesSmartMeterEventID();
-        utilitiesSmartMeterEventID.setValue(sapDeviceId + '_'
+        String eventId = sapDeviceId + '_'
                 + eventType.getCategoryCode() + '.' + eventType.getTypeCode() + '.' + eventType.getSeverityCode() + '.' + eventType.getOriginTypeCode()
-                + '_' + time.toEpochMilli());
+                + '_' + time.toEpochMilli();
+        // adjust eventId so it can be used in the utilitiesSmartMeterEventID tag with length 1-22
+        utilitiesSmartMeterEventID.setValue(Long.toString(eventId.hashCode() & Integer.MAX_VALUE));
+
         return utilitiesSmartMeterEventID;
     }
 }

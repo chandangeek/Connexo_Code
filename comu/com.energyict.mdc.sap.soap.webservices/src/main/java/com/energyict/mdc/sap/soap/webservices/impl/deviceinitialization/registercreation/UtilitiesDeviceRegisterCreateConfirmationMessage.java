@@ -38,20 +38,20 @@ public class UtilitiesDeviceRegisterCreateConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(ServiceCall serviceCall, List<ServiceCall> children, Instant now, boolean isBulk) {
+        public Builder from(ServiceCall serviceCall, List<ServiceCall> children, String senderBusinessSystemId, Instant now, boolean isBulk) {
             if (isBulk) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(serviceCall, children, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(serviceCall, children, senderBusinessSystemId, now);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(serviceCall, children.get(0), now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(serviceCall, children.get(0), senderBusinessSystemId, now);
             }
             return this;
         }
 
-        public Builder from(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+        public Builder from(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             }
             return this;
         }

@@ -61,7 +61,7 @@ public class UserInfoFactory implements InfoFactory<User> {
         userInfo.modifiedOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getModifiedDate().atZone(ZoneId.systemDefault()));
         userInfo.lastSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastSuccessfulLogin().toString();
         userInfo.lastUnSuccessfulLogin = user.getLastUnSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
-
+        userInfo.isUserLocked = user.isUserLocked(userService.getLockingAccountSettings());
         final GroupInfoFactory groupInfoFactory = new GroupInfoFactory(threadPrincipalService, userService);
         for (Group group : user.getGroups()) {
             userInfo.groups.add(groupInfoFactory.from(nlsService, group));
@@ -82,6 +82,7 @@ public class UserInfoFactory implements InfoFactory<User> {
         infos.add(createDescription(TranslationSeeds.MODTIME, String.class));
         infos.add(createDescription(TranslationSeeds.LASTSUCCESSFULLOGIN, String.class));
         infos.add(createDescription(TranslationSeeds.LASTUNSUCCESSFULLOGIN, String.class));
+        infos.add(createDescription(TranslationSeeds.ISUSERLOCKED, String.class));
         return infos;
     }
 

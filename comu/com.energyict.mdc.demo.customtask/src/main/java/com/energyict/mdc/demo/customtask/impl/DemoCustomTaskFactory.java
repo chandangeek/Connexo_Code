@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
         immediate = true)
 public class DemoCustomTaskFactory implements CustomTaskFactory {
 
-    public static final String NAME = "MDCDemoCustomTask";
+    public static final String NAME = "MDCDemoDestCustomTask";
     public static final String SUBSCRIBER_NAME = "MDCDemoSubsCustomTask";
     public static final String DESTINATION_NAME = "MDCDemoDestCustomTask";
     static final String SUBSCRIBER_DISPLAY_NAME = "Handle MDC custom task";

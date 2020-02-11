@@ -32,13 +32,14 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case CANCELLED:
-                sendConfirmation(serviceCall);
+                sendConfirmation(serviceCall, oldState);
                 break;
             case FAILED:
             case PARTIAL_SUCCESS:
@@ -61,21 +62,23 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
         }
     }
 
-    private void sendConfirmation(ServiceCall parent) {
+    private void sendConfirmation(ServiceCall parent, DefaultState oldState) {
         ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
 
-        if (!extension.isCancelledBySap()) {
+        if (!extension.isCancelledBySap() && !oldState.equals(DefaultState.ONGOING)) {
+            // Send confirmation after cancelling from UI
+            // if not cancelling by timeout and not after ConnectionStatusChangeHandler which moves state to Ongoing before cancel
             if (extension.isBulk()) {
                 StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
                         .builder(sapCustomPropertySets)
-                        .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                        .from(parent, ServiceCallHelper.findChildren(parent), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
 
                 WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
             } else {
                 StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                         .builder(sapCustomPropertySets)
-                        .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                        .from(parent, ServiceCallHelper.findChildren(parent), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
 
                 WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
@@ -91,5 +94,10 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }

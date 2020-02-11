@@ -26,11 +26,11 @@ import java.util.List;
  * @author khe
  * @since 9/02/2015 - 14:33
  */
-public class AM130LogBookFactory extends IDISLogBookFactory {
+public class AM130LogBookFactory<T extends AM130> extends IDISLogBookFactory<T> {
 
     private static ObisCode COMMUNICATION_LOG = ObisCode.fromString("0.0.99.98.5.255");
 
-    public AM130LogBookFactory(AM130 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AM130LogBookFactory(T protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
         supportedLogBooks.add(COMMUNICATION_LOG);
     }
@@ -59,8 +59,7 @@ public class AM130LogBookFactory extends IDISLogBookFactory {
 
     protected List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal, LogBookReader logBookReader) throws IOException {
         ObisCode mBusControlLogObisCode = getMBusControlLogObisCode(logBookReader.getMeterSerialNumber());
-        ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode);
-        profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
+        ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode, protocol.useDsmr4SelectiveAccessFormat());
         DataContainer mBusControlLogDC = profileGeneric.getBuffer(fromCal, toCal);
         AbstractEvent mBusControlLog;
         switch (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber())) {

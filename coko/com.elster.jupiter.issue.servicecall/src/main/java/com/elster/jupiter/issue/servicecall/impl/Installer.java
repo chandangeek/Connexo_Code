@@ -9,7 +9,6 @@ import com.elster.jupiter.issue.servicecall.impl.action.CloseIssueAction;
 import com.elster.jupiter.issue.servicecall.impl.action.FailedAction;
 import com.elster.jupiter.issue.servicecall.impl.action.PartialSucceedAction;
 import com.elster.jupiter.issue.servicecall.impl.action.RetryServiceCallAction;
-import com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -67,7 +66,6 @@ class Installer implements FullInstaller {
 
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, FailedAction.class.getName(), serviceCallFailed, CreationRuleActionPhase.NOT_APPLICABLE);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, PartialSucceedAction.class.getName(), serviceCallPartialSucceed, CreationRuleActionPhase.NOT_APPLICABLE);
-        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, StartProcessAction.class.getName(), issueType, CreationRuleActionPhase.CREATE);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, RetryServiceCallAction.class.getName(), issueType, CreationRuleActionPhase.NOT_APPLICABLE);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.NOT_APPLICABLE);
     }

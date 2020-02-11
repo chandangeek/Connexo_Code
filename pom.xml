@@ -9,7 +9,7 @@
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>2.0.0-Heracles-SNAPSHOT</version>
+    <version>3.0.0-Heracles-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -42,8 +42,8 @@
         <target.version>1.8</target.version>
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <baseline>1.0.0-Heracles</baseline>
-        <commercial.version>10.7.1</commercial.version>
+        <baseline>2.0.0-Heracles</baseline>
+        <commercial.version>10.7.2</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
         <mockito.version>1.10.19</mockito.version>
@@ -51,49 +51,32 @@
 
     <!-- Repositories specification. -->
     <repositories>
-        <repository>
-            <id>eict-public-snapshots</id>
-            <name>EnergyICT snapshots repository group</name>
-            <url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
-            </url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>eict-public</id>
-            <name>EnergyICT public repository group</name>
-            <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
-            <releases>
+		<repository>
+            <id>eict-releases</id>
+            <name>EnergyICT releases repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+			<releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+		<repository>
+			<id>eict-snapshots</id>
+            <name>EnergyICT snapshots repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+			<releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+		</repository>
         <repository>
             <id>eict-third-party</id>
             <name>EnergyICT public releases repository</name>
             <url>http://source.eict.vpdc/nexus/content/repositories/thirdparty/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net Repository for Maven 2</name>
-            <url>http://download.java.net/maven/2/</url>
-        </repository>
-        <repository>
-            <id>JBoss</id>
-            <name>JBoss repository</name>
-            <url>http://repository.jboss.com/maven2/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -117,25 +100,14 @@
             </snapshots>
         </pluginRepository>
         <pluginRepository>
-            <id>plugin-snapshots</id>
+            <id>eict-plugins-snapshots</id>
             <name>EnergyICT plugin repository</name>
-            <url>http://linux2.eict.local/nexus/content/repositories/plugins-snapshots/</url>
+            <url>http://source.eict.vpdc/nexus/content/repositories/plugins-snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>eict-public</id>
-            <name>EnergyICT public repository group</name>
-            <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
         <pluginRepository>
@@ -285,7 +257,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
+                    <version>3.8.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -503,7 +475,8 @@
                                     <comparisonVersion>${baseline}</comparisonVersion>
                                     <failOnError>true</failOnError>
                                     <artifactRepoIds>
-                                        <artifactRepoId>eict-public</artifactRepoId>
+                                        <artifactRepoId>eict-releases</artifactRepoId>
+                                        <artifactRepoId>eict-snapshots</artifactRepoId>
                                     </artifactRepoIds>
                                 </configuration>
                             </execution>

@@ -5,9 +5,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
@@ -22,10 +23,15 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirma
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfUtilsDvce;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
+import java.util.OptionalInt;
 import java.util.UUID;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 
 public class CreateConfirmationMessageFactory {
     private static final ObjectFactory objectFactory = new ObjectFactory();
@@ -33,14 +39,14 @@ public class CreateConfirmationMessageFactory {
     public CreateConfirmationMessageFactory() {
     }
 
-    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(ServiceCall parent, ServiceCall serviceCall, Instant now) {
+    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(ServiceCall parent, ServiceCall serviceCall, String senderBusinessSystemId, Instant now) {
         MasterUtilitiesDeviceCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), now));
+        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
 
         if (serviceCall.getState().equals(DefaultState.CANCELLED)) {
-            confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+            confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
         } else if (serviceCall.getState().equals(DefaultState.SUCCESSFUL)) {
             confirmationMessage.setLog(createSuccessfulLog());
         } else if (serviceCall.getState().equals(DefaultState.FAILED)) {
@@ -53,13 +59,13 @@ public class CreateConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Instant now) {
+    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), now));
+        confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         if (!message.getUtilitiesDeviceCreateMessages().isEmpty()) {
             confirmMsg.setUtilitiesDevice(createUtilitiesDevice(message.getUtilitiesDeviceCreateMessages().get(0).getDeviceId()));
         }
-        confirmMsg.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+        confirmMsg.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
         return confirmMsg;
     }
 
@@ -69,13 +75,19 @@ public class CreateConfirmationMessageFactory {
         confirmationMessage.setUtilitiesDevice(createUtilitiesDevice(extension.getDeviceId()));
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        header.setReferenceID(createID(requestId));
+        if (!Strings.isNullOrEmpty(requestId)) {
+            header.setReferenceID(createID(requestId));
+        }
         header.setUUID(createUUID(uuid));
-        header.setReferenceUUID(createUUID(referenceUuid));
+        if (!Strings.isNullOrEmpty(referenceUuid)) {
+            header.setReferenceUUID(createUUID(referenceUuid));
+        }
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
@@ -91,26 +103,47 @@ public class CreateConfirmationMessageFactory {
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(new Object[0]),
+                SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
+                null));
+        setMaximumLogItemSeverityCode(log);
+
         return log;
     }
 
     private Log createFailedLog(String message) {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-        log.getItem().add(createLogItem(message));
+        log.getItem().add(createLogItem(message, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                SeverityCode.ERROR.getCode(), PROCESSING_ERROR_CATEGORY_CODE));
+        setMaximumLogItemSeverityCode(log);
+
         return log;
     }
 
-    private LogItem createLogItem(String message) {
-        LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
-
+    private LogItem createLogItem(String message, String typeId, String severityCode, String categoryCode) {
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-        logItem.setCategoryCode(logItemCategoryCode);
+        if (!Strings.isNullOrEmpty(categoryCode)) {
+            LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
+            logItemCategoryCode.setValue(categoryCode);
+            logItem.setCategoryCode(logItemCategoryCode);
+        }
+        logItem.setSeverityCode(severityCode);
+        logItem.setTypeID(typeId);
         logItem.setNote(message);
 
         return logItem;
+    }
+
+    private void setMaximumLogItemSeverityCode(Log log) {
+        OptionalInt maxInt = log.getItem().stream().map(LogItem::getSeverityCode)
+                .filter(Predicates.not(Strings::isNullOrEmpty))
+                .mapToInt(Integer::parseInt)
+                .max();
+        if (maxInt.isPresent()) {
+            Integer value = maxInt.getAsInt();
+            log.setMaximumLogItemSeverityCode(value.toString());
+        }
     }
 
     private BusinessDocumentMessageID createID(String id) {

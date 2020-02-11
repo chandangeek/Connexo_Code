@@ -25,6 +25,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -101,8 +103,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
-import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 import com.google.common.collect.ImmutableMap;
@@ -121,7 +123,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -158,12 +159,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String REGISTER_RECURRENCE_CODE = "com.elster.jupiter.sap.register.recurrencecode";
     public static final String REGISTER_DIVISION_CATEGORY_CODE = "com.elster.jupiter.sap.register.divisioncategorycode";
 
-    public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
-    public static final String URL_PROPERTY = "url";
     public static final String APPLICATION_NAME = "MultiSense";
-    public static final String METERING_SYSTEM_ID = "CXO";
+    public static final String DEFAULT_METERING_SYSTEM_ID = "HON";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
+    public static final String SUCCESSFUL_PROCESSING_TYPE_ID = "000";
     public static final String UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID = "001";
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -193,6 +193,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_NEW_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.new.data.endpoint";
     public static final String EXPORT_TASK_UPDATED_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.updated.data.endpoint";
 
+    private static final String METERING_SYSTEM_ID = "sap.soap.metering.system.id";
     private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
     private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
@@ -203,7 +204,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     // Search data sources by SAP id's
     private static final String REGISTER_SEARCH_INTERVAL_PROPERTY = "com.elster.jupiter.sap.registersearchinterval";
     private static final String SEARCH_DATA_SOURCE_TASK_NAME = "SearchDataSourceTask";
-    private static final String SEARCH_DATA_SOURCE_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
+    private static final String SEARCH_DATA_SOURCE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
     private static final int SEARCH_DATA_SOURCE_TASK_RETRY_DELAY = 60;
 
     // Check SAP confirmation timeout
@@ -264,6 +265,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private Map<String, String> deviceTypesMap;
     private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
     private Map<String, CIMPattern> divisionCategoryCodeMap;
+    private String meteringSystemId;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -315,6 +317,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public Integer getSapProperty(AdditionalProperties property) {
         return sapProperties.get(property);
+    }
+
+    public String getMeteringSystemId() {
+        return meteringSystemId;
     }
 
     public WebServiceActivator() {
@@ -422,7 +428,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(
                         version(10, 7), UpgraderV10_7.class,
-                        version(10, 7, 1), UpgraderV10_7_1.class
+                        version(10, 7, 1), UpgraderV10_7_1.class,
+                        version(10, 7, 2), UpgraderV10_7_2.class
                 ));
 
         registerServices(bundleContext);
@@ -445,6 +452,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
 
+        meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
+
         loadDeviceTypesMap();
         createOrUpdateUpdateSapExportTask();
         createOrUpdateSearchDataSourceTask();
@@ -454,6 +463,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         loadRecurrenceCodeMap();
         loadDivisionCategoryCodeMap();
+
+        failOngoingExportTaskServiceCalls();
     }
 
     private void loadDeviceTypesMap() {
@@ -480,7 +491,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                             String[] codes = e[1].split(",");
                             return Pair.of(MacroPeriod.get(Integer.parseInt(codes[0].trim())), TimeAttribute.get(Integer.parseInt(codes[1].trim())));
                         }));
-             } else {
+            } else {
                 recurrenceCodeMap = Collections.emptyMap();
             }
         } catch (Exception ex) {
@@ -1072,16 +1083,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return value;
     }
 
-    public static Instant getZonedDate(Instant date, String timeZone) {
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId zoneId = utcZoneId;
-        try {
-            if (timeZone != null) {
-                zoneId = ZoneId.of(timeZone);
-            }
-        } catch (DateTimeException e) {
-            // No action, just use UTC zone
-        }
-        return date.atZone(zoneId).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+    private void failOngoingExportTaskServiceCalls() {
+        List<ServiceCall> serviceCalls = dataExportService.getDataExportServiceCallType().findServiceCalls(EnumSet.of(DefaultState.ONGOING));
+        serviceCalls.stream()
+                .forEach(sC -> dataExportService.getDataExportServiceCallType()
+                        .tryFailingServiceCall(sC, MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
     }
 }

@@ -4,8 +4,11 @@
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.nls.LocalizedException;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService;
@@ -16,9 +19,11 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.AbstractModule;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +32,7 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +40,12 @@ import static org.mockito.Mockito.when;
 public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutboundWebserviceTest<UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> {
     @Mock
     private Clock clock;
+    @Mock
+    private SAPCustomPropertySets sapCustomPropertySets;
+    @Mock
+    private WebServiceActivator webServiceActivator;
+    @Mock
+    private Device device;
 
     private List<String> deviceIds;
     private UtilitiesDeviceRegisteredBulkNotificationProvider provider;
@@ -47,8 +59,13 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
             @Override
             protected void configure() {
                 bind(Clock.class).toInstance(clock);
+                bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
+                bind(WebServiceActivator.class).toInstance(webServiceActivator);
             }
         });
+        when(sapCustomPropertySets.getDevice(anyString())).thenReturn(Optional.of(device));
+        when(sapCustomPropertySets.getStartDate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(Instant.EPOCH));
+        when(webServiceActivator.getMeteringSystemId()).thenReturn(WebServiceActivator.DEFAULT_METERING_SYSTEM_ID);
     }
 
     @Test

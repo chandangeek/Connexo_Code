@@ -173,6 +173,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Optional<ReadingType> getReadingTypeById(long id) {
+        return dataModel.stream(ReadingType.class).filter(where("id").isEqualTo(id)).findAny();
+    }
+
+    @Override
     public Optional<ReadingType> getReadingTypeByName(String name) {
         return dataModel.mapper(ReadingType.class).getUnique("fullAliasName", name);
     }

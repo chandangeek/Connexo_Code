@@ -1,13 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -16,21 +10,47 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
+import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
+
+import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_GAS_HOURLY_DUPLICATED_CHANNEL;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.setFieldAndGet;
 
 /**
  * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.mdc.upl.DeviceProtocol}
@@ -41,7 +61,7 @@ import java.util.logging.Level;
  * Time: 17:02:07
  * </pre>
  */
-public class LoadProfileBuilder implements DeviceLoadProfileSupport {
+public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements DeviceLoadProfileSupport {
 
     /**
      * Hardcoded ObisCode for the status of the 15min profile
@@ -68,7 +88,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * The used meterProtocol
      */
-    private final AbstractDlmsProtocol meterProtocol;
+    private final T meterProtocol;
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
@@ -107,7 +127,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public LoadProfileBuilder(T meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
@@ -154,6 +174,17 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 try {
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
                     List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+
+                    if (lpc.getObisCode().equalsIgnoreBChannel(Dsmr40LoadProfileBuilder.MBUS_LP1_OBISCODE)) {
+                        // remap duplicated 0.x.24.2.1.255 (timestamp) to 0.x.24.2.5.255
+                        channelInfos.stream().filter(
+                                ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_GAS_HOURLY_DUPLICATED_CHANNEL) &&
+                                        ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
+                        ).forEach(
+                                ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
+                        );
+                    }
+
                     int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                     int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                     lpc.setChannelInfos(channelInfos);
@@ -459,7 +490,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels(com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
      * </p>
      * <p>
@@ -549,7 +580,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return channelMaskMap;
     }
 
-    protected AbstractDlmsProtocol getMeterProtocol() {
+    protected T getMeterProtocol() {
         return meterProtocol;
     }
 
