@@ -16,18 +16,22 @@ public abstract class AbstractSapMessage {
     private Set<String> missingXmlNames = new HashSet<>();
 
     protected void addMissingField(String xmlName) {
-        missingXmlNames.add(xmlName);
+        missingXmlNames.add(quotation(xmlName));
     }
 
     protected void addAtLeastOneMissingField(Thesaurus thesaurus, String... xmlName) {
-        missingXmlNames.add(thesaurus.getFormat(TranslationKeys.AT_LEAST_ONE_OF).format() + '[' + Arrays.stream(xmlName).collect(Collectors.joining(", ", "'", "'")) + ']');
+        missingXmlNames.add(thesaurus.getFormat(TranslationKeys.AT_LEAST_ONE_OF).format() + Arrays.stream(xmlName).map(this::quotation).collect(Collectors.joining(", ", " [", "]")));
     }
 
     public String getMissingFields() {
-        return missingXmlNames.stream().collect(Collectors.joining(", ", "'", "'"));
+        return missingXmlNames.stream().collect(Collectors.joining(", "));
     }
 
     public boolean isValid() {
         return missingXmlNames.isEmpty();
+    }
+
+    private String quotation(String value) {
+        return '\'' + value + '\'';
     }
 }
