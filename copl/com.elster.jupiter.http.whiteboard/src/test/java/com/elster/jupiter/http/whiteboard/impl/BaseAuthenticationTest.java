@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
+
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.osgi.framework.BundleContext;
@@ -48,6 +50,8 @@ public class BaseAuthenticationTest {
     protected BundleContext context;
     @Mock
     protected SamlRequestService samlRequestService;
+    @Mock
+    protected BlackListTokenService blackListdTokenService;
 
     protected HttpAuthenticationService getHttpAuthentication() throws InvalidKeySpecException, NoSuchAlgorithmException {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
@@ -59,7 +63,8 @@ public class BaseAuthenticationTest {
         when(context.getProperty(INSTALL_DIR_PROPERTY)).thenReturn(anyString());
 
         when(dataModel.mapper(KeyStoreImpl.class)).thenReturn(keyStoreDataMapper);
-        BasicAuthentication basicAuthentication = new BasicAuthentication(userService, ormService, dataVaultService, upgradeService, bpmService, context);
+        BasicAuthentication basicAuthentication = new BasicAuthentication(userService, ormService, dataVaultService,
+                upgradeService, bpmService, context,blackListdTokenService);
         basicAuthentication.setSamlRequestService(samlRequestService);
         return basicAuthentication;
     }
