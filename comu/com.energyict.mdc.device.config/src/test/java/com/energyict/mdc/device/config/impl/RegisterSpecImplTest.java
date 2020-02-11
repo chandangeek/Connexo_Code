@@ -54,7 +54,12 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private ReadingType readingType2;
     private ReadingType readingType3;
     private ReadingType deltaReadingType;
-    private final String invalidActiveEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
+    private final String invalidActiveEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED)
+            .flow(FORWARD)
+            .measure(ENERGY)
+            .in(KILO, WATTHOUR)
+            .accumulate(Accumulation.BULKQUANTITY)
+            .code();
     private final ReadingType invalidReadingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(invalidActiveEnergyPrimary).get();
 
     private Unit unit1 = Unit.get("kWh");
@@ -107,7 +112,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
 
-    private DeviceConfiguration getReloadedDeviceConfiguration(){
+    private DeviceConfiguration getReloadedDeviceConfiguration() {
         return inMemoryPersistence.getDeviceConfigurationService()
                 .findDeviceConfiguration(this.deviceConfiguration.getId())
                 .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + this.deviceConfiguration.getId()));
@@ -141,7 +146,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "numberOfFractionDigits")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "numberOfFractionDigits")
     public void createRegisterSpecNoFractionDigits() {
         RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).overflowValue(overflowValue).add();
     }
@@ -156,7 +161,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "overflow")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "overflow")
     public void updateOverflowMissing() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
@@ -179,7 +184,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflow")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}", property = "overflow")
     public void updateOverflowValueTooSmallTest() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
@@ -191,7 +196,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflow")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}", property = "overflow")
     public void overflowValueIsToSmallForDeltaRegisterType() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(deltaRegisterType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -204,7 +209,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS+"}", property = "numberOfFractionDigits", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}", property = "numberOfFractionDigits", strict = false)
     public void setNegativeNumberOfFractionDigitsTest() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
@@ -325,7 +330,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         Optional<RegisterType> existingRegisterType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType);
         RegisterType otherType;
         ObisCode otherObisCode = ObisCode.fromString("1.2.3.1.5.6");
-        if(existingRegisterType.isPresent()){
+        if (existingRegisterType.isPresent()) {
             otherType = existingRegisterType.get();
             otherType.setObisCode(otherObisCode);
             otherType.save();
@@ -348,12 +353,14 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = "numberOfFractionDigits")
     public void testDecreaseNumberOfFractionDigits() throws Exception {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType)
                 .overflowValue(overflowValue).numberOfFractionDigits(3).add();
         this.getReloadedDeviceConfiguration().activate();
-        registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(registerSpec.getId()).get())).numberOfFractionDigits(1).update();
+        registerSpec.getDeviceConfiguration()
+                .getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(registerSpec.getId()).get()))
+                .numberOfFractionDigits(1)
+                .update();
     }
 
     @Test
@@ -457,13 +464,14 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY +"}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY + "}")
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
         registerSpecBuilder.useMultiplierWithCalculatedReadingType(null);
         registerSpecBuilder.add();
     }
+
     @Test
     @Transactional
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueWithoutViolationsTest() {
@@ -484,9 +492,10 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         registerSpecUpdater.useMultiplierWithCalculatedReadingType(readingType3);
         registerSpecUpdater.update();
     }
+
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY +"}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY + "}")
     public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueForUpdateTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -500,7 +509,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA +"}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA + "}")
     public void calculatedReadingTypeDoesNotMatchCriteriaTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(deltaRegisterType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -510,7 +519,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.READINGTYPE_CAN_NOT_BE_MULTIPLIED +"}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.READINGTYPE_CAN_NOT_BE_MULTIPLIED + "}")
     public void readingTypeCanNotBeMultipliedTest() {
         RegisterType registerTypeWhichCanNotBeMultiplied = createOrSetRegisterType(readingType3, registerTypeObisCode);
 
@@ -522,7 +531,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG +"}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG + "}")
     public void multiplierUsageCanNotBeUpdatedOnActiveConfigTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -530,12 +539,14 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec numericalRegisterSpec = registerSpecBuilder.add();
 
         getReloadedDeviceConfiguration().activate();
-        getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(numericalRegisterSpec.getId()).get())).noMultiplier().update();
+        getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(numericalRegisterSpec.getId()).get()))
+                .noMultiplier()
+                .update();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG +"}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG + "}", strict = false)
     public void multiplierCanNotBeUpdatedOnActiveConfigTest() {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
@@ -543,6 +554,8 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec numericalRegisterSpec = registerSpecBuilder.add();
 
         getReloadedDeviceConfiguration().activate();
-        getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(numericalRegisterSpec.getId()).get())).useMultiplierWithCalculatedReadingType(readingType1).update();
+        getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(((NumericalRegisterSpec) inMemoryPersistence.getDeviceConfigurationService().findRegisterSpec(numericalRegisterSpec.getId()).get()))
+                .useMultiplierWithCalculatedReadingType(readingType1)
+                .update();
     }
 }

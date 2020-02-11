@@ -81,7 +81,7 @@ mvn:org.kie/kie-internal/6.0.1.Final
 mvn:org.slf4j/slf4j-api/1.7.2
 mvn:org.drools/drools-templates/6.0.1.Final
 mvn:org.drools/drools-compiler/6.0.1.Final
-mvn:com.google.protobuf/protobuf-java/2.5.0
+mvn:com.google.protobuf/protobuf-java/2.6.0
 mvn:com.sun.xml.bind/jaxb-xjc/2.2.11
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/3.5_1
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/1.4.3_3

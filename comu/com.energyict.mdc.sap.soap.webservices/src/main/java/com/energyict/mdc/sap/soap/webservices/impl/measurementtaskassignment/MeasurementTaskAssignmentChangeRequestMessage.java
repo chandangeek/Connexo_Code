@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesMeasurementTaskID;
@@ -22,12 +23,13 @@ import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-public class MeasurementTaskAssignmentChangeRequestMessage {
+public class MeasurementTaskAssignmentChangeRequestMessage extends AbstractSapMessage {
 
     private String id;
     private String uuid;
     private String profileId;
     private List<MeasurementTaskAssignmentChangeRequestRole> roles;
+
     private Thesaurus thesaurus;
 
     private MeasurementTaskAssignmentChangeRequestMessage(Thesaurus thesaurus) {
@@ -48,10 +50,6 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
 
     public List<MeasurementTaskAssignmentChangeRequestRole> getRoles() {
         return roles;
-    }
-
-    public boolean isValid() {
-        return id != null || uuid != null;
     }
 
     public boolean arePeriodsValid() {
@@ -84,6 +82,9 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
                     .ifPresent(сhangeRequest -> {
                         setRoles(getRoles(сhangeRequest));
                     });
+            if (id == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             return this;
         }
 
