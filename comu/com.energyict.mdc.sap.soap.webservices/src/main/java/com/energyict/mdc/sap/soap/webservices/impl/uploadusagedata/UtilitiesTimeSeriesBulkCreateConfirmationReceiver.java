@@ -144,10 +144,8 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
                         .map(Log::getItem)
                         .map(List::stream)
                         .orElseGet(Stream::empty)
-                        .reduce(UtilitiesTimeSeriesBulkCreateConfirmationReceiver::findMaximumSeverityOrNotNullOrWhatever)
                         .map(LogItem::getTypeID)
-                        .filter(typeId -> webServiceActivator.getUudSuccessfulErrorCodes().stream().anyMatch(typeId::startsWith))
-                        .isPresent();
+                        .allMatch(typeId -> webServiceActivator.getUudSuccessfulErrorCodes().stream().anyMatch(typeId::startsWith));
             }
         }
 
