@@ -16,18 +16,15 @@ import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-// import com.elster.jupiter.export.processor.impl.FormatterProperties;
-// import com.elster.jupiter.export.processor.impl.MessageSeeds;
 
 @Component(name = "com.elster.jupiter.export.redknee.translations", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true)
 public class Translations implements TranslationKeyProvider, MessageSeedProvider {
 
     @Override
     public String getComponentName() {
-        return DataExportService.COMPONENTNAME;
+        return "RKN";
     }
 
     @Override
@@ -42,7 +39,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Collections.emptyList(); //Arrays.asList(MessageSeeds.values());
+        return Arrays.asList(MessageSeeds.values());
     }
 
     enum Labels implements TranslationKey {
