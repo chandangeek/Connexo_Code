@@ -381,7 +381,7 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(childCreateServiceCall));
-        verify(serviceCallType).tryFailingServiceCall(any(ServiceCall.class), any(String.class));
+        verify(serviceCallType).tryFailingServiceCall(createServiceCall, "No data export confirmation has been received in the configured timeout.");
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -648,7 +648,7 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(argThat(matches(t -> t.containsAll(ImmutableList.of(childCreateServiceCall, childCreateServiceCall3, childCreateServiceCall4))))); // per failed created data
         verify(serviceCallType).getDataSources(Collections.singleton(childChangeServiceCall)); // per failed changed data
-        verify(serviceCallType).tryFailingServiceCall(any(ServiceCall.class), any(String.class));
+        verify(serviceCallType).tryFailingServiceCall(changeServiceCall, "No data export confirmation has been received in the configured timeout.");
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -843,10 +843,10 @@ public class WebServiceDestinationImplTest {
     }
 
     private ServiceCallStatusImpl tryFailingServiceCall(InvocationOnMock invocationOnMock) {
-        ServiceCall serviceCall = (ServiceCall) invocationOnMock.getArguments()[0];
+        ServiceCall serviceCall = invocationOnMock.getArgumentAt(0, ServiceCall.class);
         stubStatus(serviceCall, DefaultState.ONGOING, null);
         serviceCall.findChildren().paged(0, 10).find().forEach(s -> when(s.getState()).thenReturn(DefaultState.FAILED));
-        return new ServiceCallStatusImpl(serviceCall, DefaultState.FAILED, (String) invocationOnMock.getArguments()[1]);
+        return new ServiceCallStatusImpl(serviceCall, DefaultState.FAILED, invocationOnMock.getArgumentAt(1, String.class));
     }
 
     private void mockChildSCFinder(ServiceCall createServiceCall, List<ServiceCall> childServiceCalls) {

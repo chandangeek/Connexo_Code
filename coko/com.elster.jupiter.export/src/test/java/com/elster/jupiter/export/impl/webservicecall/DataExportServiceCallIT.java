@@ -575,11 +575,13 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testGetDataSources() {
         ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
-        assertThat(dataExportServiceCallType.getDataSources(Collections.singletonList(serviceCall))).containsOnly(itemList.toArray(new ReadingTypeDataExportItem[itemList.size()]));
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall.findChildren()
+                .stream()
+                .collect(Collectors.toList()))).containsOnly(itemList.toArray(new ReadingTypeDataExportItem[itemList.size()]));
         serviceCall = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, Collections.emptyMap());
-        assertThat(dataExportServiceCallType.getDataSources(Collections.singletonList(serviceCall))).isEmpty();
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall.findChildren().stream().collect(Collectors.toList()))).isEmpty();
         serviceCall = dataExportServiceCallType.startServiceCall("UUID", TIMEOUT, ImmutableMap.of(itemList.get(0), ""));
-        assertThat(dataExportServiceCallType.getDataSources(Collections.singletonList(serviceCall))).containsOnly(itemList.get(0));
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall.findChildren().stream().collect(Collectors.toList()))).containsOnly(itemList.get(0));
     }
 
     private static void assertProperties(ServiceCall serviceCall, DefaultState state, String uuid, long timeout, String error) {

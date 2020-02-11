@@ -349,11 +349,10 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         if (childServiceCalls.isEmpty()) {
             return new HashSet<>();
         }
-        List<Long> list = childServiceCalls.stream().map(HasId::getId).collect(Collectors.toList());
         Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
                 .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
-                .asSubquery(Where.where("serviceCall.id").in(list),
+                .asSubquery(Where.where("serviceCall").in(childServiceCalls),
                         WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
         return ormService.getDataModel(DataExportService.COMPONENTNAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))

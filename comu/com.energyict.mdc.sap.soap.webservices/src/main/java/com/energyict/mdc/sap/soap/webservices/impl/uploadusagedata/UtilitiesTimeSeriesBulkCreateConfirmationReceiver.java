@@ -161,8 +161,8 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkCrteConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .map(ProcessingResultCode::fromCode)
-                .get().orElse(ProcessingResultCode.FAILED);
+                .flatMap(ProcessingResultCode::fromCode)
+                .orElse(ProcessingResultCode.FAILED);
     }
 
     private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
