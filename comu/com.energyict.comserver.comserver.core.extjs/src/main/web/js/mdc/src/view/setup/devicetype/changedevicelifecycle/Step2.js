@@ -33,17 +33,25 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
         var me = this,
             states = '',
             errorMessage = '',
+            message = '',
             additionalInfo = '';
 
         if (success) {
-            if (result.message && result.affectedRules && result.affectedRules.length){
-                additionalInfo = '<br>' + result.message + '<ul>';
-                Ext.Array.each(result.affectedRules, function (rule) {
-                    additionalInfo += '<li style="margin-left: 20px">' + rule + '</li>';
-                });
-                additionalInfo += '</ul>';
+            if (result.message){
+                message = result.message;
+                if (result.affectedRules && result.affectedRules.length){
+                    additionalInfo = '<ul>';
+                    Ext.Array.each(result.affectedRules, function (rule) {
+                        if (rule){
+                            additionalInfo += '<li style="margin-left: 20px">' + rule + '</li>';
+                        }
+                    });
+                    additionalInfo += '</ul>';
+                }
+            }else{
+                message = Uni.I18n.translate('deviceLifeCycle.change.successMsg', 'MDC', 'Successfully changed device life cycle');
             }
-            me.update('<h3>' + Uni.I18n.translate('deviceLifeCycle.change.successMsg', 'MDC', 'Successfully changed device life cycle') + '</h3>' + additionalInfo);
+            me.update('<h3>' + message + '</h3>' + additionalInfo);
         } else {
             if (result.notMappableStates && result.notMappableStates.length) {
                 states = '<ul>';
