@@ -128,7 +128,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(12212, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}"),
     METER_CANNOT_BE_UNLINKED(12213, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configuration does not allow gaps, meter ''{0}'' cannot be unlinked from usage point ''{1}'' at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
     METER_ACTIVATION_OVERLAP(12214, Constants.METER_ACTIVATION_OVERLAP, "Meter linking error. Meter {0} cannot be linked on {1} because there are closed meter activations on this meter at this point of time"),
-    FORBIDDEN_CHARS(12215, Constants.FORBIDDEN_CHARS, "Usage point name contains forbidden characters: %, +, /, ;, ?, \\, !, *, ', (, ), :, @, &, =, $, ,, [, ]"),
+    FORBIDDEN_CHARS(12215, Constants.FORBIDDEN_CHARS, "Usage point name contains forbidden characters: %, +, /, ;, ?, \\, !, *, '', (, ), :, @, &, =, $, ,, [, ]"),
     ;
 
     private final int number;
