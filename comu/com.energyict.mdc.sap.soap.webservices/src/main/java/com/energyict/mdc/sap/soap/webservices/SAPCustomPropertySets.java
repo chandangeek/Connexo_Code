@@ -64,6 +64,8 @@ public interface SAPCustomPropertySets {
 
     boolean isAnyLrnPresent(long deviceId);
 
+    boolean isAnyLrnPresentForDate(long deviceId, Instant dateTime);
+
     Optional<Channel> getChannel(String lrn, Instant when);
 
     void setLocation(Device device, String locationId);
