@@ -46,7 +46,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 valueToNumber: true,
                 matchFieldWidth: false,
                 listConfig: {
-                    tpl : '<tpl for="."><div class="x-boundlist-item" style="width:350px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-qtip="{name}">{name}</div></tpl>'
+                    tpl : '<tpl for="."><div class="x-boundlist-item" style="min-width:180px;max-width:350px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-qtip="{name}">{name}</div></tpl>'
                 }
             },
             {
