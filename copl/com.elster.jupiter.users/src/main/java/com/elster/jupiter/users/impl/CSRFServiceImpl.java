@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Insert your comments here.
+ * Managing the CSRF token per user session.
  *
  * @author E492165 (M R)
  * @since 1/30/2020 (15:53)
@@ -46,12 +46,12 @@ public class CSRFServiceImpl implements CSRFService {
         }
     }
     @Override
-    public void romoveToken(String sessionId) {
+    public void removeToken(String sessionId) {
         sessions.remove(sessionId);
     }
 
     @Activate
     public void activate(){
-        System.out.println("Activating Service call demo handler");
+        System.out.println("Activating Service call: CSRF Token Handler");
     }
 }

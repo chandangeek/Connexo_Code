@@ -18,13 +18,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Insert your comments here.
+ * CSRF Request Filter
  *
  * @author E492165 (M R)
  * @since 2/05/2020 (11:11)
@@ -34,19 +35,16 @@ import java.util.stream.Stream;
         immediate = true, service = CSRFFilterService.class)
 public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
-    public static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
-    public static final String POST = "POST";
-    public static final String PUT = "PUT";
-    public static final String DELETE = "DELETE";
-    private final String USER_SESSIONID = "X-SESSIONID";
-    private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
+    private static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
+    private static final String USER_SESSIONID = "X-SESSIONID";
+    private static final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
+    private static final String POST = "POST";
+    private static final String PUT = "PUT";
+    private static final String DELETE = "DELETE";
+
 
     private volatile CSRFService csrfService;
-    private volatile SecurityTokenImpl securityToken;
 
-    public CSRFFilterServiceImpl(){
-
-    }
     @Inject
     public CSRFFilterServiceImpl(CSRFService csrfService){
         super();
@@ -72,12 +70,12 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
     @Override
     public void removeUserSession(String sessionId) {
-        csrfService.romoveToken(sessionId);
+        csrfService.removeToken(sessionId);
     }
 
     @Override
     public boolean handleCSRFSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (isFormSubmitRequest(request) && !validateCSRFRequest(request)) {
+        if (isFormSubmitRequest(request) && !validCSRFRequest(request)) {
             denyRequest(request, response);
             return false;
         }
@@ -88,7 +86,7 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
         return Stream.of(POST, PUT, DELETE).anyMatch(request.getMethod()::equalsIgnoreCase);
     }
 
-    private boolean validateCSRFRequest(HttpServletRequest request) {
+    private boolean validCSRFRequest(HttpServletRequest request) {
         Optional<Cookie> sessionId =  getCookie(request, USER_SESSIONID);
         if(sessionId.isPresent()){
             String csrfToken = request.getHeader(X_CSRF_TOKEN);
@@ -114,7 +112,7 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     }
 
     private String base64Encode(String input) {
-        return Base64.getUrlEncoder().encodeToString(input.getBytes());
+        return Base64.getUrlEncoder().encodeToString(input.getBytes(StandardCharsets.UTF_8));
     }
 
     private boolean denyRequest(HttpServletRequest request, HttpServletResponse response) {
@@ -131,7 +129,7 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     private void invalidateSessionCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> sessionCookie = getCookie(request,USER_SESSIONID);
         if(sessionCookie.isPresent()) {
-            csrfService.romoveToken(sessionCookie.get().getValue());
+            csrfService.removeToken(sessionCookie.get().getValue());
             clearCookie(response, sessionCookie.get().getName());
         }
     }

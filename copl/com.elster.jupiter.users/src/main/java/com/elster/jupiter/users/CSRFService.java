@@ -19,5 +19,5 @@ import aQute.bnd.annotation.ProviderType;
 public interface CSRFService {
     public String getCSRFToken(String sessionId);
     public void addCSRFToken(String sessionId, String token);
-    public void romoveToken(String sessionId);
+    public void removeToken(String sessionId);
 }
