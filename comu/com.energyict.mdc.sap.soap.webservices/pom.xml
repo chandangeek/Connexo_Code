@@ -180,10 +180,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.scheduling</artifactId>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -219,6 +215,11 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.scheduling</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
