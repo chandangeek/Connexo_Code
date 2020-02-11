@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-class ServiceCallStatusImpl implements ServiceCallStatus {
+public class ServiceCallStatusImpl implements ServiceCallStatus {
     private final ServiceCall serviceCall;
     private final DefaultState state;
     private String errorMessage;
@@ -47,7 +47,7 @@ class ServiceCallStatusImpl implements ServiceCallStatus {
         }
     }
 
-    ServiceCallStatusImpl(ServiceCall serviceCall, DefaultState state, String errorMessage) {
+    public ServiceCallStatusImpl(ServiceCall serviceCall, DefaultState state, String errorMessage) {
         this.serviceCall = serviceCall;
         this.state = state;
         this.errorMessage = errorMessage;
@@ -74,7 +74,7 @@ class ServiceCallStatusImpl implements ServiceCallStatus {
     }
 
     @Override
-    public boolean isPartialSuccessful() {
+    public boolean isPartiallySuccessful() {
         return DefaultState.PARTIAL_SUCCESS == state;
     }
 

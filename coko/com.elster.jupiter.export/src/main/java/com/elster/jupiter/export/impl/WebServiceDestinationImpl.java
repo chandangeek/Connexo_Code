@@ -69,9 +69,9 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         CREATED_AND_CHANGED
     }
 
-    private static final int CHECK_PAUSE_IN_SECONDS = 10;
     private final ThreadPrincipalService threadPrincipalService;
     private final DataExportServiceCallType dataExportServiceCallType;
+    static final int CHECK_PAUSE_IN_SECONDS = 10;
 
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<EndPointConfiguration> createEndPoint = Reference.empty();
@@ -187,8 +187,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                         case PENDING:
                         case ONGOING:
                             error = getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_CONFIRMATION).format();
-                            dataExportServiceCallType.tryFailingServiceCall(status.getServiceCall(),
-                                    getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_CONFIRMATION).format());
+                            dataExportServiceCallType.tryFailingServiceCall(status.getServiceCall(), error);
                             break;
                         default:
                             // this case should not happen actually
@@ -202,7 +201,9 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .map(ServiceCallStatus::getServiceCall)
                 .map(ServiceCall::findChildren)
                 .flatMap(Finder::stream)
-                .filter(s -> s.getState().equals(DefaultState.FAILED))
+                .filter(s -> s.getState().equals(DefaultState.FAILED) ||
+                        s.getState().equals(DefaultState.CANCELLED) ||
+                        s.getState().equals(DefaultState.REJECTED))
                 .collect(Collectors.toSet());
 
         Set<ReadingTypeDataExportItem> failedDataSources = Collections.emptySet();
@@ -217,7 +218,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         if (!dataSendingResult.sent) {
             // some service calls are possibly not created yet
             Set<ServiceCall> successfulServiceCalls = states.stream()
-                    .filter(Predicates.not(ServiceCallStatus::isFailed))
+                    .filter(state -> state.isSuccessful() || state.isPartiallySuccessful())
                     .map(ServiceCallStatus::getServiceCall)
                     .map(ServiceCall::findChildren)
                     .flatMap(Finder::stream)

@@ -21,9 +21,6 @@ public class WebServiceDataExportChildCustomPropertySet implements CustomPropert
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
 
-    public WebServiceDataExportChildCustomPropertySet() {
-    }
-
     @Inject
     public WebServiceDataExportChildCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;

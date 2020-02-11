@@ -11,7 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
@@ -26,6 +25,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmCrteConfUtilsTmeSers;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
@@ -33,6 +33,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +96,15 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
                     break;
                 case PARTIALLY_SUCCESSFUL:
                     List<String> successfulProfileIds = getSuccessfulProfileIds(confirmation);
-                    dataExportServiceCallType.tryPartialPassingServiceCallByProfileIds(serviceCall, successfulProfileIds, getSeverestError(confirmation).orElse(null));
+                    List<ServiceCall> successfulChildren = new ArrayList<>();
+                    serviceCall.findChildren().stream().forEach(child -> {
+                        List<String> extensionProfileIds = Arrays.asList(dataExportServiceCallType.getCustomInfoFromChildServiceCall(child).split(","));
+                        if (successfulProfileIds.containsAll(extensionProfileIds)) {
+                            successfulChildren.add(child);
+                        }
+                        successfulProfileIds.removeAll(extensionProfileIds);
+                    });
+                    dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, successfulChildren, getSeverestError(confirmation).orElse(null));
                     break;
                 case FAILED:
                     dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
@@ -120,7 +130,7 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
         return Optional.ofNullable(item)
                 .map(UtilsTmeSersERPItmCrteConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .filter(code->code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
+                .filter(code -> code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
                 .isPresent();
     }
 
@@ -151,8 +161,8 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkCrteConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .map(ProcessingResultCode::valueFor)
-                .orElse(ProcessingResultCode.FAILED);
+                .map(ProcessingResultCode::fromCode)
+                .get().orElse(ProcessingResultCode.FAILED);
     }
 
     private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {

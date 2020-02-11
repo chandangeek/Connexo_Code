@@ -33,6 +33,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +96,15 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                     break;
                 case PARTIALLY_SUCCESSFUL:
                     List<String> successfulProfileIds = getSuccessfulProfileIds(confirmation);
-                    dataExportServiceCallType.tryPartialPassingServiceCallByProfileIds(serviceCall, successfulProfileIds, getSeverestError(confirmation).orElse(null));
+                    List<ServiceCall> successfulChildren = new ArrayList<>();
+                    serviceCall.findChildren().stream().forEach(child -> {
+                        List<String> extensionProfileIds = Arrays.asList(dataExportServiceCallType.getCustomInfoFromChildServiceCall(child).split(","));
+                        if (successfulProfileIds.containsAll(extensionProfileIds)) {
+                            successfulChildren.add(child);
+                        }
+                        successfulProfileIds.removeAll(extensionProfileIds);
+                    });
+                    dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, successfulChildren, getSeverestError(confirmation).orElse(null));
                     break;
                 case FAILED:
                     dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
@@ -120,7 +130,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
         return Optional.ofNullable(item)
                 .map(UtilsTmeSersERPItmChgConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .filter(code->code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
+                .filter(code -> code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
                 .isPresent();
     }
 
@@ -151,8 +161,8 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .map(ProcessingResultCode::valueFor)
-                .orElse(ProcessingResultCode.FAILED);
+                .map(ProcessingResultCode::fromCode)
+                .get().orElse(ProcessingResultCode.FAILED);
     }
 
     private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {

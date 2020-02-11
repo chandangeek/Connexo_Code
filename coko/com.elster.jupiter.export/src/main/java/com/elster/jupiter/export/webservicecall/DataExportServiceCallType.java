@@ -22,6 +22,7 @@ public interface DataExportServiceCallType {
     /**
      * Creates and starts a new service call in current transaction, or in a new transaction if there's no transaction in context.
      * The service call will be performed asynchronously after commit of this transaction.
+     *
      * @param uuid UUID identifying the service call.
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @param data a map containing custom information per ReadingTypeDataExportItem.
@@ -32,6 +33,7 @@ public interface DataExportServiceCallType {
     /**
      * Creates and starts a new service call in a new thread.
      * The service call will be performed asynchronously right after calling this method.
+     *
      * @param uuid UUID identifying the service call.
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @param data a map containing custom information per ReadingTypeDataExportItem.
@@ -54,6 +56,7 @@ public interface DataExportServiceCallType {
 
     /**
      * Tries failing a given service call. If it is already closed, does nothing.
+     *
      * @param serviceCall Service call to close.
      * @param errorMessage Error message to close the service call with.
      * @return Actual {@link ServiceCallStatus} after the attempt to fail.
@@ -62,6 +65,7 @@ public interface DataExportServiceCallType {
 
     /**
      * Tries passing a given service call. If it is already closed, does nothing.
+     *
      * @param serviceCall Service call to close.
      * @return Actual {@link ServiceCallStatus} after the attempt to pass.
      */
@@ -69,17 +73,19 @@ public interface DataExportServiceCallType {
 
     /**
      * Tries moving service call to partial success state.
-     * Before moving tries close child service calls by custom info (profile ids)
+     * Before moving tries closing child service calls by custom info (profile ids)
      * If it is already closed, does nothing.
+     *
      * @param serviceCall Service call to close.
-     * @param successfulProfileIds list of successful profile ids
+     * @param successfulChildren list of successful children
      * @param errorMessage Error message to close the service call with.
      * @return Actual {@link ServiceCallStatus} after the attempt to pass.
      */
-    ServiceCallStatus tryPartialPassingServiceCallByProfileIds(ServiceCall serviceCall, List<String> successfulProfileIds, String errorMessage);
+    ServiceCallStatus tryPartiallyPassingServiceCall(ServiceCall serviceCall, Collection<ServiceCall> successfulChildren, String errorMessage);
 
     /**
      * Re-reads the service call status from database.
+     *
      * @param serviceCall Service call to check status.
      * @return {@link ServiceCallStatus} containing info about actual service call state.
      */
@@ -87,7 +93,7 @@ public interface DataExportServiceCallType {
 
     List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls);
 
-    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCall);
+    Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> childServiceCalls);
 
-    Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> serviceCalls);
+    String getCustomInfoFromChildServiceCall(ServiceCall serviceCall);
 }

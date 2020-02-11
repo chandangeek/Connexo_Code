@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public enum ProcessingResultCode {
@@ -22,11 +23,10 @@ public enum ProcessingResultCode {
         return code;
     }
 
-    public static ProcessingResultCode valueFor(String code) {
+    public static Optional<ProcessingResultCode> fromCode(String code) {
         return Stream
                 .of(values())
                 .filter(each -> each.getCode().equals(code))
-                .findAny()
-                .orElse(null);
+                .findAny();
     }
 }

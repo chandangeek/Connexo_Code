@@ -134,6 +134,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     abstract List<TS> prepareTimeSeries(ReadingTypeDataExportItem item, List<MeterReadingData> readingList, Instant now);
 
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
+
     abstract String createCustomInfo(List<TS> list);
 
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
@@ -242,19 +243,19 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             SetMultimap<String, String> values = HashMultimap.create();
 
             MSG message = createMessageFromTimeSeries(timeSeriesList, uuid, values, now);
-                if (message != null) {
-                    Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
-                            .toEndpoints(endPointConfiguration)
-                            .withRelatedAttributes(values)
-                            .send(message)
-                            .keySet();
-                    if (!processedEndpoints.contains(endPointConfiguration)) {
-                        throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
-                    }
-                    Optional.ofNullable(timeout)
-                            .map(TimeDuration::getMilliSeconds)
-                            .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, data));
+            if (message != null) {
+                Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
+                        .toEndpoints(endPointConfiguration)
+                        .withRelatedAttributes(values)
+                        .send(message)
+                        .keySet();
+                if (!processedEndpoints.contains(endPointConfiguration)) {
+                    throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
                 }
+                Optional.ofNullable(timeout)
+                        .map(TimeDuration::getMilliSeconds)
+                        .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, data));
+            }
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
             throw ex;
