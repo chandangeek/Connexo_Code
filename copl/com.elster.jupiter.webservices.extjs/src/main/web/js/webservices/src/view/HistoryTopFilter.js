@@ -43,7 +43,11 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 valueField: 'id',
                 store: endpointStore,
                 value: me.endpoint ? me.endpoint.getId() : undefined,
-                valueToNumber: true
+                valueToNumber: true,
+                matchFieldWidth: false,
+                listConfig: {
+                    tpl : '<tpl for="."><div class="x-boundlist-item" style="width:350px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-qtip="{name}">{name}</div></tpl>'
+                }
             },
             {
                 type: 'combobox',

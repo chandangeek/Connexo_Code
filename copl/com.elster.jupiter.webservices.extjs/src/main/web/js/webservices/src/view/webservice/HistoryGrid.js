@@ -18,7 +18,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 header: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
                 dataIndex: 'startTime',
-                flex: 1,
+                flex: 2,
                 renderer: function (value, metaData, record) {
                     var basename = me.adminView ? 'administration' : 'workspace';
                     var curOccurrenceRoute = (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices') ?
@@ -37,7 +37,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 dataIndex: 'endTime',
                 header: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
-                flex: 1,
+                flex: 2,
                 renderer: function (value, metaData, record) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
@@ -45,7 +45,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),
                 dataIndex: 'endpoint',
-                flex: 1,
+                flex: 3,
                 hidden: Boolean(me.endpoint),
                 renderer: function(value, metaData, record) {
                     var endpoint = record.getEndpoint();
@@ -55,9 +55,9 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                             endpointId: endpoint.get('id')
                         });
 
-                        return '<a href="' + url + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</a>';
+                        return '<span data-qtip="'+ Ext.String.htmlEncode(endpoint.get('name')) +'"><a href="' + url + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</a></span>';
                     }else{
-                        return Ext.String.htmlEncode(endpoint.get('name'));
+                        return '<span data-qtip="'+ Ext.String.htmlEncode(endpoint.get('name')) +'">' + Ext.String.htmlEncode(endpoint.get('name')) + '</span>';
                     }
                 }
             },
@@ -87,7 +87,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                         return '-';
                     }
 
-                    return Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime'));
+                    return Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime'), true);
                 }
             },
             {
