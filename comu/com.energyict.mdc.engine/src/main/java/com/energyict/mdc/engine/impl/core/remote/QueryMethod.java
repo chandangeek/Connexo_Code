@@ -85,6 +85,17 @@ public enum QueryMethod {
             return null;
         }
     },
+    FindPendingOutboundComTasks {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            Integer comPortId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
+            Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comPortId);
+            if (comPort.isPresent()) {
+                return serviceProvider.comServerDAO().findPendingOutboundComTasks((OutboundComPort) comPort.get());
+            }
+            return null;
+        }
+    },
     FindExecutableOutboundComTasks {
         @Override
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {

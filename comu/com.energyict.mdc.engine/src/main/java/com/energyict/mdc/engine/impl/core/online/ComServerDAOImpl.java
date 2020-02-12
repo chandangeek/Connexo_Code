@@ -26,7 +26,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -155,9 +154,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -319,6 +320,19 @@ public class ComServerDAOImpl implements ComServerDAO {
         } else {
             return new MultiThreadedComJobFactory(comPort.getNumberOfSimultaneousConnections());
         }
+    }
+
+    @Override
+    public List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort) {
+        long start = System.currentTimeMillis();
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPendingComTaskExecutionsListFor(comPort);
+        long fetchComTaskDuration = System.currentTimeMillis() - start;
+        ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
+        start = System.currentTimeMillis();
+        List<ComJob> comJobs = comJobFactoryFor.collect(comTaskExecutions.iterator());
+        long addToGroupDuration = System.currentTimeMillis() - start;
+        LOGGER.warning("perf - fetchComTaskDuration=" + fetchComTaskDuration + ", addToGroupDuration=" + addToGroupDuration);
+        return comJobs;
     }
 
     @Override
@@ -933,6 +947,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void releaseInterruptedTasks(final ComPort comPort) {
+        LOGGER.warning("Start unlocking BUSY comTasks on comPort " + comPort);
         executeTransaction(() -> {
             getCommunicationTaskService().releaseInterruptedComTasks(comPort);
             LOGGER.info("Unlocked BUSY comTasks on comPort " + comPort);
@@ -944,18 +959,74 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TimeDuration releaseTimedOutTasks(final ComPort comPort) {
+        LOGGER.warning("Start unlocking timed out comTasks on comPort '" + comPort + "'");
         return executeTransaction(() -> {
             TimeDuration timeDuration = getCommunicationTaskService().releaseTimedOutComTasks(comPort);
-            LOGGER.info("Unlocked comTasks timed out on comPort " + comPort);
+            LOGGER.info("Unlocked comTasks timed out on comPort '" + comPort + "'");
             getConnectionTaskService().releaseTimedOutConnectionTasks(comPort);
-            LOGGER.info("Unlocked connectionTasks timed out on comPort " + comPort);
+            LOGGER.info("Unlocked connectionTasks timed out on comPort '" + comPort + "'");
             return timeDuration;
         });
     }
 
     @Override
     public void releaseTasksFor(final ComPort comPort) {
-        releaseInterruptedTasks(comPort);
+        unlockComTasks(comPort);
+        unlockConnectionTasks(comPort);
+    }
+
+    private void unlockComTasks(ComPort comPort) {
+        List<ComTaskExecution> lockedComTasks = getCommunicationTaskService().findLockedByComPort(comPort);
+        LOGGER.warning("Start unlocking BUSY comTasks on comPort '" + comPort + "'");
+        long unlockedCount = 0;
+        for (ComTaskExecution lockedComTask : lockedComTasks) {
+            if (unlocked(lockedComTask)) {
+                ++unlockedCount;
+            }
+        }
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedComTasks.size() + " comTasks on comPort '" + comPort + "'");
+    }
+
+    private boolean unlocked(ComTaskExecution lockedComTask) {
+        // execute each unlock in its own transaction, to minimize the number of zombie sessions
+        // locking on database rows if the process is killed here
+        return executeTransaction(() -> {
+            if (attemptUnlock(lockedComTask)) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private boolean attemptUnlock(final ComTaskExecution comTask) {
+        return getCommunicationTaskService().attemptUnlockComTaskExecution(comTask);
+    }
+
+    private void unlockConnectionTasks(ComPort comPort) {
+        List<ConnectionTask> lockedConnectionTasks = getConnectionTaskService().findLockedByComPort(comPort);
+        LOGGER.warning("Start unlocking BUSY connections on comPort '" + comPort + "'");
+        long unlockedCount = 0;
+        for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
+            if (unlocked(lockedConnectionTask)) {
+                ++unlockedCount;
+            }
+        }
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedConnectionTasks.size() + " connections on comPort '" + comPort + "'");
+    }
+
+    private boolean unlocked(ConnectionTask lockedConnectionTask) {
+        // execute each unlock in its own transaction, to minimize the number of zombie sessions
+        // locking on database rows if the process is killed here
+        return executeTransaction(() -> {
+            if (attemptUnlock(lockedConnectionTask)) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private boolean attemptUnlock(final ConnectionTask connectionTask) {
+        return getConnectionTaskService().attemptUnlockConnectionTask(connectionTask);
     }
 
     @Override

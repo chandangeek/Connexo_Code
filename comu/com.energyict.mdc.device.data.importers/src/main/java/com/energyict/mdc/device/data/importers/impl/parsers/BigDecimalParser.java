@@ -39,7 +39,7 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
 
     private BigDecimal parseNonEmptyBigDecimalString(String value) throws ValueParserException {
         if (value.split("\\" + numberFormat.getDecimalSeparator().toString()).length > 2
-                || !numberFormat.hasGroupSeparator() && Pattern.compile("[^0-9" + numberFormat.getDecimalSeparator() + " ]").matcher(value).find()) {
+                || !numberFormat.hasGroupSeparator() && Pattern.compile("[^-0-9" + numberFormat.getDecimalSeparator() + " ]").matcher(value).find()) {
             throw new ValueParserException(value, numberFormat.getExample());
         }
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
