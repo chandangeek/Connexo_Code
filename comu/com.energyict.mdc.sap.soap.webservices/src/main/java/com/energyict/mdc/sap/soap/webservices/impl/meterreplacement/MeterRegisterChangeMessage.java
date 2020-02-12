@@ -11,6 +11,7 @@ import java.util.List;
 
 public class MeterRegisterChangeMessage extends AbstractSapMessage {
     private static final String DEVICE_ID_XML_NAME = "UtilitiesDevice.ID";
+    private static final String REGISTER_XML_NAME = "Register";
 
     private String id;
     private String uuid;
@@ -51,6 +52,9 @@ public class MeterRegisterChangeMessage extends AbstractSapMessage {
         }
         if (deviceId == null) {
             addMissingField(DEVICE_ID_XML_NAME);
+        }
+        if (registers.isEmpty()) {
+            addMissingField(REGISTER_XML_NAME);
         }
     }
 }

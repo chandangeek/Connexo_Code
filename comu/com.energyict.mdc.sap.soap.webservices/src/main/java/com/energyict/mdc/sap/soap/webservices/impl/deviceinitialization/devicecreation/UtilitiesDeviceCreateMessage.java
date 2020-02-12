@@ -3,12 +3,20 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
 import java.time.Instant;
 import java.util.Optional;
 
-public class UtilitiesDeviceCreateMessage {
+public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
+    private static final String UTILITIES_DEVICE_ID_XML_NAME = "UtilitiesDeviceID";
+    private static final String SERIAL_ID_XML_NAME = "SerialID";
+    private static final String MATERIAL_ID_XML_NAME = "MaterialID";
+    private static final String START_DATE_XML_NAME = "StartDate";
+
     private String requestId;
     private String uuid;
     private String serialId;
@@ -96,7 +104,22 @@ public class UtilitiesDeviceCreateMessage {
             return this;
         }
 
-        public UtilitiesDeviceCreateMessage build() {
+        public UtilitiesDeviceCreateMessage build(Thesaurus thesaurus) {
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (deviceId == null) {
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
+            }
+            if (serialId == null) {
+                addMissingField(SERIAL_ID_XML_NAME);
+            }
+            if (materialId == null) {
+                addMissingField(MATERIAL_ID_XML_NAME);
+            }
+            if (shipmentDate == null) {
+                addMissingField(START_DATE_XML_NAME);
+            }
             return UtilitiesDeviceCreateMessage.this;
         }
 
