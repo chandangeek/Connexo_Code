@@ -323,6 +323,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort) {
+        long start = System.currentTimeMillis();
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPendingComTaskExecutionsListFor(comPort);
+        long fetchComTaskDuration = System.currentTimeMillis() - start;
+        ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
+        start = System.currentTimeMillis();
+        List<ComJob> comJobs = comJobFactoryFor.collect(comTaskExecutions.iterator());
+        long addToGroupDuration = System.currentTimeMillis() - start;
+        LOGGER.warning("perf - fetchComTaskDuration=" + fetchComTaskDuration + ", addToGroupDuration=" + addToGroupDuration);
+        return comJobs;
+    }
+
+    @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         long start = System.currentTimeMillis();
         List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPlannedComTaskExecutionsListFor(comPort);

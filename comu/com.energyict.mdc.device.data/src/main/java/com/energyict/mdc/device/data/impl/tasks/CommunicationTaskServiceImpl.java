@@ -7,10 +7,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ConfigPropertiesService;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -63,7 +60,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -760,11 +756,18 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public List<ComTaskExecution>  getPlannedComTaskExecutionsListFor(OutboundComPort comPort) {
+    public List<ComTaskExecution>  getPendingComTaskExecutionsListFor(OutboundComPort comPort) {
         Instant nowInSeconds = this.deviceDataModelService.clock().instant();
         List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
         List<ComTaskExecution> pendingComTasks = getPendingComTaskExecutions(comPort, nowInSeconds);
+        return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
+    }
 
+    @Override
+    public List<ComTaskExecution>  getPlannedComTaskExecutionsListFor(OutboundComPort comPort) {
+        Instant nowInSeconds = this.deviceDataModelService.clock().instant();
+        List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
+        List<ComTaskExecution> pendingComTasks = getPlannedComTaskExecutions(comPort, nowInSeconds);
         return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
     }
 
@@ -785,6 +788,28 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .filter(ComPortPool::isActive)
                         .collect(Collectors.toList());
         String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
+        return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
+                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
+                .select();
+    }
+
+    private List<ComTaskExecution> getPlannedComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds) {
+        long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
+        List<OutboundComPortPool> comPortPools =
+                this.deviceDataModelService
+                        .engineConfigurationService()
+                        .findContainingComPortPoolsForComPort(comPort)
+                        .stream()
+                        .filter(ComPortPool::isActive)
+                        .collect(Collectors.toList());
+        String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
+        return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
+                .limit(comPort.getNumberOfSimultaneousConnections() * 2)
+                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
+                .select();
+    }
+
+    private QueryStream<ComTaskExecution> getFilteredPendingComTaskExecutions(Instant nowInSeconds, long msSinceMidnight, List<OutboundComPortPool> comPortPools, String connectionTask) {
         return deviceDataModelService.dataModel().stream(ComTaskExecution.class)
                 .join(ConnectionTask.class)
                 .filter(where(connectionTask + ConnectionTaskFields.STATUS.fieldName()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
@@ -797,10 +822,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds))
                         .and(where(connectionTask + "comWindow.start.millis").isNull().or(where(connectionTask + "comWindow.start.millis").isLessThanOrEqual(msSinceMidnight)))
                         .and(where(connectionTask + "comWindow.end.millis").isNull().or(where(connectionTask + "comWindow.end.millis").isLessThanOrEqual(msSinceMidnight)))
-                        )
-                .limit(comPort.getNumberOfSimultaneousConnections() * 2)
-                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
-                .select();
+                );
     }
 
     private Order[] getOrderForPlannedComTaskExecutionsList() {

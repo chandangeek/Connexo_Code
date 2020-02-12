@@ -191,6 +191,15 @@ public interface CommunicationTaskService {
      * @param comPort
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
+    List<ComTaskExecution> getPendingComTaskExecutionsListFor(OutboundComPort comPort);
+
+    /**
+     * Finds all pending communication tasks with the given ComPort limited by the simultaneous connection parameter
+     *  belonging to the ComPortPool of the associated connection method. The advantage over getPlannedComTaskExecutionsFor
+     *  is that connectionTasks are fetched too, so no roundtrip needed for each of them
+     * @param comPort
+     * @return a list of ComTaskExecutions already having the connectionTask fetched
+     */
     List<ComTaskExecution> getPlannedComTaskExecutionsListFor(OutboundComPort comPort);
 
     /**
