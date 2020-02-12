@@ -140,11 +140,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                     .isPresent();
 
             if (!isSuccessful) {
-                List<LogItem> logItems = log
-                        .map(Log::getItem)
-                        .map(List::stream)
-                        .orElseGet(Stream::empty)
-                        .collect(Collectors.toList());
+                List<LogItem> logItems = log.get().getItem();
                 if (!logItems.isEmpty()) {
                     isSuccessful = logItems
                             .stream()
