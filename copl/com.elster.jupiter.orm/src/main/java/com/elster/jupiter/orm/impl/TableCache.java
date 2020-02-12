@@ -147,6 +147,7 @@ interface TableCache<T> {
 		public synchronized void renew() {
 			this.cache.invalidateAll();
 			cacheCleared();
+			tableShouldBeLoaded = true;
 		}
 
 		private void cacheCleared() {
