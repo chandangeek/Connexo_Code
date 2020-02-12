@@ -178,10 +178,12 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                         createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
                     }
                     deviceIds.forEach(deviceId -> {
-                        if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
-                            LOGGER.log(Level.INFO, "All profile ids are closed, removing shared com schedules from device " + deviceId);
-                            deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
-                        }
+                        deviceService.findDeviceById(deviceId).ifPresent(device -> {
+                            if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
+                                LOGGER.log(Level.INFO, "All profiles are closed, removing shared com schedules from device " + device.getName());
+                                deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
+                            }
+                        });
                     });
                 } else {
                     String exportName = WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME);

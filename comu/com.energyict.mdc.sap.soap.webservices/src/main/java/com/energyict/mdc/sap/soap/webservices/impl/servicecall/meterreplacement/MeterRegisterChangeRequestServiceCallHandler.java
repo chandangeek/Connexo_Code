@@ -118,7 +118,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                     long deviceId = device.get().getId();
                     if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
-                        serviceCall.log(LogLevel.INFO, "All profile ids are closed, removing shared com schedules from device " + deviceId);
+                        serviceCall.log(LogLevel.INFO, "All profiles are closed, removing shared com schedules from device " + device.get().getName());
                         deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
                     }
                 } else {
