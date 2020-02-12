@@ -33,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -145,32 +146,32 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         String txtToFind = null;
         final String translationTxt;
 
-        if (searchText == null){
+        if (searchText == null) {
             searchText = "";
         }
 
-        if (searchText.contains("(") && searchText.contains(")")){
+        if (searchText.contains("(") && searchText.contains(")")) {
             txtToFind = searchText.substring(0, searchText.lastIndexOf("(") - 1);
             translationTxt = searchText.substring(searchText.lastIndexOf("(") + 1, searchText.length() - 1);
-        }else{
+        } else {
             translationTxt = null;
         }
 
+        String toFind = txtToFind == null ? searchText.trim() : txtToFind.trim();
         Finder<WebServiceCallRelatedAttribute> finder = webServiceCallOccurrenceService
-                .getRelatedAttributesByValueLike(txtToFind == null ? searchText.trim() : txtToFind.trim());
-
-        if (params.getStart().isPresent() && params.getLimit().isPresent()){
-            finder.paged(params.getStart().get(),params.getLimit().get());
-        }
+                .getRelatedAttributesByValueLike(toFind);
 
         List<WebServiceCallRelatedAttribute> listRelatedObjects = finder.find();
-
+        listRelatedObjects.sort(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute)obj).getValue().indexOf(toFind))
+                .thenComparing(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute)obj).getValue().length())));
+        int maxIndex = params.getStart().get() + params.getLimit().get();
+        listRelatedObjects = listRelatedObjects.subList(params.getStart().get(), maxIndex > listRelatedObjects.size() ? listRelatedObjects.size() : maxIndex);
         List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream()
-                .filter(obj->translationTxt == null ? true : webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt))
-                .map(obj-> {
-            return new RelatedAttributeInfo(obj.getId(),
-                                        obj.getValue()+" ("+webServiceCallOccurrenceService.translateAttributeType(obj.getKey())+")");
-        }).collect(toList());
+                .filter(obj -> translationTxt == null ? true : webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt))
+                .map(obj -> {
+                    return new RelatedAttributeInfo(obj.getId(),
+                            obj.getValue() + " (" + webServiceCallOccurrenceService.translateAttributeType(obj.getKey()) + ")");
+                }).collect(toList());
 
         return Response.ok().entity(listInfo).build();
     }
@@ -185,7 +186,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         Optional<WebServiceCallRelatedAttribute> relatedObject = webServiceCallOccurrenceService.getRelatedObjectById(id);
 
         RelatedAttributeInfo info = new RelatedAttributeInfo(relatedObject.get().getId(),
-                relatedObject.get().getValue() +" ("+webServiceCallOccurrenceService.translateAttributeType(relatedObject.get().getKey())+")");
+                relatedObject.get().getValue() + " (" + webServiceCallOccurrenceService.translateAttributeType(relatedObject.get().getKey()) + ")");
         /* Extjs parse response as list of elements. So here send list with one element */
         List<RelatedAttributeInfo> listInfo = new ArrayList<>();
         listInfo.add(info);
