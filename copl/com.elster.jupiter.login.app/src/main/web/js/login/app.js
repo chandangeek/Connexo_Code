@@ -13,7 +13,4 @@ Ext.onReady(function () {
         autoCreateViewport: true
     });
 
-    Ext.Ajax.on("requestcomplete", function(conn, response){
-
-    });
 });

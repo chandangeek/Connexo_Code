@@ -79,9 +79,6 @@ Ext.onReady(function () {
                 method: 'GET',
                 success: function (data) {
                     conn.token = data.responseText;
-                },
-                failure: function (data) {
-                    console.log(data);
                 }
             });
             if(options.headers &&
@@ -94,9 +91,7 @@ Ext.onReady(function () {
         }
         conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : xAuthToken;
 
-        if (!options.headers) {
-            options.headers = {};
-        }
+
     });
     Ext.Ajax.on("requestcomplete", function(conn, response){
         if(response.request && JSON.stringify(response.request.headers).match('"X-Requested-With":"XMLHttpRequest"'))
