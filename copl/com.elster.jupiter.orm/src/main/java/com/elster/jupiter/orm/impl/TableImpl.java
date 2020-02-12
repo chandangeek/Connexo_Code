@@ -70,9 +70,10 @@ public class TableImpl<T> implements Table<T> {
     private String name;
     @SuppressWarnings("unused")
     private int position;
+    private boolean cached;
     private Long cacheTtl;
-    private long cacheMaximumSize = 10000;
-    private boolean cacheRecordStat=true;
+    private long cacheMaximumSize;
+    private boolean cacheRecordStat;
     private boolean autoInstall = true;
     private boolean forceJournal = false;
     private int indexOrganized = -1;
@@ -192,16 +193,17 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public boolean isCached() {
-        return cacheTtl != null;
+        return this.cached;
     }
 
     @Override
     public void cache() {
-        this.cacheTtl = 600000L;
+        cache(600000L, 10000L, true);
     }
 
     @Override
     public void cache(long cacheTtl, long maximumSize, boolean recordStat) {
+        this.cached = true;
         this.cacheTtl = cacheTtl;
         this.cacheMaximumSize = maximumSize;
         this.cacheRecordStat = recordStat;
