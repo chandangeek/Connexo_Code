@@ -6,13 +6,15 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.users.CSRFService;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import javax.inject.Inject;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Insert your comments here.
+ * Managing the CSRF token per user session.
  *
  * @author E492165 (M R)
  * @since 1/30/2020 (15:53)
@@ -24,6 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
         immediate = true)
 public class CSRFServiceImpl implements CSRFService {
     private Map<String, String> sessions = new ConcurrentHashMap<>();
+
+    @Inject
+    public CSRFServiceImpl(){
+        activate();
+    }
 
     @Override
     public String getCSRFToken(String sessionId) {
@@ -39,7 +46,12 @@ public class CSRFServiceImpl implements CSRFService {
         }
     }
     @Override
-    public void romoveToken(String sessionId) {
+    public void removeToken(String sessionId) {
         sessions.remove(sessionId);
+    }
+
+    @Activate
+    public void activate(){
+        System.out.println("Activating Service call: CSRF Token Handler");
     }
 }

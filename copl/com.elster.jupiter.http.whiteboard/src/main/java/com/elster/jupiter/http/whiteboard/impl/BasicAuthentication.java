@@ -7,6 +7,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
@@ -15,11 +16,11 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
+
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -28,7 +29,6 @@ import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -111,7 +111,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile SamlRequestService samlRequestService;
-    private volatile CSRFService csrfService;
+    private volatile CSRFFilterService csrfFilterService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -128,6 +128,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile BlackListTokenService blackListTokenService;
 
     @Inject
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, 
+					UpgradeService upgradeService, BpmService bpmService, BundleContext context, CSRFFilterService csrfFilterService) throws
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
                         BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService, CSRFService csrfService) throws
             InvalidKeySpecException,
@@ -139,6 +141,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setBpmService(bpmService);
 		setCSRFService(csrfService);
         setBlackListdTokenService(blackListTokenService);
+		setCSRFFilterService(csrfFilterService);
         activate(context);
     }
 
@@ -195,8 +198,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
 	@Reference
-    public void setCSRFService(CSRFService csrfService){
-        this.csrfService = csrfService;
+    public void setCSRFFilterService(CSRFFilterService csrfFilterService){
+        this.csrfFilterService = csrfFilterService;
     }
 
     @Reference
@@ -217,6 +220,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(MessageService.class).toInstance(messageService);
                 bind(BlackListTokenService.class).toInstance(blackListTokenService);
 				bind(CSRFService.class).toInstance(csrfService);
+				bind(CSRFFilterService.class).toInstance(csrfFilterService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
             }
         });
@@ -478,7 +482,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
        sessionCookie.setPath(cookiePath);
        sessionCookie.setMaxAge(securityToken.getCookieMaxAge());
        sessionCookie.setHttpOnly(true);
-       securityToken.createCSRFToken(sessionId, csrfService);
+       csrfFilterService.createCSRFToken(sessionId);
        return sessionCookie;
     }
 
@@ -501,9 +505,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean doBearerAuthorization(HttpServletRequest request, HttpServletResponse response, String authentication) {
         String token = authentication.substring(authentication.lastIndexOf(" ") + 1);
-        if (isFormSubmitRequest(request) && !validateCSRFRequest(request)) {
-                return deny(request, response);
-        }
         Optional<Cookie> xsrf = getTokenCookie(request);
         if (xsrf.isPresent()) {
             token = xsrf.get().getValue();
@@ -517,23 +518,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
         SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr(), blackListTokenService);
         return handleTokenValidation(tokenValidation, token, request, response);
-    }
-
-    private boolean isFormSubmitRequest(HttpServletRequest request){
-        if(request.getMethod().equalsIgnoreCase("POST") || request.getMethod().equalsIgnoreCase("PUT") ||
-                request.getMethod().equalsIgnoreCase("DELETE")) {
-                return true;
-        }
-        return false;
-    }
-
-    private boolean validateCSRFRequest(HttpServletRequest request) {
-        Optional<Cookie> sessionId =  getSessionCookie(request);
-        if(sessionId.isPresent()){
-            String csrfToken = request.getParameter("X-CSRF-TOKEN");
-            return csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
-        }
-        return false;
     }
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
@@ -614,7 +598,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private void invalidateSessionCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> sessionCookie = getSessionCookie(request);
         if(sessionCookie.isPresent()) {
-            csrfService.romoveToken(sessionCookie.get().getValue());
+            csrfFilterService.removeUserSession(sessionCookie.get().getValue());
             removeCookie(response, sessionCookie.get().getName());
         }
     }
