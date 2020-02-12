@@ -8,7 +8,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         'Mdc.store.DataCollectionKpiType',
         'Mdc.store.AllTasks',
         'Mdc.store.AvailableDeviceGroups',
-        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
+        'Mdc.crlrequest.store.CRLSigners'
     ],
     views: [
         'Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis',
