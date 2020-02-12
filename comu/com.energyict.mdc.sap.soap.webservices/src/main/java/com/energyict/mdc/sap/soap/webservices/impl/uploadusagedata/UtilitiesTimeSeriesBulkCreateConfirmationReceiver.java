@@ -140,12 +140,17 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
                     .isPresent();
 
             if (!isSuccessful) {
-                isSuccessful = log
+                List<LogItem> logItems = log
                         .map(Log::getItem)
                         .map(List::stream)
                         .orElseGet(Stream::empty)
-                        .map(LogItem::getTypeID)
-                        .allMatch(typeId -> webServiceActivator.getUudSuccessfulErrorCodes().stream().anyMatch(typeId::startsWith));
+                        .collect(Collectors.toList());
+                if (!logItems.isEmpty()) {
+                    isSuccessful = logItems
+                            .stream()
+                            .map(LogItem::getTypeID)
+                            .allMatch(typeId -> webServiceActivator.getUudSuccessfulErrorCodes().stream().anyMatch(typeId::startsWith));
+                }
             }
         }
 
