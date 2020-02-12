@@ -2,18 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.issue.datavalidation.impl;
+package com.energyict.mdc.issue.datavalidation.impl.template;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -29,14 +20,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -61,10 +45,15 @@ import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEve
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
+import com.energyict.mdc.issue.datavalidation.impl.BareMinimumDeviceProtocol;
+import com.energyict.mdc.issue.datavalidation.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
+import com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.mockito.Matchers;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -72,23 +61,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.Matchers;
 
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,7 +74,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
 
     protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     private static final Instant fixedTime = LocalDateTime.of(2015, 6, 16, 0, 0).toInstant(ZoneOffset.UTC);
-    static InMemoryIntegrationPersistence inMemoryPersistence;
+    public static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateTest.getTransactionService());
 
@@ -134,7 +108,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         inMemoryPersistence.cleanUpDataBase();
     }
 
-    static TransactionService getTransactionService() {
+    public static TransactionService getTransactionService() {
         return inMemoryPersistence.getTransactionService();
     }
 
@@ -165,7 +139,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
     }
 
-    protected static void initializeClock() {
+    public static void initializeClock() {
         when(inMemoryPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
         when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
@@ -427,8 +401,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         public Object createProtocol(String className) {
             if (BareMinimumDeviceProtocol.class.getName().equals(className)) {
                 return new BareMinimumDeviceProtocol();
-            }
-            else {
+            } else {
                 return null;
             }
         }

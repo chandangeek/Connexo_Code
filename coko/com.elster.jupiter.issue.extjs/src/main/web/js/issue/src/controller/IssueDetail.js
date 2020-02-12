@@ -55,7 +55,7 @@ Ext.define('Isu.controller.IssueDetail', {
         }
 
         var callback = function(){
-            if (store.getCount()) {
+            if (store.getCount() && store.getById(parseInt(id)) != null) {
                 var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
                 if (issueActualType != issueType) {
                     queryString.issueType = issueActualType;
@@ -268,7 +268,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
-                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall') || (issueType === 'webservice')) {
+                if ((issueType === 'datavalidation') || (issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall') || (issueType === 'webservice')) {
                     me.loadTimeline(commentsStore);
                 }
                 me.constructComments(commentsView, commentsStore);
@@ -277,7 +277,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (router.queryParams.addComment) {
-            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall') || (issueType === 'webservice')) {
+            if ((issueType === 'datavalidation') || (issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall') || (issueType === 'webservice')) {
                 this.showCommentForm();
             } else {
                 this.showCommentFormValidation();

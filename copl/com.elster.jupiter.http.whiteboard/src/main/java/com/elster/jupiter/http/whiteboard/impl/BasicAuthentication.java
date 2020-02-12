@@ -11,12 +11,16 @@ import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListToken;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.apache.commons.lang.StringUtils;
@@ -121,10 +125,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> acsEndpoint;
     private Optional<String> x509Certificate;
     private Optional<String> ssoAdminUser;
+    private volatile BlackListTokenService blackListTokenService;
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, 
-					UpgradeService upgradeService, BpmService bpmService, BundleContext context, CSRFService csrfService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
+                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService, CSRFService csrfService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -133,6 +138,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
 		setCSRFService(csrfService);
+        setBlackListdTokenService(blackListTokenService);
         activate(context);
     }
 
@@ -193,6 +199,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.csrfService = csrfService;
     }
 
+    @Reference
+    public void setBlackListdTokenService(BlackListTokenService blackListdTokenService) {
+        this.blackListTokenService = blackListdTokenService;
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -204,6 +215,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(BlackListTokenService.class).toInstance(blackListTokenService);
 				bind(CSRFService.class).toInstance(csrfService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
             }
@@ -428,6 +440,17 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (logoutParameter instanceof User) {
             //the eventService is sent ONLY if the Object is an instance of User class,
             postWhiteboardEvent(WhiteboardEvent.LOGOUT.topic(), new LocalEventUserSource((User) logoutParameter));
+            blackListToken(((User) logoutParameter).getId(), tokenCookie.get().getValue());
+        }
+    }
+
+    private void blackListToken(long userId, String cookieValue) {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            BlackListTokenService.BlackListTokenBuilder blackListTokenBuilder = blackListTokenService.getBlackListTokenService();
+            blackListTokenBuilder.setUerId(userId);
+            blackListTokenBuilder.setToken(cookieValue);
+            blackListTokenBuilder.save();
+            transactionContext.commit();
         }
     }
 
@@ -461,7 +484,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
         SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
-                .getRemoteAddr());
+                .getRemoteAddr(), blackListTokenService);
         return handleTokenValidation(validation, tokenCookie.getValue(), request, response);
     }
 
@@ -492,7 +515,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
-        SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
+        SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr(), blackListTokenService);
         return handleTokenValidation(tokenValidation, token, request, response);
     }
 

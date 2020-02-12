@@ -34,7 +34,7 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
                     .ifPresent(requestMessage -> {
                                 UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
                                         .from(requestMessage)
-                                        .build();
+                                        .build(getThesaurus());
 
                                 handleRequestMessage(message);
                             }
