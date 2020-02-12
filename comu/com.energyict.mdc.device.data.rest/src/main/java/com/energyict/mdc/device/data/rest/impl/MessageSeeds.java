@@ -138,7 +138,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CRL_REQUEST_TASK(321, "NoCrlRequestTask", "No CRL request task exist"),
     CRL_REQUEST_TASK_CA_NAME_UNIQUE(322, "CrlRequestTaskCaNameUnique", "The CA name must be unique."),
     NOT_ALL_PROPS_ARE_DEFINDED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!"),
-    UNIDENTIFIED_CRL_SIGNER(325, "UnknownCRLSigner", "Found none or too many CRL signers"),
     ZONE_SAVING_FAIL(324, "zone.savingFail", "Failed saving zone."),
     NO_SUCH_ZONE(325, "noSuchZone", "Zone not found"),
     NO_SUCH_END_DEVICE_ZONE(326, "noSuchDeviceZone", "Zone not assigned to device"),
@@ -153,7 +152,8 @@ public enum MessageSeeds implements MessageSeed {
     OBJECTS_FILTERED_ALREADY_RUNNING(335, "objectsFilteredAlreadyRunning", "The process is already running on the following objects: {0}."),
     OBJECTS_FILTERED_DUPLICATED(336, "objectsFilteredDuplicated", "The following objects are duplicated in the selected process history list: {0}; the process will be started once on each of them."),
     NOT_ALL_PROPS_ARE_DEFINDED_TLS(337, "notAllPropsAreDefinedTLS", "One of the following property is not set, Communication port pool, hostname, port number or Server TLS certificate!"),
-    RUN_COMTASK_WITH_PRIO_IMPOSSIBLE(338, "runComTaskWithPrioImpossible", "Running the communication task with priority is not possible, since there are no priority connections allowed on its communication port pool.")
+    RUN_COMTASK_WITH_PRIO_IMPOSSIBLE(338, "runComTaskWithPrioImpossible", "Running the communication task with priority is not possible, since there are no priority connections allowed on its communication port pool."),
+    UNIDENTIFIED_CRL_SIGNER(339, "UnknownCRLSigner", "Found none or too many CRL signers")
     ;
 
     private final int number;
