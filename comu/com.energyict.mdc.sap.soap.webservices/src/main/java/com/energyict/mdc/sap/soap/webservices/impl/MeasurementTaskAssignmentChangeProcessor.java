@@ -32,7 +32,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
@@ -74,6 +73,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,6 +85,7 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
 public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyProvider {
     static final String COMPONENT_NAME = "MTA"; // only for translations
 
+    private static final Logger LOGGER = Logger.getLogger(MeasurementTaskAssignmentChangeProcessor.class.getName());
     public static final String NAME = "MeasurementTaskAssignmentChangeProcessor";
     public static final String VERSION = "v1.0";
     public static final String GROUP_MRID_PREFIX = "MDC:";
@@ -177,10 +178,9 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                         createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
                     }
                     deviceIds.forEach(deviceId -> {
-                        if (sapCustomPropertySets.isAllProfileIdClosedForDate(deviceId, clock.instant())) {
-                            EndPointConfiguration endPoint = getEndPointConfiguration(Arrays.asList(InboundServices.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST.getName()));
-                            endPoint.log(LogLevel.INFO, "All profile ids are closed, removing shared com schedules from device " + deviceId);
-                            deviceSharedCommunicationScheduleRemover.remove(deviceId);
+                        if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
+                            LOGGER.log(Level.INFO, "All profile ids are closed, removing shared com schedules from device " + deviceId);
+                            deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
                         }
                     });
                 } else {

@@ -519,12 +519,11 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public boolean isAllProfileIdClosedForDate(long deviceId, Instant dateTime) {
+    public boolean areAllProfileIdsClosedBeforeDate(long deviceId, Instant dateTime) {
         return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
-                .join(ChannelSpec.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isNotNull())
-                .filter(e -> e.getDeviceId() == deviceId)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .map(DeviceChannelSAPInfoDomainExtension::getInterval)
                 .allMatch(interval -> interval.getEnd() != null && interval.getEnd().isBefore(dateTime));
     }

@@ -117,9 +117,9 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                     sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                     long deviceId = device.get().getId();
-                    if (sapCustomPropertySets.isAllProfileIdClosedForDate(deviceId, clock.instant())) {
+                    if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
                         serviceCall.log(LogLevel.INFO, "All profile ids are closed, removing shared com schedules from device " + deviceId);
-                        deviceSharedCommunicationScheduleRemover.remove(deviceId);
+                        deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
                     }
                 } else {
                     processDeviceRegisterCreation(extension, device.get());

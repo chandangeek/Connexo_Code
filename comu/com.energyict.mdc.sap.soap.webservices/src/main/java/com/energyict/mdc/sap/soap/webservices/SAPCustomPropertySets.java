@@ -90,7 +90,7 @@ public interface SAPCustomPropertySets {
 
     Optional<Interval> getLastProfileIdIntervalForChannelOnDevice(long deviceId, String readingTypeMrid);
 
-    boolean isAllProfileIdClosedForDate(long deviceId, Instant dateTime);
+    boolean areAllProfileIdsClosedBeforeDate(long deviceId, Instant dateTime);
 
     boolean doesRegisterHaveSapCPS(Register register);
 
