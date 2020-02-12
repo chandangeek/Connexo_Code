@@ -156,6 +156,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final Logger LOGGER = Logger.getLogger(WebServiceActivator.class.getName());
     private static final String DEVICE_TYPES_MAPPING = "com.elster.jupiter.sap.device.types.mapping";
     private static final String DEFAULT_DEVICE_TYPES_MAPPING = "MTREAHW0MV:A1860;MTREAHW0LV:AS3500";
+    private static final String UUD_SUCCESSFUL_ERROR_CODES = "com.elster.jupiter.sap.uud.successfulerrorcodes";
     public static final String REGISTER_RECURRENCE_CODE = "com.elster.jupiter.sap.register.recurrencecode";
     public static final String REGISTER_DIVISION_CATEGORY_CODE = "com.elster.jupiter.sap.register.divisioncategorycode";
 
@@ -266,6 +267,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
     private Map<String, CIMPattern> divisionCategoryCodeMap;
     private String meteringSystemId;
+    private List<String> uudSuccessfulErrorCodes = new ArrayList<>();
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -321,6 +323,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public String getMeteringSystemId() {
         return meteringSystemId;
+    }
+
+    public List<String> getUudSuccessfulErrorCodes() {
+        return uudSuccessfulErrorCodes;
     }
 
     public WebServiceActivator() {
@@ -463,8 +469,17 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         loadRecurrenceCodeMap();
         loadDivisionCategoryCodeMap();
+        loadUudSuccessfulErrorCodes();
 
         failOngoingExportTaskServiceCalls();
+    }
+
+    private void loadUudSuccessfulErrorCodes() {
+        String valueCodes = bundleContext.getProperty(UUD_SUCCESSFUL_ERROR_CODES);
+        if (!Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
+            uudSuccessfulErrorCodes = Arrays.stream(valueCodes.split(","))
+                    .map(String::trim).collect(Collectors.toList());
+        }
     }
 
     private void loadDeviceTypesMap() {

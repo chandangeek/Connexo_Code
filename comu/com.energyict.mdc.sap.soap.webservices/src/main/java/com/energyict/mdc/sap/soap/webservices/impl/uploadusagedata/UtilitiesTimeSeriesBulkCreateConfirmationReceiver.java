@@ -27,7 +27,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmCrteConfUtilsTmeSers;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,7 +37,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,18 +46,20 @@ import java.util.stream.Stream;
         property = {"name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME})
 public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn, ApplicationSpecific {
     static final String NAME = "SAP TimeSeriesBulkCreateConfirmation";
-    private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
+    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesTimeSeriesBulkCreateConfirmationReceiver() {
         // for OSGi purposes
     }
 
     @Inject
-    public UtilitiesTimeSeriesBulkCreateConfirmationReceiver(DataExportService dataExportService, Thesaurus thesaurus) {
+    public UtilitiesTimeSeriesBulkCreateConfirmationReceiver(DataExportService dataExportService, Thesaurus thesaurus,
+                                                             WebServiceActivator webServiceActivator) {
         setDataExportService(dataExportService);
+        setWebServiceActivator(webServiceActivator);
         this.thesaurus = thesaurus;
     }
 
@@ -71,6 +71,11 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
     @Reference
     public void setTranslationsProvider(WebServiceActivator translationsProvider) {
         this.thesaurus = translationsProvider.getThesaurus();
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -95,6 +100,7 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
                     dataExportServiceCallType.tryPassingServiceCall(serviceCall);
                     break;
                 case PARTIALLY_SUCCESSFUL:
+                case FAILED:// since some error codes should be processed as successful, use tryPartiallyPassingServiceCall for failed case
                     List<String> successfulProfileIds = getSuccessfulProfileIds(confirmation);
                     List<ServiceCall> successfulChildren = new ArrayList<>();
                     serviceCall.findChildren().stream().forEach(child -> {
@@ -106,32 +112,45 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
                     });
                     dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, successfulChildren, getSeverestError(confirmation).orElse(null));
                     break;
-                case FAILED:
-                    dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
-                    break;
             }
             return null;
         });
     }
 
-    private static List<String> getSuccessfulProfileIds(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
+    private List<String> getSuccessfulProfileIds(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkCrteConfMsg::getUtilitiesTimeSeriesERPItemCreateConfirmationMessage)
                 .map(List::stream)
                 .orElseGet(Stream::empty)
-                .filter(UtilitiesTimeSeriesBulkCreateConfirmationReceiver::isChildConfirmed)
+                .filter(this::isChildConfirmed)
                 .map(UtilsTmeSersERPItmCrteConfMsg::getUtilitiesTimeSeries)
                 .map(UtilsTmeSersERPItmCrteConfUtilsTmeSers::getID)
                 .map(UtilitiesTimeSeriesID::getValue)
                 .collect(Collectors.toList());
     }
 
-    private static boolean isChildConfirmed(UtilsTmeSersERPItmCrteConfMsg item) {
-        return Optional.ofNullable(item)
-                .map(UtilsTmeSersERPItmCrteConfMsg::getLog)
-                .map(Log::getBusinessDocumentProcessingResultCode)
-                .filter(code -> code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
-                .isPresent();
+    private boolean isChildConfirmed(UtilsTmeSersERPItmCrteConfMsg item) {
+        boolean isSuccessful = false;
+        Optional<Log> log = Optional.ofNullable(item)
+                .map(UtilsTmeSersERPItmCrteConfMsg::getLog);
+        if (log.isPresent()) {
+            isSuccessful = log
+                    .map(Log::getBusinessDocumentProcessingResultCode)
+                    .filter(code -> code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
+                    .isPresent();
+
+            if (!isSuccessful) {
+                List<LogItem> logItems = log.get().getItem();
+                if (!logItems.isEmpty()) {
+                    isSuccessful = logItems
+                            .stream()
+                            .map(LogItem::getTypeID)
+                            .allMatch(typeId -> webServiceActivator.getUudSuccessfulErrorCodes().stream().anyMatch(typeId::startsWith));
+                }
+            }
+        }
+
+        return isSuccessful;
     }
 
     private static List<UtilsTmeSersERPItmCrteConfMsg> getCreateConfirmationMessages(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
