@@ -141,7 +141,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     @Path("/relatedattributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
-    public Response getRelatedAttributes(@BeanParam JsonQueryParameters params) {
+    public PagedInfoList getRelatedAttributes(@BeanParam JsonQueryParameters params) {
         String searchText = params.getLike();
         String txtToFind = null;
         final String translationTxt;
@@ -162,10 +162,8 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                 .getRelatedAttributesByValueLike(toFind);
 
         List<WebServiceCallRelatedAttribute> listRelatedObjects = finder.find();
-        listRelatedObjects.sort(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute)obj).getValue().indexOf(toFind))
-                .thenComparing(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute)obj).getValue().length())));
-        int maxIndex = params.getStart().get() + params.getLimit().get();
-        listRelatedObjects = listRelatedObjects.subList(params.getStart().get(), maxIndex > listRelatedObjects.size() ? listRelatedObjects.size() : maxIndex);
+        listRelatedObjects.sort(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute) obj).getValue().indexOf(toFind))
+                .thenComparing(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute) obj).getValue().length())));
         List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream()
                 .filter(obj -> translationTxt == null ? true : webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt))
                 .map(obj -> {
@@ -173,7 +171,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                             obj.getValue() + " (" + webServiceCallOccurrenceService.translateAttributeType(obj.getKey()) + ")");
                 }).collect(toList());
 
-        return Response.ok().entity(listInfo).build();
+        return PagedInfoList.fromPagedList("relatedattributes", listInfo, params);
     }
 
     @GET
