@@ -73,7 +73,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,7 +84,6 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
 public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyProvider {
     static final String COMPONENT_NAME = "MTA"; // only for translations
 
-    private static final Logger LOGGER = Logger.getLogger(MeasurementTaskAssignmentChangeProcessor.class.getName());
     public static final String NAME = "MeasurementTaskAssignmentChangeProcessor";
     public static final String VERSION = "v1.0";
     public static final String GROUP_MRID_PREFIX = "MDC:";
@@ -178,12 +176,9 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                         createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
                     }
                     deviceIds.forEach(deviceId -> {
-                        deviceService.findDeviceById(deviceId).ifPresent(device -> {
-                            if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
-                                LOGGER.log(Level.INFO, "All profiles are closed, removing shared com schedules from device " + device.getName());
-                                deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
-                            }
-                        });
+                        if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
+                            deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
+                        }
                     });
                 } else {
                     String exportName = WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME);
