@@ -21,6 +21,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.CIMPattern;
+import com.energyict.mdc.sap.soap.webservices.impl.DeviceSharedCommunicationScheduleRemover;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -29,6 +30,7 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Optional;
@@ -47,6 +49,8 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
     private volatile Thesaurus thesaurus;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile WebServiceActivator webServiceActivator;
+    private volatile Clock clock;
+    private volatile DeviceSharedCommunicationScheduleRemover deviceSharedCommunicationScheduleRemover;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -82,6 +86,16 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         this.webServiceActivator = webServiceActivator;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setDeviceSharedCommunicationScheduleRemover(DeviceSharedCommunicationScheduleRemover deviceSharedCommunicationScheduleRemover) {
+        this.deviceSharedCommunicationScheduleRemover = deviceSharedCommunicationScheduleRemover;
+    }
+
     private void processServiceCall(ServiceCall serviceCall) {
         ServiceCall subParent = serviceCall.getParent().orElseThrow(() -> new IllegalStateException("Can not find parent for service call"));
         SubMasterMeterRegisterChangeRequestDomainExtension subParentExtension = subParent.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
@@ -102,6 +116,11 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                 if (!subParentExtension.isCreateRequest()) {
                     sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                    long deviceId = device.get().getId();
+                    if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
+                        serviceCall.log(LogLevel.INFO, "All profiles are closed, removing shared com schedules from device " + device.get().getName());
+                        deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
+                    }
                 } else {
                     processDeviceRegisterCreation(extension, device.get());
                 }

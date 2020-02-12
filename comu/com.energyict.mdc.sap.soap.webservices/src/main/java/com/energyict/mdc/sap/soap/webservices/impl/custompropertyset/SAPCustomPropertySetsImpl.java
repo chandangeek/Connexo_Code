@@ -518,6 +518,16 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 }));
     }
 
+    @Override
+    public boolean areAllProfileIdsClosedBeforeDate(long deviceId, Instant dateTime) {
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isNotNull())
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .map(DeviceChannelSAPInfoDomainExtension::getInterval)
+                .allMatch(interval -> interval.getEnd() != null && interval.getEnd().isBefore(dateTime));
+    }
+
     private Condition getOverlappedCondition(Range<Instant> range) {
         return Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range);
     }
