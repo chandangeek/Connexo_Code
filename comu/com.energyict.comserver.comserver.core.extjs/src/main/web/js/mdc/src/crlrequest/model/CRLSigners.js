@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.crlrequest.model.SecurityAccessorsWithPurpose', {
+Ext.define('Mdc.crlrequest.model.CRLSigners', {
     extend: 'Ext.data.Model',
 
     fields: [

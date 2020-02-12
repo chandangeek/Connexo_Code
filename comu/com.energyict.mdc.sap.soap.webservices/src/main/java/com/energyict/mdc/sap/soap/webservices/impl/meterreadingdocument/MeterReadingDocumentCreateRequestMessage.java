@@ -63,10 +63,12 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
                         setId(getId(messageHeader));
                         setUuid(getUuid(messageHeader));
                     });
-            meterReadingDocumentCreateMessages.add(MeterReadingDocumentCreateMessage
+            MeterReadingDocumentCreateMessage message = MeterReadingDocumentCreateMessage
                     .builder()
                     .from(requestMessage.getMeterReadingDocument())
-                    .build());
+                    .build();
+            meterReadingDocumentCreateMessages.add(message);
+            addMissingFields(message.getMissingFieldsSet());
             return this;
         }
 
@@ -78,11 +80,14 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
                         setUuid(getUuid(messageHeader));
                     });
             requestMessage.getSmartMeterMeterReadingDocumentERPCreateRequestMessage()
-                    .forEach(message ->
-                            meterReadingDocumentCreateMessages.add(MeterReadingDocumentCreateMessage
-                                    .builder()
-                                    .from(message)
-                                    .build()));
+                    .forEach(message -> {
+                        MeterReadingDocumentCreateMessage documentCreateMessage = MeterReadingDocumentCreateMessage
+                                .builder()
+                                .from(message)
+                                .build();
+                        meterReadingDocumentCreateMessages.add(documentCreateMessage);
+                        addMissingFields(documentCreateMessage.getMissingFieldsSet());
+                    });
             return this;
         }
 
