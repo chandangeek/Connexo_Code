@@ -162,7 +162,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                 .getRelatedAttributesByValueLike(toFind);
 
         List<WebServiceCallRelatedAttribute> listRelatedObjects = finder.find();
-        listRelatedObjects.sort(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute) obj).getValue().indexOf(toFind))
+        listRelatedObjects.sort(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute) obj).getValue().toLowerCase().indexOf(toFind.toLowerCase()))
                 .thenComparing(Comparator.comparingInt(obj -> ((WebServiceCallRelatedAttribute) obj).getValue().length())));
         List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream()
                 .filter(obj -> translationTxt == null ? true : webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt))
