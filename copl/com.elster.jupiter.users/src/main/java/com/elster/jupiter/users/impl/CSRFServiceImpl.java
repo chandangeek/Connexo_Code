@@ -52,6 +52,5 @@ public class CSRFServiceImpl implements CSRFService {
 
     @Activate
     public void activate(){
-        System.out.println("Activating Service call: CSRF Token Handler");
     }
 }

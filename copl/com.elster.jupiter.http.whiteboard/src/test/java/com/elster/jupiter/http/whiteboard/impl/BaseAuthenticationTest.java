@@ -55,9 +55,7 @@ public class BaseAuthenticationTest {
     protected BundleContext context;
     @Mock
     protected SamlRequestService samlRequestService;
-	@Mock
-    protected CSRFService csrfService;
-    @Mock
+	    @Mock
     protected BlackListTokenService blackListdTokenService;
     protected CSRFFilterService csrfFilterService;
 
@@ -72,9 +70,7 @@ public class BaseAuthenticationTest {
 
         when(dataModel.mapper(KeyStoreImpl.class)).thenReturn(keyStoreDataMapper);
         BasicAuthentication basicAuthentication = new BasicAuthentication(userService, ormService, dataVaultService, 
-					upgradeService, bpmService, context,csrfFilterService);
-        BasicAuthentication basicAuthentication = new BasicAuthentication(userService, ormService, dataVaultService,
-                upgradeService, bpmService, context,blackListdTokenService, csrfService);
+					upgradeService, bpmService, context,blackListdTokenService, csrfFilterService);
         basicAuthentication.setSamlRequestService(samlRequestService);
         return basicAuthentication;
     }

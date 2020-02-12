@@ -18,9 +18,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
-
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -129,9 +127,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     @Inject
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, 
-					UpgradeService upgradeService, BpmService bpmService, BundleContext context, CSRFFilterService csrfFilterService) throws
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
-                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService, CSRFService csrfService) throws
+					UpgradeService upgradeService, BpmService bpmService, BundleContext context,
+                        BlackListTokenService blackListTokenService, CSRFFilterService csrfFilterService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -139,7 +136,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setDataVaultService(dataVaultService);
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
-		setCSRFService(csrfService);
         setBlackListdTokenService(blackListTokenService);
 		setCSRFFilterService(csrfFilterService);
         activate(context);
@@ -219,7 +215,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(BlackListTokenService.class).toInstance(blackListTokenService);
-				bind(CSRFService.class).toInstance(csrfService);
 				bind(CSRFFilterService.class).toInstance(csrfFilterService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
             }
