@@ -106,7 +106,8 @@ public class CryptoWebRTUKP extends WebRTUKP {
         return this.cryptoMessageExecutor;
     }
 
-    protected CryptoDSMR23Messaging getMessaging() {
+    @Override
+    protected CryptoDSMR23Messaging getDsmr23Messaging() {
         if (this.cryptoMessaging == null) {
             this.cryptoMessaging = new CryptoDSMR23Messaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(),
                     this.getConverter(), this.getDeviceMessageFileExtractor(), this.getTariffCalendarExtractor(),
