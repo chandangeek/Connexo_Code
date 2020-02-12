@@ -408,7 +408,7 @@ public class ChannelResource {
 
             // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
             // devices which are not dataloggers
-            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getChannelTimeLine(channel, range);
             List<ChannelDataInfo> infos = channelTimeLine.stream()
                     .flatMap(channelRangePair -> {
                         Channel channelWithData = channelRangePair.getFirst();

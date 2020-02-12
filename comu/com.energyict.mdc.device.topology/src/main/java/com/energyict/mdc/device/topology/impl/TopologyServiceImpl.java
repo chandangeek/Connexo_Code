@@ -739,6 +739,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public List<Pair<Channel, Range<Instant>>> getChannelTimeLine(Channel channel, Range<Instant> range) {
+        return Collections.singletonList(Pair.of(channel, range));
+    }
+
+    @Override
     public List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> range) {
         List<DataLoggerChannelUsage> dataLoggerChannelUsagesForRegisters = findDataLoggerChannelUsagesForRegisters(register, range);
         if (dataLoggerChannelUsagesForRegisters.isEmpty()) {

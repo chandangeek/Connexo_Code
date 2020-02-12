@@ -146,9 +146,9 @@ public class DeviceDataInfoFactory {
             }
             channelIntervalInfo.dataValidated = false;
         }
-        if (dataLoggerSlave != null) {
+        /*if (dataLoggerSlave != null) {
             channelIntervalInfo.slaveChannel = SlaveChannelInfo.from(dataLoggerSlave, channel);
-        }
+        }*/
         return channelIntervalInfo;
     }
 
