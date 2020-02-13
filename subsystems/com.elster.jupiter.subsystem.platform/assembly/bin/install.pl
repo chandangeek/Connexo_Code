@@ -584,6 +584,9 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
         replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 9.0 ","set DISPLAYNAME=");
 
+        (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
+        (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
+        (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
@@ -593,9 +596,6 @@ sub install_tomcat {
 
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
-            (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
-            (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
-            (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
 			            print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M \"\n";
 			close($FH);
