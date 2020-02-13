@@ -119,17 +119,39 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             if (!instants.isEmpty()) {
                 List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
                         .collect(Collectors.toList());
+                readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
 
                 Map<Instant, String> readingStatuses = new HashMap<>();
                 IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
+                boolean beginOfPeriod = true;
+                boolean allEmpty = false;
+                IntervalReadingRecord firstReading;
+                IntervalReadingRecord lastReading;
+                if (!readings.isEmpty()) {
+                    firstReading = (IntervalReadingRecord)readings.get(0);
+                    lastReading = (IntervalReadingRecord)readings.get(readings.size() - 1);
+                } else {
+                    allEmpty = true;
+                    firstReading = null;
+                    lastReading = null;
+                }
                 for (Instant time : instants) {
                     Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
                             .filter(r -> r.getTimeStamp().equals(time)).findAny();
                     if (readingOptional.isPresent()) {
                         readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                        beginOfPeriod = false;
                     } else {
-                        readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
-                        readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                        if (!allEmpty && beginOfPeriod) {
+                            readings.add(BeginOrEndOfPeriodIntervalReadingImpl.intervalReading(firstReading, time));
+                            readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                        } else if (!allEmpty && !beginOfPeriod && lastReading!= null && time.isAfter(lastReading.getTimeStamp())) {
+                            readings.add(BeginOrEndOfPeriodIntervalReadingImpl.intervalReading(lastReading, time));
+                            readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                        } else {
+                            readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
+                            readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                        }
                     }
                 }
                 readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
