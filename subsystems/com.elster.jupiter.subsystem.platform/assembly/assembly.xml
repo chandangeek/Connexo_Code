@@ -31,10 +31,6 @@
             <outputDirectory>conf</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>assembly/ssl</directory>
-            <outputDirectory>ssl</outputDirectory>
-        </fileSet>
-        <fileSet>
             <directory>assembly/logs</directory>
             <outputDirectory>logs</outputDirectory>
         </fileSet>

@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.systemadmin.rest.imp.response;
 
-import java.util.Map;
-
 public class SystemInfo {
     public String jre;
     public String jvm;
@@ -24,6 +22,4 @@ public class SystemInfo {
     public String dbUser;
     public String dbMaxConnectionsNumber;
     public String dbMaxStatementsPerRequest;
-    public Map<String, String> environmentParameters;
-    public Map<String, Map<String, String>> trustStoreContent;
 }

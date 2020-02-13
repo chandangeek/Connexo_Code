@@ -15,9 +15,9 @@ Ext.define('Sam.view.systeminfo.SystemInfo', {
                 xtype: 'dataview',
                 itemId: 'system-info-dataview',
                 store: 'Sam.store.SystemInfo',
-                tpl: '<tpl for=".">'
+                tpl: '<ul>'
+                + '<tpl for=".">'
                 + "<p><h2>{[Uni.I18n.translate('systemInfo.serverInfo', 'SAM', 'Server information')]}:</h2></p>"
-                + '<ul>'
                 + '<li>{jreInfo}</li>'
                 + '<li>{jvmInfo}</li>'
                 + '<li>{javaHomeInfo}</li>'
@@ -35,18 +35,13 @@ Ext.define('Sam.view.systeminfo.SystemInfo', {
                 + '<li>{dbUserInfo}</li>'
                 + '<li>{dbMaxConnectionsNumberInfo}</li>'
                 + '<li>{dbMaxStatementsPerRequestInfo}</li>'
-                + '</ul>'
+                + '<br>'
                 + "<p><h2>{[Uni.I18n.translate('systemInfo.clientInfo', 'SAM', 'Client information')]}:</h2></p>"
-                + '<ul>'
                 + '<li>{browserNameInfo}</li>'
                 + '<li>{browserVersionInfo}</li>'
                 + '<li>{browserLanguageInfo}</li>'
-                + '</ul>'
-                + "<p><h2>{[Uni.I18n.translate('systemInfo.environmentParameters', 'SAM', 'Environment parameters')]}:</h2></p>"
-                + "{environmentParameters}"
-                + "<p><h2>{[Uni.I18n.translate('systemInfo.trustStoreContent', 'SAM', 'TrustStore content')]}:</h2></p>"
-                + "{trustStoreContent}"
-                + '</tpl>',
+                + '</tpl>'
+                + '</ul>',
                 itemSelector: 'div'
             }
         }
