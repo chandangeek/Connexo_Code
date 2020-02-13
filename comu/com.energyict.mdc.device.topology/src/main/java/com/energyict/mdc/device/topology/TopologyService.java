@@ -434,8 +434,6 @@ public interface TopologyService {
      */
     List<Pair<Channel, Range<Instant>>> getDataLoggerChannelTimeLine(Channel channel, Range<Instant> range);
 
-    List<Pair<Channel, Range<Instant>>> getChannelTimeLine(Channel channel, Range<Instant> range);
-
     List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> intervalReg);
 
     /**
