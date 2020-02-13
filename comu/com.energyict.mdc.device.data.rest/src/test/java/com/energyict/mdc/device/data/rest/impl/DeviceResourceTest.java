@@ -1023,7 +1023,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         }
         when(channel1.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
         Range<Instant> range = Range.closedOpen(Instant.ofEpochMilli(1410774630000L), Instant.ofEpochMilli(1410828630000L));
-        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel1, range)));
+        when(topologyService.getChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel1, range)));
 
         String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         Map response = target("/devices/name/channels/7/data")
