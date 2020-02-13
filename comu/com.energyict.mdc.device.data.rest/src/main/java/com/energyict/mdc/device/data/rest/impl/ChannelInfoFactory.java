@@ -59,10 +59,6 @@ public class ChannelInfoFactory {
         info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
         info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
-//        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atLeast(clock.instant()));
-//        if (!dataLoggerChannelUsages.isEmpty()) {
-//            info.dataloggerSlaveName = dataLoggerChannelUsages.get(0).getPhysicalGatewayReference().getOrigin().getName();
-//        }
         return info;
     }
 

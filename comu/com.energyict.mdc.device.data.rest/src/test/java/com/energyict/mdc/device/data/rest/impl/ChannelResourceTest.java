@@ -415,9 +415,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .property("intervalStart", INTERVAL_START)
                 .property("intervalEnd", INTERVAL_END)
                 .create();
-        when(topologyService.getChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair
-                .of(channel, Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant
-                        .ofEpochMilli(INTERVAL_END)))));
 
         LoadProfileJournalReading loadProfileJournalReading = mock(LoadProfileJournalReading.class);
         when(loadProfileJournalReading.getActive()).thenReturn(false);
@@ -463,8 +460,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testChannelData() throws UnsupportedEncodingException {
         String filter = ExtjsFilter.filter().property("intervalStart", INTERVAL_START).property("intervalEnd", INTERVAL_END).create();
-        when(topologyService.getChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant
-                .ofEpochMilli(INTERVAL_END)))));
 
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
@@ -579,8 +574,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testChannelDataFilteredMatches() throws UnsupportedEncodingException {
         String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect", "suspect").create();
-        when(topologyService.getChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant
-                .ofEpochMilli(INTERVAL_END)))));
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
