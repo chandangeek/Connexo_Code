@@ -93,7 +93,7 @@ public class DeviceDataInfoFactory {
         return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 
-    ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
+    ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, ChannelPeriodType channelPeriodType) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
@@ -146,14 +146,11 @@ public class DeviceDataInfoFactory {
             }
             channelIntervalInfo.dataValidated = false;
         }
-        /*if (dataLoggerSlave != null) {
-            channelIntervalInfo.slaveChannel = SlaveChannelInfo.from(dataLoggerSlave, channel);
-        }*/
         return channelIntervalInfo;
     }
 
-    ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
-        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave, channelPeriodType));
+    ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, ChannelPeriodType channelPeriodType) {
+        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, loadProfileJournalReading, isValidationActive, deviceValidation, channelPeriodType));
         channelHistoryDataInfo.journalTime = loadProfileJournalReading.getJournalTime();
         channelHistoryDataInfo.userName = loadProfileJournalReading.getUserName();
         channelHistoryDataInfo.isActive = loadProfileJournalReading.getActive();
