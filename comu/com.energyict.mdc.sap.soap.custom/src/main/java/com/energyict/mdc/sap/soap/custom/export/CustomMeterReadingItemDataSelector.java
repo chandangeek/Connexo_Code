@@ -119,7 +119,6 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             if (!instants.isEmpty()) {
                 List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
                         .collect(Collectors.toList());
-                readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
 
                 Map<Instant, String> readingStatuses = new HashMap<>();
                 IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
