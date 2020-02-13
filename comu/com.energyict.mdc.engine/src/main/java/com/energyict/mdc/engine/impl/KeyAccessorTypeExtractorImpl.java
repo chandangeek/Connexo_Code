@@ -70,6 +70,20 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     }
 
     @Override
+    public Optional<String> actualValueForHsmKey(KeyAccessorType keyAccessorType) {
+        Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType);
+        if (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent() && offlineKeyAccessor.get().getActualValue().get() instanceof HsmKey) {
+            return Optional.of(formatAsLabelAndKey((HsmKey) offlineKeyAccessor.get().getActualValue().get()));
+        }
+        return Optional.empty();
+    }
+
+    private String formatAsLabelAndKey(HsmKey hsmKey) {
+        return hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey());
+
+    }
+
+    @Override
     public Optional<Object> actualValue(KeyAccessorType keyAccessorType) {
         Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType);
         return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent())
