@@ -13,6 +13,7 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 
 import java.math.BigDecimal;
@@ -45,6 +46,21 @@ public class SearchDataSourceHandler implements TaskExecutor {
                         case PAUSED:
                             serviceCall.requestTransition(DefaultState.ONGOING);
                             break;
+                    }
+
+                });
+
+        findAvailableServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST)
+                .stream()
+                .forEach(serviceCall -> {
+                    serviceCall = lock(serviceCall);
+                    MasterUtilitiesDeviceRegisterCreateRequestDomainExtension domainExtension = serviceCall.getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class).get();
+                    BigDecimal currentAttempt = domainExtension.getAttemptNumber();
+
+                    domainExtension.setAttemptNumber(currentAttempt.add(BigDecimal.ONE));
+                    serviceCall.update(domainExtension);
+                    if (serviceCall.getState() == DefaultState.PAUSED) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
                     }
 
                 });

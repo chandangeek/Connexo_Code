@@ -7,8 +7,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -25,6 +27,7 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
     public static final String APPLICATION = "MDC";
 
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile ServiceCallService serviceCallService;
 
 
     @Override
@@ -68,6 +71,18 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
                     }
                 }
+            case PAUSED:
+                parentServiceCall = lock(parentServiceCall);//???
+                List<ServiceCall> children = findChildren(parentServiceCall);
+                if (ServiceCallHelper.isLastPausedChild(children)) {
+                    if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
+                        if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
+                            parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        }
+                        parentServiceCall.requestTransition(DefaultState.PAUSED);
+                    }
+                }
+                break;
             default:
                 // No specific action required for these states
                 break;
@@ -102,5 +117,15 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 }

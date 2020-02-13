@@ -14,6 +14,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
@@ -23,7 +25,8 @@ public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends A
         // provided
         REQUEST_ID("requestID", "REQUEST_ID"),
         UUID("uuid", "UUID"),
-        BULK("bulk", "BULK");
+        BULK("bulk", "BULK"),
+        ATTEMPT_NUMBER("attemptNumber", "attempt_number"),
         ;
 
 
@@ -53,6 +56,17 @@ public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends A
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Boolean bulk;
+
+    private BigDecimal attemptNumber;
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+
+    public BigDecimal getAttemptNumber() {
+        return attemptNumber;
+    }
+
+    public void setAttemptNumber(BigDecimal attemptNumber) {
+        this.attemptNumber = attemptNumber;
+    }
 
     public String getRequestID() {
         return requestID;
@@ -84,6 +98,8 @@ public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends A
         this.setRequestID((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
         this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
+        this.setAttemptNumber(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.ATTEMPT_NUMBER.javaName()))
+                .orElse(BigDecimal.ZERO).toString()));
     }
 
     @Override
@@ -91,6 +107,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends A
         propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestID());
         propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
+        propertySetValues.setProperty(FieldNames.ATTEMPT_NUMBER.javaName(), this.getAttemptNumber());
     }
 
     @Override

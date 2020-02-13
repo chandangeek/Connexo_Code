@@ -8,11 +8,13 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,6 +36,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile WebServiceActivator webServiceActivator;
+    private volatile ServiceCallService serviceCallService;
 
 
     @Override
@@ -82,6 +85,19 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
                     }
                 }
+                break;
+            case PAUSED:
+                parentServiceCall = lock(parentServiceCall);
+                List<ServiceCall> children = findChildren(parentServiceCall);
+                if (ServiceCallHelper.isLastPausedChild(children)) {
+                    if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
+                        if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
+                            parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        }
+                        parentServiceCall.requestTransition(DefaultState.PAUSED);
+                    }
+                }
+                break;
             default:
                 // No specific action required for these states
                 break;
@@ -176,5 +192,15 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 }

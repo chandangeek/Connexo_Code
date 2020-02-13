@@ -103,6 +103,12 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
                         .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName(), TranslationKeys.ATTEMPT_NUMBER)
+                        .describedAs(TranslationKeys.ATTEMPT_NUMBER)
+                        .fromThesaurus(thesaurus)
                         .finish()
 
         );
@@ -161,6 +167,11 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
                     .bool()
                     .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName())
                     .notNull()
+                    .add();
+            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.databaseName())
+                    .number()
+                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
         }
 

@@ -19,6 +19,7 @@ import com.energyict.mdc.common.device.data.Device;
 
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.CIMPattern;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -27,6 +28,8 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Optional;
@@ -121,7 +124,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 processChannel(device.get(), extension.getServiceCall(), obis, period, cimPattern);
             }
         } else {
-            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
+            failedAttempt(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
         }
     }
 
@@ -138,6 +141,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
+                //clear error message property after previous attempts
+                extension.setErrorMessage("");
+                extension.setErrorCode(null);
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -165,6 +171,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
+                //clear error message property after previous attempts
+                extension.setErrorMessage("");
+                extension.setErrorCode(null);
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -258,6 +267,23 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                         && cimPattern.matches(register.getReadingType()))
                 .filter(register -> sapCustomPropertySets.doesRegisterHaveSapCPS(register))
                 .collect(Collectors.toSet());
+    }
+
+    private void failedAttempt(UtilitiesDeviceRegisterCreateRequestDomainExtension extension, MessageSeeds error, Object... args) {
+        ServiceCall serviceCall = extension.getServiceCall();
+        serviceCall.log(LogLevel.WARNING, MessageFormat.format(error.getDefaultFormat(), new Object[0]));
+        extension.setError(error, args);
+        serviceCall.update(extension);
+        MasterUtilitiesDeviceRegisterCreateRequestDomainExtension masterExtension = serviceCall.getParent().get()
+                .getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+        BigDecimal currentAttempt = masterExtension.getAttemptNumber();
+        if (currentAttempt.compareTo(attempts) != -1) {
+            serviceCall.requestTransition(DefaultState.FAILED);
+        } else {
+            serviceCall.requestTransition(DefaultState.PAUSED);
+        }
     }
 
     @Reference
