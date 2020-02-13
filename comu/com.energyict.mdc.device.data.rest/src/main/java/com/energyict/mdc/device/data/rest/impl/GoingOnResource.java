@@ -133,6 +133,15 @@ public class GoingOnResource {
         }
         List<GoingOnInfo> serviceCalls = serviceCallFinder.stream().map(goingOnInfoFactory::toGoingOnInfo).collect(Collectors.toList());
 
+        serviceCallFilter.targetObject = device.getMeter();
+        serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
+        if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
+            serviceCallFinder = serviceCallFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+        }
+        serviceCallFinder.stream()
+                .map(goingOnInfoFactory::toGoingOnInfo)
+                .forEach(serviceCalls::add);
+
         List<GoingOnInfo> alarms = new ArrayList<>();
         if(hasCurrentUserAlarmPrivileges(appPrivileges)) {
             Finder<? extends DeviceAlarm> alarmFinder = deviceAlarmService.findAlarms(alarmFilter);

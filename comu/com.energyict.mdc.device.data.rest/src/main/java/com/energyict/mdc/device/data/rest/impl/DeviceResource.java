@@ -1005,6 +1005,12 @@ public class DeviceResource {
                 .map(serviceCallInfoFactory::summarized)
                 .collect(Collectors.toList());
 
+        filter.targetObject = device.getMeter();
+        serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
+                .stream()
+                .map(serviceCallInfoFactory::summarized)
+                .forEach(serviceCallInfos::add);
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
@@ -1042,6 +1048,14 @@ public class DeviceResource {
                 .stream()
                 .filter(serviceCall -> !serviceCall.getState().isOpen())
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
+        filter.targetObject = device.getMeter();
+        serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
+                .stream()
+                .filter(serviceCall -> !serviceCall.getState().isOpen())
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }

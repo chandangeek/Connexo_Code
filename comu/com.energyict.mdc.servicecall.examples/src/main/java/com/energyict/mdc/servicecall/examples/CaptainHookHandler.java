@@ -5,6 +5,7 @@
 package com.energyict.mdc.servicecall.examples;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -113,8 +114,13 @@ public class CaptainHookHandler implements ServiceCallHandler {
                 ServiceCall serviceCall = serviceCallService.getServiceCall(serviceCallId)
                         .get(); // we need a fresh copy to read the latest state
                 if (DefaultState.ONGOING.equals(serviceCall.getState())) {
-                    Device device = (Device) serviceCall.getTargetObject().get();
-                    serviceCall.log(LogLevel.FINE, "Device " + device.getId() + ": " + (tic ? "TIC" : "TAC"));
+                    if (serviceCall.getTargetObject().get() instanceof Device) {
+                        Device device = (Device) serviceCall.getTargetObject().get();
+                        serviceCall.log(LogLevel.FINE, "Device " + device.getId() + ": " + (tic ? "TIC" : "TAC"));
+                    } else if (serviceCall.getTargetObject().get() instanceof Meter) {
+                        Meter meter = (Meter) serviceCall.getTargetObject().get();
+                        serviceCall.log(LogLevel.FINE, "Meter " + meter.getId() + ": " + (tic ? "TIC" : "TAC"));
+                    }
                     tic = !tic;
                     if (count.addAndGet(-1) <= 0) {
                         this.cancel();

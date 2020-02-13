@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.impl.webservicecall;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
@@ -133,15 +134,15 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
     private void createChildServiceCalls(ServiceCall parent, Map<ReadingTypeDataExportItem, String> data) {
         data.forEach((item, customInfo) -> createChild(parent,
-                item.getDomainObject().getName(),
+                item.getDomainObject(),
                 item.getReadingType().getMRID(),
                 item.getId(),
                 customInfo));
     }
 
-    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId, String customInfo) {
+    private void createChild(ServiceCall parent, IdentifiedObject object, String readingTypeMrID, long itemId, String customInfo) {
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
-        childSrvCallProperties.setDeviceName(deviceName);
+        childSrvCallProperties.setDeviceName(object.getName());
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
         childSrvCallProperties.setDataSourceId(itemId);
         childSrvCallProperties.setCustomInfo(customInfo);
@@ -150,6 +151,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(srvCallChildType)
                 .extendedWith(childSrvCallProperties);
+        serviceCallBuilder.targetObject(object);
         ServiceCall child = serviceCallBuilder.create();
         child.requestTransition(DefaultState.PENDING);
         child.requestTransition(DefaultState.ONGOING);
