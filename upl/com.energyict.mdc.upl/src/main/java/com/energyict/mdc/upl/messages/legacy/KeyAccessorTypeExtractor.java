@@ -28,6 +28,8 @@ public interface KeyAccessorTypeExtractor {
 
     Optional<Object> actualValue(KeyAccessorType keyAccessorType);
 
+    Optional<String> actualValueForHsmKey(KeyAccessorType keyAccessorType);
+
     /**
      * Extracts the actual value of a {@link KeyAccessorType} or {@code Optional.empty()} if not available.
      * This method should be used for MBus devices. The extra {@param deviceId} is used to discriminate between
