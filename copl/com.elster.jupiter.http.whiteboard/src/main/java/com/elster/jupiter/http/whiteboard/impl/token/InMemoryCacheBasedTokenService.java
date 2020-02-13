@@ -112,19 +112,21 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
 
     @Override
     public UserJWT createUserJWT(User user, Map<String, Object> customClaims) throws JOSEException {
-        JWTClaimsSet claimsSet = new JWTClaimsSet();
         final UUID jwtId = UUID.randomUUID();
+        final long tokenExpirationTime = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME * 1000;
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setJWTID(jwtId.toString());
         claimsSet.setSubject(Long.toString(user.getId()));
         claimsSet.setIssuer(ISSUER_NAME);
         claimsSet.setIssueTime(new Date());
-        claimsSet.setExpirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME * 1000));
+        claimsSet.setExpirationTime(new Date(tokenExpirationTime));
         claimsSet.setCustomClaims(customClaims);
 
         final UserJWT userJWT = new UserJWT(
                 user,
                 createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet),
-                Instant.ofEpochMilli(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME * 1000)
+                Instant.ofEpochMilli(tokenExpirationTime)
         );
 
         CASHE.put(jwtId, userJWT);
@@ -152,11 +154,24 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         final User user = getAssociatedUser(Long.parseLong(jwtClaimsSet.getSubject()));
 
         final boolean result = Objects.nonNull(user)
+                && verifyIfUserHasUsetJWTInCache(user, UUID.fromString(jwtClaimsSet.getJWTID()))
                 && verifyJWTSignature(signedJWT)
                 && verifyJWTIssuer(jwtClaimsSet.getIssuer())
                 && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime());
 
         return new TokenValidation(result, user, signedJWT.serialize());
+    }
+
+    private boolean verifyIfUserHasUsetJWTInCache(final User user, final UUID jwtId) {
+        final UserJWT userJWT = getUserJWT(jwtId);
+
+        if (userJWT == null) {
+            return false;
+        }
+
+        final User userJWTUser = userJWT.getUser();
+
+        return user.equals(userJWTUser);
     }
 
     private User getAssociatedUser(final long userId) {
