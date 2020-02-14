@@ -668,7 +668,10 @@ public enum TableSpecs {
                     .composition()
                     .reverseMap("comTaskExecutionJournalEntries")
                     .add();
-            table.primaryKey("PK_DDC_COMTASKJOURNALENTRY").on(id).upTo(version(10, 7, 2)).add();
+            table.primaryKey("PK_DDC_COMTASKJOURNALENTRY")
+                    .on(id)
+                    .upTo(version(10, 7, 2))
+                    .add();
             table.autoPartitionOn(timestamp, LifeCycleClass.LOGGING);
         }
     },

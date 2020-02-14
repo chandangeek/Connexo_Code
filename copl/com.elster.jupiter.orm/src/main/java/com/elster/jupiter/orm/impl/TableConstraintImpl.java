@@ -145,7 +145,6 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         return KeyValue.of(result);
     }
 
-
     boolean needsIndex() {
         return false;
     }
