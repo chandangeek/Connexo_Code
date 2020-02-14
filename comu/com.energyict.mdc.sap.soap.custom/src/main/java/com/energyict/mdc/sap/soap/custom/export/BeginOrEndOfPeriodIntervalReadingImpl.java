@@ -69,12 +69,13 @@ public class BeginOrEndOfPeriodIntervalReadingImpl implements IntervalReadingRec
 
     @Override
     public void setProcessingFlags(ProcessStatus.Flag... flags) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public IntervalReadingRecord filter(ReadingType readingType) {
-        return decorated.filter(readingType);
+        IntervalReadingRecord record = decorated.filter(readingType);
+        return new BeginOrEndOfPeriodIntervalReadingImpl(record, record.getTimeStamp());
     }
 
     @Override
@@ -89,7 +90,7 @@ public class BeginOrEndOfPeriodIntervalReadingImpl implements IntervalReadingRec
 
     @Override
     public Instant getReportedDateTime() {
-        return timeStamp;
+        return decorated.getReportedDateTime();
     }
 
     @Override
@@ -104,7 +105,7 @@ public class BeginOrEndOfPeriodIntervalReadingImpl implements IntervalReadingRec
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        return Optional.of(Range.openClosed(timeStamp, timeStamp.plus(1, ChronoUnit.HOURS)));
+        return Optional.of(Range.openClosed(timeStamp.minus(1, ChronoUnit.HOURS), timeStamp));
     }
 
     @Override
