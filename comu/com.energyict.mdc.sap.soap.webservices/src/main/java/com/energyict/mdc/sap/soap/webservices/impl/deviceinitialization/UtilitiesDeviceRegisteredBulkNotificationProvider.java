@@ -124,6 +124,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
                 .withRelatedAttributes(values)
                 .send(notificationMessage);
+
+        deviceIds.forEach(deviceId -> sapCustomPropertySets.setRegistered(deviceId, true));
     }
 
     private BusinessDocumentMessageHeader createMessageHeader(Instant now) {

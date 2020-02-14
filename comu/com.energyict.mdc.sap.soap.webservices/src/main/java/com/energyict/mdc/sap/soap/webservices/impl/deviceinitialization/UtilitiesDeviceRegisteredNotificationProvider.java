@@ -4,7 +4,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
@@ -159,13 +158,12 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
             deviceService.findDeviceByMrid(endDevice.getMRID()).ifPresent(
                     device -> {
-                        if (device.getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
-                            sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
-                                if (sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
-                                    call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
-                                }
-                            });
-                        }
+                        sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
+                            if (!sapCustomPropertySets.isRegistered(device) && sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
+                                call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
+                            }
+                        });
+
                     }
             );
         });
@@ -179,6 +177,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .withRelatedAttributes(values)
                 .send(notificationMessage);
+        sapCustomPropertySets.setRegistered(sapDeviceId, true);
     }
 
     private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
@@ -189,6 +188,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
                 .toEndpoints(endPointConfigurations)
                 .withRelatedAttributes(values)
                 .send(notificationMessage);
+        sapCustomPropertySets.setRegistered(sapDeviceId, true);
     }
 
     private UtilsDvceERPSmrtMtrRegedNotifMsg createNotificationMessage(String sapDeviceId) {

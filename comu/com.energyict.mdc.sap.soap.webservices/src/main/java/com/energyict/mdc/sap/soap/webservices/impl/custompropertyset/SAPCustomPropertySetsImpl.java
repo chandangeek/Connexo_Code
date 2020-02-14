@@ -80,7 +80,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -803,7 +802,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getReadingType().getFullAliasName()));
     }
 
-    private void setDeviceCPSProperty(Device device, String property, String value) {
+    private void setDeviceCPSProperty(Device device, String property, Object value) {
         String cpsId = deviceInfo.getId();
         if (!getRegisteredCustomPropertySet(device, cpsId).isEditableByCurrentUser()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
@@ -997,12 +996,39 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return Optional.empty();
     }
 
+    @Override
+    public boolean isRegistered(String deviceName) {
+        return deviceService.findDeviceByName(deviceName)
+                .map(this::isRegistered)
+                .orElse(false);
+    }
+
+    @Override
+    public boolean isRegistered(Device device) {
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))
+                .findAny()
+                .map(DeviceSAPInfoDomainExtension::isRegistered)
+                .orElse(false);
+    }
+
+    @Override
+    public void setRegistered(String sapDeviceId, boolean registered) {
+        lockDeviceTypeOrThrowException(getDevice(sapDeviceId).get().getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(getDevice(sapDeviceId).get().getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
+    }
+
     private Optional<Instant> getFirstActiveLrnStartDate(long deviceId, Instant now) {
         Range<Instant> registerDateRange = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName())
+                        .isEffective(now)
+                        .or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
                 .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
                 .map(ext -> ext.getInterval().toOpenClosedRange())
                 .findFirst()
@@ -1012,7 +1038,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName())
+                        .isEffective(now)
+                        .or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
                 .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
                 .map(ext -> ext.getInterval().toOpenClosedRange())
                 .findFirst()
