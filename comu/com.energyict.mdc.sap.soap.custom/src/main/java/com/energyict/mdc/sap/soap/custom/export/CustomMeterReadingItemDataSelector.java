@@ -128,9 +128,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                 IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
                 String currentProfileId = getProfileId(profileIds, lowerEndpoint).orElse(null);
                 boolean profileIdChanged = false;
-                IntervalReadingRecord readingToFillGaps;
+                BaseReading readingToFillGaps;
                 if (!readings.isEmpty()) {
-                    readingToFillGaps = (IntervalReadingRecord)readings.get(0);
+                    readingToFillGaps = readings.get(0);
                 } else {
                     readingToFillGaps = null;
                 }
@@ -141,7 +141,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                     Optional<String> profileId = getProfileId(profileIds, time);
                     if (readingOptional.isPresent()) {
                         readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
-                        readingToFillGaps = (IntervalReadingRecord)readingOptional.get();
+                        readingToFillGaps = readingOptional.get();
                         if (profileIdChanged) {
                             for (Instant gap : gaps) {
                                 readings.add(BeginOrEndOfPeriodIntervalReadingImpl.intervalReading(readingToFillGaps, gap));

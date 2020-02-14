@@ -4,11 +4,8 @@
 
 package com.energyict.mdc.sap.soap.custom.export;
 
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 
 import com.google.common.collect.Range;
 
@@ -18,64 +15,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-public class BeginOrEndOfPeriodIntervalReadingImpl implements IntervalReadingRecord {
+public class BeginOrEndOfPeriodIntervalReadingImpl implements BaseReading {
 
-    private final IntervalReadingRecord decorated;
+    private final BaseReading decorated;
     private final Instant timeStamp;
 
-    public static IntervalReadingRecord intervalReading(IntervalReadingRecord decorated, Instant timeStamp) {
+    public static BaseReading intervalReading(BaseReading decorated, Instant timeStamp) {
         return new BeginOrEndOfPeriodIntervalReadingImpl(decorated, timeStamp);
     }
 
-    private BeginOrEndOfPeriodIntervalReadingImpl(IntervalReadingRecord decorated, Instant timeStamp) {
+    private BeginOrEndOfPeriodIntervalReadingImpl(BaseReading decorated, Instant timeStamp) {
         this.decorated = decorated;
         this.timeStamp = timeStamp;
-    }
-
-    @Override
-    public List<Quantity> getQuantities() {
-        return decorated.getQuantities();
-    }
-
-    @Override
-    public Quantity getQuantity(int offset) {
-        return decorated.getQuantity(offset);
-    }
-
-    @Override
-    public Quantity getQuantity(ReadingType readingType) {
-        return decorated.getQuantity(readingType);
-    }
-
-    @Override
-    public ReadingType getReadingType() {
-        return decorated.getReadingType();
-    }
-
-    @Override
-    public ReadingType getReadingType(int offset) {
-        return decorated.getReadingType(offset);
-    }
-
-    @Override
-    public List<? extends ReadingType> getReadingTypes() {
-        return decorated.getReadingTypes();
-    }
-
-    @Override
-    public ProcessStatus getProcessStatus() {
-        return decorated.getProcessStatus();
-    }
-
-    @Override
-    public void setProcessingFlags(ProcessStatus.Flag... flags) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IntervalReadingRecord filter(ReadingType readingType) {
-        IntervalReadingRecord record = decorated.filter(readingType);
-        return new BeginOrEndOfPeriodIntervalReadingImpl(record, record.getTimeStamp());
     }
 
     @Override
@@ -109,7 +60,7 @@ public class BeginOrEndOfPeriodIntervalReadingImpl implements IntervalReadingRec
     }
 
     @Override
-    public List<? extends ReadingQualityRecord> getReadingQualities() {
+    public List<? extends ReadingQuality> getReadingQualities() {
         return decorated.getReadingQualities();
     }
 }
