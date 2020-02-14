@@ -178,4 +178,9 @@ public class InjectOnly implements DataModel {
     public SortedSet<Version> changeVersions() {
         return ImmutableSortedSet.of();
     }
+
+    @Override
+    public long getEvictionTime() {
+        throw new UnsupportedOperationException();
+    }
 }

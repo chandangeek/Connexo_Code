@@ -159,6 +159,8 @@ public interface Table<T> {
 
     void cacheWholeTable(boolean recordStat);
 
+    void cacheWholeTable(boolean recordStat, long evictionTime);
+
     CacheStats getCacheStats();
 
     void indexOrganized(int compressCount);

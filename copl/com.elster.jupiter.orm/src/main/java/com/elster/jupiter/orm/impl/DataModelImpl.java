@@ -70,6 +70,7 @@ public class DataModelImpl implements DataModel {
     private String name;
     private String description;
     private String enablePartition;
+    private long evictionTime;
 
     // associations
     private final List<TableImpl<?>> tables = new ArrayList<>();
@@ -86,6 +87,7 @@ public class DataModelImpl implements DataModel {
     DataModelImpl(OrmService ormService) {
         this.ormService = (OrmServiceImpl) ormService;
         this.enablePartition = Optional.ofNullable(this.ormService.getEnablePartition()).orElse("true");
+        this.evictionTime = ((OrmServiceImpl) ormService).getEvictionTime();
     }
 
     DataModelImpl init(String name, String description, Version version) {
@@ -639,5 +641,9 @@ public class DataModelImpl implements DataModel {
 
     void addAllTables(DataModelImpl other) {
         other.getTables().forEach(this::add);
+    }
+
+    public long getEvictionTime() {
+        return evictionTime;
     }
 }

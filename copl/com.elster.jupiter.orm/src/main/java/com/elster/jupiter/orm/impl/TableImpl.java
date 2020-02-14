@@ -217,7 +217,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cache() {
-        cache(600000L, 10000L, true);
+        cache(getDataModel().getEvictionTime(), 10000L, true);
     }
 
     @Override
@@ -231,9 +231,15 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cacheWholeTable(boolean recordStat) {
+     cacheWholeTable(recordStat, getDataModel().getEvictionTime());
+    }
+
+    @Override
+    public void cacheWholeTable(boolean recordStat, long cacheTtl) {
         this.cached = true;
         this.cacheWholeTable = true;
         this.cacheRecordStat = recordStat;
+        this.cacheTtl = cacheTtl;
     }
 
     @Override
@@ -869,7 +875,7 @@ public class TableImpl<T> implements Table<T> {
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
         if (isWholeTableCached()) {
-            cache = new TableCache.WholeTableCache<>(this, cacheRecordStat);
+            cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
         } else {
             cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
         }

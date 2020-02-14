@@ -28,6 +28,7 @@ import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.RangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -72,8 +73,11 @@ public final class OrmServiceImpl implements OrmService {
     private volatile TransactionService transactionService;
     private final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
     private final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
+    private final String CACHE_EVICTION_TIME = "table.cache.eviction.time";
     private String enablePartition;
     private String enableAuditing;
+    private long evictionTime;
+    private long EVICTION_TIME_DEFAULT_VALUE = 600000L; //in milliseconds (10 minutes).
     private Registration clearCacheOnRollBackRegistration;
 
     // For OSGi purposes
@@ -151,6 +155,10 @@ public final class OrmServiceImpl implements OrmService {
         return enablePartition;
     }
 
+    public long getEvictionTime() {
+        return evictionTime;
+    }
+
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
@@ -215,6 +223,12 @@ public final class OrmServiceImpl implements OrmService {
     public void activate(BundleContext context) {
         enableAuditing = context.getProperty(ENABLE_AUDIT_PROPERTY);
         enablePartition = context.getProperty(ENABLE_PARTITION_PROPERTY);
+        String evictionTimeStr = context.getProperty(CACHE_EVICTION_TIME);
+        if (!Strings.isNullOrEmpty(evictionTimeStr)) {
+            evictionTime = Integer.valueOf(evictionTimeStr);
+        } else {
+            evictionTime = EVICTION_TIME_DEFAULT_VALUE;
+        }
         createDataModel(false);
         createExistingTableDataModel();
         clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());

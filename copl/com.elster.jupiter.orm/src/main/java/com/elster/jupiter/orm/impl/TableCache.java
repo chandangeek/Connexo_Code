@@ -11,8 +11,12 @@ import com.elster.jupiter.pubsub.Publisher;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalCause;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +31,7 @@ interface TableCache<T> {
 
 	void renew();
 
-	void loadTableIfNeeded(Finder<T> finder);
+	boolean reloadCacheIfNeeded(Object object, Finder<T> finder, KeyValue keyValue);
 
 	CacheStats getCacheStats();
 
@@ -59,8 +63,10 @@ interface TableCache<T> {
 		}
 
 		@Override
-		public void loadTableIfNeeded(Finder<T> finder) {
+		public boolean reloadCacheIfNeeded(Object object, Finder<T> finder, KeyValue keyValue){
+			return false;
 		}
+
 	}
 
 	class TupleCache<T> implements TableCache<T> {
@@ -121,18 +127,19 @@ interface TableCache<T> {
 		}
 
 		@Override
-		public void loadTableIfNeeded(Finder<T> finder) {
+		public boolean reloadCacheIfNeeded(Object object, Finder<T> finder, KeyValue keyValue){
+			return false;
 		}
 	}
 
 	class WholeTableCache<T> implements TableCache<T> {
 		private final TableImpl<T> table;
 		private Cache<KeyValue, T> cache;
-		private boolean tableShouldBeLoaded = true;
 
-		WholeTableCache(TableImpl<T> table, boolean recordStats) {
+		WholeTableCache(TableImpl<T> table, long ttl ,boolean recordStats) {
 			this.table = table;
-			CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
+			CacheBuilder cacheBuilder = CacheBuilder.newBuilder()
+					.expireAfterWrite(ttl, TimeUnit.MILLISECONDS);
 			if (recordStats) {
 				cacheBuilder = cacheBuilder.recordStats();
 			}
@@ -147,7 +154,6 @@ interface TableCache<T> {
 		public synchronized void renew() {
 			this.cache.invalidateAll();
 			cacheCleared();
-			tableShouldBeLoaded = true;
 		}
 
 		private void cacheCleared() {
@@ -183,15 +189,18 @@ interface TableCache<T> {
 		}
 
 		@Override
-		synchronized public void loadTableIfNeeded(Finder<T> finder) {
-			if (tableShouldBeLoaded) {
+		public boolean reloadCacheIfNeeded(Object object, Finder<T> finder, KeyValue keyValue){
+			if (object == null){
+				cache.invalidateAll();
 				List<T> objects = finder.find();
-				for (T object : objects) {
-					cache.put(table.getPrimaryKey(object), object);
+				for (T objectitem : objects) {
+					cache.put(table.getPrimaryKey(objectitem), objectitem);
 				}
-				tableShouldBeLoaded = false;
+				return true;
 			}
+			return false;
 		}
+
 	}
 }
 
