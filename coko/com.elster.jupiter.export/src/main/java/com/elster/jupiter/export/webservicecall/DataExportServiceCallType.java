@@ -19,6 +19,9 @@ import java.util.Set;
 
 @ProviderType
 public interface DataExportServiceCallType {
+    String HANDLER_NAME = "WebServiceDataExportServiceCallHandler";
+    String CHILD_HANDLER_NAME = "Exported data source";
+
     /**
      * Creates and starts a new service call in current transaction, or in a new transaction if there's no transaction in context.
      * The service call will be performed asynchronously after commit of this transaction.
