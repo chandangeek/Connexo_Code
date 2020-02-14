@@ -4,10 +4,6 @@
 
 package com.elster.jupiter.orm;
 
-import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
-import com.elster.jupiter.orm.impl.PrimaryKeyConstraintImpl;
-import com.elster.jupiter.orm.impl.TableConstraintImpl;
-
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
@@ -158,7 +154,7 @@ public interface Table<T> {
     // meta data api
     List<String> getDdl();
 
-    List<TableConstraintImpl> getConstraints(Version version);
+    List<? extends TableConstraint> getConstraints(Version version);
 
     DataModel getDataModel();
 
@@ -191,12 +187,12 @@ public interface Table<T> {
     boolean isAutoInstall();
     void doNotAutoInstall();
 
-    TableConstraint getPrimaryKeyConstraint();
+    Optional<? extends PrimaryKeyConstraint> getPrimaryKeyConstraint();
     List<? extends Column> getPrimaryKeyColumns();
 
-    PrimaryKeyConstraintImpl getPrimaryKeyConstraint(Version version);
+    Optional<? extends PrimaryKeyConstraint> getPrimaryKeyConstraint(Version version);
 
-    List<ForeignKeyConstraintImpl> getForeignKeyConstraints(Version version);
+    List<? extends ForeignKeyConstraint> getForeignKeyConstraints(Version version);
 
     List<? extends ForeignKeyConstraint> getForeignKeyConstraints();
 

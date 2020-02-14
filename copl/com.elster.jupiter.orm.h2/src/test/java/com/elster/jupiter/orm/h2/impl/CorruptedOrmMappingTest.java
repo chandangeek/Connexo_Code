@@ -10,10 +10,10 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Version;
-
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -125,13 +125,13 @@ public class CorruptedOrmMappingTest {
     }
 
     @Test
-    @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + " : foreign key can not have columns from another table as key : OTHERTABLESCOLUMN.")
+    @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": foreign key can't have columns from another table as key: OTHERTABLESCOLUMN.")
     public void testForeignKeyCannotUseOtherTablesColumns() {
         table.foreignKey("FK").on(otherTablesColumn).add();
     }
 
     @Test
-    @Expected(value = IllegalTableMappingException.class, message = "Foreign key FK_NAME on table " + TABLE_NAME + " the referenced table " + TABLE_NAME2 + " does not exist.")
+    @Expected(value = IllegalTableMappingException.class, message = "Foreign key FK_NAME on table " + TABLE_NAME + " is missing a referenced table.")
     public void testForeignKeyReferencedTableDoesNotExist() {
         when(dataModel.getTable(TABLE_NAME2)).thenReturn(null);
 
@@ -140,12 +140,13 @@ public class CorruptedOrmMappingTest {
     }
 
     @Test
-    @Expected(value = IllegalTableMappingException.class, message = "Foreign key FK_NAME on table " + TABLE_NAME + " the referenced object does not have a field named fieldName.")
+    @Expected(value = IllegalTableMappingException.class, message = "Foreign key FK_NAME on table " + TABLE_NAME + ": the referenced object doesn't have a field named fieldName.")
     public void testForeignKeyMappingReverseFieldDoesNotExist() {
         doReturn(table).when(dataModel).getTable(TABLE_NAME);
         table.map(Dummy.class);
 
         Column foreignKey = table.column("FK").number().notNull().add();
+        table.primaryKey("PK_NAME").on(foreignKey).add();
         table.foreignKey("FK_NAME").references(TABLE_NAME).on(foreignKey).map("field").reverseMap("fieldName").add();
     }
 

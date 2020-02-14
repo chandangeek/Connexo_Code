@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -166,7 +167,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
                 .of(ComTaskExecutionJournalEntry.class,
                         where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
                                 .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))), this.dataModel)
-                .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false);
+                .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false)
+                .sorted(Column.TYPEFIELDNAME, false);
     }
 
     @Override
