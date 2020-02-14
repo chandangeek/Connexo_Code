@@ -19,6 +19,7 @@ import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestUnmarshaller;
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutResponseMarshaller;
+import org.opensaml.saml.saml2.core.impl.LogoutResponseUnmarshaller;
 import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.xmlsec.config.ApacheXMLSecurityInitializer;
@@ -127,6 +128,12 @@ public final class SAMLUtilities {
         transformer.transform(new DOMSource(marshalledLogoutResponse), streamResult);
         final byte[] base64EncodedAndDeflatedLogoutResponse = Base64.encode(CompressionUtils.deflate(streamResult.getWriter().toString().getBytes()));
         return new String(base64EncodedAndDeflatedLogoutResponse);
+    }
+
+    public static LogoutResponse unmarshallLogoutResponse(final String base64EncodedAndDeflatedLogoutResponse) throws UnmarshallingException, DataFormatException, XMLParserException {
+        final Element documentElement = Objects.requireNonNull(XMLObjectProviderRegistrySupport.getParserPool()).parse(CompressionUtils.inflate(Base64.decode(base64EncodedAndDeflatedLogoutResponse))).getDocumentElement();
+        final LogoutResponseUnmarshaller logoutResponseUnmarshaller = new LogoutResponseUnmarshaller();
+        return (LogoutResponse) logoutResponseUnmarshaller.unmarshall(documentElement);
     }
 
 }

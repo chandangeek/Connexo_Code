@@ -4,6 +4,7 @@ import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SAMLSingleLogoutServiceImpl;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
+import com.elster.jupiter.http.whiteboard.impl.token.UserJWT;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +33,7 @@ public class SLOBaseTest extends JerseyTest {
     protected final static String SLO_VALUE_RELAY_STATE = "example.com";
 
     // The name of query parameter which holds the value
-    protected final static String SLO_NAME_LOGOUT_REQUEST = "LogoutRequest";
+    protected final static String SLO_NAME_LOGOUT_REQUEST = "SAMLRequest";
 
     /**
      * In order to create Single Logout Request you may use following resources:
@@ -80,7 +81,7 @@ public class SLOBaseTest extends JerseyTest {
     protected HttpServletResponse httpServletResponse;
 
     @Mock
-    protected TokenService tokenService;
+    protected TokenService<UserJWT> tokenService;
 
     @Mock
     protected UserService userService;
@@ -98,10 +99,6 @@ public class SLOBaseTest extends JerseyTest {
         samlSingleLogoutService = new SAMLSingleLogoutServiceImpl(tokenService, userService);
 
         return new SLOTestApplication(samlSingleLogoutService, tokenService, userService, httpServletResponse);
-    }
-
-    protected void configureUserService() {
-        when(userService.findUserByExternalId(any())).thenReturn(Optional.of(user));
     }
 
     private class SLOTestApplication extends Application {

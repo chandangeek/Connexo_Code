@@ -2,7 +2,6 @@ package com.elster.jupiter.http.whiteboard.impl.saml.slo;
 
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
-import com.google.common.collect.ImmutableMap;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;
@@ -10,16 +9,15 @@ import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.transform.TransformerException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
@@ -34,21 +32,24 @@ public class SLOResource {
     private SAMLSingleLogoutService samlSingleLogoutService;
 
     @POST
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces({MediaType.APPLICATION_FORM_URLENCODED})
     @Path("logout")
-    public void logout(@QueryParam("LogoutRequest") String base64EncodedAndDeflatedSLORequest,
-                       @QueryParam("RelayState") String relayState,
-                       @Context HttpServletResponse httpServletResponse) throws XMLParserException, UnmarshallingException, DataFormatException, IOException, MarshallingException, TransformerException {
+    public Response logout(@FormParam("SAMLRequest") String base64EncodedAndDeflatedSLORequest,
+                           @FormParam("RelayState") String relayState) throws XMLParserException, UnmarshallingException, DataFormatException, TransformerException, MarshallingException {
         final LogoutRequest logoutRequest = SAMLUtilities.createLogoutRequest(base64EncodedAndDeflatedSLORequest);
         final LogoutResponse logoutResponse = samlSingleLogoutService.initializeSingleLogout(logoutRequest);
-        final String serializedLogoutResponse = URLEncoder.encode(SAMLUtilities.marshallLogoutResponse(logoutResponse), "UTF-8");
-        final ImmutableMap<String, String> queryParameters = ImmutableMap.of("LogoutResponse", serializedLogoutResponse);
-        httpServletResponse.sendRedirect(URI.create(createRedirectUrl(relayState, queryParameters)).toString());
+        return Response.ok()
+                .entity(buildSLOResponseForm(logoutResponse, relayState))
+                .type(MediaType.APPLICATION_FORM_URLENCODED)
+                .build();
     }
 
-    private String createRedirectUrl(final String relayState, final Map<String, String> queryParameters) {
-        final StringBuffer stringBuffer = new StringBuffer(relayState).append("?");
-        queryParameters.forEach((key, value) -> stringBuffer.append(key).append("=").append(value));
-        return stringBuffer.toString();
+    private Form buildSLOResponseForm(final LogoutResponse logoutResponse, final String relayState) throws TransformerException, MarshallingException {
+        final Form form = new Form();
+        form.param("SAMLResponse", SAMLUtilities.marshallLogoutResponse(logoutResponse));
+        form.param("RelayState", relayState);
+        return form;
     }
 
 }
