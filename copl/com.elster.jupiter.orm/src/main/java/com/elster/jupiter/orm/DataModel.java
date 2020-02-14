@@ -179,4 +179,6 @@ public interface DataModel {
             throw new UnderlyingSQLFailedException(e);
         }
     }
+
+     long getEvictionTime();
 }
