@@ -14,8 +14,7 @@ import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.dlms.cosem.methods.MbusClientMethods;
+import com.energyict.dlms.cosem.methods.MBusClientMethods;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.obis.ObisCode;
@@ -28,7 +27,6 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Contains shared functionality for the DSMR 2.3 and 4.0 message executors
@@ -70,7 +68,7 @@ public class CommonCryptoMbusMessageExecutor extends AbstractMessageExecutor {
         IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(securityContext.getEncryptionKey(false));
         //extract new key from message
         String defaultKeyString = getDeviceMessageAttributeValue(offlineDeviceMessage, DeviceMessageConstants.defaultKeyAttributeName);
-        IrreversibleKey defaultKey = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(defaultKeyString));
+        IrreversibleKey defaultKey = new IrreversibleKeyImpl(defaultKeyString);
 
         if (!usesAuthentication()) {
             ak = null;     //Don't use it if no authentication is used
@@ -87,7 +85,7 @@ public class CommonCryptoMbusMessageExecutor extends AbstractMessageExecutor {
             throw new IOException("Failed to send MBus encryption keys using the cryptoserver: " + e.getMessage());
         }
 
-        CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(getMBusClient(serialNumber), MbusClientAttributes.VERSION9);
+        CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(getMBusClient(serialNumber), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
         byte[] transportKey = response.getMbusDeviceKey();
         cryptoMBusClient.setTransportKey(transportKey);
 
@@ -156,7 +154,7 @@ public class CommonCryptoMbusMessageExecutor extends AbstractMessageExecutor {
         apdu = ProtocolTools.concatByteArrays(apdu, getMbusClientObisCode(serialNumber).getLN());
 
         byte[] request = new byte[4];
-        request[0] = (byte) MbusClientMethods.SET_ENCRYPTION_KEY.getMethodNumber();
+        request[0] = (byte) MBusClientMethods.SET_ENCRYPTION_KEY.getMethodNumber();
         request[1] = 0x01;
         request[2] = AxdrType.OCTET_STRING.getTag();
         request[3] = (byte) emptyKey.length;

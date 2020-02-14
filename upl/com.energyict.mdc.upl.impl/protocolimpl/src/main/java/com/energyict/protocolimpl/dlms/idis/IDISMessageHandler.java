@@ -21,7 +21,6 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -167,7 +166,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private MessageResult commission(MessageEntry messageEntry) throws IOException {
         for (int channel = 1; channel < 5; channel++) {                     //Check the available 4 channels, install the slave meter on a free channel client.
             ObisCode obisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);   //Find the right MBus client object
-            MBusClient mbusClient = idis.getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10);
+            MBusClient mbusClient = idis.getCosemObjectFactory().getMbusClient(obisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
             if (mbusClient.getIdentificationNumber().getValue() == 0) {     //Find a free channel client
                 mbusClient.invoke(1, new Unsigned8(0).getBEREncodedByteArray());
                 idis.getLogger().log(Level.INFO, "MBus slave was commissioned on channel " + channel);

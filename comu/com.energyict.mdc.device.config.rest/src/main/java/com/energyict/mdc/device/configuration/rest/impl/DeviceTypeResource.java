@@ -348,17 +348,12 @@ public class DeviceTypeResource {
             }
         }
 
-        Optional<CreationRuleTemplate> issueRuleTemplate = issueService.getCreationRuleTemplates().values()
-                .stream()
-                .filter(issueTemplate -> issueTemplate.getName().equals(DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE))
-                .findFirst();
-
-        if(issueRuleTemplate.isPresent()){
-            Optional<CreationRule> dlcIssueCreationRule =issueRuleTemplate.get().getCreationRuleWhichUsesDeviceType(id);
-            if(dlcIssueCreationRule.isPresent()){
-                info =getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE)
-                                .format(deviceType.getName(), deviceType.getDeviceLifeCycle().getName(), dlcIssueCreationRule.get().getName())
-                        , Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
+        for (CreationRuleTemplate issueRuleTemplate : issueService.getCreationRuleTemplates().values()){
+            Optional<CreationRule> creationRule = issueRuleTemplate.getCreationRuleWhichUsesDeviceType(id);
+            if(creationRule.isPresent()) {
+                info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE)
+                                .format(deviceType.getName(), deviceType.getDeviceLifeCycle().getName(), creationRule.get().getName()),
+                        Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
         }
@@ -366,7 +361,6 @@ public class DeviceTypeResource {
         new RestValidationBuilder()
                 .isCorrectId(info.targetDeviceLifeCycle != null ? info.targetDeviceLifeCycle.id : null, "deviceLifeCycleId")
                 .validate();
-
 
         try {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);

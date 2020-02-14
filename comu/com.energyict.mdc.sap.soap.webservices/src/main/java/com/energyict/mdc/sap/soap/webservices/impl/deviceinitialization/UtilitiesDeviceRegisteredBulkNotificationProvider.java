@@ -131,6 +131,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
@@ -139,7 +141,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifMsg();
         notificationMessage.setMessageHeader(createChildHeader(now));
-        notificationMessage.setUtilitiesDevice(createChildBody(deviceId));
+        notificationMessage.setUtilitiesDevice(createChildBody(deviceId, now));
         return notificationMessage;
     }
 
@@ -153,11 +155,14 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     private BusinessDocumentMessageHeader createChildHeader(Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
+        header.setUUID(createUUID(UUID.randomUUID().toString()));
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
 
-    private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createChildBody(String sapDeviceId) {
+    private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createChildBody(String sapDeviceId, Instant now) {
         UtilitiesDeviceID deviceId = objectFactory.createUtilitiesDeviceID();
         deviceId.setValue(sapDeviceId);
 
@@ -167,7 +172,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
         if (device.isPresent()) {
-            sapCustomPropertySets.getStartDate(device.get()).ifPresent(sD -> smartMeter.setStartDate(sD));
+            sapCustomPropertySets.getStartDate(device.get(), now).ifPresent(sD -> smartMeter.setStartDate(sD));
         }
 
         UtilsDvceERPSmrtMtrRegedNotifUtilsDvce utilsDevice = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();

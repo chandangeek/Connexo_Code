@@ -56,6 +56,7 @@ public class UserInfoFactoryImpl implements com.elster.jupiter.users.rest.UserIn
         userInfo.modifiedOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getModifiedDate().atZone(ZoneId.systemDefault()));
         userInfo.lastSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastSuccessfulLogin().toString();
         userInfo.lastUnSuccessfulLogin = user.getLastUnSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
+        userInfo.isUserLocked = user.isUserLocked(userService.getLockingAccountSettings());
         for (Group group : user.getGroups()) {
             userInfo.groups.add(groupInfoFactory.from(nlsService, group));
         }

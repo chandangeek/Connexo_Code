@@ -39,12 +39,10 @@ public class ChannelInfoFactory {
         info.interval = new TimeDurationInfo(channel.getInterval());
         info.lastReading = channel.getLastReading().orElse(null);
         Optional<Channel> slaveChannel = topologyService.getSlaveChannel(channel, clock.instant());
-        if (!slaveChannel.isPresent()) {
-            info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
-        } else {
+        if (slaveChannel.isPresent()) {
             info.dataloggerSlaveName = slaveChannel.get().getDevice().getName();
-            info.lastValueTimestamp = slaveChannel.get().getLastDateTime().orElse(null);
         }
+        info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = readingTypeInfoFactory.from(channel.getReadingType());
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = readingTypeInfoFactory.from(readingType1));
         channel.getChannelSpec().getOverflow().ifPresent(channelSpecOverflow -> info.overflowValue = channelSpecOverflow);
@@ -61,10 +59,6 @@ public class ChannelInfoFactory {
         info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
         info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
-//        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atLeast(clock.instant()));
-//        if (!dataLoggerChannelUsages.isEmpty()) {
-//            info.dataloggerSlaveName = dataLoggerChannelUsages.get(0).getPhysicalGatewayReference().getOrigin().getName();
-//        }
         return info;
     }
 

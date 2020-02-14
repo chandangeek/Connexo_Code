@@ -5,74 +5,93 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.DisconnectControlLog;
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.MbusControlLog;
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
-import com.energyict.protocolimplv2.nta.dsmr23.profiles.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.esmr50.common.events.ESMR50CommunicationSessionLog;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class Dsmr40LogBookFactory extends Dsmr23LogBookFactory {
+import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.MASTER;
+import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.SLAVE;
 
-    protected static final ObisCode VOLTAGE_QUALITY_LOG = ObisCode.fromString("0.0.99.98.5.255");
+public class Dsmr40LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmartNtaProtocol> {
 
-    public Dsmr40LogBookFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public Dsmr40LogBookFactory(AbstractSmartNtaProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override
-    public void initializeSupportedLogBooks() {
-        super.initializeSupportedLogBooks();
-        supportedLogBooks.add(VOLTAGE_QUALITY_LOG);
-        supportedLogBooks.add(COMMUNICATION_EVENT_LOG);
+    protected boolean isSupported(ObisCode obisCode, MeterType meterType) {
+        if (meterType.isMaster()) {
+            return  STANDARD_EVENT_LOG.equals(obisCode) ||
+                    FRAUD_DETECTION_LOG.equals(obisCode) ||
+                    POWER_FAILURE_LOG.equals(obisCode) ||
+                    COMMUNICATION_SESSION_EVENT_LOG.equals(obisCode);
+        }
+        else {
+            return MBUS_EVENT_LOG.equals(obisCode);
+        }
     }
 
     @Override
-    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, LogBookReader logBookReader) throws ProtocolException {
-        ObisCode logBookObisCode = logBookReader.getLogBookObisCode();
-        getProtocol().journal("Parsing logbook "+logBookObisCode);
-        List<MeterEvent> meterEvents;
-        if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
-            getProtocol().journal("Parsing as standard event log");
-            meterEvents = new StandardEventLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(CONTROL_LOG)) {
-            getProtocol().journal("Parsing as disconnect control log");
-            meterEvents = new DisconnectControlLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(POWER_FAILURE_LOG)) {
-            getProtocol().journal("Parsing as power failure log");
-            meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(FRAUD_DETECTION_LOG)) {
-            getProtocol().journal("Parsing as fraud detection log");
-            meterEvents = new FraudDetectionLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
-            int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
-            getProtocol().journal("Parsing as MBus event log on channel "+channel);
-            MbusEventLog mbusEventLog = new MbusEventLog(dataContainer, channel);
-            meterEvents = mbusEventLog.getMeterEvents();
-            if (mbusEventLog.getIgnoredEvents() > 0 ) {
-                getProtocol().journal("WARNING: There are " + mbusEventLog.getIgnoredEvents() + " ignored events on MBus event log on channel " + channel);
-            }
-        } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
-            getProtocol().journal("Parsing as MBus control log");
-            meterEvents = new MbusControlLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(VOLTAGE_QUALITY_LOG)) {
-            getProtocol().journal("Parsing as MBus voltage quality log");
-            meterEvents = new VoltageQualityEventLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(COMMUNICATION_EVENT_LOG)) {
-            getProtocol().journal("Parsing as communication sessions event log");
-            meterEvents = new ESMR50CommunicationSessionLog(dataContainer).getMeterEvents();
-        } else {
-            getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
-            return new ArrayList<>();
-        }
-
-        getProtocol().journal("Decoded "+meterEvents.size()+" events from "+logBookObisCode);
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+    protected List<MeterEvent> parseStandardEventLog(DataContainer dataContainer) throws ProtocolException {
+        return new StandardEventLog(dataContainer).getMeterEvents();
     }
+
+    @Override
+    protected List<MeterEvent> parseControlLog(DataContainer dataContainer) throws ProtocolException {
+        return new DisconnectControlLog(dataContainer).getMeterEvents();
+    }
+
+    @Override
+    protected List<MeterEvent> parsePowerFailureLog(DataContainer dataContainer) throws ProtocolException {
+        return  new PowerFailureLog(dataContainer).getMeterEvents();
+    }
+
+    @Override
+    protected List<MeterEvent> parseFraudDetectionLog(DataContainer dataContainer) throws ProtocolException {
+        return new FraudDetectionLog(dataContainer).getMeterEvents();
+    }
+
+    @Override
+    protected List<MeterEvent> parseCommunicationLogEventLog(DataContainer dataContainer) throws ProtocolException {
+        return new ESMR50CommunicationSessionLog(dataContainer).getMeterEvents();
+    }
+
+    @Override
+    protected List<MeterEvent> parseMBUSControlLog(DataContainer dataContainer, int channel) throws ProtocolException {
+        return new MbusControlLog(dataContainer).getMeterEvents();
+    }
+
+    @Override
+    protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException {
+        DSMR40MbusEventLog mbusEventLog = new DSMR40MbusEventLog(dataContainer, channel);
+        List <MeterEvent> meterEvents = mbusEventLog.getMeterEvents();
+        if (mbusEventLog.getIgnoredEvents() > 0 ) {
+            getProtocol().journal("WARNING: There are " + mbusEventLog.getIgnoredEvents() + " ignored events on MBus event log on channel " + channel);
+        }
+        return meterEvents;
+    }
+
+    @Override
+    protected List<MeterEvent> parseVoltageQualityLog(DataContainer dataContainer) throws ProtocolException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    protected ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String meterSerialNumber) {
+        if (MBUS_EVENT_LOG.equalsIgnoreBChannel(obisCode) || MBUS_CONTROL_LOG.equalsIgnoreBChannel(obisCode)) {
+            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0);
+        }
+        else {
+            return getProtocol().getPhysicalAddressCorrectedObisCode(obisCode, meterSerialNumber);
+        }
+    }
+
 }

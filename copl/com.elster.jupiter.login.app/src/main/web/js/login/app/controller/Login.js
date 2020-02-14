@@ -103,7 +103,7 @@ Ext.define('Login.controller.Login', {
 
             },
             failure: function (response, opt) {
-                me.loginNOK();
+                me.loginNOK((response.responseText));
             },
             callback: function () {
                 if (typeof me.getLoginViewport() !== 'undefined') {
@@ -135,7 +135,7 @@ Ext.define('Login.controller.Login', {
                     if (referrer) {
                         apps.forEach(function (app) {
                             if (app.data.url && referrer.indexOf(app.data.url.replace('#', ''))!=-1){
-                                location.href = referrer;
+                                window.location.href = encodeURI(referrer);
                                 useReferrer = true;
                                 me.getLoginViewport().destroy();
                                 return;
@@ -160,13 +160,13 @@ Ext.define('Login.controller.Login', {
                     }
                 }
                 else {
-                    me.loginNOK();
+                    me.loginNOK(response.responseText);
                 }
             });
         }
     },
 
-    loginNOK: function () {
+    loginNOK: function (message) {
         var form = this.getLoginForm(),
             password = form.down('#password'),
             error = form.down('#errorLabel');
@@ -174,7 +174,10 @@ Ext.define('Login.controller.Login', {
         form.suspendLayouts();
         password.reset();
         password.focus(false, 200);
-        error.setValue('Login failed. Please contact your administrator.');
+        if (message == 'AccountLocked')
+            error.setValue('Account locked. Please contact your administrator.');
+        else
+            error.setValue('Login failed. Please contact your administrator.');
         error.show();
         form.resumeLayouts(true);
     }

@@ -14,6 +14,7 @@ import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -29,8 +30,9 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.RangeSets;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -47,8 +49,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.copy;
 import static com.elster.jupiter.util.streams.ExtraCollectors.toImmutableRangeSet;
@@ -83,71 +87,67 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return this;
     }
 
-    public int getExportCount() {
+    int getExportCount() {
         return exportCount;
     }
 
-    public int getUpdateCount() {
+    int getUpdateCount() {
         return updateCount;
-    }
-
-    Clock getClock() {
-        return clock;
     }
 
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        this.currentExportInterval = adjustedExportPeriod(occurrence, item);
-
-        warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
-
-        List<BaseReading> readings = getReadings(item, currentExportInterval);
-
         String itemDescription = item.getDescription();
+        item.overrideReadingInterval(TimeDuration.hours(1));
 
-        if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
-            readings = filterReadings(readings);
+        RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
+        currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
+
+        if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+            warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
             List<Instant> instants = new ArrayList<>();
             Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
 
             while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
-                instants.add(instant);
+                if (exportRangeSet.contains(instant)) {
+                    instants.add(instant);
+                }
                 instant = instant.plus(1, ChronoUnit.HOURS);
             }
 
-            Map<Instant, String> readingStatuses = new HashMap<>();
-            List<IntervalBlock> intervalBlocks = new ArrayList<>();
-            intervalBlocks.add(buildIntervalBlock(item, readings));
-            for (IntervalBlock intervalBlock : intervalBlocks) {
+            if (!instants.isEmpty()) {
+                List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
+                        .collect(Collectors.toList());
+
+                Map<Instant, String> readingStatuses = new HashMap<>();
+                IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
                 for (Instant time : instants) {
-                    Optional<IntervalReading> readingOpt = intervalBlock.getIntervals().stream()
+                    Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
                             .filter(r -> r.getTimeStamp().equals(time)).findAny();
-                    if (readingOpt.isPresent()) {
+                    if (readingOptional.isPresent()) {
                         readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
                     } else {
                         readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
                         readingStatuses.put(time, ReadingStatus.INVALID.getValue());
                     }
                 }
+                readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
+                MeterReadingImpl meterReading = asMeterReading(item, readings);
+                exportCount++;
+                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
             }
-
-            readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
-            MeterReadingImpl meterReading = asMeterReading(item, readings);
-            item.overrideReadingInterval(new TimeDuration(1, TimeDuration.TimeUnit.HOURS.getCode()));
-            exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
             MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
-
+        item.postponeExport();
         return Optional.empty();
     }
 
-    private boolean checkInterval(ReadingType readingType) {
+    private boolean checkIntervalIsLessThanOrEqualToHour(ReadingType readingType) {
         if (readingType.isRegular()) {
             int minutes = readingType.getMeasuringPeriod().getMinutes();
             return minutes > 0 && minutes <= MINUTES_PER_HOUR;
@@ -155,26 +155,26 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return false;
     }
 
-    List<BaseReading> filterReadings(List<BaseReading> readings) {
-        Map<Instant, BaseReading> map = new HashMap<>();
-        for (BaseReading reading : readings) {
+    private Stream<BaseReading> filterAndSortReadings(Stream<? extends BaseReading> readings) {
+        Map<Instant, BaseReading> map = new TreeMap<>();
+        readings.forEach(reading -> {
             if (reading.getTimeStamp().equals(reading.getTimeStamp().truncatedTo(ChronoUnit.HOURS))) {
                 map.put(reading.getTimeStamp(), reading);
             }
-        }
-        return map.values().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
+        });
+        return map.values().stream();
     }
 
-    List<BaseReading> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
-        return new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
+    private Stream<? extends BaseReadingRecord> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
+        return item.getReadingContainer().getReadings(exportInterval, item.getReadingType()).stream();
     }
 
-    List<BaseReading> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
+    private List<BaseReading> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
         return new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since));
     }
 
     private Optional<? extends ReadingDataSelectorConfig> getDataSelectorConfig(DataExportOccurrence occurrence) {
-        return (occurrence.getTask()).getReadingDataSelectorConfig();
+        return occurrence.getTask().getReadingDataSelectorConfig();
     }
 
     private void warnIfExportPeriodCoversFuture(DataExportOccurrence occurrence, Range<Instant> exportInterval) {
@@ -194,39 +194,34 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return DefaultStructureMarker.createRoot(clock, "export").withPeriod(exportInterval);
     }
 
-    Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getRange() : Range.all();
-        Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
-        return item.getLastExportedPeriodEnd()
-                .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, lastExport))
-                .filter(interval -> Ranges.does(interval).overlap(readingsContainerInterval) || interval.isEmpty())
-                .map(interval -> interval.intersection(readingsContainerInterval))
-                .map(intersection -> Ranges.copy(intersection).asOpenClosed())
-                .orElse(getIntervalFromFirstProfileId(exportedDataInterval, item));
+    private RangeSet<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+        Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getInterval().toOpenClosedRange() : Range.all();
+        Range<Instant> exportWindowInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
+        Optional<Instant> exportStart = item.getLastExportedPeriodEnd();
+        RangeSet<Instant> profileIdIntervals =  exportStart.map(start -> getRangeSinceRequestedDate(exportWindowInterval, start)) // start from the previous period end if exists
+                .orElse(Optional.of(exportWindowInterval))
+                .map(interval -> getAllProfileIdsRangeSet(item, interval)) // take only the intervals where profile id is set
+                .orElseGet(TreeRangeSet::create); // everything is exported
+        return profileIdIntervals.subRangeSet(readingsContainerInterval);
     }
 
-    private Range<Instant> getRangeSinceLastExport(Range<Instant> exportedDataInterval, Instant lastExport) {
-        return (exportedDataInterval.hasUpperBound() && lastExport.isAfter(exportedDataInterval.upperEndpoint())) ?
-                Range.openClosed(lastExport, lastExport) :
-                copy(exportedDataInterval).withOpenLowerBound(lastExport);
+    private RangeSet<Instant> getAllProfileIdsRangeSet(ReadingTypeDataExportItem item, Range<Instant> interval) {
+        return sapCustomPropertySets.getProfileId(item.getReadingContainer(), item.getReadingType(), interval).values().stream()
+                .reduce(RangeSets::union)
+                .orElseGet(TreeRangeSet::create);
     }
 
-    private Range<Instant> getIntervalFromFirstProfileId(Range<Instant> exportedDataInterval, ReadingTypeDataExportItem item) {
-        Instant upperEndpoint = exportedDataInterval.upperEndpoint();
-        Optional<Instant> firstDate = sapCustomPropertySets.getFirstDateWithSetProfileId(item.getReadingContainer(), item.getReadingType());
-        if (firstDate.isPresent()) {
-            return (firstDate.get().isAfter(upperEndpoint)) ?
-                    Range.openClosed(firstDate.get(), firstDate.get()) :
-                    copy(exportedDataInterval).withOpenLowerBound(firstDate.get());
-        }
-        return Range.openClosed(upperEndpoint, upperEndpoint);
+    private Optional<Range<Instant>> getRangeSinceRequestedDate(Range<Instant> exportedDataInterval, Instant date) {
+        return exportedDataInterval.hasUpperBound() && date.isAfter(exportedDataInterval.upperEndpoint()) ?
+                Optional.empty() :
+                Optional.of(copy(exportedDataInterval).withOpenLowerBound(date));
     }
 
     private Instant truncateToDays(Instant dateTime) {
         return ZonedDateTime.ofInstant(dateTime, ZoneId.systemDefault()).truncatedTo(DAYS).toInstant();
     }
 
-    MeterReadingImpl asMeterReading(ReadingTypeDataExportItem item, List<BaseReading> readings) {
+    private MeterReadingImpl asMeterReading(ReadingTypeDataExportItem item, List<BaseReading> readings) {
         if (item.getReadingType().isRegular()) {
             return getMeterReadingWithIntervalBlock(item, readings);
         }
@@ -273,38 +268,37 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             return Optional.empty();
         }
 
-        Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
-        List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval, since);
+        Optional<Range<Instant>> updateInterval = determineUpdateInterval(occurrence, item);
+        if (updateInterval.isPresent()) {
+            List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval.get(), since);
 
-        Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
-        if (updateWindow.isPresent()) {
-            RelativePeriod window = updateWindow.get();
-            RangeSet<Instant> rangeSet = readings.stream()
-                    .map(baseReadingRecord -> window.getOpenClosedInterval(
-                            ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
-                    .collect(toImmutableRangeSet());
-            readings = rangeSet.asRanges().stream()
-                    .flatMap(range -> {
-                        List<BaseReading> found = getReadings(item, range);
-                        return found.stream();
-                    })
-                    .collect(Collectors.toCollection(ArrayList::new));
+            Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
+            if (updateWindow.isPresent()) {
+                RelativePeriod window = updateWindow.get();
+                RangeSet<Instant> rangeSet = readings.stream()
+                        .map(baseReadingRecord -> window.getOpenClosedInterval(
+                                ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
+                        .collect(toImmutableRangeSet());
+                readings = rangeSet.asRanges().stream()
+                        .flatMap(range -> getReadings(item, range))
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }
+
+            if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                readings = filterAndSortReadings(readings.stream())
+                        .collect(Collectors.toList());
+                MeterReadingImpl meterReading = asMeterReading(item, readings);
+                Map<Instant, String> readingStatuses = new HashMap<>();
+                readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
+                updateCount++;
+                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+            }
+
+            try (TransactionContext context = transactionService.getContext()) {
+                MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
+                context.commit();
+            }
         }
-
-        if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
-            readings = filterReadings(readings);
-            MeterReadingImpl meterReading = asMeterReading(item, readings);
-            Map<Instant, String> readingStatuses = new HashMap<>();
-            readings.stream().forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
-            updateCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
-        }
-
-        try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
-            context.commit();
-        }
-
         return Optional.empty();
     }
 
@@ -312,21 +306,21 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return getExportStrategy(occurrence).map(DataExportStrategy::isExportUpdate).orElse(false);
     }
 
-    private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        Range<Instant> baseRange;
+    private Optional<Range<Instant>> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         TreeRangeSet<Instant> base = TreeRangeSet.create();
         Optional<Instant> adhocTime = occurrence.getTaskOccurrence().getAdhocTime();
+        Range<Instant> baseRange;
         if ((adhocTime.isPresent()) && occurrence.getTask().getRunParameters(adhocTime.get()).isPresent()) {
             DataExportRunParameters runParameters = (occurrence).getTask().getRunParameters(adhocTime.get()).get();
             baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
-            base.add(baseRange);
-            base.remove(currentExportInterval);
         } else {
             baseRange = determineBaseUpdateInterval(occurrence, item);
-            base.add(baseRange);
+        }
+        base.add(baseRange);
+        if (currentExportInterval != null) {
             base.remove(currentExportInterval);
         }
-        return base.asRanges().stream().findFirst().orElse(baseRange);
+        return base.asRanges().stream().findFirst();
     }
 
     private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
@@ -339,10 +333,12 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     }
 
     private StructureMarker structureMarkerForUpdate() {
-        return DefaultStructureMarker.createRoot(getClock(), "update");
+        return DefaultStructureMarker.createRoot(clock, "update");
     }
 
     private Optional<DataExportStrategy> getExportStrategy(DataExportOccurrence dataExportOccurrence) {
-        return Optional.of(((MeterReadingSelectorConfig) dataExportOccurrence.getTask().getStandardDataSelectorConfig().get()).getStrategy());
+        return dataExportOccurrence.getTask().getStandardDataSelectorConfig()
+                .map(MeterReadingSelectorConfig.class::cast)
+                .map(MeterReadingSelectorConfig::getStrategy);
     }
 }

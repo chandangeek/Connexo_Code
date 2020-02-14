@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
+import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -29,5 +30,11 @@ public class Dsmr40MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
     protected CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = super.loadProfileRegisterRequest(pendingMessage);
         return new LoadProfileToRegisterParser().parse(collectedMessage);
+    }
+
+
+    @Override
+    protected MBusClient getMBusClient(String serialNumber) throws IOException {
+        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
     }
 }

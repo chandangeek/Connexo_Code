@@ -395,7 +395,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-11-29 12:00:00 +0200 (Fri, 29 Sep 2019) $";
+        return "2020-01-06";
     }
 
     protected A2Messaging getProtocolMessaging() {
@@ -423,5 +423,10 @@ public class A2 extends AbstractDlmsProtocol {
             dlmsConfigurationSupport = new A2ConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport;
+    }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
     }
 }

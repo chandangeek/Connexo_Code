@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>2.0.1-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
     <artifactId>export</artifactId>
@@ -90,7 +90,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ftpclient</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
@@ -224,6 +223,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm.h2</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
         </dependency>
     </dependencies>
 </project>

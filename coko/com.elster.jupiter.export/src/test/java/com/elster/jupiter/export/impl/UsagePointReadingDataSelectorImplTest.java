@@ -207,6 +207,7 @@ public class UsagePointReadingDataSelectorImplTest {
         when(channelContainer.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType1));
         when(channelContainer.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(channel.getChannelsContainer()).thenReturn(channelContainer);
+        when(channelContainer.getInterval()).thenReturn(Interval.of(EXPORT_INTERVAL));
         doReturn(Arrays.asList(readings)).when(channelContainer).getReadings(EXPORT_INTERVAL, readingType1);
         when(validationEvaluator.isValidationEnabled(channelContainer, readingType1)).thenReturn(true);
     }
@@ -286,6 +287,7 @@ public class UsagePointReadingDataSelectorImplTest {
         when(channelContainer1.getChannelsContainers()).thenReturn(Collections.singletonList(channelContainer1));
         when(channelContainer1.overlaps(any())).thenReturn(true);
         when(channelContainer1.getRange()).thenReturn(CHANNEL_CONTAINER_INTERVAL1);
+        when(channelContainer1.getInterval()).thenReturn(Interval.of(CHANNEL_CONTAINER_INTERVAL1));
         when(channelContainer1.toList(eq(readingType1), any())).thenReturn(Collections.singletonList(END_FIRST_CHANNELCONTAINER.toInstant()));
         when(channelContainer1.getChannel(readingType1)).thenReturn(Optional.of(channel1));
         when(channelContainer1.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType1));
@@ -296,6 +298,7 @@ public class UsagePointReadingDataSelectorImplTest {
         when(channelContainer2.getChannelsContainers()).thenReturn(Collections.singletonList(channelContainer2));
         when(channelContainer2.overlaps(any())).thenReturn(true);
         when(channelContainer2.getRange()).thenReturn(CHANNEL_CONTAINER_INTERVAL2);
+        when(channelContainer2.getInterval()).thenReturn(Interval.of(CHANNEL_CONTAINER_INTERVAL2));
         when(channelContainer2.toList(eq(readingType1), any())).thenReturn(Collections.singletonList(END.toInstant()));
         when(channelContainer2.getChannel(readingType1)).thenReturn(Optional.of(channel2));
         when(channelContainer2.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType1));
@@ -353,6 +356,7 @@ public class UsagePointReadingDataSelectorImplTest {
         when(channelContainer1.getChannelsContainers()).thenReturn(Collections.singletonList(channelContainer1));
         when(channelContainer1.overlaps(any())).thenReturn(true);
         when(channelContainer1.getRange()).thenReturn(CHANNEL_CONTAINER_INTERVAL1);
+        when(channelContainer1.getInterval()).thenReturn(Interval.of(CHANNEL_CONTAINER_INTERVAL1));
         when(channelContainer1.toList(eq(readingType1), any())).thenReturn(Collections.singletonList(END_FIRST_CHANNELCONTAINER.toInstant()));
         when(channelContainer1.getChannel(readingType1)).thenReturn(Optional.of(channel1));
         when(channelContainer1.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType1));
@@ -363,6 +367,7 @@ public class UsagePointReadingDataSelectorImplTest {
         when(channelContainer2.getChannelsContainers()).thenReturn(Collections.singletonList(channelContainer2));
         when(channelContainer2.overlaps(any())).thenReturn(true);
         when(channelContainer2.getRange()).thenReturn(CHANNEL_CONTAINER_INTERVAL2);
+        when(channelContainer2.getInterval()).thenReturn(Interval.of(CHANNEL_CONTAINER_INTERVAL2));
         when(channelContainer2.toList(eq(readingType1), any())).thenReturn(Collections.singletonList(END.toInstant()));
         when(channelContainer2.getChannel(readingType1)).thenReturn(Optional.of(channel2));
         when(channelContainer2.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType1));

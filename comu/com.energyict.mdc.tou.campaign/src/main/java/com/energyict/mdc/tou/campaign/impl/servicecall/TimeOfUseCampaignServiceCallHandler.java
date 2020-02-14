@@ -73,6 +73,9 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
         if (isLastChild(findChildren(parent))) {
             if (parent.getState().equals(DefaultState.ONGOING)) {
                 if (isCancelling(parent)) {
+                    TimeOfUseCampaignDomainExtension timeOfUseCampaignDomainExtension = parent.getExtension(TimeOfUseCampaignDomainExtension.class).get();
+                    timeOfUseCampaignDomainExtension.setManuallyCancelled(true);
+                    parent.update(timeOfUseCampaignDomainExtension);
                     parent.requestTransition(DefaultState.CANCELLED);
                 } else {
                     parent.requestTransition(DefaultState.SUCCESSFUL);

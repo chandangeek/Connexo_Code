@@ -59,14 +59,14 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(ServiceCall parent, Instant now) {
+        public Builder from(ServiceCall parent, String senderBusinessSystemId, Instant now) {
             List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
             MasterMeterRegisterChangeRequestDomainExtension extension = parent.getExtensionFor(new MasterMeterRegisterChangeRequestCustomPropertySet()).get();
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat()));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
@@ -75,27 +75,27 @@ public class MeterRegisterBulkChangeConfirmationMessage {
                 confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_REQUEST_WAS_FAILED.getDefaultFormat()));
             }
 
-            createBody(confirmationMessage, children, now);
+            createBody(confirmationMessage, children, senderBusinessSystemId, now);
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
             UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confMsg.setUtilitiesDevice(createChildBody(message.getDeviceId()));
 
             confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(confMsg);
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, Instant now) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
 
-            createBody(confirmationMessage, messages, now);
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
+            createBody(confirmationMessage, messages, senderBusinessSystemId, now);
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
             return this;
         }
 
@@ -104,28 +104,28 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         }
 
         private void createBody(UtilsDvceERPSmrtMtrRegBulkChgConfMsg confirmationMessage,
-                                List<ServiceCall> subParents, Instant now) {
+                                List<ServiceCall> subParents, String senderBusinessSystemId, Instant now) {
 
             subParents.forEach(subParent -> {
                 confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage()
-                        .add(createChildMessage(subParent, now));
+                        .add(createChildMessage(subParent, senderBusinessSystemId, now));
             });
         }
 
-        private void createBody(UtilsDvceERPSmrtMtrRegBulkChgConfMsg confirmationMessage, MeterRegisterBulkChangeRequestMessage messages, Instant now) {
+        private void createBody(UtilsDvceERPSmrtMtrRegBulkChgConfMsg confirmationMessage, MeterRegisterBulkChangeRequestMessage messages, String senderBusinessSystemId, Instant now) {
             messages.getMeterRegisterChangeMessages().forEach(message -> {
                 UtilsDvceERPSmrtMtrRegChgConfMsg confMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-                confMessage.setMessageHeader(createChildHeader(message.getId(), message.getUuid(), now));
+                confMessage.setMessageHeader(createChildHeader(message.getId(), message.getUuid(), senderBusinessSystemId, now));
                 confMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
                 confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(confMessage);
             });
         }
 
-        private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall subParentServiceCall, Instant now) {
+        private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall subParentServiceCall, String senderBusinessSystemId, Instant now) {
             SubMasterMeterRegisterChangeRequestDomainExtension extension = subParentServiceCall.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
                     .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
             UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-            confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), now));
+            confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
             if (subParentServiceCall.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
@@ -155,19 +155,21 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return device;
         }
 
-        private BusinessDocumentMessageHeader createChildHeader(String id, String uuid, Instant now) {
+        private BusinessDocumentMessageHeader createChildHeader(String id, String uuid, String senderBusinessSystemId, Instant now) {
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
             if (!Strings.isNullOrEmpty(id)) {
                 header.setReferenceID(createID(id));
             }
-            if (!Strings.isNullOrEmpty(uuid)){
+            if (!Strings.isNullOrEmpty(uuid)) {
                 header.setReferenceUUID(createUUID(uuid));
             }
+            header.setSenderBusinessSystemID(senderBusinessSystemId);
+            header.setReconciliationIndicator(true);
             header.setCreationDateTime(now);
             return header;
         }
 
-        private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+        private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
@@ -178,6 +180,8 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             if (!Strings.isNullOrEmpty(referenceUuid)) {
                 header.setReferenceUUID(createUUID(referenceUuid));
             }
+            header.setSenderBusinessSystemID(senderBusinessSystemId);
+            header.setReconciliationIndicator(true);
             header.setCreationDateTime(now);
             return header;
         }

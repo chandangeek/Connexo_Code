@@ -42,7 +42,7 @@ class Installer implements FullInstaller {
             instance.save();
             logger.log(Level.INFO, "Created Key Store");
         } catch (IOException e) {
-            throw dataModel.getInstance(ExceptionFactory.class).newException(MessageSeeds.KEYSTORE_CREATION_FAILED);
+            throw dataModel.getInstance(ExceptionFactory.class).newException(MessageSeeds.KEYSTORE_CREATION_FAILED, e.getLocalizedMessage());
         }
     }
 }

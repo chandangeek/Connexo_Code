@@ -23,7 +23,7 @@ public class DeviceProtocolCacheParser {
 
     private DeviceProtocolCache parseQueryResult(JSONObject unitJSon) {
         try {
-            ObjectMapper mapper = ObjectMapperFactory.newMapper();
+            ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
             DeviceProtocolCacheXmlWrapper wrapper = mapper.readValue(new StringReader(unitJSon.toString()), DeviceProtocolCacheXmlWrapper.class);
             return wrapper.getDeviceProtocolCache();
         } catch (IOException e) {

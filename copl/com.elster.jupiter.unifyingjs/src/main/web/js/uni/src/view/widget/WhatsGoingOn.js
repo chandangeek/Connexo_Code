@@ -19,6 +19,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
     initComponent: function () {
         var me = this;
+        me.pageToLoad=1;
+        me.mustLoadData = true;
         me.items = {
             xtype: 'tabpanel',
             tabPosition: 'bottom',
@@ -27,6 +29,16 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             },
             defaults: {
                 listeners: {
+                    beforerender: function(tab){
+                        var tabPanel = me.down('tabpanel');
+                        var nrOfTabs = tabPanel.items.length;
+                        var nrOfItemsOnTab = tab.items.items[0].items.length + tab.items.items[1].items.length;
+                        if(me.mustLoadData && nrOfTabs > 1 && tab === tabPanel.items.items[nrOfTabs-1] && nrOfItemsOnTab < 10){
+                            me.pageToLoad+=1;
+                            me.buildWidget();
+                        }
+                        me.mustLoadData = true;
+                    },
                     activate: function (tab, eOpts) {
                         tab.setIconCls('icon-circle');
                     },
@@ -81,6 +93,9 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         valueField: 'type',
                         listeners: {
                             change: function (combo, newvalue) {
+                                me.mustLoadData = false;
+                                me.down('tabpanel').removeAll();
+                                me.pageToLoad=1;
                                 me.buildWidget(newvalue);
                             }
                         }
@@ -97,16 +112,20 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     buildWidget: function (type) {
         var me = this;
         me.setLoading(true);
+        var clearTabPannel = false;
         if (Ext.isEmpty(type) && !Ext.isEmpty(me.down('#uni-whatsgoingon-combo'))) {
             type = me.down('#uni-whatsgoingon-combo').getValue();
+        }else{
+            clearTabPannel = true;
         }
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
         if (this.type === 'device') {
             me.store.setProxy({
                 type: 'rest',
                 url: '/api/ddr/devices/'+ encodeURIComponent(this.deviceId) +'/whatsgoingon',
-                startParam: null,
-                limitParam: null,
+                timeout: 120000,
+                startParam: 'start',
+                limitParam: 'limit',
                 reader: {
                     type: 'json',
                     root: 'goingsOn'
@@ -116,8 +135,9 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             me.store.setProxy({
                 type: 'rest',
                 url: '/api/udr/usagepoints/'+ encodeURIComponent(this.usagePointId) +'/whatsgoingon',
-                startParam: null,
-                limitParam: null,
+                timeout: 120000,
+                startParam: 'start',
+                limitParam: 'limit',
                 reader: {
                     type: 'json',
                     root: 'goingsOn'
@@ -125,11 +145,13 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             });
         }
         me.store.load({
+            page:me.pageToLoad,
+            limit:10,
             callback: function(){
                 me.setLoading(false);
                 me.store.clearFilter();
                 if (me.down('tabpanel')) {
-                    me.down('tabpanel').removeAll();
+                    //me.down('tabpanel').removeAll();
                 } else {
                     return;
                 }
@@ -143,22 +165,30 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     ]);
                 }
                 var tabContents = [];
+                var tabPanel = me.down('tabpanel');
+                var nrOfTabs = tabPanel.items.length;
+                var itemsPerTab = 10;
                 var lines = [];
                 var emptyText;
                 Ext.suspendLayouts();
+
                 me.store.each(function (item, index, total) {
-                    if (index !== 0 && (index + 1) % 10 === 0) {
-                        me.addLine(lines, item);
+                     var size = itemsPerTab;
+                     if(tabContents.length === 0 && nrOfTabs > 1){
+                        var nrOfItemsOnLastTab = tabPanel.items.items[nrOfTabs-1].items.items[0].items.length + tabPanel.items.items[nrOfTabs-1].items.items[1].items.length;
+                        size = itemsPerTab - nrOfItemsOnLastTab;
+                     }
+                     me.addLine(lines, item);
+                     if(lines.length === size){
                         tabContents.push(lines);
                         lines = [];
-                    } else {
-                        me.addLine(lines, item);
-                    }
+                     }
+
                 });
                 if (lines.length !== 0) {
                     tabContents.push(lines);
                 }
-                if (tabContents.length===0){
+                if (tabContents.length===0 && nrOfTabs === 0){
                     switch (type) {
                         case 'issue':
                             emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowIssues', 'UNI', 'No active issues to show');
@@ -204,8 +234,13 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         ]
 
                     });
-                } else {
-                    if(tabContents.length===1){
+                } else if(tabContents.length > 0){
+                    me.mustLoadData = true;
+                    var nrOfItemsOnLastTab = tabContents[tabContents.length-1].length;
+                    if(nrOfItemsOnLastTab === 10){
+                        tabContents.push([]);
+                    }
+                    if(nrOfTabs === 0 &&tabContents.length===1){
                         me.down('tabpanel').add({
                             tabConfig: {
                                 ui: 'default',
@@ -223,26 +258,69 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         });
                     } else {
                         Ext.each(tabContents, function (tabContent, index) {
-                            me.down('tabpanel').add({
+                            var tabPanel = me.down('tabpanel');
+                            var nrOfTabs = tabPanel.items.length;
+                            var tabElements = [];
+                            var appended = false;
+                            if(nrOfTabs > 1 &&  (tabPanel.items.items[nrOfTabs-1].items.items[0].items.items.length + tabPanel.items.items[nrOfTabs-1].items.items[1].items.items.length) < 10){
+                                Ext.each(tabPanel.items.items[nrOfTabs-1].items.items, function(column){
+                                    var itms = [];
+                                    Ext.each(column.items.items, function(itm){
+                                        me.addLine(itms, me.prepareItem(itm));
+                                    })
+                                    tabElements = tabElements.concat(itms);
+                                });
+                                tabPanel.remove(tabPanel.items.items[nrOfTabs-1]);
+                                appended = true;
+                                if(tabElements.length === 0 && tabContent.length > 0){
+                                 me.mustLoadData = false;
+                                }
+                            }
+                            tabElements = tabElements.concat(tabContent);
+                            tabPanel.add({
                                 layout: 'column',
-                                iconCls: index === 0 ? 'icon-circle' : 'icon-circle2',
+                                iconCls: (index === 0 && nrOfTabs === 0)? 'icon-circle' : 'icon-circle2',
                                 items: [{
                                     columnWidth: 0.50,
-                                    items: tabContent.splice(0, 5)
+                                    items: tabElements.splice(0, 5)
                                 }, {
                                     columnWidth: 0.50,
-                                    items: tabContent
+                                    items: tabElements
                                 }]
                             });
+                            if(appended){
+                                tabPanel = me.down('tabpanel');
+                                nrOfTabs = tabPanel.items.length;
+                                tabPanel.setActiveTab(nrOfTabs-1);
+                            }
                         });
+
                     }
+                }else{
+                    var tabPanel = me.down('tabpanel');
+                    var nrOfTabs = tabPanel.items.length;
+                    tabPanel.remove(tabPanel.items.items[nrOfTabs-1]);
+                    nrOfTabs = tabPanel.items.length;
+                    tabPanel.setActiveTab(nrOfTabs-1);
                 }
                 Ext.resumeLayouts();
                 me.doLayout();
             }
         });
-
     },
+    prepareItem: function(item){
+        var result = {
+            data:{},
+            status:'',
+            get: function(value){
+               return this.data[value];
+            }
+        };
+        result.data.displayValue = item.value;
+        result.data.status = item.value.status;
+        return result;
+    },
+
     addLine: function (lines, item) {
         var me = this;
         lines.push({

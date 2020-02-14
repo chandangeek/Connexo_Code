@@ -20,7 +20,7 @@ public class CryptoMbusDevice extends com.energyict.protocolimplv2.nta.dsmr42.co
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-27";
+        return "Crypto version: 2020-01-22";
     }
 
     @Override

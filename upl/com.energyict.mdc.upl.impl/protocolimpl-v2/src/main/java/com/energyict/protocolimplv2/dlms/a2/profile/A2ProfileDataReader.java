@@ -23,10 +23,12 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.dlms.a2.A2;
+import com.energyict.protocolimplv2.dlms.a2.registers.FirmwareVersion;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.logging.Level;
 
 public class A2ProfileDataReader {
     private static final ObisCode HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.2.255");
@@ -102,12 +104,26 @@ public class A2ProfileDataReader {
                     // 2: split to 10 record lenght intervals
                     // 3: itterate
                     // 4: conatenate
+                    FirmwareVersion firmwareVersion = new FirmwareVersion(protocol.getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString("7.1.0.2.1.255")).getValueAttr().getOctetString());
+
                     Calendar fromCalendar = getFromCalendar(loadProfileReader);
                     Calendar toCalendar = getToCalendar(loadProfileReader);
                     List<IntervalData> intervalData = new ArrayList<>();
-                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode);
-                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
-                    DataContainer buffer = profileGeneric.getBuffer(fromCalendar, toCalendar);
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
+                    DataContainer buffer;
+                    if (HOURLY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode()) && firmwareVersion.getMajor()==1 && firmwareVersion.getMinor()==4) {
+                        Calendar actualCalendar = Calendar.getInstance(protocol.getTimeZone());
+                        SelectiveEntryFilter filter = new SelectiveEntryFilter(fromCalendar, toCalendar, actualCalendar);
+                        protocol.getLogger().log(Level.INFO, "From Calendar " + fromCalendar.getTime());
+                        protocol.getLogger().log(Level.INFO, "To Calendar " + toCalendar.getTime());
+                        protocol.getLogger().log(Level.INFO, "Actual Calendar " + actualCalendar.getTime());
+                        protocol.getLogger().log(Level.INFO, "From Index : " + filter.getFromIndex() + ", To Index " + filter.getToIndex());
+                        buffer = profileGeneric.getBuffer(filter.getFromIndex(), filter.getToIndex(), 1, 0);
+                    }
+                    else {
+                        buffer = profileGeneric.getBuffer(fromCalendar, toCalendar);
+                    }
+
                     intervalData.addAll(readIntervalDataFromBuffer(correctedLoadProfileObisCode, buffer));
                     collectedLoadProfile.setCollectedIntervalData(intervalData, channelInfos);
                     collectedLoadProfile.setDoStoreOlderValues(true);
@@ -178,32 +194,54 @@ public class A2ProfileDataReader {
         return protocol.getPhysicalAddressCorrectedObisCode(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
     }
 
-    protected int getEiServerStatus(int protocolStatus) {
+   /*
+    bit 0 - Clock Synchronisation Failed
+    bit 1 - Metrological Event Log Full
+    bit 2 - Metrological Event Log >= 90 %
+    bit 3 - Measurement algorithm failure
+    bit 4 - Device General Failure
+            Severe software error
+    bit 5 - Gas Flow Error : overflow detected
+            Gas Flow Error : reverse flow detected
+    bit 6 - Memory failure
+    bit 7 - Less Significant Bit of UNI-TS Status
+    bit 8 - Battery Level Below 10%
+    bit 9 - Battery Critical Level
+    bit 10 - Device Tamper Detection
+    bit 11 - DST (Daylight Saving Time) active
+    bit 12 - Valve closed Because of Leakage
+             Valid Invalid Valve Password
+             Valve is Closed Because No Communication For a configurable time
+             Valve is closed but leakage is presents
+             Valve: cannot open or close
+    bit 13 - Reserved
+    bit 14 - Reserved
+    bit 15 - Reserved
+    */
+
+    private int getEiServerStatus(int protocolStatus) {
         int status = IntervalStateBits.OK;
         BigInteger protocolStatusBig = BigInteger.valueOf(protocolStatus);
-        if (protocolStatusBig.testBit(7)) {
+        if (protocolStatusBig.testBit(10)) {
             status = status | IntervalStateBits.CORRUPTED;
         }
+        if (protocolStatusBig.testBit(9)) {
+            status = status | IntervalStateBits.BATTERY_LOW;
+        }
+        if (protocolStatusBig.testBit(8)) {
+            status = status | IntervalStateBits.BATTERY_LOW;
+        }
         if (protocolStatusBig.testBit(6)) {
-            status = status | IntervalStateBits.SHORTLONG;
+            status = status | IntervalStateBits.DEVICE_ERROR;
         }
         if (protocolStatusBig.testBit(5)) {
             status = status | IntervalStateBits.OVERFLOW;
         }
         if (protocolStatusBig.testBit(4)) {
-            status = status | IntervalStateBits.REVISED;
+            status = status | IntervalStateBits.DEVICE_ERROR;
         }
         if (protocolStatusBig.testBit(3)) {
-            status = status | IntervalStateBits.CONFIGURATIONCHANGE;
-        }
-        if (protocolStatusBig.testBit(2)) {
-            status = status | IntervalStateBits.CURRENTFAILVALIDATION;
-        }
-        if (protocolStatusBig.testBit(1)) {
-            status = status | IntervalStateBits.POWERDOWN;
-        }
-        if (protocolStatusBig.testBit(0)) {
-            status = status | IntervalStateBits.PHASEFAILURE;
+            status = status | IntervalStateBits.DEVICE_ERROR;
         }
         return status;
     }

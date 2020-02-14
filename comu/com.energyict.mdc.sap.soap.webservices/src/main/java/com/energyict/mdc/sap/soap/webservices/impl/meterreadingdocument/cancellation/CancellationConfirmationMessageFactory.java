@@ -31,9 +31,9 @@ public class CancellationConfirmationMessageFactory {
     public CancellationConfirmationMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(String requestId, String uuid, CancelledMeterReadingDocument document, Instant now) {
+    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(String requestId, String uuid, CancelledMeterReadingDocument document, Instant now, String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrMtrRdngDocERPCanclnConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, now));
+        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, now, senderBusinessSystemId));
         if (document.isSuccess()) {
             confirmMsg.setLog(createSuccessfulLog());
         } else {
@@ -44,11 +44,11 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
-    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object... messageSeedArgs) {
         SmrtMtrMtrRdngDocERPCanclnConfMsg bulkConfirmationMessage = objectFactory.createSmrtMtrMtrRdngDocERPCanclnConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createMessageHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
+        bulkConfirmationMessage.setMessageHeader(createMessageHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now, senderBusinessSystemId));
         bulkConfirmationMessage.setLog(objectFactory.createLog());
-        bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeed, PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID));
+        bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeed, PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, messageSeedArgs));
         return bulkConfirmationMessage;
     }
 
@@ -64,7 +64,7 @@ public class CancellationConfirmationMessageFactory {
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
-        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT, null, SUCCESSFUL_PROCESSING_TYPE_ID ));
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT, null, SUCCESSFUL_PROCESSING_TYPE_ID));
         setMaximumLogItemSeverityCode(log);
         return log;
     }
@@ -96,18 +96,21 @@ public class CancellationConfirmationMessageFactory {
         return logItem;
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now, String senderBusinessSystemId) {
 
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
         header.setUUID(createUUID(uuid));
-        if (!Strings.isNullOrEmpty(referenceUuid)){
+        if (!Strings.isNullOrEmpty(referenceUuid)) {
             header.setReferenceUUID(createUUID(referenceUuid));
         }
+
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }

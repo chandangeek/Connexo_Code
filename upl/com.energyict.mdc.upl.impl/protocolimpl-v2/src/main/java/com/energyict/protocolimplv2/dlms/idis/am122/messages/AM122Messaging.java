@@ -40,7 +40,6 @@ public class AM122Messaging extends AM540Messaging {
 
     @Override
     protected List<DeviceMessageSpec> addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
-
         supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
@@ -75,6 +74,8 @@ public class AM122Messaging extends AM540Messaging {
 
         supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+
+        addContactorDeviceMessages(supportedMessages);
 
         return supportedMessages;
     }

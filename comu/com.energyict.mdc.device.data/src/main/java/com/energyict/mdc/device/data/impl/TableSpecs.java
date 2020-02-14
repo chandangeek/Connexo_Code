@@ -409,7 +409,7 @@ public enum TableSpecs {
                     .map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName())
                     .notAudited()
                     .add();
-            Column comPort = table.column("COMPORT").number().add();
+            Column comPort = table.column("COMPORT").number().notAudited().add();
             Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
             Column priority = table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()).add();
             table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).add();
@@ -429,7 +429,7 @@ public enum TableSpecs {
                     .notAudited()
                     .add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).notAudited().add();
-            table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).add();
+            table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).notAudited().add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
@@ -1230,7 +1230,7 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .add();
-            Column securityAccessor = table.column(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.name())
+            Column crlSigner = table.column(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.name()).since(version(10,4,9))
                     .number()
                     .notNull()
                     .add();
@@ -1243,11 +1243,11 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_CRLREQUEST")
                     .on(task)
                     .add();
-            table.foreignKey("FK_DDC_CRL_SECURITYACCESSOR")
-                    .on(securityAccessor)
-                    .references(com.elster.jupiter.pki.SecurityAccessor.class)
-                    .map(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CRL_SIGNER")
+                    .on(crlSigner)
+                    .references(com.elster.jupiter.pki.CertificateWrapper.class)
+                    .map(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.fieldName()).since(version(10,4,9))
+                    .add();
             table.foreignKey("FK_DDC_CRL_TASK")
                     .on(task)
                     .references(RecurrentTask.class).

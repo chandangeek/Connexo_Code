@@ -620,6 +620,7 @@ sub install_tomcat {
 sub install_facts {
 	if ("$INSTALL_FACTS" eq "yes") {
 		my $INSTALLER_LICENSE="$CONNEXO_DIR/partners/facts/facts-license.lic";
+		my $INSTALLER_OJDBC="$CONNEXO_DIR/partners/facts/ojdbc8.jar";
 		my $FACTS_BASE_PROPERTIES="$CONNEXO_DIR/partners/facts/facts.properties";
 		my $FACTS_TEMP_PROPERTIES="$CONNEXO_DIR/custom.properties";
 		my $FACTS_BASE_POST_INSTALL="$CONNEXO_DIR/partners/facts/postinstall.xml";
@@ -668,6 +669,7 @@ sub install_facts {
 		print $FH "option.db.dbapassword=$FACTS_DBPASSWORD\n";
 		print $FH "option.serverport=$FACTS_PORT\n";
 		print $FH "option.installpath=$FACTS_BASE_REPL\n";
+		print $FH "option.db.jdbcdriverfiles=$INSTALLER_OJDBC\n";
 		close($FH);
 
 		chdir "$CONNEXO_DIR";

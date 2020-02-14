@@ -2,16 +2,38 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -24,7 +46,19 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
@@ -37,13 +71,50 @@ import com.energyict.sercurity.KeyRenewalInfo;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.AdministrativeStatusAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DefaultResetWindowAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encryptionLevelAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.p1InformationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlConfigAttributeName;
 
 /**
  * @author sva
@@ -56,7 +127,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     public static final int REMOTE_DISCONNECT = 1;
     public static final int REMOTE_RECONNECT = 2;
 
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
@@ -191,6 +262,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
+                    getProtocol().journal("Message is not supported or configured serial number does not match with device reported serial number.");
                 }
             } catch (IOException e) {
                 if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
@@ -218,16 +290,16 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeDefaultResetWindow(OfflineDeviceMessage pendingMessage) throws IOException {
-        Integer defaultResetWindow = Integer.valueOf(getDeviceMessageAttributeValue(pendingMessage, DefaultResetWindowAttributeName));
+        int defaultResetWindow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DefaultResetWindowAttributeName));
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(defaultResetWindow));
     }
 
     private void changeAdministrativeStatus(OfflineDeviceMessage pendingMessage) throws IOException {
-        int status = Integer.valueOf(getDeviceMessageAttributeValue(pendingMessage, AdministrativeStatusAttributeName));
+        int status = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, AdministrativeStatusAttributeName));
         getCosemObjectFactory().getData(Dsmr40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
     }
 
-    private void resetAlarmRegister() throws IOException {
+    protected void resetAlarmRegister() throws IOException {
         getCosemObjectFactory().getData(Dsmr23RegisterFactory.ALARM_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
@@ -236,7 +308,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        Date time = new Date(Long.valueOf(getDeviceMessageAttributeValue(pendingMessage, meterTimeAttributeName)));
+        Date time = new Date(Long.parseLong(getDeviceMessageAttributeValue(pendingMessage, meterTimeAttributeName)));
         getProtocol().setTime(time);
     }
 
@@ -250,7 +322,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         int mBusPhysicalAddress = getMBusPhysicalAddress(installChannel);
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (installChannel));
         getProtocol().journal("Installing slave on channel " + installChannel + " using M-Bus Client obis code "+mbusClientObisCode+" and physical address "+mBusPhysicalAddress);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MBusClient.VERSION.VERSION0_D_S_M_R_23_SPEC);
         mbusClient.installSlave(mBusPhysicalAddress);
     }
 
@@ -285,7 +357,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 getDefaultDateFormatter().format(new Date(Long.parseLong(fromDateEpoch))),
                 loadProfileContent
         );
-        Date fromDate = new Date(Long.valueOf(fromDateEpoch));
+        Date fromDate = new Date(Long.parseLong(fromDateEpoch));
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
@@ -299,7 +371,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
-            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
+            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -312,7 +384,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 }
             }
 
-            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
+            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Collections.singletonList(fullLpr));
 
             CollectedLoadProfile collectedLoadProfile = loadProfileData.get(0);
             IntervalData intervalDatas = null;
@@ -370,8 +442,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
             String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
             String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getValue();
-            Date fromDate = new Date(Long.valueOf(fromDateEpoch));
-            Date toDate = new Date(Long.valueOf(toDateEpoch));
+            Date fromDate = new Date(Long.parseLong(fromDateEpoch));
+            Date toDate = new Date(Long.parseLong(toDateEpoch));
             SimpleDateFormat formatter = AbstractMessageConverter.dateTimeFormatWithTimeZone;
             String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", formatter.format(fromDate), formatter.format(toDate), loadProfileContent);
 
@@ -381,7 +453,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
             fullLpr = checkLoadProfileReader(fullLpr, builder.getMeterSerialNumber());
-            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
+            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -394,7 +466,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 }
             }
 
-            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
+            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Collections.singletonList(fullLpr));
             CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0), fullLpr);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
             return collectedMessage;
@@ -432,7 +504,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         renewKey(wrappedKey, 2);
     }
 
-    private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String keyAccessorTypeNameAndTempValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
         if (keyAccessorTypeNameAndTempValue == null) {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
@@ -654,7 +726,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {
-        return Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getValue());
+        return Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getValue());
     }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {

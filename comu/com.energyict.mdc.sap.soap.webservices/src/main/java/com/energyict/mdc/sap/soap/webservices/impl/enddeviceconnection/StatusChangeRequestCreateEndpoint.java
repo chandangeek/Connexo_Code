@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
@@ -18,10 +19,12 @@ import java.util.Optional;
 public class StatusChangeRequestCreateEndpoint extends AbstractInboundEndPoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestCIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
+    private final Thesaurus thesaurus;
 
     @Inject
-    StatusChangeRequestCreateEndpoint(ServiceCallCommands serviceCallCommands) {
+    StatusChangeRequestCreateEndpoint(ServiceCallCommands serviceCallCommands, Thesaurus thesaurus) {
         this.serviceCallCommands = serviceCallCommands;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -30,7 +33,7 @@ public class StatusChangeRequestCreateEndpoint extends AbstractInboundEndPoint i
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                        StatusChangeRequestCreateMessage message = StatusChangeRequestCreateMessage.builder().from(requestMessage).build();
+                        StatusChangeRequestCreateMessage message = StatusChangeRequestCreateMessage.builder().from(requestMessage).build(thesaurus);
                         SetMultimap<String, String> values = HashMultimap.create();
                         values.putAll(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getDeviceConnectionStatus().keySet());
                         saveRelatedAttributes(values);

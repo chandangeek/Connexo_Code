@@ -37,4 +37,9 @@ public class NoneOrBigDecimal {
     public BigDecimal getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

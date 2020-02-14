@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>2.0.1-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
     <artifactId>kore.api.rest</artifactId>
@@ -130,6 +130,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.coverity.security</groupId>
+            <artifactId>coverity-escapers</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
@@ -208,6 +212,46 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin >
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration combine.self="override">
+                    <instructions>
+                        <Bundle-Vendor>Elster</Bundle-Vendor>
+                        <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
+                        <Git-SHA-1>${buildNumber}</Git-SHA-1>
+                        <Git-branch>${scmBranch}</Git-branch>
+                        <Build-timestamp>${timestamp}</Build-timestamp>
+                        <Embed-Dependency>
+                            artifactId=coverity-escapers
+                        </Embed-Dependency>
+                        <_sources>${include.source}</_sources>
+                        <_include>bnd.bnd</_include>
+                    </instructions>
+                    <supportedProjectTypes>
+                        <supportedProjectType>bundle</supportedProjectType>
+                    </supportedProjectTypes>
+                    <obrRepository>none</obrRepository>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle</id>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                        <configuration>
+                            <instructions>
+                                <Include-Resource>{maven-resources}</Include-Resource>
+                            </instructions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <profiles>
         <profile>
