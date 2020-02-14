@@ -217,7 +217,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cache() {
-        cache(getDataModel().getEvictionTime(), 10000L, true);
+        cache( 600000L, 10000L, true);
     }
 
     @Override
@@ -231,7 +231,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cacheWholeTable(boolean recordStat) {
-     cacheWholeTable(recordStat, getDataModel().getEvictionTime());
+     cacheWholeTable(recordStat, 600000L);
     }
 
     @Override
