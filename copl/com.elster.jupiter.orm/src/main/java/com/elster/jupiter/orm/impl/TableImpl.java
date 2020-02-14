@@ -205,7 +205,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cache() {
-        cache( 600000L, 10000L, true);
+        cache(600000L, 10000L, true);
     }
 
     @Override

@@ -28,7 +28,6 @@ import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.RangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
