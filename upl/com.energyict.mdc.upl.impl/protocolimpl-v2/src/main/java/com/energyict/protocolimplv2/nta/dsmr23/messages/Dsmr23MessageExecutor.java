@@ -127,7 +127,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     public static final int REMOTE_DISCONNECT = 1;
     public static final int REMOTE_RECONNECT = 2;
 
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
@@ -504,7 +504,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         renewKey(wrappedKey, 2);
     }
 
-    private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String keyAccessorTypeNameAndTempValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
         if (keyAccessorTypeNameAndTempValue == null) {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");

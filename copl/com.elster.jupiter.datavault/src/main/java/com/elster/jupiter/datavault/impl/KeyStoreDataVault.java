@@ -57,7 +57,7 @@ class KeyStoreDataVault implements DataVault {
     // we use same password for both store and keys within
     private final char[] password = {'1', '#', 'g', 'W', 'X', 'i', 'A', 'E', 'y', '9', 'R', 'n', 'b', '6', 'M', '%', 'C', 'o', 'j', 'E'};
 
-    private Map<Integer, Cipher> cipherCache = new HashMap<>(IV_SIZE);
+    private Map<Integer, Cipher> cipherCache = new HashMap<>();
 
     @Inject
     KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {

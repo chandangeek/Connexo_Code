@@ -160,4 +160,18 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      * null is returned if this is a root CA
      */
     CertificateWrapper getParent();
+
+    default boolean isCRLSigner() {
+        Optional<String> allKeyUsages = getAllKeyUsages();
+        if (allKeyUsages.isPresent()) {
+            String usages = allKeyUsages.get();
+            String[] allUsages = usages.split(",");
+            for (String usage: allUsages) {
+                if ("cRLSign".equals(usage.trim())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

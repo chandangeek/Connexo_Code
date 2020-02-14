@@ -11,28 +11,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.nls.*;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -49,51 +33,22 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.DataValidationOccurrence;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.EventType;
-import com.elster.jupiter.validation.ValidationContext;
-import com.elster.jupiter.validation.ValidationContextImpl;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationPropertyResolver;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
-
+import com.elster.jupiter.validation.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -200,7 +155,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                         Version.version(10, 2), UpgraderV10_2.class,
                         Version.version(10, 3), UpgraderV10_3.class,
                         Version.version(10, 5), V10_5SimpleUpgrader.class,
-                        Version.version(10, 7), UpgraderV10_7.class
+                        Version.version(10, 7), UpgraderV10_7.class,
+                        Version.version(10, 7, 2), UpgraderV10_7_2.class
                 ));
     }
 
@@ -356,7 +312,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
-    public boolean isValidationActive(ChannelsContainer channelsContainer){
+    public boolean isValidationActive(ChannelsContainer channelsContainer) {
         this.checkChannelsContainer(channelsContainer);
         return getPurposeValidation(channelsContainer)
                 .map(PurposeValidationImpl::getActivationStatus)
@@ -386,7 +342,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 );
     }
 
-    private Optional<PurposeValidationImpl> getPurposeValidation(ChannelsContainer channelsContainer){
+    private Optional<PurposeValidationImpl> getPurposeValidation(ChannelsContainer channelsContainer) {
         return dataModel.mapper(PurposeValidationImpl.class).getOptional(channelsContainer.getId());
     }
 
@@ -591,28 +547,28 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
             toValidate.remove(QualityCodeSystem.MDC);
         }
 
-       if (toValidate.contains(QualityCodeSystem.MDM) && !isValidationActiveOnPurpose(validationContext)) {
+        if (toValidate.contains(QualityCodeSystem.MDM) && !isValidationActiveOnPurpose(validationContext)) {
             toValidate.remove(QualityCodeSystem.MDM);
         }
 
         return toValidate;
     }
 
-    private Set<QualityCodeSystem> getEditableCopy(Set<QualityCodeSystem> qualityCodeSystems){
+    private Set<QualityCodeSystem> getEditableCopy(Set<QualityCodeSystem> qualityCodeSystems) {
         if (qualityCodeSystems == null || qualityCodeSystems.isEmpty()) {
             return EnumSet.allOf(QualityCodeSystem.class);
         }
         return EnumSet.copyOf(qualityCodeSystems);
     }
 
-    private boolean isValidationActiveOnMeter(ValidationContext validationContext){
+    private boolean isValidationActiveOnMeter(ValidationContext validationContext) {
         return validationContext.getMeter()
                 .flatMap(this::getMeterValidation)
                 .map(MeterValidationImpl::getActivationStatus)
                 .orElse(false);
     }
 
-    private boolean isValidationActiveOnPurpose(ValidationContext validationContext){
+    private boolean isValidationActiveOnPurpose(ValidationContext validationContext) {
         ChannelsContainer channelsContainer = validationContext.getChannelsContainer();
         return this.getPurposeValidation(channelsContainer)
                 .map(PurposeValidationImpl::getActivationStatus)
@@ -663,7 +619,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 .forEach(ChannelsContainerValidation::makeObsolete);
         return ruleSets.entrySet().stream()
                 .filter(entry -> returnMap.containsKey(entry.getKey()))
-                .map(entry  -> new EffectiveChannelsContainerValidation(returnMap.get(entry.getKey()), entry.getValue()))
+                .map(entry -> new EffectiveChannelsContainerValidation(returnMap.get(entry.getKey()), entry.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -815,6 +771,14 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    void postSuspectCreatedEvents(final List<ReadingQualityRecord> listOfSuspectReadings) {
+        listOfSuspectReadings.forEach(this::postSuspectCreatedEvent);
+    }
+
+    private void postSuspectCreatedEvent(final ReadingQualityRecord readingQualityRecord) {
+        eventService.postEvent(EventType.SUSPECT_VALUE_CREATED.topic(), SuspectValueCreatedEventDTO.fromMeterAndReadingQualityRecord(readingQualityRecord));
     }
 
     class DefaultValidatorCreator implements ValidatorCreator {

@@ -128,6 +128,17 @@ public interface CommunicationTaskService {
     ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort);
 
     /**
+     * Attempts to remove the business lock (comPort) from the specified {@link ComTaskExecution},
+     * making it available for other {@link ComPort}s to execute it.
+     * First, it tries to set a database lock on the corresponding row (using SELECT FOR UPDATE NOWAIT). Only if this succeeds,
+     * the business lock is removed (otherwise, it would hang the calling thread indefinitely, until the locking session releases the row).
+     *
+     * @param comTaskExecution the ComTaskExecution to be unlocked
+     * @return true if the business lock was removed
+     */
+    boolean attemptUnlockComTaskExecution(ComTaskExecution comTaskExecution);
+
+    /**
      * Removes the business lock on the specified ComTaskExecution,
      * making it available for other ComPorts to execute the ComTaskExecution.
      *
@@ -177,6 +188,15 @@ public interface CommunicationTaskService {
     /**
      * Finds all pending communication tasks with the given ComPort belonging to the ComPortPool of the associated connection method.
      * The advantage over getPlannedComTaskExecutionsFor is that connectionTasks are fetched too, so no roundtrip needed for each of them
+     * @param comPort
+     * @return a list of ComTaskExecutions already having the connectionTask fetched
+     */
+    List<ComTaskExecution> getPendingComTaskExecutionsListFor(OutboundComPort comPort);
+
+    /**
+     * Finds all pending communication tasks with the given ComPort limited by the simultaneous connection parameter
+     *  belonging to the ComPortPool of the associated connection method. The advantage over getPlannedComTaskExecutionsFor
+     *  is that connectionTasks are fetched too, so no roundtrip needed for each of them
      * @param comPort
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
@@ -238,5 +258,5 @@ public interface CommunicationTaskService {
 
     void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate);
 
-    List<ComTaskExecution> findComTaskExecutionsWhichAreExecuting(ComPort comPort);
+    List<ComTaskExecution> findLockedByComPort(ComPort comPort);
 }

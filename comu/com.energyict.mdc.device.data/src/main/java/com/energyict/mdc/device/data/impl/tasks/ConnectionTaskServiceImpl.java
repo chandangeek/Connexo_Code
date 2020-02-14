@@ -376,6 +376,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
+    public boolean attemptUnlockConnectionTask(ConnectionTask connectionTask) {
+        Optional<ConnectionTask> lockResult = deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockNoWait(connectionTask.getId());
+        if (lockResult.isPresent()) {
+            ((ConnectionTaskImpl)lockResult.get()).updateExecutingComPort(null);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean hasConnectionTasks(ComPortPool comPortPool) {
         List<ConnectionTask> connectionTasks =
                 deviceDataModelService.dataModel().query(ConnectionTask.class).

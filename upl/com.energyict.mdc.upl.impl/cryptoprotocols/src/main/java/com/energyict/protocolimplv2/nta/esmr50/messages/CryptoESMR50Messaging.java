@@ -1,21 +1,30 @@
 package com.energyict.protocolimplv2.nta.esmr50.messages;
 
+import com.energyict.common.CommonCryptoMessaging;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50Messaging;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CryptoESMR50Messaging extends ESMR50Messaging {
+
+    private CommonCryptoMessaging commonCryptoMessaging;
 
     public CryptoESMR50Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService,
                                  NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
@@ -23,6 +32,7 @@ public class CryptoESMR50Messaging extends ESMR50Messaging {
                                  LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(messageExecutor, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor,
               numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+        commonCryptoMessaging = new CommonCryptoMessaging(propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -39,5 +49,17 @@ public class CryptoESMR50Messaging extends ESMR50Messaging {
         supportedMessages.remove(this.get(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY));
 
         return supportedMessages;
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        String formattedString = commonCryptoMessaging.format(offlineDeviceMessage, propertySpec, messageAttribute);
+        return formattedString == null ? super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute) : formattedString;
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        String context = commonCryptoMessaging.prepareMessageContext(device, deviceMessage);
+        return context == null ? super.prepareMessageContext(device, offlineDevice, deviceMessage) : Optional.ofNullable(context);
     }
 }
