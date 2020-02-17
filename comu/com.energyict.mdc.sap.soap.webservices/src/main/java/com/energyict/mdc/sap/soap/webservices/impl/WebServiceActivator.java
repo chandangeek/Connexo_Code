@@ -27,7 +27,6 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -1101,12 +1100,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     private void failOngoingExportTaskServiceCalls() {
         List<ServiceCall> serviceCalls = dataExportService.getDataExportServiceCallType().findServiceCalls(EnumSet.of(DefaultState.ONGOING));
-        if (!serviceCalls.isEmpty()) {
-            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", "WebServiceDataExportServiceCallHandler"));
-            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", "Exported data source"));
-            serviceCalls.stream()
-                    .forEach(sC -> dataExportService.getDataExportServiceCallType()
-                            .tryFailingServiceCall(sC, MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
-        }
+        serviceCalls.stream()
+                .forEach(sC -> dataExportService.getDataExportServiceCallType()
+                        .tryFailingServiceCall(sC, MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
     }
 }
