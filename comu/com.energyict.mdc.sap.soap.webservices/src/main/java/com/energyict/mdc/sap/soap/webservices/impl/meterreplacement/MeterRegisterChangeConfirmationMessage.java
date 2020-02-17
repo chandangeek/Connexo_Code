@@ -78,11 +78,11 @@ public class MeterRegisterChangeConfirmationMessage {
             return this;
         }
 
-        public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+        public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
             return this;
         }
 

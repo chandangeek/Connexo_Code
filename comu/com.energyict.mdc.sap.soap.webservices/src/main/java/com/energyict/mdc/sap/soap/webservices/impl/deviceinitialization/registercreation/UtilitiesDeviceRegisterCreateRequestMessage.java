@@ -3,7 +3,9 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegBulkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg;
 
@@ -11,14 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UtilitiesDeviceRegisterCreateRequestMessage {
+public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMessage {
 
     private String requestID;
     private String uuid;
     private boolean bulk;
+    private Thesaurus thesaurus;
     private List<UtilitiesDeviceRegisterCreateMessage> utilitiesDeviceRegisterCreateMessages = new ArrayList<>();
 
-    private UtilitiesDeviceRegisterCreateRequestMessage() {
+    private UtilitiesDeviceRegisterCreateRequestMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public boolean isBulk() {
@@ -37,12 +41,8 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
         return utilitiesDeviceRegisterCreateMessages;
     }
 
-    static UtilitiesDeviceRegisterCreateRequestMessage.Builder builder() {
-        return new UtilitiesDeviceRegisterCreateRequestMessage().new Builder();
-    }
-
-    public boolean isValid() {
-        return requestID != null || uuid != null;
+    static UtilitiesDeviceRegisterCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
+        return new UtilitiesDeviceRegisterCreateRequestMessage(thesaurus).new Builder();
     }
 
     public class Builder {
@@ -61,7 +61,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                     .builder()
                     .from(requestMessage)
-                    .build());
+                    .build(thesaurus));
             return this;
         }
 
@@ -78,11 +78,14 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
                             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                                     .builder()
                                     .from(message)
-                                    .build()));
+                                    .build(thesaurus)));
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateRequestMessage build() {
+        public UtilitiesDeviceRegisterCreateRequestMessage build(Thesaurus thesaurus) {
+            if (requestID == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             return UtilitiesDeviceRegisterCreateRequestMessage.this;
         }
 

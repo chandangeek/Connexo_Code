@@ -49,6 +49,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEnd
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7_2;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
@@ -279,7 +280,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
-                                version(10, 7), UpgraderV10_7.class));
+                                version(10, 7), UpgraderV10_7.class,
+                                version(10, 7, 2), UpgraderV10_7_2.class));
         setActualRecurrentTaskFrequency();
         setActualRecurrentTaskReadOutDelay();
         createOrUpdateFutureComTasksExecutionTask();

@@ -46,11 +46,11 @@ public class MeterReadingDocumentRequestConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId) {
+        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId, Object... messageSeedArgs) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId, messageSeedArgs);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId, messageSeedArgs);
             }
             return this;
         }

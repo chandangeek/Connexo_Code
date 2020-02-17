@@ -425,6 +425,11 @@
 				<version>3.9</version>
 			</dependency>
             <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.2</version>
+            </dependency>
+            <dependency>
                 <groupId>com.enterprisedt</groupId>
                 <artifactId>edtftpj-pro</artifactId>
                 <version>4.8.1</version>
@@ -1016,7 +1021,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.3</version>
+                <version>1.9.4</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -1192,7 +1197,7 @@
             com.elster.jupiter.soap.whiteboard.cxf.security:com.elster.jupiter.system.security:com.elster.jupiter.tasks.security:com.elster.jupiter.users.security:com.elster.jupiter.yellowfin.security
         </javadoc.excluded.package.names>
 		<apache.cxf.version>3.2.0</apache.cxf.version>
-        <bouncycastle.version>1.60</bouncycastle.version>
+        <bouncycastle.version>1.64</bouncycastle.version>
         <ejbcabundle.version>1.0.0</ejbcabundle.version>
 		<opensaml.version>1.0.0</opensaml.version>
         <jackson.version>2.10.0</jackson.version>

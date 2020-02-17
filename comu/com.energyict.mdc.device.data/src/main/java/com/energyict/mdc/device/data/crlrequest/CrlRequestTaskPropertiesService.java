@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.crlrequest;
 
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.tasks.RecurrentTask;
 
@@ -13,9 +14,9 @@ public interface CrlRequestTaskPropertiesService {
 
     List<CrlRequestTaskProperty> findCrlRequestTaskProperties();
 
-    void createCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName);
+    void createCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, CertificateWrapper crlSigner, String caName);
 
-    void updateCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName);
+    void updateCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, CertificateWrapper crlSigner, String caName);
 
     void deleteCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask);
 

@@ -32,9 +32,9 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                                UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
+                                UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder(getThesaurus())
                                         .from(requestMessage)
-                                        .build();
+                                        .build(getThesaurus());
 
                                 handleRequestMessage(message);
                             }

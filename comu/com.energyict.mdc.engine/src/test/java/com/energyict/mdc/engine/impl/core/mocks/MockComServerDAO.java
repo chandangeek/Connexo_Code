@@ -249,6 +249,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         return Collections.emptyList();
     }

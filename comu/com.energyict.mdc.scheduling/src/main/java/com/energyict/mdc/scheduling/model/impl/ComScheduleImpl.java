@@ -175,12 +175,12 @@ public final class ComScheduleImpl implements ComSchedule {
         } else {
             Date d = calendar.getTime();
             getNextExecutionSpecs().getTemporalExpression().getEvery().truncate(calendar);
-            boolean planedOnStartOfExpression = d.equals(calendar.getTime());
+            boolean plannedOnStartOfExpression = d.equals(calendar.getTime());
             boolean beforeNow = calendar.getTime().before(Date.from(clock.instant()));
             while (calendar.getTime().before(Date.from(clock.instant()))) {
                 calendar.setTime(this.getNextTimestamp(calendar));
             }
-            if (beforeNow || planedOnStartOfExpression) {
+            if (beforeNow || plannedOnStartOfExpression) {
                 return Optional.of(calendar.getTime().toInstant());
             }
             return Optional.of(this.getNextTimestamp(calendar).toInstant());

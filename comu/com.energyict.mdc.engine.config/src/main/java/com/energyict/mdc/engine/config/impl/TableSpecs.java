@@ -38,7 +38,7 @@ public enum TableSpecs {
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".timeUnitCode").add();
             table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map(InboundComPortPoolImpl.FIELD_DISCOVEYPROTOCOL).add();
-            table.column("PCTHIGHPRIOTASKS").number().conversion(ColumnConversion.NUMBER2INT).map(ComPortPoolImpl.Fields.PCTHIGHPRIOTASKS.fieldName()).since(Version.version(10, 6,1)).add();
+            table.column("PCTHIGHPRIOTASKS").number().conversion(ColumnConversion.NUMBER2INT).map(ComPortPoolImpl.Fields.PCTHIGHPRIOTASKS.fieldName()).since(Version.version(10, 6, 1)).add();
             table.primaryKey("PK_MDC_COMPORTPOOL").on(idColumn).add();
             table.unique("MDC_UQ_COMPOOL_NAME").on(nameColumn, obsoleteColumn).add();
         }
@@ -197,7 +197,7 @@ public enum TableSpecs {
     MDC_COMALIVE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ComServerAliveStatus> table = dataModel.addTable(name(), ComServerAliveStatus.class).since(Version.version(10,7, 1));
+            Table<ComServerAliveStatus> table = dataModel.addTable(name(), ComServerAliveStatus.class);
             table.map(ComServerAliveStatusImpl.class);
             Column comServerColumn = table.column("COMSERVERID").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("ACTIVETIME").number().notNull().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.LAST_ACTIVE_TIME.getName()).add();

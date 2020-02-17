@@ -94,10 +94,11 @@ public class CreateBulkMessageFactory {
     public SmrtMtrMtrRdngDocERPBulkCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
                                                              MessageSeeds messageSeeds,
                                                              Instant now,
-                                                             String senderBusinessSystemId) {
+                                                             String senderBusinessSystemId,
+                                                             Object... messageSeedArgs) {
         SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPBulkCrteConfMsg();
         bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getId(), requestMessage.getUuid(), now, senderBusinessSystemId));
-        bulkConfirmationMessage.setLog(createFailedLog(messageSeeds.getDefaultFormat()));
+        bulkConfirmationMessage.setLog(createFailedLog(messageSeeds.getDefaultFormat(messageSeedArgs)));
         bulkConfirmationMessage.getLog().setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
         setMaximumLogItemSeverityCode(bulkConfirmationMessage.getLog());
 

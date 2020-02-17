@@ -31,22 +31,26 @@ import java.util.Map;
  */
 public final class ObjectMapperFactory {
 
-    public static ObjectMapper newMapper () {
-        ObjectMapper mapper = new ObjectMapper();
+    private static ObjectMapper objectMapper;
 
-        mapper.registerModule(new Jdk8Module());
-        mapper.registerModule(new GuavaModule());
-        mapper.registerModule(new JavaTimeModule());
+    public static ObjectMapper getObjectMapper() {
+        if (objectMapper != null)
+            return objectMapper;
+        objectMapper = new ObjectMapper();
+
+        objectMapper.registerModule(new Jdk8Module());
+        objectMapper.registerModule(new GuavaModule());
+        objectMapper.registerModule(new JavaTimeModule());
         SimpleModule customModule = new SimpleModule("TypedPropertiesDeserializerModule", new Version(1, 0, 0, null));
         customModule.addDeserializer(ZoneInfo.class, new ZoneInfoJsonDeserializer());
-        customModule.addDeserializer(TypedProperties.class, new TypedPropertiesJsonDeserializer(mapper, new OnlineJSONTypeMapper()));
-        mapper.registerModule(customModule);
+        customModule.addDeserializer(TypedProperties.class, new TypedPropertiesJsonDeserializer(objectMapper, new OnlineJSONTypeMapper()));
+        objectMapper.registerModule(customModule);
 
-        AnnotationIntrospector jaxbAnnotationIntrospector = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
-        mapper.setAnnotationIntrospector(jaxbAnnotationIntrospector);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,true);
-        return mapper;
+        AnnotationIntrospector jaxbAnnotationIntrospector = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        objectMapper.setAnnotationIntrospector(jaxbAnnotationIntrospector);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,true);
+        return objectMapper;
     }
 
     // Hide utility class constructor
