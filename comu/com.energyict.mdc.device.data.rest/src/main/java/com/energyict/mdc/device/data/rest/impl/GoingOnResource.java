@@ -46,6 +46,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -125,22 +126,13 @@ public class GoingOnResource {
         }
 
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
-        serviceCallFilter.targetObject = device;
+        serviceCallFilter.targetObjects = Arrays.asList(device, device.getMeter());
         serviceCallFilter.states = serviceCallService.nonFinalStates().stream().map(Enum::name).collect(Collectors.toList());
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
         if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
             serviceCallFinder = serviceCallFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
         }
         List<GoingOnInfo> serviceCalls = serviceCallFinder.stream().map(goingOnInfoFactory::toGoingOnInfo).collect(Collectors.toList());
-
-        serviceCallFilter.targetObject = device.getMeter();
-        serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
-        if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
-            serviceCallFinder = serviceCallFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
-        }
-        serviceCallFinder.stream()
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .forEach(serviceCalls::add);
 
         List<GoingOnInfo> alarms = new ArrayList<>();
         if(hasCurrentUserAlarmPrivileges(appPrivileges)) {
