@@ -182,9 +182,10 @@ class ReadingStorerImpl implements ReadingStorer {
                         this::getDerivations
                 ));
 
-        previousReadings = new HashMap<>();
         Set<Pair<ChannelContract, Instant>> needed = determineNeed(valuesView);
-        previousReadings.putAll(Maps.filterKeys(valuesView, needed::contains));
+        previousReadings = valuesView.entrySet().stream()
+                .filter(entry -> needed.remove(entry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         previousReadings.putAll(readFromDb(needed));
 
         // ok we've got all the previous readings that are available
@@ -214,7 +215,7 @@ class ReadingStorerImpl implements ReadingStorer {
         Set<Pair<ChannelContract, Instant>> mayNeedToUpdateTimes = valuesView.keySet()
                 .stream()
                 .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast())))
-                .filter(not(consolidatedValues::containsKey))
+                .filter(not(valuesView::containsKey))
                 .collect(Collectors.toSet());
         Map<Pair<ChannelContract, Instant>, Object[]> mayNeedToUpdate = readFromDb(mayNeedToUpdateTimes);
         TimeSeriesDataStorer updatingStorer = Behaviours.UPDATE.createTimeSeriesStorer(idsService);
@@ -305,10 +306,6 @@ class ReadingStorerImpl implements ReadingStorer {
                                         .filter(derivation -> derivation.getDerivationRule().isMultiplied())
                                         .collect(Collectors.toList())
                         ));
-        if (multipliedDerivations.isEmpty()) {
-            return;
-        }
-
         multipliedDerivations.forEach(this::doMultiplications);
     }
 
@@ -446,7 +443,6 @@ class ReadingStorerImpl implements ReadingStorer {
 
     private Map<Pair<ChannelContract, Instant>, Object[]> readFromDb(Set<Pair<ChannelContract, Instant>> needed) {
         return needed.stream()
-                .filter(not(consolidatedValues::containsKey))
                 .map(pair -> Pair.of(pair, pair.getFirst().getReading(pair.getLast())))
                 .filter(pair -> pair.getLast().isPresent())
                 .map(pair -> pair.withLast(Optional::get))
