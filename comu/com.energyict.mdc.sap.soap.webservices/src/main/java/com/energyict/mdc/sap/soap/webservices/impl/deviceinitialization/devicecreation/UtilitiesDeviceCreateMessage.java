@@ -30,11 +30,6 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
         return new UtilitiesDeviceCreateMessage().new Builder();
     }
 
-    public boolean isValid() {
-        return (requestId!= null || uuid != null) && serialId != null && deviceId != null &&
-                materialId != null && shipmentDate != null;
-    }
-
     public String getRequestId() {
         return requestId;
     }
