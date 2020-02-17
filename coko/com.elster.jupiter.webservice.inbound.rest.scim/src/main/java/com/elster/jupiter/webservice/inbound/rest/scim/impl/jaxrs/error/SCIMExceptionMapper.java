@@ -5,19 +5,19 @@ import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.ErrorRespo
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
-public class OAuthExceptionMapper implements ExceptionMapper<OAuthException> {
+public class SCIMExceptionMapper implements ExceptionMapper<SCIMException> {
 
     @Override
-    public Response toResponse(OAuthException exception) {
-        return Response.status(exception.getOAuthError().httpCode)
+    public Response toResponse(final SCIMException exception) {
+        return Response.status(exception.getScimError().httpCode)
                 .entity(createResponseDTOFromException(exception))
                 .build();
     }
 
-    private ErrorResponse createResponseDTOFromException(final OAuthException exception) {
+    private ErrorResponse createResponseDTOFromException(final SCIMException exception) {
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setError(exception.getOAuthError().errorCode);
-        errorResponse.setErrorDescription(exception.getOAuthError().description);
+        errorResponse.setError(exception.getScimError().errorCode);
+        errorResponse.setErrorDescription(exception.getScimError().description);
         return errorResponse;
     }
 }

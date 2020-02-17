@@ -6,12 +6,23 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 
 public class UserResourceTest extends SCIMBaseTest {
+
+//    @Before
+//    public void setUp(){
+//        configureBehaviorOfUserMock();
+//        configureBehaviorOfUserServiceMock();
+//    }
 
     @Test
     public void shouldCreateUser() {
@@ -43,9 +54,10 @@ public class UserResourceTest extends SCIMBaseTest {
 
     @Test
     public void shouldUpdateUser() {
+        when(userService.findUserByExternalId(any())).thenReturn(Optional.of(user));
+
         final UserSchema existingUser = createUserWithinConnexoWithAttributeValues();
-        existingUser.setDisplayName("TEST_DISPLAYNAME");
-        existingUser.setUserName("TEST_USERNAME");
+        existingUser.setLocale(Locale.US.toLanguageTag());
 
         final Response response = target(USER_RESOURCE_PATH + "/" + UUID.randomUUID())
                 .request("application/scim+json")
@@ -57,11 +69,13 @@ public class UserResourceTest extends SCIMBaseTest {
 
         final UserSchema updatedUser = response.readEntity(UserSchema.class);
 
-        assertThat(existingUser).isEqualToComparingFieldByField(updatedUser);
+        assertThat(existingUser).isEqualToComparingOnlyGivenFields(updatedUser, LIST_OF_FIELDS_FOR_USER_COMPARISON);
     }
 
     @Test
     public void shouldDeleteUser() {
+        when(userService.findUserByExternalId(anyString())).thenReturn(Optional.of(user));
+
         final UserSchema existingUser = createUserWithinConnexoWithAttributeValues();
 
         final Response response = target(USER_RESOURCE_PATH + "/" + existingUser.getId())
@@ -71,6 +85,8 @@ public class UserResourceTest extends SCIMBaseTest {
                 .invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        when(userService.findUserByExternalId(anyString())).thenReturn(Optional.empty());
 
         final Response getDeletedUserResponse = target(USER_RESOURCE_PATH + "/" + existingUser.getId())
                 .request("application/scim+json")

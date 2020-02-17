@@ -1,6 +1,7 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.resource;
 
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.SCIMApplication;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenResponse;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.resource.OAuthBaseTest;
@@ -9,6 +10,7 @@ import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.SchemaTy
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.UserSchema;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -47,6 +49,9 @@ public class SCIMBaseTest extends OAuthBaseTest {
     @Mock
     protected User user;
 
+    @Mock
+    protected UserService userService;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -74,11 +79,13 @@ public class SCIMBaseTest extends OAuthBaseTest {
         return new SCIMApplication(userService);
     }
 
-    private void configureBehaviorOfUserServiceMock() {
-        when(userService.createUser(any(String.class), any(String.class))).thenReturn(user);
+    protected void configureBehaviorOfUserServiceMock() {
+        when(userService.createSCIMUser(any(String.class), any(String.class), any(String.class))).thenReturn(user);
+        when(userService.findUserByExternalId(any(String.class))).thenReturn(Optional.empty());
+        when(userService.findUserByExternalId(Matchers.same("1"))).thenReturn(Optional.of(user));
     }
 
-    private void configureBehaviorOfUserMock() {
+    protected void configureBehaviorOfUserMock() {
         when(user.getId()).thenReturn(1L);
         when(user.getName()).thenReturn("TEST_USERNAME");
         when(user.getCreationDate()).thenReturn(Instant.now());
@@ -123,7 +130,7 @@ public class SCIMBaseTest extends OAuthBaseTest {
     protected UserSchema createUserSchemaWithRandomAttributeValues() {
         final UserSchema userSchema = new UserSchema();
         userSchema.setSchemas(new String[]{SchemaType.USER_SCHEMA.getId()});
-        userSchema.setExternalId(UUID.randomUUID().toString());
+        userSchema.setExternalId("1");
         userSchema.setId(null);
         userSchema.setMeta(null);
         userSchema.setUserName("Trump");
@@ -136,7 +143,7 @@ public class SCIMBaseTest extends OAuthBaseTest {
     protected GroupSchema createGroupSchemaWithRandomAttributeValues() {
         final GroupSchema groupSchema = new GroupSchema();
         groupSchema.setSchemas(new String[]{SchemaType.USER_SCHEMA.getId()});
-        groupSchema.setExternalId(UUID.randomUUID().toString());
+        groupSchema.setExternalId("1");
         groupSchema.setId(null);
         groupSchema.setMeta(null);
         groupSchema.setDisplayName("TEST_GROUP_DISPLAY_NAME");
