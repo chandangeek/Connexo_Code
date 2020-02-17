@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.cache.CacheStats;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -149,6 +150,14 @@ public interface Table<T> {
      */
     void cache();
 
+    void cache(long cacheTtl, long maximumSize, boolean recordStat);
+
+    void cacheWholeTable(boolean recordStat);
+
+    void cacheWholeTable(boolean recordStat, long evictionTime);
+
+    CacheStats getCacheStats();
+
     void indexOrganized(int compressCount);
 
     // meta data api
@@ -173,7 +182,7 @@ public interface Table<T> {
     boolean hasJournal(Version version);
 
     boolean isCached();
-
+    boolean isWholeTableCached();
     boolean isIndexOrganized();
 
     String getQualifiedName(Version version);

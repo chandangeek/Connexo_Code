@@ -193,6 +193,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     Optional<T> findByPrimaryKey(KeyValue keyValue) {
         TableCache<? super T> cache = getCache();
         Object cacheVersion = cache.get(keyValue);
+        /* When caching of whole table is used it is assumed that all objects from table should be in cache.
+         * In no , it means that cache was invalidated or eviction time was expired. In both cases we have to load table to cache again.*/
+        if (cache.reloadCacheIfNeeded(cacheVersion, (Finder)this, keyValue)){
+            cacheVersion = cache.get(keyValue);
+        }
         if (cacheVersion != null) {
             if (api.isInstance(cacheVersion)) {
                 return Optional.of(api.cast(cacheVersion));
@@ -202,7 +207,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         }
         try {
             Optional<T> result;
-            if (getTable().isCached()) {
+            if (getTable().isCached() && !getTable().isWholeTableCached()) {
                 result = getEager(keyValue.getKey());
             } else {
                 result = reader.findByPrimaryKey(keyValue);

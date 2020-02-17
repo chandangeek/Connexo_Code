@@ -49,6 +49,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Lists;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -606,8 +607,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private void applyNextExecutionTimestampAndPriority(Instant when, int priority, PostingMode postingMode) {
         this.nextExecutionTimestamp = when;
+        boolean priorityChanged = this.priority != priority;
         this.priority = priority;
-        postingMode.executeOn(this);
+        postingMode.executeOn(this, priorityChanged);
     }
 
     @Override
@@ -722,12 +724,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private enum PostingMode {
         NOW {
             @Override
-            void executeOn(ScheduledConnectionTaskImpl connectionTask) {
+            void executeOn(ScheduledConnectionTaskImpl connectionTask, boolean priorityChanged) {
                 connectionTask.updateStrategy.prepare();
-                connectionTask.update(ConnectionTaskFields.NEXT_EXECUTION_SPECS.fieldName(),
+                List<String> fields = Lists.newArrayList(ConnectionTaskFields.NEXT_EXECUTION_SPECS.fieldName(),
                         ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName(),
-                        ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName(),
-                        ConnectionTaskFields.PRIORITY.fieldName());
+                        ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName());
+                if(priorityChanged){
+                    fields.add(ConnectionTaskFields.PRIORITY.fieldName());
+                }
+                connectionTask.update(fields.toArray(new String[fields.size()]));
                 connectionTask.notifyUpdated();
                 connectionTask.updateStrategy.complete();
             }
@@ -735,12 +740,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         LATER {
             @Override
-            void executeOn(ScheduledConnectionTaskImpl connectionTask) {
+            void executeOn(ScheduledConnectionTaskImpl connectionTask, boolean priorityChanged) {
                 // Do not post now as the connection task will do it later
             }
         };
 
-        abstract void executeOn(ScheduledConnectionTaskImpl connectionTask);
+        abstract void executeOn(ScheduledConnectionTaskImpl connectionTask, boolean priorityChanged);
     }
 
     private class ComPortNameProperty implements ConnectionProperty {

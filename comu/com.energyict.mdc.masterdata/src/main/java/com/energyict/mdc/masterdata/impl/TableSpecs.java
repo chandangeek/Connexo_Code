@@ -42,6 +42,7 @@ public enum TableSpecs {
             table.column("INTERVALUNIT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.unique("UK_MDS_LOADPROFILETYPE").on(name).add();
             table.primaryKey("PK_MDS_LOADPROFILETYPE").on(id).add();
+            table.cacheWholeTable(true);
         }
     },
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.device.data.impl;
 
@@ -9,18 +9,23 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 public class UpgraderV10_7_2 implements Upgrader {
     private final DataModel dataModel;
+    private final InstallerV10_7_2Impl installerV10_7_2;
+
 
     @Inject
-    public UpgraderV10_7_2(DataModel dataModel) {
+    public UpgraderV10_7_2(DataModel dataModel, InstallerV10_7_2Impl installerV10_7_2) {
         this.dataModel = dataModel;
+        this.installerV10_7_2 = installerV10_7_2;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7, 2));
+        installerV10_7_2.install(dataModelUpgrader, Logger.getAnonymousLogger());
         execute(dataModel,
                 "drop sequence DDC_COMTASKEXECJOURNALENTRYID",
                 "alter table DDC_COMTASKEXECJOURNALENTRY drop column ID",

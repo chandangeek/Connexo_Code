@@ -127,7 +127,7 @@ class KeyStoreDataVault implements DataVault {
     @Override
     public void createVault(OutputStream stream) throws LocalizedException {
         try {
-            KeyStoreLoader.generate(stream, KEYSTORE_TYPE, new KeyStoreAliasGenerator(KEY_STORE_ALIAS_GENERATOR.getPreffix(), 16), password);
+            KeyStoreLoader.generate(stream, KEYSTORE_TYPE, KEY_STORE_ALIAS_GENERATOR, password);
         } catch (Exception e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_CREATION_FAILED, e.getLocalizedMessage());
         }
