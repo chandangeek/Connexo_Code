@@ -1,8 +1,7 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.impl.loader;
 
+import com.elster.jupiter.hsm.impl.HsmConfigurationService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
-import com.elster.jupiter.hsm.impl.loader.HsmResourceLoader;
-import com.elster.jupiter.hsm.impl.loader.HsmResourceLoaderFactory;
 import com.elster.jupiter.hsm.impl.resources.HsmReloadableConfigResource;
 import com.elster.jupiter.hsm.impl.resources.HsmReloadableJssConfigResource;
 import com.elster.jupiter.hsm.model.HsmBaseException;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Objects;
 
 public class HsmConfigurationObserver implements Runnable {
 
@@ -24,6 +22,7 @@ public class HsmConfigurationObserver implements Runnable {
     private final Boolean automaticConfigReload;
     private final Long reloadTime;
 
+    private boolean observerRunning = false;
     private boolean stopRequest = false;
 
     public HsmConfigurationObserver(HsmConfigurationService hsmConfigurationService, String bundleConfigFile, Boolean automaticConfigReload, Long reloadTime) {
@@ -38,16 +37,16 @@ public class HsmConfigurationObserver implements Runnable {
         if (StringUtils.isEmpty(bundleConfigFile)) {
             return;
         }
-
+        observerRunning = true;
         do {
             try {
                 configure(bundleConfigFile);
                 Thread.sleep(reloadTime);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 logger.error("Exception caught:", e);
-                e.printStackTrace();
             }
         } while (!stopRequest && automaticConfigReload);
+        observerRunning = false;
     }
 
     private void configure(String bundleConfigFile) {
@@ -61,6 +60,9 @@ public class HsmConfigurationObserver implements Runnable {
     }
 
     public void stop() throws HsmBaseException {
+        if (!observerRunning) {
+            return;
+        }
         this.stopRequest = true;
         HsmResourceLoader<HsmConfiguration> hsmConfigLoader = HsmResourceLoaderFactory.getInstance(HsmReloadableConfigResource.getInstance(new File(bundleConfigFile)));
         HsmReloadableJssConfigResource.getInstance(new File(hsmConfigLoader.load().getJssInitFile())).close();

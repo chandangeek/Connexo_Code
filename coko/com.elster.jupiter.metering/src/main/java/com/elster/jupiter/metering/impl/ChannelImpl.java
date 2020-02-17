@@ -586,14 +586,14 @@ public final class ChannelImpl implements SimpleChannelContract {
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, BaseReading baseReading) {
         ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), baseReading);
-        readingQualityRecord.doSave();
+        readingQualityRecord.save();
         return readingQualityRecord;
     }
 
     @Override
     public ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, Instant timestamp) {
         ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), timestamp);
-        readingQualityRecord.doSave();
+        readingQualityRecord.save();
         return readingQualityRecord;
     }
 
@@ -616,7 +616,7 @@ public final class ChannelImpl implements SimpleChannelContract {
     ReadingQualityRecord copyReadingQuality(ReadingQualityRecord source) {
         ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, source.getType(), getCimChannel(source.getReadingType()).get(), source.getReadingTimestamp());
         readingQualityRecord.copy(source);
-        readingQualityRecord.doSave();
+        readingQualityRecord.save();
         return readingQualityRecord;
     }
 
@@ -643,13 +643,9 @@ public final class ChannelImpl implements SimpleChannelContract {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        return id == ((ChannelImpl) o).id;
+        return this == o
+                || o != null && getClass() == o.getClass()
+                && id == ((ChannelImpl) o).id;
     }
 
     @Override

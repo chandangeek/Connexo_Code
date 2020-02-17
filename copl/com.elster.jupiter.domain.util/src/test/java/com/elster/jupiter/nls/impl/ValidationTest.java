@@ -8,7 +8,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -56,7 +56,7 @@ public class ValidationTest {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
-                new OrmModule(),
+                new H2OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),

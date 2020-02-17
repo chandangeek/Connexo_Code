@@ -23,7 +23,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

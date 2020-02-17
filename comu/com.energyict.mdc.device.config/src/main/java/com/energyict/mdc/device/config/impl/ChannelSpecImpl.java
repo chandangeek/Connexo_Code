@@ -35,6 +35,7 @@ import com.energyict.obis.ObisCode;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     private final Reference<ChannelType> channelType = ValueReference.absent();
     private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
-    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED  + "}")
     private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
@@ -146,11 +147,13 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     }
 
     @Override
+    @XmlTransient
     public LoadProfileSpec getLoadProfileSpec() {
         return this.loadProfileSpec.get();
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.get();
     }

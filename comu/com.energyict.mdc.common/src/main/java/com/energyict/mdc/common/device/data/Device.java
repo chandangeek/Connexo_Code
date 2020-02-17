@@ -22,6 +22,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.HasmRID;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
@@ -53,9 +54,14 @@ import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -65,7 +71,12 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 
 @ConsumerType
-public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasName {
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
+public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasmRID, HasName {
 
     Meter getMeter();
 
@@ -81,7 +92,15 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      *
      * @return the serial number.
      */
+    @XmlAttribute
     String getSerialNumber();
+
+    /**
+     * Gets the device protocol properties.
+     *
+     * @return the list of properties.
+     */
+    List<DeviceProtocolProperty> getDeviceProperties();
 
     /**
      * Gets the {@link Register}s defined for this device.
@@ -140,6 +159,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      */
     DeviceType getDeviceType();
 
+    void setDeviceType(DeviceType ignore);
+
     List<DeviceMessage> getMessages();
 
     /**
@@ -163,6 +184,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * @return a device configuration
      */
     DeviceConfiguration getDeviceConfiguration();
+
+    void setDeviceConfiguration(DeviceConfiguration ignore);
 
     /**
      * Gets the receiver's collection TimeZone.
@@ -308,6 +331,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     /**
      * Gets the Unique mRID of the device.
      */
+    @XmlAttribute
     String getmRID();
 
     /**
@@ -345,6 +369,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     void removeConnectionTask(ConnectionTask<?, ?> connectionTask);
 
+    void removePermanentlyConnectionTask(ConnectionTask<?, ?> connectionTask);
     /**
      * Gets the ComTaskExecutions that are configured against this Device.
      *
@@ -510,6 +535,12 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     String getModelVersion();
     void setModelVersion(String modelVersion);
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 
     /**
      * Returns all SecurityAccessors defined for this device. The returned list will contain accessors of all kinds: certfificates, keys and passphrases

@@ -71,6 +71,7 @@ public class DLMSUtilsTest {
         assertArrayEquals(getBytesFromHexString("$3F"), getAXDRLengthEncoding(63));
         assertArrayEquals(getBytesFromHexString("$7F"), getAXDRLengthEncoding(127));
         assertArrayEquals(getBytesFromHexString("$81$FF"), getAXDRLengthEncoding(255));
+        assertArrayEquals(getBytesFromHexString("$82$01$00"), getAXDRLengthEncoding(256));
         assertArrayEquals(getBytesFromHexString("$82$01$FF"), getAXDRLengthEncoding(511));
         assertArrayEquals(getBytesFromHexString("$82$03$FF"), getAXDRLengthEncoding(1023));
         assertArrayEquals(getBytesFromHexString("$82$07$FF"), getAXDRLengthEncoding(2047));
@@ -100,6 +101,7 @@ public class DLMSUtilsTest {
         assertEquals(63, getAXDRLength(getBytesFromHexString("$3F"), 0));
         assertEquals(127, getAXDRLength(getBytesFromHexString("$7F"), 0));
         assertEquals(255, getAXDRLength(getBytesFromHexString("$81$FF"), 0));
+        assertEquals(256, getAXDRLength(getBytesFromHexString("$82$01$00"), 0));
         assertEquals(511, getAXDRLength(getBytesFromHexString("$82$01$FF"), 0));
         assertEquals(1023, getAXDRLength(getBytesFromHexString("$82$03$FF"), 0));
         assertEquals(2047, getAXDRLength(getBytesFromHexString("$82$07$FF"), 0));

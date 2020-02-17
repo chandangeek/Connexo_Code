@@ -26,7 +26,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -89,7 +89,7 @@ public class InMemoryPersistence {
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),

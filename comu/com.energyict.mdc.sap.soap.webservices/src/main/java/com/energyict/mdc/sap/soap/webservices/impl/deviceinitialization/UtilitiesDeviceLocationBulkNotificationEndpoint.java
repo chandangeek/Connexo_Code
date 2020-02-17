@@ -11,16 +11,22 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationPointID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilitiesDeviceERPSmartMeterLocationBulkNotificationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocBulkNotifMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -54,6 +60,10 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
 
     private void handleMessage(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
         LocationBulkMessage bulkMsg = new LocationBulkMessage(msg);
+        SetMultimap<String, String> values = HashMultimap.create();
+        bulkMsg.locationMessages.forEach(message -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId));
+        saveRelatedAttributes(values);
+
         if (bulkMsg.isValid()) {
             bulkMsg.locationMessages.forEach(message -> {
                 if (message.isValid()) {
@@ -68,29 +78,30 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
                         log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(message.deviceId));
                     }
                 } else {
-                    log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+                    log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(message.getMissingFields()));
                 }
             });
         } else {
-            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(bulkMsg.getMissingFields()));
         }
     }
 
-    private class LocationBulkMessage {
+    private class LocationBulkMessage extends AbstractSapMessage {
         private String requestId;
+        private String uuid;
         private List<LocationMessage> locationMessages = new ArrayList<>();
 
         private LocationBulkMessage(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
             requestId = getRequestId(msg);
+            uuid = getUuid(msg);
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             msg.getUtilitiesDeviceERPSmartMeterLocationNotificationMessage()
                     .forEach(message -> {
                         LocationMessage locationMsg = new LocationMessage(message);
                         locationMessages.add(locationMsg);
                     });
-        }
-
-        private boolean isValid() {
-            return requestId != null;
         }
 
         private String getRequestId(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
@@ -100,19 +111,33 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
+
+        private String getUuid(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
+            return Optional.ofNullable(msg.getMessageHeader())
+                    .map(BusinessDocumentMessageHeader::getUUID)
+                    .map(UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
     }
 
-    private class LocationMessage {
+    private class LocationMessage extends AbstractSapMessage {
+
+        private static final String UTILITIES_DEVICE_ID_XML_NAME = "UtilitiesDeviceID";
+        private static final String LOCATION_ID_XML_NAME = "InstallationPointID";
+
         private String deviceId;
         private String locationId;
 
         private LocationMessage(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
             deviceId = getDeviceId(msg);
             locationId = getLocationId(msg);
-        }
-
-        private boolean isValid() {
-            return deviceId != null && locationId != null;
+            if (deviceId == null) {
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
+            }
+            if (locationId == null) {
+                addMissingField(LOCATION_ID_XML_NAME);
+            }
         }
 
         private String getDeviceId(UtilsDvceERPSmrtMtrLocNotifMsg msg) {

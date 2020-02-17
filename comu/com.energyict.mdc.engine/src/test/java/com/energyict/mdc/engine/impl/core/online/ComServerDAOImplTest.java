@@ -167,9 +167,9 @@ public class ComServerDAOImplTest {
     @Test
     public void testRefreshComServerThatHasNotChanged() {
         Instant modificationDate = Instant.now();
-        when(this.comServer.getModificationDate()).thenReturn(modificationDate);
+        when(this.comServer.getModTime()).thenReturn(modificationDate);
         OutboundCapableComServer reloaded = mock(OutboundCapableComServer.class);
-        when(reloaded.getModificationDate()).thenReturn(modificationDate);
+        when(reloaded.getModTime()).thenReturn(modificationDate);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(reloaded));
 
         // Business method and asserts
@@ -345,17 +345,13 @@ public class ComServerDAOImplTest {
         when(comTaskExecution2.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         ServerComTaskExecution comTaskExecution3 = mock(ServerComTaskExecution.class);
         when(comTaskExecution3.getConnectionTask()).thenReturn(Optional.of(connectionTask));
-        when(communicationTaskService.findComTaskExecutionsWhichAreExecuting(this.comPort)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1, comTaskExecution2, comTaskExecution3));
-        when(connectionTaskService.findConnectionTask(anyLong())).thenReturn(Optional.of(connectionTask));
 
         // Business method
         this.comServerDAO.releaseTasksFor(this.comPort);
 
         // Asserts
-        verify(communicationTaskService).unlockComTaskExecution(comTaskExecution1);
-        verify(communicationTaskService).unlockComTaskExecution(comTaskExecution2);
-        verify(communicationTaskService).unlockComTaskExecution(comTaskExecution3);
-        verify(connectionTaskService).unlockConnectionTask(eq(connectionTask));
+        verify(communicationTaskService).findLockedByComPort(comPort);
+        verify(connectionTaskService).findLockedByComPort(comPort);
     }
 
     @Test

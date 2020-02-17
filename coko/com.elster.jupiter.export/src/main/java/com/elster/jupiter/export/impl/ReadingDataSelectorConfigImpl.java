@@ -52,7 +52,7 @@ public abstract class ReadingDataSelectorConfigImpl extends StandardDataSelector
         super(dataModel);
     }
 
-    ReadingTypeDataExportItem addExportItem(ReadingContainer readingContainer, ReadingType readingType) {
+    public ReadingTypeDataExportItem addExportItem(ReadingContainer readingContainer, ReadingType readingType) {
         ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(getDataModel(), ReadingDataSelectorConfigImpl.this, readingContainer, readingType);
         exportItems.add(item);
         return item;

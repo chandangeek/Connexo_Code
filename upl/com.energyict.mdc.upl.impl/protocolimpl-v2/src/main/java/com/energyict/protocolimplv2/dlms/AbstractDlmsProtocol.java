@@ -9,8 +9,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.mdc.protocol.api.ProtocolJournal;
-import com.energyict.mdc.protocol.api.ProtocolLoggingSupport;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -29,7 +28,7 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -89,7 +88,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         return collectedDataFactory;
     }
 
-    protected IssueFactory getIssueFactory() {
+    public IssueFactory getIssueFactory() {
         return issueFactory;
     }
 
@@ -475,7 +474,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     public boolean useDsmr4SelectiveAccessFormat() {
-        return true;
+        return false;
     }
 
     /**

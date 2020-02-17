@@ -113,4 +113,35 @@ public final class Order {
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof Order)) {
+			return false;
+		}
+
+		Order order = (Order) o;
+
+		if (ascending != order.ascending) {
+			return false;
+		}
+		if (name != null ? !name.equals(order.name) : order.name != null) {
+			return false;
+		}
+		if (function != null ? !function.equals(order.function) : order.function != null) {
+			return false;
+		}
+		return nullStrategy == order.nullStrategy;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = name != null ? name.hashCode() : 0;
+		result = 31 * result + (ascending ? 1 : 0);
+		result = 31 * result + (function != null ? function.hashCode() : 0);
+		result = 31 * result + (nullStrategy != null ? nullStrategy.hashCode() : 0);
+		return result;
+	}
 }

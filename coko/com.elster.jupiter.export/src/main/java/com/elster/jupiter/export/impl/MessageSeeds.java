@@ -39,7 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     MUST_SELECT_EVENT_TYPE(1024, Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE, "At least one event type has to be selected"),
     DATA_EXPORTED_TO(1025, "dataexport.dataexportedto", "Data exported to {0}", Level.INFO),
     DATA_MAILED_TO(1026, "dataexport.datamailedto", "Data exported to {0} with attachment(s) {1} ", Level.INFO),
-    SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of device group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
+    SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of device group {0} don''t contain the selected reading type(s) that have to be exported.", Level.INFO),
     EXPORT_PERIOD_COVERS_FUTURE(1029, "dataexport.exportwindow.overlapsfuture", "The export window {0} overlaps with the future. As a result the exported data is incomplete.", Level.WARNING),
     NO_DATA_TOEXPORT(1030, "dataexport.nodata", "There is no data to export.", Level.INFO),
 
@@ -57,10 +57,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_CPS_FOUND(1040, "service.call.cps.not.found", "No active custom attribute set is found with id ''{0}''."),
     NO_CPS_VALUES_FOUND(1041, "service.call.cps.values.not.found", "No properties are kept for web service call {0}."),
     WEB_SERVICE_EXPORT_FAILURE(1042, "webservice.export.failure", "Failure while exporting data via web service: {0}"),
-    // TODO: specify which web service failed?
-    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed: {0}"),
+    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed for service call {0}: {1}"),
     WEB_SERVICE_EXPORT_NO_CONFIRMATION(1044, "webservice.export.no.confirmation", "No data export confirmation has been received in the configured timeout."),
-    WEB_SERVICE_EXPORT_UNEXPECTED_STATE(1045, "webservice.export.unexpected.state", "Unexpected state of web service call {0}: {1}."),
+    WEB_SERVICE_EXPORT_UNEXPECTED_STATE(1045, "webservice.export.unexpected.state", "Unexpected state of the service call: {0}."),
     WEB_SERVICE_EXPORT_WAITING_FAILURE(1046, "webservice.export.waiting.failure", "Failure while waiting for data export confirmation: {0}"),
     WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE(1047, "webservice.export.no.error.message", "Received error code, but no error has been provided."),
 
@@ -69,8 +68,14 @@ public enum MessageSeeds implements MessageSeed {
             "Web service endpoint for updated data should be specified on web service destinations if updated data is exported."),
     ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task."),
     BAD_ENDPOINTS_FOR_DATA_SELECTOR(1051, Keys.BAD_ENDPOINTS_FOR_DATA_SELECTOR, "Endpoints specified on web service destinations mismatch the data selector."),
-    ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW(1052, "dataexport.item.created.nodata", "Item {0} doesn''t contain created data for the selected export window.", Level.WARNING),
-    ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.WARNING);
+    ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW(1052, "dataexport.item.created.nodata", "Item {0} doesn''t contain created data for the selected export window.", Level.INFO),
+    ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.INFO),
+
+    OCCURRENCE_HAS_BEEN_SET_TO_FAILED(1054, "occurrence.has.been.set.to.failed", "The status of the occurrence has been manually set to failed.", Level.INFO),
+
+    DATA_SENDING_FAILED_ALL_DATA_SOURCES(2000, "data.sending.failed.all.data.sources", "Failed to export all data to one or more destinations."),
+    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export {0} data source(s) to one or more destinations: {1}."),
+    WEB_SERVICE_EXPORT_NO_SERVICE_CALL(2002, "webservice.export.no.service.call", "Couldn''t find tracking service call for data source {0}.");
 
     private final int number;
     private final String key;
@@ -123,23 +128,22 @@ public enum MessageSeeds implements MessageSeed {
         logger.log(getLevel(), format.format(args), t);
     }
 
-    public enum Keys {
-        ;
-        public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
-        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
-        public static final String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
-        public static final String MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE = "MustHaveEventTypes";
-        public static final String FIELD_SIZE_BETWEEN_MIN_AND_MAX = "FieldSizeBetweenMinAndMax";
-        public static final String NO_SUCH_FORMATTER = "NoSuchFormatter";
-        public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
-        public static final String NO_SUCH_SELECTOR = "NoSuchSelector";
-        public static final String PARENT_BREAKING_PATH = "path.parent.breaking.disallowed";
-        public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
-        public static final String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
-        public static final String FTP_FAILURE = "ftp.io.writing.failure";
-        public static final String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
-        public static final String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
-        public static final String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
+    public interface Keys {
+        String NO_SUCH_READINGTYPE = "NoSuchReadingType";
+        String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
+        String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
+        String MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE = "MustHaveEventTypes";
+        String FIELD_SIZE_BETWEEN_MIN_AND_MAX = "FieldSizeBetweenMinAndMax";
+        String NO_SUCH_FORMATTER = "NoSuchFormatter";
+        String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
+        String NO_SUCH_SELECTOR = "NoSuchSelector";
+        String PARENT_BREAKING_PATH = "path.parent.breaking.disallowed";
+        String INVALIDCHARS_EXCEPTION = "InvalidChars";
+        String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
+        String FTP_FAILURE = "ftp.io.writing.failure";
+        String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
+        String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
+        String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
     }
 }
 

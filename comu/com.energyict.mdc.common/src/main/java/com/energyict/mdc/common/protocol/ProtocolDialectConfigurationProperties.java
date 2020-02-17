@@ -4,13 +4,19 @@
 
 package com.energyict.mdc.common.protocol;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.upl.TypedProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import aQute.bnd.annotation.ConsumerType;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import java.util.List;
 
 //import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 
@@ -19,6 +25,11 @@ import aQute.bnd.annotation.ConsumerType;
  * @since 5/03/13 - 14:15
  */
 @ConsumerType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface ProtocolDialectConfigurationProperties extends HasName, HasId, HasDynamicProperties {
 
     /**
@@ -27,6 +38,13 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
      * @return the DeviceConfiguration
      */
     DeviceConfiguration getDeviceConfiguration();
+
+    /**
+     * Holding the property specs for the UPL adaptation
+     *
+     * @return The device protocol property specs
+     */
+    List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs();
 
     /**
       * The device protocol dialect {@link com.energyict.mdc.common.protocol.DeviceProtocolDialect}
@@ -42,7 +60,8 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
       *
       * @return The DeviceProtocolDialect
       */
-     String getDeviceProtocolDialectName();
+    @XmlAttribute
+    String getDeviceProtocolDialectName();
 
     /**
      * Provides a view of the current properties in the TypedProperties format
@@ -66,4 +85,12 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
     boolean isComplete();
 
     long getVersion();
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
+
+    public void setDeviceProtocolDialectName(String ignore);
 }

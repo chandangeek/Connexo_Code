@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.idis.topology;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
@@ -11,8 +10,8 @@ import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
             for (int i = 1; i <= getMaxMBusChannels(); i++) {
                 try {
                     obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
-                    MBusClient mbusClient = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10);
+                    MBusClient mbusClient = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode,  MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
                     int primaryAddress = mbusClient.getPrimaryAddress().getValue();
                     long serialNumberValue = mbusClient.getIdentificationNumber().getValue();
                     if (serialNumberValue != 0 && serialNumberValue != CHANNEL_NOT_USED && primaryAddress != 0) {

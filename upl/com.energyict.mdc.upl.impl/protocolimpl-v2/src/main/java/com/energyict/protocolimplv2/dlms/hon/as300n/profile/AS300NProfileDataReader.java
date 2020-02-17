@@ -11,6 +11,7 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -24,8 +25,8 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.hon.as300n.AS300N;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -51,11 +52,11 @@ public class AS300NProfileDataReader {
     private Map<ObisCode, Boolean> hasStatus = new HashMap<>();
 
 
-    public AS300NProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AS300NProfileDataReader(AS300N protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS, collectedDataFactory, issueFactory);
     }
 
-    public AS300NProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AS300NProfileDataReader(AS300N protocol, long limitMaxNrOfDays, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
         this.limitMaxNrOfDays = limitMaxNrOfDays;
         this.collectedDataFactory = collectedDataFactory;
@@ -80,8 +81,7 @@ public class AS300NProfileDataReader {
             if (isSupported(loadProfileReader) && (channelInfos != null)) {
 
                 try {
-                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode);
-                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer = profileGeneric.getBuffer(getFromCalendar(loadProfileReader), getToCalendar(loadProfileReader));
                     Object[] loadProfileEntries = buffer.getRoot().getElements();
                     List<IntervalData> intervalDatas = new ArrayList<>();
@@ -165,7 +165,7 @@ public class AS300NProfileDataReader {
             return;
         if (collectedLoadProfile.getCollectedIntervalData().isEmpty() ||
                 intervalWarningElapsed(collectedLoadProfile, loadProfileReader)) {
-            ObisCode profileObisCode = collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode();
+            ObisCode profileObisCode = collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode();
             collectedLoadProfile.setFailureInformation(ResultType.Other, issueFactory.createWarning(profileObisCode, "loadProfileXIssue", profileObisCode, "Received 0 LP intervals from the mirror device. This could mean that the Beacon DC was not able to read out new LP data from the actual device. Please check the logbook of the Beacon device for issues."));
         }
     }

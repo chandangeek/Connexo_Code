@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>appserver</artifactId>
     <packaging>bundle</packaging>
@@ -144,6 +144,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

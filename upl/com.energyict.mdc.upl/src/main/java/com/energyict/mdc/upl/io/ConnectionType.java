@@ -1,12 +1,18 @@
 package com.energyict.mdc.upl.io;
 
+import com.energyict.mdc.channel.serial.OpticalDriver;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.journal.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Set;
 
 /**
@@ -17,7 +23,12 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (16:16)
  */
-public interface ConnectionType extends HasDynamicProperties{
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
+public interface ConnectionType extends HasDynamicProperties, ProtocolLoggingSupport{
 
     enum Property {
 
@@ -95,6 +106,15 @@ public interface ConnectionType extends HasDynamicProperties{
     boolean allowsSimultaneousConnections();
 
     /**
+     * Returns if this ConnectionType allows HandHeldUnit sign on
+     *
+     * @return <code>true</code> if this ConnectionType allows HandHeldUnit sign on
+     */
+    default boolean enableHHUSignOn() {
+        return false;
+    }
+
+    /**
      * Returns <code>true</code> when this ConnectionType supports
      * the communication window concept.
      * If this is NOT the case, then ConnectionTasks that
@@ -130,4 +150,9 @@ public interface ConnectionType extends HasDynamicProperties{
      */
     String getVersion();
 
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 }

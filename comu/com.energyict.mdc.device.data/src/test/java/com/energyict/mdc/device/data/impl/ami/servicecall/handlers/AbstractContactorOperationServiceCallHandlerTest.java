@@ -45,6 +45,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -147,7 +149,17 @@ public class AbstractContactorOperationServiceCallHandlerTest {
             public void save() {
 
             }
+
+            @XmlElement(name = "type")
+            public String getXmlType() {
+                return this.getClass().getName();
+            }
+
+            public void setXmlType(String ignore) {
+                // For xml unmarshalling purposes only
+            }
         }));
+        when(comTask.isManualSystemTask()).thenReturn(true);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
@@ -202,7 +214,7 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     }
 
     @Test
-    @Expected(value = IllegalStateException.class, message = "A comtask to read out the status information could not be located")
+    @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information couldn't be located.")
     public void testStateChangeFromWaitingToOngoingStatusInformationComTaskEnablementNotFound() throws Exception {
         AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();

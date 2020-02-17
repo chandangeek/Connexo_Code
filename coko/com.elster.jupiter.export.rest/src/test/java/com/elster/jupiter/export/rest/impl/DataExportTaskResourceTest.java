@@ -18,6 +18,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
@@ -749,6 +750,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(occurrence.getEndDate()).thenReturn(Optional.of(Instant.now()));
         when(occurrence.getRetryTime()).thenReturn(Optional.of(Instant.now()));
         when(occurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.empty());
+        when(occurrence.getStatus()).thenReturn(DataExportStatus.SUCCESS);
         when(exportTaskHistory.getVersionAt(any(Instant.class))).thenReturn(Optional.of(exportTask));
         when(exportTask.getStandardDataSelectorConfig(any(Instant.class))).thenReturn(Optional.empty());
         when(exportTask.getScheduleExpression(any(Instant.class))).thenReturn(Optional.empty());
@@ -801,6 +803,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.empty());
         when(dataExportOccurrence.getRetryTime()).thenReturn(Optional.of(Instant.now()));
         when(dataExportOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
+        when(dataExportOccurrence.getStatus()).thenReturn(DataExportStatus.SUCCESS);
         Response response = target("/dataexporttask/history/" + occurrenceId).request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -815,6 +818,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         ReadingType readingType = mockReadingType();
         when(dataExportItem.getReadingType()).thenReturn(readingType);
         when(dataExportItem.getLastExportedDate()).thenReturn(Optional.empty());
+        when(dataExportItem.getLastExportedPeriodEnd()).thenReturn(Optional.empty());
         return dataExportItem;
     }
 

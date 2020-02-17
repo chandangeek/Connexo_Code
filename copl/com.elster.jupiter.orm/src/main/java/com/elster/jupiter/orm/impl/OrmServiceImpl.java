@@ -14,7 +14,7 @@ import com.elster.jupiter.orm.TransactionRequiredException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
+import com.elster.jupiter.orm.associations.references.RefAnyImpl;
 import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
@@ -439,5 +439,11 @@ public final class OrmServiceImpl implements OrmService {
         public Class<?>[] getClasses() {
             return new Class<?>[]{TransactionEvent.class};
         }
+    }
+
+    @Override
+    public boolean isTest() {
+        return Optional.ofNullable(schemaInfoProvider).map(SchemaInfoProvider::isTestSchemaProvider)
+                .orElse(false);
     }
 }

@@ -4,18 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Encrypter;
-import com.elster.jupiter.orm.FieldType;
-import com.elster.jupiter.orm.IllegalTableMappingException;
-import com.elster.jupiter.orm.LifeCycleClass;
-import com.elster.jupiter.orm.MappingException;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.TableAudit;
-import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.audit.TableAuditImpl;
@@ -30,6 +19,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 
 import com.google.common.base.Joiner;
+import com.google.common.cache.CacheStats;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -81,6 +71,9 @@ public class TableImpl<T> implements Table<T> {
     @SuppressWarnings("unused")
     private int position;
     private boolean cached;
+    private Long cacheTtl;
+    private long cacheMaximumSize;
+    private boolean cacheRecordStat;
     private boolean autoInstall = true;
     private boolean forceJournal = false;
     private int indexOrganized = -1;
@@ -129,7 +122,7 @@ public class TableImpl<T> implements Table<T> {
         return this;
     }
 
-    static <T> TableImpl<T> from(DataModelImpl dataModel, String schema, String name, Class<T> api) {
+    public static <T> TableImpl<T> from(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         return new TableImpl<T>().init(dataModel, schema, name, api);
     }
 
@@ -200,12 +193,25 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public boolean isCached() {
-        return cached;
+        return this.cached;
     }
 
     @Override
     public void cache() {
+        cache(600000L, 10000L, true);
+    }
+
+    @Override
+    public void cache(long cacheTtl, long maximumSize, boolean recordStat) {
         this.cached = true;
+        this.cacheTtl = cacheTtl;
+        this.cacheMaximumSize = maximumSize;
+        this.cacheRecordStat = recordStat;
+    }
+
+    @Override
+    public CacheStats getCacheStats() {
+        return cache.getCacheStats();
     }
 
     @Override
@@ -512,7 +518,7 @@ public class TableImpl<T> implements Table<T> {
         return column("ID").number()
                 .notNull()
                 .conversion(ColumnConversion.NUMBER2LONG)
-                .sequence(name + "ID")
+                .sequence(sequence)
                 .skipOnUpdate()
                 .map("id")
                 .add();
@@ -756,7 +762,6 @@ public class TableImpl<T> implements Table<T> {
             throw new IllegalArgumentException();
         }
         this.indexOrganized = compressCount;
-
     }
 
     int getIotCompressCount() {
@@ -819,7 +824,7 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
-        cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
+        cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
     }
 
     private void checkMapped(Column column) {

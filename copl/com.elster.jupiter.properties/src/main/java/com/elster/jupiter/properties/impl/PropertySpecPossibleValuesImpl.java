@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.properties.impl;
 
+import com.elster.jupiter.properties.ObjectXmlMarshallAdapter;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +83,7 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
     }
 
     @Override
+    @XmlAttribute
     public boolean isExhaustive () {
         return this.exhaustive;
     }
@@ -89,6 +93,7 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
         this.exhaustive = exhaustive;
     }
 
+    @XmlAttribute
     public boolean isEditable() {
         return editable;
     }
@@ -98,6 +103,8 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
     }
 
     @Override
+    @XmlAttribute
+    @XmlJavaTypeAdapter(ObjectXmlMarshallAdapter.class)
     public Object getDefault () {
         return this.defaultValue;
     }

@@ -1,16 +1,13 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.energyict.common.CommonCryptoMessageExecutor;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-
-import com.energyict.common.CommonCryptoMessageExecutor;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocolimplv2.nta.dsmr40.messages.CryptoDSMR40MbusMessageExecutor;
-import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,6 +49,11 @@ public class CryptoDSMR23MessageExecutor extends Dsmr23MessageExecutor {
     @Override
     protected AbstractMessageExecutor getMbusMessageExecutor() {
         return new CryptoDSMR23MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
+    }
+
+    @Override
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        commonCryptoMessageExecutor.renewKey(pendingMessage, keyAccessorTypeExtractor);
     }
 
     @Override

@@ -7,6 +7,8 @@ package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
@@ -29,7 +31,9 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsResponseMessag
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -74,6 +78,27 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
     public EndDeviceEventsResponseMessageType getEndDeviceEvents(GetEndDeviceEventsRequestMessageType requestMessage) throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
+                SetMultimap<String, String> values = HashMultimap.create();
+                requestMessage.getRequest().getGetEndDeviceEvents().getMeter().forEach(meter->{
+                    if (!meter.getNames().isEmpty()) {
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    }
+                    if (meter.getMRID() != null){
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    }
+
+                });
+                requestMessage.getRequest().getGetEndDeviceEvents().getUsagePoint().forEach(usp->{
+                    if (!usp.getNames().isEmpty()){
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    }
+                    if (usp.getMRID() != null){
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                    }
+                });
+
+                saveRelatedAttributes(values);
+
                 GetEndDeviceEvents getEndDeviceEvents = Optional.ofNullable(requestMessage.getRequest().getGetEndDeviceEvents())
                         .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_END_DEVICE_EVENTS));
                 List<Meter> meters = getEndDeviceEvents.getMeter();

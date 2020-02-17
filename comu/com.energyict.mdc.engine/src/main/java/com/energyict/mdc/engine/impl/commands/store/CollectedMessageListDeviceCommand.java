@@ -55,9 +55,9 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         for (OfflineDeviceMessage offlineDeviceMessage : allDeviceMessages) {
-            List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getIdentifier());
+            List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getMessageIdentifier());
             if (messagesToExecute.isEmpty()) {
-                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), null, CollectedMessageList.REASON_FOR_PENDING_STATE);
+                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getMessageIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), null, CollectedMessageList.REASON_FOR_PENDING_STATE);
                 continue;
             }
 
@@ -119,10 +119,6 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
                     collectedMessage.getDeviceProtocolInformation());
             ((CollectedDeviceData) collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
         } catch (Throwable t) {
-            comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(),
-                    DeviceMessageStatus.FAILED,
-                    collectedMessage.getSentDate(),
-                    collectedMessage.getDeviceProtocolInformation());
             addIssueToExecutionLogger(CompletionCode.UnexpectedError,
                     getIssueService().newProblem(this, MessageSeeds.COLLECTED_DATA_ISSUE, collectedMessage.getMessageIdentifier(), t.getLocalizedMessage()));
         }

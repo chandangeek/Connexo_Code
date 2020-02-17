@@ -4,11 +4,16 @@
 
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Map;
 
+@ProviderType
 public interface StateTransitionPropertiesProvider {
 
     boolean areProcessPropertiesAvailableForUP(Map<String, Object> processProperties, long id);
+
+    String getMeterMRID(long id);
 
     String getDeviceMRID(long id);
 

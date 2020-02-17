@@ -20,8 +20,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class SioOpticalConnectionType extends SioSerialConnectionType implements OpticalDriver {
 
+    public SioOpticalConnectionType() {
+        super();
+    }
+
     public SioOpticalConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
+    }
+
+    public boolean enableHHUSignOn() {
+        return true;
     }
 
 }

@@ -7,6 +7,7 @@ package com.elster.jupiter.users;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.Pair;
 
 import java.security.Principal;
 import java.time.Instant;
@@ -55,12 +56,8 @@ public interface User extends Principal, HasName {
 
     List<Group> getGroups();
 
-    /**
-     * Will throw an UnsupportedOperation
-     * @return null
-     * @deprecated will be removed in 10.2
-     */
-    @Deprecated
+    Integer getSalt();
+
     String getDigestHa1();
 
     void setPassword(String password);
@@ -95,7 +92,13 @@ public interface User extends Principal, HasName {
 
     Instant getLastUnSuccessfulLogin();
 
-    void setLastUnSuccessfulLogin(Instant lastLoginFail);
+    void setLastUnSuccessfulLogin(Instant lastLoginFail, Optional<UserSecuritySettings> loginSettings);
 
     List<WorkGroup> getWorkGroups();
+
+    boolean isUserLocked(Optional<UserSecuritySettings> loginSettings);
+
+    int getUnSuccessfulLoginCount();
+
+    void setUnSuccessfulLoginCount(int unSuccessfulLoginCount);
 }

@@ -61,7 +61,7 @@ public abstract class AbstractCosemObject {
     private static final int ASSUMED_MAX_HEADER_LENGTH = 60;
 
     protected ProtocolLink protocolLink = null;
-    protected boolean dsmr4SelectiveAccessFormat = false;
+    private boolean dsmr4SelectiveAccessFormat = false;
     private ObjectReference objectReference = null;
     private Integer attributeNumber = null;     //State, For logging purposes only
     private Integer methodNumber = null;        //State, For logging purposes only
@@ -69,6 +69,9 @@ public abstract class AbstractCosemObject {
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
     private GeneralBlockTransferHandler generalBlockTransferHandler;
 
+    public AbstractCosemObject(ProtocolLink protocolLink, ObjectReference objectReference) {
+        this(protocolLink, objectReference, false);
+    }
 
     /**
      * Creates a new instance of AbstractCosemObject
@@ -76,9 +79,10 @@ public abstract class AbstractCosemObject {
      * @param protocolLink
      * @param objectReference
      */
-    public AbstractCosemObject(ProtocolLink protocolLink, ObjectReference objectReference) {
+    protected AbstractCosemObject(ProtocolLink protocolLink, ObjectReference objectReference, boolean dsmr4SelectiveAccessFormat) {
         this.objectReference = objectReference;
         this.protocolLink = protocolLink;
+        this.dsmr4SelectiveAccessFormat = dsmr4SelectiveAccessFormat;
         if (this.protocolLink != null && getDLMSConnection() != null) {
             this.invokeIdAndPriorityHandler = getDLMSConnection().getInvokeIdAndPriorityHandler();
         } else {

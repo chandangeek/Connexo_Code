@@ -60,7 +60,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
@@ -133,7 +133,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
             Column name = table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
-            table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
+            Column serialNumber = table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
             Column mRID_10_2 = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).upTo(version(10, 2, 1)).add();
             Column mRID = table.column("MRID").varChar().notNull().map(DeviceFields.MRID.fieldName()).since(version(10, 2, 1)).previously(mRID_10_2).add();
@@ -168,6 +168,7 @@ public enum TableSpecs {
 
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
+            table.index("IX_DDC_DEVICE_SERIALNUMBER").on(serialNumber).add().since(version(10, 7, 1));
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
             table.audit(DDC_DEVICE.name())
                     .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
@@ -408,7 +409,7 @@ public enum TableSpecs {
                     .map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName())
                     .notAudited()
                     .add();
-            Column comPort = table.column("COMPORT").number().add();
+            Column comPort = table.column("COMPORT").number().notAudited().add();
             Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
             Column priority = table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()).add();
             table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).add();
@@ -428,11 +429,11 @@ public enum TableSpecs {
                     .notAudited()
                     .add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).notAudited().add();
-            table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).add();
+            table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).notAudited().add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
-            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionDbValue").since(Version.version(10, 4)).add();
+            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionId").since(Version.version(10, 4)).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT")
                     .on(comPort)
@@ -1229,7 +1230,7 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .add();
-            Column securityAccessor = table.column(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.name())
+            Column crlSigner = table.column(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.name()).since(version(10,4,9))
                     .number()
                     .notNull()
                     .add();
@@ -1242,11 +1243,11 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_CRLREQUEST")
                     .on(task)
                     .add();
-            table.foreignKey("FK_DDC_CRL_SECURITYACCESSOR")
-                    .on(securityAccessor)
-                    .references(com.elster.jupiter.pki.SecurityAccessor.class)
-                    .map(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CRL_SIGNER")
+                    .on(crlSigner)
+                    .references(com.elster.jupiter.pki.CertificateWrapper.class)
+                    .map(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.fieldName()).since(version(10,4,9))
+                    .add();
             table.foreignKey("FK_DDC_CRL_TASK")
                     .on(task)
                     .references(RecurrentTask.class).

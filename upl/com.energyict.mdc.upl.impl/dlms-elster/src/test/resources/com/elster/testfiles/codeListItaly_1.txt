@@ -1,0 +1,277 @@
+7.0.43.0.0.255!Qm
+7.0.43.2.0.255!Qb
+7.0.43.37.0.255!Qb_conv
+7.0.11.0.0.255!Tot_Vm
+7.0.11.12.0.255!Uncorrected volume delivered in current hour
+7.0.11.15.0.255!Uncorrected volume delivered in last hour
+7.0.12.0.0.255!Vm totalizer in alarm condition
+7.0.11.2.0.255!V Tot. (Attuale)
+7.0.11.14.0.255!V Tot. (Attuale)index differenc current hour
+7.0.11.17.0.255!V Tot. (Attuale)index differenc last hour
+7.0.11.2.1.255!V Tot. Att  F1
+7.0.11.14.1.255!Vb F1index differenc current hour
+7.0.11.17.1.255!Vb F1index differenc last hour
+7.0.11.2.2.255!V Tot. Att  F2
+7.0.11.14.2.255!Vb F2index differenc current hour
+7.0.11.17.2.255!Vb F2index differenc last hour
+7.0.11.2.3.255!V Tot. Att  F3
+7.0.11.14.3.255!Vb F3index differenc current hour
+7.0.11.17.3.255!Vb F3index differenc last hour
+7.0.12.2.1.255!V Tot. Att. (allarme) F1
+7.0.12.2.2.255!V Tot. Att. (allarme) F2
+7.0.12.2.3.255!V Tot. Att. (allarme) F3
+7.0.42.0.0.255!P
+7.0.41.0.0.255!t
+7.0.42.0.0.255!Dp_high (upstream absolute pressure)
+7.0.42.0.0.255!Dp_low  (downstream absolute pressure)
+7.0.48.0.0.255!Dp
+7.0.53.2.0.255!Zb
+7.0.53.0.0.255!Z
+7.0.45.0.0.255!Measured Volumic mass (of gas)
+7.0.49.0.0.255!Measured Air Volumic mass
+7.0.70.60.0.255!N2% measured
+7.0.70.66.0.255!CO2% measured
+7.0.70.61.0.255!H2% measured
+7.0.70.65.0.255!CO% measured
+0.0.21.0.70.255!All - analysis
+7.0.54.0.0.255!PCS
+0.0.96.12.5.255!GSM power
+7.0.0.14.10.255!Densimeter Period
+7.0.43.35.255.255!Qm
+7.0.43.39.255.255!Qm
+7.0.43.37.255.255!Qb
+7.0.43.41.255.255!Qb
+7.0.42.15.255.255!P
+7.0.42.24.255.255!P
+7.0.41.15.255.255!t
+7.0.41.24.255.255!t
+7.0.43.41.255.255!Qconv
+7.0.48.15.255.255!Dp
+7.0.48.24.255.255!Dp
+7.0.53.0.13.255!Z
+7.0.53.0.14.255!Z
+7.0.45.15.0.255!Measured Volumic mass  (EN: density of gas)
+7.0.45.24.0.255!Measured Volumic mass  (EN: density of gas)
+7.0.70.60.13.255!N2% measured
+7.0.70.60.14.255!N2% measured
+7.0.70.66.13.255!CO2% measured
+7.0.70.66.14.255!CO2% measured
+7.0.70.61.13.255!H2% measured
+7.0.70.61.14.255!H2% measured
+7.0.70.65.13.255!CO% measured
+7.0.70.65.14.255!CO% measured
+0.0.21.0.71.255!All - analysis
+7.0.54.0.13.255!PCS
+7.0.54.0.14.255!PCS
+7.0.0.14.11.255!Densimeter period
+7.0.43.55.255.255!Qm(current period)
+7.0.43.59.255.255!Qm (last period)
+7.0.43.57.255.255!Qb(current period)
+7.0.43.61.255.255!Qb (last period)
+7.0.42.33.255.255!P(current period)
+7.0.42.42.255.255!p (last period)
+7.0.41.33.255.255!t(current period)
+7.0.41.42.255.255!t(last period)
+7.0.53.0.15.255!Z
+7.0.45.33.0.255!Measured Volumic mass(density of gas)
+7.0.70.60.15.255!N2% measured
+7.0.70.66.15.255!CO2% measured
+7.0.70.61.15.255!H2% measured
+7.0.70.65.15.255!CO% measured
+0.0.21.0.72.255!All - analysis
+7.0.11.81.0.255!Vm Totalizer Current, total
+7.0.11.81.0.101!Vm Totalizer,  previous period, total
+7.0.11.83.0.255!Vb Totalizer Current, total
+7.0.11.83.1.255!Vb Totalizer Current  F1
+7.0.11.83.2.255!Vb Totalizer Current  F2
+7.0.11.83.3.255!Vb Totalizer Current F3
+7.0.12.81.0.255!Vm Totalizer Current   (allarme) total
+7.0.12.81.1.255!Vm Totalizer Current   (allarme) F1
+7.0.12.81.2.255!Vm Totalizer Current (allarme) F2
+7.0.12.81.3.255!Vm Totalizer Current (allarme) F3
+7.0.11.83.0.101!Vb Totalizer Previous
+7.0.11.83.1.101!Vb Totalizer Previous  F1
+7.0.11.83.2.101!Vb Totalizer Previous  F2
+7.0.11.83.3.101!Vb Totalizer Previous  F3
+7.0.12.81.0.101!Vm Totalizer Previous  (allarme) total
+7.0.12.81.1.101!Vm Totalizer Previous (allarme) F1
+7.0.12.81.2.101!Vm Totalizer Previous (allarme) F2
+7.0.12.81.3.101!Vm Totalizer Previous (allarme) F3
+7.0.11.27.0.255!Vm
+7.0.11.30.0.255!Vm (last period)
+7.0.12.24.0.255!Vm Totalizer Current   (allarme) total
+7.0.12.24.1.255!Vm Totalizer Current   (allarme) F1
+7.0.12.24.2.255!Vm Totalizer Current (allarme) F2
+7.0.12.24.3.255!Vm Totalizer Current (allarme) F3
+7.0.12.24.0.101!Vm Totalizer Previous  (allarme) total
+7.0.12.24.1.101!Vm Totalizer Previous (allarme) F1
+7.0.12.24.2.101!Vm Totalizer Previous (allarme) F2
+7.0.12.24.3.101!Vm Totalizer Previous (allarme) F3
+7.0.11.29.0.255!Vb
+7.0.11.32.0.255!Vb
+7.0.43.61.0.255! Qb_conv_max (with hour and  minute) from hourly average calculation for class B
+7.0.43.53.0.255! Qb_conv_max (with hour and  minute)  from 15 minutes average calculation for class C
+7.0.42.54.0.255!Min Pressure(bar) 
+7.0.42.57.0.255!Max Pressure
+7.0.41.54.0.255!Min Temperature
+7.0.41.57.0.255!Max Temperature
+7.0.11.24.0.0!Totalize _Vm (String mit f)
+7.0.11.26.0.0!Totalize _Vb (String mit f)
+7.0.12.24.0.0!Tot_Vm_error (String mit f)
+0.0.21.0.73.255!All - analysis
+7.0.11.45.0.255!Vm
+7.0.11.45.0.101!Vm(last month)
+7.0.11.47.0.255!Vb
+7.0.11.47.0.101!Vb(last month)
+7.0.11.62.0.255!Vb_daily_max ( with day and hour and minute)
+7.0.43.54.0.255!Qb_conv_max
+7.0.0.0.7.255!Nominal flow
+0.0.96.9.1.255!P_amb
+7.0.42.2.0.255!Pb (reference)
+7.0.0.9.2.255!date (extended format)
+7.0.0.9.1.255!hour (extended format)
+7.0.0.9.4.255!hour shift register
+7.0.0.9.3.255!conventional hour for gas day
+7.0.0.0.8.255!devices code
+7.0.0.2.1.255!firmware version
+7.0.0.2.8.255!firmware digital signature
+7.0.0.0.9.255!device class
+7.0.49.2.0.255! Air Volumic mass (parameter)(EN: air density, at base conditions)
+7.0.0.13.1.255!internal pipe diameter
+7.0.0.13.2.255!orefice diameter
+7.0.0.13.3.255!pressure type (orefice fitting)
+7.0.0.13.4.255!flow coefficient (alfa)
+7.0.0.13.5.255!expansion coefficient(epsilon)
+7.0.0.13.6.255!reflux coeff.
+7.0.0.13.7.255!isoentropic coeff
+7.0.0.13.8.255!dynamic viscosity
+7.0.0.13.9.255!Dp for cut off
+7.0.0.13.10.255!Reynold number
+7.0.0.4.1.255!Supported Z computation formula
+7.0.0.4.2.255!Current Z computation formula
+7.0.0.4.0.255!Base volume computation formula
+7.0.0.12.61.255!H2% parameter
+7.0.0.12.65.255!CO% parameter
+7.0.0.12.67.255!CH4% parameter
+7.0.0.12.60.255!N2% parameter
+7.0.0.12.66.255!CO2% parameter
+7.0.0.12.54.255!PCS parameter
+0.0.96.1.10.255!Measure Point Identifier (PdR)
+7.0.0.2.10.255!Number of device channel
+7.0.0.2.14.255!Meter Type
+7.0.0.2.13.255!Converter Type
+0.0.96.14.15.255!Default_lowest_tariff_register
+0.0.96.14.0.255!Currently_active_tariff
+0.0.40.0.0.255!Current Association LN
+0.0.40.0.1.255!Client Management Process
+0.0.40.0.2.255!Public client
+0.0.40.0.20.255!User access profile 1
+0.0.40.0.21.255!Super-user access profile 1
+0.0.40.0.22.255!User access profile 2
+0.0.40.0.23.255!Super-user access profile 2
+0.0.40.0.24.255!User access profile 3
+0.0.40.0.25.255!Super-user access profile 3
+0.0.40.0.30.255!Maintainer access profile
+0.0.40.0.31.255!Super-maintainer access profile
+0.0.40.0.40.255!Administrator access profile
+0.0.40.0.41.255!Super-administrator access profile
+0.0.40.0.50.255!Metrological access profile
+0.0.40.0.51.255!Super-Metrological access profile
+0.0.40.1.0.255!Current Login
+0.0.40.1.20.255!User access profile 1
+0.0.40.1.21.255!Super-user access profile 1
+0.0.40.1.22.255!User access profile 2
+0.0.40.1.23.255!Super-user access profile 2
+0.0.40.1.24.255!User access profile 3
+0.0.40.1.25.255!Super-user access profile 3
+0.0.40.1.30.255!Maintainer access profile
+0.0.40.1.31.255!Super-maintainer access profile
+0.0.40.1.40.255!Administrator access profile
+0.0.40.1.41.255!Super-administrator access profile
+0.0.40.1.50.255!Metrological access profile
+0.0.40.1.51.255!Super-Metrological access profile
+0.0.96.12.0.255!Number of Connections
+0.0.2.1.0.255!Data Communication- Call strategy
+0.0.96.12.6.255!Telephone number of Server
+0.0.10.0.10.255!Function - Reset event buffer
+0.0.10.0.11.255!Function - Syncro
+0.0.10.0.12.255!Function - Status Modify
+0.0.10.0.13.255!Function - Default value resume
+0.0.10.0.14.255!Function - Data Base reset
+0.0.10.0.15.255!Function - Profile KEY configure
+0.0.10.0.16.255!Function - Logical seals desattivation
+0.0.10.0.17.255!Function - Logical seals attivation
+0.0.10.0.0.255!Function - Device reset
+0.0.10.0.18.255!Function - Diagnostic reset
+0.0.10.0.19.255!Function - Sftw Down loading
+0.0.10.0.20.255!Function - Configure Tariff
+0.0.10.0.107.255!Function - Image activation
+0.0.10.0.21.255!Function - Activate Passive Calendar
+0.0.10.0.22.255!Function - Register activation
+0.0.10.0.100.255!Function - tariffication script table
+7.0.96.5.0.255!Device Status
+7.0.96.5.1.255!Diagnostic - long format
+0.0.96.10.1.255!Diagnostic - short format
+0.0.96.10.2.255!Status Register for billing Period
+0.0.96.3.1.255!unsigned input_ID - the input line # that has been affected
+0.0.97.98.0.255!Alarm register
+0.0.97.98.10.255!Alarm filter
+7.0.97.97.0.255!Error register
+0.0.96.3.2.255!digital output
+7.0.0.2.15.255!digital output - name
+7.0.0.3.0.255!digital output - prescaler
+7.0.0.3.3.255!digital output - prescaler
+7.0.0.2.20.255!Measurement pressure transducer(Absolute pressure)
+7.0.0.2.21.255!Measurement pressure transducer(Gauge pressure)
+7.0.0.2.22.255!Measurement pressure transducer(Differential pressure)
+7.0.0.2.23.255!(HI) Measurement gauge pressure transducer
+7.0.0.2.24.255!(LO) Measurement gauge pressure transducer
+7.0.0.2.30.255!Measurement temperature transducer
+7.0.0.7.2.255!input pulse weight (raw volume)
+7.0.0.7.5.255!input pulse weight (corrected volume at base conditions)
+7.0.0.14.1.255!K0 Densimeter Coeff.
+7.0.0.14.2.255!K2 Densimeter Coeff.
+0.0.14.0.0.255!Tariff Table_current
+0.0.14.0.1.255!Tariff Table_future
+7.0.0.8.23.255!Billing Period
+7.0.0.2.0.255! program_ID
+7.0.0.9.4.255!correction_amount_sec(the amount (in seconds) of time correction that was tried)
+7.0.96.49.0.255!Event_Counter_for_ANY_events
+7.0.96.49.1.255!Event_Counter_for_Certification_data_log
+7.0.96.49.2.255!Event_Counter_for_Standard_event_log
+7.0.96.49.10.255!Event_Counter_for_Password_Fails
+7.0.96.49.11.255!Event_Counter_for_Communication sessions
+7.0.96.20.1.255!Parameter list for metrological relevant parameters
+7.0.96.20.2.255!Parameter list for non-metrological relevant parameters
+0.0.41.0.0.255!SAP Assignment
+0.0.43.0.0.255!Security setup (String mit e)
+0.0.44.0.0.255!Image transfer (String mit e)
+0.0.20.0.0.255!IEC optical port setup
+0.0.20.0.1.255!IEC electrical port setup
+0.0.22.0.0.255!IEC HDLC setup
+0.0.2.0.0.255!Modem configuration
+0.0.2.1.0.255!Auto connect
+0.0.2.2.0.255!Auto answer
+0.0.25.0.0.255!TCP-UDP setup
+0.0.25.1.0.255!IPv4 setup
+0.0.25.2.0.255!Ethernet setup
+0.0.25.3.0.255!PPP setup
+0.0.25.4.0.255!GPRS modem setup
+7.0.99.98.0.255!Standard event log
+7.0.99.99.0.255!Certification data log
+7.0.99.99.1.255!Load profile with recording interval 15 minutes
+7.0.99.99.2.255!Load profile with recording interval 60 minutes
+7.0.99.99.3.255!Load profile with recording interval day
+7.0.99.99.4.255!Load profile with recording interval month
+0.0.21.0.5.255!Billing profile for current billing period(standard readout profile)
+0.0.21.0.5.255!Configuration of billing profile for current billing period(standard readout profile)
+7.0.98.11.0.255!Gas related data of event triggered billing profile
+0.0.12.0.0.255!Schedule (String mit e)
+0.0.11.0.0.255!Special days table
+0.0.13.0.0.255!Activity calendar
+0.0.16.0.0.255!Register monitor (String mit e)
+0.0.15.0.0.255!Single action schedule (String mit e)
+0.0.96.7.21.255!Number of power failures in any phases
+0.0.96.7.9.255!Number of long power failures in any phases
+0.0.96.7.20.255!Time threshold for long power failure
+0.0.96.7.19.255!Duration of long power failures in any phase

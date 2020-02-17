@@ -41,15 +41,14 @@ import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.sercurity.KeyRenewalInfo;
 
@@ -140,7 +139,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected MBusClient getMBusClient(String serialNumber) throws IOException {
-        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
+        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION0_D_S_M_R_23_SPEC);
     }
 
     private ObisCode getMbusClientObisCode(String serialNumber) throws IOException {

@@ -68,6 +68,10 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CommunicationException;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,23 +89,25 @@ import java.util.stream.Collectors;
  * @author gna
  * @since 5/04/12 - 13:13
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implements DeviceProtocol, SmartMeterProtocolAdapter {
 
     /**
      * The used <code>MeterProtocol</code> for which the adapter is working.
      */
-    private final SmartMeterProtocol meterProtocol;
+    private SmartMeterProtocol meterProtocol;
 
     /**
      * The use <code>IssueService</code> which can be used for this adapter.
      */
-    private final IssueService issueService;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private final MessageAdapterMappingFactory messageAdapterMappingFactory;
-    private final CollectedDataFactory collectedDataFactory;
-    private final Thesaurus thesaurus;
-    private final MeteringService meteringService;
-    private final IdentificationService identificationService;
+    private IssueService issueService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private MessageAdapterMappingFactory messageAdapterMappingFactory;
+    private CollectedDataFactory collectedDataFactory;
+    private Thesaurus thesaurus;
+    private MeteringService meteringService;
+    private IdentificationService identificationService;
 
     /**
      * The DeviceSecuritySupport component that <i>can</i> be used during communication.
@@ -167,6 +173,9 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
      * The adapter used for the property handling.
      */
     private PropertiesAdapter propertiesAdapter;
+
+    public SmartMeterProtocolAdapterImpl(){
+    }
 
     public SmartMeterProtocolAdapterImpl(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IdentificationService identificationService, Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(propertySpecService, protocolPluggableService, thesaurus, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
@@ -618,5 +627,16 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.propertiesAdapter.copyProperties(properties);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

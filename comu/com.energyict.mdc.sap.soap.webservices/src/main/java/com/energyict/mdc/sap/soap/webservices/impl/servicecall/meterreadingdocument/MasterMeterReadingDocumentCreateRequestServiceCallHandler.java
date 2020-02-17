@@ -13,19 +13,24 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,6 +48,9 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile WebServiceActivator webServiceActivator;
+    private volatile Clock clock;
 
     private Map<Long, List<ServiceCall>> immediately = new HashMap<>();
     private Map<Long, List<ServiceCall>> scheduled = new HashMap<>();
@@ -52,16 +60,21 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
+                MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = serviceCall
+                        .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                masterExtension.setAttemptNumber(masterExtension.getAttemptNumber().add(BigDecimal.ONE));
+                serviceCall.update(masterExtension);
                 immediately.remove(serviceCall.getId());
                 scheduled.remove(serviceCall.getId());
-                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
                     serviceCall.findChildren()
                             .stream()
                             .filter(child -> child.getState().isOpen())
-                            .forEach(child -> child.requestTransition(DefaultState.ONGOING));
+                            .forEach(child -> child.transitionWithLockIfPossible(DefaultState.ONGOING));
                 } else {
                     resultTransition(serviceCall);
                 }
@@ -70,11 +83,18 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             case FAILED:
             case PARTIAL_SUCCESS:
             case SUCCESSFUL:
-                if (immediately.get(serviceCall.getId()) != null) {
-                    createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(serviceCall);
-                }
-                if (scheduled.get(serviceCall.getId()) != null) {
-                    createMasterMeterReadingDocumentResultServiceCallForScheduling(serviceCall);
+                sendConfirmationMessage(serviceCall);
+                if (allChildrenCancelledBySap(serviceCall)) {
+                    serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
+                } else {
+                    //if not continue to create result service call
+                    if (immediately.get(serviceCall.getId()) != null) {
+                        createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(serviceCall);
+                    }
+
+                    if (scheduled.get(serviceCall.getId()) != null) {
+                        createMasterMeterReadingDocumentResultServiceCallForScheduling(serviceCall);
+                    }
                 }
                 break;
             case SCHEDULED:
@@ -107,21 +127,22 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 break;
             case CANCELLED:
             case FAILED:
-                immediately.merge(parentServiceCall.getId(), Collections.singletonList(childServiceCall), (list1, list2) ->
-                        Stream.of(list1, list2)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList()));
                 resultTransition(parentServiceCall);
                 break;
             case SCHEDULED:
+                parentServiceCall = lock(parentServiceCall);
                 parentServiceCall.requestTransition(DefaultState.SCHEDULED);
                 break;
             case PAUSED:
-                if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
-                    if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
+                parentServiceCall = lock(parentServiceCall);
+                List<ServiceCall> children = findChildren(parentServiceCall);
+                if (ServiceCallHelper.isLastPausedChild(children)) {
+                    if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
+                        if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
+                            parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        }
+                        parentServiceCall.requestTransition(DefaultState.PAUSED);
                     }
-                    parentServiceCall.requestTransition(DefaultState.PAUSED);
                 }
                 break;
             default:
@@ -140,30 +161,36 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
+    @Reference
+    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    @Reference
+    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private boolean isLastChild(List<ServiceCall> serviceCalls) {
-        return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
-    }
-
-    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
-    }
-
     private void resultTransition(ServiceCall parent) {
+        parent = lock(parent);
         List<ServiceCall> children = findChildren(parent);
-        if (isLastChild(children)) {
+        if (ServiceCallHelper.isLastChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
-            } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.CANCELLED) && parent.canTransitionTo(DefaultState.CANCELLED)) {
+                parent.requestTransition(DefaultState.CANCELLED);
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED) && parent.canTransitionTo(DefaultState.FAILED)) {
                 parent.requestTransition(DefaultState.FAILED);
@@ -174,19 +201,27 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     private void createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(ServiceCall serviceCall) {
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.PENDING);
-        immediately.get(serviceCall.getId()).forEach(call -> {
-            ServiceCall child = createMeterReadingDocumentResultServiceCall(parentServiceCall, call);
-            child.requestTransition(DefaultState.PENDING);
-        });
+        immediately.get(serviceCall.getId()).forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
+                .ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.PENDING))
+        );
+
+        if (parentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
+            parentServiceCall.requestTransition(DefaultState.CANCELLED);
+            parentServiceCall.log(LogLevel.SEVERE, "Parent service call doesn't have children");
+        }
     }
 
     private void createMasterMeterReadingDocumentResultServiceCallForScheduling(ServiceCall serviceCall) {
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.SCHEDULED);
-        scheduled.get(serviceCall.getId()).forEach(call -> {
-            ServiceCall child = createMeterReadingDocumentResultServiceCall(parentServiceCall, call);
-            child.requestTransition(DefaultState.SCHEDULED);
-        });
+        scheduled.get(serviceCall.getId()).forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
+                .ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.SCHEDULED))
+        );
+
+        if (parentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
+            parentServiceCall.requestTransition(DefaultState.CANCELLED);
+            parentServiceCall.log(LogLevel.SEVERE, "Parent service call doesn't have children");
+        }
     }
 
     private ServiceCall createMasterMeterReadingDocumentResultServiceCall(ServiceCall serviceCall) {
@@ -196,6 +231,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         MasterMeterReadingDocumentCreateResultDomainExtension masterDomainExtension = new MasterMeterReadingDocumentCreateResultDomainExtension();
         masterDomainExtension.setRequestUUID(UUID.randomUUID().toString());
         masterDomainExtension.setReferenceID(extension.getRequestID());
+        masterDomainExtension.setReferenceUuid(extension.getUuid());
         masterDomainExtension.setBulk(extension.isBulk());
 
         ServiceCallBuilder serviceCallBuilder = getServiceCallTypeOrThrowException(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_RESULT)
@@ -205,31 +241,72 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         return serviceCallBuilder.create();
     }
 
-    private ServiceCall createMeterReadingDocumentResultServiceCall(ServiceCall parent, ServiceCall child) {
+    private Optional<ServiceCall> createMeterReadingDocumentResultServiceCall(ServiceCall parent, ServiceCall child) {
+        child = lock(child);
         MeterReadingDocumentCreateRequestDomainExtension requestDomainExtension = child.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-        MeterReadingDocumentCreateResultDomainExtension childDomainExtension = new MeterReadingDocumentCreateResultDomainExtension();
-        childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
-        childDomainExtension.setMeterReadingDocumentId(requestDomainExtension.getMeterReadingDocumentId());
-        childDomainExtension.setDeviceId(requestDomainExtension.getDeviceId());
-        childDomainExtension.setDeviceName(requestDomainExtension.getDeviceName());
-        childDomainExtension.setProcessingDate(requestDomainExtension.getProcessingDate());
-        childDomainExtension.setReadingReasonCode(requestDomainExtension.getReadingReasonCode());
-        childDomainExtension.setChannelId(requestDomainExtension.getChannelId());
-        childDomainExtension.setDataSource(requestDomainExtension.getDataSource());
-        childDomainExtension.setFutureCase(requestDomainExtension.isFutureCase());
-        childDomainExtension.setLrn(requestDomainExtension.getLrn());
-        childDomainExtension.setScheduledReadingDate(requestDomainExtension.getScheduledReadingDate());
+        if (!requestDomainExtension.isCancelledBySap()) {
+            MeterReadingDocumentCreateResultDomainExtension childDomainExtension = new MeterReadingDocumentCreateResultDomainExtension();
+            childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
+            childDomainExtension.setMeterReadingDocumentId(requestDomainExtension.getMeterReadingDocumentId());
+            childDomainExtension.setDeviceId(requestDomainExtension.getDeviceId());
+            childDomainExtension.setDeviceName(requestDomainExtension.getDeviceName());
+            childDomainExtension.setProcessingDate(requestDomainExtension.getProcessingDate());
+            childDomainExtension.setReadingReasonCode(requestDomainExtension.getReadingReasonCode());
+            childDomainExtension.setChannelId(requestDomainExtension.getChannelId());
+            childDomainExtension.setDataSource(requestDomainExtension.getDataSource());
+            childDomainExtension.setExtraDataSource(requestDomainExtension.getExtraDataSource());
+            childDomainExtension.setFutureCase(requestDomainExtension.isFutureCase());
+            childDomainExtension.setLrn(requestDomainExtension.getLrn());
+            childDomainExtension.setRequestedScheduledReadingDate(requestDomainExtension.getRequestedScheduledReadingDate());
+            childDomainExtension.setScheduledReadingDate(requestDomainExtension.getScheduledReadingDate());
+            childDomainExtension.setReferenceID(requestDomainExtension.getReferenceID());
+            childDomainExtension.setReferenceUuid(requestDomainExtension.getReferenceUuid());
 
-        ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.METER_READING_DOCUMENT_CREATE_RESULT);
-        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType).extendedWith(childDomainExtension);
-        return serviceCallBuilder.create();
+            ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.METER_READING_DOCUMENT_CREATE_RESULT);
+            ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType).extendedWith(childDomainExtension);
+            sapCustomPropertySets.getDevice(requestDomainExtension.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
+            return Optional.of(serviceCallBuilder.create());
+        } else {
+            return Optional.empty();
+        }
     }
 
     private ServiceCallType getServiceCallTypeOrThrowException(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
+    }
+
+    private boolean allChildrenCancelledBySap(ServiceCall serviceCall) {
+        List<ServiceCall> children = findChildren(serviceCall);
+        return children.stream().allMatch(this::isServiceCallCancelledBySap);
+    }
+
+    private boolean isServiceCallCancelledBySap(ServiceCall sc) {
+        Optional<MeterReadingDocumentCreateRequestDomainExtension> extension = sc.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class);
+        return extension.map(MeterReadingDocumentCreateRequestDomainExtension::isCancelledBySap).orElse(false);
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    private void sendConfirmationMessage(ServiceCall serviceCall) {
+        MasterMeterReadingDocumentCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MasterMeterReadingDocumentCreateRequestCustomPropertySet()).get();
+        MeterReadingDocumentRequestConfirmationMessage confirmationMessage = MeterReadingDocumentRequestConfirmationMessage
+                .builder()
+                .from(extension, findChildren(serviceCall), clock.instant(), webServiceActivator.getMeteringSystemId())
+                .build();
+
+        if (extension.isBulk()) {
+            WebServiceActivator.METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATIONS
+                    .forEach(service -> service.call(confirmationMessage));
+        } else {
+            WebServiceActivator.METER_READING_DOCUMENT_REQUEST_CONFIRMATIONS
+                    .forEach(service -> service.call(confirmationMessage));
+        }
     }
 }

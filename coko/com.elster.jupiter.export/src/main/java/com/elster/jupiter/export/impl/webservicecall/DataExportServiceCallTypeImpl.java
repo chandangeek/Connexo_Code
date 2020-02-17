@@ -7,9 +7,12 @@ package com.elster.jupiter.export.impl.webservicecall;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -18,21 +21,37 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.NoTransitionException;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
+
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
     private static final String NAME = TranslationKeys.SERVICE_CALL_TYPE_NAME.getDefaultFormat();
     private static final String VERSION = "1.0";
+    private static final String CHILD_NAME = TranslationKeys.SERVICE_CALL_TYPE_CHILD_NAME.getDefaultFormat();
+    private static final String CHILD_VERSION = "1.0";
     private static final String APPLICATION = null;
 
     private final DataModel dataModel;
@@ -41,6 +60,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     private final CustomPropertySetService customPropertySetService;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final OrmService ormService;
 
     @Inject
     public DataExportServiceCallTypeImpl(OrmService ormService, Thesaurus thesaurus, ServiceCallService serviceCallService,
@@ -53,6 +73,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         this.customPropertySetService = customPropertySetService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
+        this.ormService = ormService;
     }
 
     public ServiceCallType findOrCreate() {
@@ -68,22 +89,36 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         });
     }
 
+    private ServiceCallType findOrCreateChildType() {
+        serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
+        return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
+            RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)));
+
+            return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
+                    .handler(CHILD_NAME)
+                    .logLevel(LogLevel.FINEST)
+                    .customPropertySet(registeredCustomPropertySet)
+                    .create();
+        });
+    }
+
     @Override
-    public ServiceCall startServiceCall(String uuid, long timeout) {
+    public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         if (transactionService.isInTransaction()) {
-            return doStartServiceCall(uuid, timeout);
+            return doStartServiceCall(uuid, timeout, data);
         } else {
-            return startServiceCallInTransaction(uuid, timeout);
+            return startServiceCallInTransaction(uuid, timeout, data);
         }
     }
 
     @Override
-    public ServiceCall startServiceCallAsync(String uuid, long timeout) {
+    public ServiceCall startServiceCallAsync(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         Principal principal = threadPrincipalService.getPrincipal();
         try {
             return CompletableFuture.supplyAsync(() -> {
                 threadPrincipalService.set(principal);
-                return startServiceCallInTransaction(uuid, timeout);
+                return startServiceCallInTransaction(uuid, timeout, data);
             }).get();
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
@@ -92,11 +127,37 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    private ServiceCall startServiceCallInTransaction(String uuid, long timeout) {
-        return transactionService.execute(() -> doStartServiceCall(uuid, timeout));
+    private void createChildServiceCalls(ServiceCall parent, Collection<ReadingTypeDataExportItem> data) {
+        data.stream()
+                .distinct()
+                .forEach(item -> createChild(parent,
+                        item.getDomainObject().getName(),
+                        item.getReadingType().getMRID(),
+                        item.getId()));
     }
 
-    private ServiceCall doStartServiceCall(String uuid, long timeout) {
+    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
+        WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
+        childSrvCallProperties.setDeviceName(deviceName);
+        childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
+        childSrvCallProperties.setDataSourceId(itemId);
+
+        ServiceCallType srvCallChildType = findOrCreateChildType();
+
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(srvCallChildType)
+                .extendedWith(childSrvCallProperties);
+        ServiceCall child = serviceCallBuilder.create();
+        child.requestTransition(DefaultState.PENDING);
+        child.requestTransition(DefaultState.ONGOING);
+        child.requestTransition(DefaultState.SUCCESSFUL);
+    }
+
+
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Collection<ReadingTypeDataExportItem>  data) {
+        return transactionService.execute(() -> doStartServiceCall(uuid, timeout, data));
+    }
+
+    private ServiceCall doStartServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);
@@ -107,6 +168,8 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                 .create();
         serviceCall.requestTransition(DefaultState.PENDING);
         serviceCall.requestTransition(DefaultState.ONGOING);
+        createChildServiceCalls(serviceCall, data);
+
         return serviceCall;
     }
 
@@ -117,6 +180,17 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                 .filter(Where.where(WebServiceDataExportDomainExtension.FieldNames.UUID.javaName()).isEqualToIgnoreCase(uuid))
                 .findAny()
                 .map(WebServiceDataExportDomainExtension::getServiceCall);
+    }
+
+    @Override
+    public List<ServiceCall> findServiceCalls(EnumSet<DefaultState> states) {
+        List<String> stateKeys = states.stream().map(DefaultState::getKey).collect(Collectors.toList());
+        return dataModel.stream(WebServiceDataExportDomainExtension.class)
+                .join(ServiceCall.class)
+                .join(State.class)
+                .filter(Where.where(WebServiceDataExportDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name").in(stateKeys))
+                .map(WebServiceDataExportDomainExtension::getServiceCall)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -169,8 +243,38 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         return new ServiceCallStatusImpl(serviceCallService, serviceCall);
     }
 
+    @Override
+    public List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls) {
+        return ServiceCallStatusImpl.from(serviceCallService, serviceCalls);
+    }
+
     private ServiceCall lock(ServiceCall serviceCall) {
         return serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    @Override
+    public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCalls) {
+        return doGetDataSources(Arrays.asList(serviceCalls));
+    }
+
+    @Override
+    public Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> serviceCalls) {
+        return doGetDataSources(new ArrayList<>(serviceCalls));
+    }
+
+    private Set<ReadingTypeDataExportItem> doGetDataSources(List<ServiceCall> serviceCalls) {
+        if (serviceCalls.isEmpty()) {
+            return new HashSet<>();
+        }
+        Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
+                .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
+                .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
+                .asSubquery(Where.where("serviceCall.parent").in(serviceCalls), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
+        return ormService.getDataModel(DataExportService.COMPONENTNAME)
+                .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
+                .stream(ReadingTypeDataExportItem.class)
+                .filter(ListOperator.IN.contains(dataSourceIds, "id"))
+                .collect(Collectors.toSet());
     }
 }

@@ -6,8 +6,10 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
@@ -53,12 +55,10 @@ import static com.elster.jupiter.util.streams.Predicates.not;
  */
 public class PreStoreLoadProfile {
 
-    private final Clock clock;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private final ComServerDAO comServerDAO;
 
-    public PreStoreLoadProfile(Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO) {
-        this.clock = clock;
+    public PreStoreLoadProfile(MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         this.comServerDAO = comServerDAO;
     }
@@ -78,9 +78,9 @@ public class PreStoreLoadProfile {
      * at least one channel is linked to a slave channel can return an extra element, if not all channels are linked: 1 for non linked channels (device = datalogger)
      * and 1 for each slave device ;
      */
-    PreStoredLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
+    public PreStoredLoadProfile preStore(CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
         if (!collectedLoadProfile.getCollectedIntervalData().isEmpty()) {
-            return new CompositePreStoredLoadProfile(mdcReadingTypeUtilService, this.comServerDAO, collectedLoadProfile.getLoadProfileIdentifier()).preprocess(collectedLoadProfile, clock.instant());
+            return new CompositePreStoredLoadProfile(mdcReadingTypeUtilService, this.comServerDAO, collectedLoadProfile.getLoadProfileIdentifier()).preprocess(collectedLoadProfile, currentDate);
         } else {
             return PreStoredLoadProfile.forLoadProfileDataNotCollected();
         }
@@ -89,7 +89,7 @@ public class PreStoreLoadProfile {
     /**
      * ValueObject representing a LoadProfile which was prepared before storing
      */
-    static class PreStoredLoadProfile {
+    public static class PreStoredLoadProfile {
 
         private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
         private OfflineLoadProfile offlineLoadProfile;
@@ -132,7 +132,7 @@ public class PreStoreLoadProfile {
             return this.offlineLoadProfile.getDeviceIdentifier();
         }
 
-        List<IntervalBlock> getIntervalBlocks() {
+        public List<IntervalBlock> getIntervalBlocks() {
             return Collections.unmodifiableList(intervalBlocks);
         }
 
@@ -219,6 +219,8 @@ public class PreStoreLoadProfile {
             return -1;
         }
 
+
+
         public void updateCommand(MeterDataStoreCommand meterDataStoreCommand) {
             if (!intervalBlocks.isEmpty()) {
                 meterDataStoreCommand.addIntervalReadings(getDeviceIdentifier(), intervalBlocks);
@@ -255,7 +257,7 @@ public class PreStoreLoadProfile {
             }
         }
 
-        enum PreStoreResult {
+       public  enum PreStoreResult {
             NOT_PROCESSED,
             OK,
             LOADPROFILE_NOT_FOUND,
@@ -264,7 +266,7 @@ public class PreStoreLoadProfile {
         }
     }
 
-    static class CompositePreStoredLoadProfile extends PreStoredLoadProfile {
+    public static class CompositePreStoredLoadProfile extends PreStoredLoadProfile {
 
         private final ComServerDAO comServerDAO;
         private List<PreStoredLoadProfile> preStoredLoadProfiles = new ArrayList<>();
@@ -278,27 +280,31 @@ public class PreStoreLoadProfile {
             for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
                 IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
                 ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
-                comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
-                    IntervalBlock processed = null;
-                    DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
-                    Device device = comServerDAO.getDeviceFor(deviceIdentifier).orElseThrow(() -> new IllegalArgumentException("Could not resolve device identifier: '" + deviceIdentifier.toString() + "'"));
-                    ZoneId zone = device.getZone();
-                    if (pair.getFirst().isDataLoggerSlaveLoadProfile()) {
-                        OfflineLoadProfileChannel offlineLoadProfileChannel = pair.getFirst().getAllOfflineChannels().get(0);
-                        processed = processBlock(intervalBlock, offlineLoadProfileChannel, channelInfo.getMultiplier(), pair.getLast(), zone);
-                    }
-                    if (processed == null) {
-                        processed = processBlock(intervalBlock, channelInfo, pair.getLast(), zone);
-                    }
-                    if (!processed.getIntervals().isEmpty()) {
-                        PreStoredLoadProfile preStoredLoadProfile = findOrCreatePreStoredLoadProfile(pair.getFirst());
-                        if (preStoredLoadProfile.addIntervalBlock(processed)) {
-                            if (!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
-                                setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+                //filter out channels without readingTypeMRID. We consider them as not confingured in our system so those will be dropped.
+                if (channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty()) {
+                    comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
+                        IntervalBlock processed = null;
+                        DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
+                        Device device = comServerDAO.getDeviceFor(deviceIdentifier)
+                                .orElseThrow(() -> new IllegalArgumentException("Could not resolve device identifier: '" + deviceIdentifier.toString() + "'"));
+                        ZoneId zone = device.getZone();
+                        if (pair.getFirst().isDataLoggerSlaveLoadProfile()) {
+                            OfflineLoadProfileChannel offlineLoadProfileChannel = pair.getFirst().getAllOfflineChannels().get(0);
+                            processed = processBlock(intervalBlock, offlineLoadProfileChannel, channelInfo.getMultiplier(), pair.getLast(), zone);
+                        }
+                        if (processed == null) {
+                            processed = processBlock(intervalBlock, channelInfo, pair.getLast(), zone);
+                        }
+                        if (!processed.getIntervals().isEmpty()) {
+                            PreStoredLoadProfile preStoredLoadProfile = findOrCreatePreStoredLoadProfile(pair.getFirst());
+                            if (preStoredLoadProfile.addIntervalBlock(processed)) {
+                                if (!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
+                                    setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
             if (!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
                 setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
@@ -323,7 +329,7 @@ public class PreStoreLoadProfile {
             return preStoredLoadProfiles.get(last);
         }
 
-        List<IntervalBlock> getIntervalBlocks() {
+        public List<IntervalBlock> getIntervalBlocks() {
             return this.preStoredLoadProfiles.stream().flatMap(each -> each.getIntervalBlocks().stream()).collect(Collectors.toList());
         }
 
@@ -331,7 +337,7 @@ public class PreStoreLoadProfile {
             preStoredLoadProfiles.stream().forEach(each -> each.updateCommand(meterDataStoreCommand));
         }
 
-        List<PreStoredLoadProfile> getPreStoredLoadProfiles() {
+        public List<PreStoredLoadProfile> getPreStoredLoadProfiles() {
             return Collections.unmodifiableList(preStoredLoadProfiles);
         }
 

@@ -11,6 +11,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageID;
@@ -19,6 +21,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotific
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsDvce;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsMsmtTsk;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsPtDeliv;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UtilitiesPointOfDeliveryPartyID;
 
@@ -52,6 +55,7 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
 
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
         PodMessage podMsg = new PodMessage(msg);
+        saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), podMsg.deviceId);
         if (podMsg.isValid()) {
             Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
             if (device.isPresent()) {
@@ -64,29 +68,45 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
                 log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(podMsg.deviceId));
             }
         } else {
-            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(podMsg.getMissingFields()));
         }
     }
 
-    private class PodMessage {
+    private class PodMessage extends AbstractSapMessage {
+        private static final String POD_ID_XML_NAME = "UtilitiesPointOfDeliveryPartyID";
         private String requestId;
+        private String uuid;
         private String deviceId;
         private String podId;
 
         private PodMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             requestId = getRequestId(msg);
+            uuid = getUuid(msg);
             deviceId = getDeviceId(msg);
             podId = getPodId(msg);
-        }
-
-        private boolean isValid() {
-            return requestId != null && deviceId != null && podId != null;
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (deviceId == null) {
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
+            }
+            if (podId == null) {
+                addMissingField(POD_ID_XML_NAME);
+            }
         }
 
         private String getRequestId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             return Optional.ofNullable(msg.getMessageHeader())
                     .map(BusinessDocumentMessageHeader::getID)
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
+            return Optional.ofNullable(msg.getMessageHeader())
+                    .map(BusinessDocumentMessageHeader::getUUID)
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

@@ -28,6 +28,7 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
@@ -42,6 +43,7 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -144,7 +146,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, currentExportInterval);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarker(currentExportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -274,7 +276,8 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         if (!item.getReadingType().isRegular()) {
             return;
         }
-        TemporalAmount intervalLength = item.getReadingType().getIntervalLength().get();
+        Optional<TimeDuration> requestedReadingInterval = item.getRequestedReadingInterval();
+        TemporalAmount intervalLength = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : item.getReadingType().getIntervalLength().orElse(Duration.ZERO);
         List<ZonedDateTime> zonedDateTimes = instants.stream()
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
@@ -296,7 +299,8 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         if (instants.isEmpty()) {
             return;
         }
-        TemporalAmount intervalLength = item.getReadingType().getIntervalLength().get();
+        Optional<TimeDuration> requestedReadingInterval = item.getRequestedReadingInterval();
+        TemporalAmount intervalLength = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : item.getReadingType().getIntervalLength().orElse(Duration.ZERO);
         List<ZonedDateTime> zonedDateTimes = instants.stream()
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
@@ -397,7 +401,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 .map(channelsContainer -> channelsContainer.getChannel(item.getReadingType()))
                 .flatMap(Functions.asStream())
                 .flatMap(channel -> {
-                    Range<Instant> intervalOfInterest = Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
+                    Range<Instant> intervalOfInterest = channel.getChannelsContainer().getInterval().toOpenClosedRange().intersection(exportInterval);
                     List<BaseReadingRecord> readingsOfInterest = readings.stream()
                             .filter(reading -> intervalOfInterest.contains(reading.getTimeStamp()))
                             .collect(Collectors.toList());
@@ -417,44 +421,45 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             return Optional.empty();
         }
 
-        Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
-        List<? extends BaseReadingRecord> readings = getReadingsUpdatedSince(item, updateInterval, since);
+        Optional<Range<Instant>> updateInterval = determineUpdateInterval(occurrence, item);
+        if (updateInterval.isPresent()) {
+            List<? extends BaseReadingRecord> readings = getReadingsUpdatedSince(item, updateInterval.get(), since);
 
-        String itemDescription = item.getDescription();
+            String itemDescription = item.getDescription();
 
-        Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
-        if (updateWindow.isPresent()) {
-            RelativePeriod window = updateWindow.get();
-            RangeSet<Instant> rangeSet = readings.stream()
-                    .map(baseReadingRecord -> window.getOpenClosedInterval(
-                            ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
-                    .collect(toImmutableRangeSet());
-            readings = rangeSet.asRanges().stream()
-                    .flatMap(range -> {
-                        List<? extends BaseReadingRecord> found = getReadings(item, range);
-                        if (getExportStrategy(occurrence).get().getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
-                            handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range, itemDescription);
-                            if (!isComplete(item, range, found)) {
-                                return Stream.empty();
+            Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
+            if (updateWindow.isPresent()) {
+                RelativePeriod window = updateWindow.get();
+                RangeSet<Instant> rangeSet = readings.stream()
+                        .map(baseReadingRecord -> window.getOpenClosedInterval(
+                                ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
+                        .collect(toImmutableRangeSet());
+                readings = rangeSet.asRanges().stream()
+                        .flatMap(range -> {
+                            List<? extends BaseReadingRecord> found = getReadings(item, range);
+                            if (getExportStrategy(occurrence).get().getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
+                                handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range, itemDescription);
+                                if (!isComplete(item, range, found)) {
+                                    return Stream.empty();
+                                }
                             }
-                        }
-                        return found.stream();
-                    })
-                    .collect(Collectors.toCollection(ArrayList::new));
-        }
+                            return found.stream();
+                        })
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }
 
-        if (!readings.isEmpty()) {
-            MeterReadingImpl meterReading = asMeterReading(item, readings);
-            MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
-            updateCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
-        }
+            if (!readings.isEmpty()) {
+                MeterReadingImpl meterReading = asMeterReading(item, readings);
+                MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval.get());
+                updateCount++;
+                return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarkerForUpdate()));
+            }
 
-        try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, itemDescription);
-            context.commit();
+            try (TransactionContext context = transactionService.getContext()) {
+                MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, itemDescription);
+                context.commit();
+            }
         }
-
         return Optional.empty();
     }
 
@@ -462,7 +467,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return getExportStrategy(occurrence).map(DataExportStrategy::isExportUpdate).orElse(false);
     }
 
-    private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+    private Optional<Range<Instant>> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         Range<Instant> baseRange;
         TreeRangeSet<Instant> base = TreeRangeSet.create();
         Optional<Instant> adhocTime = ((IDataExportOccurrence) occurrence).getTaskOccurrence().getAdhocTime();
@@ -476,7 +481,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             base.add(baseRange);
             base.remove(currentExportInterval);
         }
-        return base.asRanges().stream().findFirst().orElse(baseRange);
+        return base.asRanges().stream().findFirst();
     }
 
     private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {

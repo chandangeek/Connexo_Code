@@ -23,7 +23,7 @@ public final class CollectedLoadProfileHelper {
                 if (collectedData instanceof CollectedLoadProfile) {
                     CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
 
-                    if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
+                    if (collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
 
                         //Only remove unwanted channels if the protocol generated more channel infos than the number of channels configured in EIServer
                         if (collectedLoadProfile.getChannelInfo().size() > loadProfileReader.getChannelInfos().size()) {
@@ -70,7 +70,7 @@ public final class CollectedLoadProfileHelper {
     }
 
     public static void addReadingTypeToChannelInfo(CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
-        if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
+        if (collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
             for (ChannelInfo collectedChannelInfo : collectedLoadProfile.getChannelInfo()) {
                 Optional<ChannelInfo> configuredChannelInfo = loadProfileReader.getChannelInfos()
                         .stream()

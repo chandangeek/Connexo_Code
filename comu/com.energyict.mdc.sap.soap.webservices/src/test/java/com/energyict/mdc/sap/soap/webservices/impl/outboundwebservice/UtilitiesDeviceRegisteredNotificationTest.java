@@ -5,37 +5,38 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilsDvceERPSmrtMtrRegedNotifMsg;
 
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
+import com.google.inject.AbstractModule;
 
-import org.junit.Assert;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundWebserviceTest {
-
-    @Mock
-    private UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut port;
+public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundWebserviceTest<UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut> {
     @Mock
     private Clock clock;
     @Mock
@@ -43,57 +44,62 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
     @Mock
     private MeteringService meteringService;
     @Mock
-    private EndPointConfigurationService endPointConfigurationService;
-    @Mock
     private DeviceService deviceService;
+    @Mock
+    private WebServiceActivator webServiceActivator;
+    @Mock
+    private Device device;
 
     private String deviceId;
-    UtilitiesDeviceRegisteredNotificationProvider provider;
+    private UtilitiesDeviceRegisteredNotificationProvider provider;
 
     @Before
     public void setUp() {
-        provider = spy(new UtilitiesDeviceRegisteredNotificationProvider(clock, sapCustomPropertySets, meteringService, endPointConfigurationService, deviceService));
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
-        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
-        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
-        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
         deviceId = "100000000524205";
-        when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+
+        provider = getProviderInstance(UtilitiesDeviceRegisteredNotificationProvider.class, new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(Clock.class).toInstance(clock);
+                bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
+                bind(MeteringService.class).toInstance(meteringService);
+                bind(DeviceService.class).toInstance(deviceService);
+                bind(WebServiceActivator.class).toInstance(webServiceActivator);
+
+            }
+        });
+        when(sapCustomPropertySets.getDevice(anyString())).thenReturn(Optional.of(device));
+        when(sapCustomPropertySets.getStartDate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(Instant.EPOCH));
+        when(webServiceActivator.getMeteringSystemId()).thenReturn(WebServiceActivator.DEFAULT_METERING_SYSTEM_ID);
     }
 
     @Test
     public void testCall() {
-        when(provider.using(anyString())).thenReturn(requestSender);
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(WebServiceActivator.URL_PROPERTY, getURL());
-        properties.put("epcId", 1l);
-
-        provider.addRequestConfirmationPort(port, properties);
         provider.call(deviceId);
 
-        verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut");
-        verify(requestSender).send(any(UtilsDvceERPSmrtMtrRegedNotifMsg.class));
+        SetMultimap<String,String> values = ImmutableSetMultimap.of(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), deviceId);
+
+        verify(endpoint).utilitiesDeviceERPSmartMeterRegisteredNotificationCOut(any(UtilsDvceERPSmrtMtrRegedNotifMsg.class));
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
     public void testCallWithoutPort() {
-        inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
-        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
-        expectedException.expect(LocalizedException.class);
-        expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterRegisteredNotification_C_Out'.");
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(Collections.emptyList());
 
-
-        provider.call(deviceId);
+        assertThatThrownBy(() -> provider.call(deviceId))
+                .isInstanceOf(LocalizedException.class)
+                .hasMessage("No web service endpoints are available to send the request using 'SAP SmartMeterRegisteredNotification'.");
     }
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut.class);
+        assertThat(provider.getService()).isSameAs(UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), UtilitiesDeviceERPSmartMeterRegisteredNotificationCOutService.class);
+        assertThat(provider.get()).isInstanceOf(UtilitiesDeviceERPSmartMeterRegisteredNotificationCOutService.class);
     }
 }

@@ -93,10 +93,6 @@ Ext.define('Dxp.controller.Tasks', {
             selector: 'data-export-tasks-setup'
         },
         {
-            ref: 'addPage',
-            selector: 'data-export-tasks-add'
-        },
-        {
             ref: 'historyPreviewForm',
             selector: 'dxp-tasks-history-preview-form'
         },
@@ -163,6 +159,7 @@ Ext.define('Dxp.controller.Tasks', {
     deviceEventOrActionsStore: null,
     comboBoxValueForAll: -1,
     dataSelectorValue: null,
+    addExportTaskForm: null,
 
     init: function () {
         this.control({
@@ -263,12 +260,16 @@ Ext.define('Dxp.controller.Tasks', {
                 click: this.switchSortingOrder
             },
             '#history-grid-action-menu': {
-                click: this.historyGridActionMenu
+                click: this.historyGridActionMenu,
+                show: this.showHistoryGridMenu
             },
             'data-export-tasks-run-with-parameters #run-export-task-button': {
                 click: this.runWithParameters
             }
         });
+    },
+    getAddPage: function(){
+        return this.addExportTaskForm;
     },
 
     cancelAddDestination: function () {
@@ -600,6 +601,7 @@ Ext.define('Dxp.controller.Tasks', {
         });
 
         me.saveFormValues();
+        me.getApplication().fireEvent('saveCurrentFormState');
         router.getRoute(addReadingTypesRoute).forward();
     },
 
@@ -690,6 +692,7 @@ Ext.define('Dxp.controller.Tasks', {
     addDestination: function () {
         var me = this,
             view = Ext.widget('data-export-add-destination');
+        me.getApplication().fireEvent('saveCurrentFormState');
         me.getApplication().fireEvent('changecontentevent', view);
 
         if (me.destinationToEdit) {
@@ -908,8 +911,20 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     showAddExportTask: function(){
-        var me = this,
-            view = Ext.create('Dxp.view.tasks.Add'),
+        var view = this.createAddExportTaskForm(true);
+    },
+
+    appendAddTaskForm: function(caller, completedFunc){
+        completedFunc.call(caller, this.createAddExportTaskForm(false));
+    },
+
+    createAddExportTaskForm: function(showOnNewPage){
+        var me = this;
+            if (this.addExportTaskForm) Ext.destroy(this.addExportTaskForm);
+        var view = Ext.create('Dxp.view.tasks.Add',{
+                onNewPage: showOnNewPage,
+
+            }),
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             usagePointGroupCombo = view.down('#usage-point-group-combo'),
@@ -923,10 +938,12 @@ Ext.define('Dxp.controller.Tasks', {
             destinationsStore = view.down('#task-destinations-grid').getStore(),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore(),
             eventTypesStore = view.down('#eventTypesGridPanel').getStore();
+            this.addExportTaskForm = view;
 
-        me.getApplication().fireEvent('changecontentevent', view);
-
-        Ext.util.History.on('change', this.checkRoute, this);
+        if (showOnNewPage){
+            me.getApplication().fireEvent('changecontentevent', view);
+            Ext.util.History.on('change', this.checkRoute, this);
+        }
         me.taskModel = null;
         me.taskId = null;
         me.fromEdit = false;
@@ -986,6 +1003,8 @@ Ext.define('Dxp.controller.Tasks', {
             }
         });
         me.recurrenceEnableDisable();
+
+        return view;
     },
 
     showRunWithParameters: function(taskId) {
@@ -1030,6 +1049,7 @@ Ext.define('Dxp.controller.Tasks', {
                 returnLink: router.getRoute('administration/dataexporttasks').buildUrl()
             })
         }
+        this.addExportTaskForm = view;
 
         if (me.destinationToEdit) { // coming from an edit destination (that hence was cancelled), add the old one again
             me.destinationsArray.push(me.destinationToEdit);
@@ -2121,7 +2141,7 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
 
-    addTask: function (button) {
+    addTask: function (button, mainPageFormErrorsPanel, saveOperationComplete, controller) {
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             page = me.getAddPage(),
@@ -2453,13 +2473,14 @@ Ext.define('Dxp.controller.Tasks', {
                     if (button.action === 'editTask' && me.fromDetails) {
                         me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks/dataexporttask').forward({taskId: record.getId()});
                     } else {
-                        me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
+                        if (saveOperationComplete && controller) saveOperationComplete.call(controller);
+                        else me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                     }
                     if (button.action === 'editTask') {
                         var suspendUntilExportVar = record.get('suspendUntilExport');
                         if (startOnDate < suspendUntilExportVar)
                         {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.suspended', 'DES', 'Export task saved, but task is already suspended'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.suspended', 'DES', 'Export task saved, but next run WILL NOT BE CHANGED because task is suspended'));
                         }
                         else {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.saved', 'DES', 'Export task saved'));
@@ -2487,7 +2508,7 @@ Ext.define('Dxp.controller.Tasks', {
                 }
             })
         } else {
-            formErrorsPanel.show();
+            page.onNewPage ? formErrorsPanel.show() : mainPageFormErrorsPanel.show();
         }
     },
 
@@ -3142,6 +3163,14 @@ Ext.define('Dxp.controller.Tasks', {
         me.updateSortingToolbarAndResults();
     },
 
+    showHistoryGridMenu: function(menu){
+         var record = menu.record;
+         if (record){
+            var statusId = record.get('statusId');
+            menu.down('#setToFailed-history').setVisible(statusId === 0)//Ongoing
+         }
+    },
+
     historyGridActionMenu: function(menu, item){
         var me = this;
 
@@ -3153,7 +3182,12 @@ Ext.define('Dxp.controller.Tasks', {
                     Uni.I18n.translate('general.retryExportTaskx', 'DES', "Retry export task {0}?", [menu.record.data.name]),
                     Uni.I18n.translate('exportTasks.runMsgStartedOn', 'DES', "Data export task started on {0} will be queued to run at the earliest possible time.", [menu.record.get('startedOn_formatted')])
             );
-                break
+            break;
+            case 'setToFailedHistory':
+                me.submitHistorySetToFailedTask(menu.record);
+            break;
+            default:
+            break;
         }
     },
 
@@ -3210,6 +3244,33 @@ Ext.define('Dxp.controller.Tasks', {
                     confWindow.setVisible(true);
                 } else {
                     confWindow.destroy();
+                }
+            }
+        });
+    },
+
+    submitHistorySetToFailedTask: function (record) {
+        var me = this,
+            id = record.get('id'),
+            taskModel = me.getModel('Dxp.model.DataExportTaskHistory'),
+            grid,
+            store,
+            index,
+            view;
+
+        Ext.Ajax.request({
+            url: '/api/export/dataexporttask/history/' + id + '/setToFailed',
+            method: 'PUT',
+            jsonData: record.getProxy().getWriter().getRecordData(record),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.cancelQueued', 'DES', 'Export task is set to failed'));
+            },
+            failure: function (response) {
+                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'DES', 'Couldn\'t perform your action');
+                var res = Ext.decode(response.responseText, true);
+
+                if (res && res.errors && res.errors.length) {
+                    me.getApplication().getController('Uni.controller.Error').showError(titleText, res.errors[0].msg, res.errorCode);
                 }
             }
         });

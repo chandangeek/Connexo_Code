@@ -8,6 +8,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     views: [
         'setup.comserver.ComServersGrid',
         'setup.comserver.ComServersSetup',
+        'setup.comserver.OfflineComServersGrid',
+        'setup.comserver.OfflineComServersSetup',
         'setup.comportpool.ComPortPoolsGrid',
         'setup.comportpool.ComPortPoolsSetup',
         'setup.devicecommunicationprotocol.DeviceCommunicationProtocolSetup',
@@ -23,7 +25,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'Mdc.store.LogLevels',
         'Mdc.store.TimeUnitsWithoutMilliseconds',
         'Mdc.store.DeviceTypePurposes',
-        'Mdc.store.ComServers'
+        'Mdc.store.ComServers',
+        'Mdc.store.OfflineComServers'
     ],
 
     init: function () {
@@ -53,6 +56,28 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         timeUnitsStore.load(callback);
         comServerStore.load(callback);
     },
+
+    showOfflineComServers: function () {
+        var me = this,
+            widget = Ext.widget('offlineComServersSetup'),
+            logLevelsStore = me.getStore('Mdc.store.LogLevels'),
+            timeUnitsStore = me.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
+            comServerStore = me.getStore('Mdc.store.ComServers'),
+            offlineComServerStore = me.getStore('Mdc.store.OfflineComServers'),
+            counter = 0,
+            callback = function() {
+                counter += 1;
+                if (counter === 3) {
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                }
+            };
+
+        logLevelsStore.load(callback);
+        timeUnitsStore.load(callback);
+        comServerStore.load(callback);
+        offlineComServerStore.load(callback);
+    },
+
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('deviceCommunicationProtocolSetup');
         this.getApplication().fireEvent('changecontentevent', widget);

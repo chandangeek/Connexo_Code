@@ -6,10 +6,8 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.metering.ConfigPropertiesService;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -40,16 +38,19 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.configproperties.ConfigProperties;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -89,11 +90,15 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private final DeviceDataModelService deviceDataModelService;
     private final PriorityComTaskService priorityComTaskService;
+    private final ConfigPropertiesService configPropertiesService;
+    private final BundleContext bundleContext;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, PriorityComTaskService priorityComTaskService) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, ConfigPropertiesService configPropertiesService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
         this.deviceDataModelService = deviceDataModelService;
         this.priorityComTaskService = priorityComTaskService;
+        this.configPropertiesService = configPropertiesService;
+        this.bundleContext = bundleContext;
     }
 
     @Override
@@ -670,6 +675,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public boolean attemptUnlockComTaskExecution(ComTaskExecution comTaskExecution) {
+        Optional<ComTaskExecution> lockResult = deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockNoWait(comTaskExecution.getId());
+        if (lockResult.isPresent()) {
+            getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
         //Avoid OptimisticLockException
         refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
@@ -740,6 +756,102 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public List<ComTaskExecution>  getPendingComTaskExecutionsListFor(OutboundComPort comPort) {
+        Instant nowInSeconds = this.deviceDataModelService.clock().instant();
+        List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
+        List<ComTaskExecution> pendingComTasks = getPendingComTaskExecutions(comPort, nowInSeconds);
+        return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
+    }
+
+    @Override
+    public List<ComTaskExecution>  getPlannedComTaskExecutionsListFor(OutboundComPort comPort) {
+        Instant nowInSeconds = this.deviceDataModelService.clock().instant();
+        List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
+        List<ComTaskExecution> pendingComTasks = getPlannedComTaskExecutions(comPort, nowInSeconds);
+        return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
+    }
+
+    private List<PriorityComTaskExecutionLink> getPendingPrioComTaskExecutions(Instant nowInSeconds) {
+        return deviceDataModelService.dataModel(). stream(PriorityComTaskExecutionLink.class)
+                    .filter(where(PriorityComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds)
+                            .and(where(PriorityComTaskExecutionFields.COMPORT.fieldName()).isNull()))
+                            .select();
+    }
+
+    private List<ComTaskExecution> getPendingComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds) {
+        long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
+        List<OutboundComPortPool> comPortPools =
+                this.deviceDataModelService
+                        .engineConfigurationService()
+                        .findContainingComPortPoolsForComPort(comPort)
+                        .stream()
+                        .filter(ComPortPool::isActive)
+                        .collect(Collectors.toList());
+        String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
+        return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
+                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
+                .select();
+    }
+
+    private List<ComTaskExecution> getPlannedComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds) {
+        long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
+        List<OutboundComPortPool> comPortPools =
+                this.deviceDataModelService
+                        .engineConfigurationService()
+                        .findContainingComPortPoolsForComPort(comPort)
+                        .stream()
+                        .filter(ComPortPool::isActive)
+                        .collect(Collectors.toList());
+        String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
+        return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
+                .limit(comPort.getNumberOfSimultaneousConnections() * 2)
+                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
+                .select();
+    }
+
+    private QueryStream<ComTaskExecution> getFilteredPendingComTaskExecutions(Instant nowInSeconds, long msSinceMidnight, List<OutboundComPortPool> comPortPools, String connectionTask) {
+        return deviceDataModelService.dataModel().stream(ComTaskExecution.class)
+                .join(ConnectionTask.class)
+                .filter(where(connectionTask + ConnectionTaskFields.STATUS.fieldName()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                        .and(where(connectionTask + ConnectionTaskFields.COM_PORT.fieldName()).isNull())
+                        .and(where(connectionTask + ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull())
+                        .and(where(connectionTask + ConnectionTaskFields.COM_PORT_POOL.fieldName()).in(comPortPools))
+                        .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                        .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                        .and(where(connectionTask + ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds))
+                        .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds))
+                        .and(where(connectionTask + "comWindow.start.millis").isNull().or(where(connectionTask + "comWindow.start.millis").isLessThanOrEqual(msSinceMidnight)))
+                        .and(where(connectionTask + "comWindow.end.millis").isNull().or(where(connectionTask + "comWindow.end.millis").isLessThanOrEqual(msSinceMidnight)))
+                );
+    }
+
+    private Order[] getOrderForPlannedComTaskExecutionsList() {
+        List<Order> orderList = new ArrayList<>(3);
+        boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
+        boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
+
+        if (isRandomizationOn) {
+            orderList.add(Order.ascending("mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ", 100)"));
+        }
+        if (isTrueMinimizedOn) {
+            orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+            orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
+        } else {
+            orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
+            orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        }
+
+        return orderList.toArray(new Order[orderList.size()]);
+    }
+
+    private List<ComTaskExecution> filterOutPendingPrioComTasks(List<PriorityComTaskExecutionLink> pendingPrioComTasks, List<ComTaskExecution> pendingComTasks) {
+        List<Long> prioIds = pendingPrioComTasks.stream().map(pct -> pct. getComTaskExecution().getId()).collect(Collectors.toList());
+        pendingComTasks.removeIf(cte -> prioIds.contains(cte.getId()));
+
+        return pendingComTasks;
+    }
+
+    @Override
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort) {
         List<OutboundComPortPool> comPortPools =
                 this.deviceDataModelService
@@ -775,11 +887,28 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" and (NVL(ct.comwindowend, 99999000) > "); // max possible value of milisecondsSinceMidnight is 86399000
             sqlBuilder.addLong(msSinceMidnight);
             sqlBuilder.append(" or ct.comwindowend = 0) ");
-            sqlBuilder.append(" order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask");
+            sqlBuilder.append(getOrderForPlannedComTaskExecutions());
             return mapper.fetcher(sqlBuilder);
         } else {
             return new NoComTaskExecutions();
         }
+    }
+
+    private String getOrderForPlannedComTaskExecutions(){
+        String orderClause = "";
+        boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
+        boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
+
+        if (!isTrueMinimizedOn && !isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";
+        } else if (isTrueMinimizedOn && !isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, cte.connectiontask, cte.priority";
+        } else if (!isTrueMinimizedOn && isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.priority, cte.connectiontask";
+        } else if (isTrueMinimizedOn && isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.connectiontask, cte.priority";
+        }
+        return orderClause;
     }
 
     public Fetcher<ComTaskExecution> findComTaskExecutionsForDevicesByComTask(List<Long> deviceIds, List<Long> comTaskIds) {
@@ -887,7 +1016,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public List<ComTaskExecution> findComTaskExecutionsWhichAreExecuting(ComPort comPort) {
+    public List<ComTaskExecution> findLockedByComPort(ComPort comPort) {
         Condition condition = where(ComTaskExecutionFields.COMPORT.fieldName()).isEqualTo(comPort);
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(condition);
     }

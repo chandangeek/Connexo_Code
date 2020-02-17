@@ -8,7 +8,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.servicecall.impl.action.CloseIssueAction;
 import com.elster.jupiter.issue.servicecall.impl.action.FailedAction;
 import com.elster.jupiter.issue.servicecall.impl.action.PartialSucceedAction;
-import com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction;
+import com.elster.jupiter.issue.servicecall.impl.action.RetryServiceCallAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -21,7 +21,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.issue.servicecall.impl.action.RetryServiceCallAction;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -150,7 +149,6 @@ public class ServiceCallIssueActionsFactory implements IssueActionFactory {
 
     private void addDefaultActions() {
         try {
-            actionProviders.put(StartProcessAction.class.getName(), injector.getProvider(StartProcessAction.class));
             actionProviders.put(FailedAction.class.getName(), injector.getProvider(FailedAction.class));
             actionProviders.put(PartialSucceedAction.class.getName(), injector.getProvider(PartialSucceedAction.class));
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));

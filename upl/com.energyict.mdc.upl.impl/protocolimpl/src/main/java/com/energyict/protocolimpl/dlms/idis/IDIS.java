@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.io.NestedIOException;
@@ -26,7 +27,6 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
@@ -129,7 +129,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     @Override
     public String getSerialNumber() {
         try {
-            return String.valueOf(getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.1.24.1.0.255"), MbusClientAttributes.VERSION10).getIdentificationNumber().getValue());
+            return String.valueOf(getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.1.24.1.0.255"), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getIdentificationNumber().getValue());
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, retries + 1);
         }

@@ -37,7 +37,8 @@ Ext.define('Cfg.model.ValidationTask', {
         },
         {
             name: 'suspendUntilTime',
-            type:'number'
+            type:'number',
+            useNull:true
         },
         {
             name: 'lastValidationOccurence',

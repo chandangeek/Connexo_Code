@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -51,7 +50,7 @@ public class CryptoKaifaMessageExecutor extends CryptoDSMR40MessageExecutor {
         }
 
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);
-        MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
+        MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         try{
             mbusClient.setIdentificationNumber(new Unsigned32(0));
             mbusClient.setManufacturerID(new Unsigned16(0));

@@ -5,11 +5,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;

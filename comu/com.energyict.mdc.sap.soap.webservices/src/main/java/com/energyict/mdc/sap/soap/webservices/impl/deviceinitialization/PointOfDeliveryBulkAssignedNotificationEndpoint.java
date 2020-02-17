@@ -11,6 +11,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageID;
@@ -20,8 +22,12 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknot
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsMsmtTsk;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsPtDeliv;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.UtilitiesPointOfDeliveryPartyID;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -55,6 +61,10 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
 
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
         PodBulkMessage bulkMsg = new PodBulkMessage(msg);
+        SetMultimap<String, String> values = HashMultimap.create();
+        bulkMsg.podMessages.forEach(message -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId));
+        saveRelatedAttributes(values);
+
         if (bulkMsg.isValid()) {
             bulkMsg.podMessages.forEach(message -> {
                 if (message.isValid()) {
@@ -69,29 +79,30 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
                         log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(message.deviceId));
                     }
                 } else {
-                    log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+                    log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(message.getMissingFields()));
                 }
             });
         } else {
-            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(bulkMsg.getMissingFields()));
         }
     }
 
-    private class PodBulkMessage {
+    private class PodBulkMessage extends AbstractSapMessage {
         private String requestId;
+        private String uuid;
         private List<PodMessage> podMessages = new ArrayList<>();
 
         private PodBulkMessage(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
             requestId = getRequestId(msg);
+            uuid = getUuid(msg);
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             msg.getSmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationMessage()
                     .forEach(message -> {
                         PodMessage podMsg = new PodMessage(message);
                         podMessages.add(podMsg);
                     });
-        }
-
-        private boolean isValid() {
-            return requestId != null;
         }
 
         private String getRequestId(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
@@ -101,19 +112,30 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
+
+        private String getUuid(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
+            return Optional.ofNullable(msg.getMessageHeader())
+                    .map(BusinessDocumentMessageHeader::getUUID)
+                    .map(UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
     }
 
-    private class PodMessage {
+    private class PodMessage extends AbstractSapMessage {
+        private static final String POD_ID_XML_NAME = "UtilitiesPointOfDeliveryPartyID";
         private String deviceId;
         private String podId;
 
         private PodMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             deviceId = getDeviceId(msg);
             podId = getPodId(msg);
-        }
-
-        private boolean isValid() {
-            return deviceId != null && podId != null;
+            if (deviceId == null) {
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
+            }
+            if (podId == null) {
+                addMissingField(POD_ID_XML_NAME);
+            }
         }
 
         private String getDeviceId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {

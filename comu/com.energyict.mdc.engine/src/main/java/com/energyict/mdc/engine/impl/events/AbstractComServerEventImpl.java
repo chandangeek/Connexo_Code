@@ -10,10 +10,14 @@ import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * Provides code reuse opportunities for components
@@ -95,6 +99,16 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
     @Override
     public boolean isLoggingRelated() {
         return false;
+    }
+
+    @Override
+    public void writeExternal (ObjectOutput out) throws IOException {
+        out.writeLong(Date.from(this.occurrenceTimestamp).getTime());
+    }
+
+    @Override
+    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
+        this.occurrenceTimestamp = new Date(in.readLong()).toInstant();
     }
 
     @Override

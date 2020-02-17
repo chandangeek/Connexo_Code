@@ -23,6 +23,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.GrantPrivilege;
@@ -43,8 +44,11 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
 import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserSecuritySettings;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
+import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -110,6 +114,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
     private static final String SUCCESSFUL_LOGIN = "Successful login for user ";
     private static final String UNSUCCESSFUL_LOGIN = "Unsuccessful login attempt for user ";
+    private static final String ACCOUNT_LOCKED = "The current account is locked. Please contact your administrator!";
 
     private static final String JUPITER_REALM = "Local";
     private Logger userLogin = Logger.getLogger("userLog");
@@ -173,7 +178,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class, version(10, 4), UpgraderV10_4.class
+                    version(10, 2), UpgraderV10_2.class,
+                    version(10, 3), UpgraderV10_3.class,
+                    version(10, 4), UpgraderV10_4.class,
+                    version(10, 4, 8), UpgraderV10_4_8.class,
+                    version(10, 4, 9), V10_4_9SimpleUpgrader.class
             ));
         }
     }
@@ -232,6 +241,14 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return dataModel.mapper(User.class).find()
+                .stream()
+                .sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<User> authenticateBase64(String base64) {
         return authenticateBase64(base64, null);
     }
@@ -265,7 +282,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             userName = items[1];
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
-        if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
+
+        if(user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())){
+            logMessage(ACCOUNT_LOCKED, userName, domain, ipAddr);
+        } else if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
             logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
         } else {
             if (!userName.equals("")) {
@@ -744,6 +764,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public Optional<User> getLoggedInUserFromCache(long userId) {
+        return loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
+    }
+
+    @Override
     public void addLoggedInUser(User user) {
         if (!loggedInUsers.contains(user)) {
             loggedInUsers.add(user);
@@ -853,6 +878,23 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         };
     }
 
+    @Override
+    public Optional<UserSecuritySettings> getLockingAccountSettings() {
+        return dataModel.mapper(UserSecuritySettings.class).find().stream().findFirst();
+    }
+
+    public UserSecuritySettings createUserSecuritySettings(boolean activate, int numberOfAttempts, int numberOfMinutes) {
+        return new UserSecuritySettingsImpl(dataModel).init(activate, numberOfAttempts, numberOfMinutes);
+    }
+
+    @Override
+    public UserSecuritySettings findOrCreateUserSecuritySettings(boolean activate, int numberOfAttempts, int numberOfMinutes) {
+        if(getLockingAccountSettings().isPresent())
+            return  getLockingAccountSettings().get();
+        else
+            return createUserSecuritySettings(activate, numberOfAttempts, numberOfMinutes);
+    }
+
     void createDefaultPrivilegeCategory() {
         createPrivilegeCategory(DEFAULT_CATEGORY_NAME);
     }
@@ -942,7 +984,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
                 findUserIgnoreStatus(userName, domain).ifPresent(user -> {
                     try (TransactionContext context = transactionService.getContext()) {
-                        user.setLastUnSuccessfulLogin(clock.instant());
+                        user.setLastUnSuccessfulLogin(clock.instant(), getLockingAccountSettings());
                         context.commit();
                     }
                 });

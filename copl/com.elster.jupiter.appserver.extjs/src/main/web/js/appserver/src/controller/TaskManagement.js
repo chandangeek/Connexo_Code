@@ -55,6 +55,8 @@ Ext.define('Apr.controller.TaskManagement', {
         }
     ],
 
+    taskTypeDefaultValue: null,
+
     init: function () {
         this.control({
             'task-management-grid': {
@@ -215,9 +217,16 @@ Ext.define('Apr.controller.TaskManagement', {
             appName = Uni.util.Application.getAppName(),
             view = Ext.create('Apr.view.taskmanagement.Add', {
                 edit: false,
+                taskTypeDefaultValue: me.taskTypeDefaultValue,
                 addReturnLink: me.rootRouteWithArguments,
                 storeTypes: me.getTypesStore()
             });
+
+        me.taskTypeDefaultValue = null;
+
+        this.getApplication().on('saveCurrentFormState', function () {
+            me.taskTypeDefaultValue = view && view.down('#task-management-task-type') && view.down('#task-management-task-type').getValue();
+        });
 
         me.getApplication().fireEvent('changecontentevent', view);
     },

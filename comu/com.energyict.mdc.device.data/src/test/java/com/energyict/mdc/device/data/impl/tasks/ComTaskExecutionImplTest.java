@@ -33,7 +33,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Condition;
@@ -109,7 +108,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void createScheduledWithoutViolations() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule", Instant.now());
         ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
@@ -127,7 +126,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void createScheduledUsingConnectionFunctionWithoutViolations() {
         ComTaskEnablement comTaskEnablement = enableComTask(connectionFunction2);
-        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule", Instant.now());
         ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
@@ -141,7 +140,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(reloadedComTaskExecution.usesSharedSchedule()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
-        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionDbValue).isEqualTo(2);
+        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionId).isEqualTo(2);
     }
 
     @Test
@@ -149,7 +148,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL + "}")
     public void createScheduledUsingInvalidConnectionFunction() {
         ComTaskEnablement comTaskEnablement = enableComTask(connectionFunction3);
-        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule", Instant.now());
         ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
@@ -163,8 +162,8 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Expected(CannotSetMultipleComSchedulesWithSameComTask.class)
     public void scheduleTwice() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule1 = createComSchedule("ComSchedule1", comTaskEnablement.getComTask());
-        ComSchedule comSchedule2 = createComSchedule("ComSchedule2", comTaskEnablement.getComTask());
+        ComSchedule comSchedule1 = createComSchedule("ComSchedule1", comTaskEnablement.getComTask(), Instant.now());
+        ComSchedule comSchedule2 = createComSchedule("ComSchedule2", comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule", Instant.now());
         ComTaskExecutionBuilder builder1 = device.newScheduledComTaskExecution(comSchedule1);
@@ -200,7 +199,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(3));
         ComTaskEnablement comTaskEnablement1 = enableComTask(true);
         ComTaskEnablement comTaskEnablement2 = enableComTask(true, COM_TASK_NAME + "2");
-        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement1.getComTask());
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement1.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
         ComTaskExecutionBuilder scheduledComTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
@@ -221,7 +220,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void reschedulePreviouslyRemovedComTaskTest() {
 
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
         ComTaskExecutionBuilder scheduledComTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
@@ -322,7 +321,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
         assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
-        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionDbValue).isEqualTo(2);
+        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionId).isEqualTo(2);
     }
 
     @Test
@@ -333,7 +332,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         Instant plannedNextExecutionTimeStamp = createFixedTimeStamp(2014, Calendar.AUGUST, 29, 0, 0, 0, 0);
 
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask(), frozenClock);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", frozenClock);
 
@@ -672,7 +671,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void isScheduledTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
         device.save();
@@ -815,7 +814,8 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + inboundComPort.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + inboundComPort.getId() + " where id = " + connectionTask
+                .getId());
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
 
         // Business method
@@ -843,7 +843,8 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         long future = inMemoryPersistence.getClock().instant().toEpochMilli() + 1_000_000_000_000L;  // let's just hope it won't take that long until this test is finished
         inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution
                 .getId());
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + outboundComPort.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + outboundComPort.getId() + " where id = " + connectionTask
+                .getId());
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
 
         // Business method
@@ -964,10 +965,10 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     public void checkCorrectTimeStampsForScheduledComTaskExecutionWithAsapConnectionTaskTest() {
-        freezeClock(2014, 4, 4, 10, 12, 32, 123);
+        Instant freezeClock = freezeClock(2014, 4, 4, 10, 12, 32, 123);
         Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), freezeClock);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", fixedTimeStamp);
 
@@ -986,11 +987,11 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     public void checkCorrectTimeStampsForScheduledComTaskExecutionWithMinimizeConnectionTaskTest() {
-        freezeClock(2014, 4, 4, 10, 12, 32, 123);
+        Instant freezeClock = freezeClock(2014, 4, 4, 10, 12, 32, 123);
         Instant nextFromComSchedule = createFixedTimeStamp(2014, 4, 4, 11, 0, 0, 0);
-        Instant nextFromConnectionTask = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0, TimeZone.getTimeZone("UTC"));
+        Instant nextFromConnectionTask = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), new TemporalExpression(TimeDuration.hours(1)));
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), new TemporalExpression(TimeDuration.hours(1)), freezeClock);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", nextFromComSchedule);
 
@@ -1012,7 +1013,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void putScheduledOnHoldTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "PutOnHold", "PutOnHold", Instant.now());
 
@@ -1033,11 +1034,11 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     public void scheduledNextExecutionSpecWithOffsetTest() {
-        freezeClock(2014, 4, 4, 10, 12, 32, 123);
+        Instant freezeClock = freezeClock(2014, 4, 4, 10, 12, 32, 123);
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(3));
-        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0, TimeZone.getTimeZone("UTC"));
+        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), temporalExpression);
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), temporalExpression, freezeClock);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", fixedTimeStamp);
 

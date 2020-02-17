@@ -10,6 +10,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -32,6 +34,7 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile ServiceCallService serviceCallService;
     private volatile TransactionService transactionService;
+    private volatile WebServiceActivator webServiceActivator;
     private volatile Clock clock;
 
     public ConnectionStatusChangeMessageHandlerFactory() {
@@ -76,6 +79,11 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService, transactionService, clock);
+        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService, transactionService, clock, webServiceActivator);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }

@@ -23,6 +23,7 @@ public class UtilitiesDeviceCreateConfirmationMessage {
     public Optional<UtilsDvceERPSmrtMtrCrteConfMsg> getConfirmationMessage() {
         return Optional.ofNullable(confirmationMessage);
     }
+
     public Optional<UtilsDvceERPSmrtMtrBlkCrteConfMsg> getBulkConfirmationMessage() {
         return Optional.ofNullable(bulkConfirmationMessage);
     }
@@ -36,20 +37,20 @@ public class UtilitiesDeviceCreateConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(ServiceCall parent, List<ServiceCall> children, Instant now, boolean isBulk) {
+        public Builder from(ServiceCall parent, List<ServiceCall> children, String senderBusinessSystemId, Instant now, boolean isBulk) {
             if (isBulk) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(parent, children, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(parent, children, senderBusinessSystemId, now);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(parent, children.get(0), now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(parent, children.get(0), senderBusinessSystemId, now);
             }
             return this;
         }
 
-        public Builder from(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Instant now) {
+        public Builder from(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             if (message.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(message, messageSeed, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(message, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(message, messageSeed, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(message, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
             }
             return this;
         }

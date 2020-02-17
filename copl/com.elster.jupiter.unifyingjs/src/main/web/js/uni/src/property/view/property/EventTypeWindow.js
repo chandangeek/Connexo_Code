@@ -288,6 +288,10 @@ Ext.define('Uni.property.view.property.EventTypeWindow', {
         me.down('#uni-eventtype-device-code-part').setDisabled(!partsSelected);
         fieldToFocus.focus(false, 200);
         me.down('#form-errors').hide();
+        if (partsSelected){
+            var eventTypePart = me.down('#uni-eventtype-assembled-field').getValue();
+            me.down('#uni-eventtype-device-code-part').setDisabled(eventTypePart != '0.0.0.0');
+        }
     },
 
     onChangeEventTypeSpec: function(field, newValue, oldValue){

@@ -228,6 +228,13 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
             } else {
                 return defaultValue;
             }
+        } else if (propertyName.equals("ForcedDelay")) {
+            if (valueFromThisLevel instanceof HashMap) {
+                valueFromThisLevel = ((HashMap) valueFromThisLevel).values().stream().findFirst().get();
+                return (T) Duration.ofMillis(((Integer) valueFromThisLevel).longValue());
+            } else {
+                return (T) valueFromThisLevel;
+            }
         } else {
             return (T) valueFromThisLevel;
         }
@@ -475,7 +482,10 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
             Map.Entry pairs = (Map.Entry) o;
             String key = (String) pairs.getKey();
             Object value = pairs.getValue();
-            map.put(key, value.getClass().getName());
+            if (value == null)
+                map.put(key, String.class.getName());
+            else
+                map.put(key, value.getClass().getName());
         }
         return map;
     }

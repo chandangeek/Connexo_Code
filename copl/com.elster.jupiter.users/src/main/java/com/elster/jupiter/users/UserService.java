@@ -118,6 +118,8 @@ public interface UserService {
 
     List<User> getAllUsers(long id);
 
+    List<User> getAllUsers();
+
     LdapUserDirectory createActiveDirectory(String domain);
 
     LdapUserDirectory createApacheDirectory(String domain);
@@ -147,6 +149,7 @@ public interface UserService {
     void saveResourceWithPrivileges(String moduleName, String name, String description, String[] privileges);
 
     Optional<User> getLoggedInUser(long userId);
+    Optional<User> getLoggedInUserFromCache(long userId);
 
     void addLoggedInUser(User user);
 
@@ -181,4 +184,8 @@ public interface UserService {
     Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char [] password);
 
     String[] userAdminPrivileges();
+
+    Optional<UserSecuritySettings> getLockingAccountSettings();
+
+    UserSecuritySettings findOrCreateUserSecuritySettings(boolean activate, int numberOfAttempts, int numberOfMinutes);
 }

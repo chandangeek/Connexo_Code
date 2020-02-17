@@ -3,17 +3,24 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Pair;
 
-import java.time.Instant;
+import com.energyict.mdc.common.device.data.Device;
 
-@ProviderType
+import aQute.bnd.annotation.ConsumerType;
+
+import java.util.List;
+import java.util.Optional;
+
+@ConsumerType
 public interface SAPMeterReadingDocumentReason {
+    long SECONDS_IN_DAY = 86400; //24 hours
 
     /**
      * Reading reason code
      */
-    String getCode();
+    List<String> getCodes();
 
     /**
      * Collection interval support
@@ -21,17 +28,26 @@ public interface SAPMeterReadingDocumentReason {
     boolean hasCollectionInterval();
 
     /**
-     * Bulk request support
+     * Date shift in seconds
      */
-    boolean isBulk();
+    long getShiftDate();
 
     /**
-     * Single request support
+     * Pair of Macro and Measuring codes
+     *
+     * @return macro and measuring codes
      */
-    boolean isSingle();
+    Optional<Pair<String, String>> getExtraDataSourceMacroAndMeasuringCodes();
+
+    /**
+     * Using current dateTime support
+     */
+    boolean shouldUseCurrentDateTime();
 
     /**
      * Invoked by the service call when processing data with reading reason code
      */
     void process(SAPMeterReadingDocumentCollectionData sapMeterReadingDocumentCollectionData);
+
+    boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular, ReadingType readingType);
 }

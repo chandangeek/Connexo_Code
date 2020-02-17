@@ -24,6 +24,8 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildCustomPropertySet;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildDomainExtension;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportCustomPropertySet;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportDomainExtension;
 import com.elster.jupiter.export.security.Privileges;
@@ -47,6 +49,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -56,6 +59,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -91,11 +95,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -150,6 +156,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();
     private CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
+    private CustomPropertySet<ServiceCall, WebServiceDataExportChildDomainExtension> childServiceCallCPS;
 
     public DataExportServiceImpl() {
     }
@@ -236,6 +243,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public Optional<? extends ExportTask> findAndLockExportTask(long id, long version) {
         return dataModel.mapper(IExportTask.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<? extends ExportTask> findAndLockReadingTypeDataExportTaskByName(String name) {
+        Optional<? extends ExportTask> exportTask = getReadingTypeDataExportTaskByName(name);
+        return Optional.ofNullable(exportTask.map(et -> dataModel.mapper(IExportTask.class).lock(et.getId())).orElse(null));
     }
 
     @Override
@@ -370,7 +383,9 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public final void activate(BundleContext context) {
         this.bundleContext = context;
         serviceCallCPS = new WebServiceDataExportCustomPropertySet(thesaurus, propertySpecService, this);
+        childServiceCallCPS = new WebServiceDataExportChildCustomPropertySet(thesaurus, propertySpecService);
         customPropertySetService.addCustomPropertySet(serviceCallCPS);
+        customPropertySetService.addCustomPropertySet(childServiceCallCPS);
         try {
             dataModel.register(new AbstractModule() {
                 @Override
@@ -427,7 +442,18 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 4, 3), V10_4_3SimpleUpgrader.class)
                             .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
                             .put(version(10, 7), UpgraderV10_7.class)
+                            .put(version(10, 7, 1), UpgraderV10_7_1.class)
+                            .put(version(10, 7, 2), UpgraderV10_7_2.class)
                             .build());
+
+            if (transactionService.isInTransaction()) {
+                failOngoingExportTaskOccurrences();
+            } else {
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    failOngoingExportTaskOccurrences();
+                    transactionContext.commit();
+                }
+            }
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -437,6 +463,17 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Deactivate
     public final void deactivate() {
         customPropertySetService.removeCustomPropertySet(serviceCallCPS);
+        customPropertySetService.removeCustomPropertySet(childServiceCallCPS);
+    }
+
+    private void failOngoingExportTaskOccurrences() {
+            List<Long> dataExportTaskIds = this.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
+            List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
+                    .withExportTask(dataExportTaskIds)
+                    .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
+                    .find();
+            dataExportOccurrences.stream()
+                    .forEach(o -> o.setToFailed());
     }
 
     @Reference

@@ -45,7 +45,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
     /**
      * @return the actual DLMSConnection used for dataTransportation
      */
-    private DlmsV2Connection getTransportConnection() {
+    public DlmsV2Connection getTransportConnection() {
         return this.transportConnection;
     }
 

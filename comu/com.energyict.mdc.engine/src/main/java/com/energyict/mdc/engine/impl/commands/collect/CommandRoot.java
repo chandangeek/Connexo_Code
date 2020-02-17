@@ -18,6 +18,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.time.Clock;
@@ -88,6 +89,10 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
 
     boolean hasConnectionBeenInterrupted();
 
+    void connectionNotExecuted();
+
+    boolean hasConnectionNotExecuted();
+
     List<? extends ComTaskExecution> getScheduledButNotPreparedComTaskExecutions();
 
     ServiceProvider getServiceProvider();
@@ -113,6 +118,8 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
         MeteringService meteringService();
 
         DeviceMessageService deviceMessageService();
+
+        ProtocolPluggableService protocolPluggableService();
 
     }
 }

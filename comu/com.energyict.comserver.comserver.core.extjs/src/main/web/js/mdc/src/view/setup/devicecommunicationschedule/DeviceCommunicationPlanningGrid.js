@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                 store: me.scheduleStore,
                 columns: [
                     {
-                        header: Uni.I18n.translate('deviceCommunicationSchedules.communicationTask', 'MDC', 'Commmunication task'),
+                        header: Uni.I18n.translate('deviceCommunicationSchedules.communicationTask', 'MDC', 'Communication task'),
                         flex: 2,
                         dataIndex: 'comTask',
                         renderer: function (value) {
@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                         }
                     },
                     {
-                        header: Uni.I18n.translate('deviceCommunicationPlanning.sharedCommunicationSchedule', 'MDC', 'Shared commmunication schedule'),
+                        header: Uni.I18n.translate('deviceCommunicationPlanning.sharedCommunicationSchedule', 'MDC', 'Shared communication schedule'),
                         dataIndex: 'name',
                         flex: 2
                     },
@@ -123,7 +123,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                 },
                                 {
                                     text: Uni.I18n.translate('deviceCommunicationPlanning.runComTaskNowWithPriority', 'MDC', 'Run with priority'),
-                                    privileges: Mdc.privileges.Device.operateDeviceCommunication,
+                                    privileges: Mdc.privileges.Device.runWithPriority,
                                     itemId: 'mdc-device-communication-planning-runDeviceComTaskNowWithPriority',
                                     action: 'runDeviceComTaskNowWithPriority',
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions

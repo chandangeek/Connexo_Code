@@ -87,6 +87,8 @@ import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -182,25 +184,29 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Valid
     private List<DeviceProtocolConfigurationProperty> protocolProperties = new ArrayList<>();
     private ProtocolConfigurationPropertyChanges protocolConfigurationPropertyChanges = new ProtocolConfigurationPropertyChanges();
-    private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
-    private final Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
-    private final Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
-    private final Provider<LogBookSpecImpl> logBookSpecProvider;
-    private final Provider<ChannelSpecImpl> channelSpecProvider;
-    private final SchedulingService schedulingService;
-    private final ThreadPrincipalService threadPrincipalService;
+    private Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
+    private Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
+    private Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
+    private Provider<LogBookSpecImpl> logBookSpecProvider;
+    private Provider<ChannelSpecImpl> channelSpecProvider;
+    private SchedulingService schedulingService;
+    private ThreadPrincipalService threadPrincipalService;
 
     private List<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUsages = new ArrayList<>();
-    private final Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
+    private Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
 
     private List<DeviceConfigurationEstimationRuleSetUsage> deviceConfigurationEstimationRuleSetUsages = new ArrayList<>();
-    private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
+    private Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
     private boolean dataloggerEnabled;
     private boolean multiElementEnabled;
     private boolean validateOnStore;
     private boolean isDefault;
 
     private PropertySpecService propertySpecService;
+
+    protected DeviceConfigurationImpl() {
+        super();
+    }
 
     @Inject
     protected DeviceConfigurationImpl(
@@ -243,6 +249,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -469,8 +476,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    @XmlElement(type = DeviceTypeImpl.class, name = "deviceType")
     public DeviceType getDeviceType() {
         return this.deviceType.get();
+    }
+
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType.set(deviceType);
     }
 
     @Override
@@ -1161,6 +1173,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    @XmlElement(type = SecurityPropertySetImpl.class)
     public List<SecurityPropertySet> getSecurityPropertySets() {
         return Collections.unmodifiableList(securityPropertySets);
     }
@@ -1242,6 +1255,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    @XmlElement(type = ComTaskEnablementImpl.class)
     public List<ComTaskEnablement> getComTaskEnablements() {
         return Collections.unmodifiableList(this.comTaskEnablements);
     }
@@ -1277,6 +1291,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         Optional<DeviceMessageEnablementImpl> enablement =
                 this.deviceMessageEnablements
                         .stream()
+                        .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                         .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
                         .findFirst();
         enablement.ifPresent(this::removeDeviceMessageEnablement);
@@ -1307,6 +1322,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 }
             }
             java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = getDeviceMessageEnablements().stream()
+                    .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                     .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
                             .equals(deviceMessageId))
                     .findAny();
@@ -1343,7 +1359,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
         this.getDeviceMessageEnablements()
                 .stream()
-                .map(DeviceMessageEnablement::getDeviceMessageId)
+                .map(DeviceMessageEnablement::getDeviceMessageDbValue)
+                .map(DeviceMessageId::find)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .forEach(enabledDeviceMessageIds::add);
 
         return category.getMessageSpecifications()
@@ -1361,6 +1380,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         List<DeviceMessageEnablementImpl> obsoleteEnablements =
                 this.deviceMessageEnablements
                         .stream()
+                        .filter(enablement -> DeviceMessageId.find(enablement.getDeviceMessageDbValue()).isPresent())
                         .filter(enablement -> fileManagementRelated.contains(enablement.getDeviceMessageId()))
                         .collect(Collectors.toList());
         obsoleteEnablements.forEach(DeviceMessageEnablementImpl::prepareDelete);
@@ -1853,7 +1873,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         getPartialConnectionTasks().forEach(partialConnectionTask -> ((ServerPartialConnectionTask) partialConnectionTask)
                 .cloneForDeviceConfig(clone));
         getComTaskEnablements().forEach(comTaskEnablement -> ((ServerComTaskEnablement) comTaskEnablement).cloneForDeviceConfig(clone));
-        getDeviceMessageEnablements().forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement)
+        getDeviceMessageEnablements().stream().filter(dme -> DeviceMessageId.find(dme.getDeviceMessageDbValue()).isPresent())
+                .forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement)
                 .cloneForDeviceConfig(clone));
         getRegisterSpecs().forEach(registerSpec -> ((ServerRegisterSpec) registerSpec).cloneForDeviceConfig(clone));
         getLogBookSpecs().forEach(logBookSpec -> ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone));
@@ -1886,5 +1907,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 clone.getDeviceProtocolProperties().setProperty(propertySpec.getName(), propertyValue);
             }
         };
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

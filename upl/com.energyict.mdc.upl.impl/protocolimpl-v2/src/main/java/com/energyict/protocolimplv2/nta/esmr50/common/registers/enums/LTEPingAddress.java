@@ -11,7 +11,6 @@ public class LTEPingAddress {
 
     private String ipAddress;
     private String port;
-    private AbstractDataType structure;
 
     public LTEPingAddress(AbstractDataType abstractDataType) {
         Structure structure = abstractDataType.getStructure();

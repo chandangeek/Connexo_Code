@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
@@ -683,6 +682,16 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
                     keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPSKKEKAttributeName, DeviceMessageConstants.newPSKKEKDefaultTranslation)
+            );
+        }
+    },
+
+    //from eiserver 8.11
+    MBUS_TRANSFER_FUAK(7076, "Set M-Bus Firmware Update Authentication Key (FUAK)") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.FUAKeyAttributeName, DeviceMessageConstants.FUAKeyAttributeDefaultTranslation)
             );
         }
     },

@@ -3,8 +3,8 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.*;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -303,6 +303,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     @Override
+    public boolean useEquipmentIdentifierAsSerialNumber() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false);
+    }
+
+    @Override
     public long getTimeout() {
         return properties.getTypedProperty(TIMEOUT, Duration.ofMillis(DEFAULT_TIMEOUT.intValue())).toMillis();
     }
@@ -363,8 +368,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public Duration getPollingDelay() {
-        // Return the default value, 100 ms.
-        return Duration.ofMillis(100);
+        return properties.getTypedProperty(DlmsSessionProperties.POLLING_DELAY, Duration.ofMillis(0));
     }
 
     @Override
@@ -427,7 +431,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public long getFrameCounterLimit() {
         try {
-            return this.properties.getTypedProperty(FRAME_COUNTER_LIMIT, 0);
+            return this.properties.getTypedProperty(FRAME_COUNTER_LIMIT, 0L);
         } catch (Exception ex){
             // catch any obsolete value (i.e. string)
             return 0;

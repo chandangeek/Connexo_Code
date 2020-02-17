@@ -20,7 +20,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
-import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
+import com.elster.jupiter.orm.associations.references.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
 import com.elster.jupiter.util.streams.Functions;
@@ -638,8 +638,6 @@ public class DataModelImpl implements DataModel {
     }
 
     void addAllTables(DataModelImpl other) {
-        other.getTables()
-                .stream()
-                .forEach(this::add);
+        other.getTables().forEach(this::add);
     }
 }

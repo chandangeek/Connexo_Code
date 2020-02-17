@@ -120,11 +120,11 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         List<SecurityAccessor> securityAccessors = device.getSecurityAccessors();
         assertThat(securityAccessors).hasSize(1);
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessors.get(0);
-        assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isFalse();
-        assertThat(securityAccessor.getActualValue().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
+        assertThat(securityAccessor.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
         assertThat(securityAccessor.getTempValue()).isEmpty();
         assertThat(securityAccessor.getVersion()).isNegative();
     }
@@ -141,11 +141,11 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isFalse();
-        assertThat(securityAccessor.getActualValue().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
+        assertThat(securityAccessor.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
         assertThat(securityAccessor.getTempValue()).isEmpty();
         assertThat(securityAccessor.getVersion()).isNegative();
     }
@@ -162,28 +162,28 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isFalse();
-        assertThat(securityAccessor.getActualValue().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
+        assertThat(securityAccessor.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
         assertThat(securityAccessor.getTempValue()).isEmpty();
         assertThat(securityAccessor.getVersion()).isNegative();
 
         securityAccessorOptional = device.getSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeOnDevice.getSecurityAccessor().getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeOnDevice.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.INCOMPLETE);
         assertThat(securityAccessor.isEditable()).isTrue();
-        assertThat(securityAccessor.getActualValue()).isEmpty();
+        assertThat(securityAccessor.getActualPassphraseWrapperReference()).isEmpty();
         assertThat(securityAccessor.getTempValue().map(CertificateWrapper::getAlias)).contains(CERT_1_ALIAS);
         assertThat(securityAccessor.getVersion()).isEqualTo(2);
 
         device.removeSecurityAccessor(securityAccessor);
         assertThat(device.getSecurityAccessors().stream()
-                .map(SecurityAccessor::getKeyAccessorType)
+                .map(SecurityAccessor::getKeyAccessorTypeReference)
                 .collect(Collectors.toList()))
                 .containsOnly(certificateTypeManagedCentrally.getSecurityAccessor());
         device.getDeviceType().removeDeviceSecurityAccessorType(certificateTypeOnDevice);
@@ -201,13 +201,13 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         securityAccessor.setTempValue(cert1);
         securityAccessor.save();
         assertThat(device.getSecurityAccessors().stream()
-                .map(SecurityAccessor::getKeyAccessorType)
+                .map(SecurityAccessor::getKeyAccessorTypeReference)
                 .collect(Collectors.toList()))
                 .containsOnly(certificateTypeManagedCentrally.getSecurityAccessor(), certificateTypeOnDevice.getSecurityAccessor());
 
         device.getDeviceType().removeDeviceSecurityAccessorType(certificateTypeManagedCentrally);
         assertThat(device.getSecurityAccessors().stream()
-                .map(SecurityAccessor::getKeyAccessorType)
+                .map(SecurityAccessor::getKeyAccessorTypeReference)
                 .collect(Collectors.toList()))
                 .containsOnly(certificateTypeOnDevice.getSecurityAccessor());
 
@@ -228,7 +228,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
-        securityAccessor.setActualValue(cert1);
+        securityAccessor.setActualPassphraseWrapperReference(cert1);
         securityAccessor.setTempValue(cert2);
         securityAccessor.swapValues(); // saved inside
         securityAccessor.clearTempValue(); // saved inside
@@ -236,11 +236,11 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         securityAccessorOptional = device.getSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeOnDevice.getSecurityAccessor().getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeOnDevice.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isTrue();
-        assertThat(securityAccessor.getActualValue().map(CertificateWrapper::getAlias)).contains(CERT_2_ALIAS);
+        assertThat(securityAccessor.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(CERT_2_ALIAS);
         assertThat(securityAccessor.getTempValue()).isEmpty();
         assertThat(securityAccessor.getVersion()).isEqualTo(4);
 
@@ -312,7 +312,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
 
         expectedEx.expect(UnmanageableSecurityAccessorException.class);
         expectedEx.expectMessage("It's not allowed to modify centrally managed security accessor '" + SA_CENTRALLY_MANAGED + "' on device level.");
-        securityAccessor.setActualValue(cert2);
+        securityAccessor.setActualPassphraseWrapperReference(cert2);
     }
 
     @Test

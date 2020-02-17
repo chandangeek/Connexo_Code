@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -160,6 +161,8 @@ public class UsagePointImpl implements ServerUsagePoint {
     private String mRID;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'%', '+', '/', ';', '?', '\\', '!', '*', '\'', '(', ')', ':', '@', '&', '=', '$', ',', '[', ']' },
+            groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FORBIDDEN_CHARS + "}")
     private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private boolean isSdp;
@@ -1417,7 +1420,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         comparisons.add(Operator.GREATERTHAN.compare("readingtimestamp", range.lowerEndpoint().toEpochMilli()));
         comparisons.add(Operator.LESSTHANOREQUAL.compare("readingtimestamp", range.upperEndpoint().toEpochMilli()));
         if (!readingTypes.isEmpty()) {
-            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(IdentifiedObject::getMRID).toArray((String[]::new))));
+            comparisons.add(Operator.IN.compare("readingtypeid", readingTypes.stream().map(rt->((IReadingType)rt).getId()).collect(Collectors.toList()).toArray()));
         }
         comparisons.add(Operator.IN.compare("channelid", aggregatedChannel.getId()));
 

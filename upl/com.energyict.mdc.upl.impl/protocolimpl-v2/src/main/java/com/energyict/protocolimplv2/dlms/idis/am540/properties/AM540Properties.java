@@ -108,6 +108,7 @@ public class AM540Properties extends IDISProperties {
     /**
      * False by default, to return the serial number of the connected e-meter
      */
+    @Override
     public boolean useEquipmentIdentifierAsSerialNumber() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }

@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
+import com.energyict.common.framework.CryptoDlmsSession;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -15,11 +19,6 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.common.framework.CryptoDlmsSession;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.common.CryptoDSMR23Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.CryptoDSMR23MessageExecutor;
@@ -39,6 +38,7 @@ public class CryptoWebRTUKP extends WebRTUKP {
 
     public CryptoWebRTUKP(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+        setHasBreaker(false);
     }
 
     @Override
@@ -105,7 +105,8 @@ public class CryptoWebRTUKP extends WebRTUKP {
         return this.cryptoMessageExecutor;
     }
 
-    protected CryptoDSMR23Messaging getMessaging() {
+    @Override
+    protected CryptoDSMR23Messaging getDsmr23Messaging() {
         if (this.cryptoMessaging == null) {
             this.cryptoMessaging = new CryptoDSMR23Messaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(),
                     this.getConverter(), this.getDeviceMessageFileExtractor(), this.getTariffCalendarExtractor(),

@@ -1,5 +1,10 @@
 package com.energyict.mdc.ports;
 
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(name = "comPortType")
+@XmlEnum
 public enum ComPortType {
 
     SERIAL {

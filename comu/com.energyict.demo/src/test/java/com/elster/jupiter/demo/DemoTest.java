@@ -76,7 +76,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
@@ -147,9 +147,7 @@ import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplat
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.command.impl.CommandRuleModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.cps.ChannelSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.cps.DeviceEMeterInfoCustomPropertySet;
-import com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.DeviceService;
@@ -189,7 +187,7 @@ import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.templates.AbstractDataCollectionTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate;
+import com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.datavalidation.impl.IssueDataValidationModule;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.IssueDeviceLifecycleModule;
@@ -401,7 +399,7 @@ public class DemoTest {
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
@@ -860,8 +858,6 @@ public class DemoTest {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceEMeterInfoCustomPropertySet.class));
-        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceSAPInfoCustomPropertySet.class));
-        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(ChannelSAPInfoCustomPropertySet.class));
     }
 
     private void createRequiredProtocols() {

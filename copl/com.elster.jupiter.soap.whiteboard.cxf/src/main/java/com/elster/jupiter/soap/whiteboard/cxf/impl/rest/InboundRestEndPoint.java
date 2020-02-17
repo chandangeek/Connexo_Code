@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
+import com.elster.jupiter.rest.util.MimeTypesExt;
 import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
@@ -134,6 +135,8 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         @Override
         public boolean handleSecurity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws
                 IOException {
+            httpServletResponse.addHeader("X-Content-Type-Options", "nosniff");
+            httpServletResponse.setContentType("application/octet-stream");
             return true;
         }
 
@@ -144,7 +147,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
 
         @Override
         public String getMimeType(String s) {
-            return null;
+            return MimeTypesExt.get().getByFile(s);
         }
     }
 }

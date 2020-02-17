@@ -7,9 +7,10 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.crypto.KeyRenewalMBusResponse;
@@ -27,11 +28,12 @@ import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50Properties;
-import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusClient;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Properties;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50MbusMessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.MBusKeyID;
@@ -46,31 +48,33 @@ import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.DEFAULT_KEY;
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.FUAK;
 
 public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
     private static final int BLOCK_SIZE = 64 * 1024;
     private CommonCryptoMbusMessageExecutor mbusCryptoMessageExecutor;
 
-    public CryptoESMR50MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(protocol, collectedDataFactory, issueFactory);
+    public CryptoESMR50MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
+                                           IssueFactory issueFactory, DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        super(protocol, collectedDataFactory, issueFactory, deviceMasterDataExtractor);
         mbusCryptoMessageExecutor = new CommonCryptoMbusMessageExecutor(isUsingCryptoServer(), getProtocol(), collectedDataFactory, issueFactory);
     }
 
     @Override
-    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages){
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         CollectedMessageList result = this.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         List<OfflineDeviceMessage> notExecutedDeviceMessages = new ArrayList<>();
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             try {
-                if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBUS_TRANSFER_FUAK)) {
+                if (pendingMessage.getSpecification().equals(SecurityMessage.MBUS_TRANSFER_FUAK)) {
                     collectedMessage = doTransferCryptoFUAK(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBUS_TRANSFER_P2KEY)) {
                     collectedMessage = doTransferCryptoP2Key(pendingMessage);
-                } else if (pendingMessage.getSpecification()
-                        .equals(MBusSetupDeviceMessage.MBUS_ESMR5_FIRMWARE_UPGRADE)) {
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.MBUS_ESMR5_FIRMWARE_UPGRADE)) {
                     collectedMessage = doFirmwareUpgradeCrypto(pendingMessage);
                 } else if (pendingMessage.getSpecification()
                         .equals(MBusSetupDeviceMessage.MBUS_READ_DETAILED_VERSION_INFORMATION_TAG)) {
@@ -107,12 +111,11 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
             String serialNumber = pendingMessage.getDeviceSerialNumber();
-            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
-            ESMR50MbusClient mBusClient5 = new ESMR50MbusClient(mbusClient.getProtocolLink(), mbusClient.getObjectReference(), MbusClientAttributes.VERSION9);
+            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
 
             int dataParameter = 0;
             Unsigned8 data = new Unsigned8(dataParameter);
-            byte[] response = mBusClient5.readDetailedVersionInformation(data);
+            byte[] response = mbusClient.readDetailedVersionInformation(data);
             String msg = "Method response: " + ProtocolTools.getHexStringFromBytes(response, "");
             journal(Level.INFO, msg);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -127,21 +130,20 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         return collectedMessage;
     }
 
-    @Override
     protected void setCryptoserverMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
         mbusCryptoMessageExecutor.setCryptoserverMbusEncryptionKeys(pendingMessage);
     }
 
-    private CollectedMessage doTransferCryptoFUAK(OfflineDeviceMessage pendingMessage) {
+    private CollectedMessage doTransferCryptoFUAK(OfflineDeviceMessage pendingMessage) throws ProtocolException {
         return doTransferMBusKeyCrypto(MBusKeyID.FUAK, pendingMessage);
     }
 
-    private CollectedMessage doTransferCryptoP2Key(OfflineDeviceMessage pendingMessage) {
+    private CollectedMessage doTransferCryptoP2Key(OfflineDeviceMessage pendingMessage) throws ProtocolException {
         return doTransferMBusKeyCrypto(MBusKeyID.P2, pendingMessage);
     }
 
-    private CollectedMessage doTransferMBusKeyCrypto(MBusKeyID keyID, OfflineDeviceMessage pendingMessage) {
-        String serialNumber = pendingMessage.getDeviceSerialNumber();
+    private CollectedMessage doTransferMBusKeyCrypto(MBusKeyID keyID, OfflineDeviceMessage pendingMessage) throws ProtocolException {
+        final String serialNumber = pendingMessage.getDeviceSerialNumber();
 
         if (!isUsingCryptoServer()) {
             return super.doTransferMbusKeyPlain(keyID, pendingMessage);
@@ -184,19 +186,18 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         journal(Level.INFO, "Complete key data " + ProtocolTools.getHexStringFromBytes(keyData));
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
-            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
-            ESMR50MbusClient mBusClient5 = new ESMR50MbusClient(mbusClient.getProtocolLink(), mbusClient.getObjectReference(), MbusClientAttributes.VERSION9);
+            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
 
             if (MBusKeyID.FUAK.equals(keyID)) {
                 journal(Level.INFO, "Invoking FUAK method");
-                mBusClient5.transferFUAK(keyData);
+                mbusClient.transferFUAK(keyData);
                 journal(Level.INFO, "Successfully wrote the new MBus FUAK");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
                 collectedMessage.setDeviceProtocolInformation(newKeyEncrypted);
             } else if (MBusKeyID.P2.equals(keyID)) {
 
                 if (isUsingCryptoServer()) {
-                    CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(mbusClient, MbusClientAttributes.VERSION9);
+                    CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(mbusClient, MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
 
                     journal(Level.INFO, "Invoking transportKey method with the full key data");
                     // this is to pass the key to the g-meter
@@ -218,11 +219,11 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
                 } else {
                     journal(Level.INFO, "Invoking transportKey method with the full key data");
                     // this is to pass the key to the g-meter
-                    mBusClient5.setTransportKey(keyData);
+                    mbusClient.setTransportKey(keyData);
 
                     journal(Level.INFO, "Invoking encryptionKey method to send the openKey: " + newOpenKey);
                     // this is to store the key
-                    mBusClient5.setEncryptionKey(ProtocolTools.getBytesFromHexString(newOpenKey, 2));
+                    mbusClient.setEncryptionKey(ProtocolTools.getBytesFromHexString(newOpenKey, 2));
 
                     journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
                     journal(Level.INFO, "Saving the messageInfo: " + newKeyEncrypted);
@@ -256,7 +257,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         byte[] mbusIV = getInitializationVector(kcc, serialNumber);
         byte[] eMeterIV = mbusCryptoMessageExecutor.getNextInitializationVector();
 
-        String defaultKeyProperty = getMBusDefaultKey(pendingMessage);
+        String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
         //IrreversibleKeyImpl encryptedKeyPhase2DefaultKey = EncryptedKeyPhase2.fromDataBaseString(defaultKeyProperty);
         //ProtectedSessionKey defaultKey = encryptedKeyPhase2DefaultKey.toProtectedSessionKey();
         IrreversibleKey defaultKey = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(defaultKeyProperty));
@@ -347,10 +348,10 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
     private CollectedMessage doFirmwareUpgradeCrypto(OfflineDeviceMessage pendingMessage) throws IOException, ConfigurationException {
         journal(Level.INFO, "Handling message Firmware upgrade (crypto)");
-        String serialNumber = pendingMessage.getDeviceSerialNumber();
+        final String serialNumber = pendingMessage.getDeviceSerialNumber();
 
         if (!isUsingCryptoServer()) {
-            return super.doFirmwareUpgrade(pendingMessage, super.getMBusFUAK());
+            return super.doFirmwareUpgrade(pendingMessage, super.getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), FUAK));
         }
 
         // crypto phase 2
@@ -374,7 +375,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
             journal(Level.FINE, "-activationDate: " + activationDateStr);
         }
 
-        String fuakRaw = super.getMBusFUAK();
+        String fuakRaw = super.getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), FUAK);
         journal(Level.FINE, "-imageData length:" + imageData.length);
         journal(Level.FINE, "-FUAK key:" + fuakRaw);
 
@@ -429,7 +430,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
                 it.setStartIndex(lastTransferredBlockNumber - 1);
             }
         }
-        handleFWUpgrade(activationDateStr, it, finalImageData, imageIdentifier);
+        handleFWUpgrade(it, finalImageData, imageIdentifier);
         journal(Level.INFO, "Firmware upgrade successful.");
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -437,10 +438,10 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         return collectedMessage;
     }
 
-    private void handleFWUpgrade(String activationDate, ImageTransfer it, byte[] imageData, String imageIdentifier) throws
+    private void handleFWUpgrade(ImageTransfer it, byte[] imageData, String imageIdentifier) throws
             IOException {
         //it seems it's no different than non crypto in eiserver
-        handleFWUpgradePhase0(activationDate, it, imageData, imageIdentifier);
+        handleFWUpgradePhase0(it, imageData, imageIdentifier);
     }
 
     private MacResponse generateMacSingleBlock(IrreversibleKey FUAK, byte[] clearData, byte[] icv) throws HsmException {

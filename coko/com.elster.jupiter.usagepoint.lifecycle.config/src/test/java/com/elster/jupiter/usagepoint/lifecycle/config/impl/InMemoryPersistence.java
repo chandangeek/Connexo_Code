@@ -13,7 +13,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
@@ -52,7 +52,7 @@ public class InMemoryPersistence {
                 new DomainUtilModule(),
                 new ThreadSecurityModule(),
                 new UserModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new PubSubModule(),
                 new InMemoryMessagingModule(),
                 new BpmModule(),

@@ -105,26 +105,27 @@ public class ManualBehaviorComTaskExecutionImplTest extends AbstractComTaskExecu
         // Asserts
         assertThat(comTaskExecution.getNextExecutionSpecs().isPresent()).isFalse();
     }
-/*
-Irrelevant as delete is not supported any more
-    @Test
-    @Transactional
-    public void nextExecSpecIsDeletedAfterComTaskExecutionDeletedTest() {
-        TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "NextExecSpecDelete", "NextExecSpecDelete");
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, myTemporalExpression);
-        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-        long nextExecutionSpecId = comTaskExecution.getNextExecutionSpecs().get().getId();
 
-        // Business method
-        ((ComTaskExecutionImpl) comTaskExecution).delete();
+    /*
+    Irrelevant as delete is not supported any more
+        @Test
+        @Transactional
+        public void nextExecSpecIsDeletedAfterComTaskExecutionDeletedTest() {
+            TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(3));
+            ComTaskEnablement comTaskEnablement = enableComTask(true);
+            Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "NextExecSpecDelete", "NextExecSpecDelete");
+            ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, myTemporalExpression);
+            ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+            device.save();
+            long nextExecutionSpecId = comTaskExecution.getNextExecutionSpecs().get().getId();
 
-        // Asserts
-        assertThat(inMemoryPersistence.getSchedulingService().findNextExecutionSpecs(nextExecutionSpecId)).isNull();
-    }
-*/
+            // Business method
+            ((ComTaskExecutionImpl) comTaskExecution).delete();
+
+            // Asserts
+            assertThat(inMemoryPersistence.getSchedulingService().findNextExecutionSpecs(nextExecutionSpecId)).isNull();
+        }
+    */
     @Test
     @Transactional
     public void removeComTaskTest() {
@@ -506,7 +507,7 @@ Irrelevant as delete is not supported any more
     public void comTaskAlreadyScheduledViaComScheduleTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), Instant.now());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "Duplicate", "Duplicate", Instant.now());
         ComTaskExecutionBuilder scheduledComTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
@@ -603,7 +604,7 @@ Irrelevant as delete is not supported any more
     @Transactional
     public void manuallyScheduledNextExecutionSpecWithOffsetTest() {
         freezeClock(2014, 4, 4, 10, 12, 32, 123);
-        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0, TimeZone.getTimeZone("UTC"));
+        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", fixedTimeStamp);

@@ -11,6 +11,7 @@ import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnecti
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -47,7 +48,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
-import com.energyict.protocolimplv2.nta.esmr50.common.events.Esmr50LogBookFactory;
+import com.energyict.protocolimplv2.nta.esmr50.common.events.ESMR50LogBookFactory;
 import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50MessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50Messaging;
@@ -80,7 +81,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     protected final NlsService nlsService;
     ESMR50Cache esmr50Cache;
-    private Esmr50LogBookFactory esmr50LogBookFactory;
+    private ESMR50LogBookFactory esmr50LogBookFactory;
     protected ESMR50RegisterFactory registerFactory;
     private ESMR50Messaging esmr50Messaging;
     private ESMR50MessageExecutor esmr50MessageExecutor;
@@ -90,9 +91,13 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     protected final DeviceMessageFileExtractor messageFileExtractor;
     protected final NumberLookupExtractor numberLookupExtractor;
     protected final LoadProfileExtractor loadProfileExtractor;
+    private final DeviceMasterDataExtractor deviceMasterDataExtractor;
 
-
-    public ESMR50Protocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    public ESMR50Protocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                          PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                          DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                          NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                          KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceMasterDataExtractor deviceMasterDataExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.calendarExtractor = calendarExtractor;
         this.nlsService = nlsService;
@@ -101,11 +106,12 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
 
     @Override
     public String getVersion() {
-        return "ESMR 5.0 - 2019-07-01";
+        return "ESMR 5.0 - 2019-12-05";
     }
 
     @Override
@@ -145,6 +151,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
                 }
             } catch (CommunicationException ex) {
                 journal("Association using the new frame counter has failed ("+ex.getLocalizedMessage()+")");
+                throw ex;
             } catch (Exception ex){
                 journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
                 throw ex;
@@ -354,9 +361,9 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return getEsmr50LogBookFactory().getLogBookData(logBookReaders);
     }
 
-    private Esmr50LogBookFactory getEsmr50LogBookFactory() {
+    private ESMR50LogBookFactory getEsmr50LogBookFactory() {
         if (esmr50LogBookFactory == null) {
-            esmr50LogBookFactory = new Esmr50LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+            esmr50LogBookFactory = new ESMR50LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return esmr50LogBookFactory;
     }
@@ -386,7 +393,8 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     protected ESMR50MessageExecutor getMessageExecutor() {
         if (this.esmr50MessageExecutor == null) {
-            this.esmr50MessageExecutor = new ESMR50MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.keyAccessorTypeExtractor);
+            this.esmr50MessageExecutor = new ESMR50MessageExecutor(this, this.getCollectedDataFactory(),
+                    this.getIssueFactory(), this.keyAccessorTypeExtractor, this.deviceMasterDataExtractor);
         }
         return this.esmr50MessageExecutor;
     }

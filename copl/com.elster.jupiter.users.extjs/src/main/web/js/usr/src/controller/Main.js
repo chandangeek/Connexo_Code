@@ -18,6 +18,7 @@ Ext.define('Usr.controller.Main', {
         'Usr.controller.UserEdit',
         'Usr.controller.UserDirectories',
         'Usr.controller.Workgroups',
+        'Usr.controller.UserSecuritySettings',
         'Usr.controller.history.UserManagement'
     ],
 
@@ -80,6 +81,15 @@ Ext.define('Usr.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.workgroups', 'USR', 'Workgroups'),
                         href: '#/administration/workgroups'
+                    }
+                );
+            }
+
+            if(Usr.privileges.Users.canAdministrate()) {
+                usersItems.push(
+                    {
+                        text: Uni.I18n.translate('general.userSecuritySettings', 'USR', 'User security settings'),
+                        href: '#/administration/usersecuritysettings'
                     }
                 );
             }

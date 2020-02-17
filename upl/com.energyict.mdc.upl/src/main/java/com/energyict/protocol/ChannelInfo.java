@@ -6,9 +6,11 @@ package com.energyict.protocol;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 
 
@@ -372,6 +374,8 @@ public class ChannelInfo implements java.io.Serializable {
      *
      * @return the <CODE>ObisCode</CODE> of this channel
      */
+    @JsonIgnore
+    @XmlTransient
     public ObisCode getChannelObisCode() throws IllegalArgumentException {
         ObisCode obisCode = ObisCode.fromString(this.name);
         if(obisCode.isInvalid()){

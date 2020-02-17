@@ -60,6 +60,7 @@ import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.IDISProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -93,7 +94,7 @@ import java.util.Optional;
  * @author khe
  * @since 17/12/2014 - 14:30
  */
-public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol, SerialNumberSupport {
+public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol, SerialNumberSupport, IDISProtocol {
 
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
@@ -542,5 +543,11 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public ManufacturerInformation getManufacturerInformation() {
         return null;
     }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
+    }
+
 
 }

@@ -148,6 +148,9 @@ public class MdcAppInstaller {
                     //Business processes
                     com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
 
+                    //Mobile Comserver
+                    com.energyict.mdc.engine.security.Privileges.Constants.OPERATE_MOBILE_COMSERVER,
+
                     //Communication
                     com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
                     com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE,
@@ -188,6 +191,10 @@ public class MdcAppInstaller {
                     com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL1,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL2,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL3,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL4,
 
 
                     //Estimation

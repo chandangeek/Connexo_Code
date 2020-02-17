@@ -23,7 +23,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     UNSATISFIED_TOU(10001, Constants.UNSATISFIED_TOU, "The metrology configuration has purposes that could not be matched by the calendar. Add another calendar or change the metrology configuration to be able to match these"),
     ILLEGAL_CURRENCY_CODE(10002, "currency.illegalcode", "Invalid currency code : ''{0}''"),
 
-    METER_EVENT_IGNORED(2001, "meter.event.ignored", "Ignored event {0} on meter {1}, since it is not defined in the system", Level.INFO),
+    UNEXPECTED_METER_EVENT_LOGGED(2001, "unexpected.meter.event.logged", "Added event {0} to the system on demand, because it was logged by meter {1}.", Level.INFO),
     READINGTYPE_IGNORED(2002, "readingtype.ignored", "Ignored data for reading type {0} on meter {1}, since reading type is not defined int the system", Level.INFO),
     NOMETERACTIVATION(2003, "meter.nometeractivation", "No meter activation found for meter {0} on {1}", Level.INFO),
     READINGTYPE_ADDED(2004, "readingtype.added", "Added reading type {0} for meter {1}", Level.INFO),
@@ -127,7 +127,9 @@ public enum PrivateMessageSeeds implements MessageSeed {
     METROLOGY_CONFIG_INVALID_START_DATE(12211, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "Metrology configuration linking error. The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}"),
     METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(12212, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}"),
     METER_CANNOT_BE_UNLINKED(12213, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configuration does not allow gaps, meter ''{0}'' cannot be unlinked from usage point ''{1}'' at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
-    METER_ACTIVATION_OVERLAP(12214, Constants.METER_ACTIVATION_OVERLAP, "Meter linking error. Meter {0} cannot be linked on {1} because there are closed meter activations on this meter at this point of time");
+    METER_ACTIVATION_OVERLAP(12214, Constants.METER_ACTIVATION_OVERLAP, "Meter linking error. Meter {0} cannot be linked on {1} because there are closed meter activations on this meter at this point of time"),
+    FORBIDDEN_CHARS(12215, Constants.FORBIDDEN_CHARS, "Usage point name contains forbidden characters: %, +, /, ;, ?, \\, !, *, '', (, ), :, @, &, =, $, ,, [, ]."),
+    ;
 
     private final int number;
     private final String key;
@@ -264,6 +266,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION = "meters.are.not.specified.for.configuration";
         public static final String METER_CANNOT_BE_UNLINKED = "meter.cannot.be.unlinked";
         public static final String METER_ACTIVATION_OVERLAP = "meter.activation.overlap";
+        public static final String FORBIDDEN_CHARS = "forbiddenChars";
     }
 
 }

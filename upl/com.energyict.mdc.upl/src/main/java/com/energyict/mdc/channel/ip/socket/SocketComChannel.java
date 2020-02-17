@@ -2,6 +2,7 @@ package com.energyict.mdc.channel.ip.socket;
 
 import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.channel.ip.datagrams.MessageSeeds;
+import com.energyict.mdc.protocol.ComChannelRemoteAddress;
 import com.energyict.mdc.protocol.ComChannelType;
 
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -17,7 +18,7 @@ import java.net.Socket;
  * Date: 17/08/12
  * Time: 16:33
  */
-public class SocketComChannel extends SynchroneousComChannel {
+public class SocketComChannel extends SynchroneousComChannel implements ComChannelRemoteAddress {
 
     private final Socket socket;
 
@@ -76,6 +77,11 @@ public class SocketComChannel extends SynchroneousComChannel {
         } catch (IOException e) {
             throw new ConnectionCommunicationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
+    }
+
+    @Override
+    public String getRemoteSocketAddress(){
+        return this.socket.getRemoteSocketAddress().toString();
     }
 
 }

@@ -44,6 +44,8 @@ public interface ServiceCall extends HasId {
 
     Optional<?> getTargetObject();
 
+    void setTargetObject(Object targetObject);
+
     Optional<ServiceCall> getParent();
 
     ServiceCallType getType();
@@ -83,4 +85,6 @@ public interface ServiceCall extends HasId {
     void delete();
 
     boolean canTransitionTo(DefaultState targetState);
+
+    void transitionWithLockIfPossible(DefaultState state);
 }

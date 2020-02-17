@@ -4,8 +4,11 @@
 
 package com.energyict.protocol;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -410,6 +413,8 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     /**
      * @return the number of values for the interval
      */
+    @JsonIgnore
+    @XmlTransient
     public int getValueCount() {
         return intervalValues.size();
     }
@@ -425,6 +430,8 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     /**
      * @return an iterator over the values for the interval
      */
+    @JsonIgnore
+    @XmlTransient
     public Iterator<IntervalValue> getValuesIterator() {
         return intervalValues.iterator();
     }
@@ -453,6 +460,8 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @return List Iterator
      */
+    @JsonIgnore
+    @XmlTransient
     public ListIterator<IntervalValue> getIntervalValueIterator() {
         return intervalValues.listIterator();
     }

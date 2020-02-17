@@ -5,6 +5,7 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.rest.util.MimeTypesExt;
 
 import org.osgi.service.http.HttpContext;
 
@@ -23,7 +24,7 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public String getMimeType(String name) {
-        return null;
+        return MimeTypesExt.get().getByFile(name);
     }
 
     @Override
@@ -38,7 +39,8 @@ public class HttpContextImpl implements HttpContext {
         if(!authorize && request.getHeader("referer") != null){
             response.setHeader("WWW-Authenticate","Custom");
         }
-
+        response.addHeader("X-Content-Type-Options", "nosniff");
+        response.setContentType("application/octet-stream");
         return authorize;
     }
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -33,7 +34,9 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
+import com.google.common.collect.SetMultimap;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -51,10 +54,13 @@ import org.mockito.stubbing.Answer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -156,6 +162,14 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         verify(deviceBuilder).withModelVersion(MODEL_VERSION);
         verify(deviceBuilder).withMultiplier(BigDecimal.valueOf(MULTIPLIER));
         verify(deviceBuilder).create();
+
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
@@ -276,6 +290,14 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
                 any(CustomPropertySetValues.class));
         verify(customPropertySetService).setValuesVersionFor(eq(customVersionedPropertySet), eq(device),
                 any(CustomPropertySetValues.class), any(Range.class));
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+
 
         // Assert response
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
@@ -322,6 +344,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         verify(deviceBuilder).withModelNumber(null);
         verify(deviceBuilder).withModelVersion(null);
         verify(deviceBuilder).create();
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
@@ -387,6 +414,13 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo(MessageSeeds.SYNC_MODE_NOT_SUPPORTED.getErrorCode());
+
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -421,6 +455,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo("ERRORCODE");
             assertThat(error.getDetails()).isEqualTo("ErrorMessage");
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -452,6 +491,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getDetails()).isEqualTo("ErrorMessage");
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -482,6 +526,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.getErrorCode());
             assertThat(error.getDetails())
                     .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.translate(thesaurus, NO_SUCH_DEVICE_TYPE_TEXT));
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -513,6 +562,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.getErrorCode());
             assertThat(error.getDetails())
                     .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.translate(thesaurus, NO_SUCH_DEVICE_CONFIG_TEXT));
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -544,6 +598,10 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(
                     MessageSeeds.MISSING_ELEMENT.translate(thesaurus, "MeterConfig.Meter.lifecycle.receivedDate"));
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -572,6 +630,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.translate(thesaurus,
                     "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -601,6 +664,9 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION.translate(thesaurus));
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         }
     }
 
@@ -616,6 +682,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             executeMeterConfigEndpoint.createMeterConfig(meterConfigRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         }
     }
 
@@ -645,6 +716,11 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.getErrorCode());
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }

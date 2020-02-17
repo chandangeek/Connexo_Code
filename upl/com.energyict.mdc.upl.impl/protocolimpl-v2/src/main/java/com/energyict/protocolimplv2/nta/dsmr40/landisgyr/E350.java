@@ -32,8 +32,8 @@ import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.Dsmr40Properties;
 import com.energyict.protocolimplv2.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
+import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
-import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 
@@ -53,7 +53,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
-    private LGLogBookFactory logBookFactory;
+    private Dsmr40LogBookFactory logBookFactory;
 
     public E350(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -73,9 +73,6 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
     protected TariffCalendarExtractor getTariffCalendarExtractor () {return calendarExtractor;}
     protected NumberLookupExtractor getNumberLookupExtractor () {return numberLookupExtractor;}
     protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
-//    protected  get () {return ;}
-//    protected  get () {return ;}
-
 
     @Override
     public String getVersion() {
@@ -173,9 +170,9 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
         return getLogBookFactory().getLogBookData(logBookReaders);
     }
 
-    private LGLogBookFactory getLogBookFactory() {
+    private Dsmr40LogBookFactory getLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new LGLogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+            logBookFactory = new Dsmr40LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return logBookFactory;
     }
@@ -220,5 +217,10 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
             journal("Cache exist, will not be read!");
             getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
         }
+    }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
     }
 }

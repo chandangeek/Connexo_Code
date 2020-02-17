@@ -9,7 +9,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.impl.MessageSeeds;
 import com.elster.jupiter.time.impl.TimeDurationUnitTranslationKeys;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -41,7 +44,7 @@ import static com.elster.jupiter.time.TimeDuration.TimeUnit.YEARS;
  *
  * @author Karel
  */
-@XmlJavaTypeAdapter(TimeDurationXmlMarshallAdapter.class)
+//@XmlJavaTypeAdapter(TimeDurationXmlMarshallAdapter.class)
 public class TimeDuration implements Comparable<TimeDuration>, Serializable {
 
     public static final TimeDuration NONE = TimeDuration.seconds(0);
@@ -65,24 +68,27 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     private static final int DAYS_IN_YEAR = 365;
     private static final int SECONDS_IN_YEAR = SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_IN_YEAR;
     private static final int MILLIS_PER_SECOND = 1000;
+    private static final int MINUTES_PER_HOUR = 60;
 
-
+    @XmlAttribute
     private int count;
+    @XmlAttribute
     private TimeUnit timeUnit;
+    @XmlAttribute
     private int timeUnitCode;
 
     /**
      * Creates a new TimeDuration of zero seconds.
      */
-    private TimeDuration() {
+    public TimeDuration() {
         count = 0;
-        timeUnitCode = -1;
+        timeUnitCode = Calendar.MILLISECOND;
     }
 
     /**
      * Creates a new TimeDuration.
      *
-     * @param count        duration length, unit is determined by second argument.
+     * @param count duration length, unit is determined by second argument.
      * @param timeUnitCode the code identifying the time unit for the new TimeDuration.
      */
     public TimeDuration(int count, int timeUnitCode) {
@@ -99,16 +105,20 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         }
     }
 
+    @JsonIgnore
+    @XmlTransient
     public TemporalUnit getTemporalUnit() {
         return getTimeUnit().getTemporalUnit();
     }
 
+    @JsonIgnore
+    @XmlTransient
     public TemporalField getTemporalField() {
         return getTimeUnit().getTemporalField();
     }
 
     public TemporalAmount asTemporalAmount() {
-        switch(getTimeUnit()) {
+        switch (getTimeUnit()) {
             case MILLISECONDS:
             case SECONDS:
             case MINUTES:
@@ -122,7 +132,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
                 return Period.ofWeeks(this.count);
             case DAYS:
                 return Period.ofDays(this.count);
-            default: throw new IllegalArgumentException("Unsupported time unit");
+            default:
+                throw new IllegalArgumentException("Unsupported time unit");
         }
     }
 
@@ -246,11 +257,10 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @return The absolute value of this TimeDuration
      */
-    public TimeDuration abs () {
+    public TimeDuration abs() {
         if (this.count >= 0) {
             return this;
-        }
-        else {
+        } else {
             return new TimeDuration(-count, this.getTimeUnit());
         }
     }
@@ -282,7 +292,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
 
     public TimeDuration(String stringValue) {
         String countAsString = stringValue.substring(0, stringValue.indexOf(" "));
-        String timeUnitAsString = stringValue.substring(stringValue.indexOf(" ")+1);
+        String timeUnitAsString = stringValue.substring(stringValue.indexOf(" ") + 1);
         try {
             this.count = Integer.parseInt(countAsString);
         } catch (NumberFormatException ex) {
@@ -321,7 +331,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
                 this.timeUnit = YEARS;
                 break;
             }
-            default: throw new LocalizedFieldValidationException(MessageSeeds.UNKNOWN_TIME_UNIT, "timeUnit", timeUnitAsString);
+            default:
+                throw new LocalizedFieldValidationException(MessageSeeds.UNKNOWN_TIME_UNIT, "timeUnit", timeUnitAsString);
         }
         timeUnitCode = timeUnit.getCode();
         //validate that the number of seconds doesn't cause an int overflow.
@@ -361,6 +372,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @return true if the receiver's length is zero
      */
+    @JsonIgnore
+    @XmlTransient
     public boolean isEmpty() {
         return count == 0;
     }
@@ -396,7 +409,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      * @return a string representation
      */
     public String toString() {
-        return getCount() + " " + getTimeUnit().description;
+        return Integer.toString(getCount()) + ' ' + getTimeUnit().description;
     }
 
     /**
@@ -442,10 +455,20 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
             // clear fields smaller than time unit
             if (getTimeUnit() == MILLISECONDS || getTimeUnit() == SECONDS ||
                     getTimeUnit() == MINUTES || getTimeUnit() == HOURS) {
-                long millis = calendar.getTimeInMillis();
-                long intervalInMillis = this.getSeconds() * MILLIS_PER_SECOND;
-                millis = (millis / intervalInMillis) * intervalInMillis;
-                calendar.setTimeInMillis(millis);
+                long millis = getMilliSeconds();
+                long resultTime = calendar.get(Calendar.HOUR_OF_DAY) * MINUTES_PER_HOUR + calendar.get(Calendar.MINUTE);
+                resultTime = resultTime * SECONDS_PER_MINUTE + calendar.get(Calendar.SECOND);
+                resultTime = resultTime * MILLIS_PER_SECOND + calendar.get(Calendar.MILLISECOND);
+
+                resultTime = (resultTime / millis) * millis;
+
+                calendar.set(Calendar.MILLISECOND, Math.toIntExact(resultTime % MILLIS_PER_SECOND));
+                resultTime /= MILLIS_PER_SECOND;
+                calendar.set(Calendar.SECOND, Math.toIntExact(resultTime % SECONDS_PER_MINUTE));
+                resultTime /= SECONDS_PER_MINUTE;
+                calendar.set(Calendar.MINUTE, Math.toIntExact(resultTime % MINUTES_PER_HOUR));
+                resultTime /= MINUTES_PER_HOUR;
+                calendar.set(Calendar.HOUR_OF_DAY, Math.toIntExact(resultTime));
             } else {
                 truncate(calendar, getTimeUnit());
             }
@@ -463,7 +486,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
                 // intentionally no break coded
             case WEEKS:
                 if (WEEKS.equals(timeUnit)) {
-                    calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+                    calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
                     // intentionally no break coded
                 }
             case DAYS:
@@ -488,6 +511,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @return the number of seconds in the TimeDuration
      */
+    @JsonIgnore
+    @XmlTransient
     public int getSeconds() {
         switch (getTimeUnit()) {
             case MILLISECONDS:
@@ -505,12 +530,14 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @return the number of milliseconds in the TimeDuration
      */
+    @JsonIgnore
+    @XmlTransient
     public long getMilliSeconds() {
         switch (getTimeUnit()) {
             case MILLISECONDS:
                 return count;
             default:
-                return (long)getSeconds() * MILLIS_PER_SECOND;
+                return (long) getSeconds() * MILLIS_PER_SECOND;
         }
     }
 
@@ -547,7 +574,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @param o the Object to be compared.
      * @return a negative integer, zero, or a positive integer as this object
-     *         is less than, equal to, or greater than the specified object.
+     * is less than, equal to, or greater than the specified object.
      */
 
     public int compareTo(TimeDuration o) {
@@ -558,8 +585,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         } else {
             if (thisSeconds > otherSeconds) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
         }
@@ -578,8 +604,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         if (o instanceof TimeDuration) {
             TimeDuration other = (TimeDuration) o;
             return getSeconds() == other.getSeconds();
-        }
-        else {
+        } else {
             return false;
         }
     }

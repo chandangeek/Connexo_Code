@@ -357,10 +357,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                         multiplierField = form.down('[name=multiplier]'),
                                         calculatedReadingTypeField = form.down('[name=calculatedReadingType]');
 
-                                    if (!Ext.isEmpty(widget.down('#custom-attribute-sets-placeholder-form-id'))) {
+                                    if (!Ext.isEmpty(config.down('#custom-attribute-sets-placeholder-form-id'))) {
                                         customAttributesStore.getProxy().setParams(deviceId, registerId);
                                         customAttributesStore.load(function () {
-                                            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                                            config.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
                                         });
                                     }
                                     me.getApplication().fireEvent('changecontentevent', widget);

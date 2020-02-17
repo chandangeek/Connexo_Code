@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>extra-jars</artifactId>
@@ -36,6 +36,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>gogo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>osgi.goodies</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -109,15 +114,15 @@
             <artifactId>mdc.demo.customtask</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>export.custom</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- COMU -->
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.webservices.demo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.sap.soap.custom</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- COIN -->

@@ -1,18 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -34,9 +21,19 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -82,8 +79,8 @@ import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -91,11 +88,6 @@ import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.AdministrativeStatusAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DefaultResetWindowAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientDeviceType;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientManufacturerId;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientVersion;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortId;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
@@ -135,7 +127,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     public static final int REMOTE_DISCONNECT = 1;
     public static final int REMOTE_RECONNECT = 2;
 
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
@@ -264,16 +256,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     mbusCommission(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Reset_MBus_Client)) {
                     mbusReset(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBusClientRemoteCommission)) {
-                    mBusClientRemoteCommissioning(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ChangeMBusAttributes)) {
-                    changeMBusClientAttributes(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL)) {
                     renewKey(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
+                    getProtocol().journal("Message is not supported or configured serial number does not match with device reported serial number.");
                 }
             } catch (IOException e) {
                 if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
@@ -301,16 +290,16 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeDefaultResetWindow(OfflineDeviceMessage pendingMessage) throws IOException {
-        Integer defaultResetWindow = Integer.valueOf(getDeviceMessageAttributeValue(pendingMessage, DefaultResetWindowAttributeName));
+        int defaultResetWindow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DefaultResetWindowAttributeName));
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(defaultResetWindow));
     }
 
     private void changeAdministrativeStatus(OfflineDeviceMessage pendingMessage) throws IOException {
-        int status = Integer.valueOf(getDeviceMessageAttributeValue(pendingMessage, AdministrativeStatusAttributeName));
+        int status = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, AdministrativeStatusAttributeName));
         getCosemObjectFactory().getData(Dsmr40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
     }
 
-    private void resetAlarmRegister() throws IOException {
+    protected void resetAlarmRegister() throws IOException {
         getCosemObjectFactory().getData(Dsmr23RegisterFactory.ALARM_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
@@ -319,7 +308,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        Date time = new Date(Long.valueOf(getDeviceMessageAttributeValue(pendingMessage, meterTimeAttributeName)));
+        Date time = new Date(Long.parseLong(getDeviceMessageAttributeValue(pendingMessage, meterTimeAttributeName)));
         getProtocol().setTime(time);
     }
 
@@ -333,7 +322,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         int mBusPhysicalAddress = getMBusPhysicalAddress(installChannel);
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (installChannel));
         getProtocol().journal("Installing slave on channel " + installChannel + " using M-Bus Client obis code "+mbusClientObisCode+" and physical address "+mBusPhysicalAddress);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MBusClient.VERSION.VERSION0_D_S_M_R_23_SPEC);
         mbusClient.installSlave(mBusPhysicalAddress);
     }
 
@@ -345,55 +334,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         mbusClient.setDeviceType(0);
     }
 
-    private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
-        int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), 9);
-        String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
-        MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
-        mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
-        mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
-        mbusClient.setVersion(mbusProvider.getVersion(shortId));
-        mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
-        mbusClient.installSlave(physicalAddress);
-    }
 
-    private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
-        int physicalAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(installChannel).getObisCode();
-
-        getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
-
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, 9);
-        mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
-        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties()
-                .getFixMbusHexShortId()));
-        mbusClient.setDeviceType(getDeviceType(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientDeviceType)));
-        mbusClient.setVersion(getVersion(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientVersion)));
-    }
-
-    private Unsigned16 getManufacturerId(String manufacturerId) {
-        char[] chars = manufacturerId.toCharArray();
-        int id = Integer.parseInt("" + ((chars[2] - 64) + (chars[1] - 64) * 32 + (chars[0] - 64) * 32 * 32));
-        return new Unsigned16(id);
-    }
-
-    private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) {
-        if (fixMbusHexShortId) {
-            return new Unsigned32(Integer.parseInt(indentificationNumber));
-        } else {
-            return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
-        }
-    }
-
-    private Unsigned8 getVersion(String version) {
-        return new Unsigned8(Integer.parseInt(version));
-    }
-
-    private Unsigned8 getDeviceType(String deviceType) {
-        return new Unsigned8(Integer.parseInt(deviceType, 16));
-    }
 
     /**
      * Substracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
@@ -416,30 +357,34 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 getDefaultDateFormatter().format(new Date(Long.parseLong(fromDateEpoch))),
                 loadProfileContent
         );
-        Date fromDate = new Date(Long.valueOf(fromDateEpoch));
+        Date fromDate = new Date(Long.parseLong(fromDateEpoch));
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message, there are no channels attached under LoadProfile " + builder
-                        .getProfileObisCode() + "!"));
+                String errorMessage = "Unable to execute the message, there are no channels attached under LoadProfile " + builder .getProfileObisCode() + "!";
+                collectedMessage.setDeviceProtocolInformation(errorMessage);
+                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, errorMessage));
             }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
-            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
+            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
+                    String errorMessage = "Load profile with obiscode " + config.getObisCode() + " is not supported by the device";
+                    collectedMessage.setDeviceProtocolInformation(errorMessage);
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMessage));
+                    getProtocol().journal(errorMessage);
                     return collectedMessage;
                 }
             }
 
-            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
+            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Collections.singletonList(fullLpr));
 
             CollectedLoadProfile collectedLoadProfile = loadProfileData.get(0);
             IntervalData intervalDatas = null;
@@ -452,7 +397,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             if (intervalDatas == null) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")"));
+                String errorMessage = "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")";
+                collectedMessage.setDeviceProtocolInformation(errorMessage);
+                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, errorMessage));
+                getProtocol().journal(errorMessage);
                 return collectedMessage;
             }
 
@@ -478,7 +426,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         } catch (SAXException e) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getLocalizedMessage());
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
+            getProtocol().journal(e.getLocalizedMessage());
             return collectedMessage;
         }
     }
@@ -492,8 +442,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
             String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
             String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getValue();
-            Date fromDate = new Date(Long.valueOf(fromDateEpoch));
-            Date toDate = new Date(Long.valueOf(toDateEpoch));
+            Date fromDate = new Date(Long.parseLong(fromDateEpoch));
+            Date toDate = new Date(Long.parseLong(toDateEpoch));
             SimpleDateFormat formatter = AbstractMessageConverter.dateTimeFormatWithTimeZone;
             String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", formatter.format(fromDate), formatter.format(toDate), loadProfileContent);
 
@@ -503,17 +453,20 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
             fullLpr = checkLoadProfileReader(fullLpr, builder.getMeterSerialNumber());
-            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
+            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
+                    String errorMessage = "Load profile with obiscode " + config.getObisCode() + " is not supported by the device";
+                    collectedMessage.setDeviceProtocolInformation(errorMessage);
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMessage));
+                    getProtocol().journal(errorMessage);
                     return collectedMessage;
                 }
             }
 
-            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
+            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Collections.singletonList(fullLpr));
             CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0), fullLpr);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
             return collectedMessage;
@@ -521,6 +474,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
+            collectedMessage.setDeviceProtocolInformation(e.getLocalizedMessage());
+            getProtocol().journal(e.getLocalizedMessage());
             return collectedMessage;
         }
     }
@@ -549,7 +504,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         renewKey(wrappedKey, 2);
     }
 
-    private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String keyAccessorTypeNameAndTempValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
         if (keyAccessorTypeNameAndTempValue == null) {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
@@ -771,7 +726,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {
-        return Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getValue());
+        return Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getValue());
     }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -969,7 +924,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
 
-    private int getMBusPhysicalAddress(int installChannel) {
+    protected int getMBusPhysicalAddress(int installChannel) {
         int physicalAddress;
         if (installChannel == 0) {
             physicalAddress = (byte) this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();

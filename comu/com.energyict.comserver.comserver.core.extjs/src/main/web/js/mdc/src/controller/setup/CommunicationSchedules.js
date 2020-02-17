@@ -439,13 +439,23 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var store = this.getCommunicationScheduleEditForm().down('#communicationSchedulePreviewGrid').getStore(),
             storeData = [],
             lastScheduledDate,
+            offsetStart,
             intervalInMillis;
 
-        if (schedule.every.timeUnit === 'minutes' || schedule.every.timeUnit === 'hours') {
+        if (schedule.every.timeUnit === 'minutes') {
             startDate = moment(startDate);
             intervalInMillis = moment.duration(schedule.every.count, schedule.every.timeUnit);
             lastScheduledDate = moment(Math.floor(startDate / intervalInMillis) * intervalInMillis);
-        } else if (schedule.every.timeUnit === 'days') {
+        }
+        else if (schedule.every.timeUnit === 'hours') {
+            var beginOfDay,
+                lastScheduledHour;
+            startDate = moment(startDate);
+            beginOfDay = moment(startDate).startOf('day');
+            lastScheduledHour = Math.floor(startDate.hours() / schedule.every.count) * schedule.every.count;
+            lastScheduledDate = beginOfDay.add(lastScheduledHour, 'hour');
+        }
+        else if (schedule.every.timeUnit === 'days') {
             lastScheduledDate = moment(startDate).clone().startOf('day');
         } else if (schedule.every.timeUnit === 'weeks') {
             var startOf = schedule.every.timeUnit.slice(0, -1) === 'week' ? 'isoWeek' : schedule.every.timeUnit.slice(0, -1);
@@ -453,9 +463,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         } else if (schedule.every.timeUnit === 'months') {
             lastScheduledDate = moment(startDate).clone().startOf('month');
         }
-
-
-        for (var i = 1; i < 6; i++) {
+        offsetStart = startDate > lastScheduledDate ? 1:0;
+        for (var i = offsetStart; i < offsetStart + 5; i++) {
             if (!schedule.lastDay) {
                 storeData.push({
                     date: lastScheduledDate.clone().add(schedule.every.timeUnit, schedule.every.count * i).add(schedule.offset.timeUnit, schedule.offset.count).toDate()

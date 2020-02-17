@@ -6,7 +6,12 @@ package com.energyict.mdc.common.protocol.security;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 /**
@@ -19,6 +24,11 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-13 (16:14)
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface DeviceAccessLevel {
 
     /**
@@ -41,6 +51,7 @@ public interface DeviceAccessLevel {
      *
      * @return The identifier
      */
+    @XmlAttribute
     int getId();
 
     /**
@@ -51,6 +62,7 @@ public interface DeviceAccessLevel {
      *
      * @return The translation resource bundle
      */
+    @XmlAttribute
     String getTranslation();
 
     /**
@@ -63,4 +75,9 @@ public interface DeviceAccessLevel {
      */
     List<PropertySpec> getSecurityProperties();
 
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 }

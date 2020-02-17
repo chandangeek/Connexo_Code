@@ -150,6 +150,7 @@ public class ToUCampaignHandlerTest {
         when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(timeOfUseCampaign));
         when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
         when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         timeOfUseCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
@@ -166,6 +167,7 @@ public class ToUCampaignHandlerTest {
         when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(timeOfUseCampaign));
         when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
         when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         timeOfUseCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }

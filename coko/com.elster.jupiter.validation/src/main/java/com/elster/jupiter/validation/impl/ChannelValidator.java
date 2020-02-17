@@ -37,7 +37,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.streams.Predicates.either;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 class ChannelValidator {
@@ -317,11 +316,6 @@ class ChannelValidator {
         @Override
         public ReadingType getReadingType() {
             return validatedResult.getReadingType();
-        }
-
-        @Override
-        public long getId() {
-            return 0;
         }
 
         @Override

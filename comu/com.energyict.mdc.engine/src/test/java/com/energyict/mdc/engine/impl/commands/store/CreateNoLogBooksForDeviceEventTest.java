@@ -6,9 +6,9 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -40,7 +40,7 @@ public class CreateNoLogBooksForDeviceEventTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: device having id 97}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 97}");
     }
 
 }

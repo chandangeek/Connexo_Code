@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform</artifactId>
@@ -173,10 +173,9 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
-        <!-- TODO do not included as this is more for development troubleshooting -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>osgi.goodies</artifactId>
+            <artifactId>orm.oracle</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -377,13 +376,19 @@
         <dependency>
             <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
             <artifactId>facts</artifactId>
-            <version>10.7</version>
+            <version>10.7.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
             <artifactId>EncryptPassword</artifactId>
             <version>10.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>10.7.2</version>
             <scope>provided</scope>
         </dependency>
         <!-- Packaged jBPM stuff  -->

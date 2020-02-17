@@ -4,23 +4,22 @@ package com.energyict.protocolimplv2.nta.abstractnta;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
@@ -28,8 +27,6 @@ import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFa
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusConfigurationObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -48,11 +45,10 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
-    public static final ObisCode FIRMWARE_VERSION_METER_CORE = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode FIRMWARE_VERSION_COMMS_MODULE = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode FIRMWARE_VERSION_METER_CORE = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode FIRMWARE_VERSION_COMMS_MODULE = ObisCode.fromString("1.2.0.2.0.255");
 
     public static final ObisCode MBUS_DEVICE_CONFIGURATION = ObisCode.fromString("0.x.24.2.2.255");
-    public static final int FW_VERSION_FIELD_LENGTH = 80;
 
     public AbstractSmartNtaProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -87,6 +83,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
      */
     protected Dsmr23RegisterFactory registerFactory;
 
+    protected Dsmr23LogBookFactory logBookFactory;
+
     /**
      * The used {@link LoadProfileBuilder}
      */
@@ -96,11 +94,6 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology}
      */
     protected MeterTopology meterTopology;
-
-    /**
-     * A list of slaveDevices
-     */
-    private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
@@ -139,9 +132,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     * @throws java.io.IOException Thrown in case of an exception
      */
-    public String getFirmwareVersion() throws IOException {
+    public String getFirmwareVersion() {
         return getMeterInfo().getFirmwareVersion();
     }
 
@@ -149,9 +141,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
      * Get the SerialNumber of the device
      *
      * @return the serialNumber of the device
-     * @throws java.io.IOException thrown in case of an exception
      */
-    public String getMeterSerialNumber() throws IOException {
+    public String getMeterSerialNumber() {
         return getMeterInfo().getSerialNr();
     }
 
@@ -162,10 +153,16 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     }
 
     @Override
-    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
-        return Collections.EMPTY_LIST;// TODO adapt getMeterEvent to get Logbook data
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+        return getDeviceLogBookFactory().getLogBookData(logBooks);
     }
 
+    private Dsmr23LogBookFactory getDeviceLogBookFactory() {
+        if (logBookFactory == null) {
+            logBookFactory = new Dsmr23LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return logBookFactory;
+    }
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
@@ -234,11 +231,23 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     /**
      * Some meter have custom obis-codes mapped to mW instead of kW
      *
-     * @param obisCode
-     * @return
+     * @param obisCode the obis code to check
+     * @return boolean true or false
      */
     public boolean isElectricityMilliWatts(ObisCode obisCode) {
         return Dsmr23RegisterFactory.isElectricityMilliWatts(obisCode);
+    }
+
+
+    @Override
+    public String getSerialNumber() {
+        if (getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()){
+            journal("Using Equipment-Identifier to identify the device");
+            return getMeterInfo().getEquipmentIdentifier();
+        } else {
+            journal("Using Serial-Number to identify the device");
+            return getMeterInfo().getSerialNr();
+        }
     }
 
     /**
@@ -350,7 +359,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     /**
      * Getter for the default obis code of the communication module
      *
-     * @return
+     * @return ObisCode the ObisCode for Firmware Version Meter Core
      */
     public ObisCode getFirmwareVersionMeterCoreObisCode() {
         return FIRMWARE_VERSION_METER_CORE;
@@ -360,7 +369,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
      * Getter for the default obis code for the communication module
      * Individual protocols can ovveride (i.e. EMSR)
      *
-     * @return
+     * @return ObisCode the Firmware Version communications module ObisCode
      */
     public ObisCode getFirmwareVersionCommsModuleObisCode() {
         return FIRMWARE_VERSION_COMMS_MODULE;
@@ -369,7 +378,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     /**
      * Getter for the MBus device configuration object, which stores firmware information;
      *
-     * @return
+     * @return ObisCode the ObisCode for the corresponding serial Number
      */
     private ObisCode getMbusDeviceConfigurationObisCode(String serialNumber) {
         return getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, serialNumber);
@@ -379,7 +388,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     /**
      * Getter for the default obis code for the auxiliary module (only ESMR supports this)
      *
-     * @return
+     * @return ObisCode, the Obis code for Auxiliary Firmware Version
      */
     private ObisCode getFirmwareVersionAuxiliaryModuleObisCode() {
         return ESMR50RegisterFactory.AUXILIARY_FIRMWARE_VERSION;

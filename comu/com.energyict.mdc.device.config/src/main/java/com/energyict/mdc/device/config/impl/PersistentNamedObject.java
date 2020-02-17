@@ -21,6 +21,14 @@ import java.util.Optional;
 @HasUniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
+    protected PersistentNamedObject() {
+        super();
+    }
+
+    protected PersistentNamedObject(Class<T> domainClass) {
+        super(domainClass);
+    }
+
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(domainClass, dataModel, eventService, thesaurus);
     }

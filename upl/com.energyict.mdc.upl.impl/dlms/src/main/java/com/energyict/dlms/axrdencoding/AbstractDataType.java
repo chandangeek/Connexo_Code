@@ -119,6 +119,10 @@ abstract public class AbstractDataType {
 		return isUnsigned32() ? (Unsigned32) this : null;
 	}
 
+	public Unsigned64 getUnsigned64() {
+		return isUnsigned64() ? (Unsigned64) this : null;
+	}
+
 	public Unsigned8 getUnsigned8() {
 		return isUnsigned8() ? (Unsigned8) this : null;
 	}
@@ -129,6 +133,14 @@ abstract public class AbstractDataType {
 
 	public UTF8String getUtf8String() {
 		return isUtf8String() ? (UTF8String) this : null;
+	}
+
+	public CosemDate getDate() {
+		return isCosemDate() ? (CosemDate) this : null;
+	}
+
+	public CosemTime getTime() {
+		return isCosemTime() ? (CosemTime) this : null;
 	}
 
 	public boolean isArray() {
@@ -191,6 +203,10 @@ abstract public class AbstractDataType {
 		return this instanceof Unsigned32;
 	}
 
+	public boolean isUnsigned64() {
+		return this instanceof Unsigned64;
+	}
+
 	public boolean isUnsigned8() {
 		return this instanceof Unsigned8;
 	}
@@ -204,8 +220,16 @@ abstract public class AbstractDataType {
 	}
 
     public boolean isNumerical(){
-        return isInteger16()||isInteger32()||isInteger64()||isInteger8()||isUnsigned8()||isUnsigned16()||isUnsigned32();
+        return isInteger16()||isInteger32()||isInteger64()||isInteger8()||isUnsigned8()||isUnsigned16()||isUnsigned32()||isUnsigned64();
     }
+
+	public boolean isCosemDate() {
+		return this instanceof CosemDate;
+	}
+
+	private boolean isCosemTime() {
+		return this instanceof CosemTime;
+	}
 
 	public void setLevel(int level) {
 		this.level = level;
