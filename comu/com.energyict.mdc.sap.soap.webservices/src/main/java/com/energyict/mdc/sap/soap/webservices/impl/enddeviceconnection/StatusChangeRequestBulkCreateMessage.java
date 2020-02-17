@@ -103,6 +103,7 @@ public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
             if (requests.isEmpty()) {
                 addMissingField(REQUEST_XML_NAME);
             }
+            requests.forEach(statusChangeRequestCreateMessage -> addMissingFields(statusChangeRequestCreateMessage.getMissingFieldsSet()));
             return StatusChangeRequestBulkCreateMessage.this;
         }
 

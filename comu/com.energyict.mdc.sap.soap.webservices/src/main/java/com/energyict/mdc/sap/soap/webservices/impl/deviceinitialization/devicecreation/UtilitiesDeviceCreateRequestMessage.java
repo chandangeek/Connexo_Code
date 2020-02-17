@@ -21,7 +21,10 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
     private List<UtilitiesDeviceCreateMessage> utilitiesDeviceCreateMessages = new ArrayList<>();
     private boolean bulk;
 
-    private UtilitiesDeviceCreateRequestMessage() {
+    private Thesaurus thesaurus;
+
+    private UtilitiesDeviceCreateRequestMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public String getRequestID() {
@@ -40,8 +43,8 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
         return bulk;
     }
 
-    static UtilitiesDeviceCreateRequestMessage.Builder builder() {
-        return new UtilitiesDeviceCreateRequestMessage().new Builder();
+    static UtilitiesDeviceCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
+        return new UtilitiesDeviceCreateRequestMessage(thesaurus).new Builder();
     }
 
     public class Builder {
@@ -60,7 +63,7 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
             utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
                     .builder()
                     .from(requestMessage)
-                    .build());
+                    .build(thesaurus));
             return this;
         }
 
@@ -76,15 +79,18 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
                     .forEach(message -> utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
                             .builder()
                             .from(message)
-                            .build())
+                            .build(thesaurus))
                     );
-            if (requestID == null && uuid == null) {
-                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
-            }
             return this;
         }
 
         public UtilitiesDeviceCreateRequestMessage build() {
+            if (requestID == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            for (UtilitiesDeviceCreateMessage message : utilitiesDeviceCreateMessages) {
+                addMissingFields(message.getMissingFieldsSet());
+            }
             return UtilitiesDeviceCreateRequestMessage.this;
         }
 
