@@ -137,13 +137,13 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     public PagedInfoList getDataExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(getApplicationNameFromCode(appCode));
-        if(queryParameters.getStart().isPresent()){
+        if (queryParameters.getStart().isPresent()) {
             finder.setStart(queryParameters.getStart().get());
         }
-        if(queryParameters.getLimit().isPresent()){
-            finder.setLimit(queryParameters.getLimit().get()+1);
+        if (queryParameters.getLimit().isPresent()) {
+            finder.setLimit(queryParameters.getLimit().get() + 1);
         }
-        List<DataExportTaskInfo> infos =  finder.stream()
+        List<DataExportTaskInfo> infos = finder.stream()
                 .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
                 .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
                 .collect(Collectors.toList());
