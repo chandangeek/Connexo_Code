@@ -4,7 +4,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
@@ -43,6 +42,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -159,13 +159,12 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
             deviceService.findDeviceByMrid(endDevice.getMRID()).ifPresent(
                     device -> {
-                        if (device.getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
-                            sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
-                                if (sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
-                                    call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
-                                }
-                            });
-                        }
+                        sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
+                            if (!sapCustomPropertySets.isRegistered(device) && sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
+                                call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
+                            }
+                        });
+
                     }
             );
         });
@@ -176,19 +175,29 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
-        using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+
+        Set<EndPointConfiguration> processedEndpoints = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .withRelatedAttributes(values)
-                .send(notificationMessage);
+                .send(notificationMessage)
+                .keySet();
+        if (!processedEndpoints.isEmpty()) {
+            sapCustomPropertySets.setRegistered(sapDeviceId, true);
+        }
     }
 
     private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
-        using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+
+        Set<EndPointConfiguration> processedEndpoints = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .toEndpoints(endPointConfigurations)
                 .withRelatedAttributes(values)
-                .send(notificationMessage);
+                .send(notificationMessage)
+                .keySet();
+        if (!processedEndpoints.isEmpty()) {
+            sapCustomPropertySets.setRegistered(sapDeviceId, true);
+        }
     }
 
     private UtilsDvceERPSmrtMtrRegedNotifMsg createNotificationMessage(String sapDeviceId) {

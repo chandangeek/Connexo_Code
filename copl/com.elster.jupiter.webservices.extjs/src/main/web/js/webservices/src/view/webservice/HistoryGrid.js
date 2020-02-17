@@ -18,7 +18,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 header: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
                 dataIndex: 'startTime',
-                flex: 2,
+                flex: 10,
                 renderer: function (value, metaData, record) {
                     var basename = me.adminView ? 'administration' : 'workspace';
                     var curOccurrenceRoute = (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices') ?
@@ -37,7 +37,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 dataIndex: 'endTime',
                 header: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
-                flex: 2,
+                flex: 10,
                 renderer: function (value, metaData, record) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
@@ -45,7 +45,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),
                 dataIndex: 'endpoint',
-                flex: 3,
+                flex: 49,
                 hidden: Boolean(me.endpoint),
                 renderer: function(value, metaData, record) {
                     var endpoint = record.getEndpoint();
@@ -65,13 +65,13 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 dataIndex: 'applicationName',
                 hidden: Boolean(me.endpoint) || !me.adminView,
                 header: Uni.I18n.translate('general.application', 'WSS', 'Application'),
-                flex: 1
+                flex: 10
             },
             {
                 dataIndex: 'endpoint',
                 hidden: Boolean(me.endpoint),
                 header: Uni.I18n.translate('general.type', 'WSS', 'Type'),
-                flex: 1,
+                flex: 7,
                 renderer: function(value, metaData, record) {
                     const direction = record.getEndpoint().get('direction');
                     return direction
@@ -80,7 +80,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 }
             },
             {
-                flex: 1,
+                flex: 7,
                 header: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
                 renderer: function (value, metaData, record) {
                     if (!record.get('endTime')) {
@@ -93,7 +93,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 dataIndex: 'status',
                 header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
-                flex: 1
+                flex: 7
             }
         ];
 
