@@ -33,6 +33,7 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
@@ -108,8 +109,9 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
         when(issue.getVersion()).thenReturn(1L);
         when(issue.getUsagePoint()).thenReturn(Optional.empty());
         when(issueService.query(OpenIssue.class, IssueReason.class, IssueType.class)).thenReturn(issueQuery);
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
         doReturn(Collections.singletonList(issue)).when(issueQuery)
-                .select(any(Condition.class), anyInt(), anyInt(), any(Order.class));
+                .select(any(Condition.class), anyInt(), anyInt(), orderCaptor.capture());
         when(issueService.query(IssueReason.class)).thenReturn(issueReasonQuery);
         when(issueService.findIssueType(anyString())).thenReturn(Optional.of(issueType));
         when(issueService.getUserOpenIssueCount(user)).thenReturn(new HashMap<IssueTypes, Long>() {{

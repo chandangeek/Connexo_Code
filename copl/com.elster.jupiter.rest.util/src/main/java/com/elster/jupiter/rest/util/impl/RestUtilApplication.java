@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.OrmService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -27,13 +28,20 @@ public class RestUtilApplication extends Application implements TranslationKeyPr
 
     private volatile Thesaurus thesaurus;
 
+    private volatile OrmService ormService;
+
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(LogLevelResource.class);
+        return ImmutableSet.of(LogLevelResource.class, TableCacheResource.class);
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Override
@@ -53,6 +61,7 @@ public class RestUtilApplication extends Application implements TranslationKeyPr
         @Override
         protected void configure() {
             bind(thesaurus).to(Thesaurus.class);
+            bind(ormService).to(OrmService.class);
         }
     }
 

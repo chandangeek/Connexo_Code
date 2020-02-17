@@ -275,35 +275,37 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         }
 
         if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {
-            Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
-            List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval, since);
+            Optional<Range<Instant>> updateInterval = determineUpdateInterval(occurrence, item);
+            if (updateInterval.isPresent()) {
+                List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval.get(), since);
 
-            Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
-            if (updateWindow.isPresent()) {
-                RelativePeriod window = updateWindow.get();
-                RangeSet<Instant> rangeSet = readings.stream()
-                        .map(baseReadingRecord -> window.getOpenClosedInterval(
-                                ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
-                        .collect(toImmutableRangeSet());
-                readings = rangeSet.asRanges().stream()
-                        .flatMap(range -> getReadings(item, range))
-                        .collect(Collectors.toCollection(ArrayList::new));
+                Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
+                if (updateWindow.isPresent()) {
+                    RelativePeriod window = updateWindow.get();
+                    RangeSet<Instant> rangeSet = readings.stream()
+                            .map(baseReadingRecord -> window.getOpenClosedInterval(
+                                    ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
+                            .collect(toImmutableRangeSet());
+                    readings = rangeSet.asRanges().stream()
+                            .flatMap(range -> getReadings(item, range))
+                            .collect(Collectors.toCollection(ArrayList::new));
+                }
+
+                if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                    readings = filterAndSortReadings(readings.stream())
+                            .collect(Collectors.toList());
+                    MeterReadingImpl meterReading = asMeterReading(item, readings);
+                    Map<Instant, String> readingStatuses = new HashMap<>();
+                    readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
+                    updateCount++;
+                    return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+                }
             }
 
-            if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
-                readings = filterAndSortReadings(readings.stream())
-                        .collect(Collectors.toList());
-                MeterReadingImpl meterReading = asMeterReading(item, readings);
-                Map<Instant, String> readingStatuses = new HashMap<>();
-                readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
-                updateCount++;
-                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+            try (TransactionContext context = transactionService.getContext()) {
+                MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
+                context.commit();
             }
-        }
-
-        try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
-            context.commit();
         }
         item.postponeExportForChangedData();
         return Optional.empty();
@@ -313,7 +315,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return getExportStrategy(occurrence).map(DataExportStrategy::isExportUpdate).orElse(false);
     }
 
-    private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+    private Optional<Range<Instant>> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         TreeRangeSet<Instant> base = TreeRangeSet.create();
         Optional<Instant> adhocTime = occurrence.getTaskOccurrence().getAdhocTime();
         Range<Instant> baseRange;
@@ -327,7 +329,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         if (currentExportInterval != null) {
             base.remove(currentExportInterval);
         }
-        return base.asRanges().stream().findFirst().orElse(baseRange);
+        return base.asRanges().stream().findFirst();
     }
 
     private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {

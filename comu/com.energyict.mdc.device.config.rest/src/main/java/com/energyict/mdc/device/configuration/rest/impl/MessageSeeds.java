@@ -70,7 +70,8 @@ public enum MessageSeeds implements MessageSeed {
     SECACC_WRAPPER_IN_USE_BY_DEV(235,Keys.SEC_ACCESSOR_WRAPPER_IN_USE_BY_DEV , "Security accessor is declared as wrapper by another key ({0}) on device {1}"),
     HSM_NOT_CONFIGURED(236, Keys.HSM_NOT_CONFIGURED, "HSM not configured on your system" ),
     NO_SUCH_CUSTOMPROPERTYSET(237, "noSuchCPS", "No custom property set with id {0}."),
-    DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(238, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''");
+    DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(238, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''"),
+    SECACC_MASTER_KEY_IN_USE(239,Keys.SEC_ACCESSOR_MASTER_KEY_IN_USE , "Security accessor is declared as master key by ''{0}'' device configuration");
 
 
 
@@ -129,5 +130,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SEC_ACCESSOR_WRAPPER_IN_USE_BY_DEV = "security.accessor.wrapper.in.use.by.device";
         public static final String SEC_ACCESSOR_NOT_SET = "security.accessor.wrapper.not.set";
         public static final String HSM_NOT_CONFIGURED = "hsm.not.configured";
+        public static final String SEC_ACCESSOR_MASTER_KEY_IN_USE = "security.accessor.master.key.in.use";
     }
 }

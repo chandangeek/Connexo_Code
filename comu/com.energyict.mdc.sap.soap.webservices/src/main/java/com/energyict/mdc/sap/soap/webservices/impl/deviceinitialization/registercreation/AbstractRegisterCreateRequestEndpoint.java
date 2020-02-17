@@ -108,7 +108,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
         }
     }
 
@@ -142,7 +142,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getMissingFields());
         }
     }
 
@@ -186,12 +186,12 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         serviceCallBuilder.create();
     }
 
-    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
         UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage = null;
         confirmationMessage =
                 UtilitiesDeviceRegisterCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -220,6 +220,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
                     }
                 });
     }
+
     public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());

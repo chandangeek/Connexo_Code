@@ -85,6 +85,17 @@ public enum QueryMethod {
             return null;
         }
     },
+    FindPendingOutboundComTasks {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            Integer comPortId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
+            Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comPortId);
+            if (comPort.isPresent()) {
+                return serviceProvider.comServerDAO().findPendingOutboundComTasks((OutboundComPort) comPort.get());
+            }
+            return null;
+        }
+    },
     FindExecutableOutboundComTasks {
         @Override
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
@@ -805,7 +816,7 @@ public enum QueryMethod {
     private static Map<Long, Integer> extractCurrentHighPriorityLoadPerComPortPool(Map<String, Object> parameters)  {
         try {
             JSONObject jsonObject = (JSONObject) parameters.get(RemoteComServerQueryJSonPropertyNames.CURRENT_HIGH_PRIORITY_LOAD);
-            ObjectMapper mapper = ObjectMapperFactory.newMapper();
+            ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
             TypeFactory typeFactory = mapper.getTypeFactory();
             MapType mapType = typeFactory.constructMapType(HashMap.class, Long.class, Integer.class);
             return mapper.readValue(new StringReader(jsonObject.toString()), mapType);

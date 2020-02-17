@@ -3,8 +3,10 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
@@ -14,15 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MeterRegisterBulkChangeRequestMessage {
+public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
     private final Integer lrnEndInterval;
 
     private String requestId;
     private String uuid;
     private List<MeterRegisterChangeMessage> meterRegisterChangeMessages = new ArrayList<>();
+    private Thesaurus thesaurus;
 
-    private MeterRegisterBulkChangeRequestMessage(Integer lrnEndInterval) {
+    private MeterRegisterBulkChangeRequestMessage(Integer lrnEndInterval, Thesaurus thesaurus) {
         this.lrnEndInterval = lrnEndInterval;
+        this.thesaurus = thesaurus;
     }
 
     public String getRequestId() {
@@ -37,12 +41,8 @@ public class MeterRegisterBulkChangeRequestMessage {
         return meterRegisterChangeMessages;
     }
 
-    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer lrnEndInterval) {
-        return new MeterRegisterBulkChangeRequestMessage(lrnEndInterval).new Builder();
-    }
-
-    public boolean isValid() {
-        return requestId != null || uuid != null;
+    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer lrnEndInterval, Thesaurus thesaurus) {
+        return new MeterRegisterBulkChangeRequestMessage(lrnEndInterval, thesaurus).new Builder();
     }
 
     public class Builder {
@@ -62,11 +62,14 @@ public class MeterRegisterBulkChangeRequestMessage {
                             meterRegisterChangeMessages.add(MeterRegisterChangeBulkMessageBuilder
                                     .builder(lrnEndInterval)
                                     .from(message)
-                                    .build()));
+                                    .build(thesaurus)));
             return this;
         }
 
         public MeterRegisterBulkChangeRequestMessage build() {
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             return MeterRegisterBulkChangeRequestMessage.this;
         }
 

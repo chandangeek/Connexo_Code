@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.crlrequest;
 
-import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
@@ -29,19 +29,19 @@ public class CrlRequestTaskPropertiesServiceImpl implements CrlRequestTaskProper
     }
 
     @Override
-    public void createCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName) {
+    public void createCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, CertificateWrapper crlSigner, String caName) {
         CrlRequestTaskProperty crlRequestTaskProperty = deviceDataModelService.dataModel().getInstance(CrlRequestTaskPropertyImpl.class);
         crlRequestTaskProperty.setRecurrentTask(recurrentTask);
-        crlRequestTaskProperty.setSecurityAccessor(securityAccessor);
+        crlRequestTaskProperty.setCrlSigner(crlSigner);
         crlRequestTaskProperty.setCaName(caName);
         crlRequestTaskProperty.save();
     }
 
     @Override
-    public void updateCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName) {
+    public void updateCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, CertificateWrapper crlSigner, String caName) {
         CrlRequestTaskProperty property = deviceDataModelService.dataModel().mapper(CrlRequestTaskPropertyImpl.class).lock(recurrentTask.getId());
         property.setRecurrentTask(recurrentTask);
-        property.setSecurityAccessor(securityAccessor);
+        property.setCrlSigner(crlSigner);
         property.setCaName(caName);
         property.update();
     }
