@@ -137,20 +137,17 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     public PagedInfoList getDataExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(getApplicationNameFromCode(appCode));
-        finder.setStart(queryParameters.getStart().orElse(0));
-        finder.setLimit(queryParameters.getLimit().orElse(0) + 1);
-        return PagedInfoList.fromPagedList("dataExportTasks", getListOfDataExportTasksInfo(finder), queryParameters);
-    }
-
-    @GET
-    @Path("/fullListOfExportTasks")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
-    public PagedInfoList getLimitExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
-        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(getApplicationNameFromCode(appCode));
-        finder.setStart(queryParameters.getStart().orElse(0));
-        finder.setLimit(Integer.MAX_VALUE);
-        return PagedInfoList.fromPagedList("dataExportTasks", getListOfDataExportTasksInfo(finder), queryParameters);
+        if(queryParameters.getStart().isPresent()){
+            finder.setStart(queryParameters.getStart().get());
+        }
+        if(queryParameters.getLimit().isPresent()){
+            finder.setLimit(queryParameters.getLimit().get()+1);
+        }
+        List<DataExportTaskInfo> infos =  finder.stream()
+                .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
+                .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("dataExportTasks", infos, queryParameters);
     }
 
     @GET
@@ -934,12 +931,4 @@ public class DataExportTaskResource {
                 }
         ));
     }
-
-    private List<DataExportTaskInfo> getListOfDataExportTasksInfo(ExportTaskFinder finder ){
-        return finder.stream()
-                .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
-                .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
-                .collect(Collectors.toList());
-    }
-
 }
