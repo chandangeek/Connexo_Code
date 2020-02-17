@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dlms.a2.A2;
+import com.energyict.protocolimplv2.dlms.a2.A2DlmsSession;
 import com.energyict.protocolimplv2.dlms.ei7.messages.EI7Messaging;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
@@ -29,40 +30,8 @@ public class EI7 extends A2 {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor);
     }
 
-    protected void setupSession(ComChannel comChannel, ObisCode frameCounterObiscode) {
-        DlmsProperties publicClientProperties = getDlmsProperties();
-        DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, publicClientProperties);
-        long frameCounter;
-        String logicalDeviceName;
-        try {
-            frameCounter = getFrameCounter(publicDlmsSession, frameCounterObiscode);
-            logicalDeviceName = getLogicalDeviceName(publicDlmsSession);
-            if (getHhuSignOnV2() != null) {
-                checkDeviceName(logicalDeviceName);
-            }
-        } catch (DataAccessResultException | ProtocolException e) {
-            final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the frame counter, cannot continue! " + e.getMessage());
-            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
-        } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
-        } finally {
-            getLogger().info("Disconnecting public client");
-            publicDlmsSession.disconnect();
-        }
-        getDlmsSessionProperties().setSerialNumber(logicalDeviceName);
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
-        getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(MANAGEMENT_CLIENT));
-        if (getHhuSignOnV2() != null) {
-            getHhuSignOnV2().setClientMacAddress(MANAGEMENT_CLIENT);
-        }
-        setDlmsSession(new EI7DlmsSession(comChannel, getDlmsSessionProperties(), getHhuSignOnV2(), offlineDevice.getSerialNumber()));
-    }
-
-    protected DlmsSession getPublicDlmsSession(ComChannel comChannel, DlmsProperties publicClientProperties) {
-        DlmsSession publicDlmsSession = new EI7DlmsSession(comChannel, publicClientProperties, getHhuSignOnV2(), offlineDevice.getSerialNumber());
-        getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
-        connectWithRetries(publicDlmsSession);
-        return publicDlmsSession;
+    public EI7DlmsSession createDlmsSession(ComChannel comChannel, DlmsProperties dlmsSessionProperties) {
+        return new EI7DlmsSession(comChannel, dlmsSessionProperties, getHhuSignOnV2(), offlineDevice.getSerialNumber());
     }
 
     protected EI7Messaging getProtocolMessaging() {

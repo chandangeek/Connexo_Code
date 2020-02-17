@@ -135,10 +135,9 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     protected void setupSession(ComChannel comChannel, ObisCode frameCounterObiscode) {
-        DlmsProperties publicClientProperties = getDlmsProperties();
-        DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, publicClientProperties);
         long frameCounter;
         String logicalDeviceName;
+        DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, getDlmsProperties());
         try {
             frameCounter = getFrameCounter(publicDlmsSession, frameCounterObiscode);
             logicalDeviceName = getLogicalDeviceName(publicDlmsSession);
@@ -160,7 +159,7 @@ public class A2 extends AbstractDlmsProtocol {
         if (hhuSignOnV2 != null) {
             hhuSignOnV2.setClientMacAddress(MANAGEMENT_CLIENT);
         }
-        setDlmsSession(new A2DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOnV2, offlineDevice.getSerialNumber()));
+        setDlmsSession(createDlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
     protected long getFrameCounter(DlmsSession publicDlmsSession, ObisCode frameCounterObiscode) throws IOException {
@@ -182,10 +181,14 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     protected DlmsSession getPublicDlmsSession(ComChannel comChannel, DlmsProperties publicClientProperties) {
-        DlmsSession publicDlmsSession = new A2DlmsSession(comChannel, publicClientProperties, hhuSignOnV2, offlineDevice.getSerialNumber());
+        DlmsSession publicDlmsSession = createDlmsSession(comChannel, publicClientProperties);
         getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
         connectWithRetries(publicDlmsSession);
         return publicDlmsSession;
+    }
+
+    public A2DlmsSession createDlmsSession(ComChannel comChannel, DlmsProperties dlmsSessionProperties) {
+        return new A2DlmsSession(comChannel, dlmsSessionProperties, hhuSignOnV2, offlineDevice.getSerialNumber());
     }
 
     protected DlmsProperties getDlmsProperties() {

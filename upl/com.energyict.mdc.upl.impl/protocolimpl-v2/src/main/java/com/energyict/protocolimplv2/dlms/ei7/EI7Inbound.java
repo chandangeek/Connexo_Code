@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.protocolimplv2.dlms.a2.A2DlmsSession;
 import com.energyict.protocolimplv2.dlms.a2.A2Inbound;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7DlmsProperties;
@@ -46,6 +48,10 @@ public class EI7Inbound extends A2Inbound {
             }
         }
         return collectedDatas;
+    }
+
+    public EI7DlmsSession createDlmsSession(ComChannel comChannel, DlmsProperties dlmsProperties) {
+        return new EI7DlmsSession(comChannel, dlmsProperties, getLogger());
     }
 
     @Override
