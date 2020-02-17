@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -42,7 +41,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
         switch (newState) {
             case PENDING:
                 serviceCall.findChildren().stream().forEach(child -> {
-                    if(child.canTransitionTo(DefaultState.PENDING)) {
+                    if (child.canTransitionTo(DefaultState.PENDING)) {
                         child.requestTransition(DefaultState.PENDING);
                     }
                 });
@@ -112,7 +111,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
                     WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0)));
                 }
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             //If we could not send registered notification due to any exception, we should continue to process service call
             serviceCall.log(LogLevel.WARNING, "Exception while sending registered (bulk) notification: " + ex.getLocalizedMessage());
         }
@@ -124,7 +123,9 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
             SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
             String deviceId = extension.getDeviceId();
             Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
-            if (device.isPresent() && (child.getState() == DefaultState.SUCCESSFUL || hasAnyChildState(findChildren(child), DefaultState.SUCCESSFUL))) {
+            if (device.isPresent() &&
+                    !sapCustomPropertySets.isRegistered(device.get()) &&
+                    (child.getState() == DefaultState.SUCCESSFUL || hasAnyChildState(findChildren(child), DefaultState.SUCCESSFUL))) {
                 deviceIds.add(deviceId);
             }
         });

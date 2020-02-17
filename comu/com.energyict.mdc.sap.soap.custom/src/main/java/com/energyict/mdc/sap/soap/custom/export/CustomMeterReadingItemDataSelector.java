@@ -16,6 +16,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -100,42 +101,44 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         String itemDescription = item.getDescription();
         item.overrideReadingInterval(TimeDuration.hours(1));
 
-        RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
-        currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
+        if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {
+            RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
+            currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
 
-        if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
-            warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
+            if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
-            List<Instant> instants = new ArrayList<>();
-            Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
+                List<Instant> instants = new ArrayList<>();
+                Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
 
-            while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
-                if (exportRangeSet.contains(instant)) {
-                    instants.add(instant);
-                }
-                instant = instant.plus(1, ChronoUnit.HOURS);
-            }
-
-            if (!instants.isEmpty()) {
-                List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
-                        .collect(Collectors.toList());
-
-                Map<Instant, String> readingStatuses = new HashMap<>();
-                IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
-                for (Instant time : instants) {
-                    Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
-                            .filter(r -> r.getTimeStamp().equals(time)).findAny();
-                    if (readingOptional.isPresent()) {
-                        readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
-                    } else {
-                        readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
-                        readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
+                    if (exportRangeSet.contains(instant)) {
+                        instants.add(instant);
                     }
+                    instant = instant.plus(1, ChronoUnit.HOURS);
                 }
-                readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
-                MeterReadingImpl meterReading = asMeterReading(item, readings);
-                exportCount++;
-                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+
+                if (!instants.isEmpty()) {
+                    List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
+                            .collect(Collectors.toList());
+
+                    Map<Instant, String> readingStatuses = new HashMap<>();
+                    IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
+                    for (Instant time : instants) {
+                        Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
+                                .filter(r -> r.getTimeStamp().equals(time)).findAny();
+                        if (readingOptional.isPresent()) {
+                            readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                        } else {
+                            readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
+                            readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                        }
+                    }
+                    readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
+                    MeterReadingImpl meterReading = asMeterReading(item, readings);
+                    exportCount++;
+                    return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+                }
             }
         }
 
@@ -143,7 +146,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
-        item.postponeExport();
+        item.postponeExportForNewData();
         return Optional.empty();
     }
 
@@ -271,36 +274,38 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             return Optional.empty();
         }
 
-        Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
-        List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval, since);
+        if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {
+            Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
+            List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval, since);
 
-        Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
-        if (updateWindow.isPresent()) {
-            RelativePeriod window = updateWindow.get();
-            RangeSet<Instant> rangeSet = readings.stream()
-                    .map(baseReadingRecord -> window.getOpenClosedInterval(
-                            ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
-                    .collect(toImmutableRangeSet());
-            readings = rangeSet.asRanges().stream()
-                    .flatMap(range -> getReadings(item, range))
-                    .collect(Collectors.toCollection(ArrayList::new));
-        }
+            Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
+            if (updateWindow.isPresent()) {
+                RelativePeriod window = updateWindow.get();
+                RangeSet<Instant> rangeSet = readings.stream()
+                        .map(baseReadingRecord -> window.getOpenClosedInterval(
+                                ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
+                        .collect(toImmutableRangeSet());
+                readings = rangeSet.asRanges().stream()
+                        .flatMap(range -> getReadings(item, range))
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }
 
-        if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
-            readings = filterAndSortReadings(readings.stream())
-                    .collect(Collectors.toList());
-            MeterReadingImpl meterReading = asMeterReading(item, readings);
-            Map<Instant, String> readingStatuses = new HashMap<>();
-            readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
-            updateCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+            if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                readings = filterAndSortReadings(readings.stream())
+                        .collect(Collectors.toList());
+                MeterReadingImpl meterReading = asMeterReading(item, readings);
+                Map<Instant, String> readingStatuses = new HashMap<>();
+                readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
+                updateCount++;
+                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+            }
         }
 
         try (TransactionContext context = transactionService.getContext()) {
             MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
             context.commit();
         }
-
+        item.postponeExportForChangedData();
         return Optional.empty();
     }
 

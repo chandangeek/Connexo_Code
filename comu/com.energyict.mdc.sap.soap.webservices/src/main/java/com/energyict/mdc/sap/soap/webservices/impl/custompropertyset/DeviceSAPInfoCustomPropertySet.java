@@ -32,7 +32,7 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 
 public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device, DeviceSAPInfoDomainExtension> {
     public static final String CPS_ID = DeviceSAPInfoCustomPropertySet.class.getName();
-    static final String MODEL_NAME = "DI1";
+    public static final String MODEL_NAME = "DI1";
 
     // Common for all domain objects
     private final PropertySpecService propertySpecService;
@@ -110,11 +110,17 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                         .named(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), TranslationKeys.CPS_POINT_OF_DELIVERY)
                         .describedAs(TranslationKeys.CPS_POINT_OF_DELIVERY_DESCRIPTION)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), TranslationKeys.REGISTERED)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
 
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, DeviceSAPInfoDomainExtension> {
+    class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, DeviceSAPInfoDomainExtension> {
         private final String TABLE_NAME = "SAP_CAS_DI1";
         private final String FK = "FK_SAP_CAS_DI1";
         private final String IDX = "IDX_SAP_CAS_DI1_DEVID";
@@ -181,6 +187,12 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                     .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
                     .since(Version.version(10, 7))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.databaseName())
+                    .bool()
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .installValue("'N'")
                     .add();
         }
 
