@@ -1,6 +1,8 @@
 -classpath: target/classes
 -dsannotations: * 
-Private-Package: com.elster.jupiter.users.impl
+Private-Package: com.elster.jupiter.users.impl,\
+com.elster.jupiter.users.blacklist.impl
 Export-Package: com.elster.jupiter.users,\
 	com.elster.jupiter.users.privileges,\
-	com.elster.jupiter.users.security
+	com.elster.jupiter.users.security,\
+	com.elster.jupiter.users.blacklist

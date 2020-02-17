@@ -177,10 +177,6 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         getMBusClient(pendingMessage.getDeviceSerialNumber()).deinstallSlave();
     }
 
-    protected void setCryptoserverMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new IOException("Received message to renew MBus keys using the Cryptoserver, but Cryptoserver usage is not supported in this protocol");
-    }
-
     protected void setMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
         String openKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.openKeyAttributeName);
         String transferKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.transferKeyAttributeName);

@@ -23,7 +23,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         DOMAIN("device", "DEVICE"),
         DEVICE_IDENTIFIER("deviceIdentifier", "DEVICE_ID"),
         DEVICE_LOCATION("deviceLocation", "DEVICE_LOCATION"),
-        POINT_OF_DELIVERY("pointOfDelivery", "POINT_OF_DELIVERY");
+        POINT_OF_DELIVERY("pointOfDelivery", "POINT_OF_DELIVERY"),
+        REGISTERED("registered", "REGISTERED");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -52,6 +53,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String pointOfDelivery;
 
+    private boolean registered;
+
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
         return super.getRegisteredCustomPropertySet();
@@ -63,6 +66,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         setDeviceIdentifier((String) propertyValues.getProperty(FieldNames.DEVICE_IDENTIFIER.javaName()));
         setDeviceLocation((String) propertyValues.getProperty(FieldNames.DEVICE_LOCATION.javaName()));
         setPointOfDelivery((String) propertyValues.getProperty(FieldNames.POINT_OF_DELIVERY.javaName()));
+        this.setRegistered((boolean) propertyValues.getProperty(FieldNames.REGISTERED.javaName()));
     }
 
     @Override
@@ -70,6 +74,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         propertySetValues.setProperty(FieldNames.DEVICE_IDENTIFIER.javaName(), deviceIdentifier);
         propertySetValues.setProperty(FieldNames.DEVICE_LOCATION.javaName(), deviceLocation);
         propertySetValues.setProperty(FieldNames.POINT_OF_DELIVERY.javaName(), pointOfDelivery);
+        propertySetValues.setProperty(FieldNames.REGISTERED.javaName(), this.isRegistered());
     }
 
     @Override
@@ -79,6 +84,14 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
 
     public Optional<String> getDeviceIdentifier() {
         return Optional.ofNullable(deviceIdentifier);
+    }
+
+    public String getDeviceLocation() {
+        return deviceLocation;
+    }
+
+    public String getPointOfDelivery() {
+        return pointOfDelivery;
     }
 
     public void setDeviceIdentifier(String deviceIdentifier) {
@@ -91,6 +104,14 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
 
     public void setPointOfDelivery(String pointOfDelivery) {
         this.pointOfDelivery = pointOfDelivery;
+    }
+
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
     }
 
     public Device getDevice() {

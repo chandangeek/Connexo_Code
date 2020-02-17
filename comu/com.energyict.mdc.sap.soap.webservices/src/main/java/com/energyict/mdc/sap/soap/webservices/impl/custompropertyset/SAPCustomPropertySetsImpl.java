@@ -80,7 +80,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -803,7 +802,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getReadingType().getFullAliasName()));
     }
 
-    private void setDeviceCPSProperty(Device device, String property, String value) {
+    private void setDeviceCPSProperty(Device device, String property, Object value) {
         String cpsId = deviceInfo.getId();
         if (!getRegisteredCustomPropertySet(device, cpsId).isEditableByCurrentUser()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
@@ -997,12 +996,44 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return Optional.empty();
     }
 
+    @Override
+    public boolean isRegistered(EndDevice endDevice) {
+        Subquery deviceSubquery = getDataModel(DeviceDataServices.COMPONENT_NAME)
+                .query(Device.class)
+                .asSubquery(Where.where("meter").isEqualTo(endDevice), "id");
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .anyMatch(ListOperator.IN.contains(deviceSubquery, DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName())
+                        .and(Where.where(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()).isEqualTo(true)));
+    }
+
+    @Override
+    public boolean isRegistered(Device device) {
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .anyMatch(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device)
+                        .and(Where.where(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()).isEqualTo(true)));
+    }
+
+    @Override
+    public void setRegistered(String sapDeviceId, boolean registered) {
+        Optional<Device> device = getDevice(sapDeviceId);
+        if (device.isPresent()) {
+            lockDeviceTypeOrThrowException(device.get().getDeviceType());
+            Device lockedDevice = lockDeviceOrThrowException(device.get().getId());
+
+            setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
+        }
+    }
+
     private Optional<Instant> getFirstActiveLrnStartDate(long deviceId, Instant now) {
         Range<Instant> registerDateRange = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName())
+                        .isEffective(now)
+                        .or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
                 .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
                 .map(ext -> ext.getInterval().toOpenClosedRange())
                 .findFirst()
@@ -1012,7 +1043,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName())
+                        .isEffective(now)
+                        .or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
                 .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
                 .map(ext -> ext.getInterval().toOpenClosedRange())
                 .findFirst()

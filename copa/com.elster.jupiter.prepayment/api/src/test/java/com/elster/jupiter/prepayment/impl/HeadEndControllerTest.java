@@ -167,7 +167,7 @@ public class HeadEndControllerTest {
     }
 
     @Test
-    @Expected(value = LocalizedException.class, message = "Could not find the head-end interface for end device with MRID " + END_DEVICE_MRID)
+    @Expected(value = LocalizedException.class, message = "Couldn't find the head-end interface for end device with MRID " + END_DEVICE_MRID + ".")
     public void testInvalidUsagePoint() throws Exception {
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.empty());
 
@@ -404,7 +404,7 @@ public class HeadEndControllerTest {
     }
 
     @Test
-    @Expected(value = LocalizedException.class, message = "Could not find the command argument spec LoadBalanceDeviceMessage.parameters.overthresholdduration for command " + END_DEVICE_CONTROL_TYPE)
+    @Expected(value = LocalizedException.class, message = "Couldn't find the command argument spec LoadBalanceDeviceMessage.parameters.overthresholdduration for command " + END_DEVICE_CONTROL_TYPE + ".")
     public void testCommandArgumentSpecNotFound() throws Exception {
         ContactorInfo contactorInfo = new ContactorInfo();
         contactorInfo.status = BreakerStatus.armed;
@@ -420,7 +420,7 @@ public class HeadEndControllerTest {
     }
 
     @Test
-    @Expected(value = LocalizedException.class, message = "Could not find destination spec with name " + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)
+    @Expected(value = LocalizedException.class, message = "Couldn't find destination spec with name " + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION + ".")
     public void testDestinationSpecNotFound() throws Exception {
         ContactorInfo contactorInfo = new ContactorInfo();
         contactorInfo.status = BreakerStatus.armed;

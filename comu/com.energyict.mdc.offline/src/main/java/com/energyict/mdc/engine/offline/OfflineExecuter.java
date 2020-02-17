@@ -204,15 +204,12 @@ public class OfflineExecuter implements OfflineActionExecuter {
         if (remoteQueryApiUrl == null) {
             throw new ApplicationException("Cannot start remote communication, missing remoteQueryApiUrl in properties!");
         }
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         remoteComServerDAO = new RemoteComServerDAOImpl(remoteProperties, new RemoteComServerDaoServiceProvider());
         try {
             remoteComServerDAO.start();
         } catch (ApplicationException e) {
             remoteComServerDAO = null;  //reset the instance if it was not started correctly
             throw e;
-        } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
         }
     }
 
@@ -461,29 +458,37 @@ public class OfflineExecuter implements OfflineActionExecuter {
 
     private void doProcess() {
         startGUI();
+        performActions();
+        getLogging().getLogger().info("Shutdown successful");
+    }
+
+    private void performActions() {
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                OfflineActions action = actions.take();    //Blocking queue, waiting until a next action is available
-                switch (action) {
-                    case QueryPendingComJobs:
-                        queryPendingComJobs();
-                        break;
-                    case StoreCollectedData:
-                        storeCollectedData();
-                        break;
-                    case ComJobIsFinished:
-                        finishComJob();
-                        break;
-
-                    default:
-                        getLogging().getLogger().severe("Received unknown action '" + action.name() + "', skipping.");
-                        break;
-                }
+                performAction();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        getLogging().getLogger().info("Shutdown successful");
+    }
+
+    private void performAction() throws InterruptedException {
+        OfflineActions action = actions.take();    //Blocking queue, waiting until a next action is available
+        switch (action) {
+            case QueryPendingComJobs:
+                queryPendingComJobs();
+                break;
+            case StoreCollectedData:
+                storeCollectedData();
+                break;
+            case ComJobIsFinished:
+                finishComJob();
+                break;
+
+            default:
+                getLogging().getLogger().severe("Received unknown action '" + action.name() + "', skipping.");
+                break;
+        }
     }
 
     private void queryPendingComJobs() throws InterruptedException {

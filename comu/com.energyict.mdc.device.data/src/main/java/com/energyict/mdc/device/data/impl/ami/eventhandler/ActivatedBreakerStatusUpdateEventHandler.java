@@ -93,7 +93,7 @@ public class ActivatedBreakerStatusUpdateEventHandler implements TopicHandler {
 
     private List<ServiceCall> findAllBreakerOperationServiceCallsLinkedTo(Device device) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.targetObject = device;
+        filter.targetObjects.add(device);
         filter.types = Arrays.asList(
                 DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME,

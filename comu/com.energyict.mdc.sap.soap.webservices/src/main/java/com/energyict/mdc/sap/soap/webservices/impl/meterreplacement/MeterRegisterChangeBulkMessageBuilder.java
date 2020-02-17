@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
@@ -40,7 +41,8 @@ public class MeterRegisterChangeBulkMessageBuilder {
         return this;
     }
 
-    public MeterRegisterChangeMessage build() {
+    public MeterRegisterChangeMessage build(Thesaurus thesaurus) {
+        message.validate(thesaurus);
         return message;
     }
 
@@ -86,15 +88,15 @@ public class MeterRegisterChangeBulkMessageBuilder {
     }
 
     private RegisterChangeMessage getRegister(UtilsDvceERPSmrtMtrRegChgReqReg reg) {
-        RegisterChangeMessage register = new RegisterChangeMessage();
-        register.setLrn(getLrn(reg));
-        register.setStartDate(reg.getStartDate());
-        register.setEndDate(calculateEndDate(reg));
-        register.setTimeZone(getTimeZone(reg));
-        register.setObis(getObis(reg));
-        register.setRecurrenceCode(getRecurrenceCode(reg));
-        register.setDivisionCategory(getDivisionCategory(reg));
-        return register;
+        RegisterChangeMessage.Builder registerBuilder = new RegisterChangeMessage.Builder();
+        registerBuilder.setLrn(getLrn(reg));
+        registerBuilder.setStartDate(reg.getStartDate());
+        registerBuilder.setEndDate(calculateEndDate(reg));
+        registerBuilder.setTimeZone(getTimeZone(reg));
+        registerBuilder.setObis(getObis(reg));
+        registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
+        registerBuilder.setDivisionCategory(getDivisionCategory(reg));
+        return registerBuilder.build();
     }
 
     private String getLrn(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {

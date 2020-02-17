@@ -35,7 +35,7 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
                     .ifPresent(requestMessage -> {
                                 UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
                                         .from(requestMessage, getWebServiceActivator().getSapProperty(AdditionalProperties.LRN_END_INTERVAL))
-                                        .build();
+                                        .build(getThesaurus());
 
                                 handleRequestMessage(message);
                             }
