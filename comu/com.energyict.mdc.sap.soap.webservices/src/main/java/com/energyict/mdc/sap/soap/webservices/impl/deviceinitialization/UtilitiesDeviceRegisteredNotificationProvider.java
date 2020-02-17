@@ -42,6 +42,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -174,21 +175,29 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
-        using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+
+        Set<EndPointConfiguration> processedEndpoints = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .withRelatedAttributes(values)
-                .send(notificationMessage);
-        sapCustomPropertySets.setRegistered(sapDeviceId, true);
+                .send(notificationMessage)
+                .keySet();
+        if (!processedEndpoints.isEmpty()) {
+            sapCustomPropertySets.setRegistered(sapDeviceId, true);
+        }
     }
 
     private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
-        using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+
+        Set<EndPointConfiguration> processedEndpoints = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .toEndpoints(endPointConfigurations)
                 .withRelatedAttributes(values)
-                .send(notificationMessage);
-        sapCustomPropertySets.setRegistered(sapDeviceId, true);
+                .send(notificationMessage)
+                .keySet();
+        if (!processedEndpoints.isEmpty()) {
+            sapCustomPropertySets.setRegistered(sapDeviceId, true);
+        }
     }
 
     private UtilsDvceERPSmrtMtrRegedNotifMsg createNotificationMessage(String sapDeviceId) {

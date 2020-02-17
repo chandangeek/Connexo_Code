@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -36,6 +37,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider",
@@ -121,11 +123,14 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
             notificationMessage.getUtilitiesDeviceERPSmartMeterRegisteredNotificationMessage().add(createChildMessage(deviceId, createTime));
         });
 
-        using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
+        Set<EndPointConfiguration> processedEndpoints = using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
                 .withRelatedAttributes(values)
-                .send(notificationMessage);
+                .send(notificationMessage)
+                .keySet();
 
-        deviceIds.forEach(deviceId -> sapCustomPropertySets.setRegistered(deviceId, true));
+        if (!processedEndpoints.isEmpty()) {
+            deviceIds.forEach(deviceId -> sapCustomPropertySets.setRegistered(deviceId, true));
+        }
     }
 
     private BusinessDocumentMessageHeader createMessageHeader(Instant now) {

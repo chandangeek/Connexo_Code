@@ -115,6 +115,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                         .booleanSpec()
                         .named(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), TranslationKeys.REGISTERED)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }

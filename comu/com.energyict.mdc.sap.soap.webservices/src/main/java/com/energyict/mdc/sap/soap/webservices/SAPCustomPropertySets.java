@@ -105,7 +105,7 @@ public interface SAPCustomPropertySets {
 
     boolean isRegistered(Device device);
 
-    boolean isRegistered(String deviceName);
+    boolean isRegistered(EndDevice endDevice);
 
     void setRegistered(String sapDeviceId, boolean registered);
 }

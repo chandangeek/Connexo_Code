@@ -16,6 +16,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -100,7 +101,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         String itemDescription = item.getDescription();
         item.overrideReadingInterval(TimeDuration.hours(1));
 
-        if (sapCustomPropertySets.isRegistered(item.getDomainObject().getName())) {
+        if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {
             RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
             currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
 
@@ -145,7 +146,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
-        item.postponeExportForCreatedData();
+        item.postponeExportForNewData();
         return Optional.empty();
     }
 
@@ -273,7 +274,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             return Optional.empty();
         }
 
-        if (sapCustomPropertySets.isRegistered(item.getDomainObject().getName())) {
+        if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {
             Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
             List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval, since);
 

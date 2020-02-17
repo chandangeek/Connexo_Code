@@ -59,13 +59,13 @@ public class DeviceSAPInfoDomainExtensionTest {
         domainExtension.copyTo(cpsValues);
 
         assertThat(cpsValues.getProperty(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName()))
-                .isSameAs(deviceIdentifier);
+                .isEqualTo(deviceIdentifier);
         assertThat(cpsValues.getProperty(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName()))
-                .isSameAs(deviceLocation);
+                .isEqualTo(deviceLocation);
         assertThat(cpsValues.getProperty(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName()))
-                .isSameAs(pointOfDelivery);
+                .isEqualTo(pointOfDelivery);
         assertThat(cpsValues.getProperty(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()))
-                .isSameAs(registered);
+                .isEqualTo(registered);
     }
 
     @Test

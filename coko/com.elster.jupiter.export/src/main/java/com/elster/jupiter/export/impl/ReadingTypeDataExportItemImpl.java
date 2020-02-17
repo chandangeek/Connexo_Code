@@ -47,7 +47,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
-    private boolean exportPostponedForCreatedData;
+    private boolean exportPostponedForNewData;
     private boolean exportPostponedForChangedData;
     @Size(min = 3, // 1 symbol per count + space + 1 symbol per unit
             max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
@@ -121,8 +121,8 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public boolean isExportPostponedForCreatedData() {
-        return exportPostponedForCreatedData;
+    public boolean isExportPostponedForNewData() {
+        return exportPostponedForNewData;
     }
 
     @Override
@@ -146,8 +146,8 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public void postponeExportForCreatedData() {
-        this.exportPostponedForCreatedData = true;
+    public void postponeExportForNewData() {
+        this.exportPostponedForNewData = true;
     }
 
     @Override

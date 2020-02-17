@@ -33,7 +33,7 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     Optional<Instant> getLastExportedPeriodEnd();
 
-    boolean isExportPostponedForCreatedData();
+    boolean isExportPostponedForNewData();
 
     boolean isExportPostponedForChangedData();
 
@@ -53,7 +53,7 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd);
 
-    void postponeExportForCreatedData();
+    void postponeExportForNewData();
 
     void postponeExportForChangedData();
 

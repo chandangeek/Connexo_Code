@@ -997,28 +997,33 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public boolean isRegistered(String deviceName) {
-        return deviceService.findDeviceByName(deviceName)
-                .map(this::isRegistered)
-                .orElse(false);
+    public boolean isRegistered(EndDevice endDevice) {
+        Subquery deviceSubquery = getDataModel(DeviceDataServices.COMPONENT_NAME)
+                .query(Device.class)
+                .asSubquery(Where.where("meter").isEqualTo(endDevice), "id");
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .anyMatch(ListOperator.IN.contains(deviceSubquery, DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName())
+                        .and(Where.where(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()).isEqualTo(true)));
     }
 
     @Override
     public boolean isRegistered(Device device) {
         return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
-                .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))
-                .findAny()
-                .map(DeviceSAPInfoDomainExtension::isRegistered)
-                .orElse(false);
+                .anyMatch(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device)
+                        .and(Where.where(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()).isEqualTo(true)));
     }
 
     @Override
     public void setRegistered(String sapDeviceId, boolean registered) {
-        lockDeviceTypeOrThrowException(getDevice(sapDeviceId).get().getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(getDevice(sapDeviceId).get().getId());
+        Optional<Device> device = getDevice(sapDeviceId);
+        if (device.isPresent()) {
+            lockDeviceTypeOrThrowException(device.get().getDeviceType());
+            Device lockedDevice = lockDeviceOrThrowException(device.get().getId());
 
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
+            setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
+        }
     }
 
     private Optional<Instant> getFirstActiveLrnStartDate(long deviceId, Instant now) {

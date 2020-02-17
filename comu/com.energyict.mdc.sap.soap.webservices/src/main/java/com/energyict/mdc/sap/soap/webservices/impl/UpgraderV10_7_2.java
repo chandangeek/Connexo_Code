@@ -75,11 +75,7 @@ public class UpgraderV10_7_2 implements Upgrader {
             try (Connection connection = this.dataModel.getConnection(true);
                  Statement statement = connection.createStatement()) {
                 sqlQueries.build().forEach(oldColumn -> {
-                    try {
-                        execute(statement, oldColumn);
-                    } catch (Exception e) {
-                        // no action if column already not exists
-                    }
+                    execute(statement, oldColumn);
                 });
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
