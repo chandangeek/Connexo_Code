@@ -36,9 +36,9 @@ public class EI7Messaging extends A2Messaging {
     public List<DeviceMessageSpec> getSupportedMessages() {
         if (supportedMessages == null) {
             supportedMessages = super.getSupportedMessages();
-            supportedMessages.add(NetworkConnectivityMessage.WRITE_PUSH_SCHEDULER.get(getPropertySpecService(), getNlsService(), getConverter()));
-            supportedMessages.add(NetworkConnectivityMessage.WRITE_PUSH_SETUP.get(getPropertySpecService(), getNlsService(), getConverter()));
-            supportedMessages.add(NetworkConnectivityMessage.WRITE_ORPHAN_STATE_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.add(NetworkConnectivityMessage.CHANGE_PUSH_SCHEDULER.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.add(NetworkConnectivityMessage.CHANGE_PUSH_SETUP.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.add(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()));
         }
         return supportedMessages;
     }

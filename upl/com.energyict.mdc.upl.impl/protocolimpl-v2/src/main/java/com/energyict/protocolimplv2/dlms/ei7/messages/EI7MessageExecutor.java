@@ -1,8 +1,6 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.NbiotPushSetup;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -44,11 +42,11 @@ public class EI7MessageExecutor extends A2MessageExecutor {
 
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         try {
-            if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.WRITE_PUSH_SCHEDULER)) {
+            if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PUSH_SCHEDULER)) {
                 writePushScheduler(pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.WRITE_PUSH_SETUP)) {
+            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PUSH_SETUP)) {
                 writePushSetup(pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.WRITE_ORPHAN_STATE_THRESHOLD)) {
+            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD)) {
                 writeOrphanStateThreshold(pendingMessage);
             } else {
                 super.executeMessage(pendingMessage, collectedMessage);

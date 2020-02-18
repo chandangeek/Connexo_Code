@@ -679,7 +679,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WRITE_PUSH_SCHEDULER(4080, "Write push scheduler") {
+    CHANGE_PUSH_SCHEDULER(4080, "Change push scheduler") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -688,7 +688,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WRITE_PUSH_SETUP(4081, "Write push setup parameters") {
+    CHANGE_PUSH_SETUP(4081, "Change push setup parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -704,7 +704,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WRITE_ORPHAN_STATE_THRESHOLD(4082, "Write orphan state threshold") {
+    CHANGE_ORPHAN_STATE_THRESHOLD(4082, "Change orphan state threshold") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
