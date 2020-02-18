@@ -30,6 +30,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -294,7 +295,8 @@ public abstract class AbstractConflictIT {
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
                     injector.getInstance(SecurityManagementService.class),
-                    injector.getInstance(MeteringTranslationService.class));
+                    injector.getInstance(MeteringTranslationService.class),
+                    injector.getInstance(MessageService.class));
             ctx.commit();
         }
         setupMasterData();
