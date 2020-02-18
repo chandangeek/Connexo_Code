@@ -100,9 +100,12 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             if (serviceCall.getState().equals(DefaultState.ONGOING)) {
                 FirmwareCampaign firmwareCampaign = serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get();
                 if (comTaskExecution.isFirmware()) {
-                    Optional<DeviceMessage> deviceMessage = deviceInFirmwareCampaign.getDeviceMessage();
-                    if (deviceMessage.isPresent() && deviceMessage.get().getReleaseDate().isBefore(clock.instant())) {
-                        deviceMessage.get().updateDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    Optional<DeviceMessage> deviceMessageOptional = deviceInFirmwareCampaign.getDeviceMessage();
+                    if (deviceMessageOptional.isPresent() && deviceMessageOptional.get().getReleaseDate().isBefore(clock.instant())) {
+                        DeviceMessage deviceMessage = deviceMessageOptional.get();
+                        if (deviceMessage.getStatus().isPredecessorOf(DeviceMessageStatus.FAILED)) {
+                            deviceMessage.updateDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                        }
                         serviceCallService.lockServiceCall(serviceCall.getId());
                         serviceCall.requestTransition(DefaultState.FAILED);
                         serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
