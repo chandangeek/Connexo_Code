@@ -51,6 +51,7 @@ public enum MessageSeeds implements MessageSeed {
     COULDNT_FIND_SERVICE_CALL_TYPE(1007, "CouldntFindServiceCallType", "Couldn''t find a service call type {0} with version {1}.", Level.WARNING),
     DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND(1008, "DefaultFirmwareManagementTaskCanNotBeFound", "The default firmware management communication task can''t be found", Level.WARNING),
     DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE(1009, "DefaultFirmwareManagementTaskIsNotActive", "Firmware version cannot be changed because Firmware management communication task isn''t active on device configuration", Level.WARNING),
+    DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION(1010, "DevicesWerentAddedBecauseHaveThisFirmwareVersion", "''{0}'' devices weren''t added to the campaign because they already have this firmware version.", Level.INFO),
 
     CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user.", Level.INFO),
     RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.", Level.INFO),

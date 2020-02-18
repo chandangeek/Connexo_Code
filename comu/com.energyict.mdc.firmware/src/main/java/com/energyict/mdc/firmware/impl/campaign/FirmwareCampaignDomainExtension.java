@@ -78,6 +78,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
         FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "FIRMWARE_UPLOAD_CONSTRATEGY"),
         MANUALLY_CANCELLED("manuallyCancelled", "MANUALLY_CANCELLED"),
+        WITH_UNIQUE_FIRMWARE_VERSION("withUniqueFirmwareVersion", "WITH_UNIQUE_FIRMWARE_VERSION"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -132,6 +133,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Long validationComTaskId;
     private ConnectionStrategy validationConnectionStrategy;
     private boolean manuallyCancelled;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private boolean withUniqueFirmwareVersion;
 
     @Inject
     public FirmwareCampaignDomainExtension(Thesaurus thesaurus, FirmwareServiceImpl firmwareService) {
@@ -319,6 +322,16 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
+    public boolean isWithUniqueFirmwareVersion() {
+        return withUniqueFirmwareVersion;
+    }
+
+
+    public void setWithUniqueFirmwareVersion(boolean withUniqueFirmwareVersion) {
+        this.withUniqueFirmwareVersion = withUniqueFirmwareVersion;
+    }
+
+    @Override
     public Map<DefaultState, Long> getNumbersOfChildrenWithStatuses() {
         return dataModel.getInstance(ServiceCallService.class).getChildrenStatus(getServiceCall().getId());
     }
@@ -411,6 +424,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setValidationComTaskId((Long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
         this.setValidationConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
         this.setManuallyCancelled((boolean) propertyValues.getProperty(FieldNames.MANUALLY_CANCELLED.javaName()));
+        this.setWithUniqueFirmwareVersion((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_FIRMWARE_VERSION.javaName()));
     }
 
     @Override
@@ -430,6 +444,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
         propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent() ? this.getValidationConnectionStrategy().get() : null);
         propertySetValues.setProperty(FieldNames.MANUALLY_CANCELLED.javaName(), this.isManuallyCancelled());
+        propertySetValues.setProperty(FieldNames.WITH_UNIQUE_FIRMWARE_VERSION.javaName(), this.isWithUniqueFirmwareVersion());
     }
 
     @Override

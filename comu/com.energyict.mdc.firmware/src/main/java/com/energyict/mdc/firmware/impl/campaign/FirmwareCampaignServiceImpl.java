@@ -109,7 +109,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     }
 
     @Override
-    public ComTask getComTaskById(long id){
+    public ComTask getComTaskById(long id) {
         return taskService.findComTask(id).get();
     }
 
@@ -149,7 +149,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                     .collect(Collectors.toList());
             if (!devicesByGroupAndType.isEmpty()) {
                 devicesByGroupAndType.forEach(device -> {
-                    MessageSeeds messageSeeds = createChildServiceCall(serviceCall, device);
+                    MessageSeeds messageSeeds = createChildServiceCall(serviceCall, device, campaign);
                     numberOfDevices.compute(messageSeeds, (key, value) -> value == null ? 1 : value + 1);
                 });
             } else {
@@ -164,6 +164,10 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
             if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN) != null) {
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)
                         .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)));
+            }
+            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION) != null) {
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION)
+                        .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION)));
             }
             if (numberOfDevices.get(MessageSeeds.DEVICE_WAS_ADDED) == null) {
                 serviceCallService.lockServiceCall(serviceCall.getId());
@@ -181,8 +185,13 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         return deviceService.deviceQuery().select(ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "meter"));
     }
 
-    private MessageSeeds createChildServiceCall(ServiceCall parent, Device device) {
+    private MessageSeeds createChildServiceCall(ServiceCall parent, Device device, FirmwareCampaignDomainExtension campaign) {
         if (!findActiveFirmwareItemByDevice(device).isPresent()) {
+            if (campaign.isWithUniqueFirmwareVersion() && firmwareService.getActiveFirmwareVersion(device, campaign.getFirmwareType())
+                    .filter(firmwareVersion -> firmwareVersion.getFirmwareVersion().equals(campaign.getFirmwareVersion()))
+                    .isPresent()) {
+                return MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION;
+            }
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.FIRMWARE_CAMPAIGN_ITEM);
             FirmwareCampaignItemDomainExtension firmwareCampaignItemDomainExtension = dataModel.getInstance(FirmwareCampaignItemDomainExtension.class);
             firmwareCampaignItemDomainExtension.setDevice(device);

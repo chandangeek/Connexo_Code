@@ -168,6 +168,13 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .notNull()
                 .since(Version.version(10, 7))
                 .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.WITH_UNIQUE_FIRMWARE_VERSION.databaseName())
+                .installValue("'N'")
+                .bool()
+                .map(FirmwareCampaignDomainExtension.FieldNames.WITH_UNIQUE_FIRMWARE_VERSION.javaName())
+                .notNull()
+                .since(Version.version(10, 8))
+                .add();
     }
 
     @Override
