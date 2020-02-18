@@ -697,10 +697,11 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, DeviceMessageConstants.transportTypeAttributeName, DeviceMessageConstants.transportTypeAttributeDefaultTranslation, NetworkConnectivityMessage.TransportType.getTypes()),
                     this.stringSpec(service, DeviceMessageConstants.destinationAddressAttributeName, DeviceMessageConstants.destinationAddressAttributeDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.messageTypeAttributeName, DeviceMessageConstants.messageTypeAttributeDefaultTranslation, NetworkConnectivityMessage.MessageType.getTypes()),
-                    this.stringSpec(service, DeviceMessageConstants.communicationWindow, DeviceMessageConstants.communicationWindowDefaultTranslation),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.randomizationStartInterval, DeviceMessageConstants.randomizationStartIntervalDefaultTranslation),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.numberOfRetries, DeviceMessageConstants.numberOfRetriesDefaultTranslation),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.repetitionDelay, DeviceMessageConstants.repetitionDelayDefaultTranslation)
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.randomizationStartInterval, DeviceMessageConstants.randomizationStartIntervalDefaultTranslation, new BigDecimal(7200)),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.numberOfRetries, DeviceMessageConstants.numberOfRetriesDefaultTranslation, new BigDecimal(0)),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.repetitionDelay, DeviceMessageConstants.repetitionDelayDefaultTranslation, new BigDecimal(0))
             );
         }
     },
@@ -1075,6 +1076,10 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defaultValue) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).setDefaultValue(defaultValue).finish();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... possibleValues) {

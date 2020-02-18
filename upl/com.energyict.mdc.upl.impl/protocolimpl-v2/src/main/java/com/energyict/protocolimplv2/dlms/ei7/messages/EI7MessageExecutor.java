@@ -1,8 +1,12 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.NbiotPushSetup;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
+import com.energyict.dlms.cosem.NbiotPushSetup;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -15,6 +19,7 @@ import com.energyict.protocolimplv2.dlms.a2.messages.A2MessageExecutor;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -87,21 +92,38 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         String transportTypeString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.transportTypeAttributeName);
         String destinationAddress = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName);
         String messageTypeString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.messageTypeAttributeName);
-        String communicationWindow = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.communicationWindow);
+
+        String communicationWindowStartTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.communicationWindowStartTime).getValue();
+        String communicationWindowStopTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.communicationWindowStopTime).getValue();
         String randomizationStartInterval = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.randomizationStartInterval);
         String numberOfRetries = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.numberOfRetries);
         String repetitionDelay = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.repetitionDelay);
 
         NbiotPushSetup nbiotPushSetup = getCosemObjectFactory().getNbiotPushSetup(pushObisCode);
+
         Array objectDefinitionArray = new Array();
+        objectDefinitionArray.addDataType(new Unsigned16(62));
         objectDefinitionArray.addDataType(OctetString.fromString(pushObjectList));
-        nbiotPushSetup.writePushObjectList(new Array(objectDefinitionArray));
+        objectDefinitionArray.addDataType(new Unsigned16(2));
+        objectDefinitionArray.addDataType(new Unsigned16(0));
+        nbiotPushSetup.writePushObjectList(objectDefinitionArray);
+
         int transportType = NetworkConnectivityMessage.TransportType.valueOf(transportTypeString).getId();
         int messageType = NetworkConnectivityMessage.MessageType.valueOf(messageTypeString).getId();
         nbiotPushSetup.writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
+
         Array windowArray = new Array();
-        windowArray.addDataType(OctetString.fromString(communicationWindow));
-        nbiotPushSetup.writeCommunicationWindow(new Array(windowArray));
+        if (Strings.isNullOrEmpty(communicationWindowStartTime) || Strings.isNullOrEmpty(communicationWindowStopTime)) {
+            nbiotPushSetup.writeCommunicationWindow(new Array());
+        } else {
+            Calendar startTime = Calendar.getInstance(getProtocol().getTimeZone());
+            startTime.setTimeInMillis(Long.valueOf(communicationWindowStartTime));
+            windowArray.addDataType(new AXDRDateTime(startTime));
+            Calendar stopTime = Calendar.getInstance(getProtocol().getTimeZone());
+            stopTime.setTimeInMillis(Long.valueOf(communicationWindowStopTime));
+            windowArray.addDataType(new AXDRDateTime(stopTime));
+            nbiotPushSetup.writeCommunicationWindow(new Array(windowArray));
+        }
         nbiotPushSetup.writeRandomizationStartInterval(new Unsigned16(Integer.parseInt(randomizationStartInterval)));
         nbiotPushSetup.writeNumberOfRetries(new Unsigned8(Integer.parseInt(numberOfRetries)));
         nbiotPushSetup.writeRepetitionDelay(new Unsigned16(Integer.parseInt(repetitionDelay)));

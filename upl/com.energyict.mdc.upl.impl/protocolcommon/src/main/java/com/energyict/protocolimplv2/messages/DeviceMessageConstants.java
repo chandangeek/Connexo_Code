@@ -1846,8 +1846,10 @@ public final class DeviceMessageConstants {
     public static final String pushNumberDefaultTranslation = "Push number";
     public static final String pushObjectList = "pushObjectList";
     public static final String pushObjectListDefaultTranslation = "Push Object List";
-    public static final String communicationWindow = "communicationWindow";
-    public static final String communicationWindowDefaultTranslation = "Communication Window";
+    public static final String communicationWindowStartTime = "communicationWindowStartTime";
+    public static final String communicationWindowStartTimeDefaultTranslation = "Communication Window Start Time";
+    public static final String communicationWindowStopTime = "communicationWindowStopTime";
+    public static final String communicationWindowStopTimeDefaultTranslation = "Communication Window Stop Time";
     public static final String randomizationStartInterval = "randomizationStartInterval";
     public static final String randomizationStartIntervalDefaultTranslation = "Randomization Start Interval";
     public static final String numberOfRetries = "numberOfRetries";
