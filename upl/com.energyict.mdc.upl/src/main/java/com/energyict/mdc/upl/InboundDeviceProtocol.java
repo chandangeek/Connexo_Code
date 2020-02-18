@@ -185,6 +185,13 @@ public interface InboundDeviceProtocol extends HasDynamicProperties {
     List<CollectedData> getCollectedData();
 
     /*
+        When true, the protocol collect data sent via the inbound frames
+    */
+    default boolean hasSupportForInboundFrames() {
+        return false;
+    }
+
+    /*
     When true, pending comtasks that are defined with alwaysExecuteForInbound checked, will be executed if the data received on inbound does not contain data for those pending tasks
      */
     boolean hasSupportForRequestsOnInbound();

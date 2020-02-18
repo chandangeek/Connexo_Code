@@ -34,6 +34,10 @@ public class EI7Inbound extends A2Inbound {
         return super.doDiscovery();
     }
 
+    public boolean hasSupportForInboundFrames() {
+        return true;
+    }
+
     @Override
     public List<CollectedData> getCollectedData() {
         if (!pushingCompactFrames)

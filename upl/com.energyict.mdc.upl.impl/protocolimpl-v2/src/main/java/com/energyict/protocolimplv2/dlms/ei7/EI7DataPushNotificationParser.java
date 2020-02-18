@@ -14,12 +14,8 @@ import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.offline.OfflineLoadProfile;
-import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+import com.energyict.mdc.upl.offline.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -40,6 +36,20 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static byte COMPACT_FRAME_48 = (byte) 0x30;
     private static byte COMPACT_FRAME_49 = (byte) 0x31;
     private static byte COMPACT_FRAME_51 = (byte) 0x33;
+
+    private static final ObisCode PP4_NETWORK_STATUS_OBISCODE = ObisCode.fromString("0.1.96.5.4.255");
+    private static final ObisCode DISCONNECT_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
+    private static final ObisCode METROLOGICAL_EVENT_COUNTER_OBISCODE = ObisCode.fromString("0.0.96.15.1.255");
+    private static final ObisCode EVENT_COUNTER_OBISCODE = ObisCode.fromString("0.0.96.15.2.255");
+    private static final ObisCode DAILY_DIAGNOSTIC_OBISCODE = ObisCode.fromString("7.1.96.5.1.255");
+
+    private static final ObisCode[] REGISTERS_TO_READ = new ObisCode[]{
+            PP4_NETWORK_STATUS_OBISCODE,
+            DISCONNECT_CONTROL_OBISCODE,
+            METROLOGICAL_EVENT_COUNTER_OBISCODE,
+            EVENT_COUNTER_OBISCODE,
+            DAILY_DIAGNOSTIC_OBISCODE,
+    };
 
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.3.255");
 
@@ -117,15 +127,19 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame47(byte[] compactFrame) {
         try {
+            Date dateTime = getDateTime();
+            List<OfflineRegister> allOfflineRegisters = getOfflineRegisters();
+            for (ObisCode obisCode : REGISTERS_TO_READ) {
+                Optional<OfflineRegister> offlineRegister = allOfflineRegisters.stream().filter(olr -> obisCode.equals(olr.getObisCode())).findAny();
+                if (offlineRegister.isPresent()) {
+                    readNetworkStatus(obisCode, dateTime, compactFrame, 5, 2);
+                    readDisconnectControl(obisCode, dateTime, compactFrame, 7, 1);
+                    readMetrologicalEventCounter(obisCode, dateTime, compactFrame, 9, 2);
+                    readEventCounter(obisCode, dateTime, compactFrame, 11, 2);
+                    readDailyDiagnostic(obisCode, dateTime, compactFrame, 13, 2);
+                }
+            }
             Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned16 pp4NetworkStatus = new Unsigned16(getByteArray(compactFrame, 5, 2, AxdrType.LONG_UNSIGNED), 0);
-            BooleanObject disconnectControl = new BooleanObject(getByteArray(compactFrame, 7, 1, AxdrType.BOOLEAN), 0);
-            BooleanObject disconnectControl1 = new BooleanObject(getByteArray(compactFrame, 8, 1, AxdrType.BOOLEAN), 0);
-            Unsigned16 metrologicalEventCounter = new Unsigned16(getByteArray(compactFrame, 9, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned16 eventCounter = new Unsigned16(getByteArray(compactFrame, 11, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned16 dailyDiagnostic = new Unsigned16(getByteArray(compactFrame, 13, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned32 currentIndexOfConvertedVolume = new Unsigned32(getByteArray(compactFrame, 15, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, 19, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned8 snapshotPeriodCounter = new Unsigned8(getByteArray(compactFrame, 23, 1, AxdrType.UNSIGNED), 0);
             Unsigned32 managementFrameCounter = new Unsigned32(getByteArray(compactFrame, 24, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
         } catch (IOException e) {
@@ -135,14 +149,19 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame48(byte[] compactFrame) {
         try {
-            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned16 pp4NetworkStatus = new Unsigned16(getByteArray(compactFrame, 5, 2, AxdrType.LONG_UNSIGNED), 0);
-            BooleanObject disconnectControl = new BooleanObject(getByteArray(compactFrame, 7, 1, AxdrType.BOOLEAN), 0);
-            Unsigned16 eventCounter = new Unsigned16(getByteArray(compactFrame, 8, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned16 dailyDiagnostic = new Unsigned16(getByteArray(compactFrame, 10, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned32 currentIndexOfConvertedVolume = new Unsigned32(getByteArray(compactFrame, 12, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, 16, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            Date dateTime = getDateTime();
+            List<OfflineRegister> allOfflineRegisters = getOfflineRegisters();
+            for (ObisCode obisCode : REGISTERS_TO_READ) {
+                Optional<OfflineRegister> offlineRegister = allOfflineRegisters.stream().filter(olr -> obisCode.equals(olr.getObisCode())).findAny();
+                if (offlineRegister.isPresent()) {
+                    readNetworkStatus(obisCode, dateTime, compactFrame, 5, 2);
+                    readDisconnectControl(obisCode, dateTime, compactFrame, 7, 1);
+                    readEventCounter(obisCode, dateTime, compactFrame, 8, 2);
+                    readDailyDiagnostic(obisCode, dateTime, compactFrame, 10, 2);
+                }
+            }
             readDailyLoadProfile(compactFrame, 20, 43);
+            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned8 snapshotPeriodCounter = new Unsigned8(getByteArray(compactFrame, 63, 1, AxdrType.UNSIGNED), 0);
             Unsigned32 managementFrameCounter = new Unsigned32(getByteArray(compactFrame, 64, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
         } catch (IOException e) {
@@ -152,16 +171,20 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame49(byte[] compactFrame) {
         try {
-            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned16 pp4NetworkStatus = new Unsigned16(getByteArray(compactFrame, 5, 2, AxdrType.LONG_UNSIGNED), 0);
-            BooleanObject disconnectControl = new BooleanObject(getByteArray(compactFrame, 7, 1, AxdrType.BOOLEAN), 0);
-            BooleanObject disconnectControl1 = new BooleanObject(getByteArray(compactFrame, 8, 1, AxdrType.BOOLEAN), 0);
-            Unsigned16 metrologicalEventCounter = new Unsigned16(getByteArray(compactFrame, 9, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned16 eventCounter = new Unsigned16(getByteArray(compactFrame, 11, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned16 dailyDiagnostic = new Unsigned16(getByteArray(compactFrame, 13, 2, AxdrType.LONG_UNSIGNED), 0);
-            Unsigned32 currentIndexOfConvertedVolume = new Unsigned32(getByteArray(compactFrame, 15, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, 19, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            Date dateTime = getDateTime();
+            List<OfflineRegister> allOfflineRegisters = getOfflineRegisters();
+            for (ObisCode obisCode : REGISTERS_TO_READ) {
+                Optional<OfflineRegister> offlineRegister = allOfflineRegisters.stream().filter(olr -> obisCode.equals(olr.getObisCode())).findAny();
+                if (offlineRegister.isPresent()) {
+                    readNetworkStatus(obisCode, dateTime, compactFrame, 5, 2);
+                    readDisconnectControl(obisCode, dateTime, compactFrame, 7, 1);
+                    readMetrologicalEventCounter(obisCode, dateTime, compactFrame, 9, 2);
+                    readEventCounter(obisCode, dateTime, compactFrame, 11, 2);
+                    readDailyDiagnostic(obisCode, dateTime, compactFrame, 13, 2);
+                }
+            }
             readDailyLoadProfile(compactFrame, 23, 43);
+            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned8 snapshotPeriodCounter = new Unsigned8(getByteArray(compactFrame, 66, 1, AxdrType.UNSIGNED), 0);
             readSnapshotPeriodDate(compactFrame, 67, 50);
             Unsigned32 managementFrameCounter = new Unsigned32(getByteArray(compactFrame, 117, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
@@ -182,7 +205,51 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         }
     }
 
-    private void readLogicalDeviceName(byte[] compactFrame, int offset, int length) throws IOException {
+    private Date getDateTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(getDeviceTimeZone());
+        return calendar.getTime();
+    }
+
+    private List<OfflineRegister> getOfflineRegisters() {
+        DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.REGISTERS_FLAG);
+        OfflineDevice offlineDevice = inboundDAO.getOfflineDevice(deviceIdentifier, offlineContext);
+        return offlineDevice.getAllOfflineRegisters();
+    }
+
+    private void readNetworkStatus(ObisCode obisCode, Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        if (PP4_NETWORK_STATUS_OBISCODE.equals(obisCode)) {
+            Unsigned16 pp4NetworkStatus = new Unsigned16(getByteArray(compactFrame, offset, length, AxdrType.LONG_UNSIGNED), 0);
+            addCollectedRegister(obisCode, pp4NetworkStatus.getValue(), null, dateTime, null);
+        }
+    }
+
+    private void readDisconnectControl(ObisCode obisCode, Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        if (DISCONNECT_CONTROL_OBISCODE.equals(obisCode)) {
+            BooleanObject disconnectControl = new BooleanObject(getByteArray(compactFrame, offset, length, AxdrType.BOOLEAN), 0);
+            addCollectedRegister(obisCode, disconnectControl.longValue(), null, dateTime, null);
+        }
+    }
+
+    private void readMetrologicalEventCounter(ObisCode obisCode, Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        if (METROLOGICAL_EVENT_COUNTER_OBISCODE.equals(obisCode)) {
+            Unsigned16 metrologicalEventCounter = new Unsigned16(getByteArray(compactFrame, offset, length, AxdrType.LONG_UNSIGNED), 0);
+            addCollectedRegister(obisCode, metrologicalEventCounter.longValue(), null, dateTime, null);
+        }
+    }
+
+    private void readEventCounter(ObisCode obisCode, Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        if (EVENT_COUNTER_OBISCODE.equals(obisCode)) {
+            Unsigned16 eventCounter = new Unsigned16(getByteArray(compactFrame, offset, length, AxdrType.LONG_UNSIGNED), 0);
+            addCollectedRegister(obisCode, eventCounter.longValue(), null, dateTime, null);
+        }
+    }
+
+    private void readDailyDiagnostic(ObisCode obisCode, Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        if (DAILY_DIAGNOSTIC_OBISCODE.equals(obisCode)) {
+            Unsigned16 dailyDiagnostic = new Unsigned16(getByteArray(compactFrame, offset, length, AxdrType.LONG_UNSIGNED), 0);
+            addCollectedRegister(obisCode, dailyDiagnostic.longValue(), null, dateTime, null);
+        }
     }
 
     private void readDailyLoadProfile(byte[] compactFrame, int offset, int length) throws IOException {
@@ -200,6 +267,9 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             collectedLoadProfile.setDoStoreOlderValues(true);
             getCollectedLoadProfiles().add(collectedLoadProfile);
         }
+    }
+
+    private void readLogicalDeviceName(byte[] compactFrame, int offset, int length) throws IOException {
     }
 
     private void readSnapshotPeriodDate(byte[] compactFrame, int offset, int length) throws IOException {
@@ -239,7 +309,10 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolume.intValue(), 0, getEiServerStatus(0)));
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolumeUnderAlarm.intValue(), 0, getEiServerStatus(0)));
         Calendar dateTime = Calendar.getInstance(getDeviceTimeZone());
-        dateTime.setTimeInMillis(unixTime.longValue()*1000);
+        dateTime.setTimeInMillis(unixTime.longValue() * 1000);
+        int i = dateTime.get(Calendar.HOUR_OF_DAY);
+        dateTime.set(Calendar.HOUR_OF_DAY, 0);
+        i = dateTime.get(Calendar.HOUR_OF_DAY);
         collectedIntervalData.add(new IntervalData(dateTime.getTime(), getEiServerStatus(0), 0, 0, intervalValues));
     }
 
