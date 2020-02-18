@@ -2,15 +2,12 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.attributes.NbiotPushSchedulerAttributes;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
@@ -37,7 +34,11 @@ public class NbiotPushScheduler extends AbstractCosemObject {
     public void writeExecutionTime(Calendar[] executionTimes) throws IOException {
         Array timesArray = new Array();
         for(Calendar execTime: executionTimes) {
-            timesArray.addDataType(new DateTimeOctetString(execTime));
+            Structure dataTimeStruct = new Structure();
+            AXDRDateTime dataTime = new AXDRDateTime(execTime);
+            dataTimeStruct.addDataType(dataTime.getCosemTime().getOctetString());
+            dataTimeStruct.addDataType(dataTime.getCosemDate().getOctetString());
+            timesArray.addDataType(dataTimeStruct);
         }
         write(NbiotPushSchedulerAttributes.EXECUTION_TIME, timesArray.getBEREncodedByteArray());
     }
