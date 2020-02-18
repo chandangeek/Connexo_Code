@@ -20,13 +20,13 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 
 @LiteralSql
-class UpgraderV10_7_2 implements Upgrader {
+class UpgraderV10_8 implements Upgrader {
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
 
     @Inject
-    UpgraderV10_7_2(DataModel dataModel, EventService eventService, MessageService messageService) {
+    UpgraderV10_8(DataModel dataModel, EventService eventService, MessageService messageService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.messageService = messageService;
@@ -34,7 +34,7 @@ class UpgraderV10_7_2 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 7, 2));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         installNewEventTypes();
         try (Connection connection = dataModel.getConnection(true);
              PreparedStatement preparedStatement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET NLS_COMPONENT = 'DTC' WHERE NAME = 'DeviceTypesChanges'");

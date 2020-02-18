@@ -735,7 +735,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         .put(Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class)
                         .put(Version.version(10, 6), V10_6SimpleUpgrader.class)
                         .put(Version.version(10, 7), V10_7SimpleUpgrader.class)
-                        .put(Version.version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(Version.version(10, 8), UpgraderV10_8.class)
                         .build());
         initPrivileges();
     }
