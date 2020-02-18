@@ -85,6 +85,8 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
         saveRelatedAttributes(values);
 
+        validateConfiguredEndpoints();
+
         if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
             throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                     UtilitiesDeviceRegisterCreateConfirmation.NAME);
@@ -97,6 +99,8 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
         createServiceCallAndTransition(requestMessage);
     }
+
+    abstract void validateConfiguredEndpoints();
 
     private void createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage message) {
         if (message.isValid()) {
@@ -112,7 +116,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         }
     }
 
-    private boolean isAnyActiveEndpoint(String name) {
+    boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()

@@ -144,6 +144,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 //clear error message property after previous attempts
                 extension.setErrorMessage("");
                 extension.setErrorCode(null);
+                serviceCall.update(extension);
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -174,6 +175,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 //clear error message property after previous attempts
                 extension.setErrorMessage("");
                 extension.setErrorCode(null);
+                serviceCall.update(extension);
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -271,10 +273,10 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
 
     private void failedAttempt(UtilitiesDeviceRegisterCreateRequestDomainExtension extension, MessageSeeds error, Object... args) {
         ServiceCall serviceCall = extension.getServiceCall();
-        serviceCall.log(LogLevel.WARNING, MessageFormat.format(error.getDefaultFormat(), new Object[0]));
+        serviceCall.log(LogLevel.WARNING, MessageFormat.format(error.getDefaultFormat(), args));
         extension.setError(error, args);
         serviceCall.update(extension);
-        MasterUtilitiesDeviceRegisterCreateRequestDomainExtension masterExtension = serviceCall.getParent().get()
+        MasterUtilitiesDeviceRegisterCreateRequestDomainExtension masterExtension = serviceCall.getParent().get().getParent().get()
                 .getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));

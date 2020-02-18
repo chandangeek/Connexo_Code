@@ -63,14 +63,8 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
             case CANCELLED:
             case FAILED:
             case SUCCESSFUL:
-                if (isLastChild(findChildren(parentServiceCall))) {
-                    if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
-                    } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
-                        parentServiceCall.requestTransition(DefaultState.PENDING);
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
-                    }
-                }
+                resultTransition(parentServiceCall);
+                break;
             case PAUSED:
                 parentServiceCall = lock(parentServiceCall);//???
                 List<ServiceCall> children = findChildren(parentServiceCall);

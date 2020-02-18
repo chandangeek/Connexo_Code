@@ -18,6 +18,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,11 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
+                MasterUtilitiesDeviceRegisterCreateRequestDomainExtension masterExtension = serviceCall
+                        .getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                masterExtension.setAttemptNumber(masterExtension.getAttemptNumber().add(BigDecimal.ONE));
+                serviceCall.update(masterExtension);
                 serviceCall.findChildren().stream().forEach(child -> {
                     if (child.canTransitionTo(DefaultState.PENDING)) {
                         child.requestTransition(DefaultState.PENDING);
@@ -76,14 +82,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
             case CANCELLED:
             case FAILED:
             case SUCCESSFUL:
-                if (isLastChild(findChildren(parentServiceCall))) {
-                    if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
-                    } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
-                        parentServiceCall.requestTransition(DefaultState.PENDING);
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
-                    }
-                }
+                resultTransition(parentServiceCall);
                 break;
             case PAUSED:
                 parentServiceCall = lock(parentServiceCall);
