@@ -68,6 +68,19 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     @Override
+    public void reload(OutboundComPort comPort) {
+        super.setComPort(comPort);
+    }
+
+    private void applyNewChanges(){
+        if(threadPoolSize != getComPort().getNumberOfSimultaneousConnections()){
+            threadPoolSize = getComPort().getNumberOfSimultaneousConnections();
+            jobQueue = new ArrayBlockingQueue<>(threadPoolSize);
+            jobScheduler.multiThreadedJobCreator.update(jobQueue, threadPoolSize);
+        }
+    }
+
+    @Override
     protected void setThreadPrinciple() {
         User comServerUser = getComServerDAO().getComServerUser();
         getServiceProvider().threadPrincipalService().set(comServerUser, "MultiThreadedComPortRunner", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
@@ -139,6 +152,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     @Override
     protected void doRun() {
         goSleepIfWokeUpTooEarly();
+        applyNewChanges();
         executeTasks();
     }
 

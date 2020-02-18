@@ -91,4 +91,6 @@ public interface ScheduledComPort extends ComPortServerProcess {
      */
     void executeWithHighPriority(HighPriorityComJob job);
 
+    void reload(OutboundComPort comPort);
+
 }

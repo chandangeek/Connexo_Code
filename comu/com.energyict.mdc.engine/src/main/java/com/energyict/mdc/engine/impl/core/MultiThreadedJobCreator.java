@@ -44,9 +44,9 @@ import java.util.logging.Logger;
 public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduledJobCallBack {
 
     public static final Logger LOGGER = Logger.getLogger(MultiThreadedJobCreator.class.getName());
-    private final BlockingQueue<ScheduledJobImpl> jobBlockingQueue;
+    private BlockingQueue<ScheduledJobImpl> jobBlockingQueue, newJobBlockingQueue;
     private final OutboundComPort comPort;
-    private final int threadPoolSize;
+    private int threadPoolSize, newThreadPoolSize;
     private final ThreadPrincipalService threadPrincipalService;
     private final ExecutorService executor;
     private final Map<MultiThreadedScheduledJobExecutor, Future<?>> executors = new ConcurrentHashMap<>();
@@ -70,18 +70,34 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
         this.deviceCommandExecutor = deviceCommandExecutor;
     }
 
+    protected  void update(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, int threadPoolSize) {
+        newJobBlockingQueue = jobBlockingQueue;
+        newThreadPoolSize = threadPoolSize;
+    }
+
+    private void applyChanges(){
+        if(newJobBlockingQueue != null && newThreadPoolSize != threadPoolSize){
+            this.jobBlockingQueue = newJobBlockingQueue;
+            this.threadPoolSize = newThreadPoolSize;
+            if (this.executor instanceof ThreadPoolExecutor) {
+                ((ThreadPoolExecutor) this.executor).setCorePoolSize(threadPoolSize);
+                ((ThreadPoolExecutor) this.executor).setMaximumPoolSize(threadPoolSize);
+            }
+        }
+    }
+
+
+
     @Override
     public void run() {
 
         Thread.currentThread().setName("MultiThreadedJobCreator for " + comPort.getName());
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    ScheduledJobImpl scheduledJob = jobBlockingQueue.take();
-
+                applyChanges();
+                ScheduledJobImpl scheduledJob = jobBlockingQueue.poll();
+                if(scheduledJob != null) {
                     executeScheduledJob(scheduledJob);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
                 }
             }
         } finally {
