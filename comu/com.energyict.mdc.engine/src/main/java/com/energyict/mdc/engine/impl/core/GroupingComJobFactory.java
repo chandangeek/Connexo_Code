@@ -42,6 +42,15 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
         return jobs;
     }
 
+    @Override
+    public List<ComJob> collect(Iterator<ComTaskExecution> comTaskExecutions) {
+        while (comTaskExecutions.hasNext()) {
+            add(comTaskExecutions.next());
+        }
+        jobs.addAll(groups.values());
+        return jobs;
+    }
+
     protected boolean continueFetching(ComTaskExecution comTaskExecution) {
         if (needMoreJobs()) {
             if (previous == null) {

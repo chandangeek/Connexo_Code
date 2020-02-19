@@ -145,6 +145,24 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
         return comPort;
     }
 
+    public List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort) {
+        if (eventMonitorIsStarted) {
+            try {
+                if (!getJobQueue().isEmpty()) {
+                    ComJob work = getJobQueue().take();
+                    return Arrays.asList(work);
+                } else {
+                    return Collections.emptyList();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return Collections.emptyList();
+            }
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     @Override
     public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
         if (eventMonitorIsStarted) {

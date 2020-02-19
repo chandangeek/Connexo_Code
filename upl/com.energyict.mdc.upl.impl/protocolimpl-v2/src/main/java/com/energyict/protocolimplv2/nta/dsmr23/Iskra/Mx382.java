@@ -159,7 +159,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         return this.dsmr23MessageExecutor;
     }
 
-    private Dsmr23Messaging getDsmr23Messaging() {
+    protected Dsmr23Messaging getDsmr23Messaging() {
         if (this.dsmr23Messaging== null) {
             this.dsmr23Messaging= new Dsmr23Messaging(getMessageExecutor(), this.getPropertySpecService(),
                     this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor,

@@ -55,7 +55,7 @@ Ext.define('Isu.controller.IssueDetail', {
         }
 
         var callback = function(){
-            if (store.getCount()) {
+            if (store.getCount() && store.getById(parseInt(id)) != null) {
                 var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
                 if (issueActualType != issueType) {
                     queryString.issueType = issueActualType;

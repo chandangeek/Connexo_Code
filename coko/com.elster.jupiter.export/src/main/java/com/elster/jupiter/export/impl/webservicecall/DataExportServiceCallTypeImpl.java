@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.impl.webservicecall;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
@@ -26,7 +27,6 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -51,7 +50,6 @@ import java.util.stream.Collectors;
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
     private static final String NAME = TranslationKeys.SERVICE_CALL_TYPE_NAME.getDefaultFormat();
-    private static final String HANDLER_NAME = "WebServiceDataExportServiceCallHandler";
     private static final String VERSION = "1.0";
     private static final String CHILD_NAME = TranslationKeys.SERVICE_CALL_TYPE_CHILD_NAME.getDefaultFormat();
     private static final String CHILD_VERSION = "1.0";
@@ -100,7 +98,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)));
 
             return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
-                    .handler(CHILD_NAME)
+                    .handler(CHILD_HANDLER_NAME)
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(registeredCustomPropertySet)
                     .create();
@@ -133,15 +131,15 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
     private void createChildServiceCalls(ServiceCall parent, Map<ReadingTypeDataExportItem, String> data) {
         data.forEach((item, customInfo) -> createChild(parent,
-                item.getDomainObject().getName(),
+                item.getDomainObject(),
                 item.getReadingType().getMRID(),
                 item.getId(),
                 customInfo));
     }
 
-    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId, String customInfo) {
+    private void createChild(ServiceCall parent, IdentifiedObject object, String readingTypeMrID, long itemId, String customInfo) {
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
-        childSrvCallProperties.setDeviceName(deviceName);
+        childSrvCallProperties.setDeviceName(object.getName());
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
         childSrvCallProperties.setDataSourceId(itemId);
         childSrvCallProperties.setCustomInfo(customInfo);
@@ -150,6 +148,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(srvCallChildType)
                 .extendedWith(childSrvCallProperties);
+        serviceCallBuilder.targetObject(object);
         ServiceCall child = serviceCallBuilder.create();
         child.requestTransition(DefaultState.PENDING);
         child.requestTransition(DefaultState.ONGOING);

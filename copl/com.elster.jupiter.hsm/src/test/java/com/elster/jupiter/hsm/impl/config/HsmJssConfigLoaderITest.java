@@ -46,7 +46,7 @@ public class HsmJssConfigLoaderITest {
         // check Labels
         assertEquals(1, cfg.getRawLabels().size());
         RawLabelMapping mapping = RawLabelMapping.builder().hsmId(1).keyAddress("DB KEY AUTH  000").enabled(true).build();
-        RawLabel label1 = RawLabel.builder().id(1).name("LABEL1").kek(false).mappings(ImmutableList.of(mapping)).build();
+        RawLabel label1 = RawLabel.builder().name("LABEL1").kek(false).mappings(ImmutableList.of(mapping)).build();
         assertEquals(label1, cfg.getRawLabels().get(0));
 
         //assert rawFunctionTimeouts
@@ -56,7 +56,7 @@ public class HsmJssConfigLoaderITest {
 
         // assert routingEngineRules
         assertEquals(1, cfg.getRawRoutingEngineRules().size());
-        RawRoutingEngineRule r1 = RawRoutingEngineRule.builder().id(1).hsmId(1).functionName("f1").ruleExpression("rex1").build();
+        RawRoutingEngineRule r1 = RawRoutingEngineRule.builder().hsmId(1).functionName("f1").ruleExpression("rex1").build();
         assertEquals(r1, cfg.getRawRoutingEngineRules().get(0));
     }
 }

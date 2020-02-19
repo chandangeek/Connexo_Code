@@ -58,6 +58,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -219,6 +220,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         Map<Instant, String> statuses = readingList.stream()
                 .map(MeterReadingData::getReadingStatuses)
+                .filter(Objects::nonNull)
                 .map(Map::entrySet)
                 .flatMap(Set::stream)
                 .collect(Collectors.toMap(

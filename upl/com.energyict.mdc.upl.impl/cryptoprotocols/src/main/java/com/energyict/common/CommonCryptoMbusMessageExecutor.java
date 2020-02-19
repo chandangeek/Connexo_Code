@@ -68,7 +68,7 @@ public class CommonCryptoMbusMessageExecutor extends AbstractMessageExecutor {
         IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(securityContext.getEncryptionKey(false));
         //extract new key from message
         String defaultKeyString = getDeviceMessageAttributeValue(offlineDeviceMessage, DeviceMessageConstants.defaultKeyAttributeName);
-        IrreversibleKey defaultKey = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(defaultKeyString));
+        IrreversibleKey defaultKey = new IrreversibleKeyImpl(defaultKeyString);
 
         if (!usesAuthentication()) {
             ak = null;     //Don't use it if no authentication is used

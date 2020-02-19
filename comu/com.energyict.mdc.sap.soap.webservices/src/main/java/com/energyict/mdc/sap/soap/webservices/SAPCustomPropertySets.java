@@ -102,4 +102,10 @@ public interface SAPCustomPropertySets {
      * This method returns start of the first active LRN.
      */
     Optional<Instant> getStartDate(Device device, Instant now);
+
+    boolean isRegistered(Device device);
+
+    boolean isRegistered(EndDevice endDevice);
+
+    void setRegistered(String sapDeviceId, boolean registered);
 }
