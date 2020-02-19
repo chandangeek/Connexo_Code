@@ -48,6 +48,6 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-01-15 12:00:00 +0200 (Wen, 15 Ian 2020) $";
+        return "$Date: 2020-02-25 12:00:00 +0200 (Tue, 25 Feb 2020) $";
     }
 }

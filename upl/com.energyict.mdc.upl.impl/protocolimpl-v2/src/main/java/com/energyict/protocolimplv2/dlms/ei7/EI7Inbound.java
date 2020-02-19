@@ -34,6 +34,11 @@ public class EI7Inbound extends A2Inbound {
         return super.doDiscovery();
     }
 
+    @Override
+    public String getVersion() {
+        return "$Date: 2020-02-25 12:00:00 +0200 (Tue, 25 Feb 2020) $";
+    }
+
     public boolean hasSupportForInboundFrames() {
         return true;
     }

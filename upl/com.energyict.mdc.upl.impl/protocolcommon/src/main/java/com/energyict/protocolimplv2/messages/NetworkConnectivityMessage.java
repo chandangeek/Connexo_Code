@@ -709,7 +709,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.bigDecimalSpec(service, DeviceMessageConstants.threshold, DeviceMessageConstants.thresholdDefaultTranslation)
+                    this.bigDecimalSpec(service, DeviceMessageConstants.threshold, DeviceMessageConstants.thresholdDefaultTranslation, new BigDecimal(5))
             );
         }
     };
