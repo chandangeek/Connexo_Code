@@ -146,6 +146,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                             if (!profileId.get().equals(currentProfileId)) {
                                 fillGaps(readingToFillGaps != null, item, gaps, readings, readingStatuses, readingToFillGaps);
                                 currentProfileId = profileId.get();
+                                gaps.clear();
                             }
                             readingToFillGaps = ((IntervalReadingImpl) readingOptional.get()).getIntervalReadingRecord();
                             fillGaps(profileIdChanged, item, gaps, readings, readingStatuses, readingToFillGaps);
