@@ -137,6 +137,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                         readingToFillGaps = null;
                     }
                     List<Instant> gaps = new ArrayList<>();
+                    List<Instant> gapsAnotherProfile = new ArrayList<>();
                     for (Instant time : instants) {
                         Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
                                 .filter(r -> r.getTimeStamp().equals(time)).findAny();
@@ -158,9 +159,10 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                             }
                             gaps.clear();
                         } else {
-                            gaps.add(time);
                             if (!profileId.get().equals(currentProfileId)) {
-                                readingToFillGaps = null;
+                                gapsAnotherProfile.add(time);
+                            } else {
+                                gaps.add(time);
                             }
                         }
                         if (!profileId.get().equals(currentProfileId)) {
@@ -171,12 +173,13 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                                 }
                                 readingToFillGaps = null;
                             } else {
-                                for (Instant gap : gaps) {
+                                for (Instant gap : gapsAnotherProfile) {
                                     readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
                                     readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
                                 }
                             }
                             gaps.clear();
+                            gapsAnotherProfile.clear();
                             profileIdChanged = true;
                             currentProfileId = profileId.get();
                         }
