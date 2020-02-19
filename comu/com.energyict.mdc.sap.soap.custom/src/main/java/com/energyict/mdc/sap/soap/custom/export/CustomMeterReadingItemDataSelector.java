@@ -157,16 +157,26 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                         gaps.clear();
                     } else {
                         gaps.add(time);
+                        if (!profileId.get().equals(currentProfileId)) {
+                            readingToFillGaps = null;
+                        }
                     }
                     if (!profileId.get().equals(currentProfileId)) {
-                        for (Instant gap : gaps) {
-                            readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
-                            readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+                        if (readingToFillGaps != null) {
+                            for (Instant gap : gaps) {
+                                readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
+                                readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+                            }
+                            readingToFillGaps = null;
+                        } else {
+                            for (Instant gap : gaps) {
+                                readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
+                                readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+                            }
                         }
                         gaps.clear();
                         profileIdChanged = true;
                         currentProfileId = profileId.get();
-                        readingToFillGaps = null;
                     }
                 }
                 String lastProfileId = getProfileId(profileIds, upperEndpointPlusMilli).orElse(null);
