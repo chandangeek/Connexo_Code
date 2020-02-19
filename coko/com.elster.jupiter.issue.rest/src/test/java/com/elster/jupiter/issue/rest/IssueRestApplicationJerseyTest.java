@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -121,6 +122,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     LocationService locationService;
     @Mock
     SearchLocationService searchLocationService;
+    @Mock
+    IssueResourceUtility issueResourceUtility;
 
     @Provider
     @javax.annotation.Priority(Priorities.AUTHORIZATION)
@@ -161,6 +164,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setMeteringGroupsService(meteringGroupsService);
         application.setClock(clock);
+        application.setIssueResourceUtility(issueResourceUtility);
         return application;
     }
 
