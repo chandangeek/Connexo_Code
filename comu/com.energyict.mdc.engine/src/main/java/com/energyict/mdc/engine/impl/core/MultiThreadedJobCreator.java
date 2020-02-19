@@ -44,9 +44,7 @@ import java.util.logging.Logger;
 public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduledJobCallBack {
 
     public static final Logger LOGGER = Logger.getLogger(MultiThreadedJobCreator.class.getName());
-    private BlockingQueue<ScheduledJobImpl> jobBlockingQueue, newJobBlockingQueue;
     private final OutboundComPort comPort;
-    private int threadPoolSize, newThreadPoolSize;
     private final ThreadPrincipalService threadPrincipalService;
     private final ExecutorService executor;
     private final Map<MultiThreadedScheduledJobExecutor, Future<?>> executors = new ConcurrentHashMap<>();
@@ -55,6 +53,9 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
     private final DeviceCommandExecutor deviceCommandExecutor;
     private final ScheduledComPortImpl.ServiceProvider serviceProvider;
     private final User comServerUser;
+    private BlockingQueue<ScheduledJobImpl> jobBlockingQueue, newJobBlockingQueue;
+    private int threadPoolSize, newThreadPoolSize;
+    private CountDownLatch updateLatch;
 
 
     MultiThreadedJobCreator(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, OutboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, int threadPoolSize, ThreadFactory threadFactory, ScheduledComPortImpl.ServiceProvider serviceProvider, User comServerUser) {
@@ -70,18 +71,23 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
         this.deviceCommandExecutor = deviceCommandExecutor;
     }
 
-    protected  void update(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, int threadPoolSize) {
+    protected void update(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, int threadPoolSize) {
+        updateLatch = new CountDownLatch(1);
         newJobBlockingQueue = jobBlockingQueue;
         newThreadPoolSize = threadPoolSize;
+        updateLatch.countDown();
     }
 
-    private void applyChanges(){
-        if(newJobBlockingQueue != null && newThreadPoolSize != threadPoolSize){
-            this.jobBlockingQueue = newJobBlockingQueue;
-            this.threadPoolSize = newThreadPoolSize;
-            if (this.executor instanceof ThreadPoolExecutor) {
-                ((ThreadPoolExecutor) this.executor).setCorePoolSize(threadPoolSize);
-                ((ThreadPoolExecutor) this.executor).setMaximumPoolSize(threadPoolSize);
+    private void applyChanges() throws InterruptedException {
+        if (updateLatch != null) {
+            updateLatch.await();
+        }
+        if (newJobBlockingQueue != null && jobBlockingQueue.size() == 0 && newThreadPoolSize != threadPoolSize) {
+            jobBlockingQueue = newJobBlockingQueue;
+            threadPoolSize = newThreadPoolSize;
+            if (executor instanceof ThreadPoolExecutor) {
+                ((ThreadPoolExecutor) executor).setCorePoolSize(threadPoolSize);
+                ((ThreadPoolExecutor) executor).setMaximumPoolSize(threadPoolSize);
             }
         }
     }
@@ -94,10 +100,12 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
         Thread.currentThread().setName("MultiThreadedJobCreator for " + comPort.getName());
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                applyChanges();
-                ScheduledJobImpl scheduledJob = jobBlockingQueue.poll();
-                if(scheduledJob != null) {
+                try {
+                    applyChanges();
+                    ScheduledJobImpl scheduledJob = jobBlockingQueue.take();
                     executeScheduledJob(scheduledJob);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
             }
         } finally {
