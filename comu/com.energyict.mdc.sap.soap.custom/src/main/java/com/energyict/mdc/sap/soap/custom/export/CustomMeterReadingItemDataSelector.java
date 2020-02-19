@@ -105,99 +105,100 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
             currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
 
-        if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
-            Instant lowerEndpoint = currentExportInterval.lowerEndpoint();
-            Instant upperEndpoint = currentExportInterval.upperEndpoint();
-            Instant upperEndpointPlusMilli = upperEndpoint.plus(1, ChronoUnit.MILLIS);
-            warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
+            if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                Instant lowerEndpoint = currentExportInterval.lowerEndpoint();
+                Instant upperEndpoint = currentExportInterval.upperEndpoint();
+                Instant upperEndpointPlusMilli = upperEndpoint.plus(1, ChronoUnit.MILLIS);
+                warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
-            List<Instant> instants = new ArrayList<>();
-            Instant instant = truncateToDays(lowerEndpoint).plus(1, ChronoUnit.HOURS);
+                List<Instant> instants = new ArrayList<>();
+                Instant instant = truncateToDays(lowerEndpoint).plus(1, ChronoUnit.HOURS);
 
-            while (!instant.isAfter(upperEndpoint)) {
-                if (exportRangeSet.contains(instant)) {
-                    instants.add(instant);
+                while (!instant.isAfter(upperEndpoint)) {
+                    if (exportRangeSet.contains(instant)) {
+                        instants.add(instant);
+                    }
+                    instant = instant.plus(1, ChronoUnit.HOURS);
                 }
-                instant = instant.plus(1, ChronoUnit.HOURS);
-            }
 
-            if (!instants.isEmpty()) {
-                List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
-                        .collect(Collectors.toList());
-                Range<Instant> profileIdsRange = Range.closed(lowerEndpoint, upperEndpointPlusMilli);
-                Map<String, RangeSet<Instant>> profileIds = sapCustomPropertySets.getProfileId(item.getReadingContainer(), item.getReadingType(), profileIdsRange);
-                Map<Instant, String> readingStatuses = new HashMap<>();
-                IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
-                String currentProfileId = getProfileId(profileIds, lowerEndpoint).orElse(null);
-                boolean profileIdChanged = false;
-                IntervalReadingRecord readingToFillGaps;
-                if (!readings.isEmpty()) {
-                    readingToFillGaps = (IntervalReadingRecord)readings.get(0);
-                } else {
-                    readingToFillGaps = null;
-                }
-                List<Instant> gaps = new ArrayList<>();
-                for (Instant time : instants) {
-                    Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
-                            .filter(r -> r.getTimeStamp().equals(time)).findAny();
-                    Optional<String> profileId = getProfileId(profileIds, time);
-                    if (readingOptional.isPresent()) {
-                        readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
-                        readingToFillGaps = ((IntervalReadingImpl)readingOptional.get()).getIntervalReadingRecord();
-                        if (profileIdChanged) {
-                            for (Instant gap : gaps) {
-                                readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
-                                readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
-                            }
-                            profileIdChanged = false;
-                        } else {
-                            for (Instant gap : gaps) {
-                                readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
-                                readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
-                            }
-                        }
-                        gaps.clear();
+                if (!instants.isEmpty()) {
+                    List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
+                            .collect(Collectors.toList());
+                    Range<Instant> profileIdsRange = Range.closed(lowerEndpoint, upperEndpointPlusMilli);
+                    Map<String, RangeSet<Instant>> profileIds = sapCustomPropertySets.getProfileId(item.getReadingContainer(), item.getReadingType(), profileIdsRange);
+                    Map<Instant, String> readingStatuses = new HashMap<>();
+                    IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
+                    String currentProfileId = getProfileId(profileIds, lowerEndpoint).orElse(null);
+                    boolean profileIdChanged = false;
+                    IntervalReadingRecord readingToFillGaps;
+                    if (!readings.isEmpty()) {
+                        readingToFillGaps = (IntervalReadingRecord) readings.get(0);
                     } else {
-                        gaps.add(time);
-                        if (!profileId.get().equals(currentProfileId)) {
-                            readingToFillGaps = null;
-                        }
+                        readingToFillGaps = null;
                     }
-                    if (!profileId.get().equals(currentProfileId)) {
-                        if (readingToFillGaps != null) {
-                            for (Instant gap : gaps) {
-                                readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
-                                readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+                    List<Instant> gaps = new ArrayList<>();
+                    for (Instant time : instants) {
+                        Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
+                                .filter(r -> r.getTimeStamp().equals(time)).findAny();
+                        Optional<String> profileId = getProfileId(profileIds, time);
+                        if (readingOptional.isPresent()) {
+                            readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                            readingToFillGaps = ((IntervalReadingImpl) readingOptional.get()).getIntervalReadingRecord();
+                            if (profileIdChanged) {
+                                for (Instant gap : gaps) {
+                                    readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
+                                    readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+                                }
+                                profileIdChanged = false;
+                            } else {
+                                for (Instant gap : gaps) {
+                                    readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
+                                    readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+                                }
                             }
-                            readingToFillGaps = null;
+                            gaps.clear();
                         } else {
-                            for (Instant gap : gaps) {
-                                readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
-                                readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+                            gaps.add(time);
+                            if (!profileId.get().equals(currentProfileId)) {
+                                readingToFillGaps = null;
                             }
                         }
-                        gaps.clear();
-                        profileIdChanged = true;
-                        currentProfileId = profileId.get();
+                        if (!profileId.get().equals(currentProfileId)) {
+                            if (readingToFillGaps != null) {
+                                for (Instant gap : gaps) {
+                                    readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
+                                    readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+                                }
+                                readingToFillGaps = null;
+                            } else {
+                                for (Instant gap : gaps) {
+                                    readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
+                                    readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+                                }
+                            }
+                            gaps.clear();
+                            profileIdChanged = true;
+                            currentProfileId = profileId.get();
+                        }
                     }
-                }
-                String lastProfileId = getProfileId(profileIds, upperEndpointPlusMilli).orElse(null);
-                if (readingToFillGaps != null && currentProfileId != null && !currentProfileId.equals(lastProfileId)) {
-                    for (Instant gap : gaps) {
-                        readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
-                        readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+                    String lastProfileId = getProfileId(profileIds, upperEndpointPlusMilli).orElse(null);
+                    if (readingToFillGaps != null && currentProfileId != null && !currentProfileId.equals(lastProfileId)) {
+                        for (Instant gap : gaps) {
+                            readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
+                            readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+                        }
+                    } else {
+                        for (Instant gap : gaps) {
+                            readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
+                            readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+                        }
                     }
-                } else {
-                    for (Instant gap : gaps) {
-                        readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
-                        readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
-                    }
-                }
 
-                readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
-                MeterReadingImpl meterReading = asMeterReading(item, readings);
-                exportCount++;
-                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+                    readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
+                    MeterReadingImpl meterReading = asMeterReading(item, readings);
+                    exportCount++;
+                    return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+                }
             }
         }
 
