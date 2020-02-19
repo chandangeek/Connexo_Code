@@ -771,19 +771,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
-        if (connectionMethod.get('status') === 'connectionTaskStatusIncomplete' || connectionMethod.get('status') === 'connectionTaskStatusInActive') {
-            connectionMethod.set('status', 'connectionTaskStatusActive');
-        } else {
-            connectionMethod.set('status', 'connectionTaskStatusInActive');
-        }
         if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
         connectionMethod.getProxy().setExtraParam('deviceId', me.deviceId);
         connectionMethod.save({
             isNotEdit: true,
-            success: function () {
-                if (connectionMethod.get('status') === 'connectionTaskStatusActive') {
+            success: function (record) {
+                if (record.get("status") === 'connectionTaskStatusActive') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.activated', 'MDC', 'Connection method activated'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.deactivated', 'MDC', 'Connection method deactivated'));
