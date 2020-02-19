@@ -23,7 +23,7 @@ import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
-import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.share.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
@@ -95,10 +95,11 @@ public class IssueResource extends BaseResource {
     private final TransactionService transactionService;
     private final LocationService locationService;
     private final Clock clock;
+    private final IssueResourceUtility issueResourceUtility;
 
     @Inject
     public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService,
-                         TransactionService transactionService, LocationService locationService, Clock clock) {
+                         TransactionService transactionService, LocationService locationService, Clock clock, IssueResourceUtility issueResourceUtility) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
@@ -106,6 +107,7 @@ public class IssueResource extends BaseResource {
         this.transactionService = transactionService;
         this.locationService = locationService;
         this.clock = clock;
+        this.issueResourceUtility = issueResourceUtility;
     }
 
     @GET
@@ -344,7 +346,7 @@ public class IssueResource extends BaseResource {
         Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
         List<? extends Issue> issues = finder.find();
         String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length()-1);
-        List<IssueGroupInfo> infos = getIssueGroupList(issues, value);
+        List<IssueGroupInfo> infos = issueResourceUtility.getIssueGroupList(issues, value);
 
         if(filter.getString(IssueRestModuleConst.FIELD).equals(IssueRestModuleConst.LOCATION)) {
             // replace location id with location name for group name
