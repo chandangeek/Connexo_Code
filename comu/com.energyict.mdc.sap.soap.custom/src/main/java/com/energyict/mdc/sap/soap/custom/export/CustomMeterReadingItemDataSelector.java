@@ -137,65 +137,34 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                         readingToFillGaps = null;
                     }
                     List<Instant> gaps = new ArrayList<>();
-                    List<Instant> gapsAnotherProfile = new ArrayList<>();
                     for (Instant time : instants) {
                         Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
                                 .filter(r -> r.getTimeStamp().equals(time)).findAny();
                         Optional<String> profileId = getProfileId(profileIds, time);
                         if (readingOptional.isPresent()) {
                             readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
-                            readingToFillGaps = ((IntervalReadingImpl) readingOptional.get()).getIntervalReadingRecord();
-                            if (profileIdChanged) {
-                                for (Instant gap : gaps) {
-                                    readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
-                                    readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
-                                }
-                                profileIdChanged = false;
-                            } else {
-                                for (Instant gap : gaps) {
-                                    readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
-                                    readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
-                                }
+                            if (!profileId.get().equals(currentProfileId)) {
+                                fillGaps(readingToFillGaps != null, item, gaps, readings, readingStatuses, readingToFillGaps);
+                                currentProfileId = profileId.get();
                             }
+                            readingToFillGaps = ((IntervalReadingImpl) readingOptional.get()).getIntervalReadingRecord();
+                            fillGaps(profileIdChanged, item, gaps, readings, readingStatuses, readingToFillGaps);
+                            profileIdChanged = false;
                             gaps.clear();
                         } else {
                             if (!profileId.get().equals(currentProfileId)) {
-                                gapsAnotherProfile.add(time);
-                            } else {
-                                gaps.add(time);
-                            }
-                        }
-                        if (!profileId.get().equals(currentProfileId)) {
-                            if (readingToFillGaps != null) {
-                                for (Instant gap : gaps) {
-                                    readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
-                                    readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
-                                }
+                                fillGaps(readingToFillGaps != null, item, gaps, readings, readingStatuses, readingToFillGaps);
                                 readingToFillGaps = null;
-                            } else {
-                                for (Instant gap : gapsAnotherProfile) {
-                                    readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
-                                    readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
-                                }
+                                gaps.clear();
+                                profileIdChanged = true;
+                                currentProfileId = profileId.get();
                             }
-                            gaps.clear();
-                            gapsAnotherProfile.clear();
-                            profileIdChanged = true;
-                            currentProfileId = profileId.get();
+                            gaps.add(time);
                         }
                     }
                     String lastProfileId = getProfileId(profileIds, upperEndpointPlusMilli).orElse(null);
-                    if (readingToFillGaps != null && currentProfileId != null && !currentProfileId.equals(lastProfileId)) {
-                        for (Instant gap : gaps) {
-                            readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
-                            readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
-                        }
-                    } else {
-                        for (Instant gap : gaps) {
-                            readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
-                            readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
-                        }
-                    }
+                    fillGaps(readingToFillGaps != null && currentProfileId != null && !currentProfileId.equals(lastProfileId),
+                            item, gaps, readings, readingStatuses, readingToFillGaps);
 
                     readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
                     MeterReadingImpl meterReading = asMeterReading(item, readings);
@@ -211,6 +180,20 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         }
         item.postponeExportForNewData();
         return Optional.empty();
+    }
+
+    private void fillGaps(boolean fillWithReadings, ReadingTypeDataExportItem item, List<Instant> gaps, List<BaseReading> readings, Map<Instant, String> readingStatuses, IntervalReadingRecord readingToFillGaps) {
+        if (fillWithReadings) {
+            for (Instant gap : gaps) {
+                readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
+                readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+            }
+        } else {
+            for (Instant gap : gaps) {
+                readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
+                readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+            }
+        }
     }
 
     private Optional<String> getProfileId(Map<String, RangeSet<Instant>> profileIds, Instant time) {
