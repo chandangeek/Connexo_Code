@@ -106,12 +106,15 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
 
             if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                Instant lowerEndpoint = currentExportInterval.lowerEndpoint();
+                Instant upperEndpoint = currentExportInterval.upperEndpoint();
+                Instant upperEndpointPlusMilli = upperEndpoint.plus(1, ChronoUnit.MILLIS);
                 warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
                 List<Instant> instants = new ArrayList<>();
-                Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
+                Instant instant = truncateToDays(lowerEndpoint).plus(1, ChronoUnit.HOURS);
 
-                while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
+                while (!instant.isAfter(upperEndpoint)) {
                     if (exportRangeSet.contains(instant)) {
                         instants.add(instant);
                     }
@@ -121,19 +124,49 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                 if (!instants.isEmpty()) {
                     List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
                             .collect(Collectors.toList());
-
+                    Range<Instant> profileIdsRange = Range.closed(lowerEndpoint, upperEndpointPlusMilli);
+                    Map<String, RangeSet<Instant>> profileIds = sapCustomPropertySets.getProfileId(item.getReadingContainer(), item.getReadingType(), profileIdsRange);
                     Map<Instant, String> readingStatuses = new HashMap<>();
                     IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
+                    String currentProfileId = getProfileId(profileIds, lowerEndpoint).orElse(null);
+                    boolean profileIdChanged = false;
+                    IntervalReadingRecord readingToFillGaps;
+                    if (!readings.isEmpty()) {
+                        readingToFillGaps = (IntervalReadingRecord) readings.get(0);
+                    } else {
+                        readingToFillGaps = null;
+                    }
+                    List<Instant> gaps = new ArrayList<>();
                     for (Instant time : instants) {
                         Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
                                 .filter(r -> r.getTimeStamp().equals(time)).findAny();
+                        Optional<String> profileId = getProfileId(profileIds, time);
                         if (readingOptional.isPresent()) {
                             readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                            if (!profileId.get().equals(currentProfileId)) {
+                                fillGaps(readingToFillGaps != null, item, gaps, readings, readingStatuses, readingToFillGaps);
+                                currentProfileId = profileId.get();
+                                gaps.clear();
+                            }
+                            readingToFillGaps = ((IntervalReadingImpl) readingOptional.get()).getIntervalReadingRecord();
+                            fillGaps(profileIdChanged, item, gaps, readings, readingStatuses, readingToFillGaps);
+                            profileIdChanged = false;
+                            gaps.clear();
                         } else {
-                            readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
-                            readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                            if (!profileId.get().equals(currentProfileId)) {
+                                fillGaps(readingToFillGaps != null, item, gaps, readings, readingStatuses, readingToFillGaps);
+                                readingToFillGaps = null;
+                                gaps.clear();
+                                profileIdChanged = true;
+                                currentProfileId = profileId.get();
+                            }
+                            gaps.add(time);
                         }
                     }
+                    String lastProfileId = getProfileId(profileIds, upperEndpointPlusMilli).orElse(null);
+                    fillGaps(readingToFillGaps != null && currentProfileId != null && !currentProfileId.equals(lastProfileId),
+                            item, gaps, readings, readingStatuses, readingToFillGaps);
+
                     readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
                     MeterReadingImpl meterReading = asMeterReading(item, readings);
                     exportCount++;
@@ -148,6 +181,27 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         }
         item.postponeExportForNewData();
         return Optional.empty();
+    }
+
+    private void fillGaps(boolean fillWithReadings, ReadingTypeDataExportItem item, List<Instant> gaps, List<BaseReading> readings, Map<Instant, String> readingStatuses, IntervalReadingRecord readingToFillGaps) {
+        if (fillWithReadings) {
+            for (Instant gap : gaps) {
+                readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
+                readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+            }
+        } else {
+            for (Instant gap : gaps) {
+                readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
+                readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+            }
+        }
+    }
+
+    private Optional<String> getProfileId(Map<String, RangeSet<Instant>> profileIds, Instant time) {
+      return profileIds.entrySet().stream()
+              .filter(entry -> entry.getValue().contains(time))
+              .map(Map.Entry::getKey)
+              .findFirst();
     }
 
     private boolean checkIntervalIsLessThanOrEqualToHour(ReadingType readingType) {
