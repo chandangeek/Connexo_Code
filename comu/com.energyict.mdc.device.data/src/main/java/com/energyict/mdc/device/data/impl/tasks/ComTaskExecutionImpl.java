@@ -381,8 +381,42 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void update() {
+        LOGGER.info("UPDATE EXECUTION TASK = "+this.toString());
         Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
         this.notifyUpdated();
+    }
+
+    @Override
+    public String toString() {
+        return " DEVICE="+ (device.isPresent() ? device.get().getId() : "NO_DEVICE")+
+               " COMTASK="+(comTask.isPresent()? comTask.get().getId(): "NO_COMTASK")+
+               " COMSCHEDULE ="+(comSchedule.isPresent()? comSchedule.get().getId() : "NO_COMSCHEDULE ")+
+               " NEXTEXECUTIONSPECS ="+(nextExecutionSpecs.isPresent()?nextExecutionSpecs.get().getId() : "NO_NEXTEXECUTIONSPECS")+
+                "LASTEXECUTIONTIMESTAMP ="+lastExecutionTimestamp+
+                "NEXTEXECUTIONTIMESTAMP = "+nextExecutionTimestamp+
+                "COMPORT ="+(comPort.isPresent()? comPort.get().getId(): "NO_COMPORT")+
+                "OBSOLETE_DATE = " + obsoleteDate+
+                "PRIORITY = " + executionPriority +
+                "USEDEFAULTCONNECTIONTASK =  " + useDefaultConnectionTask+
+                "CURRENTRETRYCOUNT = " + currentRetryCount+
+                "PLANNEDNEXTEXECUTIONTIMESTAMP = " + plannedNextExecutionTimestamp+
+                "EXECUTIONPRIORITY = " + executionPriority+
+                "EXECUTIONSTART = " + executionStart +
+                "LASTSUCCESSFULCOMPLETION =" + lastSuccessfulCompletionTimestamp+
+                "LASTEXECUTIONFAILED = " + lastExecutionFailed+
+                "ONHOLD =  " + onHold +
+                "CONNECTIONTASK = " + connectionTask+
+                "IGNORENEXTEXECSPECS = " + ignoreNextExecutionSpecsForInbound+
+                "CONNECTIONFUNCTION = " +(connectionFunction.isPresent()?connectionFunction.get().getId():"NO_CONNECTIONFUNCTION")+
+                "LASTSESSION =  " + (lastSession.isPresent()?lastSession.get().getId():"NO_LASTSESSION")+
+                "LASTSESS_HIGHESTPRIOCOMPLCODE = " + lastSessionHighestPriorityCompletionCode+
+                "LASTSESS_SUCCESSINDICATOR = " + lastSessionSuccessIndicator+
+                "MODTIME= " + modTime+
+                "USERNAME=" +userName+
+                "VERSION="+version;
+
+
+
     }
 
     @Override
