@@ -14,7 +14,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallComman
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilitiesDeviceERPSmartMeterCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
 
-
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Optional;

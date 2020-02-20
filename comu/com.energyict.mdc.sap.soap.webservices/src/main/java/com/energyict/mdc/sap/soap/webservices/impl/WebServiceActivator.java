@@ -53,10 +53,10 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationBulkNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryAssignedNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryBulkAssignedNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationBulkNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
@@ -73,14 +73,22 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancella
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.PodNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.PodNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceLocationNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceLocationNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
@@ -668,6 +676,14 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MasterConnectionStatusChangeCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(SubMasterMeterRegisterChangeRequestDomainExtension.class.getName(),
                 new SubMasterMeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterUtilitiesDeviceLocationNotificationDomainExtension.class.getName(),
+                new MasterUtilitiesDeviceLocationNotificationCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(UtilitiesDeviceLocationNotificationDomainExtension.class.getName(),
+                new UtilitiesDeviceLocationNotificationCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterPodNotificationDomainExtension.class.getName(),
+                new MasterPodNotificationCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(PodNotificationDomainExtension.class.getName(),
+                new PodNotificationCustomPropertySet(thesaurus, propertySpecService));
 
         return customPropertySetsMap;
     }
