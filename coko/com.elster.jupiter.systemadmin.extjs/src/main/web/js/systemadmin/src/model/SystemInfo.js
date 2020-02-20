@@ -108,35 +108,6 @@ Ext.define('Sam.model.SystemInfo', {
             }
         },
         {
-            name: 'environmentParameters',
-            mapping: function (data) {
-                output = '<ul>';
-                for (propName in data.environmentParameters) {
-                    output += '<li>' + propName + ': ' + data.environmentParameters[propName] + '</li>';
-                }
-                output += '</ul>';
-                return output;
-            }
-        },
-        {
-            name: 'trustStoreContent',
-            mapping: function (data) {
-                output = '<ul>';
-                for (alias in data.trustStoreContent) {
-                    output += '<li>'+alias+":";
-                    output += '<ul>';
-                    certDetails = data.trustStoreContent[alias];
-                    for (cert in certDetails) {
-                        output += '<li>' + cert + ': ' + certDetails[cert] +'</li>';
-                    }
-                    output += '</ul>';
-                    output += '</li>';
-                }
-                output += '</ul>';
-                return output;
-            }
-        },
-        {
             name: 'browserNameInfo',
             defaultValue: Uni.I18n.translate('systemInfo.browserName', 'SAM', 'Browser name: {0}', [Ext.browser.name])
         },

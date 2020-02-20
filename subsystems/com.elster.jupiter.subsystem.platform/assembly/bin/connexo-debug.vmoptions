@@ -1,8 +1,0 @@
--Djavax.net.debug=ssl
--Djss.network.channelpool.size=1
--Dcom.sun.xml.ws.transport.http.client.HttpTransportPipe.dump=true
--Dcom.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump=true
--Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true
--Dcom.sun.xml.internal.ws.transport.http.HttpAdapter.dump=true
--Dcom.sun.xml.internal.ws.transport.http.HttpAdapter.dumpTreshold=999999
-

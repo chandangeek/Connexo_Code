@@ -598,6 +598,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                         me.getSecurityAccessorsGrid().setLoading(false);
                                     }
                                 });
+                                //  the version of device type is increased, so it is necessary to reloaded it
+                                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                                    success: function (deviceType) {
+                                        me.deviceType = deviceType;
+                                    }
+                                });
                             },
                             failure: function (response) {
                                 var message = response.responseText || response.statusText,

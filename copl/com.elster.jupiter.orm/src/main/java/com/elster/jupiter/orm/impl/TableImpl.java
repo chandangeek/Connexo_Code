@@ -19,6 +19,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 
 import com.google.common.base.Joiner;
+import com.google.common.cache.CacheStats;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -70,6 +71,9 @@ public class TableImpl<T> implements Table<T> {
     @SuppressWarnings("unused")
     private int position;
     private boolean cached;
+    private Long cacheTtl;
+    private long cacheMaximumSize;
+    private boolean cacheRecordStat;
     private boolean autoInstall = true;
     private boolean forceJournal = false;
     private int indexOrganized = -1;
@@ -189,12 +193,25 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public boolean isCached() {
-        return cached;
+        return this.cached;
     }
 
     @Override
     public void cache() {
+        cache(600000L, 10000L, true);
+    }
+
+    @Override
+    public void cache(long cacheTtl, long maximumSize, boolean recordStat) {
         this.cached = true;
+        this.cacheTtl = cacheTtl;
+        this.cacheMaximumSize = maximumSize;
+        this.cacheRecordStat = recordStat;
+    }
+
+    @Override
+    public CacheStats getCacheStats() {
+        return cache.getCacheStats();
     }
 
     @Override
@@ -807,7 +824,7 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
-        cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
+        cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
     }
 
     private void checkMapped(Column column) {

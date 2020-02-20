@@ -1147,7 +1147,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
          */
         public String marshall() throws JSONException {
             StringWriter writer = new StringWriter();
-            ObjectMapper mapper = ObjectMapperFactory.newMapper();
+            ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
             try {
                 mapper.writeValue(writer, specs);
             } catch (IOException e) {

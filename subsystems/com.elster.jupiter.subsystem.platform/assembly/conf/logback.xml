@@ -19,7 +19,7 @@
     </appender-->
 
     <appender name="SERVER" class="ch.qos.logback.core.FileAppender">
-        <file>./logs/hsm-server.log</file>
+        <file>./logs/server.log</file>
         <encoder>
             <pattern>${defaultPattern}</pattern>
         </encoder>
