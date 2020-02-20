@@ -55,16 +55,6 @@ public class UtilitiesDeviceLocationNotification extends AbstractChildRetryServi
         }
     }
 
-    @Override
-    protected void cancelServiceCall(ServiceCall serviceCall) {
-        //no action
-    }
-
-    @Override
-    protected void setError(ServiceCall serviceCall, MessageSeed error, Object... args) {
-        //no action
-    }
-
     private void processLocationNotification(ServiceCall serviceCall) {
         UtilitiesDeviceLocationNotificationDomainExtension extension = serviceCall
                 .getExtensionFor(new UtilitiesDeviceLocationNotificationCustomPropertySet()).get();

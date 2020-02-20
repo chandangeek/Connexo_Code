@@ -58,9 +58,11 @@ public abstract class AbstractChildRetryServiceCallHandler implements ServiceCal
 
     protected abstract void processServiceCall(ServiceCall serviceCall);
 
-    protected abstract void cancelServiceCall(ServiceCall serviceCall);
+    protected void cancelServiceCall(ServiceCall serviceCall) {
+    }
 
-    protected abstract void setError(ServiceCall serviceCall, MessageSeed error, Object... args);
+    protected void setError(ServiceCall serviceCall, MessageSeed error, Object... args) {
+    }
 
     protected void failServiceCall(ServiceCall serviceCall, MessageSeed messageSeed, Object... args) {
         serviceCall.log(LogLevel.SEVERE, MessageFormat.format(messageSeed.getDefaultFormat(), args));

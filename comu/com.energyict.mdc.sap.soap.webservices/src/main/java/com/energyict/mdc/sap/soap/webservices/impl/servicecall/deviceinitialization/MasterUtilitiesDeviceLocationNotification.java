@@ -40,11 +40,6 @@ MasterUtilitiesDeviceLocationNotification extends AbstractMasterRetryServiceCall
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
     }
 
-    @Override
-    protected void sendResultMessage(ServiceCall serviceCall) {
-        //no action
-    }
-
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;

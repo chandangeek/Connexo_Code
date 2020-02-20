@@ -103,7 +103,8 @@ public abstract class AbstractMasterRetryServiceCallHandler implements ServiceCa
 
     protected abstract RetrySearchDataSourceDomainExtension getMasterDomainExtension(ServiceCall serviceCall);
 
-    protected abstract void sendResultMessage(ServiceCall serviceCall);
+    protected void sendResultMessage(ServiceCall serviceCall) {
+    }
 
     private void resultTransition(ServiceCall parent) {
         parent = lock(parent);
