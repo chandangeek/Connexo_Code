@@ -72,7 +72,7 @@ public abstract class AbstractChildRetryServiceCallHandler implements ServiceCal
 
     protected void failedAttempt(ServiceCall serviceCall, MessageSeeds error, Object... args) {
         RetrySearchDataSourceDomainExtension masterExtension = getMasterDomainExtension(serviceCall);
-        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.OBJECT_SEARCH_ATTEMPTS));
         BigDecimal currentAttempt = masterExtension.getAttemptNumber();
         if (currentAttempt.compareTo(attempts) != -1) {
             serviceCall.log(LogLevel.SEVERE, MessageFormat.format(error.getDefaultFormat(), args));
