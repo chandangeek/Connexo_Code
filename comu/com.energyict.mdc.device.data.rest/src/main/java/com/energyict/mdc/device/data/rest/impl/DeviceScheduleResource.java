@@ -35,7 +35,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,20 +92,20 @@ public class DeviceScheduleResource {
             ComTaskExecution comTaskExecution = cte.get();
             if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
                 info = DeviceSchedulesInfo.fromManual(comTaskExecution);
-            }  else if(comTaskExecution.usesSharedSchedule()){
+            } else if (comTaskExecution.usesSharedSchedule()) {
                 info = DeviceSchedulesInfo.fromScheduled(comTaskExecution);
-            } else if(comTaskExecution.isAdHoc()){
+            } else if (comTaskExecution.isAdHoc()) {
                 info = DeviceSchedulesInfo.fromAdHoc(comTaskExecution);
             }
         } else {
             Optional<ComTaskEnablement> comTaskEnablement = comTaskEnablements.stream()
                     .filter(c -> c.getComTask().getId() == comTaskId)
                     .findFirst();
-            if(comTaskEnablement.isPresent()) {
+            if (comTaskEnablement.isPresent()) {
                 info = DeviceSchedulesInfo.fromEnablement(comTaskEnablement.get(), device);
             }
         }
-        if(info != null) {
+        if (info != null) {
             return Response.ok(info).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -150,7 +149,7 @@ public class DeviceScheduleResource {
                     if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
                         comTaskExecution.getUpdater().createNextExecutionSpecs(schedulingInfo.schedule.asTemporalExpression()).update();
                         comTaskExecutionExists = true;
-                    } else if(comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
+                    } else if (comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
                         return Response.status(Response.Status.BAD_REQUEST).build();
                     }
                 }
@@ -158,9 +157,9 @@ public class DeviceScheduleResource {
                     ComTaskExecutionBuilder builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
                     if (comTaskEnablement.hasPartialConnectionTask()) {
                         device.getConnectionTasks()
-                        .stream()
-                        .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                        .forEach(builder::connectionTask);
+                                .stream()
+                                .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                                .forEach(builder::connectionTask);
                     }
                     builder.add();
                 }
@@ -182,11 +181,12 @@ public class DeviceScheduleResource {
         if (!comTaskExecutionPrivilegeCheck.canExecute(comTaskExecution.getComTask(), user)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        if(!(comTaskExecution.isScheduledManually())) {
+        if (!(comTaskExecution.isScheduledManually())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (info.schedule == null) {
             comTaskExecution.getUpdater().removeSchedule().update();
+            comTaskExecution.schedule(null);
         } else {
             comTaskExecution.getUpdater().createNextExecutionSpecs(info.schedule.asTemporalExpression()).update();
         }
