@@ -55,9 +55,7 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     }
 
     @Activate
-    public void activate(){
-        System.out.println("Activating CSRFFilterImpl");
-    }
+    public void activate(){ }
 
     @Reference
     public void setCSRFService(CSRFService csrfService){
@@ -73,6 +71,11 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     @Override
     public void removeUserSession(String sessionId) {
         csrfService.removeToken(sessionId);
+    }
+
+    @Override
+    public String getCSRFToken(String sessionId) {
+        return csrfService.getCSRFToken(sessionId);
     }
 
     @Override
@@ -96,7 +99,7 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
                 csrfToken = request.getParameter(X_CSRF_TOKEN);
             }
             if(null != csrfToken){
-                boolean valid =  csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
+                boolean valid =  csrfToken.equals(getCSRFToken(sessionId.get().getValue()));
                 createCSRFToken(sessionId.get().getValue());
                 return valid;
             }

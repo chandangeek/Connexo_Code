@@ -42,9 +42,11 @@ public class CSRFContollerService {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public String getToken(@Context HttpServletRequest request) {
         Optional<Cookie> sessionId = getSessionCookie(request);
-        String csrfToken = csrfService.getCSRFToken(sessionId.get().getValue());
-        if(null != csrfToken) {
-            return csrfToken;
+        if(sessionId.isPresent()) {
+            String csrfToken = csrfService.getCSRFToken(sessionId.get().getValue());
+            if (null != csrfToken) {
+                return csrfToken;
+            }
         }
         return "InvalidToken";
     }
