@@ -70,7 +70,6 @@ public class IssueResourceUtilityImpl implements IssueResourceUtility {
                 }
                 if (workgroupUnassignedCount != 0)
                     infos.add(new IssueGroupInfo(-1l, "Unassigned", workgroupUnassignedCount));
-
                 break;
             default:
                 break;

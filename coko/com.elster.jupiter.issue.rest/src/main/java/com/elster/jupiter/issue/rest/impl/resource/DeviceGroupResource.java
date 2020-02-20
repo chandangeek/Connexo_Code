@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.HasName;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
@@ -16,6 +17,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,10 +31,13 @@ public class DeviceGroupResource extends BaseResource{
     public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> infos = getMeteringGroupsService().findEndDeviceGroups()
                 .stream()
+                .sorted(Comparator.comparing(HasName::getName))
                 .map(deviceGroup -> new IdWithNameInfo(deviceGroup.getId(), deviceGroup.getName()))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("devicegroups", infos, queryParameters);
     }
+
+
 
 }
