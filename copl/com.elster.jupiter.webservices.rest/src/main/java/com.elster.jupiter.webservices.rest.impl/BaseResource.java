@@ -129,14 +129,22 @@ public abstract class BaseResource {
         } else if (filter.hasProperty("finishedOnTo")) {
             finderBuilder.withEndTimeIn(Range.atMost(filter.getInstant("finishedOnTo")));
         }
-        /* Find endpoint by ID */
+        /* Find endpoints by ID */
         if (filter.hasProperty("webServiceEndPoint")) {
 
-            Long endPointId = filter.getLong("webServiceEndPoint");
-            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
-
-            finderBuilder.withEndPointConfigurations(Collections.singleton(epc));
+            if (filter.getLongList("webServiceEndPoint").stream().allMatch(s -> s == null)) {
+                Set<EndPointConfiguration> epcSet = filter.getStringList("webServiceEndPoint").stream()
+                        .map(id -> endPointConfigurationService.getEndPointConfiguration(Long.valueOf(id)).orElse(null))
+                        .filter(endPointConfig -> endPointConfig != null)
+                        .collect(Collectors.toSet());
+                finderBuilder.withEndPointConfigurations(epcSet);
+            } else {
+                Set<EndPointConfiguration> epcSet = filter.getLongList("webServiceEndPoint").stream()
+                        .map(id -> endPointConfigurationService.getEndPointConfiguration(id).orElse(null))
+                        .filter(endPointConfig -> endPointConfig != null)
+                        .collect(Collectors.toSet());
+                finderBuilder.withEndPointConfigurations(epcSet);
+            }
         }
 
         if (filter.hasProperty("status")) {
