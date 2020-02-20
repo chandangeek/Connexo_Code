@@ -18,6 +18,7 @@ import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
@@ -67,11 +68,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareStatuses() {
-        return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", firmwareStatusesClientSideValues());
-    }
-
-    private List<String> firmwareStatusesClientSideValues() {
-        return Stream.of(FirmwareStatusTranslationKeys.values()).map(FirmwareStatusTranslationKeys::getKey).collect(Collectors.toList());
+        return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", Stream.of(FirmwareStatus.values()).map(FirmwareStatus::getStatus).collect(Collectors.toList()));
     }
 
     /**
