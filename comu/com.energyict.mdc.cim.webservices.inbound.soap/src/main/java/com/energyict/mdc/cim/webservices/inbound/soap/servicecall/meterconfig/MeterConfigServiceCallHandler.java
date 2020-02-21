@@ -278,6 +278,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.meteringTranslationService = meteringTranslationService;
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
         webServiceExtension.ifPresent(
                 inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
