@@ -38,7 +38,7 @@ public class FirmwareVersionPropertyValueConverter implements PropertyValueConve
 
         FirmwareVersionInfo(FirmwareVersion firmwareVersion) {
             this.id = firmwareVersion.getId();
-            this.name = firmwareVersion.getFirmwareVersion() + "(" + firmwareVersion.getLocalizedStatus() + ")";
+            this.name = firmwareVersion.getFirmwareVersion() + " (" + firmwareVersion.getLocalizedStatus() + ")";
             this.imageIdentifier = firmwareVersion.getImageIdentifier();
         }
     }
