@@ -2,15 +2,12 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 
 import javax.inject.Inject;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.logging.Logger;
 
 public class UpgraderV10_4_9 implements Upgrader {
@@ -35,13 +32,6 @@ public class UpgraderV10_4_9 implements Upgrader {
         if (definedCRLTasks != 0) {
             throw new RuntimeException("Cannot upgrade while CRL tasks defined and cannot be automatically upgraded. Please delete your CRL tasks and retry");
         }
-        String sqlStatement = "ALTER TABLE " + TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name() + " DROP COLUMN SECURITY_ACCESSOR";
-        try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-            logger.info("Executing: " + sqlStatement);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            logger.warning("Couldn't perform upgrade for \n" + sqlStatement);
-            throw new UnderlyingSQLFailedException(e);
-        }
+        execute(dataModel, "ALTER TABLE " + TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name() + " DROP COLUMN SECURITY_ACCESSOR");
     }
 }
