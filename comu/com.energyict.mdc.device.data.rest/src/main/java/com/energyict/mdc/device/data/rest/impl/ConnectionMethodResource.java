@@ -27,6 +27,8 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -152,10 +154,11 @@ public class ConnectionMethodResource {
             return false;
         }
         // TCP/IP
-        if(isOutBoundTcpIp(task.getPluggableClass())){
-            return props.stream().anyMatch(prop -> prop.name.equals("host")) && props.stream().anyMatch(prop -> prop.name.equals("portNumber"));
+        if (isOutBoundTcpIp(task.getPluggableClass())) {
+            return !StringUtils.isEmpty(connectionMethodInfo.comPortPool) &&
+                    props.stream().anyMatch(prop -> prop.name.equals("host")) && props.stream().anyMatch(prop -> prop.name.equals("portNumber"));
         }
-        return true;
+        return !StringUtils.isEmpty(connectionMethodInfo.comPortPool);
     }
 
     private boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
@@ -172,11 +175,11 @@ public class ConnectionMethodResource {
 
         // TCP/IP
         if (isOutBoundTcpIp(task.getPluggableClass())) {
-            return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+            return Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent();
         }
 
         //Serial Optical
-        return (Objects.nonNull(task.getComPortPool()));
+        return Objects.nonNull(task.getComPortPool());
     }
 
     private boolean isOutBoundTcpIp(PluggableClass pluggableClass) {
