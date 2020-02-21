@@ -106,6 +106,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHan
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.security.Privileges;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -142,6 +143,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -1078,7 +1080,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Privileges.values(),
+                TranslationKeys.values())
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
+
     }
 
     // for test purposes

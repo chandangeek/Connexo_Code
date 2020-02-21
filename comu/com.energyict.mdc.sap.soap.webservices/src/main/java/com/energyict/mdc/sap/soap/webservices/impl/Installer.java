@@ -15,27 +15,37 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.security.Privileges;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class Installer implements FullInstaller {
+public class Installer implements FullInstaller, PrivilegesProvider {
 
     private static final int DESTINATION_SPEC_RETRY_DELAY = 60;
 
     private final CustomPropertySetService customPropertySetService;
     private final MessageService messageService;
     private final ServiceCallService serviceCallService;
+    private final UserService userService;
 
     @Inject
-    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, MessageService messageService) {
+    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
+                     MessageService messageService, UserService userService) {
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.messageService = messageService;
+        this.userService = userService;
     }
 
     @Override
@@ -50,6 +60,7 @@ public class Installer implements FullInstaller {
                 this::createDestinationSpecs,
                 logger
         );
+        userService.addModulePrivileges(this);
     }
 
     private void createServiceCallTypes() {
@@ -91,5 +102,19 @@ public class Installer implements FullInstaller {
             throw new IllegalStateException(MessageFormat.format("Queue table specification ''{0}'' is not available",
                     ConnectionStatusChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME));
         }
+    }
+
+    @Override
+    public String getModuleName() {
+        return WebServiceActivator.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SAP.getKey(), Privileges.RESOURCE_SAP_DESCRIPTION.getKey(),
+                Collections.singletonList(Privileges.Constants.SEND_WEB_SERVICE_REQUEST)));
+        return resources;
     }
 }

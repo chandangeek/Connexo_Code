@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.ChannelSpec;
@@ -42,13 +43,18 @@ public class UpgraderV10_7_2 implements Upgrader {
     private final OrmService ormService;
     private final DeviceService deviceService;
     private final SAPCustomPropertySets sapCustomPropertySets;
+    private final UserService userService;
+    private final PrivilegesProviderV10_7_2 privilegesProviderV10_7_2;
 
     @Inject
-    public UpgraderV10_7_2(DataModel dataModel, OrmService ormService, DeviceService deviceService, SAPCustomPropertySets sapCustomPropertySets) {
+    public UpgraderV10_7_2(DataModel dataModel, OrmService ormService, DeviceService deviceService,
+                           SAPCustomPropertySets sapCustomPropertySets, PrivilegesProviderV10_7_2 privilegesProviderV10_7_2, UserService userService) {
         this.dataModel = dataModel;
         this.ormService = ormService;
         this.deviceService = deviceService;
         this.sapCustomPropertySets = sapCustomPropertySets;
+        this.privilegesProviderV10_7_2 = privilegesProviderV10_7_2;
+        this.userService = userService;
     }
 
     @Override
@@ -56,6 +62,7 @@ public class UpgraderV10_7_2 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, version(10, 7, 2));
         removeOldChannelAndRegisterSapCasValues();
         updateRegisteredFlag();
+        userService.addModulePrivileges(privilegesProviderV10_7_2);
     }
 
     private void updateRegisteredFlag() {

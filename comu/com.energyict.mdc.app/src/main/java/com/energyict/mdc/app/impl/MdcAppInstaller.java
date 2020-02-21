@@ -83,7 +83,8 @@ public class MdcAppInstaller {
                         .put(version(10, 4), UpgraderV10_4.class)
                         .put(version(10, 4, 1),UpgraderV10_4_1.class)
                         .put(version(10, 6), UpgraderV10_6.class)
-                        .put(version(10, 7), UpgraderV10_7.class).build()
+                        .put(version(10, 7), UpgraderV10_7.class)
+                        .put(version(10, 7, 2), UpgraderV10_7_2.class).build()
         );
     }
 
@@ -277,6 +278,9 @@ public class MdcAppInstaller {
                     //WebServices
                     com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
                     com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
+
+                    //sap soap webservices
+                    com.energyict.mdc.sap.soap.webservices.security.Privileges.Constants.SEND_WEB_SERVICE_REQUEST,
 
             };
         }
