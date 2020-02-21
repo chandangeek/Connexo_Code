@@ -7,7 +7,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 
 import javax.inject.Inject;
-import java.sql.Connection;
 
 public class UpgraderV10_4_9 implements Upgrader {
 
@@ -21,10 +20,10 @@ public class UpgraderV10_4_9 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 4, 9));
-        dataModel.useConnectionRequiringTransaction(this::updateCRLTable);
+        updateCRLTable();
     }
 
-    private void updateCRLTable(Connection connection) {
+    private void updateCRLTable() {
         int definedCRLTasks = dataModel.mapper(CrlRequestTaskProperty.class).find().size();
         if (definedCRLTasks != 0) {
             throw new RuntimeException("Cannot upgrade while CRL tasks defined and cannot be automatically upgraded. Please delete your CRL tasks and retry");
