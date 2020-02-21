@@ -450,4 +450,9 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
             });
         }
     }
+
+    @Override
+    public String getLocalizedStatus() {
+        return FirmwareStatusTranslationKeys.translationFor(this.firmwareStatus, thesaurus);
+    }
 }
