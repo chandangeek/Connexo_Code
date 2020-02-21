@@ -152,7 +152,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         firmwareCampaign.setFirmwareUploadConnectionStrategy(firmwareUploadConnectionStrategy);
         firmwareCampaign.setValidationComTaskId(validationComTaskId);
         firmwareCampaign.setValidationConnectionStrategy(validationConnectionStrategy);
-        firmwareCampaign.setWithUniqueFirmwareVersion(withUniqueFirmwareVersion);
+        firmwareCampaign.withUniqueFirmwareVersion(withUniqueFirmwareVersion);
         Optional.ofNullable(activationDate).ifPresent(firmwareCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(firmwareCampaign::setValidationTimeout);
         ServiceCall serviceCall = firmwareCampaignService.createServiceCallAndTransition(firmwareCampaign);

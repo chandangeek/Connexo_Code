@@ -133,7 +133,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Long validationComTaskId;
     private ConnectionStrategy validationConnectionStrategy;
     private boolean manuallyCancelled;
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private boolean withUniqueFirmwareVersion;
 
     @Inject
@@ -327,7 +326,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
 
-    public void setWithUniqueFirmwareVersion(boolean withUniqueFirmwareVersion) {
+    public void withUniqueFirmwareVersion(boolean withUniqueFirmwareVersion) {
         this.withUniqueFirmwareVersion = withUniqueFirmwareVersion;
     }
 
@@ -424,7 +423,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setValidationComTaskId((Long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
         this.setValidationConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
         this.setManuallyCancelled((boolean) propertyValues.getProperty(FieldNames.MANUALLY_CANCELLED.javaName()));
-        this.setWithUniqueFirmwareVersion((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_FIRMWARE_VERSION.javaName()));
+        this.withUniqueFirmwareVersion((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_FIRMWARE_VERSION.javaName()));
     }
 
     @Override
