@@ -1285,7 +1285,7 @@ public final class DeviceMessageConstants {
     public static final String typeAttributeName = "type";
     public static final String typeAttributeDefaultTranslation = "type";
     public static final String destinationAddressAttributeName = "AlarmConfigurationMessage.destinationAddress";
-    public static final String destinationAddressAttributeDefaultTranslation = "Destination address";
+    public static final String destinationAddressAttributeDefaultTranslation = "Destination address (host:port)";
     public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
     public static final String messageTypeAttributeDefaultTranslation = "Message type";
 

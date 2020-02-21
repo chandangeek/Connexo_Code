@@ -1,9 +1,6 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.dlms.cosem.NbiotPushSetup;
@@ -90,6 +87,7 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         }
         String pushObjectList = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.pushObjectList);
         String transportTypeString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.transportTypeAttributeName);
+        // Destination address string should be like host:port
         String destinationAddress = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName);
         String messageTypeString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.messageTypeAttributeName);
 
@@ -101,12 +99,12 @@ public class EI7MessageExecutor extends A2MessageExecutor {
 
         NbiotPushSetup nbiotPushSetup = getCosemObjectFactory().getNbiotPushSetup(pushObisCode);
 
-        Array objectDefinitionArray = new Array();
-        objectDefinitionArray.addDataType(new Unsigned16(62));
-        objectDefinitionArray.addDataType(OctetString.fromString(pushObjectList));
-        objectDefinitionArray.addDataType(new Unsigned16(2));
-        objectDefinitionArray.addDataType(new Unsigned16(0));
-        nbiotPushSetup.writePushObjectList(objectDefinitionArray);
+        Structure objectDefinitionStructure = new Structure();
+        objectDefinitionStructure.addDataType(new Unsigned16(62));
+        objectDefinitionStructure.addDataType(OctetString.fromObisCode(ObisCode.fromString(pushObjectList)));
+        objectDefinitionStructure.addDataType(new Integer8(2));
+        objectDefinitionStructure.addDataType(new Unsigned16(0));
+        nbiotPushSetup.writePushObjectList(new Array(objectDefinitionStructure));
 
         int transportType = NetworkConnectivityMessage.TransportType.valueOf(transportTypeString).getId();
         int messageType = NetworkConnectivityMessage.MessageType.valueOf(messageTypeString).getId();
