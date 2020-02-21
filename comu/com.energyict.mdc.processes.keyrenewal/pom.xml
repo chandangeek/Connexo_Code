@@ -253,10 +253,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>validation</artifactId>
-        <scope>test</scope>
-    </dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

@@ -47,7 +47,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 
@@ -304,7 +303,6 @@ public class HeadEndControllerTest {
         deviceCommandInfo.activationDate = Instant.now();
 
         List<ComTaskExecution> comtasks = new ArrayList<>();
-        //comtasks.add(comtask);
 
         MultiSenseHeadEndInterface multiSenseHeadEndInterface2 = new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService,
                 meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory,
@@ -318,6 +316,7 @@ public class HeadEndControllerTest {
         // Business method
         headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
 
-        // asserts all ok
+        // asserts
+        verify(serviceCall2).update(completionOptionsServiceCallDomainExtension);
     }
 }
