@@ -8,11 +8,8 @@ import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 
 import javax.inject.Inject;
 import java.sql.Connection;
-import java.util.logging.Logger;
 
 public class UpgraderV10_4_9 implements Upgrader {
-
-    private static final Logger logger = Logger.getLogger(UpgraderV10_4_9.class.getName());
 
     private final DataModel dataModel;
 
