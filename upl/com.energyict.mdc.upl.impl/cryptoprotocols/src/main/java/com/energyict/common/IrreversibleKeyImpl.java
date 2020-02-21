@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class IrreversibleKeyImpl implements IrreversibleKey {
 
-    private static final String SEPARATOR = ":";
+    public static final String SEPARATOR = ":";
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
     protected String hsmKekLabel;
     protected byte[] encryptedKey;
