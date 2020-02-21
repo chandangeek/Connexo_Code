@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.ei7;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -28,9 +29,10 @@ public class EI7Inbound extends A2Inbound {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        if (!pushingCompactFrames)
-            return super.doDiscovery();
-        getParser().readAndParseInboundFrame();
+        if (isPushingCompactFrames()) {
+            getParser().readAndParseInboundFrame();
+            return DiscoverResultType.DATA;
+        }
         return super.doDiscovery();
     }
 
@@ -39,13 +41,18 @@ public class EI7Inbound extends A2Inbound {
         return "$Date: 2020-02-25 12:00:00 +0200 (Tue, 25 Feb 2020) $";
     }
 
-    public boolean hasSupportForInboundFrames() {
-        return true;
+    public boolean isPushingCompactFrames() {
+        return pushingCompactFrames;
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return !pushingCompactFrames;
     }
 
     @Override
     public List<CollectedData> getCollectedData() {
-        if (!pushingCompactFrames)
+        if (!isPushingCompactFrames())
             return super.getCollectedData();
         List<CollectedData> collectedDatas = new ArrayList<>();
         if (getParser().getCollectedRegisters().getCollectedRegisters().size() > 0) {
@@ -61,6 +68,13 @@ public class EI7Inbound extends A2Inbound {
 
     public EI7DlmsSession createDlmsSession(ComChannel comChannel, DlmsProperties dlmsProperties) {
         return new EI7DlmsSession(comChannel, dlmsProperties, getLogger());
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        if (isPushingCompactFrames())
+            return getParser().getDeviceIdentifier();
+        return super.getDeviceIdentifier();
     }
 
     @Override

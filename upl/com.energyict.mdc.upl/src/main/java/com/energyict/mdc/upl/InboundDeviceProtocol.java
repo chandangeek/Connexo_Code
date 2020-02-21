@@ -187,7 +187,7 @@ public interface InboundDeviceProtocol extends HasDynamicProperties {
     /*
         When true, the protocol collect data sent via the inbound frames
     */
-    default boolean hasSupportForInboundFrames() {
+    default boolean isPushingCompactFrames() {
         return false;
     }
 

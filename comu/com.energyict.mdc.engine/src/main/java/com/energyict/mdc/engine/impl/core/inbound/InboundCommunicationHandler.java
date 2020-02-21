@@ -148,7 +148,7 @@ public class InboundCommunicationHandler {
             //In case we have already prepared some collected data and we have device cache among them then try to store it
             if (!inboundDeviceProtocol.getCollectedData().isEmpty()) {
                 try {
-                if (inboundDeviceProtocol.hasSupportForInboundFrames())
+                if (inboundDeviceProtocol.isPushingCompactFrames())
                     findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, InboundDeviceProtocol.DiscoverResultType.DATA);
                 else
                     for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
