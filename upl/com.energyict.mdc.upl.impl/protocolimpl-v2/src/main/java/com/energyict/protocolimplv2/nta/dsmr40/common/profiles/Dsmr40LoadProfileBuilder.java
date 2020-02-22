@@ -28,10 +28,11 @@ import java.util.List;
  */
 public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends LoadProfileBuilder<T> {
 
-    public static final ObisCode MBUS_LP1_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
+    public static final ObisCode MBUS_HOURLY_LP_OBISCODE  = ObisCode.fromString("0.x.24.3.0.255");
+    public static final ObisCode MBUS_DAILY_LP_OBISCODE   = ObisCode.fromString("1.x.99.2.0.255");
+    public static final ObisCode MBUS_MONTHLY_LP_OBISCODE = ObisCode.fromString("0.x.98.1.0.255");
 
-    // Gas Hourly load profile
-    public static final ObisCode MBUS_GAS_HOURLY_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.1.255");
+    public static final ObisCode MBUS_LP_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.1.255");
 
     private boolean cumulativeCaptureTimeChannel = false;
 

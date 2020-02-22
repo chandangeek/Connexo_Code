@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.esmr50.common;
 
-
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -69,9 +68,9 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     public static final ObisCode EMETER_LP2_OBISCODE_SAME_AS_MBUS_LP2 = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode EMETER_LP3_OBISCODE_SAME_AS_MBUS_LP3 = ObisCode.fromString("1.0.98.1.0.255");
 
-    public static final ObisCode MBUS_LP1_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
-    public static final ObisCode MBUS_LP2_OBISCODE_SAME_AS_EMETER_LP2 = ObisCode.fromString("0.x.99.2.0.255");
-    public static final ObisCode MBUS_LP3_OBISCODE_SAME_AS_EMETER_LP3 = ObisCode.fromString("0.x.98.1.0.255");
+    public static final ObisCode MBUS_HOURLY_LP_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
+    public static final ObisCode MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2 = ObisCode.fromString("0.x.99.2.0.255");
+    public static final ObisCode MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3 = ObisCode.fromString("0.x.98.1.0.255");
 
     private final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
 
