@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
