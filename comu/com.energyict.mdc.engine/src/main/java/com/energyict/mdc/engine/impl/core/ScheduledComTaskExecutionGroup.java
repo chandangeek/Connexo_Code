@@ -77,6 +77,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
         try {
             boolean connectionEstablished = false;
             this.createExecutionContext();
+            // TODO: measure duration of prepareAll
             commandRoot = this.prepareAll(this.comTaskExecutions);
             if (!commandRoot.hasGeneralSetupErrorOccurred() && !commandRoot.getCommands().isEmpty()) {
                 connectionEstablished = this.establishConnectionFor(this.getComPort());

@@ -8,9 +8,11 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public abstract class GroupingComJobFactory implements ComJobFactory {
 
+    private static final Logger LOGGER = Logger.getLogger(GroupingComJobFactory.class.getName());
     private int maximumJobs;
     private List<ComJob> jobs = new ArrayList<>();
     private Map<Long, ComTaskExecutionGroup> groups = new HashMap<>();   // grouping based on the ID of the ConnectionTask
@@ -67,6 +69,8 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
                 return continueFetching;
             }
         } else {
+            // does it ever happen?
+            LOGGER.warning("perf - needMoreJobs was false");
             return false;
         }
     }

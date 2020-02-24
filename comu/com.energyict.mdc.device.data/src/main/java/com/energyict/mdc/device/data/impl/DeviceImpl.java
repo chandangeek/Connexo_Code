@@ -1166,6 +1166,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (comTasksWithSchedule.size() == 0) {
             throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
         } else {
+            LOGGER.info("Update comtask execution from removeComSchedule"+comTasksWithSchedule);
             comTasksWithSchedule.forEach(comTaskExecution -> comTaskExecution.getUpdater().removeSchedule().update());
         }
     }
@@ -1417,6 +1418,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .forEach((comTaskExecution) -> {
                     ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
                     comTaskExecutionUpdater.connectionTask(connectionTask);
+                    LOGGER.info("Update comtask execution from setConnectionTaskForComTaskExecutions"+connectionTask+comTaskExecution);
                     comTaskExecutionUpdater.update();
                 });
     }
@@ -3289,6 +3291,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         ComTaskExecution execution = builder.add();
                         DeviceImpl.this.add((ComTaskExecutionImpl) execution);
                     });
+            LOGGER.info("Update comtask execution from DeviceImpl.");
             comTaskExecutionsUpdaters.stream()
                     .forEach(ComTaskExecutionUpdater::update);
             return getComTaskExecution();

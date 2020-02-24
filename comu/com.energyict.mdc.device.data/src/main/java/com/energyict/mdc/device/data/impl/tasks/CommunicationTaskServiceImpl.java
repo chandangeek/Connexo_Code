@@ -7,7 +7,10 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ConfigPropertiesService;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -60,6 +63,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -678,7 +682,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public boolean attemptUnlockComTaskExecution(ComTaskExecution comTaskExecution) {
         Optional<ComTaskExecution> lockResult = deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockNoWait(comTaskExecution.getId());
         if (lockResult.isPresent()) {
-            getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            //getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            unlockComTaskExecution(comTaskExecution);
             return true;
         }
 
@@ -745,11 +750,24 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder initComTaskExecFinderSqlBuilder(DataMapper<ComTaskExecution> mapper) {
-        SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1) LEADING(cte) USE_NL(ct)");
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT ");
+        sqlBuilder.append("t.ID, t.VERSIONCOUNT, t.CREATETIME, t.MODTIME, " +
+                "t.USERNAME, t.DISCRIMINATOR, t.DEVICE, t.COMTASK, t.COMSCHEDULE, t.NEXTEXECUTIONSPECS, " +
+                "t.LASTEXECUTIONTIMESTAMP, t.NEXTEXECUTIONTIMESTAMP, t.COMPORT, t.OBSOLETE_DATE, t.PRIORITY, " +
+                "t.USEDEFAULTCONNECTIONTASK, t.CURRENTRETRYCOUNT, t.PLANNEDNEXTEXECUTIONTIMESTAMP, t.EXECUTIONPRIORITY, " +
+                "t.EXECUTIONSTART, t.LASTSUCCESSFULCOMPLETION, t.LASTEXECUTIONFAILED, t.ONHOLD, t.CONNECTIONTASK, " +
+                "t.IGNORENEXTEXECSPECS, t.CONNECTIONFUNCTION, t.LASTSESSION, t.LASTSESS_HIGHESTPRIOCOMPLCODE, " +
+                "t.LASTSESS_SUCCESSINDICATOR");
+        sqlBuilder.append(" FROM (");
+        sqlBuilder.append(mapper.builderWithAdditionalColumns("cte", "row_number() over (ORDER BY cte.nextexecutiontimestamp, cte.priority, cte.connectiontask) as rn").toString());
+        sqlBuilder.append(" LEFT JOIN ");
+        sqlBuilder.append(TableSpecs.DDC_HIPRIOCOMTASKEXEC.name());
+        sqlBuilder.append(" hpcte on cte.ID = hpcte.COMTASKEXECUTION");
         sqlBuilder.append(", ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
-        sqlBuilder.append(" where ct.status = 0");
+        sqlBuilder.append(" WHERE hpcte.COMTASKEXECUTION is null");
+        sqlBuilder.append("   and ct.status = 0");
         sqlBuilder.append("   and ct.comport is null");
         sqlBuilder.append("   and ct.obsolete_date is null");
         return sqlBuilder;
@@ -768,6 +786,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         Instant nowInSeconds = this.deviceDataModelService.clock().instant();
         List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
         List<ComTaskExecution> pendingComTasks = getPlannedComTaskExecutions(comPort, nowInSeconds);
+
         return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
     }
 
@@ -887,6 +906,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" and (NVL(ct.comwindowend, 99999000) > "); // max possible value of milisecondsSinceMidnight is 86399000
             sqlBuilder.addLong(msSinceMidnight);
             sqlBuilder.append(" or ct.comwindowend = 0) ");
+            sqlBuilder.append(") t");
+            sqlBuilder.append(" WHERE rn <= ");
+            sqlBuilder.addLong(1300L);
             sqlBuilder.append(getOrderForPlannedComTaskExecutions());
             return mapper.fetcher(sqlBuilder);
         } else {
@@ -900,13 +922,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
         if (!isTrueMinimizedOn && !isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";
+            orderClause = " order by t.nextexecutiontimestamp, t.priority, t.connectiontask";
         } else if (isTrueMinimizedOn && !isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, cte.connectiontask, cte.priority";
+            orderClause = " order by t.nextexecutiontimestamp, t.connectiontask, t.priority";
         } else if (!isTrueMinimizedOn && isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.priority, cte.connectiontask";
+            orderClause = " order by t.nextexecutiontimestamp, mod(t.connectiontask, 100), t.priority, t.connectiontask";
         } else if (isTrueMinimizedOn && isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.connectiontask, cte.priority";
+            orderClause = " order by t.nextexecutiontimestamp, mod(t.connectiontask, 100), t.connectiontask, t.priority";
         }
         return orderClause;
     }

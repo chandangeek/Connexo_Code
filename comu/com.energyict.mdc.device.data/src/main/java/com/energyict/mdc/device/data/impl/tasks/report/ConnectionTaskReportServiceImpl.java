@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
@@ -45,6 +46,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,6 +62,7 @@ import java.util.stream.Stream;
  */
 @LiteralSql
 public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportService {
+    private static final Logger LOGGER = Logger.getLogger(ConnectionTaskReportServiceImpl.class.getName());// just for time measurement
 
     private final DeviceDataModelService deviceDataModelService;
     private final MeteringService meteringService;
@@ -76,7 +80,12 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     @Override
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
-        return this.doGetConnectionTaskStatusCount(null);
+        //return this.doGetConnectionTaskStatusCount(null);
+        StopWatch watch = new StopWatch(true);// just for time measurement
+        Map<TaskStatus, Long> map = this.doGetConnectionTaskStatusCount(null);
+        watch.stop();// just for time measurement
+        LOGGER.log(Level.WARNING, "CONM1163: method: getConnectionTaskStatusCount; " + watch.toString());// just for time measurement
+        return map;
     }
 
     @Override
@@ -278,9 +287,15 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     private Map<ComSession.SuccessIndicator, Long> fetchSuccessIndicatorCounters(SqlBuilder builder) {
         Map<ComSession.SuccessIndicator, Long> counters = new HashMap<>();
+        StopWatch watch = new StopWatch(true);// just for time measurement
         try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement stmnt = builder.prepare(connection)) {
+            watch.stop();// just for time measurement
+            LOGGER.log(Level.WARNING, "CONM1163: method: getConnection and Prepare statement(fetchSuccessIndicatorCounters); " + watch.toString());// just for time measurement
+            watch.start();// just for time measurement
             this.fetchSuccessIndicatorCounters(stmnt, counters);
+            watch.stop();// just for time measurement
+            LOGGER.log(Level.WARNING, "CONM1163: method: fetchSuccessIndicatorCounters; " + watch.toString());// just for time measurement
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }

@@ -29,6 +29,7 @@ import com.google.common.collect.TreeRangeMap;
 import com.google.common.collect.TreeRangeSet;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,6 +71,7 @@ public class TableImpl<T> implements Table<T> {
     private String name;
     @SuppressWarnings("unused")
     private int position;
+    private boolean cacheWholeTable = false;
     private boolean cached;
     private Long cacheTtl;
     private long cacheMaximumSize;
@@ -197,6 +199,11 @@ public class TableImpl<T> implements Table<T> {
     }
 
     @Override
+    public boolean isWholeTableCached() {
+        return cacheWholeTable;
+    }
+
+    @Override
     public void cache() {
         cache(600000L, 10000L, true);
     }
@@ -207,6 +214,20 @@ public class TableImpl<T> implements Table<T> {
         this.cacheTtl = cacheTtl;
         this.cacheMaximumSize = maximumSize;
         this.cacheRecordStat = recordStat;
+        this.cacheWholeTable = false;
+    }
+
+    @Override
+    public void cacheWholeTable(boolean recordStat) {
+     cacheWholeTable(recordStat, 600000L);
+    }
+
+    @Override
+    public void cacheWholeTable(boolean recordStat, long cacheTtl) {
+        this.cached = true;
+        this.cacheWholeTable = true;
+        this.cacheRecordStat = recordStat;
+        this.cacheTtl = cacheTtl;
     }
 
     @Override
@@ -824,7 +845,11 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
-        cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        if (isWholeTableCached()) {
+            cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
+        } else {
+            cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        }
     }
 
     private void checkMapped(Column column) {

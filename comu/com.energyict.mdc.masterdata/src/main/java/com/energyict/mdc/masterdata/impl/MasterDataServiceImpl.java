@@ -210,7 +210,7 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
 
     @Override
     public Optional<LoadProfileType> findLoadProfileType(long loadProfileTypeId) {
-        return this.getDataModel().mapper(LoadProfileType.class).getUnique("id", loadProfileTypeId);
+        return this.getDataModel().mapper(LoadProfileType.class).getOptional(loadProfileTypeId);
     }
 
     @Override
