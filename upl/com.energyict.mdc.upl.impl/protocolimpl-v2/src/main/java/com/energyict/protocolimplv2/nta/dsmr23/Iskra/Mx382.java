@@ -26,6 +26,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
@@ -199,5 +200,13 @@ public class Mx382 extends AbstractSmartNtaProtocol {
             this.registerFactory = new Mx382RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return this.registerFactory;
+    }
+
+    @Override
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new Mx382ConfigurationSupport(this.getPropertySpecService());
+        }
+        return dlmsConfigurationSupport;
     }
 }
