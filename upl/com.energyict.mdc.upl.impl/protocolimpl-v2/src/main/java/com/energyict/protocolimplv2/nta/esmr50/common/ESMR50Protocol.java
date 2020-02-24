@@ -1,11 +1,6 @@
 package com.energyict.protocolimplv2.nta.esmr50.common;
 
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -41,6 +36,12 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -182,7 +183,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
                     validCachedFrameCounter = true;
                     setDlmsSession(dlmsSession);
                 }
-            } catch (CommunicationException ex) {
+            } catch (CommunicationException | com.energyict.protocol.exceptions.ConnectionCommunicationException ex) {
                 journal("Association using cached frame counter has failed.");
             } catch (Exception ex) {
                 journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
