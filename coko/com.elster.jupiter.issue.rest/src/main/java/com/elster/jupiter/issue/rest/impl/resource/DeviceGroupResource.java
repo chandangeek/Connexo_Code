@@ -31,7 +31,7 @@ public class DeviceGroupResource extends BaseResource{
     public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> infos = getMeteringGroupsService().findEndDeviceGroups()
                 .stream()
-                .sorted(Comparator.comparing(HasName::getName))
+                .sorted(Comparator.comparing(HasName::getName, String.CASE_INSENSITIVE_ORDER))
                 .map(deviceGroup -> new IdWithNameInfo(deviceGroup.getId(), deviceGroup.getName()))
                 .collect(Collectors.toList());
 
