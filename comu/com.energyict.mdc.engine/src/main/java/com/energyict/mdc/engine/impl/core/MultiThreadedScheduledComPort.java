@@ -19,11 +19,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -43,7 +43,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      */
     private volatile BlockingQueue<ScheduledJobImpl> jobQueue;
     private int threadPoolSize;
-    private CountDownLatch reloadLatch;
+    private Semaphore mutex = new Semaphore(1);
 
     MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
@@ -54,17 +54,20 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     private void applyNewChanges() {
-        if (reloadLatch != null) {
+        if (mutex.tryAcquire()) {
             try {
-                reloadLatch.await();
+                if (threadPoolSize != getComPort().getNumberOfSimultaneousConnections()) {
+                    threadPoolSize = getComPort().getNumberOfSimultaneousConnections();
+                    BlockingQueue oldQueue = jobQueue;
+                    jobQueue = new ArrayBlockingQueue<>(threadPoolSize);
+                    jobScheduler.multiThreadedJobCreator.update(jobQueue, threadPoolSize);
+                    oldQueue.put(new ChangeQueueSignal());
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } finally {
+                mutex.release();
             }
-        }
-        if (threadPoolSize != getComPort().getNumberOfSimultaneousConnections()) {
-            threadPoolSize = getComPort().getNumberOfSimultaneousConnections();
-            jobQueue = new ArrayBlockingQueue<>(threadPoolSize);
-            jobScheduler.multiThreadedJobCreator.update(jobQueue, threadPoolSize);
         }
     }
 
@@ -110,16 +113,21 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     public void reload(OutboundComPort comPort) {
-        reloadLatch = new CountDownLatch(1);
-        super.setComPort(comPort);
-        reloadLatch.countDown();
+        try {
+            mutex.acquire();
+            super.setComPort(comPort);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            mutex.release();
+        }
     }
 
     @Override
     protected void doRun() {
         goSleepIfWokeUpTooEarly();
-        applyNewChanges();
         executeTasks();
+        applyNewChanges();
     }
 
     @Override
