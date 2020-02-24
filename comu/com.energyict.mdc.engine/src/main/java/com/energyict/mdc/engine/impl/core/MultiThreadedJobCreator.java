@@ -54,8 +54,7 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
     private final ScheduledComPortImpl.ServiceProvider serviceProvider;
     private final User comServerUser;
     private BlockingQueue<ScheduledJobImpl> jobBlockingQueue, newJobBlockingQueue;
-    private int threadPoolSize, newThreadPoolSize;
-    private CountDownLatch updateLatch;
+    private int threadPoolSize;
 
 
     MultiThreadedJobCreator(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, OutboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, int threadPoolSize, ThreadFactory threadFactory, ScheduledComPortImpl.ServiceProvider serviceProvider, User comServerUser) {
@@ -72,27 +71,13 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
     }
 
     protected void update(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, int threadPoolSize) {
-        updateLatch = new CountDownLatch(1);
         newJobBlockingQueue = jobBlockingQueue;
-        newThreadPoolSize = threadPoolSize;
-        updateLatch.countDown();
-    }
-
-    private void applyChanges() throws InterruptedException {
-        if (updateLatch != null) {
-            updateLatch.await();
-        }
-        if (newJobBlockingQueue != null && jobBlockingQueue.size() == 0 && newThreadPoolSize != threadPoolSize) {
-            jobBlockingQueue = newJobBlockingQueue;
-            threadPoolSize = newThreadPoolSize;
-            if (executor instanceof ThreadPoolExecutor) {
-                ((ThreadPoolExecutor) executor).setCorePoolSize(threadPoolSize);
-                ((ThreadPoolExecutor) executor).setMaximumPoolSize(threadPoolSize);
-            }
+        this.threadPoolSize = threadPoolSize;
+        if (executor instanceof ThreadPoolExecutor) {
+            ((ThreadPoolExecutor) executor).setCorePoolSize(threadPoolSize);
+            ((ThreadPoolExecutor) executor).setMaximumPoolSize(threadPoolSize);
         }
     }
-
-
 
     @Override
     public void run() {
@@ -101,9 +86,15 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    applyChanges();
                     ScheduledJobImpl scheduledJob = jobBlockingQueue.take();
-                    executeScheduledJob(scheduledJob);
+                    if (scheduledJob instanceof ChangeQueueSignal) {
+                        if (newJobBlockingQueue != jobBlockingQueue) {
+                            jobBlockingQueue = newJobBlockingQueue;
+                        }
+                        continue;
+                    } else {
+                        executeScheduledJob(scheduledJob);
+                    }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
