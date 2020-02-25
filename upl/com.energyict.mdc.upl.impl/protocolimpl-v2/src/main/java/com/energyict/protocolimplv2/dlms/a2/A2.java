@@ -391,7 +391,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "2020-01-06";
+        return "2020-02-25";
     }
 
     private A2Messaging getA2Messaging() {
