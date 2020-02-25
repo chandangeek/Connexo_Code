@@ -36,13 +36,13 @@ public class A2StandardEventLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOG_RESET, eventId, "Log reset"));
                 break;
             case 13:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MANUAL_CONNECTION, eventId, "Local communication start"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOCAL_COMM_START, eventId, "Local communication start"));
                 break;
             case 14:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOCAL_DISCONNECTION, eventId, "Local communication end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOCAL_COMM_END, eventId, "Local communication end"));
                 break;
             case 16:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CONFIGURATIONCHANGE, eventId, "Not metrological parameter configuration"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.NOT_METRO_PARAM_CONF, eventId, "Not metrological parameter configuration"));
                 break;
             case 40:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_FLOW_RATE_ABOVE_THRESHOLD_START, eventId, "Gas flow rate above threshold start"));
@@ -51,46 +51,46 @@ public class A2StandardEventLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_FLOW_RATE_ABOVE_THRESHOLD_END, eventId, "Gas flow rate above threshold end"));
                 break;
             case 42:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REVERSE_RUN, eventId, "Gas reverse flow start"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_REVERSE_FLOW_START, eventId, "Gas reverse flow start"));
                 break;
             case 43:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REVERSE_RUN, eventId, "Gas reverse flow end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_REVERSE_FLOW_END, eventId, "Gas reverse flow end"));
                 break;
             case 58:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "Gas temperature above physical threshold start"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_TEMP_ABOVE_PHYSICAL_THRESHOLD_START, eventId, "Gas temperature above physical threshold start"));
                 break;
             case 59:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "Gas temperature above physical threshold end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_TEMP_ABOVE_PHYSICAL_THRESHOLD_END, eventId, "Gas temperature above physical threshold end"));
                 break;
             case 60:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "Gas temperature below physical threshold start"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_TEMP_BELOW_PHYSICAL_THRESHOLD_START, eventId, "Gas temperature below physical threshold start"));
                 break;
             case 61:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "Gas temperature below physical threshold end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GAS_TEMP_BELOW_PHYSICAL_THRESHOLD_END, eventId, "Gas temperature below physical threshold end"));
                 break;
             case 62:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "Temperature failure start"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.TEMP_FAILURE_START, eventId, "Temperature failure start"));
                 break;
             case 63:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "Temperature failure end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.TEMP_FAILURE_END, eventId, "Temperature failure end"));
                 break;
             case 68:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CONFIGURATIONCHANGE, eventId, "Password changed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PASSWORD_CHANGED, eventId, "Password changed"));
                 break;
             case 75:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BATTERY_VOLTAGE_LOW, eventId, "Battery level below low level end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BATTERY_LEVEL_BELOW_LOW_LEVEL_END, eventId, "Battery level below low level end"));
                 break;
             case 84:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_DISCONNECTION, eventId, "Remote communication failure"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_COMM_FAILURE, eventId, "Remote communication failure"));
                 break;
             case 88:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_CONNECTION, eventId, "Push error start"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PUSH_ERROR_START, eventId, "Push error start"));
                 break;
             case 95:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BATTERY_VOLTAGE_LOW, eventId, "Battery below critical level"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BATTERY_BELOW_CRITICAL_LEVEL, eventId, "Battery below critical level"));
                 break;
             case 101:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.FIRMWARE_UPGRADE, eventId, "Firmware update activation failure"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.FIRMWARE_UPDATE_ACTIVATION_FAILURE, eventId, "Firmware update activation failure"));
                 break;
             case 115:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHYSICAL_MODULE_DISCONNECT, eventId, "Physical module disconnect"));
@@ -186,7 +186,7 @@ public class A2StandardEventLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.FC_THRESHOLDS_CHANGED, eventId, "FC thresholds changed"));
                 break;
             case 171:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_CONNECTION, eventId, "Remote connection start"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_CONNECTION_START, eventId, "Remote connection start"));
                 break;
             case 174:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MAINTENANCE_WINDOW_HW_FAILURE, eventId, "Maintenance window hw failure"));
