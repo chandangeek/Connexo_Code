@@ -19,6 +19,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7_1SimpleUpgrader;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.blacklist.BlackListToken;
@@ -115,6 +116,7 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
+                        version(10, 4), V10_4SimpleUpgrader.class,
                         version(10, 7, 1), V10_7_1SimpleUpgrader.class)
         );
         dailyCheck.scheduleAtFixedRate(new TokenExpiryCheckTask(), 0, 24 * 60 * 60 * 1000);
