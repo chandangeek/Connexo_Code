@@ -212,6 +212,12 @@ public class EndPointConfigurationResource extends BaseResource {
         validateBasicPayload(info);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+
+        webServicesService.getPublishedEndPoints()
+                .stream()
+                .filter(epc -> epc.getName().equals(endPointConfiguration.getName()))
+                .forEach(webServicesService::removeEndPoint);
+
         endPointConfigurationService.delete(endPointConfiguration);
         return Response.ok().build();
     }
