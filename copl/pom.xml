@@ -459,14 +459,42 @@
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
-            <!--  EJBCA library dependencies -->
-            <dependency>
-                <groupId>org.ejbca</groupId>
-                <artifactId>ejbca-elster-bundle</artifactId>
-                <version>${ejbcabundle.version}</version>
-            </dependency>
 
-            <dependency>
+            <!--  EJBCA library dependencies -->
+			<!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-common -->
+			<dependency>
+				<groupId>org.ejbca.cesecore</groupId>
+				<artifactId>cesecore-common</artifactId>
+				<version>${ejbcabundle.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-entity -->
+			<dependency>
+				<groupId>org.ejbca.cesecore</groupId>
+				<artifactId>cesecore-entity</artifactId>
+				<version>${ejbcabundle.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-interfaces -->
+			<dependency>
+				<groupId>org.ejbca.cesecore</groupId>
+				<artifactId>cesecore-interfaces</artifactId>
+				<version>${ejbcabundle.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-ejb -->
+			<dependency>
+				<groupId>org.ejbca.cesecore</groupId>
+				<artifactId>cesecore-ejb</artifactId>
+				<version>${ejbcabundle.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore -->
+			<dependency>
+				<groupId>org.ejbca.cesecore</groupId>
+				<artifactId>cesecore</artifactId>
+				<version>${ejbcabundle.version}</version>
+				<type>pom</type>
+			</dependency>
+
+
+			<dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
                 <version>1.4_3</version>
@@ -1198,7 +1226,7 @@
         </javadoc.excluded.package.names>
 		<apache.cxf.version>3.2.0</apache.cxf.version>
         <bouncycastle.version>1.64</bouncycastle.version>
-        <ejbcabundle.version>1.0.0</ejbcabundle.version>
+        <ejbcabundle.version>7.0.0.1</ejbcabundle.version>
 		<opensaml.version>1.0.0</opensaml.version>
         <jackson.version>2.10.0</jackson.version>
     </properties>
