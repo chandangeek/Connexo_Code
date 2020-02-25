@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.status.StatusService;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -39,10 +40,11 @@ public class ComServerAliveLoopImpl implements Runnable, EngineService.Deactivat
         engineConfigurationService.findComServerBySystemName().ifPresent(
                 comServer -> {
                     ComServerStatus status = statusService.getStatus();
-                    if (status.isBlocked()) {
+                    Optional<Instant> blockTimestamp = Optional.ofNullable(status.getBlockTimestamp());
+                    if (blockTimestamp.isPresent()) {
                         engineConfigurationService.findOrCreateAliveStatus(comServer).update(clock.instant(),
                                 engineConfigurationService.getComServerStatusAliveFrequency(),
-                                status.getBlockTimestamp(), Optional.ofNullable(status.getBlockTime()).map(Duration::getSeconds).orElse(null));
+                                blockTimestamp.get(), Duration.between(blockTimestamp.get(), clock.instant()).getSeconds());
                     } else {
                         engineConfigurationService.findOrCreateAliveStatus(comServer).update(clock.instant(),
                                 engineConfigurationService.getComServerStatusAliveFrequency(),
