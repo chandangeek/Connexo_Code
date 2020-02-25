@@ -756,18 +756,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public List<ComTaskExecution>  getPendingComTaskExecutionsListFor(OutboundComPort comPort) {
+    public List<ComTaskExecution>  getPendingComTaskExecutionsListFor(OutboundComPort comPort, int factor) {
         Instant nowInSeconds = this.deviceDataModelService.clock().instant();
         List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
-        List<ComTaskExecution> pendingComTasks = getPendingComTaskExecutions(comPort, nowInSeconds);
-        return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
-    }
-
-    @Override
-    public List<ComTaskExecution>  getPlannedComTaskExecutionsListFor(OutboundComPort comPort) {
-        Instant nowInSeconds = this.deviceDataModelService.clock().instant();
-        List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
-        List<ComTaskExecution> pendingComTasks = getPlannedComTaskExecutions(comPort, nowInSeconds);
+        List<ComTaskExecution> pendingComTasks = getPendingComTaskExecutions(comPort, nowInSeconds, factor);
         return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
     }
 
@@ -778,7 +770,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                             .select();
     }
 
-    private List<ComTaskExecution> getPendingComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds) {
+    private List<ComTaskExecution> getPendingComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds, int factor) {
         long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
         List<OutboundComPortPool> comPortPools =
                 this.deviceDataModelService
@@ -788,8 +780,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .filter(ComPortPool::isActive)
                         .collect(Collectors.toList());
         String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
-        return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
-                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
+        QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask);
+        if (factor > 0) {
+            comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
+        }
+        return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
                 .select();
     }
 
