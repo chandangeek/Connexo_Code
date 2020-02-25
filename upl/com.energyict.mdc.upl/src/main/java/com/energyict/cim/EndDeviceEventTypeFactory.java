@@ -1547,7 +1547,7 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getBufferFull() { return new EndDeviceEventType("4.18.14.32" );}
 
-    public static EndDeviceEventType getBufferAlmostFull( { return new EndDeviceEventType("4.18.14.283" );}
+    public static EndDeviceEventType getBufferAlmostFull() { return new EndDeviceEventType("4.18.14.283" );}
 
     public static EndDeviceEventType getValveClosedBecauseOfCommand() { return new EndDeviceEventType("4.0.211.16" );}
 
