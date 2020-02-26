@@ -31,12 +31,15 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.DeviceReadingsData;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -46,21 +49,24 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceReadingsImportRecord> {
 
+
     private Device device;
-    private Multimap<ReadingType, IntervalReading> channelReadingsToStore = HashMultimap.create();
-    private Map<ReadingType, Instant> lastReadingPerChannel = new HashMap<>();
-    private List<Reading> registerReadingsToStore = new ArrayList<>();
+    private DeviceReadingsData deviceReadingsData;
+    private HashMap<Device, DeviceReadingsData> slaves =  new HashMap<>();
 
     DeviceReadingsImportProcessor(DeviceDataImporterContext context) {
         super(context);
+        this.deviceReadingsData = new DeviceReadingsData(HashMultimap.create(), new HashMap<>(), new ArrayList<>());
     }
 
     /**
@@ -79,23 +85,89 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         validateReadingDate(device, data.getReadingDateTime(), data.getLineNumber());
         for (int i = 0; i < data.getReadingTypes().size(); i++) {
             String readingTypeString = data.getReadingTypes().get(i);
-            MeteringService meteringService = getContext().getMeteringService();
-            ReadingType readingType = (meteringService.getReadingType(readingTypeString)
-                    .orElseGet(() -> meteringService.getReadingTypeByName(readingTypeString)
-                            .orElseGet(() -> getReadingTypeByObisCode(readingTypeString, data.getLineNumber())
-                                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString)))));
 
-            ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
-                    .map(MeterActivation::getChannelsContainer)
-                    .map(ChannelsContainer::getZoneId)
-                    .orElse(data.getReadingDateTime().getZone());
-            validateReadingType(readingType, data.getReadingDateTime().withZoneSameInstant(deviceZoneId), data.getLineNumber());
-            if (i < data.getValues().size()) {
-                BigDecimal readingValue = data.getValues().get(i);
-                ValueValidator validator = createValueValidator(device, readingType, logger, data.getLineNumber());
-                readingValue = validator.validateAndCorrectValue(readingValue);
-                addReading(readingType, readingValue, data.getReadingDateTime().toInstant());
+            Optional<Channel> masterDeviceChannel = device.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
+            Optional<Register> masterDeviceRegister = device.getRegisters().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
+
+            if (masterDeviceChannel.isPresent()) {
+                List<DataLoggerChannelUsage> dataLoggerChannelUsages = getContext().getTopologyService()
+                        .findDataLoggerChannelUsagesForChannels(masterDeviceChannel.get(), Range.atMost(data.getReadingDateTime().toInstant()));
+                if (!dataLoggerChannelUsages.isEmpty()) {
+                    for (DataLoggerChannelUsage usage : dataLoggerChannelUsages) {
+                        Device slave = usage.getPhysicalGatewayReference().getOrigin();
+                        DeviceReadingsData slaveReadingsData = getSlaveReadingsDataByKeyOrPutNew(slave);
+                        validateDeviceState(data, slave);
+                        Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> usage.getSlaveChannel().getReadingTypes().contains(c.getReadingType())).findFirst();
+                        if (slaveChannel.isPresent() && i < data.getValues().size()) {
+                            addReading(slave, data, logger, getContext().getMeteringService(), slaveChannel.get().getReadingType().getMRID(), data.getValues().get(i),
+                                    slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
+                        }
+                    }
+                } else {
+                    if (i < data.getValues().size()) {
+                        addReading(device, data, logger, getContext().getMeteringService(), readingTypeString, data.getValues().get(i),
+                                deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
+                    }
+                }
+            } if (masterDeviceRegister.isPresent()) {
+                Optional<Register> slaveRegister = getContext().getTopologyService().getSlaveRegister(masterDeviceRegister.get(), data.getReadingDateTime().toInstant());
+                if(slaveRegister.isPresent()){
+                    Device slave = slaveRegister.get().getDevice();
+                    DeviceReadingsData slaveReadingsData = getSlaveReadingsDataByKeyOrPutNew(slave);
+                    validateDeviceState(data, slave);
+                    if (i < data.getValues().size()) {
+                        addReading(slave, data, logger, getContext().getMeteringService(), slaveRegister.get().getReadingType().getMRID(), data.getValues().get(i),
+                                slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
+                    }
+                } else {
+                    if (i < data.getValues().size()) {
+                        addReading(device, data, logger, getContext().getMeteringService(), readingTypeString, data.getValues().get(i),
+                                deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
+                    }
+                }
+
+            } else {
+                logger.importLineFailed(data.getLineNumber(), new NoSuchElementException("No value present"));
             }
+        }
+    }
+
+    private void addReading(Device device, DeviceReadingsImportRecord data, FileImportLogger logger, MeteringService meteringService, String readingTypeString, BigDecimal readingValue,
+                            Multimap<ReadingType, IntervalReading> channelReadingsToStore, Map<ReadingType, Instant> lastReadingPerChannel, List<Reading> registerReadingsToStore) {
+
+        ReadingType readingType = (meteringService.getReadingType(readingTypeString)
+                .orElseGet(() -> meteringService.getReadingTypeByName(readingTypeString)
+                        .orElseGet(() -> getReadingTypeByObisCode(readingTypeString, data.getLineNumber())
+                                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString)))));
+        ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getZoneId)
+                .orElse(data.getReadingDateTime().getZone());
+        validateReadingType(readingType, data.getReadingDateTime().withZoneSameInstant(deviceZoneId), data.getLineNumber());
+        ValueValidator validator = createValueValidator(device, readingType, logger, data.getLineNumber());
+        readingValue = validator.validateAndCorrectValue(readingValue);
+
+        Instant timeStamp = data.getReadingDateTime().toInstant();
+        if (readingType.isRegular()) {
+            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, readingValue, Collections.singleton(ReadingQualityType
+                    .of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED))));
+            if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
+                lastReadingPerChannel.put(readingType, timeStamp);
+            }
+        } else {
+            ReadingImpl reading = ReadingImpl.of(readingType.getMRID(), readingValue, timeStamp);
+            reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED));
+            registerReadingsToStore.add(reading);
+        }
+    }
+
+    private DeviceReadingsData getSlaveReadingsDataByKeyOrPutNew(Device slave){
+        if (slaves.containsKey(slave)) {
+            return slaves.get(slave);
+        } else {
+            DeviceReadingsData emptySlaveReadingsData = new DeviceReadingsData(HashMultimap.create(), new HashMap<>(), new ArrayList<>());
+            slaves.put(slave, emptySlaveReadingsData);
+            return emptySlaveReadingsData;
         }
     }
 
@@ -124,27 +196,48 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
     @Override
     public void complete(FileImportLogger logger) {
-        if (device == null || channelReadingsToStore.isEmpty() && registerReadingsToStore.isEmpty()) {
+        if (device == null) {
             return;
         }
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        List<IntervalBlockImpl> intervalBlocks = channelReadingsToStore.asMap().entrySet().stream().map(channelReadings -> {
+        meterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(deviceReadingsData.getChannelReadingsToStore()));
+        meterReading.addAllReadings(deviceReadingsData.getRegisterReadingsToStore());
+        device.store(meterReading);
+        updateLastReading(device, deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel());
+
+        if (!slaves.isEmpty()) {
+            Iterator<Map.Entry<Device, DeviceReadingsData>> iterator = slaves.entrySet().iterator();
+            while (true) {
+                if (iterator.hasNext()) {
+                    Map.Entry<Device, DeviceReadingsData> entry = iterator.next();
+                    Device slave = entry.getKey();
+                    DeviceReadingsData slaveReadingsData = entry.getValue();
+
+                    MeterReadingImpl slaveMeterReading = MeterReadingImpl.newInstance();
+                    slaveMeterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(slaveReadingsData.getChannelReadingsToStore()));
+                    slaveMeterReading.addAllReadings(slaveReadingsData.getRegisterReadingsToStore());
+                    slave.store(slaveMeterReading);
+                    updateLastReading(slave, slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel());
+                } else {
+                    break;
+                }
+            }
+        }
+        resetState();
+    }
+
+    private List<IntervalBlockImpl> getIntervalBlocksFromChannelReadings(Multimap<ReadingType, IntervalReading> channelReadingsToStore){
+        return channelReadingsToStore.asMap().entrySet().stream().map(channelReadings -> {
             IntervalBlockImpl block = IntervalBlockImpl.of(channelReadings.getKey().getMRID());
             block.addAllIntervalReadings(new ArrayList<>(channelReadings.getValue()));
             return block;
         }).collect(Collectors.toList());
-        meterReading.addAllIntervalBlocks(intervalBlocks);
-        meterReading.addAllReadings(registerReadingsToStore);
-        device.store(meterReading);
-        updateLastReading();
-        resetState();
     }
 
     private void resetState() {
         device = null;
-        channelReadingsToStore.clear();
-        lastReadingPerChannel.clear();
-        registerReadingsToStore.clear();
+        deviceReadingsData.clear();
+        slaves.clear();
     }
 
     private void setDevice(DeviceReadingsImportRecord data, FileImportLogger logger) {
@@ -167,7 +260,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         }
     }
 
-    private void updateLastReading() {
+    private void updateLastReading(Device device, Multimap<ReadingType, IntervalReading> channelReadingsToStore, Map<ReadingType, Instant> lastReadingPerChannel){
         device.getChannels().stream()
                 .filter(channel -> channelReadingsToStore.containsKey(channel.getReadingType()))
                 .map(channel -> Pair.of(channel.getLoadProfile(), lastReadingPerChannel.get(channel.getReadingType())))
@@ -263,20 +356,6 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             };
         }
         throw new ProcessorException(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE, lineNumber, readingType.getMRID(), device.getName());
-    }
-
-    private void addReading(ReadingType readingType, BigDecimal value, Instant timeStamp) {
-        if (readingType.isRegular()) {
-            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.singleton(ReadingQualityType
-                    .of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED))));
-            if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
-                lastReadingPerChannel.put(readingType, timeStamp);
-            }
-        } else {
-            ReadingImpl reading = ReadingImpl.of(readingType.getMRID(), value, timeStamp);
-            reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED));
-            registerReadingsToStore.add(reading);
-        }
     }
 
     interface ValueValidator {
