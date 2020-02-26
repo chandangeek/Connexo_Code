@@ -81,7 +81,7 @@ public class RegisteredSearchableProperty extends AbstractSearchableDeviceProper
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return value != null && value instanceof Boolean;
+        return value instanceof Boolean;
     }
 
     @Override
