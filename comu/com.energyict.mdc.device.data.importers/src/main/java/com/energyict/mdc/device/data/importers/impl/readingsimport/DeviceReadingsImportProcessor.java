@@ -82,7 +82,6 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
     @Override
     public void process(DeviceReadingsImportRecord data, FileImportLogger logger) throws ProcessorException {
         setDevice(data, logger);
-        validateReadingDate(device, data.getReadingDateTime(), data.getLineNumber());
         for (int i = 0; i < data.getReadingTypes().size(); i++) {
             String readingTypeString = data.getReadingTypes().get(i);
 
@@ -265,22 +264,6 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                 .filter(channel -> channelReadingsToStore.containsKey(channel.getReadingType()))
                 .map(channel -> Pair.of(channel.getLoadProfile(), lastReadingPerChannel.get(channel.getReadingType())))
                 .forEach(pair -> device.getLoadProfileUpdaterFor(pair.getFirst()).setLastReadingIfLater(pair.getLast()).update());
-    }
-
-    private void validateReadingDate(Device device, ZonedDateTime readingDate, long lineNumber) {
-        List<MeterActivation> meterActivations = device.getMeterActivationsMostRecentFirst();
-        if (!hasMeterActivationEffectiveAt(meterActivations, readingDate.toInstant())) {
-            MeterActivation firstMeterActivation = meterActivations.get(meterActivations.size() - 1);
-            if (firstMeterActivation.getRange().hasLowerBound() && !readingDate.toInstant().isAfter(firstMeterActivation.getStart())) {
-                throw new ProcessorException(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION, lineNumber,
-                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate));
-            }
-            MeterActivation lastMeterActivation = meterActivations.get(0);
-            if (lastMeterActivation.getRange().hasUpperBound() && readingDate.toInstant().isAfter(lastMeterActivation.getEnd())) {
-                throw new ProcessorException(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION, lineNumber,
-                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate));
-            }
-        }
     }
 
     private boolean hasMeterActivationEffectiveAt(List<MeterActivation> meterActivations, Instant timeStamp) {

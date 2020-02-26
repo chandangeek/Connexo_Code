@@ -70,7 +70,7 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                     OfflineLoadProfile offlineLoadProfile = optionalOfflineLoadProfile.get();
                     int configuredNumberOfChannels = offlineLoadProfile.getAllOfflineChannels().size();
                     int receivedNumberOfChannels = collectedLoadProfile.getChannelInfo().size();
-                    if (configuredNumberOfChannels != receivedNumberOfChannels && !offlineLoadProfile.isDataLoggerSlaveLoadProfile()) {
+                    if (configuredNumberOfChannels != receivedNumberOfChannels && this.getLoadProfilesTaskOptions().isFailIfLoadProfileConfigurationMisMatch()) {
                         //We received a wrong number of channels
                         addIssue(
                                 getIssueService().newProblem(
@@ -92,7 +92,7 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
 
                             if (offlineLoadProfileChannel.isPresent()) {
                                 channelInfo.setReadingTypeMRID(offlineLoadProfileChannel.get().getReadingTypeMRID());
-                            } else {
+                            } else if (this.getLoadProfilesTaskOptions().isFailIfLoadProfileConfigurationMisMatch()) {
                                 //The received LP contains an unknown channel obiscode
                                 addIssue(
                                         getIssueService().newProblem(

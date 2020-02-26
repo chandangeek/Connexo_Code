@@ -36,6 +36,7 @@ Ext.define('Isu.controller.IssueDetail', {
             widget;
 
         switch (issueType){
+            case 'datavalidation':
             case 'datacollection':
             case 'devicelifecycle':
             case 'task':
@@ -55,7 +56,7 @@ Ext.define('Isu.controller.IssueDetail', {
         }
 
         var callback = function(){
-            if (store.getCount()) {
+            if (store.getCount() && store.getById(parseInt(id)) != null) {
                 var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
                 if (issueActualType != issueType) {
                     queryString.issueType = issueActualType;

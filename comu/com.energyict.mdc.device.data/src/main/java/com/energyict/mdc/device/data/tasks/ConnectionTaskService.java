@@ -216,6 +216,17 @@ public interface ConnectionTaskService {
     void unlockConnectionTask(ConnectionTask connectionTask);
 
     /**
+     * Attempts to remove the business lock (comPort) from the specified {@link ConnectionTask},
+     * making it available for other {@link ComPort}s to execute the ConnectionTask.
+     * First, it tries to set a database lock on the corresponding row (using SELECT FOR UPDATE NOWAIT). Only if this succeeds,
+     * the business lock is removed (otherwise, it would hang the calling thread indefinitely, until the locking session releases the row).
+     *
+     * @param connectionTask the ConnectionTask to be unlocked
+     * @return true if the business lock was removed
+     */
+    boolean attemptUnlockConnectionTask(ConnectionTask connectionTask);
+
+    /**
      * Update the given connectionTask with given ProtocolDialectConfigurationProperties
      *
      * @param connectionTask ConnectionTask to update

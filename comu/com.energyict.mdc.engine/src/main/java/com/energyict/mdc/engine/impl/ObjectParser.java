@@ -63,7 +63,7 @@ public class ObjectParser<T> {
         try {
             convertAllClassNamesFor(objectJSON);
             Class<? extends T> objectClass = interfaceClazz != null ? interfaceClazz : this.getClassFor(objectJSON); // When clazz is null, then extract the type from the objectJSON
-            ObjectMapper mapper = ObjectMapperFactory.newMapper();
+            ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
             T object = mapper.readValue(new StringReader(objectJSON.toString()), objectClass);
             return object;
         } catch (IOException e) {

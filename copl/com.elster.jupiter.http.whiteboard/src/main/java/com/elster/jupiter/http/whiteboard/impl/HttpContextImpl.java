@@ -46,6 +46,7 @@ public class HttpContextImpl implements HttpContext {
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         fireHttpEvent(request);
         response.addHeader("X-Content-Type-Options", "nosniff");
+        response.setContentType("application/octet-stream");
         return authenticationService.handleSecurity(request, response);
     }
 
