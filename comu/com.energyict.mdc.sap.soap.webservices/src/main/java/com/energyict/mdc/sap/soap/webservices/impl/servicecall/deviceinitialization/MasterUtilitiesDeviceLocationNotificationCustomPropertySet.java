@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
@@ -10,11 +10,9 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
 import com.google.inject.Module;
@@ -29,24 +27,22 @@ import java.util.Set;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
-public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> {
-    public static final String MODEL_NAME = "UD3";
+public class MasterUtilitiesDeviceLocationNotificationCustomPropertySet implements CustomPropertySet<ServiceCall,
+        MasterUtilitiesDeviceLocationNotificationDomainExtension> {
+    public static final String MODEL_NAME = "UD7";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    public MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet() {
-    }
-
     @Inject
-    public MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public MasterUtilitiesDeviceLocationNotificationCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS).format();
+        return thesaurus.getFormat(TranslationKeys.MASTER_UTILITIES_DEVICE_LOCATION_NOTIFICATION_CPS).format();
     }
 
     @Override
@@ -60,7 +56,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, MasterUtilitiesDeviceLocationNotificationDomainExtension> getPersistenceSupport() {
         return new CustomPropertyPersistenceSupport();
     }
 
@@ -87,26 +83,25 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .named(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
-                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
+                        .named(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .bigDecimalSpec()
-                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName(), TranslationKeys.ATTEMPT_NUMBER)
+                        .named(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName(), TranslationKeys.ATTEMPT_NUMBER)
                         .describedAs(TranslationKeys.ATTEMPT_NUMBER)
                         .fromThesaurus(thesaurus)
                         .finish()
@@ -114,9 +109,9 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
         );
     }
 
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> {
-        private final String TABLE_NAME = "SAP_UD3_MASTER_RCR_SC_CPS";
-        private final String FK = "FK_SAP_UD3_MASTER_RCR_SC_CPS";
+    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterUtilitiesDeviceLocationNotificationDomainExtension> {
+        private final String TABLE_NAME = "SAP_UD7_MASTER_LN_SC_CPS";
+        private final String FK = "FK_SAP_UD7_MASTER_LN_SC_CPS";
 
         @Override
         public String componentName() {
@@ -130,7 +125,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
 
         @Override
         public String domainFieldName() {
-            return MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DOMAIN.javaName();
+            return MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -139,8 +134,8 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
         }
 
         @Override
-        public Class<MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> persistenceClass() {
-            return MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class;
+        public Class<MasterUtilitiesDeviceLocationNotificationDomainExtension> persistenceClass() {
+            return MasterUtilitiesDeviceLocationNotificationDomainExtension.class;
         }
 
         @Override
@@ -155,25 +150,23 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+            table.column(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
-                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .map(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .add();
-            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.databaseName())
-                    .varChar(NAME_LENGTH)
-                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName())
-                    .since(Version.version(10, 7, 1))
+            table.column(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar()
+                    .map(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.UUID.javaName())
                     .add();
-            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.databaseName())
+            table.column(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
-                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName())
+                    .map(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.BULK.javaName())
                     .notNull()
                     .add();
-            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.databaseName())
+            table.column(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.ATTEMPT_NUMBER.databaseName())
                     .number()
-                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName())
+                    .map(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName())
                     .notNull()
-                    .since(Version.version(10, 7, 2))
                     .add();
         }
 

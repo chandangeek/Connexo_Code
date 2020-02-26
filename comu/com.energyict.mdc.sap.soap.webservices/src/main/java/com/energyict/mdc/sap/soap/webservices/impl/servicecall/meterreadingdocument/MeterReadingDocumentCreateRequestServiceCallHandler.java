@@ -138,9 +138,6 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 }
             }
 
-            //clear error message property after previous attempts
-            extension.setErrorMessage("");
-            serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(extension, MessageSeeds.DEVICE_IS_NOT_FOUND);
@@ -149,17 +146,19 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
     private void failedAttempt(MeterReadingDocumentCreateRequestDomainExtension extension, MessageSeeds error) {
         ServiceCall serviceCall = extension.getServiceCall();
-        serviceCall.log(LogLevel.WARNING, MessageFormat.format(error.getDefaultFormat(), new Object[0]));
-        extension.setErrorMessage(error);
-        serviceCall.update(extension);
+
         MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = serviceCall.getParent().get()
                 .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.OBJECT_SEARCH_ATTEMPTS));
         BigDecimal currentAttempt = masterExtension.getAttemptNumber();
-        if (currentAttempt.compareTo(attempts) != -1) {
+        if (currentAttempt.compareTo(attempts) >= 0) {
+            serviceCall.log(LogLevel.SEVERE, MessageFormat.format(error.getDefaultFormat(), new Object[0]));
+            extension.setErrorMessage(error);
+            serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {
+            serviceCall.log(LogLevel.WARNING, MessageFormat.format(error.getDefaultFormat(), new Object[0]));
             serviceCall.requestTransition(DefaultState.PAUSED);
         }
     }
