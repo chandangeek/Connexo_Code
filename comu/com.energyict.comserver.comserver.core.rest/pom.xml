@@ -139,7 +139,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
         <!--INTEGRATION TESTS-->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

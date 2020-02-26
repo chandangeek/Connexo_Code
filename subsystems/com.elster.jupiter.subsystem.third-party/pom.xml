@@ -373,10 +373,6 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ejbca</groupId>
-            <artifactId>ejbca-elster-bundle</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
         </dependency>
@@ -393,6 +389,16 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
