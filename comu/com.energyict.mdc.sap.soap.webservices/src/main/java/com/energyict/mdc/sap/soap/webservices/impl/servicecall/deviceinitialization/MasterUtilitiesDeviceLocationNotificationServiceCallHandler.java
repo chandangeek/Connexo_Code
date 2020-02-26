@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -17,17 +16,18 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name = MasterPodNotification.NAME, service = ServiceCallHandler.class,
-        property = "name=" + MasterPodNotification.NAME, immediate = true)
-public class MasterPodNotification extends AbstractMasterRetryServiceCallHandler {
-    public static final String NAME = "MasterPodNotification";
+@Component(name = MasterUtilitiesDeviceLocationNotificationServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + MasterUtilitiesDeviceLocationNotificationServiceCallHandler.NAME, immediate = true)
+public class
+MasterUtilitiesDeviceLocationNotificationServiceCallHandler extends AbstractMasterRetryServiceCallHandler {
+    public static final String NAME = "MasterUtilitiesDeviceLocationNotification";
 
     //For OSGI
-    public MasterPodNotification() {
+    public MasterUtilitiesDeviceLocationNotificationServiceCallHandler() {
     }
 
     @Inject
-    public MasterPodNotification(ServiceCallService serviceCallService, WebServiceActivator webServiceActivator) {
+    public MasterUtilitiesDeviceLocationNotificationServiceCallHandler(ServiceCallService serviceCallService, WebServiceActivator webServiceActivator) {
         this();
         setServiceCallService(serviceCallService);
         setWebServiceActivator(webServiceActivator);
@@ -36,7 +36,7 @@ public class MasterPodNotification extends AbstractMasterRetryServiceCallHandler
     @Override
     protected RetrySearchDataSourceDomainExtension getMasterDomainExtension(ServiceCall serviceCall) {
         return serviceCall
-                .getExtension(MasterPodNotificationDomainExtension.class)
+                .getExtension(MasterUtilitiesDeviceLocationNotificationDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
     }
 

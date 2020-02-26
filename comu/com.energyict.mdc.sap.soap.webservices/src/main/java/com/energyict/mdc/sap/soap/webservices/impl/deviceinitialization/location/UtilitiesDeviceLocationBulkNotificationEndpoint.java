@@ -21,11 +21,6 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractLoc
     }
 
     @Override
-    public String getApplication() {
-        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
-    }
-
-    @Override
     public void utilitiesDeviceERPSmartMeterLocationBulkNotificationCIn(UtilsDvceERPSmrtMtrLocBulkNotifMsg request) {
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)

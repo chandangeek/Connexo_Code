@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
+
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -22,17 +22,17 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Optional;
 
-@Component(name = UtilitiesDeviceLocationNotification.NAME, service = ServiceCallHandler.class,
-        property = "name=" + UtilitiesDeviceLocationNotification.NAME, immediate = true)
-public class UtilitiesDeviceLocationNotification extends AbstractChildRetryServiceCallHandler {
-    public static final String NAME = "UtilitiesDeviceLocationNotification";
+@Component(name = PodNotificationServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + PodNotificationServiceCallHandler.NAME, immediate = true)
+public class PodNotificationServiceCallHandler extends AbstractChildRetryServiceCallHandler {
+    public static final String NAME = "PodNotification";
 
     //For OSGI
-    public UtilitiesDeviceLocationNotification() {
+    public PodNotificationServiceCallHandler() {
     }
 
     @Inject
-    public UtilitiesDeviceLocationNotification(SAPCustomPropertySets sapCustomPropertySets, WebServiceActivator webServiceActivator) {
+    public PodNotificationServiceCallHandler(SAPCustomPropertySets sapCustomPropertySets, WebServiceActivator webServiceActivator) {
         this();
         setSAPCustomPropertySets(sapCustomPropertySets);
         setWebServiceActivator(webServiceActivator);
@@ -41,28 +41,29 @@ public class UtilitiesDeviceLocationNotification extends AbstractChildRetryServi
     @Override
     protected RetrySearchDataSourceDomainExtension getMasterDomainExtension(ServiceCall serviceCall) {
         return serviceCall.getParent().get()
-                .getExtension(MasterUtilitiesDeviceLocationNotificationDomainExtension.class)
+                .getExtension(MasterPodNotificationDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
     }
 
+    @Override
     protected void processServiceCall(ServiceCall serviceCall) {
         try {
-            processLocationNotification(serviceCall);
+            processPodNotification(serviceCall);
         } catch (LocalizedException localizedEx) {
             failServiceCall(serviceCall, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
         } catch (Exception ex) {
-            failServiceCall(serviceCall, MessageSeeds.ERROR_PROCESSING_METER_LOCATION_NOTIFICATION, ex.getLocalizedMessage());
+            failServiceCall(serviceCall, MessageSeeds.ERROR_PROCESSING_METER_POD_NOTIFICATION, ex.getLocalizedMessage());
         }
     }
 
-    private void processLocationNotification(ServiceCall serviceCall) {
-        UtilitiesDeviceLocationNotificationDomainExtension extension = serviceCall
-                .getExtensionFor(new UtilitiesDeviceLocationNotificationCustomPropertySet()).get();
+    private void processPodNotification(ServiceCall serviceCall) {
+        PodNotificationDomainExtension extension = serviceCall
+                .getExtensionFor(new PodNotificationCustomPropertySet()).get();
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         if (device.isPresent()) {
             serviceCall.setTargetObject(device.get());
             serviceCall.save();
-            sapCustomPropertySets.setLocation(device.get(), extension.getLocationId());
+            sapCustomPropertySets.setPod(device.get(), extension.getPodId());
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(serviceCall, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());

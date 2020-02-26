@@ -155,7 +155,7 @@ public class MasterUtilitiesDeviceLocationNotificationCustomPropertySet implemen
                     .map(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .add();
             table.column(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.UUID.databaseName())
-                    .varChar(NAME_LENGTH)
+                    .varChar()
                     .map(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.UUID.javaName())
                     .add();
             table.column(MasterUtilitiesDeviceLocationNotificationDomainExtension.FieldNames.BULK.databaseName())

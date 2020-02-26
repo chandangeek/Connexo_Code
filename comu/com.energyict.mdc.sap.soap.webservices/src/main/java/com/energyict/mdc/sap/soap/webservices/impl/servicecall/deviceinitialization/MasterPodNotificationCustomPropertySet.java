@@ -156,7 +156,7 @@ public class MasterPodNotificationCustomPropertySet implements CustomPropertySet
                     .map(MasterPodNotificationDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .add();
             table.column(MasterPodNotificationDomainExtension.FieldNames.UUID.databaseName())
-                    .varChar(NAME_LENGTH)
+                    .varChar()
                     .map(MasterPodNotificationDomainExtension.FieldNames.UUID.javaName())
                     .add();
             table.column(MasterPodNotificationDomainExtension.FieldNames.BULK.databaseName())

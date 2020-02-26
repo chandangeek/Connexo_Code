@@ -152,7 +152,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.OBJECT_SEARCH_ATTEMPTS));
         BigDecimal currentAttempt = masterExtension.getAttemptNumber();
-        if (currentAttempt.compareTo(attempts) != -1) {
+        if (currentAttempt.compareTo(attempts) >= 0) {
             serviceCall.log(LogLevel.SEVERE, MessageFormat.format(error.getDefaultFormat(), new Object[0]));
             extension.setErrorMessage(error);
             serviceCall.update(extension);
