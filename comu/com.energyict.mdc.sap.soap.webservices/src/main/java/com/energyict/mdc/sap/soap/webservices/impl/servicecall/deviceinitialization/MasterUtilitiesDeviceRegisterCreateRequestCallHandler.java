@@ -7,89 +7,59 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.AbstractMasterRetryServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component(name = MasterUtilitiesDeviceRegisterCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + MasterUtilitiesDeviceRegisterCreateRequestCallHandler.NAME, immediate = true)
-public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceCallHandler {
+public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractMasterRetryServiceCallHandler {
 
     public static final String NAME = "MasterUtilitiesDeviceRegisterCreateRequestCallHandler";
-    public static final String VERSION = "v1.0";
-    public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
-    private volatile WebServiceActivator webServiceActivator;
 
+    //For OSGI
+    public MasterUtilitiesDeviceRegisterCreateRequestCallHandler() {
+    }
 
-    @Override
-    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        switch (newState) {
-            case PENDING:
-                serviceCall.findChildren().stream().forEach(child -> {
-                    if (child.canTransitionTo(DefaultState.PENDING)) {
-                        child.requestTransition(DefaultState.PENDING);
-                    }
-                });
-                break;
-            case ONGOING:
-                if (oldState.equals(DefaultState.PAUSED)) {
-                    serviceCall.findChildren()
-                            .stream()
-                            .filter(child -> child.getState().isOpen())
-                            .forEach(child -> child.requestTransition(DefaultState.ONGOING));
-                } else {
-                    resultTransition(serviceCall);
-                }
-                break;
-            case CANCELLED:
-            case FAILED:
-            case PARTIAL_SUCCESS:
-            case SUCCESSFUL:
-                sendResultMessage(serviceCall);
-            default:
-                // No specific action required for these states
-                break;
-        }
+    @Inject
+    public MasterUtilitiesDeviceRegisterCreateRequestCallHandler(ServiceCallService serviceCallService, WebServiceActivator webServiceActivator,
+                                                                 Clock clock, SAPCustomPropertySets sapCustomPropertySets) {
+        this();
+        setServiceCallService(serviceCallService);
+        setWebServiceActivator(webServiceActivator);
+        setClock(clock);
+        setSAPCustomPropertySets(sapCustomPropertySets);
     }
 
     @Override
-    public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
-        switch (newState) {
-            case CANCELLED:
-            case FAILED:
-            case SUCCESSFUL:
-                if (isLastChild(findChildren(parentServiceCall))) {
-                    if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
-                    } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
-                        parentServiceCall.requestTransition(DefaultState.PENDING);
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
-                    }
-                }
-            default:
-                // No specific action required for these states
-                break;
-        }
+    protected RetrySearchDataSourceDomainExtension getMasterDomainExtension(ServiceCall serviceCall) {
+        return serviceCall
+                .getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
     }
 
-    private void sendResultMessage(ServiceCall serviceCall) {
+    @Override
+    protected void sendResultMessage(ServiceCall serviceCall) {
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-        List<ServiceCall> children = findChildren(serviceCall);
+        List<ServiceCall> children = ServiceCallHelper.findChildren(serviceCall);
         UtilitiesDeviceRegisterCreateConfirmationMessage resultMessage = UtilitiesDeviceRegisterCreateConfirmationMessage
                 .builder()
                 .from(serviceCall, children, webServiceActivator.getMeteringSystemId(), clock.instant(), extension.isBulk())
@@ -125,43 +95,12 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
             Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
             if (device.isPresent() &&
                     !sapCustomPropertySets.isRegistered(device.get()) &&
-                    (child.getState() == DefaultState.SUCCESSFUL || hasAnyChildState(findChildren(child), DefaultState.SUCCESSFUL))) {
+                    (child.getState() == DefaultState.SUCCESSFUL || ServiceCallHelper.hasAnyChildState(ServiceCallHelper.findChildren(child), DefaultState.SUCCESSFUL))) {
                 deviceIds.add(deviceId);
             }
         });
 
         return deviceIds;
-    }
-
-    private void resultTransition(ServiceCall parent) {
-        List<ServiceCall> children = findChildren(parent);
-        if (isLastChild(children)) {
-            if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
-                parent.requestTransition(DefaultState.ONGOING);
-            } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
-                parent.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
-                parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
-            } else if (parent.canTransitionTo(DefaultState.FAILED)) {
-                parent.requestTransition(DefaultState.FAILED);
-            }
-        }
-    }
-
-    private boolean isLastChild(List<ServiceCall> serviceCalls) {
-        return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
-    }
-
-    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private List<ServiceCall> findChildren(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
-    }
-
-    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
     }
 
     @Reference
@@ -177,5 +116,10 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 }

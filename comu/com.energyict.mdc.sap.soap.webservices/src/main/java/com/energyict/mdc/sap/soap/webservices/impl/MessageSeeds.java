@@ -88,6 +88,10 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST(4034, "ErrorProcessingMeterRegisterCreateRequest",
             "Error while processing meter register create request: ''{0}''."),
     START_DATE_IS_BEFORE_SHIPMENT_DATE(4035, "StartDateIsBeforeShipmentDate", "Start date is before meter shipment date"),
+    ERROR_PROCESSING_METER_LOCATION_NOTIFICATION(4036, "ErrorProcessingMeterLocationNotification",
+            "Error while processing meter location notification: ''{0}''."),
+    ERROR_PROCESSING_METER_POD_NOTIFICATION(4037, "ErrorProcessingMeterPodNotification",
+            "Error while processing meter pod notification: ''{0}''."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),

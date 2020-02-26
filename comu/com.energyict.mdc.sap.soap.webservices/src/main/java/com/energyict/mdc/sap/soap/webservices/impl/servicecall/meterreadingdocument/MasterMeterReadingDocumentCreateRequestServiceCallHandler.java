@@ -71,10 +71,15 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
-                    serviceCall.findChildren()
+                    List<ServiceCall> openChildren = serviceCall.findChildren()
                             .stream()
                             .filter(child -> child.getState().isOpen())
-                            .forEach(child -> child.transitionWithLockIfPossible(DefaultState.ONGOING));
+                            .collect(Collectors.toList());
+                    if (openChildren.isEmpty()) {
+                        resultTransition(serviceCall);
+                    } else {
+                        openChildren.forEach(child -> child.requestTransition(DefaultState.ONGOING));
+                    }
                 } else {
                     resultTransition(serviceCall);
                 }
@@ -182,18 +187,24 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
     private void resultTransition(ServiceCall parent) {
         parent = lock(parent);
-        List<ServiceCall> children = findChildren(parent);
-        if (ServiceCallHelper.isLastChild(children)) {
+        List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
+        if (ServiceCallHelper.isLastPausedChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.CANCELLED) && parent.canTransitionTo(DefaultState.CANCELLED)) {
-                parent.requestTransition(DefaultState.CANCELLED);
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.PAUSED)) {
+                if (parent.canTransitionTo(DefaultState.PAUSED)) {
+                    parent.requestTransition(DefaultState.PAUSED);
+                }
             } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
-            } else if (parent.canTransitionTo(DefaultState.FAILED) && parent.canTransitionTo(DefaultState.FAILED)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED) && parent.canTransitionTo(DefaultState.CANCELLED)) {
+                parent.requestTransition(DefaultState.CANCELLED);
+            } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 parent.requestTransition(DefaultState.FAILED);
+            } else if (parent.canTransitionTo(DefaultState.ONGOING)) {
+                parent.requestTransition(DefaultState.ONGOING);
             }
         }
     }
