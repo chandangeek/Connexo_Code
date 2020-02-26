@@ -102,38 +102,11 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-common -->
+        <!--  EJBCA library dependencies -->
         <dependency>
-            <groupId>org.ejbca.cesecore</groupId>
-            <artifactId>cesecore-common</artifactId>
-            <version>${ejbcabundle.version}</version>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-elster-bundle</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-entity -->
-        <dependency>
-            <groupId>org.ejbca.cesecore</groupId>
-            <artifactId>cesecore-entity</artifactId>
-            <version>${ejbcabundle.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-interfaces -->
-        <dependency>
-            <groupId>org.ejbca.cesecore</groupId>
-            <artifactId>cesecore-interfaces</artifactId>
-            <version>${ejbcabundle.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore-ejb -->
-        <dependency>
-            <groupId>org.ejbca.cesecore</groupId>
-            <artifactId>cesecore-ejb</artifactId>
-            <version>${ejbcabundle.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.ejbca.cesecore/cesecore -->
-        <dependency>
-            <groupId>org.ejbca.cesecore</groupId>
-            <artifactId>cesecore</artifactId>
-            <version>${ejbcabundle.version}</version>
-            <type>pom</type>
-        </dependency>
-
 
         <!-- Test dependencies -->
         <dependency>
@@ -172,35 +145,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.jax-ws-commons</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-
-
-                <executions>
-                    <execution>
-                        <id>g1</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <wsdlDirectory>src/main/resources/</wsdlDirectory>
-                            <wsdlFiles>
-                                <wsdlFile>ejbca.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-                            <bindingDirectory>src/main/resources/binding</bindingDirectory>
-                            <keep>true</keep>
-                            <wsdlLocation>/ejbca.wsdl</wsdlLocation>
-
-                            <!-- genJWS>true</genJWS -->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

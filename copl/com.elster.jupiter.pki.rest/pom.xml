@@ -117,6 +117,12 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
 
+        <!--  EJBCA library dependencies -->
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-elster-bundle</artifactId>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
