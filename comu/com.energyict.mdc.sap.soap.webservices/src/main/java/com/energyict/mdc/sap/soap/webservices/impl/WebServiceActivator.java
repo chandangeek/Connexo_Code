@@ -24,6 +24,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -50,6 +51,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.search.SearchableDeviceProperty;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
@@ -73,6 +75,13 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancella
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.search.DeviceIdentifierSearchableProperty;
+import com.energyict.mdc.sap.soap.webservices.impl.search.DeviceLocationSearchableProperty;
+import com.energyict.mdc.sap.soap.webservices.impl.search.LogicalRegisterNumberSearchableProperty;
+import com.energyict.mdc.sap.soap.webservices.impl.search.PointOfDeliverySearchableProperty;
+import com.energyict.mdc.sap.soap.webservices.impl.search.ProfileIdSearchableProperty;
+import com.energyict.mdc.sap.soap.webservices.impl.search.RegisteredSearchableProperty;
+import com.energyict.mdc.sap.soap.webservices.impl.search.SapAttributesSearchablePropertyGroup;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
@@ -268,6 +277,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private Map<String, CIMPattern> divisionCategoryCodeMap;
     private String meteringSystemId;
     private List<String> uudSuccessfulErrorCodes = new ArrayList<>();
+    private List<SearchableProperty> searchableProperties = new ArrayList<>();
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -460,6 +470,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
 
+        registerSearchableProperties();
         loadDeviceTypesMap();
         createOrUpdateUpdateSapExportTask();
         createOrUpdateSearchDataSourceTask();
@@ -472,6 +483,16 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadUudSuccessfulErrorCodes();
 
         failOngoingExportTaskServiceCalls();
+    }
+
+    private void registerSearchableProperties() {
+        SapAttributesSearchablePropertyGroup searchablePropertyGroup = new SapAttributesSearchablePropertyGroup(this.thesaurus);
+        searchableProperties.add(dataModel.getInstance(DeviceIdentifierSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(DeviceLocationSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(LogicalRegisterNumberSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(PointOfDeliverySearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(ProfileIdSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(RegisteredSearchableProperty.class).init(searchablePropertyGroup));
     }
 
     private void loadUudSuccessfulErrorCodes() {
@@ -622,6 +643,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::removeCustomPropertySet);
+        searchableProperties.clear();
     }
 
     public static Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
@@ -1103,5 +1125,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         serviceCalls.stream()
                 .forEach(sC -> dataExportService.getDataExportServiceCallType()
                         .tryFailingServiceCall(sC, MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
+    }
+
+    public List<SearchableProperty> getSearchableProperties() {
+        return searchableProperties;
     }
 }
