@@ -97,13 +97,17 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class VersionInfoWithName {
+    public static class VersionInfoWithName {
         @JsonProperty("id")
         private long id;
         @JsonProperty("version")
         private Long version;
         @JsonProperty("name")
         private String name;
+
+        public VersionInfoWithName() {
+        }
+
         public VersionInfoWithName(Long id, Long version, String name) {
             this.id = id;
             this.version = version;
