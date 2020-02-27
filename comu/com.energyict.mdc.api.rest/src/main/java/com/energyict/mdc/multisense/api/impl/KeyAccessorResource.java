@@ -7,6 +7,7 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.response.ServiceKeyInjectionResponse;
+import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -231,6 +232,8 @@ public class KeyAccessorResource {
         SecurityAccessor securityAccessor = getSecurityAccessor(keyAccessorName, device);
         if (securityAccessor.getKeyAccessorTypeReference().keyTypeIsHSM()) {
             String value = info.get("value");
+            String wrappedValue = info.get("wrappedValue");
+
             Map<String, Object> properties = new HashMap<>();
             properties.put(KEY_PROPERTY, value);
             properties.put(LABEL_PROPERTY, securityAccessor.getKeyAccessorTypeReference().getHsmKeyType().getLabel());
@@ -238,10 +241,12 @@ public class KeyAccessorResource {
             Optional<SecurityValueWrapper> currentTempValue = securityAccessor.getTempValue();
             if (currentTempValue.isPresent()) {
                 SecurityValueWrapper tempValueWrapper = currentTempValue.get();
+                ((HsmKey)tempValueWrapper).setSmartMeterKey(wrappedValue.getBytes());
                 tempValueWrapper.setProperties(properties);
             } else if (!value.isEmpty()) {
                 SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor
                         .getKeyAccessorTypeReference());
+                ((HsmKey)securityValueWrapper).setSmartMeterKey(wrappedValue.getBytes());
                 securityValueWrapper.setProperties(properties);
                 securityAccessor.setTempValue(securityValueWrapper);
                 securityAccessor.save();
@@ -256,7 +261,7 @@ public class KeyAccessorResource {
      * Validates if key accessor exists and has value for a device.
      *
      * @param mrid mRID of device for which the key will be validated
-     * @param keyAccessorName Name of the key accessor
+     * @param name Name of the key accessor
      * @param uriInfo uriInfo
      * @return Device information and links to related resources
      * @summary Validates key accessor identified by name for a device

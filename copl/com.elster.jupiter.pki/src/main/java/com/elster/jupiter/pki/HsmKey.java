@@ -21,6 +21,12 @@ public interface HsmKey extends SymmetricKeyWrapper{
     byte[] getKey();
 
     /**
+     * Sets smart key value
+     * @param key key value
+     */
+    void setSmartMeterKey(byte[] key);
+
+    /**
      *
      * @return smart meter key used in renew process, if exists. otherwise null is returned (if this key does not exist)
      */
