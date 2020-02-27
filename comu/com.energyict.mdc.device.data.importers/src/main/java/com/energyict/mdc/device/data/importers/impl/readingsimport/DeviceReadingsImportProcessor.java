@@ -57,10 +57,9 @@ import java.util.stream.IntStream;
 
 public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceReadingsImportRecord> {
 
-
     private Device device;
     private DeviceReadingsData deviceReadingsData;
-    private HashMap<Device, DeviceReadingsData> slaves =  new HashMap<>();
+    private HashMap<Device, DeviceReadingsData> slaves = new HashMap<>();
 
     DeviceReadingsImportProcessor(DeviceDataImporterContext context) {
         super(context);
