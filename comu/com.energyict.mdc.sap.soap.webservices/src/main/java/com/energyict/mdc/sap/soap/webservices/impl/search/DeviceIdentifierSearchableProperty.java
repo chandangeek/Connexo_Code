@@ -61,7 +61,7 @@ public class DeviceIdentifierSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.of(this.group);
+        return Optional.of(group);
     }
 
     @Override

@@ -60,7 +60,7 @@ public class PointOfDeliverySearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.of(this.group);
+        return Optional.of(group);
     }
 
     @Override

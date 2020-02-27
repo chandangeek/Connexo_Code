@@ -61,7 +61,7 @@ public class RegisteredSearchableProperty extends AbstractSearchableDeviceProper
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.of(this.group);
+        return Optional.of(group);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class RegisteredSearchableProperty extends AbstractSearchableDeviceProper
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .specForValuesOf(new BooleanFactory())
+                .booleanSpec()
                 .named(PROPERTY_NAME, this.getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
                 .finish();
@@ -118,11 +118,6 @@ public class RegisteredSearchableProperty extends AbstractSearchableDeviceProper
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME).query(DeviceSAPInfoDomainExtension.class).asFragment(condition, DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName());
-    }
-
-    @Override
-    public List<String> getAvailableOperators(){
-        return Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code());
     }
 
     private DataModel getDataModel(String modelName) {

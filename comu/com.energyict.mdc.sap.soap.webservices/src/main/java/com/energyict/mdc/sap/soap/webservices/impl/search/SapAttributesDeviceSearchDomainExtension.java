@@ -66,7 +66,7 @@ public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExt
 
     @Override
     public List<SearchableProperty> getProperties() {
-        return this.webServiceActivator.getSearchableProperties();
+        return webServiceActivator.getSearchableProperties();
     }
 
     @Override
