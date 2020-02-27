@@ -138,6 +138,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 }
             }
 
+            serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(extension, MessageSeeds.DEVICE_IS_NOT_FOUND);
