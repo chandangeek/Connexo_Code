@@ -84,8 +84,8 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             String readingTypeString = data.getReadingTypes().get(i);
             ValueValidator validator;
 
-            Optional<Channel> masterDeviceChannel = device.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
-            Optional<Register> masterDeviceRegister = device.getRegisters().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
+            Optional<Channel> masterDeviceChannel = getChannelFromReadingTypeString(readingTypeString);
+            Optional<Register> masterDeviceRegister = getRegisterFromReadingTypeString(readingTypeString);
 
             if (masterDeviceChannel.isPresent()) {
                 List<DataLoggerChannelUsage> channelUsages = getContext().getTopologyService()
@@ -132,7 +132,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                     }
                 }
             } else {
-                throw new ProcessorException(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE, data.getLineNumber(), readingTypeString, device.getName());
+                throw new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString);
             }
         }
     }
@@ -163,6 +163,20 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED));
             registerReadingsToStore.add(reading);
         }
+    }
+
+    private Optional<Channel> getChannelFromReadingTypeString(String readingTypeString) {
+        Optional<Channel> channelByMRID = device.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
+        Optional<Channel> channelByObis = device.getChannels().stream().filter((c) -> c.getObisCode().toString().equals(readingTypeString)).findFirst();
+        Optional<Channel> channelByAliasName = device.getChannels().stream().filter((c) -> c.getReadingType().getFullAliasName().equals(readingTypeString)).findFirst();
+        return channelByMRID.isPresent() ? channelByMRID : channelByObis.isPresent() ? channelByObis : channelByAliasName;
+    }
+
+    private Optional<Register> getRegisterFromReadingTypeString(String readingTypeString) {
+        Optional<Register> registerByMRID = device.getRegisters().stream().filter((r) -> r.getReadingType().getMRID().equals(readingTypeString)).findFirst();
+        Optional<Register> registerByObis = device.getRegisters().stream().filter((r) -> r.getObisCode().toString().equals(readingTypeString)).findFirst();
+        Optional<Register> registerByAliasName = device.getRegisters().stream().filter((r) -> r.getReadingType().getFullAliasName().equals(readingTypeString)).findFirst();
+        return registerByMRID.isPresent() ? registerByMRID : registerByObis.isPresent() ? registerByObis : registerByAliasName;
     }
 
     private void computeNewSlaveIfAbsent(Device slave){
