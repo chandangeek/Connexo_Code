@@ -174,6 +174,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
                     .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName())
                     .notNull()
                     .since(Version.version(10, 7, 2))
+                    .installValue("0")
                     .add();
         }
 
