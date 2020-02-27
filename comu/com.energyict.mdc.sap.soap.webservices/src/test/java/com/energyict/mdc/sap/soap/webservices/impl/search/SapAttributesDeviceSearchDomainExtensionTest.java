@@ -65,8 +65,8 @@ public class SapAttributesDeviceSearchDomainExtensionTest {
     private Clock clock;
     @Mock
     private WebServiceActivator webServiceActivator;
+    
     private BeanService beanService = new DefaultBeanService();
-    private SearchablePropertyGroup parentGroup;
     private SearchableDeviceProperty deviceIdentifierProperty, deviceLocationProperty;
 
     @Before
@@ -79,9 +79,9 @@ public class SapAttributesDeviceSearchDomainExtensionTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_IDENTIFIER.getDefaultFormat(), PropertyTranslationKeys.DEVICE_LOCATION.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_IDENTIFIER)).thenReturn(messageFormat);
         when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_LOCATION)).thenReturn(messageFormat);
-        parentGroup = new SapAttributesSearchablePropertyGroup(thesaurus);
-        deviceIdentifierProperty = new DeviceIdentifierSearchableProperty(propertySpecService, thesaurus, ormService).init(this.parentGroup);
-        deviceLocationProperty = new DeviceLocationSearchableProperty(propertySpecService, thesaurus, ormService).init(this.parentGroup);
+        SearchablePropertyGroup parentGroup = new SapAttributesSearchablePropertyGroup(thesaurus);
+        deviceIdentifierProperty = new DeviceIdentifierSearchableProperty(propertySpecService, thesaurus, ormService).init(parentGroup);
+        deviceLocationProperty = new DeviceLocationSearchableProperty(propertySpecService, thesaurus, ormService).init(parentGroup);
         when(webServiceActivator.getSearchableProperties()).thenReturn(Arrays.asList(deviceIdentifierProperty, deviceLocationProperty));
     }
 
