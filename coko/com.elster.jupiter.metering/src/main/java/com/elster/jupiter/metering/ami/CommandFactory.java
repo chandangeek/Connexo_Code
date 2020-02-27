@@ -12,6 +12,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.time.Instant;
+import java.util.List;
 
 @ConsumerType
 public interface CommandFactory {
@@ -29,6 +30,8 @@ public interface CommandFactory {
     EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice) throws UnsupportedCommandException;
 
     EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, SecurityAccessorType securityAccessortype) throws UnsupportedCommandException;
+
+    EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, List<SecurityAccessorType> securityAccessortypes) throws UnsupportedCommandException;
 
     EndDeviceCommand createGenerateKeyPairCommand(EndDevice endDevice, CertificateType certificateType) throws UnsupportedCommandException;
 

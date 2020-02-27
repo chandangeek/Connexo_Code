@@ -77,11 +77,20 @@ public class HeadEndController {
     private void performKeyRenewalOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling key renewal.");
         EndDeviceCommand deviceCommand;
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
-        if (securityAccessorType == null) {
-            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
+        List<SecurityAccessorType> securityAccessorTypes = new ArrayList<>();
+        List<String> securityAccessors = Arrays.asList(deviceCommandInfo.keyAccessorType.split(","));
+        for (String securityAccessor : securityAccessors) {
+            SecurityAccessorType securityAccessorType = getKeyAccessorType(securityAccessor, device);
+            if (securityAccessorType == null) {
+                throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
+            }
+            securityAccessorTypes.add(securityAccessorType);
         }
-        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorType);
+        if (securityAccessorTypes.size() > 1) {
+            deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes);
+        } else {
+            deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes.get(0));
+        }
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
