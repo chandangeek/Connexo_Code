@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.common.device.data.Channel;
@@ -94,7 +93,8 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                 if (!dataLoggerChannelUsages.isEmpty()) {
                     for (DataLoggerChannelUsage usage : dataLoggerChannelUsages) {
                         Device slave = usage.getPhysicalGatewayReference().getOrigin();
-                        DeviceReadingsData slaveReadingsData = getSlaveReadingsDataByKeyOrPutNew(slave);
+                        computeNewSlaveIfAbsent(slave);
+                        DeviceReadingsData slaveReadingsData = slaves.get(slave);
                         validateDeviceState(data, slave);
                         Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> usage.getSlaveChannel().getReadingTypes().contains(c.getReadingType())).findFirst();
                         if (slaveChannel.isPresent() && i < data.getValues().size()) {
@@ -108,11 +108,12 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                                 deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
                     }
                 }
-            } if (masterDeviceRegister.isPresent()) {
+            } else if (masterDeviceRegister.isPresent()) {
                 Optional<Register> slaveRegister = getContext().getTopologyService().getSlaveRegister(masterDeviceRegister.get(), data.getReadingDateTime().toInstant());
                 if(slaveRegister.isPresent()){
                     Device slave = slaveRegister.get().getDevice();
-                    DeviceReadingsData slaveReadingsData = getSlaveReadingsDataByKeyOrPutNew(slave);
+                    computeNewSlaveIfAbsent(slave);
+                    DeviceReadingsData slaveReadingsData = slaves.get(slave);
                     validateDeviceState(data, slave);
                     if (i < data.getValues().size()) {
                         addReading(slave, data, logger, getContext().getMeteringService(), slaveRegister.get().getReadingType().getMRID(), data.getValues().get(i),
@@ -124,7 +125,6 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                                 deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
                     }
                 }
-
             } else {
                 logger.importLineFailed(data.getLineNumber(), new NoSuchElementException("No value present"));
             }
@@ -160,14 +160,8 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         }
     }
 
-    private DeviceReadingsData getSlaveReadingsDataByKeyOrPutNew(Device slave){
-        if (slaves.containsKey(slave)) {
-            return slaves.get(slave);
-        } else {
-            DeviceReadingsData emptySlaveReadingsData = new DeviceReadingsData(HashMultimap.create(), new HashMap<>(), new ArrayList<>());
-            slaves.put(slave, emptySlaveReadingsData);
-            return emptySlaveReadingsData;
-        }
+    private void computeNewSlaveIfAbsent(Device slave){
+        slaves.computeIfAbsent(slave, key -> new DeviceReadingsData(HashMultimap.create(), new HashMap<>(), new ArrayList<>()));
     }
 
     private Optional<ReadingType> getReadingTypeByObisCode(String readingTypeStr, long lineNumber) {
