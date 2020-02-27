@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -105,15 +104,13 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                             String slaveChannelMRID = slaveChannel.get().getReadingType().getMRID();
                             validator = createValueValidatorForChannel(slaveChannel.get(), slave, slaveChannelMRID, logger, data.getLineNumber());
                             ReadingType slaveReadingType = meteringService.getReadingType(readingTypeString).get();
-                            addReading(slave, data, validator, slaveReadingType, data.getValues().get(i),
-                                    slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
+                            addReading(slave, data, validator, slaveReadingType, data.getValues().get(i),slaveReadingsData);
                         }
                     }
                 } else {
                     if (i < data.getValues().size()) {
                         validator = createValueValidatorForChannel(masterDeviceChannel.get(), device, readingTypeString, logger, data.getLineNumber());
-                        addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData.getChannelReadingsToStore(),
-                                 deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
+                        addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData);
                     }
                 }
             } else if (masterDeviceRegister.isPresent()) {
@@ -127,22 +124,19 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                         String slaveRegisterMRID = slaveRegister.get().getReadingType().getMRID();
                         validator = createValueValidatorForRegister(slaveRegister.get(), slave, slaveRegisterMRID, logger, data.getLineNumber());
                         ReadingType slaveReadingType = meteringService.getReadingType(readingTypeString).get();
-                        addReading(slave, data, validator, slaveReadingType, data.getValues().get(i),
-                                slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
+                        addReading(slave, data, validator, slaveReadingType, data.getValues().get(i), slaveReadingsData);
                     }
                 } else {
                     if (i < data.getValues().size()) {
                         validator = createValueValidatorForRegister(masterDeviceRegister.get(), device, readingTypeString, logger, data.getLineNumber());
-                        addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData.getChannelReadingsToStore(),
-                                deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
+                        addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData);
                     }
                 }
             }
         }
     }
 
-    private void addReading(Device device, DeviceReadingsImportRecord data, ValueValidator validator, ReadingType readingType, BigDecimal readingValue,
-                            Multimap<ReadingType, IntervalReading> channelReadingsToStore, Map<ReadingType, Instant> lastReadingPerChannel, List<Reading> registerReadingsToStore) {
+    private void addReading(Device device, DeviceReadingsImportRecord data, ValueValidator validator, ReadingType readingType, BigDecimal readingValue, DeviceReadingsData deviceReadingsData) {
         ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
                 .map(MeterActivation::getChannelsContainer)
                 .map(ChannelsContainer::getZoneId)
@@ -152,15 +146,15 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
         Instant timeStamp = data.getReadingDateTime().toInstant();
         if (readingType.isRegular()) {
-            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, readingValue, Collections.singleton(ReadingQualityType
+            deviceReadingsData.getChannelReadingsToStore().put(readingType, IntervalReadingImpl.of(timeStamp, readingValue, Collections.singleton(ReadingQualityType
                     .of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED))));
-            if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
-                lastReadingPerChannel.put(readingType, timeStamp);
+            if (!deviceReadingsData.getLastReadingPerChannel().containsKey(readingType) || timeStamp.isAfter(deviceReadingsData.getLastReadingPerChannel().get(readingType))) {
+                deviceReadingsData.getLastReadingPerChannel().put(readingType, timeStamp);
             }
         } else {
             ReadingImpl reading = ReadingImpl.of(readingType.getMRID(), readingValue, timeStamp);
             reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED));
-            registerReadingsToStore.add(reading);
+            deviceReadingsData.getRegisterReadingsToStore().add(reading);
         }
     }
 
