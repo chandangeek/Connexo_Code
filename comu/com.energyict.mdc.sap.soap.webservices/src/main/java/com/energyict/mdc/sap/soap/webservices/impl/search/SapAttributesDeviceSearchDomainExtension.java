@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.search;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchableProperty;
@@ -23,12 +26,16 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.energyict.mdc.sap.impl.search.SapAttributesDeviceSearchDomainExtension", service = SearchDomainExtension.class, immediate = true)
-public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExtension {
+@Component(name = "com.energyict.mdc.sap.impl.search.SapAttributesDeviceSearchDomainExtension",
+        service = {SearchDomainExtension.class, TranslationKeyProvider.class},
+        property = "name=" + SapAttributesDeviceSearchDomainExtension.COMPONENT_NAME, immediate = true)
+public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExtension, TranslationKeyProvider {
 
+    static final String COMPONENT_NAME = "SAS"; // only for translations
     private volatile WebServiceActivator webServiceActivator;
     private volatile Clock clock;
 
@@ -77,4 +84,20 @@ public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExt
         });
         return builder;
     }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(PropertyTranslationKeys.values());
+    }
+
 }
