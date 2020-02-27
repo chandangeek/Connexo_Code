@@ -81,10 +81,15 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         setDevice(data, logger);
         for (int i = 0; i < data.getReadingTypes().size(); i++) {
             String readingTypeString = data.getReadingTypes().get(i);
+            MeteringService meteringService = getContext().getMeteringService();
+            ReadingType masterReadingType = (meteringService.getReadingType(readingTypeString)
+                    .orElseGet(() -> meteringService.getReadingTypeByName(readingTypeString)
+                            .orElseGet(() -> getReadingTypeByObisCode(readingTypeString, data.getLineNumber())
+                                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString)))));
             ValueValidator validator;
 
-            Optional<Channel> masterDeviceChannel = getChannelFromReadingTypeString(readingTypeString);
-            Optional<Register> masterDeviceRegister = getRegisterFromReadingTypeString(readingTypeString);
+            Optional<Channel> masterDeviceChannel = device.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(masterReadingType.getMRID())).findFirst();
+            Optional<Register> masterDeviceRegister = device.getRegisters().stream().filter((r) -> r.getReadingType().getMRID().equals(masterReadingType.getMRID())).findFirst();
 
             if (masterDeviceChannel.isPresent()) {
                 List<DataLoggerChannelUsage> channelUsages = getContext().getTopologyService()
@@ -99,15 +104,16 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                         if (slaveChannel.isPresent() && i < data.getValues().size()) {
                             String slaveChannelMRID = slaveChannel.get().getReadingType().getMRID();
                             validator = createValueValidatorForChannel(slaveChannel.get(), slave, slaveChannelMRID, logger, data.getLineNumber());
-                            addReading(slave, data, validator, getContext().getMeteringService(), slaveChannelMRID, data.getValues().get(i),
+                            ReadingType slaveReadingType = meteringService.getReadingType(readingTypeString).get();
+                            addReading(slave, data, validator, slaveReadingType, data.getValues().get(i),
                                     slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
                         }
                     }
                 } else {
                     if (i < data.getValues().size()) {
                         validator = createValueValidatorForChannel(masterDeviceChannel.get(), device, readingTypeString, logger, data.getLineNumber());
-                        addReading(device, data, validator, getContext().getMeteringService(), readingTypeString, data.getValues().get(i),
-                                deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
+                        addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData.getChannelReadingsToStore(),
+                                 deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
                     }
                 }
             } else if (masterDeviceRegister.isPresent()) {
@@ -120,29 +126,23 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                     if (i < data.getValues().size()) {
                         String slaveRegisterMRID = slaveRegister.get().getReadingType().getMRID();
                         validator = createValueValidatorForRegister(slaveRegister.get(), slave, slaveRegisterMRID, logger, data.getLineNumber());
-                        addReading(slave, data, validator, getContext().getMeteringService(), slaveRegisterMRID, data.getValues().get(i),
+                        ReadingType slaveReadingType = meteringService.getReadingType(readingTypeString).get();
+                        addReading(slave, data, validator, slaveReadingType, data.getValues().get(i),
                                 slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
                     }
                 } else {
                     if (i < data.getValues().size()) {
                         validator = createValueValidatorForRegister(masterDeviceRegister.get(), device, readingTypeString, logger, data.getLineNumber());
-                        addReading(device, data, validator, getContext().getMeteringService(), readingTypeString, data.getValues().get(i),
-                                deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
+                        addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData.getChannelReadingsToStore(),
+                                deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
                     }
                 }
-            } else {
-                throw new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString);
             }
         }
     }
 
-    private void addReading(Device device, DeviceReadingsImportRecord data, ValueValidator validator, MeteringService meteringService, String readingTypeString, BigDecimal readingValue,
+    private void addReading(Device device, DeviceReadingsImportRecord data, ValueValidator validator, ReadingType readingType, BigDecimal readingValue,
                             Multimap<ReadingType, IntervalReading> channelReadingsToStore, Map<ReadingType, Instant> lastReadingPerChannel, List<Reading> registerReadingsToStore) {
-
-        ReadingType readingType = (meteringService.getReadingType(readingTypeString)
-                .orElseGet(() -> meteringService.getReadingTypeByName(readingTypeString)
-                        .orElseGet(() -> getReadingTypeByObisCode(readingTypeString, data.getLineNumber())
-                                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString)))));
         ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
                 .map(MeterActivation::getChannelsContainer)
                 .map(ChannelsContainer::getZoneId)
@@ -162,20 +162,6 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED));
             registerReadingsToStore.add(reading);
         }
-    }
-
-    private Optional<Channel> getChannelFromReadingTypeString(String readingTypeString) {
-        Optional<Channel> channelByMRID = device.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
-        Optional<Channel> channelByObis = device.getChannels().stream().filter((c) -> c.getObisCode().toString().equals(readingTypeString)).findFirst();
-        Optional<Channel> channelByAliasName = device.getChannels().stream().filter((c) -> c.getReadingType().getFullAliasName().equals(readingTypeString)).findFirst();
-        return channelByMRID.isPresent() ? channelByMRID : channelByObis.isPresent() ? channelByObis : channelByAliasName;
-    }
-
-    private Optional<Register> getRegisterFromReadingTypeString(String readingTypeString) {
-        Optional<Register> registerByMRID = device.getRegisters().stream().filter((r) -> r.getReadingType().getMRID().equals(readingTypeString)).findFirst();
-        Optional<Register> registerByObis = device.getRegisters().stream().filter((r) -> r.getObisCode().toString().equals(readingTypeString)).findFirst();
-        Optional<Register> registerByAliasName = device.getRegisters().stream().filter((r) -> r.getReadingType().getFullAliasName().equals(readingTypeString)).findFirst();
-        return registerByMRID.isPresent() ? registerByMRID : registerByObis.isPresent() ? registerByObis : registerByAliasName;
     }
 
     private void computeNewSlaveIfAbsent(Device slave){

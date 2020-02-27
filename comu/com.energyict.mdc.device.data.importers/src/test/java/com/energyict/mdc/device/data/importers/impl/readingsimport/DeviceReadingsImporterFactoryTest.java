@@ -366,11 +366,13 @@ public class DeviceReadingsImporterFactoryTest {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        mockDevice("VPB0001");
+        Device device = mockDevice("VPB0001");
+        Register register = mock(Register.class);
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
         when(readingType.isRegular()).thenReturn(true);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-
+        when(register.getReadingType()).thenReturn(readingType);
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
@@ -441,14 +443,20 @@ public class DeviceReadingsImporterFactoryTest {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        mockDevice("VPB0001");
-        mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
+        Device device = mockDevice("VPB0001");
+        ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
+        Register register = mock(Register.class);
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
+        when(register.getReadingType()).thenReturn(readingType);
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
+        when(register.getRegisterSpec()).thenReturn(registerSpec);
+        when(registerSpec.isTextual()).thenReturn(true);
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_SUCH_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "VPB0001"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
@@ -462,20 +470,15 @@ public class DeviceReadingsImporterFactoryTest {
         Device device = mockDevice("VPB0001");
         ReadingType readingType1 = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", false);
         when(meteringService.getReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1")).thenReturn(Optional.of(readingType1));
-        when(readingType1.getFullAliasName()).thenReturn("notAliasName");
         ReadingType readingType2 = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2", false);
         when(meteringService.getReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2")).thenReturn(Optional.of(readingType2));
-        when(readingType2.getFullAliasName()).thenReturn("notAliasName");
         Register register1 = mock(Register.class, RETURNS_DEEP_STUBS);
         Register register2 = mock(Register.class, RETURNS_DEEP_STUBS);
-        ObisCode obisCode1 = mock(ObisCode.class);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
         when(register1.getReadingType()).thenReturn(readingType1);
         when(register1.getRegisterSpec().isTextual()).thenReturn(true);
-        when(device.getRegisters().get(0).getObisCode()).thenReturn(obisCode1);
         when(register2.getReadingType()).thenReturn(readingType2);
         when(register2.getRegisterSpec().isTextual()).thenReturn(true);
-        when(device.getRegisters().get(1).getObisCode()).thenReturn(obisCode1);
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -843,9 +846,6 @@ public class DeviceReadingsImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDeviceInState("VPB0001", DefaultState.ACTIVE);
         mockChannelWithDetails(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "Alias Name", "");
-        TopologyService topologyService = mock(TopologyService.class);
-        when(context.getTopologyService()).thenReturn(topologyService);
-        when(topologyService.getSlaveRegister(any(),any())).thenReturn(Optional.empty());
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -926,9 +926,6 @@ public class DeviceReadingsImporterFactoryTest {
         when(register.getReadingType()).thenReturn(readingType);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getRegisterSpec().isTextual()).thenReturn(false);
-        ObisCode obisCode1 = mock(ObisCode.class);
-        when(device.getRegisters().get(0).getObisCode()).thenReturn(obisCode1);
-        when(readingType.getFullAliasName()).thenReturn("notAliasName");
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -971,9 +968,6 @@ public class DeviceReadingsImporterFactoryTest {
         when(register.getReadingType()).thenReturn(readingType);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getRegisterSpec().isTextual()).thenReturn(false);
-        ObisCode obisCode1 = mock(ObisCode.class);
-        when(device.getRegisters().get(0).getObisCode()).thenReturn(obisCode1);
-        when(readingType.getFullAliasName()).thenReturn("notAliasName");
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -1001,15 +995,11 @@ public class DeviceReadingsImporterFactoryTest {
             readingType = mockReadingTypeWithDetails(readingTypeMRID, fullAliasName, false);
         } else {
             readingType = mockReadingType(readingTypeMRID, false);
-            when(readingType.getFullAliasName()).thenReturn("notAliasName");
         }
         Register register = mock(Register.class);
         when(device.getRegisters()).thenReturn(Collections.singletonList(register));
         if (obisCode != null && !obisCode.isEmpty()) {
             when(device.getRegisters().get(0).getObisCode()).thenReturn(ObisCode.fromString(obisCode));
-        } else {
-            ObisCode obisCode1 = mock(ObisCode.class);
-            when(device.getRegisters().get(0).getObisCode()).thenReturn(obisCode1);
         }
         when(register.getReadingType()).thenReturn(readingType);
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
@@ -1025,16 +1015,12 @@ public class DeviceReadingsImporterFactoryTest {
             readingType = mockReadingTypeWithDetails(readingTypeMRID, fullAliasName, true);
         } else {
             readingType = mockReadingType(readingTypeMRID, true);
-            when(readingType.getFullAliasName()).thenReturn("notAliasName");
         }
         LoadProfile loadProfile = mock(LoadProfile.class);
         Channel channel = mock(Channel.class);
         when(device.getChannels()).thenReturn(Collections.singletonList(channel));
         if (obisCode != null && !obisCode.isEmpty()) {
             when(device.getChannels().get(0).getObisCode()).thenReturn(ObisCode.fromString(obisCode));
-        } else {
-            ObisCode obisCode1 = mock(ObisCode.class);
-            when(device.getChannels().get(0).getObisCode()).thenReturn(obisCode1);
         }
         when(channel.getReadingType()).thenReturn(readingType);
         when(channel.getLoadProfile()).thenReturn(loadProfile);
@@ -1089,7 +1075,6 @@ public class DeviceReadingsImporterFactoryTest {
             when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         }
         when(meteringService.getReadingType(mRID)).thenReturn(Optional.of(readingType));
-        when(readingType.getFullAliasName()).thenReturn(fullAliasName);
         return readingType;
     }
 
