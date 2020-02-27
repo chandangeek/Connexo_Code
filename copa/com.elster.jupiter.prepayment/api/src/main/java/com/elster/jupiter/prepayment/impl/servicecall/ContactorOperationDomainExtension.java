@@ -11,8 +11,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.prepayment.impl.BreakerStatus;
+import com.elster.jupiter.prepayment.impl.MessageSeeds;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
 

@@ -52,6 +52,7 @@ import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
@@ -127,7 +128,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     public static final int REMOTE_DISCONNECT = 1;
     public static final int REMOTE_RECONNECT = 2;
 
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
@@ -327,7 +328,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
-        MBusClient mbusClient = getMBusClient(pendingMessage.getDeviceSerialNumber());
+        String mbusSerialNumberAttributeValue = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.mbusSerialNumber);
+        MBusClient mbusClient = getMBusClient(mbusSerialNumberAttributeValue);
         mbusClient.setIdentificationNumber(new Unsigned32(0));
         mbusClient.setManufacturerID(new Unsigned16(0));
         mbusClient.setVersion(0);
@@ -504,7 +506,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         renewKey(wrappedKey, 2);
     }
 
-    private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String keyAccessorTypeNameAndTempValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
         if (keyAccessorTypeNameAndTempValue == null) {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");

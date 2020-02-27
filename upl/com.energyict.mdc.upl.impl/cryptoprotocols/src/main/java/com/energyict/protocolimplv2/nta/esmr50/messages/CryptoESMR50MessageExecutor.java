@@ -49,11 +49,10 @@ public class CryptoESMR50MessageExecutor extends ESMR50MessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-
                 //TODO: ServiceKey not supported atm in Connexo
                 if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
                     commonCryptoMessageExecutor.changeHLSSecretUsingServiceKey(pendingMessage);
-                    collectedMessage = null;//
+                    collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
                     commonCryptoMessageExecutor.changeAuthenticationKeyUsingServiceKey(pendingMessage);
@@ -63,8 +62,7 @@ public class CryptoESMR50MessageExecutor extends ESMR50MessageExecutor {
                     commonCryptoMessageExecutor.changeEncryptionKeyUsingServiceKey(pendingMessage);
                     collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);
-                } else
-                {
+                } else {
                     collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);
                 }
@@ -88,4 +86,10 @@ public class CryptoESMR50MessageExecutor extends ESMR50MessageExecutor {
         return new CryptoESMR50MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory(),
                 this.deviceMasterDataExtractor);
     }
+
+    @Override
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        commonCryptoMessageExecutor.renewKey(pendingMessage, keyAccessorTypeExtractor);
+    }
+
 }

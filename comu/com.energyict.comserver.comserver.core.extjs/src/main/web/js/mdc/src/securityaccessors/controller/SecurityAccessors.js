@@ -21,7 +21,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.store.TimeUnitsYearsSeconds',
         'Mdc.securityaccessors.store.UnusedSecurityAccessors',
         'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType',
-        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
         'Mdc.securityaccessors.store.HsmJssKeyTypes',
         'Mdc.securityaccessors.store.HSMLabelEndPoint',
         'Mdc.securityaccessors.store.HsmCapabilities',
@@ -33,7 +32,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.model.DeviceType',
         'Mdc.securityaccessors.model.SecurityAccessor',
         'Mdc.securityaccessors.model.SecurityPreviewProperties',
-        'Mdc.crlrequest.model.SecurityAccessorsWithPurpose',
         'Mdc.securityaccessors.model.SecurityAccessorsOnDeviceType'
     ],
 
@@ -598,6 +596,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                 store.load({
                                     callback: function (records, operation, success) {
                                         me.getSecurityAccessorsGrid().setLoading(false);
+                                    }
+                                });
+                                //  the version of device type is increased, so it is necessary to reloaded it
+                                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                                    success: function (deviceType) {
+                                        me.deviceType = deviceType;
                                     }
                                 });
                             },

@@ -215,7 +215,7 @@ public class FileManager implements BusinessDataPersister {
      */
     private void marshalAndStoreObject(Object object, String queryId, String fileName) {
         StringWriter writer = new StringWriter();
-        ObjectMapper mapper = ObjectMapperFactory.newMapper();
+        ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
         try {
             QueryResult queryResult = QueryResult.forResult(queryId, object);
             mapper.writeValue(writer, queryResult);

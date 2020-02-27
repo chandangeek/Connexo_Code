@@ -6,7 +6,6 @@ package com.energyict.mdc.engine.impl.core.remote;
 
 import com.elster.jupiter.time.TimeDuration;
 
-import com.energyict.mdc.engine.impl.ObjectParser;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
@@ -38,7 +37,7 @@ public class TimeDurationParserTest {
         TimeDuration testTimeDuration = new TimeDuration(1800, Calendar.SECOND);
         TimeDurationXmlWrapper xmlWrapper = new TimeDurationXmlWrapper(testTimeDuration);
         StringWriter writer = new StringWriter();
-        ObjectMapper mapper = ObjectMapperFactory.newMapper();
+        ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
         mapper.writeValue(writer, QueryResult.forResult("test", xmlWrapper));
         // Business method
         TimeDuration timeDuration = new TimeDurationParser().parse(new JSONObject(writer.toString()));;
