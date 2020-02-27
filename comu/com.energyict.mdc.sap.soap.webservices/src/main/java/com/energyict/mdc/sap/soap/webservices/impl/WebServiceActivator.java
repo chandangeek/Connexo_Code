@@ -53,6 +53,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
+import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationBulkNotificationEndpoint;
@@ -631,6 +632,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .stream()
                 .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
                 .findFirst();
+    }
+
+    public List<UtilitiesDeviceRegisteredNotification> getUtilitiesDeviceRegisteredNotifications() {
+        return Collections.unmodifiableList(UTILITIES_DEVICE_REGISTERED_NOTIFICATION);
     }
 
     private void loadProperties(BundleContext context) {

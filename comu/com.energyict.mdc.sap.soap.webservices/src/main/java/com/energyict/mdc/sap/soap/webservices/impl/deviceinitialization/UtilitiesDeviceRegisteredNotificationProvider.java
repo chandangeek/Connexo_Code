@@ -16,7 +16,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
+import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.ObjectFactory;
@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -155,16 +156,15 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     @Override
-    public void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
-        meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
+    public void call(long endDeviceId, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
+        meteringService.findEndDeviceById(endDeviceId).ifPresent(endDevice -> {
             deviceService.findDeviceByMrid(endDevice.getMRID()).ifPresent(
                     device -> {
                         sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
-                            if (!sapCustomPropertySets.isRegistered(device) && sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
+                            if (!sapCustomPropertySets.isRegistered(device) && sapCustomPropertySets.isAnyLrnPresent(device.getId(), effectiveDate)) {
                                 call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
                             }
                         });
-
                     }
             );
         });
@@ -185,7 +185,8 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         }
     }
 
-    private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
+    @Override
+    public void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);

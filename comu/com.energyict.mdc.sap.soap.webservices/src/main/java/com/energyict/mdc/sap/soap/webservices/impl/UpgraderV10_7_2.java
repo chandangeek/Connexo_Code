@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Clock;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,16 +46,20 @@ public class UpgraderV10_7_2 implements Upgrader {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final UserService userService;
     private final PrivilegesProviderV10_7_2 privilegesProviderV10_7_2;
+    private final Clock clock;
+
 
     @Inject
     public UpgraderV10_7_2(DataModel dataModel, OrmService ormService, DeviceService deviceService,
-                           SAPCustomPropertySets sapCustomPropertySets, PrivilegesProviderV10_7_2 privilegesProviderV10_7_2, UserService userService) {
+                           SAPCustomPropertySets sapCustomPropertySets, PrivilegesProviderV10_7_2 privilegesProviderV10_7_2, UserService userService,
+                           Clock clock) {
         this.dataModel = dataModel;
         this.ormService = ormService;
         this.deviceService = deviceService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.privilegesProviderV10_7_2 = privilegesProviderV10_7_2;
         this.userService = userService;
+        this.clock = clock;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class UpgraderV10_7_2 implements Upgrader {
                     .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()).isEqualTo(false))
                     .map(DeviceSAPInfoDomainExtension::getDevice)
                     .forEach(device -> {
-                        if (device.getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey()) && sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
+                        if (device.getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey()) && sapCustomPropertySets.isAnyLrnPresent(device.getId(), clock.instant())) {
                             sqlQueries.add("UPDATE SAP_CAS_DI1 SET REGISTERED = 'Y' WHERE DEVICE = " + device.getId());
                         }
                     });
