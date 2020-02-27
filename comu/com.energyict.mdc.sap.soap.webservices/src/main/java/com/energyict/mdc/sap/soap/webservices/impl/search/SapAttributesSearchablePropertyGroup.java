@@ -27,6 +27,6 @@ public class SapAttributesSearchablePropertyGroup implements SearchablePropertyG
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.SAP).format();
+        return thesaurus.getFormat(PropertyTranslationKeys.SAP).format();
     }
 }

@@ -494,7 +494,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     private void registerSearchableProperties() {
-        SapAttributesSearchablePropertyGroup searchablePropertyGroup = new SapAttributesSearchablePropertyGroup(this.thesaurus);
+        SapAttributesSearchablePropertyGroup searchablePropertyGroup = new SapAttributesSearchablePropertyGroup(thesaurus);
         searchableProperties.add(dataModel.getInstance(DeviceIdentifierSearchableProperty.class).init(searchablePropertyGroup));
         searchableProperties.add(dataModel.getInstance(DeviceLocationSearchableProperty.class).init(searchablePropertyGroup));
         searchableProperties.add(dataModel.getInstance(LogicalRegisterNumberSearchableProperty.class).init(searchablePropertyGroup));

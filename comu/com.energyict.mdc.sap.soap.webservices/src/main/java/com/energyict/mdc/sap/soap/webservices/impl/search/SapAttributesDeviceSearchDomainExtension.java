@@ -39,6 +39,7 @@ public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExt
     @Inject
     public SapAttributesDeviceSearchDomainExtension(WebServiceActivator webServiceActivator, Clock clock) {
         setWebServiceActivator(webServiceActivator);
+        setClock(clock);
     }
 
     @Reference
