@@ -103,13 +103,13 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                         if (slaveChannel.isPresent() && i < data.getValues().size()) {
                             String slaveChannelMRID = slaveChannel.get().getReadingType().getMRID();
                             validator = createValueValidatorForChannel(slaveChannel.get(), slave, slaveChannelMRID, logger, data.getLineNumber());
-                            ReadingType slaveReadingType = meteringService.getReadingType(readingTypeString).get();
+                            ReadingType slaveReadingType = meteringService.getReadingType(slaveChannelMRID).get();
                             addReading(slave, data, validator, slaveReadingType, data.getValues().get(i),slaveReadingsData);
                         }
                     }
                 } else {
                     if (i < data.getValues().size()) {
-                        validator = createValueValidatorForChannel(masterDeviceChannel.get(), device, readingTypeString, logger, data.getLineNumber());
+                        validator = createValueValidatorForChannel(masterDeviceChannel.get(), device, masterReadingType.getMRID(), logger, data.getLineNumber());
                         addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData);
                     }
                 }
@@ -123,12 +123,12 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                     if (i < data.getValues().size()) {
                         String slaveRegisterMRID = slaveRegister.get().getReadingType().getMRID();
                         validator = createValueValidatorForRegister(slaveRegister.get(), slave, slaveRegisterMRID, logger, data.getLineNumber());
-                        ReadingType slaveReadingType = meteringService.getReadingType(readingTypeString).get();
+                        ReadingType slaveReadingType = meteringService.getReadingType(slaveRegisterMRID).get();
                         addReading(slave, data, validator, slaveReadingType, data.getValues().get(i), slaveReadingsData);
                     }
                 } else {
                     if (i < data.getValues().size()) {
-                        validator = createValueValidatorForRegister(masterDeviceRegister.get(), device, readingTypeString, logger, data.getLineNumber());
+                        validator = createValueValidatorForRegister(masterDeviceRegister.get(), device, masterReadingType.getMRID(), logger, data.getLineNumber());
                         addReading(device, data, validator, masterReadingType, data.getValues().get(i), deviceReadingsData);
                     }
                 }
