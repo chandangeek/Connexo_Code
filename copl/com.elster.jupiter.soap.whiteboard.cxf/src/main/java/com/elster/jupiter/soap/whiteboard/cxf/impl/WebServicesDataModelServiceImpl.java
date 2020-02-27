@@ -252,8 +252,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         if (!logDirectory.endsWith(File.separator)) {
             logDirectory = logDirectory + File.separator;
         }
-        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock);
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
+        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, endPointConfigurationService);
         webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel,endPointConfigurationService, nlsService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
@@ -276,8 +276,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     @Override
     public void start(BundleContext context) {
         registrations.add(bundleContext.registerService(WebServicesDataModelService.class, this, new Hashtable<>()));
-        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
         registrations.add(bundleContext.registerService(EndPointConfigurationService.class, endPointConfigurationService, new Hashtable<>()));
+        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
         registrations.add(bundleContext.registerService(WebServiceCallOccurrenceService.class, webServiceCallOccurrenceService, new Hashtable<>()));
     }
 
