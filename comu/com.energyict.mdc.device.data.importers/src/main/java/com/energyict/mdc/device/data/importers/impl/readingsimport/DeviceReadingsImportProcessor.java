@@ -113,7 +113,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                 }
             } else if (masterDeviceRegister.isPresent()) {
                 Optional<Register> slaveRegister = getContext().getTopologyService().getSlaveRegister(masterDeviceRegister.get(), data.getReadingDateTime().toInstant());
-                if(slaveRegister.isPresent()){
+                if (slaveRegister.isPresent()) {
                     Device slave = slaveRegister.get().getDevice();
                     computeNewSlaveIfAbsent(slave);
                     DeviceReadingsData slaveReadingsData = slaves.get(slave);
