@@ -88,8 +88,6 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             Optional<Register> masterDeviceRegister = device.getRegisters().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
 
             if (masterDeviceChannel.isPresent()) {
-                validator = createValueValidatorForChannel(masterDeviceChannel.get(), device, readingTypeString, logger, data.getLineNumber());
-
                 List<DataLoggerChannelUsage> channelUsages = getContext().getTopologyService()
                         .findDataLoggerChannelUsagesForChannels(masterDeviceChannel.get(), Range.atMost(data.getReadingDateTime().toInstant()));
                 if (!channelUsages.isEmpty()) {
@@ -100,19 +98,20 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                         validateDeviceState(data, slave);
                         Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> usage.getSlaveChannel().getReadingTypes().contains(c.getReadingType())).findFirst();
                         if (slaveChannel.isPresent() && i < data.getValues().size()) {
-                            addReading(slave, data, validator, getContext().getMeteringService(), slaveChannel.get().getReadingType().getMRID(), data.getValues().get(i),
+                            String slaveChannelMRID = slaveChannel.get().getReadingType().getMRID();
+                            validator = createValueValidatorForChannel(slaveChannel.get(), slave, slaveChannelMRID, logger, data.getLineNumber());
+                            addReading(slave, data, validator, getContext().getMeteringService(), slaveChannelMRID, data.getValues().get(i),
                                     slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
                         }
                     }
                 } else {
                     if (i < data.getValues().size()) {
+                        validator = createValueValidatorForChannel(masterDeviceChannel.get(), device, readingTypeString, logger, data.getLineNumber());
                         addReading(device, data, validator, getContext().getMeteringService(), readingTypeString, data.getValues().get(i),
                                 deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
                     }
                 }
             } else if (masterDeviceRegister.isPresent()) {
-                validator = createValueValidatorForRegister(masterDeviceRegister.get(), device, readingTypeString, logger, data.getLineNumber());
-
                 Optional<Register> slaveRegister = getContext().getTopologyService().getSlaveRegister(masterDeviceRegister.get(), data.getReadingDateTime().toInstant());
                 if(slaveRegister.isPresent()){
                     Device slave = slaveRegister.get().getDevice();
@@ -120,11 +119,14 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                     DeviceReadingsData slaveReadingsData = slaves.get(slave);
                     validateDeviceState(data, slave);
                     if (i < data.getValues().size()) {
-                        addReading(slave, data, validator, getContext().getMeteringService(), slaveRegister.get().getReadingType().getMRID(), data.getValues().get(i),
+                        String slaveRegisterMRID = slaveRegister.get().getReadingType().getMRID();
+                        validator = createValueValidatorForRegister(slaveRegister.get(), slave, slaveRegisterMRID, logger, data.getLineNumber());
+                        addReading(slave, data, validator, getContext().getMeteringService(), slaveRegisterMRID, data.getValues().get(i),
                                 slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel(), slaveReadingsData.getRegisterReadingsToStore());
                     }
                 } else {
                     if (i < data.getValues().size()) {
+                        validator = createValueValidatorForRegister(masterDeviceRegister.get(), device, readingTypeString, logger, data.getLineNumber());
                         addReading(device, data, validator, getContext().getMeteringService(), readingTypeString, data.getValues().get(i),
                                 deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel(), deviceReadingsData.getRegisterReadingsToStore());
                     }
