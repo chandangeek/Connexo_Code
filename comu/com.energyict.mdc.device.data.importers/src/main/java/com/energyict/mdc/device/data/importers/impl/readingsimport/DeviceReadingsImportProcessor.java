@@ -88,10 +88,10 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             Optional<Register> masterDeviceRegister = device.getRegisters().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeString)).findFirst();
 
             if (masterDeviceChannel.isPresent()) {
-                List<DataLoggerChannelUsage> dataLoggerChannelUsages = getContext().getTopologyService()
+                List<DataLoggerChannelUsage> channelUsages = getContext().getTopologyService()
                         .findDataLoggerChannelUsagesForChannels(masterDeviceChannel.get(), Range.atMost(data.getReadingDateTime().toInstant()));
-                if (!dataLoggerChannelUsages.isEmpty()) {
-                    for (DataLoggerChannelUsage usage : dataLoggerChannelUsages) {
+                if (!channelUsages.isEmpty()) {
+                    for (DataLoggerChannelUsage usage : channelUsages) {
                         Device slave = usage.getPhysicalGatewayReference().getOrigin();
                         computeNewSlaveIfAbsent(slave);
                         DeviceReadingsData slaveReadingsData = slaves.get(slave);
