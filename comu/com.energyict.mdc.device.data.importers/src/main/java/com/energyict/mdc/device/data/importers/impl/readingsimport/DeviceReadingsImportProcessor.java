@@ -83,7 +83,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                     .orElseGet(() -> meteringService.getReadingTypeByName(readingTypeString)
                             .orElseGet(() -> getReadingTypeByObisCode(readingTypeString, data.getLineNumber())
                                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString)))));
-            ZoneId deviceZoneId = createZoneId(device, data);
+            ZoneId deviceZoneId = getZoneId(device, data);
             ZonedDateTime timeStamp = data.getReadingDateTime().withZoneSameInstant(deviceZoneId);
             ValueValidator validator;
 
@@ -92,7 +92,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
             if (masterDeviceChannel.isPresent()) {
                 List<DataLoggerChannelUsage> channelUsages = getContext().getTopologyService()
-                        .findDataLoggerChannelUsagesForChannels(masterDeviceChannel.get(), Range.closed(timeStamp.toInstant(),timeStamp.toInstant()));
+                        .findDataLoggerChannelUsagesForChannels(masterDeviceChannel.get(), Range.singleton(timeStamp.toInstant()));
                 if (!channelUsages.isEmpty()) {
                     for (DataLoggerChannelUsage usage : channelUsages) {
                         Device slave = usage.getPhysicalGatewayReference().getOrigin();
@@ -100,11 +100,10 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                         validateDeviceState(data, slave);
                         Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> usage.getSlaveChannel().getReadingTypes().contains(c.getReadingType())).findFirst();
                         if (slaveChannel.isPresent() && i < data.getValues().size()) {
-                            String slaveChannelMRID = slaveChannel.get().getReadingType().getMRID();
                             ReadingType slaveReadingType = slaveChannel.get().getReadingType();
-                            ZoneId slaveZoneId = createZoneId(slave, data);
+                            ZoneId slaveZoneId = getZoneId(slave, data);
                             validateReadingType(slaveReadingType, data.getReadingDateTime().withZoneSameInstant(slaveZoneId), data.getLineNumber());
-                            validator = createValueValidatorForChannel(slaveChannel.get(), slave, slaveChannelMRID, logger, data.getLineNumber());
+                            validator = createValueValidatorForChannel(slaveChannel.get(), slave, slaveReadingType.getMRID(), logger, data.getLineNumber());
 
                             addReading(slaveReadingsData, data, validator, slaveReadingType, data.getValues().get(i));
                         }
@@ -124,11 +123,10 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                     DeviceReadingsData slaveReadingsData = computeNewSlaveIfAbsent(slave);
                     validateDeviceState(data, slave);
                     if (i < data.getValues().size()) {
-                        String slaveRegisterMRID = slaveRegister.get().getReadingType().getMRID();
                         ReadingType slaveReadingType = slaveRegister.get().getReadingType();
-                        ZoneId slaveZoneId = createZoneId(slave, data);
+                        ZoneId slaveZoneId = getZoneId(slave, data);
                         validateReadingType(slaveReadingType, data.getReadingDateTime().withZoneSameInstant(slaveZoneId), data.getLineNumber());
-                        validator = createValueValidatorForRegister(slaveRegister.get(), slave, slaveRegisterMRID, logger, data.getLineNumber());
+                        validator = createValueValidatorForRegister(slaveRegister.get(), slave, slaveReadingType.getMRID(), logger, data.getLineNumber());
 
                         addReading(slaveReadingsData, data, validator, slaveReadingType, data.getValues().get(i));
                     }
@@ -162,7 +160,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         }
     }
 
-    private ZoneId createZoneId(Device device, DeviceReadingsImportRecord data) {
+    private ZoneId getZoneId(Device device, DeviceReadingsImportRecord data) {
         return getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
                 .map(MeterActivation::getChannelsContainer)
                 .map(ChannelsContainer::getZoneId)
@@ -202,17 +200,29 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             return;
         }
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        meterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(deviceReadingsData.getChannelReadingsToStore()));
-        meterReading.addAllReadings(deviceReadingsData.getRegisterReadingsToStore());
+        if(!deviceReadingsData.getChannelReadingsToStore().isEmpty()) {
+            meterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(deviceReadingsData.getChannelReadingsToStore()));
+        }
+        if(!deviceReadingsData.getRegisterReadingsToStore().isEmpty()) {
+            meterReading.addAllReadings(deviceReadingsData.getRegisterReadingsToStore());
+        }
         device.store(meterReading);
-        updateLastReading(device, deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel());
+        if(!deviceReadingsData.getChannelReadingsToStore().isEmpty() && !deviceReadingsData.getLastReadingPerChannel().isEmpty()) {
+            updateLastReading(device, deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel());
+        }
 
         slaves.forEach((slave, slaveReadingsData) -> {
             MeterReadingImpl slaveMeterReading = MeterReadingImpl.newInstance();
-            slaveMeterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(slaveReadingsData.getChannelReadingsToStore()));
-            slaveMeterReading.addAllReadings(slaveReadingsData.getRegisterReadingsToStore());
+            if(!slaveReadingsData.getChannelReadingsToStore().isEmpty()) {
+                slaveMeterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(slaveReadingsData.getChannelReadingsToStore()));
+            }
+            if(!slaveReadingsData.getRegisterReadingsToStore().isEmpty()) {
+                slaveMeterReading.addAllReadings(slaveReadingsData.getRegisterReadingsToStore());
+            }
             slave.store(slaveMeterReading);
-            updateLastReading(slave, slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel());
+            if(!slaveReadingsData.getChannelReadingsToStore().isEmpty() && !slaveReadingsData.getLastReadingPerChannel().isEmpty()) {
+                updateLastReading(slave, slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel());
+            }
         });
 
         resetState();
