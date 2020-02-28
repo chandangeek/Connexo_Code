@@ -121,7 +121,7 @@ public class LogicalRegisterNumberSearchableProperty extends AbstractSearchableD
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder builder = new SqlBuilder();
         builder.add(getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME).query(DeviceRegisterSAPInfoDomainExtension.class).asFragment(condition, DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()));
-        builder.append(" INTERSECT ");
+        builder.append(" UNION ");
         builder.add(getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME).query(DeviceChannelSAPInfoDomainExtension.class).asFragment(condition, DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()));
         return builder;
     }

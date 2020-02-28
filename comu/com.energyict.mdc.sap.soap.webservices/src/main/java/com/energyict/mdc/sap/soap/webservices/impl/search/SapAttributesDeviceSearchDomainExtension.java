@@ -4,9 +4,8 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.search;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchableProperty;
@@ -18,45 +17,30 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.search.SearchableDeviceProperty;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.energyict.mdc.sap.impl.search.SapAttributesDeviceSearchDomainExtension",
-        service = {SearchDomainExtension.class, TranslationKeyProvider.class},
-        property = "name=" + SapAttributesDeviceSearchDomainExtension.COMPONENT_NAME, immediate = true)
-public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExtension, TranslationKeyProvider {
+public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExtension {
 
-    static final String COMPONENT_NAME = "SAS"; // only for translations
-    private volatile WebServiceActivator webServiceActivator;
-    private volatile Clock clock;
-
-    public SapAttributesDeviceSearchDomainExtension() {
-        // for OSGI purposes
-    }
+    private final Clock clock;
+    private final List<SearchableProperty> searchableProperties;
 
     @Inject
-    public SapAttributesDeviceSearchDomainExtension(WebServiceActivator webServiceActivator, Clock clock) {
-        setWebServiceActivator(webServiceActivator);
-        setClock(clock);
-    }
-
-    @Reference
-    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        this.webServiceActivator = webServiceActivator;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
+    public SapAttributesDeviceSearchDomainExtension(DataModel dataModel, Clock clock, Thesaurus thesaurus) {
         this.clock = clock;
+        searchableProperties = new ArrayList<>();
+        SapAttributesSearchablePropertyGroup searchablePropertyGroup = new SapAttributesSearchablePropertyGroup(thesaurus);
+        searchableProperties.add(dataModel.getInstance(DeviceIdentifierSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(DeviceLocationSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(LogicalRegisterNumberSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(PointOfDeliverySearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(ProfileIdSearchableProperty.class).init(searchablePropertyGroup));
+        searchableProperties.add(dataModel.getInstance(RegisteredSearchableProperty.class).init(searchablePropertyGroup));
     }
 
     @Override
@@ -66,7 +50,7 @@ public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExt
 
     @Override
     public List<SearchableProperty> getProperties() {
-        return webServiceActivator.getSearchableProperties();
+        return searchableProperties;
     }
 
     @Override
@@ -83,21 +67,6 @@ public class SapAttributesDeviceSearchDomainExtension implements SearchDomainExt
             }
         });
         return builder;
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(PropertyTranslationKeys.values());
     }
 
 }

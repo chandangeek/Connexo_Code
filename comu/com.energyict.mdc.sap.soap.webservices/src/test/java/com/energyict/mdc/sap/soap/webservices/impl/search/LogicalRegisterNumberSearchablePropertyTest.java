@@ -192,7 +192,7 @@ public class LogicalRegisterNumberSearchablePropertyTest {
         SqlFragment sqlFragment = getTestInstance().toSqlFragment(condition, Instant.now());
 
         // Asserts
-        assertThat(sqlFragment.getText()).isEqualTo("Fragment1 INTERSECT Fragment2");
+        assertThat(sqlFragment.getText()).isEqualTo("Fragment1 UNION Fragment2");
         verify(dataModel).query(eq(DeviceRegisterSAPInfoDomainExtension.class));
         verify(queryExecutor, times(2)).asFragment(any(Condition.class), eq(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()));
         verify(dataModel).query(eq(DeviceChannelSAPInfoDomainExtension.class));

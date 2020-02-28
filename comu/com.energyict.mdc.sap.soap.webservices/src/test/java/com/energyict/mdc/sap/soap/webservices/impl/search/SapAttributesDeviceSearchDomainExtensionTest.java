@@ -63,11 +63,9 @@ public class SapAttributesDeviceSearchDomainExtensionTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Clock clock;
-    @Mock
-    private WebServiceActivator webServiceActivator;
-    
+
     private BeanService beanService = new DefaultBeanService();
-    private SearchableDeviceProperty deviceIdentifierProperty, deviceLocationProperty;
+    private SearchableDeviceProperty deviceIdentifierProperty, deviceLocationProperty, logicalRegisterNumberProperty, pointOfDeliveryProperty, profileIdProperty, registeredProperty;
 
     @Before
     public void setUp() {
@@ -79,10 +77,18 @@ public class SapAttributesDeviceSearchDomainExtensionTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_IDENTIFIER.getDefaultFormat(), PropertyTranslationKeys.DEVICE_LOCATION.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_IDENTIFIER)).thenReturn(messageFormat);
         when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_LOCATION)).thenReturn(messageFormat);
-        SearchablePropertyGroup parentGroup = new SapAttributesSearchablePropertyGroup(thesaurus);
-        deviceIdentifierProperty = new DeviceIdentifierSearchableProperty(propertySpecService, thesaurus, ormService).init(parentGroup);
-        deviceLocationProperty = new DeviceLocationSearchableProperty(propertySpecService, thesaurus, ormService).init(parentGroup);
-        when(webServiceActivator.getSearchableProperties()).thenReturn(Arrays.asList(deviceIdentifierProperty, deviceLocationProperty));
+        deviceIdentifierProperty = new DeviceIdentifierSearchableProperty(propertySpecService, thesaurus, ormService);
+        deviceLocationProperty = new DeviceLocationSearchableProperty(propertySpecService, thesaurus, ormService);
+        logicalRegisterNumberProperty = new LogicalRegisterNumberSearchableProperty(propertySpecService, thesaurus, ormService);
+        pointOfDeliveryProperty = new PointOfDeliverySearchableProperty(propertySpecService, thesaurus, ormService);
+        profileIdProperty = new ProfileIdSearchableProperty(propertySpecService, thesaurus, ormService);
+        registeredProperty = new RegisteredSearchableProperty(propertySpecService, thesaurus, ormService);
+        doReturn(deviceIdentifierProperty).when(dataModel).getInstance(DeviceIdentifierSearchableProperty.class);
+        doReturn(deviceLocationProperty).when(dataModel).getInstance(DeviceLocationSearchableProperty.class);
+        doReturn(logicalRegisterNumberProperty).when(dataModel).getInstance(LogicalRegisterNumberSearchableProperty.class);
+        doReturn(pointOfDeliveryProperty).when(dataModel).getInstance(PointOfDeliverySearchableProperty.class);
+        doReturn(profileIdProperty).when(dataModel).getInstance(ProfileIdSearchableProperty.class);
+        doReturn(registeredProperty).when(dataModel).getInstance(RegisteredSearchableProperty.class);
     }
 
     @Test
@@ -90,7 +96,7 @@ public class SapAttributesDeviceSearchDomainExtensionTest {
         SearchDomain domain = mock(SearchDomain.class);
         doReturn(Device.class).when(domain).getDomainClass();
 
-        SearchDomainExtension domainExtension = new SapAttributesDeviceSearchDomainExtension(webServiceActivator, clock);
+        SearchDomainExtension domainExtension = new SapAttributesDeviceSearchDomainExtension(dataModel, clock, thesaurus);
 
         Assert.assertTrue(domainExtension.isExtensionFor(domain, Collections.emptyList()));
     }
@@ -106,7 +112,7 @@ public class SapAttributesDeviceSearchDomainExtensionTest {
         doReturn(deviceIdentifierProperty).when(condition).getProperty();
 
         List<SearchablePropertyCondition> conditions = Arrays.asList(condition);
-        SearchDomainExtension domainExtension = new SapAttributesDeviceSearchDomainExtension(webServiceActivator, clock);
+        SearchDomainExtension domainExtension = new SapAttributesDeviceSearchDomainExtension(dataModel, clock, thesaurus);
         SqlFragment sqlFragment = domainExtension.asFragment(conditions);
 
         assertThat(sqlFragment.getText()).isEqualTo("Fragment1");
@@ -125,7 +131,7 @@ public class SapAttributesDeviceSearchDomainExtensionTest {
         doReturn(deviceLocationProperty).when(condition2).getProperty();
 
         List<SearchablePropertyCondition> conditions = Arrays.asList(condition1, condition2);
-        SearchDomainExtension domainExtension = new SapAttributesDeviceSearchDomainExtension(webServiceActivator, clock);
+        SearchDomainExtension domainExtension = new SapAttributesDeviceSearchDomainExtension(dataModel, clock, thesaurus);
         SqlFragment sqlFragment = domainExtension.asFragment(conditions);
 
         assertThat(sqlFragment.getText()).isEqualTo("Fragment1 INTERSECT Fragment2");
