@@ -15,6 +15,9 @@ import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotificat
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+import com.elster.jupiter.transaction.TransactionService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -36,6 +39,7 @@ public class SapApplication extends Application {
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile UtilitiesDeviceRegisteredNotification utilitiesDeviceRegisteredNotification;
     private volatile Clock clock;
+    private volatile TransactionService transactionService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -65,6 +69,7 @@ public class SapApplication extends Application {
             bind(thesaurus).to(Thesaurus.class);
             bind(utilitiesDeviceRegisteredNotification).to(UtilitiesDeviceRegisteredNotification.class);
             bind(clock).to(Clock.class);
+            bind(transactionService).to(TransactionService.class);
         }
     }
 
@@ -97,5 +102,10 @@ public class SapApplication extends Application {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 }
