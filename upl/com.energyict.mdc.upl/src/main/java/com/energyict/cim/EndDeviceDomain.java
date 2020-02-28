@@ -43,7 +43,12 @@ public enum EndDeviceDomain  implements CimMnemonicProvider {
     KYZPULSECOUNTER(38,"KYZPulseCounter"),
     ASSOCIATEDDEVICE(39,"AssociatedDevice"),
     VOLUME(40,"Volume"),
-    RECODER(41,"Recoder");
+    RECODER(41,"Recoder"),
+    SOME_NOT_STANDARD_DOMAIN1(51, "SNSD1"),
+    SOME_NOT_STANDARD_DOMAIN2(52, "SNSD2"),
+    SOME_NOT_STANDARD_DOMAIN3(53, "SNSD3"),
+    SOME_NOT_STANDARD_DOMAIN4(54, "SNSD4"),
+    SOME_NOT_STANDARD_DOMAIN5(55, "SNSD5");
 
     private int value;
     private String mnemonic;

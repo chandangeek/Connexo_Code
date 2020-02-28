@@ -184,7 +184,12 @@ public enum EndDeviceSubdomain  implements CimMnemonicProvider {
     PHASECREACTIVEPOWER(297,"PhaseCReactivePower"),
     INITIALISATION(298,"Initialisation"),
     DAYLIMIT(299,"DayLimit"),
-    RECODER(300,"Recoder");
+    RECODER(300,"Recoder"),
+    SOME_NOT_STANDARD_SUBDOMAIN1(301, "SNSSD1"),
+    SOME_NOT_STANDARD_SUBDOMAIN2(302, "SNSSD2"),
+    SOME_NOT_STANDARD_SUBDOMAIN3(303, "SNSSD3"),
+    SOME_NOT_STANDARD_SUBDOMAIN4(304, "SNSSD4"),
+    SOME_NOT_STANDARD_SUBDOMAIN5(305, "SNSSD5");
 
     private int value;
     private String mnemonic;
