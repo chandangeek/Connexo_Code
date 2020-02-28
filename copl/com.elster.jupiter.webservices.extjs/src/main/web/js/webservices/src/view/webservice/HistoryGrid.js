@@ -19,6 +19,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 header: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
                 dataIndex: 'startTime',
                 flex: 10,
+                minWidth: 150,
                 renderer: function (value, metaData, record) {
                     var basename = me.adminView ? 'administration' : 'workspace';
                     var curOccurrenceRoute = (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices') ?
@@ -38,6 +39,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 dataIndex: 'endTime',
                 header: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
                 flex: 10,
+                minWidth: 150,
                 renderer: function (value, metaData, record) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }

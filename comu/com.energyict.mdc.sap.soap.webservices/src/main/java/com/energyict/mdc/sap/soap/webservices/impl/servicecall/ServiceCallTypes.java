@@ -3,18 +3,30 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall;
 
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.PodNotificationServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.PodNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.PodNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceLocationNotificationServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceLocationNotificationCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceLocationNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
@@ -133,7 +145,31 @@ public enum ServiceCallTypes {
             MasterConnectionStatusChangeServiceCallHandler.VERSION,
             MasterConnectionStatusChangeServiceCallHandler.APPLICATION,
             MasterConnectionStatusChangeCustomPropertySet.class.getSimpleName(),
-            MasterConnectionStatusChangeDomainExtension.class.getName())
+            MasterConnectionStatusChangeDomainExtension.class.getName()),
+    MASTER_UTILITIES_DEVICE_LOCATION_NOTIFICATION(
+            MasterUtilitiesDeviceLocationNotificationServiceCallHandler.NAME,
+            MasterUtilitiesDeviceLocationNotificationServiceCallHandler.VERSION,
+            MasterUtilitiesDeviceLocationNotificationServiceCallHandler.APPLICATION,
+            MasterUtilitiesDeviceLocationNotificationCustomPropertySet.class.getSimpleName(),
+            MasterUtilitiesDeviceLocationNotificationDomainExtension.class.getName()),
+    UTILITIES_DEVICE_LOCATION_NOTIFICATION(
+            UtilitiesDeviceLocationNotificationServiceCallHandler.NAME,
+            UtilitiesDeviceLocationNotificationServiceCallHandler.VERSION,
+            UtilitiesDeviceLocationNotificationServiceCallHandler.APPLICATION,
+            UtilitiesDeviceLocationNotificationCustomPropertySet.class.getSimpleName(),
+            UtilitiesDeviceLocationNotificationDomainExtension.class.getName()),
+    MASTER_POD_NOTIFICATION(
+            MasterPodNotificationServiceCallHandler.NAME,
+            MasterPodNotificationServiceCallHandler.VERSION,
+            MasterPodNotificationServiceCallHandler.APPLICATION,
+            MasterPodNotificationCustomPropertySet.class.getSimpleName(),
+            MasterPodNotificationDomainExtension.class.getName()),
+    POD_NOTIFICATION(
+            PodNotificationServiceCallHandler.NAME,
+            PodNotificationServiceCallHandler.VERSION,
+            PodNotificationServiceCallHandler.APPLICATION,
+            PodNotificationCustomPropertySet.class.getSimpleName(),
+            PodNotificationDomainExtension.class.getName())
     ;
 
     private final String typeName;

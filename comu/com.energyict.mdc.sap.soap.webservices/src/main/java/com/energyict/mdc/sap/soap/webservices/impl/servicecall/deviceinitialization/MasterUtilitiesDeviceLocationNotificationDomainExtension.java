@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements RetrySearchDataSourceDomainExtension {
+public class MasterUtilitiesDeviceLocationNotificationDomainExtension extends AbstractPersistentDomainExtension implements RetrySearchDataSourceDomainExtension {
     public enum FieldNames {
         // general
         DOMAIN("serviceCall", "SERVICE_CALL"),
@@ -52,9 +52,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends A
     private String requestID;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String uuid;
-
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Boolean bulk;
+    private boolean bulk;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal attemptNumber;
 
@@ -82,11 +80,11 @@ public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends A
         this.uuid = uuid;
     }
 
-    public Boolean isBulk() {
+    public boolean isBulk() {
         return bulk;
     }
 
-    public void setBulk(Boolean bulk) {
+    public void setBulk(boolean bulk) {
         this.bulk = bulk;
     }
 
@@ -95,7 +93,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends A
         this.serviceCall.set(serviceCall);
         this.setRequestID((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
         this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
-        this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
+        this.setBulk((boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
         this.setAttemptNumber(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.ATTEMPT_NUMBER.javaName()))
                 .orElse(BigDecimal.ZERO).toString()));
     }

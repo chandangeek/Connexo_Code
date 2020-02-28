@@ -105,7 +105,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
     }
 
     protected List<DeviceMessage> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {
-        Device multiSenseDevice = findDeviceForEndDevice(getEndDevice());
+        Device multiSenseDevice = findLockedDeviceForEndDevice(getEndDevice());
         List<DeviceMessage> deviceMessages = new ArrayList<>(deviceMessageIds.size());
         int idx = 0;
         for (DeviceMessageId deviceMessageId : deviceMessageIds) {
@@ -127,6 +127,11 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
     protected Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
+    }
+
+    protected Device findLockedDeviceForEndDevice(EndDevice endDevice) {
+        long deviceId = Long.parseLong(endDevice.getAmrId());
+        return deviceService.findAndLockDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
     protected DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {

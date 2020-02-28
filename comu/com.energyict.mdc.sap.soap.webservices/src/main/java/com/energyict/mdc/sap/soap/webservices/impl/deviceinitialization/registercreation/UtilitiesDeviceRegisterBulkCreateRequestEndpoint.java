@@ -8,6 +8,10 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterBulkCreateConfirmation;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilitiesDeviceERPSmartMeterRegisterBulkCreateRequestCIn;
@@ -25,6 +29,19 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
                                                      Clock clock, SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus, WebServiceActivator webServiceActivator,
                                                      ServiceCallService serviceCallService) {
         super(serviceCallCommands, endPointConfigurationService, clock, sapCustomPropertySets, thesaurus, webServiceActivator, serviceCallService);
+    }
+
+    @Override
+    void validateConfiguredEndpoints() {
+        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);
+        }
+
+        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceRegisteredBulkNotification.NAME);
+        }
     }
 
     @Override
