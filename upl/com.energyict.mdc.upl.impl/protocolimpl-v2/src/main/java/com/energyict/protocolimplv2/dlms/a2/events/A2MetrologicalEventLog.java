@@ -47,7 +47,7 @@ public class A2MetrologicalEventLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CLOCK_SYNC_FAIL, eventId, "Clock sync fail"));
                 break;
             case 12:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CLOCK_SYNC, eventId, "Clock sync")); // SETCLOCK vs. CLOCK_SYNC???
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CLOCK_SYNC, eventId, "Clock sync"));
                 break;
             case 15:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.METROLOGICAL_PARAMETER_CONFIGURATION, eventId, "Metrological parameter configuration"));
