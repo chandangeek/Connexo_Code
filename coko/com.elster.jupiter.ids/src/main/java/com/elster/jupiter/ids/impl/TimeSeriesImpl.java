@@ -349,7 +349,9 @@ public final class TimeSeriesImpl implements TimeSeries {
 
     @Override
     public boolean equals(Object other) {
-        return this == other || other instanceof TimeSeriesImpl && this.id == ((TimeSeriesImpl) other).id;
+        return this == other
+                || other instanceof TimeSeriesImpl
+                && this.id == ((TimeSeriesImpl) other).id;
     }
 
     @Override
