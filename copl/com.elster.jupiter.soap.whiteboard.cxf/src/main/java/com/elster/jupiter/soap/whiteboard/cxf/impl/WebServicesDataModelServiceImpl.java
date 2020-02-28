@@ -262,6 +262,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 Installer.class,
                 ImmutableMap.of(
                         V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
+                        UpgraderV10_4_9.VERSION, UpgraderV10_4_9.class,
                         UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class,
                         UpgraderV10_7.VERSION, UpgraderV10_7.class,
                         UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class
