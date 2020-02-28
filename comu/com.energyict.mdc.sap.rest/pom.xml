@@ -12,12 +12,15 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>3.0.0-Heracles-SNAPSHOT</version>
-
     </parent>
 
     <artifactId>mdc.sap.rest</artifactId>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.sap.rest</name>
+
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
 
     <profiles>
         <profile>
