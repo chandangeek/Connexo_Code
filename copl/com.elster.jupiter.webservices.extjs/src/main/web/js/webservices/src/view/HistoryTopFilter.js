@@ -45,8 +45,29 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 value: me.endpoint ? me.endpoint.getId() : undefined,
                 valueToNumber: true,
                 matchFieldWidth: false,
+                multiSelect: true,
+                editable: false,
                 listConfig: {
-                    tpl : '<tpl for="."><div class="x-boundlist-item" style="min-width:180px;max-width:500px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-qtip="{name}">{name}</div></tpl>'
+                    minWidth: 180,
+                    maxWidth: 500
+                },
+                listeners: {
+                    expand: function (combo) {
+                        var me = this;
+                        function setTooltips() {
+                            var alltheItems = me.store.data.items
+                            var picker = combo.getPicker();
+
+                            alltheItems.forEach(function (value) {
+                                picker.getNode(value).setAttribute("data-qtip", value.get(combo.displayField))
+                            })
+                        }
+                        if (me.store && me.store.data && me.store.data.items){
+                            setTooltips();
+                        }else{
+                            me.store.on('load', setTooltips);
+                        }
+                    }
                 }
             },
             {
