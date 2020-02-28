@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -442,11 +443,20 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private Map<Pair<ChannelContract, Instant>, Object[]> readFromDb(Set<Pair<ChannelContract, Instant>> needed) {
-        return needed.stream()
-                .map(pair -> Pair.of(pair, pair.getFirst().getReading(pair.getLast())))
-                .filter(pair -> pair.getLast().isPresent())
-                .map(pair -> pair.withLast(Optional::get))
-                .map(pair -> pair.withLast(pair.getFirst().getFirst()::toArray))
+        Map<TimeSeries, ChannelContract> channelsByTimeSeries = new HashMap<>();
+        List<Pair<TimeSeries, Instant>> scope = needed.stream()
+                .map(channelAndInstant -> {
+                    ChannelContract channelContract = channelAndInstant.getFirst();
+                    TimeSeries timeSeries = channelContract.getTimeSeries();
+                    channelsByTimeSeries.put(timeSeries, channelContract);
+                    return channelAndInstant.withFirst(timeSeries);
+                })
+                .collect(Collectors.toList());
+        return idsService.getEntries(scope).stream()
+                .map(entry -> {
+                    ChannelContract channelContract = channelsByTimeSeries.get(entry.getTimeSeries());
+                    return Pair.of(Pair.of(channelContract, entry.getTimeStamp()), channelContract.toArray(new IntervalReadingRecordImpl(channelContract, entry)));
+                })
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
     }
 

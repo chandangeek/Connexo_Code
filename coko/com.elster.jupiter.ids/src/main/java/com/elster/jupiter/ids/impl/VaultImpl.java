@@ -6,6 +6,7 @@ package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.orm.DataModel;
@@ -34,7 +35,9 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -422,6 +425,43 @@ public final class VaultImpl implements IVault {
             return doGetEntries(timeSeries, interval);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
+    @Override
+    public List<TimeSeriesEntry> getEntries(List<Pair<TimeSeries, Instant>> scope) {
+        try (Connection connection = getConnection(false);
+             Statement statement = connection.createStatement()) {
+            Map<Long, TimeSeriesImpl> timeSeriesById = new HashMap<>();
+            return scope.stream()
+                    .map(pair -> pair.withFirst(TimeSeriesImpl.class::cast))
+                    .peek(timeSeriesAndInstant -> timeSeriesById.put(timeSeriesAndInstant.getFirst().getId(), timeSeriesAndInstant.getFirst()))
+                    .collect(Collectors.groupingBy(timeSeriesAndInstant -> timeSeriesAndInstant.getFirst().getRecordSpec().columnNames()))
+                    .entrySet()
+                    .stream()
+                    .map(columnsWithTimeSeriesAndInstants -> {
+                        SqlBuilder builder = selectSql(columnsWithTimeSeriesAndInstants.getKey());
+                        String condition = columnsWithTimeSeriesAndInstants.getValue().stream()
+                                .map(timeSeriesAndInstant -> "TIMESERIESID = " + timeSeriesAndInstant.getFirst().getId()
+                                        + " and UTCSTAMP = " + timeSeriesAndInstant.getLast().toEpochMilli())
+                                .collect(Collectors.joining(" or "));
+                        builder.append(' ' + condition);
+                        return builder.toString();
+                    })
+                    .flatMap(sql -> {
+                        List<TimeSeriesEntry> result = new ArrayList<>();
+                        try (ResultSet resultSet = statement.executeQuery(sql)) {
+                            while (resultSet.next()) {
+                                result.add(new TimeSeriesEntryImpl(timeSeriesById.get(resultSet.getLong(1)), resultSet));
+                            }
+                            return result.stream();
+                        } catch (SQLException e) {
+                            throw new UnderlyingSQLFailedException(e);
+                        }
+                    })
+                    .collect(Collectors.toList());
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
