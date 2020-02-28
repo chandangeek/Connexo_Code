@@ -39,6 +39,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -177,7 +178,7 @@ public class KeyAccessorResource {
         try {
             ServiceKeyInjectionResponse response = hsmEnergyService.serviceKeyInjection(info.preparedServiceKey,
                     info.signature, info.verifyKey);
-            info.injectedServiceKey = ((Message)response).toHex();
+            info.injectedServiceKey = Base64.getEncoder().encodeToString(((Message)response).getBytes());
             info.warning = response.getWarning();
             return Response.ok(info).build();
         } catch (HsmBaseException e) {
@@ -232,7 +233,7 @@ public class KeyAccessorResource {
         SecurityAccessor securityAccessor = getSecurityAccessor(keyAccessorName, device);
         if (securityAccessor.getKeyAccessorTypeReference().keyTypeIsHSM()) {
             String value = info.get("value");
-            String wrappedValue = info.get("wrappedValue");
+            String injectedValue = info.get("injectedValue");
 
             Map<String, Object> properties = new HashMap<>();
             properties.put(KEY_PROPERTY, value);
@@ -241,12 +242,12 @@ public class KeyAccessorResource {
             Optional<SecurityValueWrapper> currentTempValue = securityAccessor.getTempValue();
             if (currentTempValue.isPresent()) {
                 SecurityValueWrapper tempValueWrapper = currentTempValue.get();
-                ((HsmKey)tempValueWrapper).setSmartMeterKey(wrappedValue.getBytes());
+                ((HsmKey)tempValueWrapper).setSmartMeterKey(injectedValue);
                 tempValueWrapper.setProperties(properties);
             } else if (!value.isEmpty()) {
                 SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor
                         .getKeyAccessorTypeReference());
-                ((HsmKey)securityValueWrapper).setSmartMeterKey(wrappedValue.getBytes());
+                ((HsmKey)securityValueWrapper).setSmartMeterKey(injectedValue);
                 securityValueWrapper.setProperties(properties);
                 securityAccessor.setTempValue(securityValueWrapper);
                 securityAccessor.save();
