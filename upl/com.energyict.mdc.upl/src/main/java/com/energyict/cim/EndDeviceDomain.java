@@ -47,8 +47,7 @@ public enum EndDeviceDomain  implements CimMnemonicProvider {
     SOME_NOT_STANDARD_DOMAIN1(51, "SNSD1"),
     SOME_NOT_STANDARD_DOMAIN2(52, "SNSD2"),
     SOME_NOT_STANDARD_DOMAIN3(53, "SNSD3"),
-    SOME_NOT_STANDARD_DOMAIN4(54, "SNSD4"),
-    SOME_NOT_STANDARD_DOMAIN5(55, "SNSD5");
+    SOME_NOT_STANDARD_DOMAIN4(54, "SNSD4");
 
     private int value;
     private String mnemonic;
