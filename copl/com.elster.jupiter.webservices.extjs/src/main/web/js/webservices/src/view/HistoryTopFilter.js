@@ -46,7 +46,6 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 valueToNumber: true,
                 matchFieldWidth: false,
                 multiSelect: true,
-                editable: false,
                 listConfig: {
                     minWidth: 180,
                     maxWidth: 500
