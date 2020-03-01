@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommands;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import org.osgi.service.component.annotations.Activate;
@@ -197,23 +196,6 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     }
 
     @Override
-    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, SecurityAccessorType securityAccessorType) {
-        Device deviceForEndDevice = findDeviceForEndDevice(endDevice);
-        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = deviceForEndDevice.getDeviceConfiguration()
-                .getDeviceType()
-                .getSecurityAccessors()
-                .stream()
-                .filter(sec -> sec.getSecurityAccessorType().getName().equals(securityAccessorType.getName()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME)
-                        .format(securityAccessorType.getName())));
-        KeyRenewalCommand command = (KeyRenewalCommand) this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
-        command.setSecurityAccessorOnDeviceType(securityAccessorTypeOnDeviceType);
-
-        return command;
-    }
-
-    @Override
     public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, List<SecurityAccessorType> securityAccessortypes) {
         Device deviceForEndDevice = findDeviceForEndDevice(endDevice);
         List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes = new ArrayList<>();
@@ -226,10 +208,10 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME)
                         .format(securityAccessorType.getName())))));
-        KeyRenewalCommands commands = (KeyRenewalCommands) this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
-        commands.setSecurityAccessorOnDeviceTypes(securityAccessorTypeOnDeviceTypes);
+        KeyRenewalCommand command = (KeyRenewalCommand) this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
+        command.setSecurityAccessorOnDeviceTypes(securityAccessorTypeOnDeviceTypes);
 
-        return commands;
+        return command;
     }
 
     @Override

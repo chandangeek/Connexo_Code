@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class KeyRenewalCommand extends EndDeviceCommandImpl {
 
-    private SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType;
+    private List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes;
 
     public KeyRenewalCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         super(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
@@ -32,33 +32,36 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
 
     @Override
     public List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
+        List<DeviceMessage> deviceMessages = new ArrayList<>();
 
-        if (securityAccessorTypeOnDeviceType == null) {
+        if (securityAccessorTypeOnDeviceTypes == null || securityAccessorTypeOnDeviceTypes.isEmpty()) {
             //should never end up here
-            throw new IllegalStateException("Cannot continue! Security accessor object was not initialized.");
+            throw new IllegalStateException("Cannot continue! Security accessors are not initialized.");
         }
 
-        DeviceMessageId deviceMessageId = extractDeviceMessageId();
-        List<PropertySpec> propertySpecs = findDeviceMessageSpec(deviceMessageId).getPropertySpecs();
+        for (SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType: securityAccessorTypeOnDeviceTypes) {
+            DeviceMessageId deviceMessageId = extractDeviceMessageId(securityAccessorTypeOnDeviceType);
+            List<PropertySpec> propertySpecs = findDeviceMessageSpec(deviceMessageId).getPropertySpecs();
 
-        configureCommandAttributes(propertySpecs);
+            configureCommandAttributes(securityAccessorTypeOnDeviceType, propertySpecs);
 
-        return buildDeviceCommand(serviceCall, releaseDate, deviceMessageId, propertySpecs);
+            deviceMessages.add(buildDeviceCommand(serviceCall, releaseDate, deviceMessageId, propertySpecs));
+        }
+
+        return deviceMessages;
     }
 
-    private List<DeviceMessage> buildDeviceCommand(ServiceCall serviceCall, Instant releaseDate, DeviceMessageId deviceMessageId, List<PropertySpec> propertySpecs) {
+    private DeviceMessage buildDeviceCommand(ServiceCall serviceCall, Instant releaseDate, DeviceMessageId deviceMessageId, List<PropertySpec> propertySpecs) {
         Device multiSenseDevice = findDeviceForEndDevice(getEndDevice());
         Device.DeviceMessageBuilder deviceMessageBuilder = multiSenseDevice.newDeviceMessage(deviceMessageId, TrackingCategory.serviceCall)
                 .setTrackingId(Long.toString(serviceCall.getId()))
                 .setReleaseDate(releaseDate);
 
         propertySpecs.forEach(propertySpec -> deviceMessageBuilder.addProperty(propertySpec.getName(), getPropertyValueMap().get(propertySpec)));
-        List<DeviceMessage> deviceMessages = new ArrayList<>();
-        deviceMessages.add(deviceMessageBuilder.add());
-        return deviceMessages;
+        return deviceMessageBuilder.add();
     }
 
-    private void configureCommandAttributes(List<PropertySpec> propertySpecs) {
+    private void configureCommandAttributes(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType, List<PropertySpec> propertySpecs) {
         PropertySpec accessorPropertySpec = extractSecurityAccessorPropertySpec(propertySpecs);
         setPropertyValue(accessorPropertySpec, securityAccessorTypeOnDeviceType.getSecurityAccessorType());
 
@@ -66,7 +69,7 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
         //On security accessor all other properties are filled in except the ones referring to security accessor
         securityAccessorTypeOnDeviceType.getKeyRenewalAttributes()
                 .stream()
-                .filter(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getValue() != null)
+                .filter(securityAccessorTypeKeyRenewal -> securityAccessorTypeKeyRenewal.getValue() != null)
                 .forEach(securityAccessorTypeKeyRenewal -> setPropertyValue(securityAccessorTypeKeyRenewal.getSpecification(), securityAccessorTypeKeyRenewal.getValue()));
     }
 
@@ -92,13 +95,13 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
                 .collect(Collectors.toList());
     }
 
-    private DeviceMessageId extractDeviceMessageId() {
+    private DeviceMessageId extractDeviceMessageId(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
         return securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageId()
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_KEY_RENEWAL_COMMAND_CONFIGURED)
                         .format(securityAccessorTypeOnDeviceType.getSecurityAccessorType().getName())));
     }
 
-    public void setSecurityAccessorOnDeviceType(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
-        this.securityAccessorTypeOnDeviceType = securityAccessorTypeOnDeviceType;
+    public void setSecurityAccessorOnDeviceTypes(List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes) {
+        this.securityAccessorTypeOnDeviceTypes = securityAccessorTypeOnDeviceTypes;
     }
 }
