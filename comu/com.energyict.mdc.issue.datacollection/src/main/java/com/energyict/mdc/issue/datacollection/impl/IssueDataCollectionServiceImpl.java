@@ -56,6 +56,7 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_2;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_4;
+import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_8;
 import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.google.common.collect.ImmutableMap;
@@ -144,7 +145,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
                 version(10, 4), UpgraderV10_4.class,
-                version(10, 7), V10_7SimpleUpgrader.class
+                version(10, 7), V10_7SimpleUpgrader.class,
+                version(10, 8), UpgraderV10_8.class
         ));
     }
 
