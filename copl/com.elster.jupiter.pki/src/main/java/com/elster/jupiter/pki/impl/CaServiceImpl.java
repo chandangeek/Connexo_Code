@@ -17,17 +17,13 @@ import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.cesecore.util.Base64;
-import org.cesecore.util.CertTools;
-import org.cesecore.util.CryptoProviderTools;
 import org.ejbca.core.protocol.ws.AlreadyRevokedException_Exception;
 import org.ejbca.core.protocol.ws.ApprovalException_Exception;
 import org.ejbca.core.protocol.ws.AuthorizationDeniedException_Exception;
@@ -71,6 +67,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -103,7 +100,7 @@ public class CaServiceImpl implements CaService {
     public static final int CERT_REQ_TYPE_SPKAC = 2;
     public static final int CERT_REQ_TYPE_PUBLICKEY = 3;
 
-    private static final String CERTIFICATE_FACTORY_X509 = "X.509";
+    private static final String X509 = "X.509";
     public static final String BEGIN_CERTIFICATE_REQUEST = "-----BEGIN CERTIFICATE REQUEST-----\n";
     public static final String END_CERTIFICATE_REQUEST = "\n-----END CERTIFICATE REQUEST-----\n";
     public static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n";
@@ -229,7 +226,7 @@ public class CaServiceImpl implements CaService {
 
 
         try {
-            String csrEncoded = new String(Base64.encode(pkcs10.getEncoded()));
+            String csrEncoded = new String(Base64.getEncoder().encode(pkcs10.getEncoded()));
 
             LOGGER.info("Sending CSR to EJBCA WebService:\n"+ BEGIN_CERTIFICATE_REQUEST +csrEncoded+ END_CERTIFICATE_REQUEST);
 
@@ -237,10 +234,10 @@ public class CaServiceImpl implements CaService {
 
             LOGGER.info("Response received, parsing as X.509 certificate");
             InputStream byteArrayInputStream = new ByteArrayInputStream(certificateResponse.getData());
-            CertificateFactory certificateFactory = CertTools.getCertificateFactory();
+            CertificateFactory certificateFactory = CertificateFactory.getInstance(X509);
             x509Cert = (X509Certificate) certificateFactory.generateCertificate(byteArrayInputStream);
 
-            String certEncoded  = new String(Base64.encode(x509Cert.getEncoded()));
+            String certEncoded  = new String(Base64.getEncoder().encode(x509Cert.getEncoded()));
             LOGGER.info("Received certificate\n"+ BEGIN_CERTIFICATE +certEncoded+ END_CERTIFICATE);
 
         } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception | UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
@@ -442,7 +439,7 @@ public class CaServiceImpl implements CaService {
     private EjbcaWS createWSBackend() {
         EjbcaWSService service;
         setNewDefaultSSLSocketFactory();
-        CryptoProviderTools.installBCProvider();
+        //CryptoProviderTools.installBCProvider();
         QName Q_NAME = new QName("http://ws.protocol.core.ejbca.org/", "EjbcaWSService");
         String WSDL_LOCATION = "https://" + pkiHost.trim() + ':' + pkiPort + "/ejbca/ejbcaws/ejbcaws?wsdl";
         try {
@@ -469,9 +466,8 @@ public class CaServiceImpl implements CaService {
         }
     }
 
-    // from CertificateHelper ... o fi buna la ceva ?!
-    public static byte[] getPKCS7(byte[] pkcs7Data) {
-        return Base64.decode(pkcs7Data);
-    }
 
+    public byte[] getPKCS7(byte[] pkcs7Data) {
+        return Base64.getDecoder().decode(pkcs7Data);
+    }
 }
