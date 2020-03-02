@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.NO_SEVERITY_CODE_AND_ERROR_MESSAGE;
 import static com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.SEVERITY_CODE_AND_ERROR_MESSAGE;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeConfirmationReceiver",
@@ -196,12 +197,18 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                 .filter(log -> log.getNote() != null && !Checks.is(log.getNote()).emptyOrOnlyWhiteSpace())
                 .collect(Collectors.toList());
 
-        if (!list.isEmpty()) {
-            return Optional.of(list.stream()
-                    .map(log -> thesaurus.getSimpleFormat(SEVERITY_CODE_AND_ERROR_MESSAGE).format((log.getSeverityCode() != null ? log.getSeverityCode() : ""), log.getNote()))
-                    .collect(Collectors.joining(" ")));
-        } else {
+        if (list.isEmpty()) {
             return Optional.empty();
+        } else {
+            return Optional.of(list.stream()
+                    .map(log -> {
+                        if (log.getSeverityCode() != null && !Checks.is(log.getSeverityCode()).emptyOrOnlyWhiteSpace()) {
+                            return thesaurus.getSimpleFormat(SEVERITY_CODE_AND_ERROR_MESSAGE).format(log.getSeverityCode(), log.getNote());
+                        } else {
+                            return thesaurus.getSimpleFormat(NO_SEVERITY_CODE_AND_ERROR_MESSAGE).format(log.getNote());
+                        }
+                    })
+                    .collect(Collectors.joining(" ")));
         }
     }
 
