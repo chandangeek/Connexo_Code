@@ -36,13 +36,7 @@ class UpgraderV10_8 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         installNewEventTypes();
-        try (Connection connection = dataModel.getConnection(true);
-             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET NLS_COMPONENT = 'DTC' WHERE NAME = 'DeviceTypesChanges'");
-        ) {
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        execute(dataModel, "UPDATE MSG_SUBSCRIBERSPEC SET NLS_COMPONENT = 'DTC' WHERE NAME = 'DeviceTypesChanges'");
     }
 
     private void installNewEventTypes() {
