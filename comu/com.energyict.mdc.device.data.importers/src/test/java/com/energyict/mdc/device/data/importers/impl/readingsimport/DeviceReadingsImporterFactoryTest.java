@@ -48,6 +48,7 @@ import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
@@ -144,6 +145,9 @@ public class DeviceReadingsImporterFactoryTest {
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
         when(meteringService.getReadingTypeByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.getReadingType(anyString())).thenReturn(Optional.empty());
+        TopologyService topologyService = mock(TopologyService.class);
+        when(context.getTopologyService()).thenReturn(topologyService);
+        when(topologyService.getSlaveRegister(any(),any())).thenReturn(Optional.empty());
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -363,11 +367,13 @@ public class DeviceReadingsImporterFactoryTest {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        mockDevice("VPB0001");
+        Device device = mockDevice("VPB0001");
+        Register register = mock(Register.class);
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
         when(readingType.isRegular()).thenReturn(true);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-
+        when(register.getReadingType()).thenReturn(readingType);
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
@@ -438,14 +444,20 @@ public class DeviceReadingsImporterFactoryTest {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        mockDevice("VPB0001");
-        mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
+        Device device = mockDevice("VPB0001");
+        ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
+        Register register = mock(Register.class);
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
+        when(register.getReadingType()).thenReturn(readingType);
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
+        when(register.getRegisterSpec()).thenReturn(registerSpec);
+        when(registerSpec.isTextual()).thenReturn(true);
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "VPB0001"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
