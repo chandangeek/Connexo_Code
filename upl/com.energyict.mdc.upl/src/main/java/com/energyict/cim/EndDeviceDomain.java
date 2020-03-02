@@ -44,10 +44,10 @@ public enum EndDeviceDomain  implements CimMnemonicProvider {
     ASSOCIATEDDEVICE(39,"AssociatedDevice"),
     VOLUME(40,"Volume"),
     RECODER(41,"Recoder"),
-    SOME_NOT_STANDARD_DOMAIN1(51, "SNSD1"),
-    SOME_NOT_STANDARD_DOMAIN2(52, "SNSD2"),
-    SOME_NOT_STANDARD_DOMAIN3(53, "SNSD3"),
-    SOME_NOT_STANDARD_DOMAIN4(54, "SNSD4");
+    ELSTER_DEFINED_SCHEDULER1(51, "scheduler 1"),
+    ELSTER_DEFINED_SCHEDULER2(52, "scheduler 2"),
+    ELSTER_DEFINED_SCHEDULER3(51, "scheduler 3"),
+    ELSTER_DEFINED_SCHEDULER4(51, "scheduler 4");
 
     private int value;
     private String mnemonic;
