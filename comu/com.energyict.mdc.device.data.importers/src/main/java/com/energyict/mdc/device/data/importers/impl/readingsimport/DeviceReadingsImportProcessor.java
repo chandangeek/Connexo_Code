@@ -201,27 +201,31 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             return;
         }
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        if(!deviceReadingsData.getChannelReadingsToStore().isEmpty()) {
+        if (!deviceReadingsData.getChannelReadingsToStore().isEmpty()) {
             meterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(deviceReadingsData.getChannelReadingsToStore()));
         }
-        if(!deviceReadingsData.getRegisterReadingsToStore().isEmpty()) {
+        if (!deviceReadingsData.getRegisterReadingsToStore().isEmpty()) {
             meterReading.addAllReadings(deviceReadingsData.getRegisterReadingsToStore());
         }
-        device.store(meterReading);
-        if(!deviceReadingsData.getChannelReadingsToStore().isEmpty() && !deviceReadingsData.getLastReadingPerChannel().isEmpty()) {
+        if (!deviceReadingsData.getChannelReadingsToStore().isEmpty() || !deviceReadingsData.getRegisterReadingsToStore().isEmpty()) {
+            device.store(meterReading);
+        }
+        if (!deviceReadingsData.getChannelReadingsToStore().isEmpty() && !deviceReadingsData.getLastReadingPerChannel().isEmpty()) {
             updateLastReading(device, deviceReadingsData.getChannelReadingsToStore(), deviceReadingsData.getLastReadingPerChannel());
         }
 
         slaves.forEach((slave, slaveReadingsData) -> {
             MeterReadingImpl slaveMeterReading = MeterReadingImpl.newInstance();
-            if(!slaveReadingsData.getChannelReadingsToStore().isEmpty()) {
+            if (!slaveReadingsData.getChannelReadingsToStore().isEmpty()) {
                 slaveMeterReading.addAllIntervalBlocks(getIntervalBlocksFromChannelReadings(slaveReadingsData.getChannelReadingsToStore()));
             }
-            if(!slaveReadingsData.getRegisterReadingsToStore().isEmpty()) {
+            if (!slaveReadingsData.getRegisterReadingsToStore().isEmpty()) {
                 slaveMeterReading.addAllReadings(slaveReadingsData.getRegisterReadingsToStore());
             }
-            slave.store(slaveMeterReading);
-            if(!slaveReadingsData.getChannelReadingsToStore().isEmpty() && !slaveReadingsData.getLastReadingPerChannel().isEmpty()) {
+            if (!slaveReadingsData.getChannelReadingsToStore().isEmpty() || !slaveReadingsData.getRegisterReadingsToStore().isEmpty()) {
+                slave.store(slaveMeterReading);
+            }
+            if (!slaveReadingsData.getChannelReadingsToStore().isEmpty() && !slaveReadingsData.getLastReadingPerChannel().isEmpty()) {
                 updateLastReading(slave, slaveReadingsData.getChannelReadingsToStore(), slaveReadingsData.getLastReadingPerChannel());
             }
         });
