@@ -158,6 +158,21 @@ public class DynamicSearchResource {
         Principal principal = threadPrincipalService.getPrincipal();
         User user = (User)principal;
         List searchResults;
+        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
+        JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start, limit);
+
+        if(checkPrivileges(user, domainId)) {
+            List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
+            searchResults = infoFactory.from(domainObjects);
+        }else {
+            searchResults = new ArrayList();
+        }
+        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+    }
+
+    public boolean checkPrivileges(User user, String domainId){
         boolean adminPrivilege =  user.getPrivileges()
                 .stream()
                 .filter(privilege -> privilege.getName().equals("privilege.administrate.deviceData"))
@@ -168,18 +183,11 @@ public class DynamicSearchResource {
                 .filter(privilege -> privilege.getName().equals("privilege.view.device"))
                 .findAny()
                 .isPresent();
-        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
-        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
-        JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start, limit);
-
-        if(adminPrivilege && viewPrivilege) {
-            List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
-            searchResults = infoFactory.from(domainObjects);
-        }else {
-            searchResults = new ArrayList();
+        if (domainId.equals("com.elster.jupiter.users.User") || adminPrivilege && viewPrivilege){
+            return true;
         }
-        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+
+        return false;
     }
 
     @GET
