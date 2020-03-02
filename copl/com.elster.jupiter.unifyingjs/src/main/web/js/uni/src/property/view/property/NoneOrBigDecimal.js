@@ -75,7 +75,7 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
 
 
     getValueNumberField: function () {
-        return this.down('#value_number_field_' + this.key);
+        return this.down('#value_bigdecimal_field_' + this.key);
     },
 
     getValueRadioField: function () {

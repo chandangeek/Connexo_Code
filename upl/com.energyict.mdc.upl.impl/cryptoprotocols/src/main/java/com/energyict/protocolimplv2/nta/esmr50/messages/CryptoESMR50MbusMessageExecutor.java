@@ -257,18 +257,15 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         byte[] mbusIV = getInitializationVector(kcc, serialNumber);
         byte[] eMeterIV = mbusCryptoMessageExecutor.getNextInitializationVector();
 
-        String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
-        //IrreversibleKeyImpl encryptedKeyPhase2DefaultKey = EncryptedKeyPhase2.fromDataBaseString(defaultKeyProperty);
-        //ProtectedSessionKey defaultKey = encryptedKeyPhase2DefaultKey.toProtectedSessionKey();
-        IrreversibleKey defaultKey = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(defaultKeyProperty));
+        final String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
+        IrreversibleKey defaultKey = new IrreversibleKeyImpl(defaultKeyProperty);
 
         KeyRenewalMBusResponse response;
         if (MBusKeyID.FUAK.equals(keyID)) {
             journal(Level.INFO, "Calling renewMBusFuakWithGCM ...");
 
             AbstractSmartNtaProtocol protocol = (AbstractSmartNtaProtocol) getProtocol();
-            String workingKeyLabel = ((ESMR50Properties) protocol.getProperties()).getWorkingKeyLabelPhase2();
-
+            String workingKeyLabel = ((ESMR50Properties) protocol.getDlmsSessionProperties()).getWorkingKeyLabelPhase2();
 
             journal(Level.FINEST, " - mbusIV [" + mbusIV + "]: " + ProtocolTools.getHexStringFromBytes(mbusIV));
 
