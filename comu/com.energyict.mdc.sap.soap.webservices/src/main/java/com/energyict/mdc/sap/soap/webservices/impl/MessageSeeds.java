@@ -27,6 +27,8 @@ public enum MessageSeeds implements MessageSeed {
     REQUEST_WAS_FAILED(14, "RequestWasFailed", "Request has failed."),
     ONE_OF_MRD_IS_INVALID(15, "OneOfMrdIsInvalid", "One of the meter reading document has invalid message format"),
     DATA_EXPORT_TASK_WAS_INTERRUPTED(16, "DataExportTaskWasInterrupted", "Data export task was interrupted while waiting for data export confirmation."),
+    SEVERITY_CODE_AND_ERROR_MESSAGE(17, "SeverityCodeAndErrorMessage", "Severity code {0}: {1}."),
+    NO_SEVERITY_CODE_AND_ERROR_MESSAGE(18, "NoSeverityCodeAndErrorMessage", "No severity code: {0}."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),

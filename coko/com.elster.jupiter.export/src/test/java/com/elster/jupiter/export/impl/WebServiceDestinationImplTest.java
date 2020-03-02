@@ -369,7 +369,7 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
-                ": No data export confirmation has been received in the configured timeout.");
+                ". No data export confirmation has been received in the configured timeout.");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -400,7 +400,7 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForChangedData(source2)).isTrue();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
-                ": Error!");
+                ". Error!");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -433,9 +433,9 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForChangedData(source2)).isTrue();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
-                ": Error!");
+                ". Error!");
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
-                ": Failure!");
+                ". Failure!");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -478,7 +478,7 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForChangedData(source3)).isFalse();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
-                ": Error!");
+                ". Error!");
         verify(threadPrincipalService, times(1)).set(PRINCIPAL);
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -504,7 +504,7 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
-                ": Received error code, but no error has been provided.");
+                ". Received error code, but no error has been provided.");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -534,7 +534,7 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForChangedData(source2)).isTrue();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
-                ": Unexpected state of the service call: REJECTED.");
+                ". Unexpected state of the service call: REJECTED.");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -631,9 +631,9 @@ public class WebServiceDestinationImplTest {
         assertThat(status.isFailedForChangedData(source4)).isFalse();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
-                ": Error!");
+                ". Error!");
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
-                ": No data export confirmation has been received in the configured timeout.");
+                ". No data export confirmation has been received in the configured timeout.");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, newData2, newData3, newData4);
