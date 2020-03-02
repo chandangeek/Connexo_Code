@@ -154,7 +154,7 @@ public class EstimationHelper {
 
     private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable, ChannelPeriodType channelPeriodType, Optional<ReadingQualityComment> readingQualityComment) {
         //todo do we need to add the datalogger here?
-        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation, null, channelPeriodType);
+        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation,  channelPeriodType);
         readingQualityComment.ifPresent(comment -> {
             channelDataInfo.commentId = readingQualityComment.get().getId();
             channelDataInfo.commentValue = readingQualityComment.get().getComment();

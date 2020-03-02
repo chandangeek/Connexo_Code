@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -42,6 +43,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      */
     private volatile BlockingQueue<ScheduledJobImpl> jobQueue;
     private int threadPoolSize;
+    private Semaphore mutex = new Semaphore(1);
 
     MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
@@ -49,6 +51,30 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     public MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), serviceProvider);
+    }
+
+    private void applyNewChanges() {
+        if (mutex.tryAcquire()) {
+            try {
+                if (threadPoolSize != getComPort().getNumberOfSimultaneousConnections()) {
+                    threadPoolSize = getComPort().getNumberOfSimultaneousConnections();
+                    BlockingQueue oldQueue = jobQueue;
+                    jobQueue = new ArrayBlockingQueue<>(threadPoolSize);
+                    jobScheduler.multiThreadedJobCreator.update(jobQueue, threadPoolSize);
+                    oldQueue.put(new ChangeQueueSignal());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                mutex.release();
+            }
+        }
+    }
+
+    @Override
+    protected void setThreadPrinciple() {
+        User comServerUser = getComServerDAO().getComServerUser();
+        getServiceProvider().threadPrincipalService().set(comServerUser, "MultiThreadedComPortRunner", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 
     protected void setComPort(OutboundComPort comPort) {
@@ -68,9 +94,45 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     @Override
-    protected void setThreadPrinciple() {
-        User comServerUser = getComServerDAO().getComServerUser();
-        getServiceProvider().threadPrincipalService().set(comServerUser, "MultiThreadedComPortRunner", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
+    protected void doStart() {
+        this.createJobScheduler();
+        super.doStart();
+    }
+
+    @Override
+    public void shutdown() {
+        this.shutdownJobScheduler();
+        super.shutdown();
+    }
+
+    @Override
+    public void shutdownImmediate() {
+        this.shutdownJobScheduler();
+        super.shutdownImmediate();
+    }
+
+    @Override
+    public void reload(OutboundComPort comPort) {
+        try {
+            mutex.acquire();
+            super.setComPort(comPort);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            mutex.release();
+        }
+    }
+
+    @Override
+    protected void doRun() {
+        goSleepIfWokeUpTooEarly();
+        executeTasks();
+        applyNewChanges();
+    }
+
+    @Override
+    protected JobScheduler getJobScheduler() {
+        return this.jobScheduler;
     }
 
     @Override
@@ -114,42 +176,13 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         jobScheduler.executeWithHighPriority(job);
     }
 
-    @Override
-    protected void doStart() {
-        this.createJobScheduler();
-        super.doStart();
-    }
-
     private void createJobScheduler() {
         this.jobScheduler = new MultiThreadedJobScheduler(threadPoolSize, this.getThreadFactory());
-    }
-
-    @Override
-    public void shutdown() {
-        this.shutdownJobScheduler();
-        super.shutdown();
-    }
-
-    @Override
-    public void shutdownImmediate() {
-        this.shutdownJobScheduler();
-        super.shutdownImmediate();
-    }
-
-    @Override
-    protected void doRun() {
-        goSleepIfWokeUpTooEarly();
-        executeTasks();
     }
 
     private void shutdownJobScheduler() {
         if (this.jobScheduler != null)
             this.jobScheduler.shutdown();
-    }
-
-    @Override
-    protected JobScheduler getJobScheduler() {
-        return this.jobScheduler;
     }
 
     /**
@@ -176,17 +209,6 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             executorService.submit(multiThreadedJobCreator);
         }
 
-        @Override
-        public int getConnectionCount() {
-            int count = 0;
-            for (ScheduledJob job : jobQueue) {
-                if (((JobExecution) job).isConnected()) {
-                    count++;
-                }
-            }
-            return count;
-        }
-
         public int getActiveJobCount() {
             if (multiThreadedJobCreator == null) {
                 return 0;
@@ -209,6 +231,17 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             LOGGER.warning("perf - Finished scheduleAll, " + (System.currentTimeMillis() - start));
             giveTheConsumersSomeSpace();
             return -1;
+        }
+
+        @Override
+        public int getConnectionCount() {
+            int count = 0;
+            for (ScheduledJob job : jobQueue) {
+                if (((JobExecution) job).isConnected()) {
+                    count++;
+                }
+            }
+            return count;
         }
 
         /**

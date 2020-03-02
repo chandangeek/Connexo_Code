@@ -61,19 +61,19 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         createSimpleDeviceWithName("ZAFD0020004");
         createSimpleDeviceWithName("ZAFD0020005");
         createSimpleDeviceWithName("ZAFB_010001");
-        createSimpleDeviceWithName("ZAFB*010001");
-        createSimpleDeviceWithName("ZAFB00100*1");
-        createSimpleDeviceWithName("ZAFB[1]0001");
-        createSimpleDeviceWithName("ZAFB!110001");
+        createSimpleDeviceWithName("ZAFB-010001");
+        createSimpleDeviceWithName("ZAFB00100-1");
+        createSimpleDeviceWithName("ZAFB-1-0001");
+        createSimpleDeviceWithName("ZAFB-110001");
         createSimpleDeviceWithName("ZAFB_010011");
-        createSimpleDeviceWithName("!EXCEPTION");
+        createSimpleDeviceWithName("-EXCEPTION");
     }
 
     @Test
     @Transactional
     public void testCreateWithForbiddenChars() {
         try {
-            char[] blacklisted = {'%', '+', '/', ';', '?', '\\'};
+            char[] blacklisted = {'%', '+', '/', ';', '?', '\\', '!', '*', '\'', '(', ')', ':', '@', '&', '=', '$', ',', '[', ']' };
             for (char bad : blacklisted) {
                 createSimpleDeviceWithName("ZAFB"+bad+"0100_1");
             }
@@ -103,7 +103,7 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         assertThat(matches).hasSize(4).containsExactly("ZAFB0010001", "ZAFB0020001", "ZAFC0010001", "ZAFD0020001");
 
         matches = findByRegex("ZAF?001*1");
-        assertThat(matches).hasSize(3).containsExactly("ZAFB0010001", "ZAFC0010001", "ZAFB00100*1");
+        assertThat(matches).hasSize(3).containsExactly("ZAFB0010001", "ZAFC0010001", "ZAFB00100-1");
 
         matches = findByRegex("Z*D00*");
         assertThat(matches).hasSize(5);
@@ -111,22 +111,19 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         matches = findByRegex("ZAF*");
         assertThat(matches).hasSize(26);
 
-        matches = findByRegex("*!*");
-        assertThat(matches).hasSize(2).contains("ZAFB!110001", "!EXCEPTION");
+        matches = findByRegex("*-*");
+        assertThat(matches).hasSize(5).contains("ZAFB-110001", "-EXCEPTION");
 
-        matches = findByRegex("!*");
-        assertThat(matches).hasSize(1).contains("!EXCEPTION");
+        matches = findByRegex("-*");
+        assertThat(matches).hasSize(1).contains("-EXCEPTION");
 
-        matches = findByRegex("*\\**");
-        assertThat(matches).hasSize(2).contains("ZAFB*010001", "ZAFB00100*1");
+        matches = findByRegex("*-?-*");
+        assertThat(matches).hasSize(1).contains("ZAFB-1-0001");
 
-        matches = findByRegex("*[?]*");
-        assertThat(matches).hasSize(1).contains("ZAFB[1]0001");
+        matches = findByRegex("ZAFB-1-0001");
+        assertThat(matches).hasSize(1).contains("ZAFB-1-0001");
 
-        matches = findByRegex("ZAFB[1]0001");
-        assertThat(matches).hasSize(1).contains("ZAFB[1]0001");
-
-        matches = findByRegex("ZAFB[12]0001");
+        matches = findByRegex("ZAFB-12-0001");
         assertThat(matches).isEmpty();
 
         matches = findByRegex("ZAF%");
@@ -135,8 +132,8 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         matches = findByRegex("ZAF_0010001");
         assertThat(matches).isEmpty();
 
-        matches = findByRegex("*\\*1");
-        assertThat(matches).hasSize(1).contains("ZAFB00100*1");
+        matches = findByRegex("*-1");
+        assertThat(matches).hasSize(1).contains("ZAFB00100-1");
     }
 
     private List<String> findByRegex(String regex) {

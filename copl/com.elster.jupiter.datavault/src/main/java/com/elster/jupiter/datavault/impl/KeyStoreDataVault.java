@@ -57,8 +57,6 @@ class KeyStoreDataVault implements DataVault {
     // we use same password for both store and keys within
     private final char[] password = {'1', '#', 'g', 'W', 'X', 'i', 'A', 'E', 'y', '9', 'R', 'n', 'b', '6', 'M', '%', 'C', 'o', 'j', 'E'};
 
-    private Cipher cipher;
-
     @Inject
     KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
         this.random = random;
@@ -134,21 +132,14 @@ class KeyStoreDataVault implements DataVault {
     }
 
     private Cipher getEncryptionCipherForKey(int keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException {
-        cipher = getCipher();
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.encrypt.asInt(), createKeySpecForKey(keyAlias));
         return cipher;
     }
 
     private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        cipher = getCipher();
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
-        return cipher;
-    }
-
-    private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-        if (cipher == null) {
-            cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
-        }
         return cipher;
     }
 

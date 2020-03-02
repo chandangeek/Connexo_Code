@@ -58,11 +58,12 @@ public class CreateMessageFactory {
     public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
                                                          MessageSeeds messageSeeds,
                                                          Instant now,
-                                                         String senderBusinessSystemId) {
+                                                         String senderBusinessSystemId,
+                                                         Object... messageArgs) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
 
         confirmationMessage.setMessageHeader(createHeader(requestMessage.getId(), requestMessage.getUuid(), now, senderBusinessSystemId));
-        confirmationMessage.setLog(createFailedLog(messageSeeds.getDefaultFormat()));
+        confirmationMessage.setLog(createFailedLog(messageSeeds.getDefaultFormat(messageArgs)));
         requestMessage.getMeterReadingDocumentCreateMessages()
                 .forEach(message -> confirmationMessage.setMeterReadingDocument(createBody(message.getId())));
         return confirmationMessage;
