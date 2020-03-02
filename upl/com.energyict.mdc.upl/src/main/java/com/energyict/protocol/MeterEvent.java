@@ -1308,6 +1308,264 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Dlms authentication failure.");
             case DLMS_CIPHERING_ERROR:
                 return ("Dlms ciphering error.");
+            case LOG_RESET:
+                return ("Log reset");
+            case LOCAL_COMM_START:
+                return ("Local communication start");
+            case LOCAL_COMM_END:
+                return ("Local communication end");
+            case NOT_METRO_PARAM_CONF:
+                return ("Not metrological parameter configuration");
+            case GAS_FLOW_RATE_ABOVE_THRESHOLD_START:
+                return ("Gas flow rate above threshold start");
+            case GAS_FLOW_RATE_ABOVE_THRESHOLD_END:
+                return ("Gas flow rate above threshold end");
+            case GAS_REVERSE_FLOW_START:
+                return ("Gas reverse flow start");
+            case GAS_REVERSE_FLOW_END:
+                return ("Gas reverse flow end");
+            case GAS_TEMP_ABOVE_PHYSICAL_THRESHOLD_START:
+                return ("Gas temperature above physical threshold start");
+            case GAS_TEMP_ABOVE_PHYSICAL_THRESHOLD_END:
+                return ("Gas temperature above physical threshold end");
+            case GAS_TEMP_BELOW_PHYSICAL_THRESHOLD_START:
+                return ("Gas temperature below physical threshold start");
+            case GAS_TEMP_BELOW_PHYSICAL_THRESHOLD_END:
+                return ("Gas temperature below physical threshold end");
+            case TEMP_FAILURE_START:
+                return ("Temperature failure start");
+            case TEMP_FAILURE_END:
+                return ("Temperature failure end");
+            case PASSWORD_CHANGED:
+                return ("Password changed");
+            case BATTERY_LEVEL_BELOW_LOW_LEVEL_END:
+                return ("Battery level below low level end");
+            case REMOTE_COMM_FAILURE:
+                return ("Remote communication failure");
+            case PUSH_ERROR_START:
+                return ("Push error start");
+            case BATTERY_BELOW_CRITICAL_LEVEL:
+                return ("Battery below critical level");
+            case FIRMWARE_UPDATE_ACTIVATION_FAILURE:
+                return ("Firmware update activation failure");
+            case PHYSICAL_MODULE_DISCONNECT:
+                return ("Physical module disconnect");
+            case UNAUTHORIZED_ACCESS:
+                return ("Unauthorized access");
+            case DATABASE_RESET_AFTER_UPDATE:
+                return ("Database reset after update");
+            case POWER_LEVEL_INCREASED:
+                return ("Power level increased");
+            case POWER_LEVEL_DECREASED:
+                return ("Power level decreased");
+            case POWER_LEVEL_MAXIMUM_REACHED:
+                return ("Power level maximum reached");
+            case POWER_LEVEL_MINIMUM_REACHED:
+                return ("Power level minimum reached");
+            case PM1_CHANNEL_CHANGED:
+                return ("Pm1 channel changed");
+            case PM1_ACTIVE_MODE_START:
+                return ("Pm1 active mode start");
+            case PM1_ACTIVE_MODE_END:
+                return ("Pm1 active mode end");
+            case PM1_ORPHANED_MODE_START:
+                return ("Pm1 orphaned mode start");
+            case PM1_ORPHANED_MODE_END:
+                return ("Pm1 orphaned mode end");
+            case PM1_PIB_UPDATED:
+                return ("Pm1 pib updated");
+            case PM1_MIB_UPDATED:
+                return ("Pm1 mib updated");
+            case PM1_SYNC_ACCESS_CHANGED:
+                return ("Pm1 sync access changed");
+            case PM1_SYNC_PERIOD_CHANGED:
+                return ("Pm1 sync period changed");
+            case PM1_MAINTENANCE_WINDOW_CHANGED:
+                return ("Pm1 maintenance window changed");
+            case PM1_ORPHANED_THRESHOLD_CHANGED:
+                return ("Pm1 orphaned threshold changed");
+            case PM1_AFFILIATION_PARAMS_CHANGED:
+                return ("Pm1 affiliation params changed");
+            case SECONDARY_ADDRESS_RF_CHANGED:
+                return ("Secondary address rf changed");
+            case VALVE_PGV_CONFIGURATION_CHANGED:
+                return ("Valve pgv configuration changed");
+            case PUSH_SCHEDULER1_CHANGED:
+                return ("Push scheduler 1 changed");
+            case PUSH_SETUP1_CHANGED:
+                return ("Push setup 1 changed");
+            case PUSH_SCHEDULER2_CHANGED:
+                return ("Push scheduler 2 changed");
+            case PUSH_SETUP2_CHANGED:
+                return ("Push setup 2 changed");
+            case PUSH_SCHEDULER3_CHANGED:
+                return ("Push scheduler 3 changed");
+            case PUSH_SETUP3_CHANGED:
+                return ("Push setup 3 changed");
+            case PUSH_SCHEDULER4_CHANGED:
+                return ("Push scheduler 4 changed");
+            case PUSH_SETUP4_CHANGED:
+                return ("Push setup 4 changed");
+            case ENABLING_INSTALLER_MANTAINER:
+                return ("Enabling installer mantainer");
+            case FC_THRESHOLDS_CHANGED:
+                return ("Fc thresholds changed");
+            case REMOTE_CONNECTION_START:
+                return ("Remote connection start");
+            case MAINTENANCE_WINDOW_HW_FAILURE:
+                return ("Maintenance window hw failure");
+            case MAINTENANCE_WINDOW_SW_FAILURE:
+                return ("Maintenance window sw failure");
+            case MAINTENANCE_WINDOW_START:
+                return ("Maintenance window start");
+            case MAINTENANCE_WINDOW_END:
+                return ("Maintenance window end");
+            case ASSOCIATION_INSTALLER_DISABLED:
+                return ("Association installer disabled");
+            case VALVE_POSITION_ERROR:
+                return ("Valve position error");
+            case VALVE_ENABLE_OPENING:
+                return ("Valve enable opening");
+            case MISER_MODE_FAILURE:
+                return ("Miser mode failure");
+            case DEVICE_RESET:
+                return ("Device reset");
+            case METROLOGIC_RESET:
+                return ("Metrologic reset");
+            case ACTIVATION_NEW_TARIFF_PLAN:
+                return ("Activation new tariff plan");
+            case PLANNING_NEW_TARIFF_PLAN:
+                return ("Planning new tariff plan");
+            case CLOCK_SYNC_FAIL:
+                return ("Clock sync fail");
+            case CLOCK_SYNC:
+                return ("Clock sync");
+            case METROLOGICAL_PARAMETER_CONFIGURATION:
+                return ("Metrological parameter configuration");
+            case MEASURE_ALGORITHM_ERROR_START:
+                return ("Measure algorithm error start");
+            case MEASURE_ALGORITHM_ERROR_END:
+                return ("Measure algorithm error end");
+            case GENERAL_ERROR_DEVICE_START:
+                return ("General error device start");
+            case GENERAL_ERROR_DEVICE_END:
+                return ("General error device end");
+            case BUFFER_FULL:
+                return ("Buffer full");
+            case BUFFER_ALMOST_FULL:
+                return ("Buffer almost full");
+            case VALVE_CLOSED_BECAUSE_OF_COMMAND:
+                return ("Valve closed because of command");
+            case VALVE_OPENED:
+                return ("Valve opened");
+            case MEMORY_FAILURE:
+                return ("Memory failure");
+            case UNITS_STATUS_CHANGED:
+                return ("Uni ts status changed");
+            case MAIN_POWER_OUTAGE_START:
+                return ("Main power outage start");
+            case MAIN_POWER_OUTAGE_END:
+                return ("Main power outage end");
+            case BATTERY_LEVEL_BELOW_LOW_LEVEL_START:
+                return ("Battery level below low level start");
+            case DEVICE_TAMPER_DETECTION_START:
+                return ("Device tamper detection start");
+            case DEVICE_TAMPER_DETECTION_END:
+                return ("Device tamper detection end");
+            case CRITICAL_SOFTWARE_ERROR:
+                return ("Critical software error");
+            case DST_START:
+                return ("Dst start");
+            case DST_END:
+                return ("Dst end");
+            case BILLING_PERIOD_CLOSING_LOCAL_REQUEST:
+                return ("Billing period closing local request");
+            case BILLING_PERIOD_CLOSING_REMOTE_REQUEST:
+                return ("Billing period closing remote request");
+            case BATTERY_ABOVE_CRITICAL_LEVEL:
+                return ("Battery above critical level");
+            case FIRMWARE_UPDATE_START:
+                return ("Firmware update start");
+            case FIRMWARE_UPDATE_DATE_ACTIVATION:
+                return ("Firmware update date activation");
+            case FIRMWARE_UPDATE_VERIFY_OK:
+                return ("Firmware update verify ok");
+            case FIRMWARE_UPDATE_VERIFY_FAILURE:
+                return ("Firmware update verify failure");
+            case FIRMWARE_UPDATE_ACTIVATION_OK:
+                return ("Firmware update activation ok");
+            case CLOSE_VALVE_LEAKAGE_CAUSE:
+                return ("Close valve leakage cause");
+            case CLOSE_VALVE_BATTERY_REMOVED_WITH_NO_AUTH:
+                return ("Close valve battery removed with no auth");
+            case CLOSE_VALVE_BATTERY_BELOW_CRITICAL_POINT:
+                return ("Close valve battery below critical point");
+            case CLOSE_VALVE_MEASURE_FAILURE:
+                return ("Close valve measure failure");
+            case VALVE_PASSWORD_INVALID:
+                return ("Valve password invalid");
+            case CLOSE_VALVE_COMMUNICATION_TIMEOUT:
+                return ("Close valve communication timeout");
+            case VALVE_NEW_PASSWORD:
+                return ("Valve new password");
+            case VALVE_READY_PASSWORD_VALID:
+                return ("Valve ready password valid");
+            case VALVE_READY_CONNECTION_OK:
+                return ("Valve ready connection ok");
+            case VALVE_RECONNECT_START:
+                return ("Valve reconnect start");
+            case VALVE_RECONNECT_END:
+                return ("Valve reconnect end");
+            case VALVE_IS_CLOSED_BUT_LEAKAGE_IS_PRESENT:
+                return ("Valve is closed but leakage is present");
+            case VALVE_CANNOT_OPEN_CLOSE:
+                return ("Valve cannot open close");
+            case EXTERNAL_FIELD_APPLICATION_INTERFERING_START:
+                return ("External field application interfering start");
+            case EXTERNAL_FIELD_APPLICATION_INTERFERING_END:
+                return ("External field application interfering end");
+            case ACCESS_TO_ELECTRONIC:
+                return ("Access to electronic");
+            case UNAUTHORIZED_BATTERY_REMOVE:
+                return ("Unauthorized battery remove");
+            case DATABASE_RESET:
+                return ("Database reset");
+            case DATABASE_CORRUPTED:
+                return ("Database corrupted");
+            case UPDATED_MASTERKEY:
+                return ("Updated master key");
+            case UPDATED_KEYC:
+                return ("Updated keyc");
+            case UPDATED_KEYT:
+                return ("Updated keyt");
+            case UPDATED_KEYS:
+                return ("Updated keys");
+            case UPDATED_KEYN:
+                return ("Updated keyn");
+            case UPDATED_KEYM:
+                return ("Updated keym");
+            case GAS_DAY_UPDATED:
+                return ("Gas day updated");
+            case BILLING_PERIOD_UPDATED:
+                return ("Billing period updated");
+            case INSTALLER_MAINTAINER_USER_CHANGED:
+                return ("Installer mantainer user changed");
+            case CLOCK_PARAMETER_SCHANGED:
+                return ("Clock parameters changed");
+            case SYNC_ALGORITHM_CHANGED:
+                return ("Sync algorithm changed");
+            case PDR_CHANGED:
+                return ("Pdr changed");
+            case DEFAULT_TEMPERATURE:
+                return ("Default temperature changed");
+            case FALLBACK_TEMPERATURE_CHANGED:
+                return ("Fallback temperature changed");
+            case VALVE_CLOSE_FOR_MAX_FRAUD_ATTEMPTS:
+                return ("Valve close for max fraud attempts");
+            case VALVE_CLOSE_FOR_EXCEEDED_BATTERY_REMOVAL_TIME:
+                return ("Valve close for exceeded battery removal time");
+            case VALVE_CONFIGURATION_PGV_BIT8_CHANGED:
+                return ("Valve configuration pgv bit 8 changed");
             case CLEARED:
                 return ("Cleared.");
             case UNKNOWN_REGISTER:
