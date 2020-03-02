@@ -86,6 +86,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
             if (requestID == null && uuid == null) {
                 addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
+            utilitiesDeviceRegisterCreateMessages.forEach(utilitiesDeviceRegisterCreateMessage -> addMissingFields(utilitiesDeviceRegisterCreateMessage.getMissingFieldsSet()));
             return UtilitiesDeviceRegisterCreateRequestMessage.this;
         }
 
