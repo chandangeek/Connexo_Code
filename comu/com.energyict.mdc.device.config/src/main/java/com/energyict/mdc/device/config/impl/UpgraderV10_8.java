@@ -14,9 +14,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.common.device.config.EventType;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.EnumSet;
 
 @LiteralSql
