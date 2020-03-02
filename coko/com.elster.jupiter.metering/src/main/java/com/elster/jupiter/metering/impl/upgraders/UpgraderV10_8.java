@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.device.data.impl;
+package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -28,9 +28,11 @@ public class UpgraderV10_8 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         //append partition for next month and enable auto increment partition interval
-        Arrays.asList("DDC_COMSESSION", "DDC_COMTASKEXECSESSION").forEach(tableName ->
-                execute(dataModel, "LOCK TABLE " + tableName + " PARTITION FOR(" + clock.instant().plusMillis(PARTITIONSIZE) + ") IN SHARE MODE",
-                        "ALTER TABLE " + tableName + " SET INTERVAL (" + PARTITIONSIZE + ")")
-        );
+        if (dataModel.getSqlDialect().hasPartitioning()) {
+            Arrays.asList("MTR_ENDDEVICEEVENTRECORD", "MTR_READINGQUALITY").forEach(tableName ->
+                    execute(dataModel, "LOCK TABLE " + tableName + " PARTITION FOR(" + clock.instant().plusMillis(PARTITIONSIZE) + ") IN SHARE MODE",
+                            "ALTER TABLE " + tableName + " SET INTERVAL (" + PARTITIONSIZE + ")")
+            );
+        }
     }
 }

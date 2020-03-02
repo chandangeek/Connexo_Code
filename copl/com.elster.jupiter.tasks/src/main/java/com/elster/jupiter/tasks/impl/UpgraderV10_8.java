@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.device.data.impl;
+package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -10,10 +10,8 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.Arrays;
 
 public class UpgraderV10_8 implements Upgrader {
-
     private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final DataModel dataModel;
     private final Clock clock;
@@ -28,9 +26,9 @@ public class UpgraderV10_8 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         //append partition for next month and enable auto increment partition interval
-        Arrays.asList("DDC_COMSESSION", "DDC_COMTASKEXECSESSION").forEach(tableName ->
-                execute(dataModel, "LOCK TABLE " + tableName + " PARTITION FOR(" + clock.instant().plusMillis(PARTITIONSIZE) + ") IN SHARE MODE",
-                        "ALTER TABLE " + tableName + " SET INTERVAL (" + PARTITIONSIZE + ")")
-        );
+        if (dataModel.getSqlDialect().hasPartitioning()) {
+            execute(dataModel, "LOCK TABLE TSK_TASK_OCCURRENCE PARTITION FOR(" + clock.instant().plusMillis(PARTITIONSIZE) + ") IN SHARE MODE",
+                    "ALTER TABLE TSK_TASK_OCCURRENCE SET INTERVAL (" + PARTITIONSIZE + ")");
+        }
     }
 }
