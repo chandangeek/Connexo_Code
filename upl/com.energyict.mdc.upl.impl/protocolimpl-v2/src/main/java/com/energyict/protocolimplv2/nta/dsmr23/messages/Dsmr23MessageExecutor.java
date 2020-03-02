@@ -52,6 +52,7 @@ import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
@@ -327,7 +328,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
-        MBusClient mbusClient = getMBusClient(pendingMessage.getDeviceSerialNumber());
+        String mbusSerialNumberAttributeValue = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.mbusSerialNumber);
+        MBusClient mbusClient = getMBusClient(mbusSerialNumberAttributeValue);
         mbusClient.setIdentificationNumber(new Unsigned32(0));
         mbusClient.setManufacturerID(new Unsigned16(0));
         mbusClient.setVersion(0);
