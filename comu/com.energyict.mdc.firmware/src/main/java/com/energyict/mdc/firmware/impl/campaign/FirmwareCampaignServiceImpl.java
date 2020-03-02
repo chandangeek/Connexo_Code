@@ -158,16 +158,26 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND).format(campaign.getDeviceGroup(), campaign.getDeviceType().getName()));
             }
             int notAddedDevicesBecauseDifferentType = devicesByGroup.size() - devicesByGroupAndType.size();
-            if (notAddedDevicesBecauseDifferentType > 0) {
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_DIFFERENT_TYPE).format(notAddedDevicesBecauseDifferentType));
+            if (notAddedDevicesBecauseDifferentType == 1) {
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_DIFFERENT_TYPE).format());
+            } else if (notAddedDevicesBecauseDifferentType > 0) {
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_DIFFERENT_TYPE).format(notAddedDevicesBecauseDifferentType));
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN) != null) {
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)
-                        .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)));
+            if (numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN) != null) {
+                int notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN);
+                if (notAdded == 1) {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN).format());
+                } else {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN).format(notAdded));
+                }
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION) != null) {
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION)
-                        .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION)));
+            if (numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION) != null) {
+                int notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION);
+                if (notAdded == 1) {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION).format());
+                } else {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION).format(notAdded));
+                }
             }
             if (numberOfDevices.get(MessageSeeds.DEVICE_WAS_ADDED) == null) {
                 serviceCallService.lockServiceCall(serviceCall.getId());
@@ -190,7 +200,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
             if (campaign.isWithUniqueFirmwareVersion() && firmwareService.getActiveFirmwareVersion(device, campaign.getFirmwareType())
                     .filter(firmwareVersion -> firmwareVersion.getFirmwareVersion().equals(campaign.getFirmwareVersion()))
                     .isPresent()) {
-                return MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION;
+                return MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION;
             }
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.FIRMWARE_CAMPAIGN_ITEM);
             FirmwareCampaignItemDomainExtension firmwareCampaignItemDomainExtension = dataModel.getInstance(FirmwareCampaignItemDomainExtension.class);
@@ -201,7 +211,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
             serviceCall.requestTransition(DefaultState.PENDING);
             return MessageSeeds.DEVICE_WAS_ADDED;
         } else {
-            return MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN;
+            return MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN;
         }
     }
 
