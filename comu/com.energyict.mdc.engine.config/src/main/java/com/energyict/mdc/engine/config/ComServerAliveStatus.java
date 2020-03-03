@@ -17,7 +17,7 @@ public interface ComServerAliveStatus {
 
     Instant getLastActiveTime();
 
-    void update(Instant time, Integer updateFrequency, Instant blockedSince, Integer blockTime);
+    void update(Instant time, Integer updateFrequency, Instant blockedSince, Long blockTime);
 
     boolean isBlocked();
 
@@ -29,6 +29,6 @@ public interface ComServerAliveStatus {
 
     Optional<Instant> getBlockedSince();
 
-    Optional<Integer> getBlockedTime();
+    Optional<Long> getBlockedTime();
 
 }

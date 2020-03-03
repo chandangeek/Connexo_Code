@@ -12,6 +12,7 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
 
@@ -37,16 +38,16 @@ public class CryptoKaifaMessageExecutor extends CryptoDSMR40MessageExecutor {
     @Override
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
         //Find the MBus channel based on the given MBus serial number
-        String mbusSerialNumber = pendingMessage.getDeviceSerialNumber();
+        String mbusSerialNumberAttributeValue = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.mbusSerialNumber);
         int channel = 0;
         for (com.energyict.protocolimplv2.common.topology.DeviceMapping deviceMapping : ((com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol)getProtocol()).getMeterTopology().getMbusMeterMap()) {
-            if (deviceMapping.getSerialNumber().equals(mbusSerialNumber)) {
+            if (deviceMapping.getSerialNumber().equals(mbusSerialNumberAttributeValue)) {
                 channel = deviceMapping.getPhysicalAddress();
                 break;
             }
         }
         if (channel == 0) {
-            throw new IOException("No MBus slave meter with serial number '" + mbusSerialNumber + "' is installed on this e-meter");
+            throw new IOException("No MBus slave meter with serial number '" + mbusSerialNumberAttributeValue + "' is installed on this e-meter");
         }
 
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);

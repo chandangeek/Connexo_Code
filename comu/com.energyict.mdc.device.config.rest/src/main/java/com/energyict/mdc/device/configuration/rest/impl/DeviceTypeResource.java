@@ -394,7 +394,7 @@ public class DeviceTypeResource {
                     .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
             return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
         }
-        if (alarmRules.size() > 0 || issueRules.size() > 0) {
+        if (!(alarmRules.isEmpty() && issueRules.isEmpty())) {
             LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format() + " "
                             + thesaurus.getSimpleFormat(MessageSeeds.CLARIFICATION_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format(),
                     DeviceTypeInfo.from(deviceType), alarmRules, issueRules);

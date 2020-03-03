@@ -102,9 +102,9 @@ public class A1860ProfileDataHelper {
             final Data scaleFactorData = protocol.getDlmsSession().getCosemObjectFactory().getData(loadProfileScaleFactor);
             AbstractDataType adt = scaleFactorData.getValueAttr();
             if (adt.isInteger64()) {
-                scaleFactor = adt.getInteger64().intValue() == 1 ? 0 : adt.getInteger64().intValue();
+                scaleFactor = adt.getInteger64().intValue();
             } else if (adt.isInteger8()) {
-                scaleFactor = adt.getInteger8().intValue() == 1 ? 0 : adt.getInteger8().intValue();
+                scaleFactor = adt.getInteger8().intValue();
             }
             protocol.getLogger().info("Profile scale factor: " + BigDecimal.ONE.scaleByPowerOfTen(scaleFactor));
         }
