@@ -6,13 +6,11 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -20,7 +18,6 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -73,13 +70,11 @@ public class ComTaskExecutionSessionInfoFactory {
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         info.errors = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.ERROR))
-                .sorted(Comparator.comparing(ComTaskExecutionJournalEntry::getTimestamp).thenComparing(HasId::getId))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
         Collections.reverse(info.errors);
         info.warnings = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.WARN))
-                .sorted(Comparator.comparing(ComTaskExecutionJournalEntry::getTimestamp).thenComparing(HasId::getId))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
         Collections.reverse(info.warnings);
