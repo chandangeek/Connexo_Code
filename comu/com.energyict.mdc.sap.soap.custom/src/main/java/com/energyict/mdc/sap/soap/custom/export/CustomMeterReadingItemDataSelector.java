@@ -32,6 +32,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.RangeSets;
+import com.elster.jupiter.util.time.RangeBuilder;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
 import com.google.common.collect.Range;
@@ -198,10 +199,10 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     }
 
     private Optional<String> getProfileId(Map<String, RangeSet<Instant>> profileIds, Instant time) {
-      return profileIds.entrySet().stream()
-              .filter(entry -> entry.getValue().contains(time))
-              .map(Map.Entry::getKey)
-              .findFirst();
+        return profileIds.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(time))
+                .map(Map.Entry::getKey)
+                .findFirst();
     }
 
     private boolean checkIntervalIsLessThanOrEqualToHour(ReadingType readingType) {
@@ -345,14 +346,25 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                             .collect(Collectors.toCollection(ArrayList::new));
                 }
 
-                if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
-                    readings = filterAndSortReadings(readings.stream())
-                            .collect(Collectors.toList());
-                    MeterReadingImpl meterReading = asMeterReading(item, readings);
-                    Map<Instant, String> readingStatuses = new HashMap<>();
-                    readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
-                    updateCount++;
-                    return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+                RangeBuilder builder = new RangeBuilder();
+                readings.forEach(reading -> builder.add(reading.getTimeStamp()));
+                if (builder.hasRange()) {
+                    Range<Instant> readingsRange = builder.getRange();
+                    RangeSet<Instant> profileIdRangeSet = getAllProfileIdsRangeSet(item, readingsRange);
+
+                    readings = profileIdRangeSet.asRanges().stream()
+                            .flatMap(range -> getReadings(item, range))
+                            .collect(Collectors.toCollection(ArrayList::new));
+
+                    if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                        readings = filterAndSortReadings(readings.stream())
+                                .collect(Collectors.toList());
+                        MeterReadingImpl meterReading = asMeterReading(item, readings);
+                        Map<Instant, String> readingStatuses = new HashMap<>();
+                        readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
+                        updateCount++;
+                        return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+                    }
                 }
             }
 
