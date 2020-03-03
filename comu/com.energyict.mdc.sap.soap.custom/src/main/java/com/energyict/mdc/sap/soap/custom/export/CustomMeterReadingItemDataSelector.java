@@ -352,9 +352,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                     Range<Instant> readingsRange = builder.getRange();
                     RangeSet<Instant> profileIdRangeSet = getAllProfileIdsRangeSet(item, readingsRange);
 
-                    readings = profileIdRangeSet.asRanges().stream()
-                            .flatMap(range -> getReadings(item, range))
-                            .collect(Collectors.toCollection(ArrayList::new));
+                    readings = readings.stream()
+                            .filter(reading -> profileIdRangeSet.contains(reading.getTimeStamp()))
+                            .collect(Collectors.toList());
 
                     if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
                         readings = filterAndSortReadings(readings.stream())
