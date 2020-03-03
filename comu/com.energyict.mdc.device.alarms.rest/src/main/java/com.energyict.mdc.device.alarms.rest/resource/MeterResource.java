@@ -21,28 +21,34 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/meters")
-public class MeterResource extends BaseAlarmResource{
+public class MeterResource extends BaseAlarmResource {
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public Response getMeters(@BeanParam StandardParametersBean params) {
         String searchText = params.getFirst("like");
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
         MeterFilter filter = new MeterFilter();
         filter.setName(dbSearchText);
-        List<Meter> listMeters = getMeteringService().findMeters(filter).paged(params.getStart(), params.getLimit()).find();
+        List<Meter> listMeters = getMeteringService().findMeters(filter)
+                .stream()
+                .sorted(Comparator.comparingInt(list -> list.getName().length()))
+                .skip(params.getStart())
+                .limit(params.getLimit())
+                .collect(Collectors.toList());
         return Response.ok().entity(listMeters.stream().map(MeterShortInfo::new).collect(Collectors.toList())).build();
     }
 
     @GET
     @Path("/{name}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public Response getMeter(@PathParam("name") String name) {
         return getMeteringService().findMeterByName(name)
                 .map(MeterShortInfo::new)
