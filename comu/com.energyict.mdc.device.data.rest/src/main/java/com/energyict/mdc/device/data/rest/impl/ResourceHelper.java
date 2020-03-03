@@ -1404,12 +1404,12 @@ public class ResourceHelper {
                 .filter(cps -> cps.getCustomPropertySetId().equals(customPropertySetInfo.customPropertySetId) && cps.isEditableByCurrentUser())
                 .findFirst();
         if (registeredCustomPropertySet.isPresent()) {
-            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), device, device.getId());
-            customPropertySetService.removeValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), device, device.getId());
+            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), device);
+            customPropertySetService.removeValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), device);
             for (CustomPropertySetValues version : allVersions) {
                 long versionId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli() : 0;
                 if (versionId != customPropertySetInfo.versionId) {
-                    customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.get().getCustomPropertySet(), device, version, version.getEffectiveRange(), device.getId());
+                    customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.get().getCustomPropertySet(), device, version, version.getEffectiveRange());
                 }
             }
         }
