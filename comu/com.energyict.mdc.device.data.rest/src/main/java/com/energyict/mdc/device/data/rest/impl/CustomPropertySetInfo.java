@@ -29,6 +29,7 @@ public class CustomPropertySetInfo {
     public Long endTime;
     public Boolean isActive;
     public String customPropertySetId;
+    public boolean deletable;
     public List<PropertyInfo> properties;
 
     public CustomPropertySetInfo() {
@@ -45,6 +46,7 @@ public class CustomPropertySetInfo {
         this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.properties = properties;
         this.customPropertySetId = registeredCustomPropertySet.getCustomPropertySet().getId();
+        this.deletable = false;
     }
 
     public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties, long objectId, long objectVersion, long objectTypeId, long objectTypeVersion, Range<Instant> effective) {
@@ -62,5 +64,6 @@ public class CustomPropertySetInfo {
         this.endTime = effective.hasUpperBound() ? effective.upperEndpoint().toEpochMilli() : null;
         this.isActive = !properties.isEmpty() && properties.get(0).getPropertyValueInfo().getValue() != null;
         this.customPropertySetId = registeredCustomPropertySet.getCustomPropertySet().getId();
+        this.deletable = false;
     }
 }

@@ -5,6 +5,8 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationRule;
@@ -20,6 +22,7 @@ import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -82,13 +85,15 @@ public class ResourceHelper {
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private final CustomPropertySetService customPropertySetService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory, MetrologyConfigurationService metrologyConfigurationService,
                           UsagePointLifeCycleService usagePointLifeCycleService, Clock clock, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                           ValidationService validationService, EstimationService estimationService, Thesaurus thesaurus, UserService userService,
-                          ThreadPrincipalService threadPrincipalService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+                          ThreadPrincipalService threadPrincipalService, CustomPropertySetInfoFactory customPropertySetInfoFactory,
+                          CustomPropertySetService customPropertySetService) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -104,6 +109,7 @@ public class ResourceHelper {
         this.userService = userService;
         this.threadPrincipalService = threadPrincipalService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+        this.customPropertySetService = customPropertySetService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -482,4 +488,19 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
     }
 
+    public void deleteCustomPropertySetVersion(UsagePoint usagePoint, CustomPropertySetInfo customPropertySetInfo) {
+        if (customPropertySetInfo.deletable) {
+            UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySetInfo.id);
+            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(versionedPropertySet.getCustomPropertySet(), usagePoint);
+            customPropertySetService.removeValuesFor(versionedPropertySet.getCustomPropertySet(), usagePoint);
+            for (CustomPropertySetValues version : allVersions) {
+                long versionId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli() : 0;
+                if (versionId != customPropertySetInfo.versionId) {
+                    customPropertySetService.setValuesVersionFor(versionedPropertySet.getCustomPropertySet(), usagePoint, version, version.getEffectiveRange());
+                }
+            }
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, Instant.ofEpochMilli(customPropertySetInfo.versionId), customPropertySetInfo.name);
+        }
+    }
 }

@@ -76,6 +76,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -697,6 +698,26 @@ public class DeviceResource {
                 .filter(f -> f.id == cpsId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response deleteDeviceCustomPropertyVersion(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        CustomPropertySetInfo cpsInfo = resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
+                .stream()
+                .filter(f -> f.id == cpsId)
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        if (cpsInfo.deletable) {
+            resourceHelper.deleteCustomPropertySetVersion(device, cpsInfo);
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, Instant.ofEpochMilli(timeStamp), cpsInfo.name);
+        }
+        return Response.ok().build();
     }
 
     @GET
