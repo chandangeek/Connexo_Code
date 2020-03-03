@@ -24,6 +24,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.search.SearchDomainExtension;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -73,6 +75,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancella
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.search.PropertyTranslationKeys;
+import com.energyict.mdc.sap.soap.webservices.impl.search.SapAttributesDeviceSearchDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
@@ -267,6 +271,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile DataExportService dataExportService;
     private volatile TimeService timeService;
+    private volatile SearchService searchService;
     private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
     private final Map<AdditionalProperties, Integer> sapProperties = new HashMap<>();
@@ -276,6 +281,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private Map<String, CIMPattern> divisionCategoryCodeMap;
     private String meteringSystemId;
     private List<String> uudSuccessfulErrorCodes = new ArrayList<>();
+    private SearchDomainExtension sapAttributesSearchExtension;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -356,7 +362,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                TimeService timeService,
                                MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
                                DeviceAlarmService deviceAlarmService,
-                               IssueService issueService) {
+                               IssueService issueService,
+                               SearchService searchService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -387,6 +394,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         setMeasurementTaskAssignmentChangeProcessor(measurementTaskAssignmentChangeProcessor);
         setDeviceAlarmService(deviceAlarmService);
         setIssueService(issueService);
+        setSearchService(searchService);
         activate(bundleContext);
     }
 
@@ -426,6 +434,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 bind(MeasurementTaskAssignmentChangeProcessor.class).toInstance(measurementTaskAssignmentChangeProcessor);
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(NlsService.class).toInstance(nlsService);
+                bind(SearchService.class).toInstance(searchService);
                 bind(WebServiceActivator.class).toInstance(WebServiceActivator.this);
             }
         };
@@ -468,6 +477,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
 
+        sapAttributesSearchExtension = new SapAttributesDeviceSearchDomainExtension(dataModel, clock, thesaurus);
+        searchService.register(sapAttributesSearchExtension);
         loadDeviceTypesMap();
         createOrUpdateUpdateSapExportTask();
         createOrUpdateSearchDataSourceTask();
@@ -630,6 +641,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::removeCustomPropertySet);
+        searchService.unregister(sapAttributesSearchExtension);
     }
 
     public static Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
@@ -1078,6 +1090,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+    @Reference
     public void setMeasurementTaskAssignmentChangeProcessor(MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor) {
         this.measurementTaskAssignmentChangeProcessor = measurementTaskAssignmentChangeProcessor;
     }
@@ -1094,7 +1111,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
+        return keys;
     }
 
     // for test purposes

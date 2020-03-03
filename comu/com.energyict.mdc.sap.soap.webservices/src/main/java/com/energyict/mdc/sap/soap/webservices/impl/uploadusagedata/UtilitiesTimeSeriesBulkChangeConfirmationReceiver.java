@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -39,6 +40,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.NO_SEVERITY_CODE_AND_ERROR_MESSAGE;
+import static com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.SEVERITY_CODE_AND_ERROR_MESSAGE;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
@@ -110,7 +114,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                         }
                         successfulProfileIds.removeAll(extensionProfileIds);
                     });
-                    dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, successfulChildren, getSeverestError(confirmation).orElse(null));
+                    dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, successfulChildren, getErrorMessage(confirmation).orElse(null));
                     break;
             }
             return null;
@@ -184,38 +188,27 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                 .orElse(ProcessingResultCode.FAILED);
     }
 
-    private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
-        return Optional.ofNullable(confirmation)
+    private Optional<String> getErrorMessage(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+        List<LogItem> list = Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getLog)
                 .map(Log::getItem)
                 .map(List::stream)
                 .orElseGet(Stream::empty)
-                .reduce(UtilitiesTimeSeriesBulkChangeConfirmationReceiver::findMaximumSeverityOrNotNullOrWhatever)
-                .map(LogItem::getNote);
-    }
+                .filter(log -> log.getNote() != null && !Checks.is(log.getNote()).emptyOrOnlyWhiteSpace())
+                .collect(Collectors.toList());
 
-    private static LogItem findMaximumSeverityOrNotNullOrWhatever(LogItem item1, LogItem item2) {
-        String s1 = item1.getSeverityCode();
-        String s2 = item2.getSeverityCode();
-        if (s2 == null) {
-            return item1;
-        } else if (s1 == null) {
-            return item2;
+        if (list.isEmpty()) {
+            return Optional.empty();
         } else {
-            s1 = s1.trim();
-            s2 = s2.trim();
-            int i1, i2;
-            try {
-                i2 = Integer.parseInt(s2);
-            } catch (NumberFormatException e) {
-                return item1;
-            }
-            try {
-                i1 = Integer.parseInt(s1);
-            } catch (NumberFormatException e) {
-                return item2;
-            }
-            return i1 < i2 ? item2 : i2 < i1 ? item1 : item1.getNote() == null ? item2 : item1;
+            return Optional.of(list.stream()
+                    .map(log -> {
+                        if (log.getSeverityCode() != null && !Checks.is(log.getSeverityCode()).emptyOrOnlyWhiteSpace()) {
+                            return thesaurus.getSimpleFormat(SEVERITY_CODE_AND_ERROR_MESSAGE).format(log.getSeverityCode(), log.getNote());
+                        } else {
+                            return thesaurus.getSimpleFormat(NO_SEVERITY_CODE_AND_ERROR_MESSAGE).format(log.getNote());
+                        }
+                    })
+                    .collect(Collectors.joining(" ")));
         }
     }
 
