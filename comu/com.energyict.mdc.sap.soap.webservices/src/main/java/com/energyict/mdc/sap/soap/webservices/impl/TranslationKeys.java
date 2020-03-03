@@ -70,7 +70,6 @@ public enum TranslationKeys implements TranslationKey {
     RECURRENCE_CODE("recurrenceCode", "Recurrence Code"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
-    PROFILE_ID("profileId", "Profile id"),
     EXPORTER("exporter", "Exporter"),
     EXPORTER_DESCRIPTION("exporterDescription", "Specifies the type of exporter to be used to select and export readings"),
     DEVICE_TYPE("deviceType", "Device type"),
