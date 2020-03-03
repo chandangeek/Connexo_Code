@@ -73,15 +73,13 @@ public class ComTaskExecutionSessionInfoFactory {
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         info.errors = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.ERROR))
-                .sorted(Comparator.comparing(ComTaskExecutionJournalEntry::getTimestamp))
-                .sorted(Comparator.comparing(HasId::getId))
+                .sorted(Comparator.comparing(ComTaskExecutionJournalEntry::getTimestamp).thenComparing(HasId::getId))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
         Collections.reverse(info.errors);
         info.warnings = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.WARN))
-                .sorted(Comparator.comparing(ComTaskExecutionJournalEntry::getTimestamp))
-                .sorted(Comparator.comparing(HasId::getId))
+                .sorted(Comparator.comparing(ComTaskExecutionJournalEntry::getTimestamp).thenComparing(HasId::getId))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
         Collections.reverse(info.warnings);
