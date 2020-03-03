@@ -42,6 +42,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode METROLOGICAL_EVENT_COUNTER_OBISCODE = ObisCode.fromString("0.0.96.15.1.255");
     private static final ObisCode EVENT_COUNTER_OBISCODE = ObisCode.fromString("0.0.96.15.2.255");
     private static final ObisCode DAILY_DIAGNOSTIC_OBISCODE = ObisCode.fromString("7.1.96.5.1.255");
+    private static final ObisCode CONVERTED_VOLUME_INDEX_OBISCODE = ObisCode.fromString("7.0.13.2.0.255");
+    private static final ObisCode CONVERTED_UNDER_ALARM_VOLUME_INDEX_OBISCODE = ObisCode.fromString("7.0.12.2.0.255");
 
     private static final ObisCode[] REGISTERS_TO_READ = new ObisCode[]{
             PP4_NETWORK_STATUS_OBISCODE,
@@ -49,6 +51,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             METROLOGICAL_EVENT_COUNTER_OBISCODE,
             EVENT_COUNTER_OBISCODE,
             DAILY_DIAGNOSTIC_OBISCODE,
+            CONVERTED_VOLUME_INDEX_OBISCODE,
+            CONVERTED_UNDER_ALARM_VOLUME_INDEX_OBISCODE
     };
 
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.3.255");
@@ -127,7 +131,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame47(byte[] compactFrame) {
         try {
-            Date dateTime = getDateTime();
+            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            Date dateTime = getDateTime(unixTime);
             List<OfflineRegister> allOfflineRegisters = getOfflineRegisters();
             for (ObisCode obisCode : REGISTERS_TO_READ) {
                 Optional<OfflineRegister> offlineRegister = allOfflineRegisters.stream().filter(olr -> obisCode.equals(olr.getObisCode())).findAny();
@@ -137,9 +142,10 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                     readMetrologicalEventCounter(obisCode, dateTime, compactFrame, 9, 2);
                     readEventCounter(obisCode, dateTime, compactFrame, 11, 2);
                     readDailyDiagnostic(obisCode, dateTime, compactFrame, 13, 2);
+                    readConvertedVolumeIndex(obisCode, dateTime, compactFrame, 15, 4);
+                    readConvertedUnderAlarmVolumeIndex(obisCode, dateTime, compactFrame, 19, 4);
                 }
             }
-            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned8 snapshotPeriodCounter = new Unsigned8(getByteArray(compactFrame, 23, 1, AxdrType.UNSIGNED), 0);
             Unsigned32 managementFrameCounter = new Unsigned32(getByteArray(compactFrame, 24, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
         } catch (IOException e) {
@@ -149,7 +155,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame48(byte[] compactFrame) {
         try {
-            Date dateTime = getDateTime();
+            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            Date dateTime = getDateTime(unixTime);
             List<OfflineRegister> allOfflineRegisters = getOfflineRegisters();
             for (ObisCode obisCode : REGISTERS_TO_READ) {
                 Optional<OfflineRegister> offlineRegister = allOfflineRegisters.stream().filter(olr -> obisCode.equals(olr.getObisCode())).findAny();
@@ -158,10 +165,11 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                     readDisconnectControl(obisCode, dateTime, compactFrame, 7, 1);
                     readEventCounter(obisCode, dateTime, compactFrame, 8, 2);
                     readDailyDiagnostic(obisCode, dateTime, compactFrame, 10, 2);
+                    readConvertedVolumeIndex(obisCode, dateTime, compactFrame, 12, 4);
+                    readConvertedUnderAlarmVolumeIndex(obisCode, dateTime, compactFrame, 16, 4);
                 }
             }
             readDailyLoadProfile(compactFrame, 20, 43);
-            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned8 snapshotPeriodCounter = new Unsigned8(getByteArray(compactFrame, 63, 1, AxdrType.UNSIGNED), 0);
             Unsigned32 managementFrameCounter = new Unsigned32(getByteArray(compactFrame, 64, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
         } catch (IOException e) {
@@ -171,7 +179,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame49(byte[] compactFrame) {
         try {
-            Date dateTime = getDateTime();
+            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            Date dateTime = getDateTime(unixTime);
             List<OfflineRegister> allOfflineRegisters = getOfflineRegisters();
             for (ObisCode obisCode : REGISTERS_TO_READ) {
                 Optional<OfflineRegister> offlineRegister = allOfflineRegisters.stream().filter(olr -> obisCode.equals(olr.getObisCode())).findAny();
@@ -181,10 +190,11 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                     readMetrologicalEventCounter(obisCode, dateTime, compactFrame, 9, 2);
                     readEventCounter(obisCode, dateTime, compactFrame, 11, 2);
                     readDailyDiagnostic(obisCode, dateTime, compactFrame, 13, 2);
+                    readConvertedVolumeIndex(obisCode, dateTime, compactFrame, 15, 4);
+                    readConvertedUnderAlarmVolumeIndex(obisCode, dateTime, compactFrame, 19, 4);
                 }
             }
             readDailyLoadProfile(compactFrame, 23, 43);
-            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             Unsigned8 snapshotPeriodCounter = new Unsigned8(getByteArray(compactFrame, 66, 1, AxdrType.UNSIGNED), 0);
             readSnapshotPeriodDate(compactFrame, 67, 50);
             Unsigned32 managementFrameCounter = new Unsigned32(getByteArray(compactFrame, 117, 4, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
@@ -205,9 +215,10 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         }
     }
 
-    private Date getDateTime() {
+    private Date getDateTime(Unsigned32 unixTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(getDeviceTimeZone());
+        calendar.setTimeInMillis(unixTime.longValue()*1000);
         return calendar.getTime();
     }
 
@@ -249,6 +260,20 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         if (DAILY_DIAGNOSTIC_OBISCODE.equals(obisCode)) {
             Unsigned16 dailyDiagnostic = new Unsigned16(getByteArray(compactFrame, offset, length, AxdrType.LONG_UNSIGNED), 0);
             addCollectedRegister(obisCode, dailyDiagnostic.longValue(), null, dateTime, null);
+        }
+    }
+
+    private void readConvertedVolumeIndex(ObisCode obisCode, Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        if (CONVERTED_VOLUME_INDEX_OBISCODE.equals(obisCode)) {
+            Unsigned32 eventCounter = new Unsigned32(getByteArray(compactFrame, offset, length, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            addCollectedRegister(obisCode, eventCounter.longValue(), null, dateTime, null);
+        }
+    }
+
+    private void readConvertedUnderAlarmVolumeIndex(ObisCode obisCode, Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        if (CONVERTED_UNDER_ALARM_VOLUME_INDEX_OBISCODE.equals(obisCode)) {
+            Unsigned32 eventCounter = new Unsigned32(getByteArray(compactFrame, offset, length, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            addCollectedRegister(obisCode, eventCounter.longValue(), null, dateTime, null);
         }
     }
 
