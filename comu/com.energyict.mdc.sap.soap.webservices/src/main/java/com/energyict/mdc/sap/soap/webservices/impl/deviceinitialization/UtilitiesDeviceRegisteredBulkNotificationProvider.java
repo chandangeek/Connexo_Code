@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import javax.inject.Inject;
 import javax.xml.ws.Service;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider",
         service = {UtilitiesDeviceRegisteredBulkNotification.class, OutboundSoapEndPointProvider.class},
@@ -51,7 +53,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
-    private volatile WebServiceActivator webServiceActivator;
+    private static final List<WebServiceActivator> webServiceActivatorList = new CopyOnWriteArrayList<>();
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
@@ -62,12 +64,16 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         this();
         setClock(clock);
         setSAPCustomPropertySets(sapCustomPropertySets);
-        setWebServiceActivator(webServiceActivator);
+        addWebServiceActivator(webServiceActivator);
     }
 
-    @Reference
-    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        this.webServiceActivator = webServiceActivator;
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+    public void addWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivatorList.add(webServiceActivator);
+    }
+
+    public void removeWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivatorList.remove(webServiceActivator);
     }
 
     @Reference
@@ -138,7 +144,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
-        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        Optional<WebServiceActivator> webServiceActivatorOptional = webServiceActivatorList.stream().findAny();
+        webServiceActivatorOptional.ifPresent(webServiceActivator -> header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId()));
         header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
@@ -163,7 +170,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
         header.setUUID(createUUID(UUID.randomUUID().toString()));
-        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        Optional<WebServiceActivator> webServiceActivatorOptional = webServiceActivatorList.stream().findAny();
+        webServiceActivatorOptional.ifPresent(webServiceActivator -> header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId()));
         header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
@@ -175,12 +183,11 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         UtilsDvceERPSmrtMtrRegedNotifSmrtMtr smartMeter = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifSmrtMtr();
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
-        smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
+        Optional<WebServiceActivator> webServiceActivatorOptional = webServiceActivatorList.stream().findAny();
+        webServiceActivatorOptional.ifPresent(webServiceActivator -> smartMeterId.setValue(webServiceActivator.getMeteringSystemId()));
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
-        if (device.isPresent()) {
-            sapCustomPropertySets.getStartDate(device.get(), now).ifPresent(sD -> smartMeter.setStartDate(sD));
-        }
+        device.ifPresent(dev -> sapCustomPropertySets.getStartDate(dev, now).ifPresent(smartMeter::setStartDate));
 
         UtilsDvceERPSmrtMtrRegedNotifUtilsDvce utilsDevice = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
         utilsDevice.setID(deviceId);
