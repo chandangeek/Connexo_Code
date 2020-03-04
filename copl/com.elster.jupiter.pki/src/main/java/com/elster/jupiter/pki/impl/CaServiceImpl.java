@@ -18,6 +18,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import org.apache.commons.lang3.StringUtils;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -68,6 +69,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -199,7 +201,6 @@ public class CaServiceImpl implements CaService {
         LOGGER.info("Signing CSR");
 
         checkConfiguration();
-        lazyInit();
         X509Certificate x509Cert;
         CertificateResponse certificateResponse;
         UserDataVOWS userData = new UserDataVOWS();
@@ -250,7 +251,6 @@ public class CaServiceImpl implements CaService {
     @Override
     public void revokeCertificate(CertificateAuthoritySearchFilter certificateTemplate, int reason) {
         checkConfiguration();
-        lazyInit();
         if (!RevokeStatus.fromValue(reason).isPresent()) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
         }
@@ -264,7 +264,6 @@ public class CaServiceImpl implements CaService {
     @Override
     public RevokeStatus checkRevocationStatus(CertificateAuthoritySearchFilter searchFilter) {
         checkConfiguration();
-        lazyInit();
         org.ejbca.core.protocol.ws.RevokeStatus rs;
         try {
             rs = ejbcaWS.checkRevokationStatus(searchFilter.getIssuerDN(), searchFilter.getSerialNumber().toString(SN_HEX));
@@ -277,21 +276,18 @@ public class CaServiceImpl implements CaService {
     @Override
     public Optional<X509CRL> getLatestCRL(String caname) {
         checkConfiguration();
-        lazyInit();
         return getCrl(caname, false);
     }
 
     @Override
     public Optional<X509CRL> getLatestDeltaCRL(String caname) {
         checkConfiguration();
-        lazyInit();
         return getCrl(caname, true);
     }
 
     @Override
     public List<String> getPkiCaNames() {
         checkConfiguration();
-        lazyInit();
         try {
             return ejbcaWS.getAvailableCAs().stream().map(NameAndId::getName).collect(Collectors.toList());
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
@@ -299,11 +295,39 @@ public class CaServiceImpl implements CaService {
         }
     }
 
+    public List<IdWithNameInfo> getEndEntities() {
+        checkConfiguration();
+        try {
+            return ejbcaWS.getAuthorizedEndEntityProfiles().stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public List<IdWithNameInfo> getCaName(int endEntityId){
+        try {
+             ejbcaWS.getAvailableCAsInProfile(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<IdWithNameInfo> getCertificateProfile(int endEntityId){
+        try {
+            ejbcaWS.getAvailableCertificateProfiles(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+        }
+        return new ArrayList<>();
+    }
+
     @Override
     public String getPkiInfo() {
         checkConfiguration();
         StringBuilder result = new StringBuilder();
-        lazyInit();
         result.append("Version: ");
         String version = ejbcaWS.getEjbcaVersion();
         result.append(version).append('\n');
@@ -464,6 +488,7 @@ public class CaServiceImpl implements CaService {
         if (!configured) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR_NOT_CONFIGURED_PROPERLY);
         }
+        lazyInit();
     }
 
 
