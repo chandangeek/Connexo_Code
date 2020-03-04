@@ -68,9 +68,9 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
                     errorMessage = '<ul>';
                     Ext.Array.each(result.errors, function(error){
                        if (error.id){
-                            errorMessage += '<li style="margin-left: 20px">' + Uni.I18n.translate('general.errorOnItem', 'MDC', 'Error on item {0}: {1}', [error.msg, error.id]) + '</li>';
+                            errorMessage += '<li style="margin-left: 20px">' + Uni.I18n.translate('general.errorOnCustomItem', 'MDC', 'Error on item {0}: {1}', [error.msg, error.id]) + '</li>';
                        }else{
-                            errorMessage += '<li style="margin-left: 20px">' + Uni.I18n.translate('general.error', 'MDC', 'Error:') + ': ' + error.msg + '</li>';
+                            errorMessage += '<li style="margin-left: 20px">' + Uni.I18n.translate('general.commonError', 'MDC', 'Error:') + ': ' + error.msg + '</li>';
                        }
                     })
                     errorMessage += '</ul>';
