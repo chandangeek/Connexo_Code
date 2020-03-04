@@ -162,17 +162,11 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 .build();
 
         if (resultMessage.isBulk()) {
-            if (!resultMessage.getBulkResultMessage().isPresent()) {
-                return false;
-            } else if (resultMessage.getBulkResultMessage().get().getMeterReadingDocumentERPResultCreateRequestMessage().isEmpty()) {
+            if (!resultMessage.getBulkResultMessage().isPresent() || resultMessage.getBulkResultMessage().get().getMeterReadingDocumentERPResultCreateRequestMessage().isEmpty()) {
                 return false;
             }
-        }
-
-        if (!resultMessage.isBulk()) {
-            if (!resultMessage.getResultMessage().isPresent()) {
-                return false;
-            } else if (resultMessage.getResultMessage().get().getMeterReadingDocument() == null) {
+        }else {
+            if (!resultMessage.getResultMessage().isPresent() || resultMessage.getResultMessage().get().getMeterReadingDocument() == null) {
                 return false;
             }
         }

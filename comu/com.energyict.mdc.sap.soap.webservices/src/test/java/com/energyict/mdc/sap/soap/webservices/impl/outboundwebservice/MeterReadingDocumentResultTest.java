@@ -43,6 +43,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         when(outboundMessage.getResultMessage()).thenReturn(Optional.ofNullable(resultMessage));
         when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue()).thenReturn("UtilMeasurmentTaskID");
         when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceID");
+        when(resultMessage.getMeterReadingDocument().getID().getValue()).thenReturn("MeterReadingDocumentID");
 
         provider = getProviderInstance(MeterReadingDocumentResultCreateRequestProvider.class);
     }
@@ -54,6 +55,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), "UtilMeasurmentTaskID");
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),"UtilDeviceID");
+        values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(),"MeterReadingDocumentID");
 
         verify(endpoint).meterReadingDocumentERPResultCreateRequestCOut(resultMessage);
         verify(webServiceCallOccurrence).saveRelatedAttributes(values);
