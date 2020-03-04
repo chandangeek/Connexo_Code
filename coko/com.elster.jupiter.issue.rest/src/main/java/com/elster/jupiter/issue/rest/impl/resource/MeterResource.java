@@ -45,7 +45,7 @@ public class MeterResource extends BaseResource {
         List<Meter> listMeters = getMeteringService().findMeters(filter)
                 .stream()
                 .sorted(Comparator.comparingInt((Meter meter) -> meter.getName().length())
-                        .thenComparingInt(meter -> meter.getName().indexOf(searchText == null ? "" : searchText))
+                        .thenComparingInt(meter -> meter.getName().toLowerCase().indexOf(searchText == null ? "" : searchText.toLowerCase()))
                         .thenComparing(HasName::getName))
                 .collect(Collectors.toList());
         return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
