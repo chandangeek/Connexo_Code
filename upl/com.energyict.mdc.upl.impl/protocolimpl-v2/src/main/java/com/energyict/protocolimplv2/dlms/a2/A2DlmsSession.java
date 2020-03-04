@@ -9,10 +9,19 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 
+import java.util.logging.Logger;
+
 public class A2DlmsSession extends DlmsSession {
 
-
     private boolean opticalConnection = false;
+
+    public A2DlmsSession(ComChannel comChannel, DlmsSessionProperties properties) {
+        super(comChannel, properties);
+    }
+
+    public A2DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, Logger logger) {
+        super(comChannel, properties, logger);
+    }
 
     public A2DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, A2HHUSignOn hhuSignOn, String deviceId) {
         super(comChannel, properties, hhuSignOn, deviceId);
@@ -40,14 +49,7 @@ public class A2DlmsSession extends DlmsSession {
         if (opticalConnection) {
             ((A2HHUHDLCConnection) ((SecureConnection) getDlmsV2Connection()).getTransportConnection()).createAssociation();
         } else {
-            createAssociation(0);
-        }
-    }
-
-    @Override
-    public void disconnect() {
-        if (getDLMSConnection() != null) {
-            getDlmsV2Connection().disconnectMAC();
+            super.createAssociation();
         }
     }
 }

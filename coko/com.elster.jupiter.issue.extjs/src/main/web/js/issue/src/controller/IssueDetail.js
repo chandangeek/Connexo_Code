@@ -36,6 +36,7 @@ Ext.define('Isu.controller.IssueDetail', {
             widget;
 
         switch (issueType){
+            case 'datavalidation':
             case 'datacollection':
             case 'devicelifecycle':
             case 'task':

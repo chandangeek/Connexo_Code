@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @LiteralSql
@@ -37,6 +38,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
     private volatile IssueService issueService;
     private volatile OrmService ormService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private static Logger LOGGER = Logger.getLogger(DeviceTypesLifeCycleCacheChangedEventHandler.class.getName());
 
     public DeviceTypesLifeCycleCacheChangedEventHandler() {
     }
@@ -80,7 +82,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
                     .select(Where.where("id").in(issueRuleTemplateInfos.stream().map(IssueRuleTemplateInfo::getId).collect(Collectors.toList())))
                     .forEach(CreationRule::update);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.severe(e.getLocalizedMessage());
         }
     }
 
@@ -89,7 +91,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
                 " AND NAME = 'DeviceLifecycleIssueCreationRuleTemplate.deviceLifecycleTransitionProps'")) {
             preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.severe(e.getLocalizedMessage());
         }
     }
 
