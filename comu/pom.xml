@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
@@ -509,6 +509,17 @@
                 <artifactId>mail</artifactId>
                 <version>1.4.7</version>
             </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.6.1</version>
+            </dependency>
+
             <!-- ComPort libraries -->
             <!-- need to depend on org.rxtx version -->
             <!-- but at runtime se.joel.osgi will be provided to get the osgi version -->
