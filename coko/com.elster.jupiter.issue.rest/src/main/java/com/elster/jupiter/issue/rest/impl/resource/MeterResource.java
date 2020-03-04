@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.rest.response.device.MeterShortInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterFilter;
+import com.elster.jupiter.util.HasName;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
@@ -43,7 +44,9 @@ public class MeterResource extends BaseResource {
         filter.setName(dbSearchText);
         List<Meter> listMeters = getMeteringService().findMeters(filter)
                 .stream()
-                .sorted(Comparator.comparingInt(list -> list.getName().length()))
+                .sorted(Comparator.comparingInt((Meter meter) -> meter.getName().length())
+                        .thenComparingInt(meter -> meter.getName().indexOf(searchText == null ? "" : searchText))
+                        .thenComparing(HasName::getName))
                 .collect(Collectors.toList());
         return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
     }

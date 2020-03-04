@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.rest.response.ResponseHelper;
 import com.elster.jupiter.issue.rest.response.device.MeterShortInfo;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterFilter;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.alarms.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -38,7 +39,9 @@ public class MeterResource extends BaseAlarmResource {
         filter.setName(dbSearchText);
         List<Meter> listMeters = getMeteringService().findMeters(filter)
                 .stream()
-                .sorted(Comparator.comparingInt(list -> list.getName().length()))
+                .sorted(Comparator.comparingInt((Meter meter) -> meter.getName().length())
+                        .thenComparingInt(meter -> meter.getName().indexOf(searchText == null ? "" : searchText))
+                        .thenComparing(HasName::getName))
                 .skip(params.getStart())
                 .limit(params.getLimit())
                 .collect(Collectors.toList());
