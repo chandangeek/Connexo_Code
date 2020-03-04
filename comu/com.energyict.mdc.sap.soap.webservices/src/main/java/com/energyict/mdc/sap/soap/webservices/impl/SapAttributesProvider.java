@@ -49,7 +49,8 @@ public class SapAttributesProvider implements WebServiceCallRelatedAttributeType
         ImmutableMap<String, TranslationKey> types = ImmutableMap.of(
                 SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), SapAttributesTranslations.SAP_DEVICE_UTIL_DEVICE_ID,
                 SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), SapAttributesTranslations.SAP_UTIL_MEASUREMENT_TASK_ID,
-                SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(), SapAttributesTranslations.SAP_TIME_SERIES_ID
+                SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(), SapAttributesTranslations.SAP_TIME_SERIES_ID,
+                SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), SapAttributesTranslations.SAP_METER_READING_DOCUMENT_ID
         );
 
         return types;

@@ -161,12 +161,20 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 .from(serviceCall, findChildren(serviceCall), clock.instant(), webServiceActivator.getMeteringSystemId())
                 .build();
 
-        if (resultMessage.isBulk() && resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().isEmpty()){
-            return false;
+        if (resultMessage.isBulk()) {
+            if (!resultMessage.getBulkResultMessage().isPresent()) {
+                return false;
+            } else if (resultMessage.getBulkResultMessage().get().getMeterReadingDocumentERPResultCreateRequestMessage().isEmpty()) {
+                return false;
+            }
         }
 
-        if (!resultMessage.isBulk() && resultMessage.getResultMessage().getMeterReadingDocument() == null) {
-            return false;
+        if (!resultMessage.isBulk()) {
+            if (!resultMessage.getResultMessage().isPresent()) {
+                return false;
+            } else if (resultMessage.getResultMessage().get().getMeterReadingDocument() == null) {
+                return false;
+            }
         }
 
         int childrenTotal = resultMessage.getDocumentsTotal();

@@ -41,6 +41,8 @@ public class MeterReadingDocumentCreateBulkEndpoint extends AbstractInboundEndPo
                             .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
                     Optional.ofNullable(msg.getDeviceId())
                             .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                    Optional.ofNullable(msg.getId())
+                            .ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
                 });
                 saveRelatedAttributes(values);
                 serviceCallCommands.createServiceCallAndTransition(message);

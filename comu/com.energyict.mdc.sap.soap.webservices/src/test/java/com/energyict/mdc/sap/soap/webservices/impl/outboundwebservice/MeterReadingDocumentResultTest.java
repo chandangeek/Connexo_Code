@@ -16,6 +16,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
     @Before
     public void setUp() {
         when(webServiceCallOccurrence.getId()).thenReturn(1L);
-        when(outboundMessage.getResultMessage()).thenReturn(resultMessage);
+        when(outboundMessage.getResultMessage()).thenReturn(Optional.ofNullable(resultMessage));
         when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue()).thenReturn("UtilMeasurmentTaskID");
         when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceID");
 
