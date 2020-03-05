@@ -56,6 +56,7 @@ import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_4_1;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_4_3;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_6;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_7_1;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_8;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
@@ -311,6 +312,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), V10_7SimpleUpgrader.class)
                         .put(version(10, 7, 1), UpgraderV10_7_1.class)
+                        .put(version(10, 8), UpgraderV10_8.class)
                         .build());
         this.meteringService.readLocationTemplatesFromDatabase();
     }
