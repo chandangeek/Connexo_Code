@@ -113,8 +113,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                     if (deviceMessage.getStatus().isPredecessorOf(DeviceMessageStatus.FAILED)) {
                                         deviceMessage.updateDeviceMessageStatus(DeviceMessageStatus.FAILED);
                                     }
-                                    serviceCallService.lockServiceCall(serviceCall.getId());
-                                    serviceCall.requestTransition(DefaultState.FAILED);
+                                    serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                                     timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.CALENDAR_INSTALLATION_FAILED, LogLevel.WARNING);
                                 }
                             }
@@ -123,8 +122,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             }
                         }
                     } else if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId()) {
-                        serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                         timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_SENDING_CALENDAR_LOST_ACTION, LogLevel.WARNING);
                     }
                 } else if (timeOfUseCampaignItem.getStepOfUpdate() == 1) {
@@ -133,16 +131,14 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                         if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getValidationComTaskId()) {
                             Instant calendarUploadTime = serviceCall.getLastModificationTime();
                             if (calendarUploadTime.plusMillis(timeOfUseCampaign.getValidationTimeout()).isBefore(clock.instant())) {
-                                serviceCallService.lockServiceCall(serviceCall.getId());
-                                serviceCall.requestTransition(DefaultState.FAILED);
+                                serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                                 timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED, LogLevel.WARNING);
                             } else {
                                 scheduleVerification(timeOfUseCampaignItem, calendarUploadTime.plusSeconds(timeOfUseCampaign.getValidationTimeout()));
                             }
                         }
                     } else if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getValidationComTaskId()) {
-                        serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                         timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION, LogLevel.WARNING);
                     }
                 }
@@ -168,8 +164,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                     .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
                                     .isPresent()) {
                                 if (!timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
-                                    serviceCallService.lockServiceCall(serviceCall.getId());
-                                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                                    serviceCall.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
                                     timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.CALENDAR_INSTALLATION_COMPLETED, LogLevel.INFO);
                                     timeOfUseCampaignService.revokeCalendarsCommands(device); //in case calendar has already been uploaded out of campaign scope
                                     planning = false;
@@ -190,8 +185,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                         }
 
                     } else if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId()) {
-                        serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                         timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_SENDING_CALENDAR_LOST_ACTION, LogLevel.WARNING);
                     }
                 } else if (timeOfUseCampaignItem.getStepOfUpdate() == 1) {
@@ -204,12 +198,10 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                         .map(Calendar::getId)
                                         .filter(id -> id == timeOfUseCampaign.getCalendar().getId())
                                         .isPresent()) {
-                                    serviceCallService.lockServiceCall(serviceCall.getId());
-                                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                                    serviceCall.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
                                     timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_COMPLETED, LogLevel.INFO);
                                 } else {
-                                    serviceCallService.lockServiceCall(serviceCall.getId());
-                                    serviceCall.requestTransition(DefaultState.FAILED);
+                                    serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                                     timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED_WRONG_CALENDAR, LogLevel.WARNING);
                                 }
                             }
@@ -217,8 +209,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             scheduleVerification(timeOfUseCampaignItem, calendarUploadTime.plusSeconds(timeOfUseCampaign.getValidationTimeout()));
                         }
                     } else if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getValidationComTaskId()) {
-                        serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                         timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION, LogLevel.WARNING);
                     }
                 }
@@ -321,21 +312,18 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             .isPresent() || connectionStrategy == campaign.getValidationConnectionStrategy().get())) {
                         comTaskExecution.schedule(when);
                     } else {
-                        serviceCallService.lockServiceCall(serviceCall.getId());
                         serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                                 .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(), comTaskExecution.getComTask().getName()));
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                     }
                 } else {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
                             .format(comTaskExecution.getComTask().getName()));
-                    serviceCall.requestTransition(DefaultState.FAILED);
+                    serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
                 }
             } else {
-                serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
-                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
             }
         }
     }
