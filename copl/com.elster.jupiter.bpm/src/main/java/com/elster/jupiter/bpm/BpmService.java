@@ -69,4 +69,8 @@ public interface BpmService {
     ProcessInstanceInfos getRunningProcesses(String authorization, String filter);
 
     ProcessInstanceInfos getRunningProcesses(String authorization, String filter, String appKey);
+
+    List<String> getProcessesToRunOneInstanceTheSameTime();
+
+    void addProcessesToRunOneInstanceTheSameTime(String processesToRunOneInstanceTheSameTime);
 }

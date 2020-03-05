@@ -82,6 +82,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
+    private List<String> processesToRunOneInstanceTheSameTime = new ArrayList<>();
 
     private final static String TOKEN_AUTH = "com.elster.jupiter.token";
 
@@ -405,4 +406,11 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         return Arrays.asList(MessageSeeds.values());
     }
 
+    public List<String> getProcessesToRunOneInstanceTheSameTime() {
+        return processesToRunOneInstanceTheSameTime;
+    }
+
+    public void addProcessesToRunOneInstanceTheSameTime(String processName) {
+        this.processesToRunOneInstanceTheSameTime.add(processName);
+    }
 }

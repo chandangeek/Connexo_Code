@@ -36,6 +36,7 @@ import com.elster.jupiter.bpm.rest.exception.BpmResourceAssignUserException;
 import com.elster.jupiter.bpm.rest.exception.LocalizedFieldException;
 import com.elster.jupiter.bpm.rest.exception.NoBpmConnectionException;
 import com.elster.jupiter.bpm.rest.exception.NoTaskWithIdException;
+import com.elster.jupiter.bpm.rest.exception.ProcessIsAlreadyRunning;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
@@ -1337,6 +1338,18 @@ public class BpmResource {
         if (!err.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
+
+        if (bpmService.getProcessesToRunOneInstanceTheSameTime().contains(deploymentId)) {
+            String filter = "?variableid=" + taskContentInfos.businessObject.id + "&variablevalue=" + taskContentInfos.businessObject.value;
+            boolean processIsrunning = bpmService.getRunningProcesses(null, filter)
+                    .processes
+                    .stream()
+                    .anyMatch(p -> p.name.equalsIgnoreCase(deploymentId) && p.status.equalsIgnoreCase("1"));
+            if (deploymentId.equalsIgnoreCase(deploymentId) && processIsrunning) {
+                throw new ProcessIsAlreadyRunning(thesaurus, MessageSeeds.PROCESS_IS_ALREADY_RUNNING, deploymentId);
+            }
+        }
+
         if (taskContentInfos.deploymentId != null) {
             if (taskContentInfos.businessObject != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
                 expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);

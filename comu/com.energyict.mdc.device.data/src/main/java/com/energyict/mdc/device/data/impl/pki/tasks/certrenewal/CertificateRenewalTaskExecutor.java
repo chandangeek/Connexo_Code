@@ -45,6 +45,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_PROCESS_NAME;
+
 public class CertificateRenewalTaskExecutor implements TaskExecutor {
 
     private volatile OrmService ormService;
@@ -57,7 +59,6 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
     private Integer certRenewalBpmProcessCount;
     private final Logger logger;
 
-    private static final String CERTIFICATE_RENEWAL_PROCESS_NAME = "Certificate renewal";
     private static final Integer CERTIFICATE_RENEWAL_EXPIRATION_DAYS = Integer.MAX_VALUE;
     private static final String ACTIVE_STATUS = "1";
 

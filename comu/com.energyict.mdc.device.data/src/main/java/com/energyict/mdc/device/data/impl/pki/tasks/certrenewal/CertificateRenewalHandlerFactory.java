@@ -46,6 +46,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     private static final String CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY = "com.energyict.mdc.device.data.pki.certrenewal.bpmprocess";
     private static final String CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY = "com.energyict.mdc.device.data.pki.certrenewal.expirationdays";
 
+    public static final String CERTIFICATE_RENEWAL_PROCESS_NAME = "Certificate renewal";
     public static final String CERTIFICATE_RENEWAL_TASK_SUBSCRIBER = "CertificateRenewalSubscriber";
     public static final String CERTIFICATE_RENEWAL_TASK_NAME = "Certificate Renewal Task";
     public static final String CERTIFICATE_RENEWAL_TASK_CRON_STRING = "0 0 8 1/1 * ? *"; // every day 8AM
@@ -121,6 +122,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     @Activate
     public void activate(BundleContext bundleContext) {
         getTaskProperties(bundleContext);
+        bpmService.addProcessesToRunOneInstanceTheSameTime(Optional.ofNullable(certRenewalBpmProcessDefinitionId).orElse(CERTIFICATE_RENEWAL_PROCESS_NAME));
     }
 
     @Deactivate
