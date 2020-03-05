@@ -30,7 +30,7 @@ public class UpgraderV10_8 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         //append partition for next month and enable auto increment partition interval
         if (dataModel.getSqlDialect().hasPartitioning()) {
-            execute(dataModel, "LOCK TABLE WS_ENDPOINT_LOG PARTITION FOR(" + clock.instant().plusMillis(PARTITIONSIZE) + ") IN SHARE MODE",
+            execute(dataModel, "LOCK TABLE WS_ENDPOINT_LOG PARTITION FOR (" + clock.instant().plusMillis(PARTITIONSIZE).toEpochMilli() + ") IN SHARE MODE",
                     "ALTER TABLE WS_ENDPOINT_LOG SET INTERVAL (" + PARTITIONSIZE + ")");
         }
     }

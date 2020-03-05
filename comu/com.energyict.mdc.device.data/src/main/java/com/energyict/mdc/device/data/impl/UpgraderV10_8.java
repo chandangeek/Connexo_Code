@@ -30,7 +30,7 @@ public class UpgraderV10_8 implements Upgrader {
         //append partition for next month and enable auto increment partition interval
         if (dataModel.getSqlDialect().hasPartitioning()) {
             Arrays.asList("DDC_COMSESSION", "DDC_COMTASKEXECSESSION").forEach(tableName ->
-                    execute(dataModel, "LOCK TABLE " + tableName + " PARTITION FOR(" + clock.instant().plusMillis(PARTITIONSIZE) + ") IN SHARE MODE",
+                    execute(dataModel, "LOCK TABLE " + tableName + " PARTITION FOR (" + clock.instant().plusMillis(PARTITIONSIZE).toEpochMilli() + ") IN SHARE MODE",
                             "ALTER TABLE " + tableName + " SET INTERVAL (" + PARTITIONSIZE + ")")
             );
         }
