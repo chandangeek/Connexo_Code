@@ -47,8 +47,8 @@ public class ComTaskExecutionSessionInfoFactory {
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution.usesSharedSchedule()) {
             ComSchedule comSchedule = comTaskExecution.getComSchedule().get();
-            info.comScheduleName = comSchedule.getName();
-            if (comSchedule.getTemporalExpression() != null) {
+            info.comScheduleName=comSchedule.getName();
+            if (comSchedule.getTemporalExpression()!=null) {
                 info.comScheduleFrequency = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
             }
         } else {
@@ -61,23 +61,21 @@ public class ComTaskExecutionSessionInfoFactory {
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();
-        if (comTaskExecutionSession.getHighestPriorityCompletionCode() != null) {
+        if (comTaskExecutionSession.getHighestPriorityCompletionCode()!=null) {
             info.result = CompletionCodeTranslationKeys.translationFor(comTaskExecutionSession.getHighestPriorityCompletionCode(), thesaurus);
         }
-        info.startTime = comTaskExecutionSession.getStartDate();
-        info.finishTime = comTaskExecutionSession.getStopDate();
+        info.startTime=comTaskExecutionSession.getStartDate();
+        info.finishTime =comTaskExecutionSession.getStopDate();
         info.durationInSeconds = info.startTime.until(info.finishTime, ChronoUnit.SECONDS);
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         info.errors = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.ERROR))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
-        Collections.reverse(info.errors);
         info.warnings = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.WARN))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
-        Collections.reverse(info.warnings);
         return info;
     }
 
