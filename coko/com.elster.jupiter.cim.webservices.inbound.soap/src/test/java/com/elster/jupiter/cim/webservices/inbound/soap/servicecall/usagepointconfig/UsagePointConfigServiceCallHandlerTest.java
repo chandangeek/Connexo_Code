@@ -9,6 +9,8 @@ import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.UsagePoi
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.UsagePointBuilder.PreparedUsagePointBuilder;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.json.JsonService;
 
 import ch.iec.tc57._2011.executeusagepointconfig.FaultMessage;
@@ -20,7 +22,6 @@ import com.google.common.collect.ImmutableSet;
 import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
@@ -28,7 +29,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointConfigServiceCallHandlerTest {
     private UsagePointConfigServiceCallHandler handler;
+    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     @Mock
     private Provider<UsagePointBuilder> usagePointBuilderProvider;
     @Mock
@@ -62,7 +63,7 @@ public class UsagePointConfigServiceCallHandlerTest {
 
     @Before
     public void setup() {
-        handler = new UsagePointConfigServiceCallHandler(usagePointBuilderProvider, jsonService);
+        handler = new UsagePointConfigServiceCallHandler(usagePointBuilderProvider, jsonService, transactionService);
         when(serviceCall.getExtension(UsagePointConfigDomainExtension.class)).thenReturn(Optional.of(extension));
         when(usagePointBuilderProvider.get()).thenReturn(builder);
         when(builder.from(any(UsagePoint.class), anyInt())).thenReturn(preparedBuilder);

@@ -77,6 +77,7 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_6SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_8SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
@@ -122,8 +123,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name="PkiService",
-        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class , UserDirectorySecurityProvider.class},
+@Component(name = "PkiService",
+        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class, UserDirectorySecurityProvider.class},
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
 public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider, UserDirectorySecurityProvider {
@@ -250,11 +251,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addCertificateUsagesFinder(CertificateUsagesFinder finder){
+    public void addCertificateUsagesFinder(CertificateUsagesFinder finder) {
         certificateUsagesFinders.add(finder);
     }
 
-    public void removeCertificateUsagesFinder(CertificateUsagesFinder finder){
+    public void removeCertificateUsagesFinder(CertificateUsagesFinder finder) {
         certificateUsagesFinders.remove(finder);
     }
 
@@ -335,6 +336,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         upgraders.put(version(10, 4, 2), V10_4_2SimpleUpgrader.class);
         upgraders.put(version(10, 4, 3), V10_4_3SimpleUpgrader.class);
         upgraders.put(version(10, 4, 4), V10_4_6SimpleUpgrader.class);
+        upgraders.put(version(10, 4, 8), V10_4_8SimpleUpgrader.class);
         upgraders.put(version(10, 7), V10_7SimpleUpgrader.class);
 
         upgradeService.register(
