@@ -45,7 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.bpm.impl.BpmServiceImpl.ACTIVE_STATUS;
+import static com.elster.jupiter.bpm.BpmService.ACTIVE_STATUS;
 import static com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_PROCESS_NAME;
 
 public class CertificateRenewalTaskExecutor implements TaskExecutor {

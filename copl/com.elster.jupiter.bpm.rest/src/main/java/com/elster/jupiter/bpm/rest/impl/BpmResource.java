@@ -100,7 +100,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.bpm.impl.BpmServiceImpl.ACTIVE_STATUS;
+import static com.elster.jupiter.bpm.BpmService.ACTIVE_STATUS;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/runtime")

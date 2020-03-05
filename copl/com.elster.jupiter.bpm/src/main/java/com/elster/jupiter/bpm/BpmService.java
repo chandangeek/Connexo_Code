@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @ProviderType
 public interface BpmService {
+    String ACTIVE_STATUS = "1";
     String COMPONENTNAME = "BPM";
 
     @Deprecated
