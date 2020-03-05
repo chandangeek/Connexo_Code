@@ -131,13 +131,13 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                     if (comTaskExecution.getComTask().getProtocolTasks().stream()
                             .anyMatch(StatusInformationTask.class::isInstance)) {
                         if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getValidationComTaskId()) {
-                            Instant calendarsTimeUpload = serviceCall.getLastModificationTime();
-                            if (calendarsTimeUpload.plusMillis(timeOfUseCampaign.getValidationTimeout()).isBefore(clock.instant())) {
+                            Instant calendarUploadTime = serviceCall.getLastModificationTime();
+                            if (calendarUploadTime.plusMillis(timeOfUseCampaign.getValidationTimeout()).isBefore(clock.instant())) {
                                 serviceCallService.lockServiceCall(serviceCall.getId());
                                 serviceCall.requestTransition(DefaultState.FAILED);
                                 timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED, LogLevel.WARNING);
                             } else {
-                                scheduleVerification(timeOfUseCampaignItem, calendarsTimeUpload.plusSeconds(timeOfUseCampaign.getValidationTimeout()));
+                                scheduleVerification(timeOfUseCampaignItem, calendarUploadTime.plusSeconds(timeOfUseCampaign.getValidationTimeout()));
                             }
                         }
                     } else if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getValidationComTaskId()) {
@@ -197,8 +197,8 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 } else if (timeOfUseCampaignItem.getStepOfUpdate() == 1) {
                     if (comTaskExecution.getComTask().getProtocolTasks().stream()
                             .anyMatch(StatusInformationTask.class::isInstance)) {
-                        Instant calendarsTimeUpload = serviceCall.getLastModificationTime();
-                        if (calendarsTimeUpload.plusMillis(timeOfUseCampaign.getValidationTimeout()).isBefore(clock.instant())) {
+                        Instant calendarUploadTime = serviceCall.getLastModificationTime();
+                        if (calendarUploadTime.plusMillis(timeOfUseCampaign.getValidationTimeout()).isBefore(clock.instant())) {
                             if (comTaskExecution.getDevice().calendars().getActive().isPresent()) {
                                 if (comTaskExecution.getDevice().calendars().getActive().get().getAllowedCalendar().getCalendar()
                                         .map(Calendar::getId)
@@ -214,7 +214,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                 }
                             }
                         } else {
-                            scheduleVerification(timeOfUseCampaignItem, calendarsTimeUpload.plusSeconds(timeOfUseCampaign.getValidationTimeout()));
+                            scheduleVerification(timeOfUseCampaignItem, calendarUploadTime.plusSeconds(timeOfUseCampaign.getValidationTimeout()));
                         }
                     } else if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getValidationComTaskId()) {
                         serviceCallService.lockServiceCall(serviceCall.getId());
