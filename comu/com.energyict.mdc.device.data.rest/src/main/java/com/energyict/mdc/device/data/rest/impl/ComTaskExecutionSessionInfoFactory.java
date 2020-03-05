@@ -72,10 +72,12 @@ public class ComTaskExecutionSessionInfoFactory {
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.ERROR))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
+        Collections.reverse(info.errors);
         info.warnings = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.WARN))
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
+        Collections.reverse(info.warnings);
         return info;
     }
 
