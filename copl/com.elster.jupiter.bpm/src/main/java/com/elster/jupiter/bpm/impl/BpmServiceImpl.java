@@ -68,6 +68,8 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
 public final class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
 
+    public static final String ACTIVE_STATUS = "1";
+
     static String BPM_QUEUE_DEST = "BpmQueueDest";
     static String BPM_QUEUE_SUBSC = "BpmQueueSubsc";
     static String BPM_QUEUE_DISPLAYNAME = "Handle Connexo Flow";
