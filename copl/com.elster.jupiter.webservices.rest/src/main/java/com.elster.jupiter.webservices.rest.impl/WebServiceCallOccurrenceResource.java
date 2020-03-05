@@ -175,8 +175,6 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                     return new RelatedAttributeInfo(obj.getId(),
                             obj.getValue() + " (" + webServiceCallOccurrenceService.translateAttributeType(obj.getKey()) + ")");
                 })
-                .skip(params.getStart().orElse(0))
-                .limit(params.getLimit().map(i -> i++).orElse(Integer.MAX_VALUE))
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("relatedattributes", listInfo, params);
