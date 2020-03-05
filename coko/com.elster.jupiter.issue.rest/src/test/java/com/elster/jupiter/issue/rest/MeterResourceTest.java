@@ -44,7 +44,7 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
         Finder<Meter> finder = mock(Finder.class);
         when(meteringService.findMeters(any(MeterFilter.class))).thenReturn(finder);
         when(finder.paged(0, 10)).thenReturn(finder);
-        when(finder.find()).thenReturn(meters);
+        when(finder.stream()).thenReturn(meters.stream());
 
         Map<String, Object> map = target("/meters")
                 .queryParam(START, 0)
@@ -70,7 +70,7 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
         Finder<Meter> finder = mock(Finder.class);
         when(meteringService.findMeters(any(MeterFilter.class))).thenReturn(finder);
         when(finder.paged(0, 10)).thenReturn(finder);
-        when(finder.find()).thenReturn(meters);
+        when(finder.stream()).thenReturn(meters.stream());
 
         // Business method
         Map<String, Object> map = target("/meters")

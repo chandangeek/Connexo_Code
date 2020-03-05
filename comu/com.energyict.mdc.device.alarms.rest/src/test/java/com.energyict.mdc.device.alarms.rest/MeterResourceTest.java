@@ -36,7 +36,7 @@ public class MeterResourceTest extends DeviceAlarmApplicationTest {
         Finder<Meter> finder = mock(Finder.class);
         when(meteringService.findMeters(any(MeterFilter.class))).thenReturn(finder);
         when(finder.paged(0, 10)).thenReturn(finder);
-        when(finder.find()).thenReturn(meters);
+        when(finder.stream()).thenReturn(meters.stream());
 
         List<MeterShortInfo> meterShortInfos = target("/meters")
                 .queryParam("start", 0)
@@ -59,7 +59,7 @@ public class MeterResourceTest extends DeviceAlarmApplicationTest {
         Finder<Meter> finder = mock(Finder.class);
         when(meteringService.findMeters(any(MeterFilter.class))).thenReturn(finder);
         when(finder.paged(0, 10)).thenReturn(finder);
-        when(finder.find()).thenReturn(meters);
+        when(finder.stream()).thenReturn(meters.stream());
 
         // Business method
         List<MeterShortInfo> meterShortInfos = target("/meters")
