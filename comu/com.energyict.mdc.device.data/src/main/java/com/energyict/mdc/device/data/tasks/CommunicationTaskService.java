@@ -191,7 +191,7 @@ public interface CommunicationTaskService {
      * @param comPort
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
-    List<ComTaskExecution> getPlannedComTaskExecutionsListFor(OutboundComPort comPort);
+    List<ComTaskExecution> getPendingComTaskExecutionsListFor(OutboundComPort comPort, int factor);
 
     /**
      * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds

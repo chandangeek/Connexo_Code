@@ -32,7 +32,7 @@ public class UtilitiesDeviceRegisterCreateRequestEndpoint extends AbstractRegist
                     .ifPresent(requestMessage -> {
                         UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
                                 .from(requestMessage)
-                                .build();
+                                .build(getThesaurus());
 
                         handleRequestMessage(message);
                     });

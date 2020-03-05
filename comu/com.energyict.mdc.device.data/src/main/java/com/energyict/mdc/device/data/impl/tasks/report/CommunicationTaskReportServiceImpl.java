@@ -92,22 +92,17 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         return this.getComTaskExecutionStatusCount(filter);
     }
 
-    private Set<EndDeviceGroup> asSet(EndDeviceGroup deviceGroup) {
-        return Stream.of(deviceGroup).collect(Collectors.toSet());
-    }
-
     @Override
     public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter) {
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = ClauseAwareSqlBuilder
-                                .withExcludedStages(
-                                        DEVICE_STAGE_ALIAS_NAME,
-                                        EndDeviceStage.fromKeys(filter.restrictedDeviceStages),
-                                        this.deviceDataModelService.clock().instant());
-                WithClauses.COMTASK_EXECUTION_WITH_DEVICE_STATE.appendTo(sqlBuilder, "ctes");
+                SqlBuilder withClause = new SqlBuilder("select * from MV_COMTASKEXWITHDEVSTS where ");
+                DeviceStageSqlBuilder
+                        .forExcludeStages("", EndDeviceStage.fromKeys(filter.restrictedDeviceStages))
+                        .appendRestrictedStages(withClause);
+                sqlBuilder = ClauseAwareSqlBuilder.with(withClause.getText(), "ctes");
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             } else {
                 sqlBuilder.unionAll();
@@ -115,6 +110,71 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             }
         }
         return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
+    }
+
+    @Override
+    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses) {
+        return this.getCommunicationTasksComScheduleBreakdown(taskStatuses, Collections.emptySet());
+    }
+
+    @Override
+    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksComScheduleBreakdown(taskStatuses, this.asSet(deviceGroup));
+    }
+
+    @Override
+    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses) {
+        return this.getCommunicationTasksDeviceTypeBreakdown(taskStatuses, Collections.emptySet());
+    }
+
+    @Override
+    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksDeviceTypeBreakdown(taskStatuses, this.asSet(deviceGroup));
+    }
+
+    @Override
+    public CommunicationTaskBreakdowns getCommunicationTaskBreakdowns() {
+        return this.getCommunicationTaskBreakdowns(() -> CommunicationTaskBreakdownSqlExecutor.systemWide(this.deviceDataModelService.dataModel()));
+    }
+
+    @Override
+    public CommunicationTaskBreakdowns getCommunicationTaskBreakdowns(EndDeviceGroup deviceGroup) {
+        return this.getCommunicationTaskBreakdowns(() -> CommunicationTaskBreakdownSqlExecutor.forGroup(deviceGroup, this.getMdcAmrSystem().get(), this.deviceDataModelService.dataModel()));
+    }
+
+    @Override
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
+        return this.getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional.empty());
+    }
+
+    @Override
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(EndDeviceGroup deviceGroup) {
+        return this.getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional.of(deviceGroup));
+    }
+
+    @Override
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
+        //return this.getComTasksDeviceTypeHeatMap(null);
+        StopWatch watch = new StopWatch(true);// just for time measurement
+        Map<DeviceType, List<Long>> map = this.getComTasksDeviceTypeHeatMap(null);
+        watch.stop();// just for time measurement
+        LOGGER.log(Level.WARNING, "CONM1163: method: getComTasksDeviceTypeHeatMap; " + watch.toString()); // just for time measurement
+        return map;
+    }
+
+    @Override
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append("select DEVICETYPE, lastsess_highestpriocomplcode, count(*) from ( ");
+        sqlBuilder.append(" select * from  MV_COMTASKDTHEATMAP cte where 1=1 ");
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        sqlBuilder.append(") group by devicetype, lastsess_highestpriocomplcode");
+        Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
+        return this.buildDeviceTypeHeatMap(partialCounters);
+    }
+
+    private Set<EndDeviceGroup> asSet(EndDeviceGroup deviceGroup) {
+        return Stream.of(deviceGroup).collect(Collectors.toSet());
     }
 
     private Set<ServerComTaskStatus> taskStatusesForCounting(ComTaskExecutionFilterSpecification filter) {
@@ -143,16 +203,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     private Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters) {
         return this.deviceDataModelService.addMissingTaskStatusCounters(counters);
-    }
-
-    @Override
-    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses) {
-        return this.getCommunicationTasksComScheduleBreakdown(taskStatuses, Collections.emptySet());
-    }
-
-    @Override
-    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup) {
-        return this.getCommunicationTasksComScheduleBreakdown(taskStatuses, this.asSet(deviceGroup));
     }
 
     private Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, Set<EndDeviceGroup> deviceGroups) {
@@ -188,16 +238,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
                 this.deviceDataModelService.schedulingService().findAllSchedules().stream().
                         collect(Collectors.toMap(ComSchedule::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(breakdown, comSchedules);
-    }
-
-    @Override
-    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses) {
-        return this.getCommunicationTasksDeviceTypeBreakdown(taskStatuses, Collections.emptySet());
-    }
-
-    @Override
-    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, EndDeviceGroup deviceGroup) {
-        return this.getCommunicationTasksDeviceTypeBreakdown(taskStatuses, this.asSet(deviceGroup));
     }
 
     private Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, Set<EndDeviceGroup> deviceGroups) {
@@ -266,36 +306,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             emptyBreakdown.put(breakDown, emptyCounters);
         }
         return emptyBreakdown;
-    }
-
-    @Override
-    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
-        //return this.getComTasksDeviceTypeHeatMap(null);
-        StopWatch watch = new StopWatch(true);// just for time measurement
-        Map<DeviceType, List<Long>> map = this.getComTasksDeviceTypeHeatMap(null);
-        watch.stop();// just for time measurement
-        LOGGER.log(Level.WARNING, "CONM1163: method: getComTasksDeviceTypeHeatMap; " + watch.toString()); // just for time measurement
-        return map;
-    }
-
-    @Override
-    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
-        DeviceStageSqlBuilder
-                .forDefaultExcludedStages("enddevices")
-                .appendRestrictedStagesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
-        sqlBuilder.append("select dev.DEVICETYPE, cte.lastsess_highestpriocomplcode, count(*) from ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" cte join ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on cte.device = dev.id join enddevices kd on dev.meterid = kd.id ");
-        sqlBuilder.append(" left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        sqlBuilder.append(" where cte.obsolete_date is null");
-        sqlBuilder.append("   and cte.lastsession is not null");
-        sqlBuilder.append(" group by dev.devicetype, cte.lastsess_highestpriocomplcode");
-        Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
-        return this.buildDeviceTypeHeatMap(partialCounters);
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<CompletionCode, Long>> partialCounters) {
@@ -367,16 +377,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         return completionCodeCounters;
     }
 
-    @Override
-    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
-        return this.getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional.empty());
-    }
-
-    @Override
-    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(EndDeviceGroup deviceGroup) {
-        return this.getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional.of(deviceGroup));
-    }
-
     private Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional<EndDeviceGroup> deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
         DeviceStageSqlBuilder
@@ -444,16 +444,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     private Optional<AmrSystem> getMdcAmrSystem() {
         return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-    }
-
-    @Override
-    public CommunicationTaskBreakdowns getCommunicationTaskBreakdowns() {
-        return this.getCommunicationTaskBreakdowns(() -> CommunicationTaskBreakdownSqlExecutor.systemWide(this.deviceDataModelService.dataModel()));
-    }
-
-    @Override
-    public CommunicationTaskBreakdowns getCommunicationTaskBreakdowns(EndDeviceGroup deviceGroup) {
-        return this.getCommunicationTaskBreakdowns(() -> CommunicationTaskBreakdownSqlExecutor.forGroup(deviceGroup, this.getMdcAmrSystem().get(), this.deviceDataModelService.dataModel()));
     }
 
     private CommunicationTaskBreakdowns getCommunicationTaskBreakdowns(Supplier<CommunicationTaskBreakdownSqlExecutor> sqlExecutorSupplier) {

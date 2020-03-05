@@ -98,7 +98,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 },
                 editor: {
                     xtype: 'textfield',
-                    stripCharsRe: /[^0-9\.]/,
+                    stripCharsRe: /[^-0-9\.]/,
                     selectOnFocus: true,
                     validateOnChange: true,
                     fieldStyle: 'text-align: right'

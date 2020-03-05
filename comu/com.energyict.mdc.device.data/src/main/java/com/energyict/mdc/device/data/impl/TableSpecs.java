@@ -1233,7 +1233,7 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .add();
-            Column securityAccessor = table.column(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.name())
+            Column crlSigner = table.column(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.name()).since(version(10,4,9))
                     .number()
                     .notNull()
                     .add();
@@ -1246,11 +1246,11 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_CRLREQUEST")
                     .on(task)
                     .add();
-            table.foreignKey("FK_DDC_CRL_SECURITYACCESSOR")
-                    .on(securityAccessor)
-                    .references(com.elster.jupiter.pki.SecurityAccessor.class)
-                    .map(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CRL_SIGNER")
+                    .on(crlSigner)
+                    .references(com.elster.jupiter.pki.CertificateWrapper.class)
+                    .map(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.fieldName()).since(version(10,4,9))
+                    .add();
             table.foreignKey("FK_DDC_CRL_TASK")
                     .on(task)
                     .references(RecurrentTask.class).
