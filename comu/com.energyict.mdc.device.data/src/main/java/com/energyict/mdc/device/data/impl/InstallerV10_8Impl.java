@@ -23,10 +23,10 @@ public class InstallerV10_8Impl implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
-        execute(dataModel, getConnectionTasksBreakDownStatement(""));
-        execute(dataModel, getCommunicationTasksBreakDownStatement(""));
-        execute(dataModel, getComTaskDTHeatMapStatement(""));
-        execute(dataModel, getComTaskExWithDevStsStatement(""));
+        execute(dataModel, getConnectionTasksBreakDownStatement());
+        execute(dataModel, getCommunicationTasksBreakDownStatement());
+        execute(dataModel, getComTaskDTHeatMapStatement());
+        execute(dataModel, getComTaskExWithDevStsStatement());
         if (ormService.isTest()) {
             return;
         }
@@ -36,9 +36,9 @@ public class InstallerV10_8Impl implements FullInstaller {
         execute(dataModel, getRefreshMvComTaskExWithDevStsJobStatement());
     }
 
-    private String getConnectionTasksBreakDownStatement(String suffix){
+    private String getConnectionTasksBreakDownStatement() {
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" CREATE TABLE MV_CONTASKBREAKDOWN").append(suffix);
+        sqlBuilder.append(" CREATE TABLE MV_CONTASKBREAKDOWN");
         sqlBuilder.append(" AS SELECT ");
         sqlBuilder.append(" ct.connectiontypepluggableclass ");
         sqlBuilder.append(" , ct.device ");
@@ -112,9 +112,9 @@ public class InstallerV10_8Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private String getCommunicationTasksBreakDownStatement(String suffix){
+    private String getCommunicationTasksBreakDownStatement() {
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" CREATE TABLE MV_COMTASKBREAKDOWN").append(suffix);
+        sqlBuilder.append(" CREATE TABLE MV_COMTASKBREAKDOWN");
         sqlBuilder.append(" AS SELECT ");
         sqlBuilder.append(" 	cte.id ");
         sqlBuilder.append("   , cte.nextexecutiontimestamp ");
@@ -176,9 +176,9 @@ public class InstallerV10_8Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private String getComTaskDTHeatMapStatement(String suffix){
+    private String getComTaskDTHeatMapStatement() {
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" CREATE TABLE MV_COMTASKDTHEATMAP").append(suffix);
+        sqlBuilder.append(" CREATE TABLE MV_COMTASKDTHEATMAP");
         sqlBuilder.append(" AS select ");
         sqlBuilder.append(" 	  dev.DEVICETYPE ");
         sqlBuilder.append(" 	, cte.lastsess_highestpriocomplcode ");
@@ -222,9 +222,9 @@ public class InstallerV10_8Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private String getComTaskExWithDevStsStatement(String suffix){
+    private String getComTaskExWithDevStsStatement() {
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" CREATE TABLE MV_COMTASKEXWITHDEVSTS").append(suffix);
+        sqlBuilder.append(" CREATE TABLE MV_COMTASKEXWITHDEVSTS");
         sqlBuilder.append(" AS select ");
         sqlBuilder.append(" 	/* +INLINE */ ");
         sqlBuilder.append(" 	cte.obsolete_date ");
@@ -262,134 +262,23 @@ public class InstallerV10_8Impl implements FullInstaller {
     }
 
     private String getRefreshMvConnectionTasksBreakDownJobStatement(){
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
-        sqlBuilder.append(" ( ");
-        sqlBuilder.append(" JOB_NAME            => 'REF_MV_CONTASKBREAKDOWN', ");
-        sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => ' ");
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" execute immediate ");
-        sqlBuilder.append(" ''");
-        sqlBuilder.append(getConnectionTasksBreakDownStatement("_NEW").replace("'","''''"));
-        sqlBuilder.append(" ''; ");
-        sqlBuilder.append(" execute immediate ''DROP TABLE MV_CONTASKBREAKDOWN''; ");
-        sqlBuilder.append(" execute immediate ''RENAME MV_CONTASKBREAKDOWN_NEW TO MV_CONTASKBREAKDOWN''; ");
-        sqlBuilder.append(" EXCEPTION ");
-        sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append(" 	  IF SQLCODE != -942 THEN ");
-        sqlBuilder.append(" 		 RAISE; ");
-        sqlBuilder.append(" 	  END IF; ");
-        sqlBuilder.append(" END;', ");
-        sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
-        sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
-        sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=5', ");
-        sqlBuilder.append(" END_DATE            => NULL, ");
-        sqlBuilder.append(" ENABLED             => TRUE, ");
-        sqlBuilder.append(" AUTO_DROP           => FALSE, ");
-        sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
-        sqlBuilder.append(" ); ");
-        sqlBuilder.append(" END;");
-        return sqlBuilder.toString();
+        return getRefreshJob("REF_MV_CONTASKBREAKDOWN", "MV_CONTASKBREAKDOWN",
+                getConnectionTasksBreakDownStatement(), 5);
     }
 
     private String getRefreshMvCommunicationTasksBreakDownJobStatement(){
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
-        sqlBuilder.append(" ( ");
-        sqlBuilder.append(" JOB_NAME            => 'REF_MV_COMTASKBREAKDOWN', ");
-        sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => ' ");
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" execute immediate ");
-        sqlBuilder.append(" ''");
-        sqlBuilder.append(getCommunicationTasksBreakDownStatement("_NEW").replace("'","''''"));
-        sqlBuilder.append(" ''; ");
-        sqlBuilder.append(" execute immediate ''DROP TABLE MV_COMTASKBREAKDOWN''; ");
-        sqlBuilder.append(" execute immediate ''RENAME MV_COMTASKBREAKDOWN_NEW TO MV_COMTASKBREAKDOWN''; ");
-        sqlBuilder.append(" EXCEPTION ");
-        sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append(" 	  IF SQLCODE != -942 THEN ");
-        sqlBuilder.append(" 		 RAISE; ");
-        sqlBuilder.append(" 	  END IF; ");
-        sqlBuilder.append(" END;', ");
-        sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
-        sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
-        sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=5', ");
-        sqlBuilder.append(" END_DATE            => NULL, ");
-        sqlBuilder.append(" ENABLED             => TRUE, ");
-        sqlBuilder.append(" AUTO_DROP           => FALSE, ");
-        sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
-        sqlBuilder.append(" ); ");
-        sqlBuilder.append(" END;");
-        return sqlBuilder.toString();
+        return getRefreshJob("REF_MV_COMTASKBREAKDOWN", "MV_COMTASKBREAKDOWN",
+                getCommunicationTasksBreakDownStatement(), 5);
     }
 
     private String getRefreshMvComTaskDTHeatMapJobStatement(){
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
-        sqlBuilder.append(" ( ");
-        sqlBuilder.append(" JOB_NAME            => 'REF_MV_COMTASKDTHEATMAP', ");
-        sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => ' ");
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" execute immediate ");
-        sqlBuilder.append(" ''");
-        sqlBuilder.append(getComTaskDTHeatMapStatement("_NEW").replace("'","''''"));
-        sqlBuilder.append(" ''; ");
-        sqlBuilder.append(" execute immediate ''DROP TABLE MV_COMTASKDTHEATMAP''; ");
-        sqlBuilder.append(" execute immediate ''RENAME MV_COMTASKDTHEATMAP_NEW TO MV_COMTASKDTHEATMAP''; ");
-        sqlBuilder.append(" EXCEPTION ");
-        sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append(" 	  IF SQLCODE != -942 THEN ");
-        sqlBuilder.append(" 		 RAISE; ");
-        sqlBuilder.append(" 	  END IF; ");
-        sqlBuilder.append(" END;', ");
-        sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
-        sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
-        sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=5', ");
-        sqlBuilder.append(" END_DATE            => NULL, ");
-        sqlBuilder.append(" ENABLED             => TRUE, ");
-        sqlBuilder.append(" AUTO_DROP           => FALSE, ");
-        sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
-        sqlBuilder.append(" ); ");
-        sqlBuilder.append(" END;");
-        return sqlBuilder.toString();
+        return getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
+                getComTaskDTHeatMapStatement(), 5);
+
     }
 
     private String getRefreshMvComTaskExWithDevStsJobStatement(){
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
-        sqlBuilder.append(" ( ");
-        sqlBuilder.append(" JOB_NAME            => 'REF_MV_COMTASKEXWITHDEVSTS', ");
-        sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => ' ");
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" execute immediate ");
-        sqlBuilder.append(" ''");
-        sqlBuilder.append(getComTaskExWithDevStsStatement("_NEW").replace("'","''''"));
-        sqlBuilder.append(" ''; ");
-        sqlBuilder.append(" execute immediate ''DROP TABLE MV_COMTASKEXWITHDEVSTS''; ");
-        sqlBuilder.append(" execute immediate ''RENAME MV_COMTASKEXWITHDEVSTS_NEW TO MV_COMTASKEXWITHDEVSTS''; ");
-        sqlBuilder.append(" EXCEPTION ");
-        sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append(" 	  IF SQLCODE != -942 THEN ");
-        sqlBuilder.append(" 		 RAISE; ");
-        sqlBuilder.append(" 	  END IF; ");
-        sqlBuilder.append(" END;', ");
-        sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
-        sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
-        sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=5', ");
-        sqlBuilder.append(" END_DATE            => NULL, ");
-        sqlBuilder.append(" ENABLED             => TRUE, ");
-        sqlBuilder.append(" AUTO_DROP           => FALSE, ");
-        sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
-        sqlBuilder.append(" ); ");
-        sqlBuilder.append(" END;");
-        return sqlBuilder.toString();
+        return getRefreshJob("REF_MV_COMTASKEXWITHDEVSTS", "MV_COMTASKEXWITHDEVSTS",
+                getComTaskExWithDevStsStatement(), 5);
     }
 }
