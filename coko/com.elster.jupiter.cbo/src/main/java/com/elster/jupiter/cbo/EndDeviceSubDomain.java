@@ -178,7 +178,16 @@ public enum EndDeviceSubDomain implements HasNumericCode {
     WINDOW("Window", 73, "Related to a period of time during which a device can be linked/paired with a meter or other device"),
     WRITEACCESS("WriteAccess", 282, "Related to the permission level one has; as in read, write, update"),
     RECODER("Recoder", 300, "A device for encoding"),
-    ENCLOSURE("Enclosure", 141, "Related to something that provides enclosure");
+    ENCLOSURE("Enclosure", 141, "Related to something that provides enclosure"),
+    ELSTER_DEFINED_SETUP1("Setup1", 301,  ""),
+    ELSTER_DEFINED_SETUP2("Setup2", 302,  ""),
+    ELSTER_DEFINED_SETUP3("Setup3", 303,  ""),
+    ELSTER_DEFINED_SETUP4("Setup4", 304,  ""),
+    ELSTER_DEFINED_PIB("Pib", 311,  ""),
+    ELSTER_DEFINED_MIB("Mib", 312,  ""),
+    ELSTER_DEFINED_PM1_AFFILATION("Pm1Affiliation", 313,  ""),
+    ELSTER_DEFINED_VALVE_PGV("ValvePgv", 314,  ""),
+    ELSTER_DEFINED_PDR("Pdr", 315,  "");
 
     private final String mnemonic;
     private final int value;
