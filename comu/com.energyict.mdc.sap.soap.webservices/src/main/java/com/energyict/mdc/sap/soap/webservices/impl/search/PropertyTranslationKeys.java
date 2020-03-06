@@ -11,7 +11,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     SAP(SapAttributesSearchablePropertyGroup.GROUP_NAME, "SAP attributes"),
     DEVICE_IDENTIFIER(DeviceIdentifierSearchableProperty.PROPERTY_NAME, "Device identifier"),
     DEVICE_LOCATION(DeviceLocationSearchableProperty.PROPERTY_NAME, "Device location"),
-    POINT_OF_DELIVERY(PointOfDeliverySearchableProperty.PROPERTY_NAME, "Point of delivery"),
+    POINT_OF_DELIVERY(PointOfDeliverySearchableProperty.PROPERTY_NAME, "Point of delivery identifier"),
     REGISTERED(RegisteredSearchableProperty.PROPERTY_NAME, "Registered"),
     LOGICAL_REGISTER_NUMBER(LogicalRegisterNumberSearchableProperty.PROPERTY_NAME, "Logical register number"),
     PROFILE_ID(ProfileIdSearchableProperty.PROPERTY_NAME, "Profile id");
