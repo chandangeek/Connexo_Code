@@ -58,7 +58,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
     @Override
     ForeignKeyConstraintImpl init(TableImpl<?> table, String name) {
         if (is(name).empty()) {
-            throw new IllegalTableMappingException("Table " + table.getName() + " : foreign key can not have an empty name.");
+            throw new IllegalTableMappingException("Table " + table.getName() + ": foreign key can't have an empty name.");
         }
         super.init(table, name);
         return this;
@@ -187,7 +187,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         Objects.requireNonNull(deleteRule);
         Objects.requireNonNull(fieldName);
         /*if (!getTable().hasForceJournal() && !deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
-            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journaled table cannot have a foreign key with cascade or set null delete rule");
+            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journaled table can't have a foreign key with cascade or set null delete rule.");
         }*/
         if (isActual() && !getReferencedTable().getPrimaryKeyConstraint().isPresent()) {
             throw new IllegalTableMappingException("Foreign key " + getName() + " on table " + getTable().getName() + " can't reference a table without primary key.");
@@ -197,7 +197,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
                     + getTable().getName() + ": the referenced object doesn't have a field named " + reverseFieldName + ".");
         }
         if (getReferencedTable().isCached() && forwardEagers.length > 0) {
-            throw new IllegalStateException("Table: " + getTable().getName() + ": Do not specify eager mapping when referencing cached table " + getReferencedTable().getName());
+            throw new IllegalTableMappingException("Table " + getTable().getName() + ": don't specify eager mapping when referencing cached table " + getReferencedTable().getName() + '.');
         }
     }
 

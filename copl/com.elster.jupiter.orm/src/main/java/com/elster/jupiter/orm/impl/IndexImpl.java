@@ -94,7 +94,7 @@ public class IndexImpl implements Index {
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    static class BuilderImpl implements Index.Builder {
+    public static class BuilderImpl implements Index.Builder {
         private IndexImpl index;
 
         public BuilderImpl(TableImpl<?> table, String name) {
@@ -105,7 +105,7 @@ public class IndexImpl implements Index {
         public Builder on(Column... columns) {
             for (Column column : columns) {
                 if (!index.getTable().equals(column.getTable())) {
-                    throw new IllegalTableMappingException("Table " + index.getTable().getName() + " : primary key can not have columns from another table : " + column.getName() + ".");
+                    throw new IllegalTableMappingException("Table " + index.getTable().getName() + ": index " + index.getName() + " can't have columns from another table: " + column.getName() + ".");
                 }
             }
             index.add(columns);
