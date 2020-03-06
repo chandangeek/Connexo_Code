@@ -12,10 +12,8 @@ import javax.inject.Inject;
 import java.util.logging.Logger;
 
 public class UpgraderV10_8 implements Upgrader {
-
     private final DataModel dataModel;
     private final InstallerV10_8Impl installerV10_8;
-
 
     @Inject
     public UpgraderV10_8(DataModel dataModel, InstallerV10_8Impl installerV10_8) {
@@ -27,5 +25,10 @@ public class UpgraderV10_8 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         installerV10_8.install(dataModelUpgrader, Logger.getAnonymousLogger());
+        execute(dataModel,
+                "alter table DDC_COMTASKEXECJOURNALENTRY drop column ID",
+                "drop sequence DDC_COMTASKEXECJOURNALENTRYID",
+                "alter table DDC_COMTASKEXECJOURNALENTRY drop column MOD_DATE"
+        );
     }
 }
