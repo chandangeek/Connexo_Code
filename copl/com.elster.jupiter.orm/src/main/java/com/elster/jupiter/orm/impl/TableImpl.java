@@ -40,7 +40,6 @@ import com.google.common.collect.TreeRangeMap;
 import com.google.common.collect.TreeRangeSet;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -231,7 +230,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cacheWholeTable(boolean recordStat) {
-     cacheWholeTable(recordStat, 600000L);
+        cacheWholeTable(recordStat, 600000L);
     }
 
     @Override
@@ -263,8 +262,8 @@ public class TableImpl<T> implements Table<T> {
             for (ColumnImpl existing : columns) {
                 if (is(existing.getFieldName()).equalTo(column.getFieldName()) && !intersection(existing.versions(), column
                         .versions()).isEmpty()) {
-                    throw new IllegalTableMappingException("Table " + getName() + ", column " + column.getName() + " : column " + existing
-                            .getName() + " already maps to field " + existing.getFieldName());
+                    throw new IllegalTableMappingException("Table " + getName() + ": column " + column.getName() + ": column " + existing
+                            .getName() + " already maps to field " + existing.getFieldName() + '.');
                 }
             }
         }
@@ -431,7 +430,7 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public Table<T> alsoReferredToAs(Class<? super T> alternativeApi) {
         if (!alternativeApi.isAssignableFrom(this.api)) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : alternative api " + alternativeApi + " is not a super class of " + api);
+            throw new IllegalTableMappingException("Table " + getName() + ": alternative api " + alternativeApi + " isn't a super class of " + api + '.');
         }
         this.alternativeApis.add(alternativeApi);
         return this;
@@ -440,12 +439,12 @@ public class TableImpl<T> implements Table<T> {
     @SuppressWarnings("unchecked")
     <S> DataMapperImpl<S> getDataMapper(Class<S> api) {
         if (getMapperType().getInjector() == null) {
-            throw new IllegalStateException("Datamodel not registered");
+            throw new IllegalStateException("Data model isn't registered.");
         }
         if (maps(api)) {
             return new DataMapperImpl<>(api, (TableImpl<? super S>) this);
         } else {
-            throw new IllegalArgumentException("Table " + getName() + " does not map " + api);
+            throw new IllegalArgumentException("Table " + getName() + " doesn't map " + api + '.');
         }
     }
 
@@ -459,8 +458,8 @@ public class TableImpl<T> implements Table<T> {
                 .reduce((imp1, imp2) -> api)
                 .map(resultApi -> new DataMapperImpl<>(resultApi, this))
                 .orElseThrow(() -> new IllegalArgumentException("Table " + getName()
-                        + " does not map any implementation extending all of the classes: "
-                        + apiFragments.stream().map(Class::toString).collect(Collectors.joining(", "))));
+                        + " doesn't map any implementation extending all of the classes: "
+                        + apiFragments.stream().map(Class::getName).collect(Collectors.joining(", "))));
     }
 
     <S extends T> QueryExecutorImpl<S> getQuery(Class<S> type) {
@@ -520,7 +519,7 @@ public class TableImpl<T> implements Table<T> {
     public JournalTableVersionOptions setJournalTableName(String journalTableName, boolean forceJournal) {
         this.forceJournal = forceJournal;
         if (!forceJournal && hasAutoChange()) {
-            throw new IllegalStateException(" A table with foreign key using cascading or set null delete rule cannot have a journal table ");
+            throw new IllegalTableMappingException("Table " + getName() + " with foreign key using cascading or set null delete rule can't have a journal table.");
         }
         this.journalNameHistory.put(Range.all(), journalTableName);
         return new JournalTableVersionOptionsImpl(journalTableName);
@@ -545,7 +544,7 @@ public class TableImpl<T> implements Table<T> {
     public Column addAutoIdColumn() {
         String sequence = name + "ID";
         if (sequence.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            throw new IllegalStateException("Name " + sequence + " too long");
+            fail("sequence name {0} is too long.", sequence);
         }
         return column("ID").number()
                 .notNull()
@@ -564,7 +563,7 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public Column addMessageAuthenticationCodeColumn(Encrypter encrypter) {
         if (this.encrypter != null) {
-            throw new IllegalStateException("Table " + getName() + " : already has a MAC column.");
+            throw new IllegalTableMappingException("Table " + getName() + " already has a MAC column.");
         }
         this.encrypter = Objects.requireNonNull(encrypter);
         return column("MAC")
@@ -654,11 +653,11 @@ public class TableImpl<T> implements Table<T> {
     public Column.Builder column(String name) {
         checkActiveBuilder();
         if (name == null) {
-            throw new IllegalTableMappingException("Table " + getName() + " : column names cannot be null.");
+            throw new IllegalTableMappingException("Table " + getName() + ": column names can't be null.");
         }
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name
-                    .length() + ".");
+            throw new IllegalTableMappingException("Table " + getName() + ": column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT
+                    + ", actual length is " + name.length() + '.');
         }
         activeBuilder = true;
         return new ColumnImpl.BuilderImpl(ColumnImpl.from(this, name));
@@ -716,7 +715,7 @@ public class TableImpl<T> implements Table<T> {
             if (fieldName.equals(each.getFieldName())) {
                 return FieldType.SIMPLE;
             }
-            if (each.getFieldName().startsWith(fieldName + ".")) {
+            if (each.getFieldName().startsWith(fieldName + '.')) {
                 return FieldType.COMPLEX;
             }
         }
@@ -813,7 +812,7 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public TableImpl<T> map(Class<? extends T> implementation) {
         if (this.mapperType != null) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
+            fail("implementer(s) already specified.");
         }
         checkCompatibleImplementation(implementation);
         this.mapperType = new SingleDataMapperType<>(this, implementation);
@@ -823,10 +822,10 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public TableImpl<T> map(Map<String, Class<? extends T>> implementations) {
         if (this.mapperType != null) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
+            fail("implementer(s) already specified.");
         }
         if (Objects.requireNonNull(implementations).isEmpty()) {
-            throw new IllegalArgumentException("Table : " + getName() + " : Empty map of implementors");
+            fail("empty map of implementers.");
         }
         implementations.values().forEach(this::checkCompatibleImplementation);
         this.mapperType = new InheritanceDataMapperType<>(this, implementations);
@@ -835,11 +834,11 @@ public class TableImpl<T> implements Table<T> {
 
     private void checkCompatibleImplementation(Class<?> implementation) {
         if (!api.isAssignableFrom(implementation)) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : " + implementation + " does not implement " + api);
+            fail("{0} doesn''t implement {1}.", implementation, api);
         }
     }
 
-    void prepare() {
+    public void prepare() {
         checkActiveBuilder();
         checkMapperTypeIsSet();
         getMapperType().validate();
@@ -848,15 +847,15 @@ public class TableImpl<T> implements Table<T> {
             List<ColumnImpl> primaryKeyColumns = primaryKey.get().getColumns();
             for (int i = 0; i < primaryKeyColumns.size(); i++) {
                 if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-                    fail("Primary key columns must be defined first and in order.");
+                    fail("primary key columns must be defined first and in order.");
                 }
             }
         } else {
             if (hasJournal()) {
-                fail("Can''t journal table without primary key.");
+                fail("can''t journal table without primary key.");
             }
             if (isCached()) {
-                fail("Can''t cache table without primary key.");
+                fail("can''t cache table without primary key.");
             }
             getRealColumns().forEach(column -> {
                 if (column.getConversion() == ColumnConversion.BLOB2SQLBLOB) {
@@ -876,7 +875,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     private void fail(String template, Object... arguments) {
-        throw new IllegalStateException("Table '" + getName() + "': " + MessageFormat.format(template, arguments));
+        throw new IllegalTableMappingException("Table " + getName() + ": " + MessageFormat.format(template, arguments));
     }
 
     private void checkMapped(Column column) {
@@ -894,10 +893,10 @@ public class TableImpl<T> implements Table<T> {
                     return;
                 }
             } catch (MappingException e) {
-                throw new IllegalStateException("Table " + getName() + ", Column " + column.getName() + ": " + e.toString(), e);
+                throw new IllegalStateException("Table " + getName() + ": column " + column.getName() + ": " + e.toString(), e);
             }
         }
-        throw new IllegalTableMappingException("Table " + getName() + " : Column " + column.getName() + " has no mapping");
+        throw new IllegalTableMappingException("Table " + getName() + ": column " + column.getName() + " has no mapping.");
     }
 
     private void buildReferenceConstraints() {
@@ -1001,7 +1000,7 @@ public class TableImpl<T> implements Table<T> {
 
     private void checkMapperTypeIsSet() {
         if (mapperType == null) {
-            throw new IllegalTableMappingException("Table : " + getName() + " Implementation class not (yet?) specified");
+            throw new IllegalTableMappingException("Table " + getName() + ": implementation class hasn't been specified (yet?)");
         }
     }
 
@@ -1277,15 +1276,15 @@ public class TableImpl<T> implements Table<T> {
     public TableAudit getTableAudit(Object object) {
         // find first by ContextColumn
         Optional<TableAudit> findByContext = tableAuditList.stream()
-                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0 && tableAudit.getContextPkValues(object).size()>0)
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() > 0 && tableAudit.getContextPkValues(object).size() > 0)
                 .findFirst();
 
-        if (findByContext.isPresent()){
+        if (findByContext.isPresent()) {
             return findByContext.get();
         }
 
         Optional<TableAudit> findOnlyByDomain = tableAuditList.stream()
-                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0)
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() > 0)
                 .findFirst();
 
         return findOnlyByDomain

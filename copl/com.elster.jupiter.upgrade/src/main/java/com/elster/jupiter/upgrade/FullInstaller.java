@@ -107,9 +107,9 @@ public interface FullInstaller {
         sqlBuilder.append(" ''; ");
         sqlBuilder.append(" EXCEPTION ");
         sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append(" 	  IF SQLCODE != -942 THEN ");
-        sqlBuilder.append(" 		 RAISE; ");
-        sqlBuilder.append(" 	  END IF; ");
+        sqlBuilder.append("       IF SQLCODE != -942 THEN ");
+        sqlBuilder.append("          RAISE; ");
+        sqlBuilder.append("       END IF; ");
         sqlBuilder.append(" END;', ");
         sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
         sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");

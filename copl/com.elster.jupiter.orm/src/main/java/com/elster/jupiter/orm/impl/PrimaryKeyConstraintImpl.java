@@ -25,7 +25,7 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl<PrimaryKeyCons
     @Override
     PrimaryKeyConstraintImpl init(TableImpl<?> table, String name) {
         if (is(name).empty()) {
-            throw new IllegalTableMappingException("Table " + table.getName() + " : primary key can not have an empty name.");
+            throw new IllegalTableMappingException("Table " + table.getName() + ": primary key can't have an empty name.");
         }
         super.init(table, name);
         return this;
@@ -78,10 +78,10 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl<PrimaryKeyCons
         public Builder on(Column... columns) {
             for (Column column : columns) {
                 if (!constraint.getTable().equals(column.getTable())) {
-                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + " : primary key can not have columns from another table : " + column.getName() + ".");
+                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + ": primary key can't have columns from another table: " + column.getName() + '.');
                 }
                 if (!column.isNotNull()) {
-                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + " : primary key cannot be put on nullable column : " + column.getName() + ".");
+                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + ": primary key can't be put on nullable column: " + column.getName() + '.');
                 }
             }
             constraint.add(columns);
