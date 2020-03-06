@@ -69,7 +69,6 @@ import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDevicesKpiInfo;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
@@ -106,6 +105,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class ResourceHelper {
+
+    public static final String CHANNEL_SAP_ID = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceChannelSAPInfoCustomPropertySet";
+    public static final String REGISTER_SAP_ID = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceRegisterSAPInfoCustomPropertySet";
 
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
@@ -1325,5 +1327,31 @@ public class ResourceHelper {
                 .from(queryParameters)
                 .stream()
                 .collect(Collectors.toList());
+    }
+
+    public List<Channel> filterSapAttributes(List<Channel> channels, Predicate<String> logicalRegisterNumber, Predicate<String> profileId) {
+        return channels.stream().filter(channel -> {
+            Optional<RegisteredCustomPropertySet> cps = channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
+                    .filter(f -> f.isViewableByCurrentUser())
+                    .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
+            if (cps.isPresent()) {
+                List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
+                return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")) && profileId.test((String)value.getProperty("profileId")));
+            }
+            return true;
+        }).collect(Collectors.toList());
+    }
+
+    public List<Register> filterSapAttributes(List<Register> registers, Predicate<String> logicalRegisterNumber) {
+        return registers.stream().filter(register -> {
+            Optional<RegisteredCustomPropertySet> cps = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
+                    .filter(f -> f.isViewableByCurrentUser())
+                    .filter(f -> f.getCustomPropertySetId().equals(REGISTER_SAP_ID));
+            if (cps.isPresent()) {
+                List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());
+                return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
+            }
+            return true;
+        }).collect(Collectors.toList());
     }
 }

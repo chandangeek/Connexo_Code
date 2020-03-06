@@ -140,6 +140,15 @@ public class ChannelResource {
     }
 
     @GET
+    @Path("/sapattributes")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public Response isSapCasPresent(@PathParam("name") String name) {
+        return channelHelper.get().isSapCasPresent(name, (d -> d.getLoadProfiles().stream().flatMap(l -> l.getChannels().stream()).collect(Collectors.toList())));
+    }
+
+    @GET
     @Transactional
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -341,10 +350,17 @@ public class ChannelResource {
     private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter) {
         Predicate<String> filterByLoadProfileName = getStringListFilterIfAvailable("loadProfileName", filter);
         Predicate<String> filterByChannelName = getStringFilterIfAvailable("channelName", filter);
-        return device.getLoadProfiles().stream()
+        List<Channel> channels = device.getLoadProfiles().stream()
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
                 .filter(c -> filterByChannelName.test(c.getReadingType().getFullAliasName()))
+                .collect(Collectors.toList());
+
+        Predicate<String> filterByLogicalRegisterNumber = getStringFilterIfAvailable("logicalRegisterNumber", filter);
+        Predicate<String> filterByProfileId = getStringFilterIfAvailable("profileId", filter);
+        List<Channel> sapFilteredChannels = resourceHelper.filterSapAttributes(channels, filterByLogicalRegisterNumber, filterByProfileId);
+        return channels.stream()
+                .filter(channel -> sapFilteredChannels.stream().anyMatch(sapChannel -> channel.getId() == sapChannel.getId()))
                 .collect(Collectors.toList());
     }
 

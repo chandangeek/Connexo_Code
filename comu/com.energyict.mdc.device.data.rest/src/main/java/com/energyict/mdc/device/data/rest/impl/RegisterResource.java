@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -53,6 +54,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class RegisterResource {
@@ -130,14 +133,56 @@ public class RegisterResource {
                     .stream()
                     .filter(register -> allowedReadingTypes.contains(register.getReadingType()))
                     .collect(Collectors.toList());
+            List<Register> sapFilteredChannels = resourceHelper.filterSapAttributes(device.getRegisters(), getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter));
+            registers = registers.stream()
+                    .filter(register -> sapFilteredChannels.stream().anyMatch(sapRegister -> compareRegisters(register, sapRegister) == 0))
+                    .collect(Collectors.toList());
         }
         return registers.stream().map(Register::getReadingType).collect(Collectors.toList());
+    }
+
+    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter) {
+        if (filter.hasProperty(name)) {
+            Pattern pattern = getFilterPattern(filter.getString(name));
+            if (pattern != null) {
+                return s -> pattern.matcher(s).matches();
+            }
+        }
+        return s -> true;
+    }
+
+    private Pattern getFilterPattern(String filter) {
+        if (filter != null) {
+            filter = Pattern.quote(filter.replace('%', '*'));
+            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
+        }
+        return null;
     }
 
     private int compareRegisters(Register r1, Register r2) {
         ReadingType readingType1 = r1.getRegisterSpec().getRegisterType().getReadingType();
         ReadingType readingType2 = r2.getRegisterSpec().getRegisterType().getReadingType();
         return readingType1.getAliasName().compareToIgnoreCase(readingType2.getAliasName());
+    }
+
+    @GET
+    @Transactional
+    @Path("/sapattributes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response isSapCasPresent(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        boolean sapAttributes = device.getRegisters().stream().anyMatch(register -> {
+            Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = device
+                    .getDeviceType()
+                    .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
+            return registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().getCustomPropertySetId().equals(ResourceHelper.REGISTER_SAP_ID);
+        });
+        if (sapAttributes) {
+            return Response.ok().entity("{\"sapAttributes\":\"true\"}").build();
+        } else {
+            return Response.ok().entity("{\"sapAttributes\":\"false\"}").build();
+        }
     }
 
     @GET
