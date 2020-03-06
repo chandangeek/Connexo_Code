@@ -7,7 +7,7 @@ Ext.define('Pkj.store.EJBCACertProfiles', {
     fields: [
         {name: 'options', type: 'auto', useNull: false}
     ],
-
+    autoLoad: false,
     proxy: {
         type: 'rest',
         urlTpl: '/api/pir/certificates/ejbca/certificateprofile/{endEntityId}',
