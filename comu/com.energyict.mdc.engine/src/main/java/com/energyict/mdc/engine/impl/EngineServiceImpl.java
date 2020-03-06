@@ -118,6 +118,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private static final Logger LOGGER = Logger.getLogger(EngineService.class.getName());
     public static final String COMSERVER_USER = "comserver";
     public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
+    public static final String ADAPTIVE_QUERY_PROPERTY = "com.elster.jupiter.adaptive.query";
+
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -692,6 +694,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             this.launcher.stopComServer();
             this.launcher = null;
         }
+    }
+
+    public boolean isAdaptiveQuery() {
+        String property = bundleContext.getProperty(ADAPTIVE_QUERY_PROPERTY);
+        return property != null && property.trim().toLowerCase().equals("true");
     }
 
 //    @Override

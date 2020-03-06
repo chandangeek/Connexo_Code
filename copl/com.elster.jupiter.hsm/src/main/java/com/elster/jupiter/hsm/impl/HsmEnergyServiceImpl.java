@@ -590,9 +590,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             HsmBaseException {
         try {
             com.atos.worldline.jss.api.custom.energy.KeyRenewalMBusResponse response = Energy.renewMBusUserKeyWithGCM(toProtectedSessionKey(encrKey), apduTemplate, eMeterIV, toProtectedSessionKey(authKey), toProtectedSessionKey(defaultKey), mbusIV, getAtosSecuritySuite(securitySuite));
-            ProtectedSessionKey protectedSessionKey = response.getMdmSmWK();
-            HsmIrreversibleKey mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
-            return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), mdmSmWK, response.getMBusAuthTag());
+            return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), null, response.getMBusAuthTag());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException("Failed to send Mbus P2 key using the cryptoserver: " + e.getMessage());
         }
