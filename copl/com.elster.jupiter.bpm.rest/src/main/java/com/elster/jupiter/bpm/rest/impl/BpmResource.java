@@ -1342,11 +1342,11 @@ public class BpmResource {
 
         if (bpmService.getProcessesToRunOneInstanceTheSameTime().contains(taskContentInfos.processName)) {
             String filter = "?variableid=" + taskContentInfos.businessObject.id + "&variablevalue=" + taskContentInfos.businessObject.value;
-            boolean processIsrunning = bpmService.getRunningProcesses(null, filter)
+            boolean processIsRunning = bpmService.getRunningProcesses(null, filter)
                     .processes
                     .stream()
                     .anyMatch(p -> p.name.equalsIgnoreCase(taskContentInfos.processName) && p.status.equalsIgnoreCase(ACTIVE_STATUS));
-            if (processIsrunning) {
+            if (processIsRunning) {
                 throw new ProcessIsAlreadyRunning(thesaurus, MessageSeeds.PROCESS_IS_ALREADY_RUNNING, taskContentInfos.processName);
             }
         }
