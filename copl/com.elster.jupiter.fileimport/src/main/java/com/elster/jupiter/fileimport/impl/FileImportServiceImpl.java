@@ -268,9 +268,10 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class,
                 ImmutableMap.of(
                         version(10, 3), V10_3SimpleUpgrader.class,
-                        version(10, 5), V10_5SimpleUpgrader.class
-                ));
-
+                        version(10, 5), V10_5SimpleUpgrader.class,
+                        version(10, 4, 9), UpgraderV10_4_9.class,
+                        version(10, 8), UpgraderV10_8.class)
+        );
         createScheduler();
     }
 

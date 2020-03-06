@@ -34,7 +34,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -241,7 +240,7 @@ public class DeviceResourceTest {
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
-    @Ignore
+
     @Test
     public void testRenewKey() throws Exception {
         when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
@@ -251,7 +250,7 @@ public class DeviceResourceTest {
         deviceCommandInfo.command = Command.RENEW_KEY;
         deviceCommandInfo.callbackSuccess = "successURL";
         deviceCommandInfo.keyAccessorType = "AK";
-
+        when(serviceCall.getState()).thenReturn(DefaultState.CREATED);
         // Business method
         Response response = deviceResource.renewKey(DEVICE_MRID, deviceCommandInfo, uriInfo);
 

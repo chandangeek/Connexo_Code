@@ -94,7 +94,10 @@ import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.mdc.engine.impl.core.FixedQueryTuner;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
+import com.energyict.mdc.engine.impl.core.AdaptiveQueryTuner;
+import com.energyict.mdc.engine.impl.core.QueryTuner;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
@@ -154,11 +157,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -180,6 +181,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     private final ServiceProvider serviceProvider;
     private final User comServerUser;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
+    private Map<Long, QueryTuner> pendingQueryLimitCalculators = new HashMap<>();
+
 
     public ComServerDAOImpl(ServiceProvider serviceProvider, User comServerUser) {
         this.serviceProvider = serviceProvider;
@@ -325,7 +328,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort) {
         long start = System.currentTimeMillis();
-        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPendingComTaskExecutionsListFor(comPort);
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPendingComTaskExecutionsListFor(comPort, 0);
         long fetchComTaskDuration = System.currentTimeMillis() - start;
         ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
         start = System.currentTimeMillis();
@@ -337,8 +340,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
+        QueryTuner adaptiveLimitCalculator = getAdaptiveLimitCalculator(comPort);
         long start = System.currentTimeMillis();
-        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPlannedComTaskExecutionsListFor(comPort);
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPendingComTaskExecutionsListFor(comPort, adaptiveLimitCalculator.getTuningFactor());
         long fetchComTaskDuration = System.currentTimeMillis() - start;
         ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
         start = System.currentTimeMillis();
@@ -346,7 +350,24 @@ public class ComServerDAOImpl implements ComServerDAO {
         long addToGroupDuration = System.currentTimeMillis() - start;
         LOGGER.warning("perf - fetchComTaskDuration=" + fetchComTaskDuration + ", addToGroupDuration=" + addToGroupDuration);
 
+        adaptiveLimitCalculator.calculateFactor(fetchComTaskDuration, comJobs.size(), comPort.getNumberOfSimultaneousConnections());
+
         return comJobs;
+    }
+
+    private QueryTuner getAdaptiveLimitCalculator(OutboundComPort comPort) {
+        QueryTuner pendingQueryLimit = pendingQueryLimitCalculators.get(comPort.getId());
+
+        if (pendingQueryLimit == null) {
+            if (serviceProvider.engineService().isAdaptiveQuery()) {
+                pendingQueryLimit = new AdaptiveQueryTuner();
+            } else {
+                pendingQueryLimit = new FixedQueryTuner();
+            }
+            pendingQueryLimitCalculators.put(comPort.getId(), pendingQueryLimit);
+        }
+
+        return pendingQueryLimit;
     }
 
     @Override

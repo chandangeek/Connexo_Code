@@ -54,10 +54,10 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
-    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
         confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), requestMessage.getUuid(), senderBusinessSystemId, now));
-        confirmMsg.setLog(createFailedLog(messageSeed));
+        confirmMsg.setLog(createFailedLog(messageSeed, messageSeedArgs));
         return confirmMsg;
     }
 

@@ -31,6 +31,7 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -293,7 +294,8 @@ public class SecurityPropertySetImplCrudIT {
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
                     securityManagementService,
-                    injector.getInstance(MeteringTranslationService.class));
+                    injector.getInstance(MeteringTranslationService.class),
+                    injector.getInstance(MessageService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();

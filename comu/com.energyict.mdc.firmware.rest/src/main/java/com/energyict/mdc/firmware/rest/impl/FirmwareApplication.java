@@ -145,7 +145,6 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(FirmwareStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
