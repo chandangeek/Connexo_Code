@@ -213,14 +213,17 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
                     journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
 
-                    //TODO: enable this to have a confirmation of the readout status, after the aso-release issue is clarified
-                    //journal(Level.INFO, "Encryption key status is now: " + mbusClientESMR5.readKeyStatusAsText() );
+                    journal(Level.FINEST, "Incrementing frame-counter");
+                    getProtocol().getDlmsSession().getAso().getSecurityContext().incFrameCounter();
+
+                    journal(Level.INFO, "Encryption key status is now: " + mbusClientESMR5.readKeyStatusAsText() );
 
                     journal(Level.INFO, "Saving the smartMeterKey: " + ProtocolTools.getHexStringFromBytes(smartMeterKey));
 
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
                     collectedMessage.setDeviceProtocolInformation(ProtocolTools.getHexStringFromBytes(smartMeterKey));
                 } else {
+                    /** this part is obsolete, was copied from EIServer, now ENEXIS will use only CryptoServer! */
                     journal(Level.INFO, "Invoking transportKey method with the full key data");
                     // this is to pass the key to the g-meter
                     mbusClientESMR5.setTransportKey(keyData);
