@@ -167,7 +167,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ReadingTypeObisCodeUsageImpl> readingTypeObisCodeUsages = new ArrayList<>();
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'%', '+', '/', ';', '?', '\\'}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FORBIDDEN_CHARS + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'%', '+', '/', ';', '?', '\\', '!', '*', '\'', '(', ')', ':', '@', '&', '=', '$', ',', '[', ']' },
+            groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FORBIDDEN_CHARS + "}")
     private String name;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")

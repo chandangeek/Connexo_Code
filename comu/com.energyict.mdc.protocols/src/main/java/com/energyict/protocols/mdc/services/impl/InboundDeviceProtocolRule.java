@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol;
 import com.energyict.protocolimplv2.ace4000.ACE4000Inbound;
 import com.energyict.protocolimplv2.dlms.a2.A2Inbound;
+import com.energyict.protocolimplv2.dlms.ei7.EI7Inbound;
 import com.energyict.protocolimplv2.eict.eiweb.EIWebBulk;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.ProximusSMSInboundDeviceProtocol;
@@ -26,6 +27,7 @@ public enum InboundDeviceProtocolRule implements PluggableClassDefinition<Inboun
     DoubleIframeDiscover(DoubleIframeDiscover.class),
     RequestDiscover(RequestDiscover.class),
     A2Inbound(A2Inbound.class),
+    EI7Inbound(EI7Inbound.class),
     ACE4000Inbound(ACE4000Inbound.class),
     AM122PushEventNotification(AM122PushEventNotification.class),
     DataPushNotification(DataPushNotification.class),

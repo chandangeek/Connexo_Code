@@ -93,11 +93,12 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
-        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
-            if (!initFromCampaign) {
-                throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
-            }
-        }
+        // TODO: will need to be returned
+//        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
+//            if (!initFromCampaign) {
+//                throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
+//            }
+//        } else
         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }

@@ -128,6 +128,17 @@ public interface CommunicationTaskService {
     ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort);
 
     /**
+     * Attempts to remove the business lock (comPort) from the specified {@link ComTaskExecution},
+     * making it available for other {@link ComPort}s to execute it.
+     * First, it tries to set a database lock on the corresponding row (using SELECT FOR UPDATE NOWAIT). Only if this succeeds,
+     * the business lock is removed (otherwise, it would hang the calling thread indefinitely, until the locking session releases the row).
+     *
+     * @param comTaskExecution the ComTaskExecution to be unlocked
+     * @return true if the business lock was removed
+     */
+    boolean attemptUnlockComTaskExecution(ComTaskExecution comTaskExecution);
+
+    /**
      * Removes the business lock on the specified ComTaskExecution,
      * making it available for other ComPorts to execute the ComTaskExecution.
      *
@@ -180,7 +191,7 @@ public interface CommunicationTaskService {
      * @param comPort
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
-    List<ComTaskExecution> getPlannedComTaskExecutionsListFor(OutboundComPort comPort);
+    List<ComTaskExecution> getPendingComTaskExecutionsListFor(OutboundComPort comPort, int factor);
 
     /**
      * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds
@@ -238,5 +249,5 @@ public interface CommunicationTaskService {
 
     void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate);
 
-    List<ComTaskExecution> findComTaskExecutionsWhichAreExecuting(ComPort comPort);
+    List<ComTaskExecution> findLockedByComPort(ComPort comPort);
 }

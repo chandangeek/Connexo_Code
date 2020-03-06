@@ -70,6 +70,20 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     }
 
     @Override
+    public Optional<String> actualValueForHsmKey(KeyAccessorType keyAccessorType) {
+        Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType);
+        if (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent() && offlineKeyAccessor.get().getActualValue().get() instanceof HsmKey) {
+            return Optional.of(formatAsLabelAndKey((HsmKey) offlineKeyAccessor.get().getActualValue().get()));
+        }
+        return Optional.empty();
+    }
+
+    private String formatAsLabelAndKey(HsmKey hsmKey) {
+        return hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey());
+
+    }
+
+    @Override
     public Optional<Object> actualValue(KeyAccessorType keyAccessorType) {
         Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType);
         return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent())
@@ -180,8 +194,10 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         if (hsmKey.getSmartMeterKey() == null && validateSmartMeterKey) {
             throw new UnsupportedOperationException("Smart Meter key is null, maybe you forgot to generate a new passive key.");
         }
-        if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty()) {
+        if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty() && validateSmartMeterKey) {
             return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey()) + "," + DatatypeConverter.printHexBinary(hsmKey.getSmartMeterKey()));
+        } else if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty()) {
+            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey()));
         }
         return Optional.empty();
     }
@@ -200,8 +216,8 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         return toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
                 .stream()
                 .filter(keyAccessor ->
-                    keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType.getName()) &&
-                    keyAccessor.getDeviceId() == deviceId
+                        keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType.getName()) &&
+                                keyAccessor.getDeviceId() == deviceId
                 )
                 .findFirst();
     }

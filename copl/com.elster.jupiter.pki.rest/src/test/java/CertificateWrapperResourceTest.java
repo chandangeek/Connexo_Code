@@ -4,6 +4,7 @@
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
@@ -116,60 +117,19 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     }
 
     @Test
-    public void testCreateCertificateWithWrapper() throws Exception {
-        CsrInfo csrInfo = new CsrInfo();
-        csrInfo.keyTypeId = 123L;
-        csrInfo.keyEncryptionMethod = "DataVault";
-        csrInfo.alias = "brandNew";
-        csrInfo.CN = "lucifer";
-        csrInfo.L = "hell";
-
-        KeyType keyType = mock(KeyType.class);
-        when(securityManagementService.getKeyType(123L)).thenReturn(Optional.of(keyType));
-        SecurityManagementService.ClientCertificateWrapperBuilder builder = mock(SecurityManagementService.ClientCertificateWrapperBuilder.class);
-        doReturn(builder).when(securityManagementService).newClientCertificateWrapper(any(KeyType.class), anyString());
-        when(builder.alias("brandNew")).thenReturn(builder);
-        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
-        when(builder.add()).thenReturn(certificateWrapper);
-        PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
-        when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
-        when(securityManagementService.newClientCertificateWrapper(keyType, "vault")).thenReturn(builder);
-        when(certificateWrapper.getCertificate()).thenReturn(Optional.empty());
-        when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.empty());
-        when(certificateWrapper.getExpirationTime()).thenReturn(Optional.empty());
-        when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.empty());
-        PKCS10CertificationRequest csr = mock(PKCS10CertificationRequest.class);
-        when(certificateWrapper.hasCSR()).thenReturn(true);
-        when(certificateWrapper.getCSR()).thenReturn(Optional.of(csr));
-        X500Name x500Name = mock(X500Name.class);
-        when(x500Name.toString()).thenReturn("cn=x500");
-        when(csr.getSubject()).thenReturn(x500Name);
-        AlgorithmIdentifier signatureAlgorithm = mock(AlgorithmIdentifier.class);
-        when(csr.getSignatureAlgorithm()).thenReturn(signatureAlgorithm);
-        ASN1ObjectIdentifier algorithm = new ASN1ObjectIdentifier("1.2.840.10045.4.3.2");
-        when(signatureAlgorithm.getAlgorithm()).thenReturn(algorithm);
-
-        Response response = target("/certificates/csr").request().post(Entity.json(csrInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-
-        ArgumentCaptor<X500Name> x500NameArgumentCaptor = ArgumentCaptor.forClass(X500Name.class);
-        verify(privateKeyWrapper, times(1)).generateValue();
-        verify(certificateWrapper, times(1)).generateCSR(x500NameArgumentCaptor.capture());
-        assertThat(x500NameArgumentCaptor.getValue().getRDNs());
-    }
-
-    @Test
     public void testGetCertificateWrapperWithCertificate() throws Exception {
         Clock clock = Clock.fixed(Instant.ofEpochMilli(1488240000000L), ZoneId.systemDefault());
 
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
         when(securityManagementService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(certificateWrapper.getCertificateRequestData()).thenReturn(Optional.empty());
         when(certificateWrapper.getAlias()).thenReturn("root");
         when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("myRootCA.cert")));
         when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.EXPIRED));
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
+        when(certificateWrapper.getCertificateRequestData()).thenReturn(Optional.empty());
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
         when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
         when(privateKeyWrapper.getKeyEncryptionMethod()).thenReturn("DataVault");
@@ -203,6 +163,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
+        when(certificateWrapper.getCertificateRequestData()).thenReturn(Optional.empty());
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
         when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
         when(privateKeyWrapper.getKeyEncryptionMethod()).thenReturn("DataVault");
@@ -225,6 +186,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
+        when(certificateWrapper.getCertificateRequestData()).thenReturn(Optional.empty());
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
         when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
         when(privateKeyWrapper.getKeyEncryptionMethod()).thenReturn("DataVault");
@@ -632,6 +594,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         PKCS10CertificationRequest csr = mock(PKCS10CertificationRequest.class);
         X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
         when(certificateWrapper.getCSR()).thenReturn(Optional.of(csr));
+        when(certificateWrapper.getCertificateRequestData()).thenReturn(Optional.empty());
         when(caService.signCsr(csr,Optional.empty())).thenReturn(x509Certificate);
         Response response = target("/certificates/" + certId + "/requestCertificate").request().post(null);
 

@@ -26,7 +26,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -95,7 +94,10 @@ import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.mdc.engine.impl.core.FixedQueryTuner;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
+import com.energyict.mdc.engine.impl.core.AdaptiveQueryTuner;
+import com.energyict.mdc.engine.impl.core.QueryTuner;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
@@ -179,6 +181,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     private final ServiceProvider serviceProvider;
     private final User comServerUser;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
+    private Map<Long, QueryTuner> pendingQueryLimitCalculators = new HashMap<>();
+
 
     public ComServerDAOImpl(ServiceProvider serviceProvider, User comServerUser) {
         this.serviceProvider = serviceProvider;
@@ -322,9 +326,23 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
+    public List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort) {
         long start = System.currentTimeMillis();
-        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPlannedComTaskExecutionsListFor(comPort);
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPendingComTaskExecutionsListFor(comPort, 0);
+        long fetchComTaskDuration = System.currentTimeMillis() - start;
+        ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
+        start = System.currentTimeMillis();
+        List<ComJob> comJobs = comJobFactoryFor.collect(comTaskExecutions.iterator());
+        long addToGroupDuration = System.currentTimeMillis() - start;
+        LOGGER.warning("perf - fetchComTaskDuration=" + fetchComTaskDuration + ", addToGroupDuration=" + addToGroupDuration);
+        return comJobs;
+    }
+
+    @Override
+    public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
+        QueryTuner adaptiveLimitCalculator = getAdaptiveLimitCalculator(comPort);
+        long start = System.currentTimeMillis();
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPendingComTaskExecutionsListFor(comPort, adaptiveLimitCalculator.getTuningFactor());
         long fetchComTaskDuration = System.currentTimeMillis() - start;
         ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
         start = System.currentTimeMillis();
@@ -332,7 +350,24 @@ public class ComServerDAOImpl implements ComServerDAO {
         long addToGroupDuration = System.currentTimeMillis() - start;
         LOGGER.warning("perf - fetchComTaskDuration=" + fetchComTaskDuration + ", addToGroupDuration=" + addToGroupDuration);
 
+        adaptiveLimitCalculator.calculateFactor(fetchComTaskDuration, comJobs.size(), comPort.getNumberOfSimultaneousConnections());
+
         return comJobs;
+    }
+
+    private QueryTuner getAdaptiveLimitCalculator(OutboundComPort comPort) {
+        QueryTuner pendingQueryLimit = pendingQueryLimitCalculators.get(comPort.getId());
+
+        if (pendingQueryLimit == null) {
+            if (serviceProvider.engineService().isAdaptiveQuery()) {
+                pendingQueryLimit = new AdaptiveQueryTuner();
+            } else {
+                pendingQueryLimit = new FixedQueryTuner();
+            }
+            pendingQueryLimitCalculators.put(comPort.getId(), pendingQueryLimit);
+        }
+
+        return pendingQueryLimit;
     }
 
     @Override
@@ -933,6 +968,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void releaseInterruptedTasks(final ComPort comPort) {
+        LOGGER.warning("Start unlocking BUSY comTasks on comPort " + comPort);
         executeTransaction(() -> {
             getCommunicationTaskService().releaseInterruptedComTasks(comPort);
             LOGGER.info("Unlocked BUSY comTasks on comPort " + comPort);
@@ -944,18 +980,74 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TimeDuration releaseTimedOutTasks(final ComPort comPort) {
+        LOGGER.warning("Start unlocking timed out comTasks on comPort '" + comPort + "'");
         return executeTransaction(() -> {
             TimeDuration timeDuration = getCommunicationTaskService().releaseTimedOutComTasks(comPort);
-            LOGGER.info("Unlocked comTasks timed out on comPort " + comPort);
+            LOGGER.info("Unlocked comTasks timed out on comPort '" + comPort + "'");
             getConnectionTaskService().releaseTimedOutConnectionTasks(comPort);
-            LOGGER.info("Unlocked connectionTasks timed out on comPort " + comPort);
+            LOGGER.info("Unlocked connectionTasks timed out on comPort '" + comPort + "'");
             return timeDuration;
         });
     }
 
     @Override
     public void releaseTasksFor(final ComPort comPort) {
-        releaseInterruptedTasks(comPort);
+        unlockComTasks(comPort);
+        unlockConnectionTasks(comPort);
+    }
+
+    private void unlockComTasks(ComPort comPort) {
+        List<ComTaskExecution> lockedComTasks = getCommunicationTaskService().findLockedByComPort(comPort);
+        LOGGER.warning("Start unlocking BUSY comTasks on comPort '" + comPort + "'");
+        long unlockedCount = 0;
+        for (ComTaskExecution lockedComTask : lockedComTasks) {
+            if (unlocked(lockedComTask)) {
+                ++unlockedCount;
+            }
+        }
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedComTasks.size() + " comTasks on comPort '" + comPort + "'");
+    }
+
+    private boolean unlocked(ComTaskExecution lockedComTask) {
+        // execute each unlock in its own transaction, to minimize the number of zombie sessions
+        // locking on database rows if the process is killed here
+        return executeTransaction(() -> {
+            if (attemptUnlock(lockedComTask)) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private boolean attemptUnlock(final ComTaskExecution comTask) {
+        return getCommunicationTaskService().attemptUnlockComTaskExecution(comTask);
+    }
+
+    private void unlockConnectionTasks(ComPort comPort) {
+        List<ConnectionTask> lockedConnectionTasks = getConnectionTaskService().findLockedByComPort(comPort);
+        LOGGER.warning("Start unlocking BUSY connections on comPort '" + comPort + "'");
+        long unlockedCount = 0;
+        for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
+            if (unlocked(lockedConnectionTask)) {
+                ++unlockedCount;
+            }
+        }
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedConnectionTasks.size() + " connections on comPort '" + comPort + "'");
+    }
+
+    private boolean unlocked(ConnectionTask lockedConnectionTask) {
+        // execute each unlock in its own transaction, to minimize the number of zombie sessions
+        // locking on database rows if the process is killed here
+        return executeTransaction(() -> {
+            if (attemptUnlock(lockedConnectionTask)) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private boolean attemptUnlock(final ConnectionTask connectionTask) {
+        return getConnectionTaskService().attemptUnlockConnectionTask(connectionTask);
     }
 
     @Override

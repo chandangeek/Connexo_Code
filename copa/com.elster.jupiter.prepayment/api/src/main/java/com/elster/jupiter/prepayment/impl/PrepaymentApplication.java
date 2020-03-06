@@ -52,7 +52,7 @@ import java.util.Set;
 import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.elster.jupiter.prepayment.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/rkn", "app=MDC", "name=" + PrepaymentApplication.COMPONENT_NAME, "version=v1.0"})
 public class PrepaymentApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {

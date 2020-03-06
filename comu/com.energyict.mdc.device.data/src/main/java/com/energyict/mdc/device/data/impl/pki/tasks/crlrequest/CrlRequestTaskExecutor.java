@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
-import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -109,11 +108,8 @@ class CrlRequestTaskExecutor implements TaskExecutor {
         if (!caService.getPkiCaNames().contains(caName)) {
             throw new CRLRequestTaskException(MessageSeeds.CA_WITH_NAME_NOT_CONFIGURED, caName);
         }
-        SecurityAccessor<?> securityAccessor = crlRequestTaskProperty.getSecurityAccessor();
-        CertificateWrapper certificateWrapper = securityAccessor.getActualPassphraseWrapperReference()
-                .filter(CertificateWrapper.class::isInstance)
-                .map(CertificateWrapper.class::cast)
-                .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
+
+        CertificateWrapper certificateWrapper = crlRequestTaskProperty.getCRLSigner();
         X509Certificate x509Certificate = certificateWrapper.getCertificate()
                 .orElseThrow(() -> new CRLRequestTaskException(MessageSeeds.NO_CERTIFICATE_IN_WRAPPER, certificateWrapper.getAlias()));
         Optional<X509CRL> crlOptional = caService.getLatestCRL(caName);
