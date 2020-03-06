@@ -12,6 +12,9 @@ import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.ports.ComPortType;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 
 public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, OutboundComPort.OutboundComPortBuilder> {
 
-    public List<VersionInfo<Long>> outboundComPortPoolIds = new ArrayList<>();
+    public List<VersionInfoWithName> outboundComPortPoolIds = new ArrayList<>();
 
     public OutboundComPortInfo() {
         this.direction = "outbound";
@@ -34,7 +37,7 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
         List<OutboundComPortPool> outboundComPortPools = engineConfigurationService.findContainingComPortPoolsForComPort(comPort);
         outboundComPortPoolIds.addAll(engineConfigurationService.findContainingComPortPoolsForComPort(comPort)
                 .stream()
-                .map(pool -> new VersionInfo<Long>(pool.getId(), pool.getVersion()))
+                .map(pool -> new VersionInfoWithName(pool.getId(), pool.getVersion(), pool.getName()))
                 .collect(Collectors.toList()));
     }
 
@@ -55,7 +58,7 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     private void updateComPortPools(OutboundComPort comPort, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
         List<OutboundComPortPool> currentOutboundPools = engineConfigurationService.findContainingComPortPoolsForComPort(comPort);
         List<Long> currentIdList = createHasIdList(currentOutboundPools);
-        for (VersionInfo<Long> outboundComPortPool : outboundComPortPoolIds) {
+        for (VersionInfoWithName outboundComPortPool : outboundComPortPoolIds) {
             if (!currentIdList.contains(outboundComPortPool.id)) {
                 ComPortPool comPortPool = resourceHelper.getLockedComPortPool(outboundComPortPool.id, outboundComPortPool.version)
                         .orElseThrow(resourceHelper.getConcurrentExSupplier(this.name, () -> resourceHelper.getCurrentComPortVersion(this.id)));
@@ -84,7 +87,7 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     @Override
     protected OutboundComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService) {
         OutboundComPort outboundComPort = build(comServer.newOutboundComPort(this.name, this.numberOfSimultaneousConnections), engineConfigurationService).add();
-        for (VersionInfo<Long> outboundComPortPoolInfo : outboundComPortPoolIds) {
+        for (VersionInfoWithName outboundComPortPoolInfo : outboundComPortPoolIds) {
             Optional<OutboundComPortPool> outboundComPortPool = engineConfigurationService.findOutboundComPortPool(outboundComPortPoolInfo.id);
             if (outboundComPortPool.isPresent()) {
                 outboundComPortPool.get().addOutboundComPort(outboundComPort);
@@ -93,4 +96,22 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
         return outboundComPort;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class VersionInfoWithName {
+        @JsonProperty("id")
+        private long id;
+        @JsonProperty("version")
+        private Long version;
+        @JsonProperty("name")
+        private String name;
+
+        public VersionInfoWithName() {
+        }
+
+        public VersionInfoWithName(Long id, Long version, String name) {
+            this.id = id;
+            this.version = version;
+            this.name = name;
+        }
+    }
 }

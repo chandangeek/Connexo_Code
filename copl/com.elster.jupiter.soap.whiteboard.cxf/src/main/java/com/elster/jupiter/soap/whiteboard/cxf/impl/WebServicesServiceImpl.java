@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
@@ -49,6 +50,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private final EventService eventService;
     private final TransactionService transactionService;
     private final Clock clock;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
@@ -58,11 +60,13 @@ public class WebServicesServiceImpl implements WebServicesService {
     WebServicesServiceImpl(DataModel dataModel,
                            EventService eventService,
                            TransactionService transactionService,
-                           Clock clock) {
+                           Clock clock,
+                           EndPointConfigurationService endPointConfigurationService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.transactionService = transactionService;
         this.clock = clock;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Override
@@ -209,7 +213,9 @@ public class WebServicesServiceImpl implements WebServicesService {
             endpoint.stop();
             String msg = "Endpoint was stopped";
             logger.info(msg);
-            endPointConfiguration.log(LogLevel.FINE, msg);
+            if (endPointConfigurationService.getEndPointConfiguration(endPointConfiguration.getId()).isPresent()) {
+                endPointConfiguration.log(LogLevel.FINE, msg);
+            }
         }
     }
 

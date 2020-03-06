@@ -366,6 +366,18 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new P3ImageTransfer(protocolLink, getObjectReference(obisCode));
     }
 
+    public NbiotPushScheduler getNbiotPushScheduler(ObisCode obisCode) throws NotInObjectListException {
+        return new NbiotPushScheduler(protocolLink, getObjectReference(obisCode));
+    }
+
+    public NbiotPushSetup getNbiotPushSetup(ObisCode obisCode) throws NotInObjectListException {
+        return new NbiotPushSetup(protocolLink, getObjectReference(obisCode));
+    }
+
+    public NbiotOrphanState getNbiotOrphanState(ObisCode obisCode) throws NotInObjectListException {
+        return new NbiotOrphanState(protocolLink, getObjectReference(obisCode));
+    }
+
     public Disconnector getDisconnector() throws NotInObjectListException {
         return new Disconnector(protocolLink, getObjectReference(DISCONNECTOR, protocolLink.getMeterConfig().getDisconnectorSN()));
     }

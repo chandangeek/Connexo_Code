@@ -26,6 +26,7 @@ import java.util.Objects;
  */
 public final class SqlBuilder implements SqlFragment {
 
+    public static final int FETCH_SIZE = 200;
     private final StringBuilder builder;
     private final List<SqlFragment> fragments = new ArrayList<>();
 
@@ -124,6 +125,7 @@ public final class SqlBuilder implements SqlFragment {
 
     public PreparedStatement prepare(Connection connection) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(builder.toString());
+        statement.setFetchSize(FETCH_SIZE);
         boolean failed = true;
         try {
             bind(statement, 1);
@@ -140,6 +142,7 @@ public final class SqlBuilder implements SqlFragment {
         PreparedStatement statement = prepare(connection);
         try {
             ResultSet resultSet = statement.executeQuery();
+            resultSet.setFetchSize(FETCH_SIZE);
             return new FetcherImpl<>(resultSet, tupleParser);
         } catch (SQLException ex) {
             statement.close();

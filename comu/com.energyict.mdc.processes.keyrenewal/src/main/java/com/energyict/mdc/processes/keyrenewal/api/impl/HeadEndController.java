@@ -184,8 +184,11 @@ public class HeadEndController {
     }
 
     protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityAccessorType securityAccessorType) {
-        return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().getConfigurationSecurityProperties().stream()
-                .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getSecurityAccessorType().equals(securityAccessorType))).orElse(false)).collect(Collectors.toList());
+        return device.getComTaskExecutions()
+                .stream()
+                .filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().getConfigurationSecurityProperties().stream()
+                        .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getSecurityAccessorType().equals(securityAccessorType))).orElse(false))
+                .collect(Collectors.toList());
     }
 
     protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityPropertySet securityPropertySet) {
@@ -232,7 +235,9 @@ public class HeadEndController {
             }
 
         }
-        comTaskExecutionList.add(comTaskExec);
+        if (comTaskExec != null) {
+            comTaskExecutionList.add(comTaskExec);
+        }
         return comTaskExecutionList;
     }
 

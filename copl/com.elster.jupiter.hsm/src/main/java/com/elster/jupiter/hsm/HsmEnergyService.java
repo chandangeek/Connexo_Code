@@ -3,6 +3,7 @@
  */
 package com.elster.jupiter.hsm;
 
+import com.elster.jupiter.hsm.model.FUAKPassiveGenerationNotSupportedException;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.Message;
@@ -19,7 +20,7 @@ public interface HsmEnergyService {
 
     HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException, HsmNotConfiguredException;
 
-    HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException;
+    HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException, FUAKPassiveGenerationNotSupportedException;
 
     Message prepareServiceKey(String hexServiceKey, String kek, String hexKeyValue) throws HsmBaseException;
 
