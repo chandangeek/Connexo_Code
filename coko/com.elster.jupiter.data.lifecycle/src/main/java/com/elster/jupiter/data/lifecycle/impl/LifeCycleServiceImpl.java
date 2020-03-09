@@ -117,7 +117,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
-                        version(10, 7), UpgraderV10_4_7.class
+                        version(10, 4, 7), UpgraderV10_4_7.class
                 ));
     }
 
