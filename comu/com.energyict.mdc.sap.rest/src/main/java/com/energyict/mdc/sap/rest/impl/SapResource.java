@@ -19,13 +19,6 @@ import com.energyict.mdc.sap.soap.webservices.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
@@ -72,7 +65,7 @@ public class SapResource {
             hasSapCas = true;
         }
 
-        return Response.ok(hasSapCas).build();
+        return Response.ok(new HasSapCas(hasSapCas)).build();
     }
 
     @GET
