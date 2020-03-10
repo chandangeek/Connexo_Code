@@ -1647,7 +1647,7 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getPdrChanged() { return new EndDeviceEventType("4.7.315.24" ); }
 
-    public static EndDeviceEventType getDefaultTemperature() { return new EndDeviceEventType("changed	4.35.0.24" ); }
+    public static EndDeviceEventType getDefaultTemperature() { return new EndDeviceEventType("4.35.0.24" ); }
 
     public static EndDeviceEventType getFallbackTemperatureChanged() { return new EndDeviceEventType("4.35.75.24" ); }
 
