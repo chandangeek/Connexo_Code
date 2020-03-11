@@ -403,10 +403,10 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showNetwork'
                         },
                         sendregisteredsapnotification: {
-                            title: Uni.I18n.translate('general.network', 'MDC', 'Network'),
+                            title: Uni.I18n.translate('deviceSendSapNotification.title', 'MDC', 'Send registered notification to SAP'),
                             route: 'sendregisteredsapnotification',
                             controller: 'Mdc.controller.setup.SendRegisteredSapNotification',
-                            // privileges: Mdc.privileges.Device.administrateDevice,
+                            privileges: Mdc.privileges.Device.sendSapRegisteredNotification,
                             action: 'sendRegisteredSapNotification'
                         },
                         connectionmethods: {

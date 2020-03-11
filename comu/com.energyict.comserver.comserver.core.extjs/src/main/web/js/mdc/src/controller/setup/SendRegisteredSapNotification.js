@@ -46,9 +46,29 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         });
     },
 
+    hasSapCas: function(deviceId){
+        var me = this;
+        Ext.Ajax.request({
+            url: Ext.String.format('api/sap/devices/{deviceId}/hassapcas', deviceId),
+            method: 'GET',
+            async: false,
+            success: function (response) {
+                var hasSapCas = Ext.JSON.decode(response.responseText);
+                debugger;
+            }
+        });
+    },
+
     showErrorPanel: function (form) {
-        var errorPanel = form.down('#form-errors');
+        var errorPanel = form.down('#deviceSendSapNotificationFormErrors');
         errorPanel.setVisible(true);
+    },
+
+    showErrorAlert: function (){
+         var me = this;
+         var errorText = me.deviceId + Uni.I18n.translate('general.failedToAddTitle', 'MDC', ' attribute is not set on Device SAP info CAS and/or no LRN is available on current or future data sources on the device. The request sending has failed. See web service history for details');
+         var titleText = Uni.I18n.translate('general.failedToAddTitle', 'MDC', 'Couldn\'t perform your action');
+         this.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
     },
 
     sendSapNotification: function(button){
@@ -71,6 +91,7 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
             },
             failure: function (record, operation) {
                 me.showErrorPanel(form);
+                me.showErrorAlert();
             },
             callback: function(){
                 form.setLoading(false);

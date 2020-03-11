@@ -46,12 +46,13 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
             },
             {
                 itemId: 'mdc-send-registered-sap-notification',
-                // privileges: Mdc.privileges.Device.editDeviceAttributes,
+                privileges: Mdc.privileges.Device.sendSapRegisteredNotification,
                 handler: function() {
                     me.router.getRoute('devices/device/sendregisteredsapnotification').forward();
                 },
                 text: Uni.I18n.translate('general.sendRegisteredSAPNotification', 'MDC', 'Send registered notification to SAP'),
-                section: me.SECTION_VIEW
+                section: me.SECTION_VIEW,
+                //visible: this.getApplication().getController('Mdc.controller.setup.SendRegisteredSapNotification').hasSapCas(me.deviceName)
             }
         ];
 
