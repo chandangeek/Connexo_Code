@@ -26,6 +26,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
+
 @Path("/meters")
 public class MeterResource extends BaseAlarmResource {
 
@@ -42,10 +44,8 @@ public class MeterResource extends BaseAlarmResource {
                 .sorted(Comparator.comparingInt((Meter meter) -> meter.getName().length())
                         .thenComparingInt(meter -> meter.getName().toLowerCase().indexOf(searchText == null ? "" : searchText.toLowerCase()))
                         .thenComparing(HasName::getName))
-                .skip(params.getStart())
-                .limit(params.getLimit())
                 .collect(Collectors.toList());
-        return Response.ok().entity(listMeters.stream().map(MeterShortInfo::new).collect(Collectors.toList())).build();
+        return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
     }
 
     @GET
