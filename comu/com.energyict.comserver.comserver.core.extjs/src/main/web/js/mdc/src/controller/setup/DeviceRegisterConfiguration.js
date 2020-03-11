@@ -443,7 +443,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         title: Uni.I18n.translate('registerconfiguration.validation.validateNow', 'MDC', 'Validate data of register configuration {0}?', record.get('readingType').fullAliasName)
                     });
                 } else {
-                    var title =Uni.I18n.translate('registerconfiguration.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                    var title =Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                         message = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', record.get('readingType').fullAliasName)
                             + '. ' + Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration.'),
                         code = '',

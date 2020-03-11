@@ -224,11 +224,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('readingType').fullAliasName]),
                         msg: ''
                     });
-                } else {
+                } else {general.failedToMakeActionTitle
                     if (res && res.errorCode) {
                         code = res.errorCode;
                     }
-                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                    var title = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                         message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', "Failed to validate data of channel '{0}'", record.get('readingType').fullAliasName)
                             + '. ' + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel.'),
                         config = {
