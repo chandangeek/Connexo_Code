@@ -7,7 +7,7 @@ Ext.define('Pkj.store.EJBCAEndEntities', {
     fields: [
         {name: 'options', type: 'auto', useNull: false}
     ],
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/pir/certificates/ejbca/endentities',

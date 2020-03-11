@@ -72,6 +72,7 @@ Ext.define('Pkj.view.AddCSRForm', {
                             cpCombo.setVisible(false);
                         }
                         else {
+                            endEntityCombo.getStore().load();
                             endEntityCombo.setDisabled(false);
                             endEntityCombo.setVisible(true);
 
