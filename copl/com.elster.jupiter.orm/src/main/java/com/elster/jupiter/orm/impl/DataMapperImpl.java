@@ -207,13 +207,8 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			}
 		}
 		try {
-			Optional<T> result;
-			if (getTable().isCached() && !getTable().isWholeTableCached()) {
-				result = getEager(keyValue.getKey());
-			} else {
-				result = reader.findByPrimaryKey(keyValue);
-			}
-			result.ifPresent( t -> cache.put(keyValue, t));
+			Optional<T> result = reader.findByPrimaryKey(keyValue);
+			result.ifPresent(t -> cache.put(keyValue, t));
 			return result;
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
