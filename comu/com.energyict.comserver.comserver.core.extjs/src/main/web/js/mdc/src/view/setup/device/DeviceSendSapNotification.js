@@ -35,15 +35,10 @@ Ext.define('Mdc.view.setup.device.DeviceSendSapNotification', {
                         items: [
                             {
                                 name: 'errors',
-                                ui: 'form-error-framed',
+                                xtype: 'uni-form-error-message',
                                 itemId: 'deviceSendSapNotificationFormErrors',
-                                layout: 'hbox',
-                                margin: '0 0 10 0',
-                                hidden: true,
-                                defaults: {
-                                    xtype: 'container',
-                                    margin: '0 0 0 10'
-                                }
+                                text: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.'),
+                                hidden: true
                             },
                             {
                                 xtype: 'combobox',
@@ -53,7 +48,9 @@ Ext.define('Mdc.view.setup.device.DeviceSendSapNotification', {
                                 queryMode: 'local',
                                 fieldLabel: Uni.I18n.translate('sap.webserviceendpoint', 'MDC', 'Web service endpoint'),
                                 store: 'Mdc.store.RegisteredNotificationEndpoints',
-                                placeholder: Uni.I18n.translate('sap.selectwebserviceendpoint', 'MDC', 'Select a web service endpoint')
+                                emptyText: Uni.I18n.translate('sap.selectwebserviceendpoint', 'MDC', 'Select a web service endpoint'),
+                                required: true,
+                                allowBlank: false
                             },
                             {
                                 xtype: 'fieldcontainer',

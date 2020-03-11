@@ -46,19 +46,6 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         });
     },
 
-    hasSapCas: function(deviceId){
-        var me = this;
-        Ext.Ajax.request({
-            url: Ext.String.format('api/sap/devices/{deviceId}/hassapcas', deviceId),
-            method: 'GET',
-            async: false,
-            success: function (response) {
-                var hasSapCas = Ext.JSON.decode(response.responseText);
-                debugger;
-            }
-        });
-    },
-
     showErrorPanel: function (form) {
         var errorPanel = form.down('#deviceSendSapNotificationFormErrors');
         errorPanel.setVisible(true);
@@ -88,10 +75,6 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('sap.webserviceendpoint.hassended', 'MDC', 'Registered notification successfully sent'));
                 location.href = "#/devices/" + me.deviceId;
-            },
-            failure: function (record, operation) {
-                me.showErrorPanel(form);
-                me.showErrorAlert();
             },
             callback: function(){
                 form.setLoading(false);

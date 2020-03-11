@@ -43,16 +43,6 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                 },
                 text: Uni.I18n.translate('general.showNetwork', 'MDC', 'Show network'),
                 section: me.SECTION_VIEW
-            },
-            {
-                itemId: 'mdc-send-registered-sap-notification',
-                privileges: Mdc.privileges.Device.sendSapRegisteredNotification,
-                handler: function() {
-                    me.router.getRoute('devices/device/sendregisteredsapnotification').forward();
-                },
-                text: Uni.I18n.translate('general.sendRegisteredSAPNotification', 'MDC', 'Send registered notification to SAP'),
-                section: me.SECTION_VIEW,
-                //visible: this.getApplication().getController('Mdc.controller.setup.SendRegisteredSapNotification').hasSapCas(me.deviceName)
             }
         ];
 
@@ -86,6 +76,19 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                 section: me.SECTION_ACTION
             });
         }
+
+         if (me.hasSapCas){
+                me.items.push({
+                    itemId: 'mdc-send-registered-sap-notification',
+                    privileges: Mdc.privileges.Device.sendSapRegisteredNotification,
+                    handler: function() {
+                        me.router.getRoute('devices/device/sendregisteredsapnotification').forward();
+                    },
+                    text: Uni.I18n.translate('general.sendRegisteredSAPNotification', 'MDC', 'Send registered notification to SAP'),
+                    section: me.SECTION_VIEW,
+                })
+         }
+
 
         me.callParent(arguments);
     }
