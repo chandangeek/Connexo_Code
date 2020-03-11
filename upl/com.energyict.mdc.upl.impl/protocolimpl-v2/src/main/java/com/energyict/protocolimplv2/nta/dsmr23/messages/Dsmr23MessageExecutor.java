@@ -65,6 +65,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
@@ -662,6 +663,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
                 .getValue(); // Will return empty string if the MessageAttribute could not be found
 
+        boolean additionalZeros = false;
+        if (getProtocol() instanceof Mx382) {
+            additionalZeros = true;
+        }
+
         getProtocol().journal("Using firmware file: "+path);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(pendingMessage)) {
@@ -684,7 +690,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 actualIdentifier = imageIdentifier;
             }
             getProtocol().journal("Starting block transfer of image file using identifier "+actualIdentifier);
-            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, actualIdentifier, false);
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), additionalZeros, actualIdentifier, false);
             getProtocol().journal("Block transfer finished");
         }
 
