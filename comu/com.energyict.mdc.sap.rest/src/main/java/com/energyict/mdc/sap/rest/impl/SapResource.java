@@ -60,12 +60,12 @@ public class SapResource {
 
     @GET
     @Transactional
-    @Path("/devices/{deviceId}/hassapcas")
+    @Path("/devices/{deviceName}/hassapcas")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
-    public Response hasSapCas(@PathParam("deviceId") long deviceId) {
-        Device device = deviceService.findDeviceById(deviceId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceId));
+    public Response hasSapCas(@PathParam("deviceName") String deviceName) {
+        Device device = deviceService.findDeviceByName(deviceName).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceName));
         boolean hasSapCas = false;
 
         if (sapCustomPropertySets.doesDeviceHaveSapCPS(device)) {
@@ -94,19 +94,21 @@ public class SapResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
-    @Path("/devices/{deviceId}/sendregisterednotification")
-    public Response sendRegisteredNotification(@PathParam("deviceId") long deviceId, RegisteredNotificationEndPointInfo registeredNotificationEndPointInfo) {
+    @Path("/devices/{deviceName}/sendregisterednotification/{endpointId}")
+    public Response sendRegisteredNotification(@PathParam("deviceName") String deviceName, @PathParam("endpointId") long endpointId, RegisteredNotificationEndPointInfo registeredNotificationEndPointInfo) {
 
         EndPointConfiguration endPointConfiguration = getActiveRegisteredNotificationEndpointConfigurations().stream()
                 .filter(endPoint -> endPoint.getId() == registeredNotificationEndPointInfo.id)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_REGISTERED_NOTIFICATION_ENDPOINT, registeredNotificationEndPointInfo.id));
 
-        Device device = deviceService.findDeviceById(deviceId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceId));
+        Device device = deviceService.findDeviceByName(deviceName)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceName));
 
         String sapDeviceId = sapCustomPropertySets.getSapDeviceId(device)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_ID_ATTRIBUTE_IS_NOT_SET));
+
+        long deviceId = device.getId();
 
         if (sapCustomPropertySets.isRegistered(device)) {
             throw exceptionFactory.newException(MessageSeeds.DEVICE_ALREADY_REGISTERED);
