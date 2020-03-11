@@ -258,9 +258,9 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                     WebServiceCallRelatedAttributeImpl relatedAttribute = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
                     relatedAttribute.init(entry.getKey(), entry.getValue().trim());
                     if (!createdRelatedAttributeList.contains(relatedAttribute)) {
-                        sqlQueries.add("INSERT INTO WS_OCC_RELATED_ATTR(ID, ATTR_KEY, ATTR_VALUE) " +
-                                "SELECT WS_OCC_RELATED_ATTRID.NEXTVAL, '" + relatedAttribute.getKey() + "', '" + relatedAttribute.getValue() + "' FROM DUAL " +
-                                "WHERE NOT EXISTS(SELECT 1 FROM WS_OCC_RELATED_ATTR WHERE ATTR_KEY='" + relatedAttribute.getKey() + "' AND ATTR_VALUE='" + relatedAttribute.getValue() + "')");
+                        sqlQueries.add("BEGIN INSERT INTO WS_OCC_RELATED_ATTR(ID, ATTR_KEY, ATTR_VALUE)" +
+                                " VALUES (WS_OCC_RELATED_ATTRID.NEXTVAL, '" + relatedAttribute.getKey() + "', '" + relatedAttribute.getValue() + "');" +
+                                " COMMIT; EXCEPTION WHEN DUP_VAL_ON_INDEX THEN ROLLBACK; END;");
                     }
                 }
             });
