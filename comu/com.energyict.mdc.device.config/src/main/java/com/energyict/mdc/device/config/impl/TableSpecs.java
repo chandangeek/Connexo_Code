@@ -268,7 +268,6 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).add();
-            table.cacheWholeTable(true);
         }
     },
 
