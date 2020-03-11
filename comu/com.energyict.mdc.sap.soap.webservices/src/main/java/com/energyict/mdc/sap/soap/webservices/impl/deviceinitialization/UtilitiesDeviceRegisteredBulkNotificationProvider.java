@@ -53,7 +53,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
-    private static final List<WebServiceActivator> webServiceActivatorList = new CopyOnWriteArrayList<>();
+    private volatile Optional<WebServiceActivator> webServiceActivatorOptional;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
@@ -67,14 +67,15 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         addWebServiceActivator(webServiceActivator);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     public void addWebServiceActivator(WebServiceActivator webServiceActivator) {
-        this.webServiceActivatorList.add(webServiceActivator);
+        webServiceActivatorOptional = Optional.of(webServiceActivator);
     }
 
     public void removeWebServiceActivator(WebServiceActivator webServiceActivator) {
-        this.webServiceActivatorList.remove(webServiceActivator);
+        webServiceActivatorOptional = null;
     }
+
 
     @Reference
     public void setClock(Clock clock) {
@@ -144,7 +145,6 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
-        Optional<WebServiceActivator> webServiceActivatorOptional = webServiceActivatorList.stream().findAny();
         webServiceActivatorOptional.ifPresent(webServiceActivator -> header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId()));
         header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
@@ -170,7 +170,6 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
         header.setUUID(createUUID(UUID.randomUUID().toString()));
-        Optional<WebServiceActivator> webServiceActivatorOptional = webServiceActivatorList.stream().findAny();
         webServiceActivatorOptional.ifPresent(webServiceActivator -> header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId()));
         header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
@@ -183,7 +182,6 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         UtilsDvceERPSmrtMtrRegedNotifSmrtMtr smartMeter = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifSmrtMtr();
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
-        Optional<WebServiceActivator> webServiceActivatorOptional = webServiceActivatorList.stream().findAny();
         webServiceActivatorOptional.ifPresent(webServiceActivator -> smartMeterId.setValue(webServiceActivator.getMeteringSystemId()));
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
