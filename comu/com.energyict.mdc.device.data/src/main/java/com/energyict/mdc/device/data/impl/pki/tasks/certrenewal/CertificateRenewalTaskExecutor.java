@@ -121,7 +121,8 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
 
         logger.log(Level.INFO, "Number of security accessors to trigger bpm:  " + resultList.size());
         printSecurityAccessors(resultList, logger);
-        resultList.forEach(securityAccessor -> triggerBpmProcess(securityAccessor, occurrence, logger));
+        // the process is triggered by task only for one accessor per time
+        triggerBpmProcess(resultList.get(0), occurrence, logger);
     }
 
     @Override

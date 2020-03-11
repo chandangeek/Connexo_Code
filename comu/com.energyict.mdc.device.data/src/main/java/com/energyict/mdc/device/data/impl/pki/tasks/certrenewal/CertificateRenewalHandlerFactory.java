@@ -122,7 +122,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     @Activate
     public void activate(BundleContext bundleContext) {
         getTaskProperties(bundleContext);
-        bpmService.addProcessesToRunOneInstanceTheSameTime(Optional.ofNullable(certRenewalBpmProcessDefinitionId).orElse(CERTIFICATE_RENEWAL_PROCESS_NAME));
+        bpmService.addSingletonInstanceProcess(Optional.ofNullable(certRenewalBpmProcessDefinitionId).orElse(CERTIFICATE_RENEWAL_PROCESS_NAME), "deviceId");
     }
 
     @Deactivate

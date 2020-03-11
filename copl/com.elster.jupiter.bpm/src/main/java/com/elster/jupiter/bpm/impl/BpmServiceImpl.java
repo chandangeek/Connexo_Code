@@ -294,14 +294,17 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     private void checkProcessIsAlreadyRunning(String processName, String version, Map<String, Object> parameters) {
         if (getSingletonInstanceProcesses().keySet().contains(processName)) {
             String businessObjectId = getSingletonInstanceProcesses().get(processName);
-            String filter = "?variableid=" + businessObjectId + "&variablevalue=" + parameters.get(businessObjectId);
-            boolean processIsRunning = getRunningProcesses(null, filter)
-                    .processes
-                    .stream()
-                    .anyMatch(p -> p.name.equals(processName) && p.status.equals(ACTIVE_STATUS));
-            if (processIsRunning) {
-                throw new ProcessIsAlreadyRunning(thesaurus, processName, version);
-            }
+            Optional<Object> businessObjectValue = Optional.ofNullable(parameters.get(businessObjectId));
+            businessObjectValue.ifPresent(value -> {
+                String filter = "?variableid=" + businessObjectId + "&variablevalue=" + businessObjectValue;
+                boolean processIsRunning = getRunningProcesses(null, filter)
+                        .processes
+                        .stream()
+                        .anyMatch(p -> p.name.equals(processName) && p.status.equals(ACTIVE_STATUS));
+                if (processIsRunning) {
+                    throw new ProcessIsAlreadyRunning(thesaurus, processName, version);
+                }
+            });
         }
     }
 
