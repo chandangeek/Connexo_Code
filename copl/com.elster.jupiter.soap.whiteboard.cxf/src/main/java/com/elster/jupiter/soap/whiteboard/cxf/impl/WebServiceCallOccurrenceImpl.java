@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
@@ -18,9 +19,14 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,50 +238,63 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         if (values.isEmpty()) {
             return;
         }
-        transactionService.runInIndependentTransaction(() -> {
-            List<WebServiceCallRelatedAttributeImpl> relatedAttributeListToCreate = new ArrayList<>();
-            List<WebServiceCallRelatedAttributeBindingImpl> relatedAttributeBindingList = new ArrayList<>();
 
-            Optional<Condition> condition = values.entries().stream()
-                    .filter(entry -> !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
-                    .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName()).isEqualTo(entry.getKey())
-                            .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
-                    .reduce(Condition::or);
+        List<WebServiceCallRelatedAttributeBindingImpl> relatedAttributeBindingList = new ArrayList<>();
 
-            if (condition.isPresent()) {
-                /* Find all related attributes that has been already created */
-                List<WebServiceCallRelatedAttributeImpl> createdRelatedAttributeList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition.get());
+        Optional<Condition> condition = values.entries().stream()
+                .filter(entry -> !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
+                .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName()).isEqualTo(entry.getKey())
+                        .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
+                .reduce(Condition::or);
 
-                /* Find all related attributes that should be created */
-                values.entries().forEach(entry -> {
-                    if (entry.getKey() != null && !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace()) {
-                        WebServiceCallRelatedAttributeImpl relatedAttribute = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
-                        relatedAttribute.init(entry.getKey(), entry.getValue().trim());
-                        if (!createdRelatedAttributeList.contains(relatedAttribute)) {
-                            relatedAttributeListToCreate.add(relatedAttribute);
-                        }
+        if (condition.isPresent()) {
+            List<WebServiceCallRelatedAttributeImpl> finalCreatedRelatedAttributeList;
+            /* Find all related attributes that has been already created */
+            List<WebServiceCallRelatedAttributeImpl> createdRelatedAttributeList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition.get());
+            ImmutableList.Builder<String> sqlQueries = ImmutableList.builder();
+            /* Find all related attributes that should be created */
+            values.entries().forEach(entry -> {
+                if (entry.getKey() != null && !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace()) {
+                    WebServiceCallRelatedAttributeImpl relatedAttribute = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
+                    relatedAttribute.init(entry.getKey(), entry.getValue().trim());
+                    if (!createdRelatedAttributeList.contains(relatedAttribute)) {
+                        sqlQueries.add("INSERT INTO WS_OCC_RELATED_ATTR(ID, ATTR_KEY, ATTR_VALUE) " +
+                                "SELECT WS_OCC_RELATED_ATTRID.NEXTVAL, '" + relatedAttribute.getKey() + "', '" + relatedAttribute.getValue() + "' FROM DUAL " +
+                                "WHERE NOT EXISTS(SELECT 1 FROM WS_OCC_RELATED_ATTR WHERE ATTR_KEY='" + relatedAttribute.getKey() + "' AND ATTR_VALUE='" + relatedAttribute.getValue() + "')");
+                    }
+                }
+            });
+
+            if (sqlQueries.build().isEmpty()) {
+                finalCreatedRelatedAttributeList = createdRelatedAttributeList;
+            } else {
+                /* Create related attributes that hasn't been created yet */
+                transactionService.runInIndependentTransaction(() -> {
+                    try (Connection connection = this.dataModel.getConnection(true)) {
+                        sqlQueries.build().forEach(sqlStatement -> {
+                            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
+                                statement.execute();
+                            } catch (SQLException e) {
+                                throw new UnderlyingSQLFailedException(e);
+                            }
+                        });
+                    } catch (SQLException e) {
+                        throw new UnderlyingSQLFailedException(e);
                     }
                 });
+                finalCreatedRelatedAttributeList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition.get());
+            }
 
-                /* Create related attributes that hasn't been created yet */
-                dataModel.mapper(WebServiceCallRelatedAttributeImpl.class).persist(relatedAttributeListToCreate);
-
-
-                createdRelatedAttributeList.forEach(obj -> {
-                    WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
-                    relatedAttributeBinding.init(this, obj);
-                    relatedAttributeBindingList.add(relatedAttributeBinding);
-                });
-
-                relatedAttributeListToCreate.forEach(obj -> {
+            transactionService.runInIndependentTransaction(() -> {
+                finalCreatedRelatedAttributeList.forEach(obj -> {
                     WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
                     relatedAttributeBinding.init(this, obj);
                     relatedAttributeBindingList.add(relatedAttributeBinding);
                 });
 
                 dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedAttributeBindingList);
-            }
-        });
+            });
+        }
     }
 
     @Override
