@@ -12,7 +12,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
     FLOW_CONNECTION_ERROR(1001, "error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}.", Level.SEVERE),
     FLOW_INVALID_RESPONSE_ERROR(1002, "error.flow.invalid.response", "Invalid response received, please check your Flow version.", Level.SEVERE),
-    FIELD_CAN_NOT_BE_EMPTY(1, Constants.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE);
+    FIELD_CAN_NOT_BE_EMPTY(1, Constants.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
+    PROCESS_IS_ALREADY_RUNNING(2, Constants.PROCESS_IS_ALREADY_RUNNING, "Process ''{0}'' with version ''{1}'' is already running.", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -54,5 +55,6 @@ public enum MessageSeeds implements MessageSeed {
     public enum Constants {
         ;
         public static final String FIELD_CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String PROCESS_IS_ALREADY_RUNNING = "BPM.ProcessIsAlreadyRunning";
     }
 }

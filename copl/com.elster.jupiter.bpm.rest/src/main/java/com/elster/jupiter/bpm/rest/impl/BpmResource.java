@@ -36,7 +36,6 @@ import com.elster.jupiter.bpm.rest.exception.BpmResourceAssignUserException;
 import com.elster.jupiter.bpm.rest.exception.LocalizedFieldException;
 import com.elster.jupiter.bpm.rest.exception.NoBpmConnectionException;
 import com.elster.jupiter.bpm.rest.exception.NoTaskWithIdException;
-import com.elster.jupiter.bpm.rest.exception.ProcessIsAlreadyRunning;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
@@ -100,7 +99,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.bpm.BpmService.ACTIVE_STATUS;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/runtime")
@@ -1338,17 +1336,6 @@ public class BpmResource {
         id = id.replace(taskContentInfos.deploymentId,"");
         if (!err.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
-        }
-
-        if (bpmService.getProcessesToRunOneInstanceTheSameTime().contains(taskContentInfos.processName)) {
-            String filter = "?variableid=" + taskContentInfos.businessObject.id + "&variablevalue=" + taskContentInfos.businessObject.value;
-            boolean processIsRunning = bpmService.getRunningProcesses(null, filter)
-                    .processes
-                    .stream()
-                    .anyMatch(p -> p.name.equalsIgnoreCase(taskContentInfos.processName) && p.status.equalsIgnoreCase(ACTIVE_STATUS));
-            if (processIsRunning) {
-                throw new ProcessIsAlreadyRunning(thesaurus, MessageSeeds.PROCESS_IS_ALREADY_RUNNING, taskContentInfos.processName);
-            }
         }
 
         if (taskContentInfos.deploymentId != null) {

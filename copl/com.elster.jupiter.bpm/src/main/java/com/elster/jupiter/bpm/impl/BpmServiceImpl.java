@@ -14,6 +14,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.bpm.exception.ProcessIsAlreadyRunning;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -53,6 +54,7 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,7 +84,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
-    private List<String> processesToRunOneInstanceTheSameTime = new ArrayList<>();
+    private Map<String, String> singletonInstanceProcesses = new HashMap();
 
     private final static String TOKEN_AUTH = "com.elster.jupiter.token";
 
@@ -124,7 +126,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class
                 ));
     }
 
@@ -203,6 +205,12 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
 
     @Override
     public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters) {
+        verifyProcessIsAlreadyRunning(deploymentId, process, parameters);
+        return runProcess(deploymentId, process, parameters);
+    }
+
+    private boolean runProcess(String deploymentId, String process, Map<String, Object> parameters) {
+        verifyProcessIsAlreadyRunning(deploymentId, process, parameters);
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
         if (found.isPresent()) {
@@ -228,11 +236,14 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         } catch (JSONException | RuntimeException ignored) {
         }
         if (arr != null) {
-            for(int i = 0; i < arr.length(); i++) {
+            for (int i = 0; i < arr.length(); i++) {
                 try {
                     JSONObject task = arr.getJSONObject(i);
-                    if(task.getString("name").equals(bpmProcessDefinition.getProcessName()) && task.getString("version").equals(bpmProcessDefinition.getVersion())){
-                        return startProcess(task.getString("deploymentId"), task.getString("id"), parameters);
+                    String processName = task.getString("name");
+                    String version = task.getString("version");
+                    if (processName.equals(bpmProcessDefinition.getProcessName()) && version.equals(bpmProcessDefinition.getVersion())) {
+                        checkProcessIsAlreadyRunning(processName, version, parameters);
+                        return runProcess(task.getString("deploymentId"), task.getString("id"), parameters);
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -244,6 +255,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
 
     @Override
     public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters, String auth) {
+        verifyProcessIsAlreadyRunning(deploymentId, process, parameters);
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
         if (found.isPresent()) {
@@ -252,6 +264,45 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
             result = true;
         }
         return result;
+    }
+
+    private void verifyProcessIsAlreadyRunning(String deploymentId, String id, Map<String, Object> parameters) {
+        String jsonContent;
+        JSONArray arr = null;
+        try {
+            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000");
+            if (!"".equals(jsonContent)) {
+                JSONObject jsonbject = new JSONObject(jsonContent);
+                arr = jsonbject.getJSONArray("processDefinitionList");
+            }
+        } catch (JSONException | RuntimeException ignored) {
+        }
+        if (arr != null) {
+            for (int i = 0; i < arr.length(); i++) {
+                try {
+                    JSONObject task = arr.getJSONObject(i);
+                    if (task.getString("deploymentId").equals(deploymentId) && task.getString("id").equals(id)) {
+                        checkProcessIsAlreadyRunning(task.getString("name"), task.getString("version"), parameters);
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private void checkProcessIsAlreadyRunning(String processName, String version, Map<String, Object> parameters) {
+        if (getSingletonInstanceProcesses().keySet().contains(processName)) {
+            String businessObjectId = getSingletonInstanceProcesses().get(processName);
+            String filter = "?variableid=" + businessObjectId + "&variablevalue=" + parameters.get(businessObjectId);
+            boolean processIsRunning = getRunningProcesses(null, filter)
+                    .processes
+                    .stream()
+                    .anyMatch(p -> p.name.equals(processName) && p.status.equals(ACTIVE_STATUS));
+            if (processIsRunning) {
+                throw new ProcessIsAlreadyRunning(thesaurus, processName, version);
+            }
+        }
     }
 
     @Override
@@ -283,7 +334,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     }
 
     @Override
-    public Optional<BpmProcessDefinition> findBpmProcessDefinition(long id){
+    public Optional<BpmProcessDefinition> findBpmProcessDefinition(long id) {
         return dataModel.mapper(BpmProcessDefinition.class).getOptional(id);
     }
 
@@ -406,11 +457,11 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         return Arrays.asList(MessageSeeds.values());
     }
 
-    public List<String> getProcessesToRunOneInstanceTheSameTime() {
-        return processesToRunOneInstanceTheSameTime;
+    public Map<String, String> getSingletonInstanceProcesses() {
+        return singletonInstanceProcesses;
     }
 
-    public void addProcessesToRunOneInstanceTheSameTime(String processName) {
-        this.processesToRunOneInstanceTheSameTime.add(processName);
+    public void addSingletonInstanceProcess(String processName, String businessObjectId) {
+        this.singletonInstanceProcesses.put(processName, businessObjectId);
     }
 }

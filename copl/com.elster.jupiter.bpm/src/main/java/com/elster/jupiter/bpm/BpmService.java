@@ -4,10 +4,9 @@
 
 package com.elster.jupiter.bpm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public interface BpmService {
 
     ProcessInstanceInfos getRunningProcesses(String authorization, String filter, String appKey);
 
-    List<String> getProcessesToRunOneInstanceTheSameTime();
+    Map<String, String> getSingletonInstanceProcesses();
 
-    void addProcessesToRunOneInstanceTheSameTime(String processesToRunOneInstanceTheSameTime);
+    void addSingletonInstanceProcess(String processName, String businessObjectId);
 }

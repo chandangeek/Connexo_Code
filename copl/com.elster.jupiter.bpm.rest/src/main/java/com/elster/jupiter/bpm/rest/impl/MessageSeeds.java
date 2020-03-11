@@ -28,7 +28,6 @@ public enum MessageSeeds implements MessageSeed {
     SAVE_TASK_CONCURRENT_TITLE(14, Constants.SAVE_TASK_CONCURRENT_TITLE, "Failed to save task ''{0}''", Level.SEVERE ),
     SAVE_TASK_CONCURRENT_BODY(15, Constants.SAVE_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE),
     PROCESS_VARIABLE_NOT_AVAILABLE_IN_FLOW(16, Constants.PROCESS_VARIABLE_NOT_AVAILABLE_IN_FLOW, "Process variable having name {0} not defined in Flow.", Level.SEVERE),
-    PROCESS_IS_ALREADY_RUNNING(17, Constants.PROCESS_IS_ALREADY_RUNNING, "Process ''{0}'' is already running.", Level.SEVERE ),
     ;
 
     public static final String COMPONENT_NAME = "BPM";
@@ -90,7 +89,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String START_PROCESS_CONCURRENT_BODY = "BPM.StartProcessConcurrentBody";
         public static final String NO_TASK_WITH_ID = "BPM.NoTaskWithId";
         public static final String PROCESS_VARIABLE_NOT_AVAILABLE_IN_FLOW = "BPM.ProcessVariableNotAvailableInFlow";
-        public static final String PROCESS_IS_ALREADY_RUNNING = "BPM.ProcessIsAlreadyRunning";
     }
 
 }
