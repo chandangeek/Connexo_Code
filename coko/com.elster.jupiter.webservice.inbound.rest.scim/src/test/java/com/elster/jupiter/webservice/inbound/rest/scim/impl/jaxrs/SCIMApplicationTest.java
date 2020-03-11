@@ -24,7 +24,6 @@ public class SCIMApplicationTest {
         final ImmutableSet<Class<?>> expected = ImmutableSet.of(
                 ServiceProviderConfigResource.class,
                 ResourceTypeResource.class,
-                SchemaResource.class,
                 UserResource.class,
                 GroupResource.class,
                 TokenResource.class

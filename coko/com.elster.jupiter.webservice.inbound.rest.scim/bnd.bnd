@@ -1,3 +1,2 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.webservice.inbound.rest.scim.impl

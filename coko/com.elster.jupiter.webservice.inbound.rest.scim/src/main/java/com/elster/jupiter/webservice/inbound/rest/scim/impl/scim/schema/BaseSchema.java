@@ -5,7 +5,7 @@ import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.attribut
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class BaseSchemaWithCommonAttributes {
+public class BaseSchema {
 
     protected String[] schemas;
 
@@ -14,6 +14,13 @@ public class BaseSchemaWithCommonAttributes {
     protected String externalId;
 
     protected Meta meta;
+
+    public BaseSchema() {
+    }
+
+    public BaseSchema(String id) {
+        this.id = id;
+    }
 
     public String[] getSchemas() {
         return schemas;

@@ -1,6 +1,7 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.resource;
 
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.UserSchema;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -14,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
-
 
 public class UserResourceTest extends SCIMBaseTest {
 
@@ -59,7 +59,7 @@ public class UserResourceTest extends SCIMBaseTest {
         final UserSchema existingUser = createUserWithinConnexoWithAttributeValues();
         existingUser.setLocale(Locale.US.toLanguageTag());
 
-        final Response response = target(USER_RESOURCE_PATH + "/" + UUID.randomUUID())
+        final Response response = target(USER_RESOURCE_PATH + "/" + existingUser.getExternalId())
                 .request("application/scim+json")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildPut(Entity.entity(existingUser, "application/scim+json"))
@@ -78,7 +78,7 @@ public class UserResourceTest extends SCIMBaseTest {
 
         final UserSchema existingUser = createUserWithinConnexoWithAttributeValues();
 
-        final Response response = target(USER_RESOURCE_PATH + "/" + existingUser.getId())
+        final Response response = target(USER_RESOURCE_PATH + "/" + existingUser.getExternalId())
                 .request("application/scim+json")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildDelete()
@@ -88,7 +88,7 @@ public class UserResourceTest extends SCIMBaseTest {
 
         when(userService.findUserByExternalId(anyString())).thenReturn(Optional.empty());
 
-        final Response getDeletedUserResponse = target(USER_RESOURCE_PATH + "/" + existingUser.getId())
+        final Response getDeletedUserResponse = target(USER_RESOURCE_PATH + "/" + existingUser.getExternalId())
                 .request("application/scim+json")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildGet()

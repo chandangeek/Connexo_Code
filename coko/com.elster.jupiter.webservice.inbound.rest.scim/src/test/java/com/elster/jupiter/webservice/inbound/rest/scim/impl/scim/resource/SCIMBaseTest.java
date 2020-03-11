@@ -1,7 +1,7 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.resource;
 
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.SCIMApplication;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenResponse;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.resource.OAuthBaseTest;
@@ -20,6 +20,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,12 +37,18 @@ public class SCIMBaseTest extends OAuthBaseTest {
 
     protected static final String[] LIST_OF_FIELDS_FOR_USER_COMPARISON = new String[]{
             "schemas",
-            "id",
             "externalId",
             "userName",
             "displayName",
             "locale",
             "active"
+    };
+
+    protected static final String[] LIST_OF_FILEDS_FOR_GROUP_COMPARISON = new String[]{
+            "schemas",
+            "externalId",
+            "displayName",
+            "members",
     };
 
     protected String JWS;
@@ -50,7 +57,7 @@ public class SCIMBaseTest extends OAuthBaseTest {
     protected User user;
 
     @Mock
-    protected UserService userService;
+    protected Group group;
 
     @Before
     public void setUp() throws Exception {
@@ -72,6 +79,7 @@ public class SCIMBaseTest extends OAuthBaseTest {
 
         configureBehaviorOfUserServiceMock();
         configureBehaviorOfUserMock();
+        configureBehaviorOfGroupMock();
 
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
@@ -81,12 +89,17 @@ public class SCIMBaseTest extends OAuthBaseTest {
 
     protected void configureBehaviorOfUserServiceMock() {
         when(userService.createSCIMUser(any(String.class), any(String.class), any(String.class))).thenReturn(user);
+        when(userService.createSCIMGroup(any(String.class), any(String.class), any(String.class))).thenReturn(group);
         when(userService.findUserByExternalId(any(String.class))).thenReturn(Optional.empty());
         when(userService.findUserByExternalId(Matchers.same("1"))).thenReturn(Optional.of(user));
+        when(userService.findGroupByExternalId(any(String.class))).thenReturn(Optional.empty());
+        when(userService.findGroupByExternalId(Matchers.same("1"))).thenReturn(Optional.of(group));
+        when(userService.getGroupMembers(any(String.class))).thenReturn(new ArrayList<>());
     }
 
     protected void configureBehaviorOfUserMock() {
         when(user.getId()).thenReturn(1L);
+        when(user.getExternalId()).thenReturn("1");
         when(user.getName()).thenReturn("TEST_USERNAME");
         when(user.getCreationDate()).thenReturn(Instant.now());
         when(user.getModifiedDate()).thenReturn(Instant.now());
@@ -94,6 +107,15 @@ public class SCIMBaseTest extends OAuthBaseTest {
         when(user.getLocale()).thenReturn(Optional.of(Locale.US));
         when(user.getLanguage()).thenReturn(Locale.US.toLanguageTag());
         when(user.getStatus()).thenReturn(true);
+    }
+
+    private void configureBehaviorOfGroupMock() {
+        when(group.getId()).thenReturn(1L);
+        when(group.getExternalId()).thenReturn("1");
+        when(group.getName()).thenReturn("TEST_GROUP_DISPLAY_NAME");
+        when(group.getCreationDate()).thenReturn(Instant.now());
+        when(group.getModifiedDate()).thenReturn(Instant.now());
+        when(group.getVersion()).thenReturn(1L);
     }
 
     protected UserSchema createUserWithinConnexoWithAttributeValues() {
@@ -140,14 +162,25 @@ public class SCIMBaseTest extends OAuthBaseTest {
         return userSchema;
     }
 
+    protected GroupSchema createGroupSchemaForGroupMock() {
+        final GroupSchema groupSchema = new GroupSchema();
+        groupSchema.setSchemas(new String[]{SchemaType.GROUP_SCHEMA.getId()});
+        groupSchema.setExternalId("1");
+        groupSchema.setId("1");
+        groupSchema.setMeta(null);
+        groupSchema.setDisplayName("TEST_GROUP_DISPLAY_NAME");
+        groupSchema.setMembers(new String[]{UUID.randomUUID().toString()});
+        return groupSchema;
+    }
+
     protected GroupSchema createGroupSchemaWithRandomAttributeValues() {
         final GroupSchema groupSchema = new GroupSchema();
-        groupSchema.setSchemas(new String[]{SchemaType.USER_SCHEMA.getId()});
+        groupSchema.setSchemas(new String[]{SchemaType.GROUP_SCHEMA.getId()});
         groupSchema.setExternalId("1");
         groupSchema.setId(null);
         groupSchema.setMeta(null);
         groupSchema.setDisplayName("TEST_GROUP_DISPLAY_NAME");
-        groupSchema.setMembers(new String[]{UUID.randomUUID().toString()});
+        groupSchema.setMembers(new String[]{});
         return groupSchema;
     }
 }

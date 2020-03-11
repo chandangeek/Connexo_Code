@@ -1,5 +1,6 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim;
 
+import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.GroupSchema;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.UserSchema;
 
 /**
@@ -17,5 +18,13 @@ public interface SCIMService {
     UserSchema updateUser(UserSchema userSchema);
 
     void deleteUser(String id);
+
+    GroupSchema createGroup(GroupSchema groupSchema);
+
+    GroupSchema getGroup(String id);
+
+    GroupSchema updateGroup(GroupSchema groupSchema);
+
+    void deleteGroup(String id);
 
 }

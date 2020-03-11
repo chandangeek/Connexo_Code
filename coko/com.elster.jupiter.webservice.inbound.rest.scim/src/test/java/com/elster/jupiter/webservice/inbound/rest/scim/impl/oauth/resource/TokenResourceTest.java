@@ -4,6 +4,7 @@ import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenRespo
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -13,6 +14,7 @@ import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore
 public class TokenResourceTest extends OAuthBaseTest {
 
     @Test

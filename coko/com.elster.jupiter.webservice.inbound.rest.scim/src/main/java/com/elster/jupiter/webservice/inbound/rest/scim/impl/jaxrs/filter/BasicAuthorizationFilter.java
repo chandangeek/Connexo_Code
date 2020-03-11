@@ -14,6 +14,8 @@ import java.util.Base64;
 @TokenResourceOnlyFilter
 public class BasicAuthorizationFilter implements ContainerRequestFilter {
 
+    // TODO: Client Credentials will be passed from InboudEndpointConfiguration
+    // TODO: Currently underdevelopment
     protected static final byte[] CLIENT_CREDENTIALS = Base64.getEncoder().encode("enexis.password".getBytes());
 
     @Override

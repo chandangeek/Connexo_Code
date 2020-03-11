@@ -21,7 +21,6 @@
         <module>copa</module>
         <module>upl</module>
         <module>subsystems</module>
-        <module>coko/com.elster.jupiter.webservice.inbound.rest.scim</module>
     </modules>
 
     <organization>

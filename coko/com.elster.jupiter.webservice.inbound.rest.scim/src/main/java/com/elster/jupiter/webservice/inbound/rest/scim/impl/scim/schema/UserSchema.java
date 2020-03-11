@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 
 @XmlRootElement
-public class UserSchema extends BaseSchemaWithCommonAttributes {
+public class UserSchema extends BaseSchema {
 
     private String userName;
 

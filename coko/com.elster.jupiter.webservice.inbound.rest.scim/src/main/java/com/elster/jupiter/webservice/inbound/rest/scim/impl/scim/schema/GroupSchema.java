@@ -3,7 +3,7 @@ package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class GroupSchema extends BaseSchemaWithCommonAttributes {
+public class GroupSchema extends BaseSchema {
 
     private String displayName;
 
