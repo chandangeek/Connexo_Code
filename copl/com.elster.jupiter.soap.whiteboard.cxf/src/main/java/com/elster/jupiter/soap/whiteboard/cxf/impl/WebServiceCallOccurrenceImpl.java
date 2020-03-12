@@ -273,7 +273,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                     try (Connection connection = this.dataModel.getConnection(true)) {
                         SqlBuilder sqlBuilder = new SqlBuilder("BEGIN ");
                         sqlQueries.build().forEach(sqlBuilder::append);
-                        sqlBuilder.append( "END;");
+                        sqlBuilder.append(" END;");
                         try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                             statement.execute();
                         } catch (SQLException e) {
