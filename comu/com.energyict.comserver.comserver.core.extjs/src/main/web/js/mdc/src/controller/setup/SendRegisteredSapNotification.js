@@ -33,12 +33,14 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
         var sapEndpointData = Ext.create('Mdc.model.DeviceSendSapNotification')
-        Ext.create('Mdc.store.RegisteredNotificationEndpoints').load({
+        var endPointsStore = Ext.create('Mdc.store.RegisteredNotificationEndpoints');
+        endPointsStore.load({
 
             callback: function (records, operation, success) {
                 me.deviceId = router.arguments && router.arguments.deviceId ? router.arguments.deviceId : null;
                 var widget = Ext.widget('device-send-sap-notification',{
-                    deviceId: me.deviceId
+                    deviceId: me.deviceId,
+                    endPointsStore: endPointsStore
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('form').loadRecord(sapEndpointData);

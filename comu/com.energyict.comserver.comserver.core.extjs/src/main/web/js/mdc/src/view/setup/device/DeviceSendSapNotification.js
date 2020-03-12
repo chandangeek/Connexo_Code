@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.device.DeviceSendSapNotification', {
     width: 600,
     deviceId: null,
     store: 'Mdc.store.DeviceSendSapNotification',
+    endPointsStore: null,
 
     initComponent: function () {
         var me = this;
@@ -47,7 +48,7 @@ Ext.define('Mdc.view.setup.device.DeviceSendSapNotification', {
                                 valueField: 'id',
                                 queryMode: 'local',
                                 fieldLabel: Uni.I18n.translate('sap.webserviceendpoint', 'MDC', 'Web service endpoint'),
-                                store: 'Mdc.store.RegisteredNotificationEndpoints',
+                                store: me.endPointsStore,
                                 emptyText: Uni.I18n.translate('sap.selectwebserviceendpoint', 'MDC', 'Select a web service endpoint'),
                                 required: true,
                                 allowBlank: false
