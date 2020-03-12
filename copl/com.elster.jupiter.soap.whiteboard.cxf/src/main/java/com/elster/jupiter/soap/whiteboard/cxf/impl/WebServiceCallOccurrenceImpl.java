@@ -18,6 +18,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
@@ -26,7 +27,6 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -271,13 +271,14 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                 /* Create related attributes that hasn't been created yet */
                 transactionService.runInIndependentTransaction(() -> {
                     try (Connection connection = this.dataModel.getConnection(true)) {
-                        sqlQueries.build().forEach(sqlStatement -> {
-                            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-                                statement.execute();
-                            } catch (SQLException e) {
-                                throw new UnderlyingSQLFailedException(e);
-                            }
-                        });
+                        SqlBuilder sqlBuilder = new SqlBuilder("BEGIN ");
+                        sqlQueries.build().forEach(sqlBuilder::append);
+                        sqlBuilder.append( "END;");
+                        try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                            statement.execute();
+                        } catch (SQLException e) {
+                            throw new UnderlyingSQLFailedException(e);
+                        }
                     } catch (SQLException e) {
                         throw new UnderlyingSQLFailedException(e);
                     }
