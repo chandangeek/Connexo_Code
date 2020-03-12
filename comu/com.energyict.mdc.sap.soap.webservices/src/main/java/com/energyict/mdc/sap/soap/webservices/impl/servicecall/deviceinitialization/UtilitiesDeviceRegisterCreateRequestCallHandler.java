@@ -83,7 +83,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
         } catch (LocalizedException localizedEx) {
             failServiceCall(serviceCall, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
         } catch (Exception ex) {
-            failServiceCallWithException(extension, ex, MessageSeeds.ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST, ex.getLocalizedMessage());
+            failServiceCallWithException(serviceCall, ex, MessageSeeds.ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST, ex.getLocalizedMessage());
         }
     }
 
@@ -232,10 +232,6 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
 
     private void failServiceCall(UtilitiesDeviceRegisterCreateRequestDomainExtension extension, MessageSeed messageSeed, Object... args) {
         failServiceCall(extension.getServiceCall(), messageSeed, args);
-    }
-
-    private void failServiceCallWithException(UtilitiesDeviceRegisterCreateRequestDomainExtension extension, Exception exception, MessageSeed messageSeed, Object... args) {
-        failServiceCallWithException(extension.getServiceCall(), exception, messageSeed, args);
     }
 
     private Set<Channel> findChannelByObis(Device device, String obis, Pair<MacroPeriod, TimeAttribute> period) {
