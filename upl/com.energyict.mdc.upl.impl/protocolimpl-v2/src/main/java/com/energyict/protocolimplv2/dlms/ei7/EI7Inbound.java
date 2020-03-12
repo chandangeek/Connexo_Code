@@ -31,7 +31,6 @@ public class EI7Inbound extends A2Inbound {
     public DiscoverResultType doDiscovery() {
         if (isPushingCompactFrames()) {
             getParser().readAndParseInboundFrame();
-            return DiscoverResultType.DATA;
         }
         return super.doDiscovery();
     }
@@ -47,7 +46,7 @@ public class EI7Inbound extends A2Inbound {
 
     @Override
     public boolean hasSupportForRequestsOnInbound() {
-        return !pushingCompactFrames;
+        return true;
     }
 
     @Override
