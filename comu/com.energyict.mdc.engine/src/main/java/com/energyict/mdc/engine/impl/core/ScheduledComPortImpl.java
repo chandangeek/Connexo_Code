@@ -31,11 +31,14 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,6 +75,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private LoggerHolder loggerHolder;
     private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
+    private BlockingQueue excutableOutBoundComTaskPool = new LinkedBlockingQueue();
+
     ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(runningComServer, comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
     }
@@ -196,7 +201,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
     }
 
-
     protected void interrupt() {
         LOGGER.info("[" + Thread.currentThread().getName() + "] - sending interrupt request to [" + self.getName() + "]");
         self.interrupt();
@@ -277,13 +281,46 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         return now.until(nextExecutionMoment, ChronoUnit.MILLIS);
     }
 
+    @Override
+    public void addTaskToExecute(ComTaskExecution comTaskExecution) {
+        if (comTaskExecution != null) {
+            excutableOutBoundComTaskPool.offer(comTaskExecution);
+        }
+    }
+
+    private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {
+        // Zero is not allowed, i.e. rejected by the OutboundComPortImpl validation methods
+        if (comPort.getNumberOfSimultaneousConnections() == 1) {
+            return new SingleThreadedComJobFactory();
+        } else {
+            return new MultiThreadedComJobFactory(comPort.getNumberOfSimultaneousConnections());
+        }
+    }
+
+    private List<ComJob> getJobsToSchedule() {
+        int nrOfTaskToProcess = getComPort().getNumberOfSimultaneousConnections();
+        List<ComTaskExecution> tasks = new ArrayList<>(nrOfTaskToProcess);
+        excutableOutBoundComTaskPool.drainTo(tasks, nrOfTaskToProcess);
+        List<ComJob> jobs;
+        if (tasks.size() > 0) {
+            LOGGER.info("CXO-11783: Fetch data from pool counted as:" + tasks.size());
+            LOGGER.info("CXO-11783: " + getComPort().getName() + "- PoolSize after fetch:" + excutableOutBoundComTaskPool.size());
+            ComJobFactory comJobFactory = getComJobFactoryFor(getComPort());
+            jobs = comJobFactory.consume(tasks.iterator());
+        } else {
+            LOGGER.info("CXO-11783: Fetch data from DB");
+            jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
+        }
+        return jobs;
+    }
+
     final void executeTasks() {
         int storeTaskQueueLoadPercentage = deviceCommandExecutor.getCurrentLoadPercentage();
         if (storeTaskQueueLoadPercentage < 100) {
             getLogger().lookingForWork(getThreadName());
             LOGGER.warning("perf - [" + Thread.currentThread().getName() + "] looking for work");
             long start = System.currentTimeMillis();
-            List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
+            List<ComJob> jobs = getJobsToSchedule();
             queriedForTasks();
             scheduleAll(jobs, start);
         } else {

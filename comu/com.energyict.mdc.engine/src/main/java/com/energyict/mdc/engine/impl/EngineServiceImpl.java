@@ -73,6 +73,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Longs;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.Bundle;
@@ -112,13 +113,17 @@ import static com.elster.jupiter.orm.Version.version;
                 "osgi.command.function=stopComServer",
                 "osgi.command.function=lcs",
                 "osgi.command.function=scs"},
-                immediate = true)
+        immediate = true)
 public class EngineServiceImpl implements ServerEngineService, TranslationKeyProvider, MessageSeedProvider {
 
     private static final Logger LOGGER = Logger.getLogger(EngineService.class.getName());
     public static final String COMSERVER_USER = "comserver";
     public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
     public static final String ADAPTIVE_QUERY_PROPERTY = "com.elster.jupiter.adaptive.query";
+    public static final String PREFETCH_COMTASK_TIME_DELTA_PROPERTY = "com.elster.jupiter.prefetch.comtask.time.delta.sec";
+    public static final String PREFETCH_COMTASK_DELAY_PROPERTY = "com.elster.jupiter.prefetch.comtask.delay.sec";
+    public static final String PREFETCH_COMTASK_LIMIT_PROPERTY = "com.elster.jupiter.prefetch.comtask.limit";
+    public static final String PREFETCH_COMTASK_BALANCED_PROPERTY = "com.elster.jupiter.prefetch.comtask.balanced";
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -514,7 +519,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        try{
+        try {
             this.bundleContext = bundleContext;
             dataModel.register(this.getModule());
             upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
@@ -528,11 +533,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             ComServerAliveLoopImpl comServerAliveLoop = new ComServerAliveLoopImpl(clock, engineConfigurationService, statusService, transactionService);
             register(comServerAliveLoop);
             comServerAliveLoop.run();
-        } catch(Exception e) {
+        } catch (Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
             // componentContext.disableComponent(componentContext.getBundleContext().getProperty(Constants.SERVICE_PID));
-            if (launcher != null){
-                if (launcher.isStarted()){
+            if (launcher != null) {
+                if (launcher.isStarted()) {
                     launcher.stopComServer();
                 }
                 this.launcher = null;
@@ -564,15 +569,15 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
     }*/
 
-    private void setEngineProperty(String key, String value){
+    private void setEngineProperty(String key, String value) {
         if (value != null) {
             this.engineProperties.setProperty(key, value);
-        }else{
+        } else {
             this.engineProperties.remove(key);
         }
     }
 
-    private String getEngineProperty(String key){
+    private String getEngineProperty(String key) {
         return this.engineProperties.getProperty(key);
     }
 
@@ -654,7 +659,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             if (bundleContext != null) {
                 ClassLoader original = Thread.currentThread().getContextClassLoader();
                 Bundle bundleJetty = getJettyBundle(bundleContext);
-                if(bundleJetty != null) {
+                if (bundleJetty != null) {
                     ClassLoader jettyClassLoader = bundleJetty.adapt(BundleWiring.class).getClassLoader();
                     Thread.currentThread().setContextClassLoader(jettyClassLoader);
                 }
@@ -665,14 +670,14 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
     }
 
-    public Bundle getJettyBundle(BundleContext bundleContext){
-        for (Bundle bundle:bundleContext.getBundles()){
+    public Bundle getJettyBundle(BundleContext bundleContext) {
+        for (Bundle bundle : bundleContext.getBundles()) {
             String bundleName = bundle.getSymbolicName();
             if (!Strings.isNullOrEmpty(bundleName) && bundleName.equals("org.apache.felix.http.jetty")) {
-                return  bundle;
+                return bundle;
             }
         }
-        return  null;
+        return null;
     }
 
 
@@ -701,7 +706,37 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         return property != null && property.trim().toLowerCase().equals("true");
     }
 
-//    @Override
+    @Override
+    public long getPrefetchComTaskTimeDelta() {
+        return Optional.ofNullable(bundleContext.getProperty(PREFETCH_COMTASK_TIME_DELTA_PROPERTY))
+                .map(Longs::tryParse)
+                .filter(value -> value >= 0)
+                .orElse(300L);
+    }
+
+    @Override
+    public long getPrefetchComTaskDelay() {
+        return Optional.ofNullable(bundleContext.getProperty(PREFETCH_COMTASK_DELAY_PROPERTY))
+                .map(Longs::tryParse)
+                .filter(value -> value >= 0)
+                .orElse(300L);
+    }
+
+    @Override
+    public long getPrefetchComTaskLimit() {
+        return Optional.ofNullable(bundleContext.getProperty(PREFETCH_COMTASK_LIMIT_PROPERTY))
+                .map(Longs::tryParse)
+                .filter(value -> value >= 0)
+                .orElse(500L);
+    }
+
+    @Override
+    public boolean isPrefetchBalanced() {
+        String property = bundleContext.getProperty(PREFETCH_COMTASK_BALANCED_PROPERTY);
+        return property != null && property.trim().toLowerCase().equals("true");
+    }
+
+    //    @Override
 //    public OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder() {
 //        return dataModel.getInstance(OnlineComServerImpl.OnlineComServerBuilderImpl.class);
 //    }
@@ -918,7 +953,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+        public DeviceMessageSpecificationService deviceMessageSpecificationService() {
             return deviceMessageSpecificationService;
         }
 
