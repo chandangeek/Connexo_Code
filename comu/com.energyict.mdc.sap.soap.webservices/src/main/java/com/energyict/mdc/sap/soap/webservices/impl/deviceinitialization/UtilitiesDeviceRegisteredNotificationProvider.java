@@ -85,11 +85,11 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     public void addWebServiceActivator(WebServiceActivator webServiceActivator) {
-        webServiceActivator = webServiceActivator;
+        this.webServiceActivator = webServiceActivator;
     }
 
     public void removeWebServiceActivator(WebServiceActivator webServiceActivator) {
-        webServiceActivator = null;
+        this.webServiceActivator = null;
     }
 
     @Reference
