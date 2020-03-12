@@ -63,15 +63,15 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         this();
         setClock(clock);
         setSAPCustomPropertySets(sapCustomPropertySets);
-        addWebServiceActivator(webServiceActivator);
+        setWebServiceActivator(webServiceActivator);
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
-    public void addWebServiceActivator(WebServiceActivator webServiceActivator) {
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
     }
 
-    public void removeWebServiceActivator(WebServiceActivator webServiceActivator) {
+    public void unsetWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = null;
     }
 
