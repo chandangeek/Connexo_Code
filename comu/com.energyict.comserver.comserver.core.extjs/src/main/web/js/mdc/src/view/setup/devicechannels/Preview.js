@@ -11,6 +11,8 @@ Ext.define('Mdc.view.setup.devicechannels.Preview', {
         'Mdc.view.setup.devicechannels.ActionMenu'
     ],
     layout: 'fit',
+    autoScroll : true,
+    minWidth: 900,
     frame: true,
     device: null,
     router: null,
@@ -31,7 +33,8 @@ Ext.define('Mdc.view.setup.devicechannels.Preview', {
         me.items = {
             xtype: 'deviceLoadProfileChannelsPreviewForm',
             router: me.router,
-            device: me.device
+            device: me.device,
+            overflow:'auto'
         };
 
         me.callParent(arguments);

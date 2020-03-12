@@ -157,6 +157,7 @@ public interface UserService {
     void saveResourceWithPrivileges(String moduleName, String name, String description, String[] privileges);
 
     Optional<User> getLoggedInUser(long userId);
+    Optional<User> getLoggedInUserFromCache(long userId);
 
     void addLoggedInUser(User user);
 

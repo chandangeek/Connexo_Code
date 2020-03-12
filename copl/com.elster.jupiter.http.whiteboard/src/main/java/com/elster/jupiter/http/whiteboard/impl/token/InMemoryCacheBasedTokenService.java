@@ -5,6 +5,7 @@ import com.elster.jupiter.http.whiteboard.impl.RoleClaimInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.nimbusds.jose.JOSEException;
@@ -59,6 +60,7 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
     private static final String ISSUER_NAME = "Elster Connexo";
 
     private volatile UserService userService;
+    private volatile BlackListTokenService blackListTokenService;
 
     private volatile Cache<UUID, UserJWT> CASHE;
 
@@ -157,9 +159,14 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
                 && verifyIfUserHasUsetJWTInCache(user, UUID.fromString(jwtClaimsSet.getJWTID()))
                 && verifyJWTSignature(signedJWT)
                 && verifyJWTIssuer(jwtClaimsSet.getIssuer())
-                && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime());
+                && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime())
+                && verifyBlackList(jwtClaimsSet.getSubject(), signedJWT.serialize());
 
         return new TokenValidation(result, user, signedJWT.serialize());
+    }
+
+    private boolean verifyBlackList(final String userId, final String token) {
+        return !blackListTokenService.findToken(Long.parseLong(userId), token).isPresent();
     }
 
     private boolean verifyIfUserHasUsetJWTInCache(final User user, final UUID jwtId) {
@@ -239,5 +246,10 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setBlackListTokenService(BlackListTokenService blackListTokenService) {
+        this.blackListTokenService = blackListTokenService;
     }
 }

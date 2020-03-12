@@ -50,7 +50,7 @@ Ext.define('Scs.view.PreviewForm', {
                         router: me.router,
                         renderer: function (value) {
                             if (value.name) {
-                                return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '">' + value.name + '</a>';
+                                return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '/">' + value.name + '</a>';
                             }
                             return '-'
                         }
@@ -239,7 +239,7 @@ Ext.define('Scs.view.PreviewForm', {
                 style: {
                     overflow: 'visible'
                 },
-                labelWidth: 250
+                labelWidth: 300
             });
             propertyForm = Ext.create('Uni.property.form.Property', {
                 isEdit: false,
@@ -248,7 +248,7 @@ Ext.define('Scs.view.PreviewForm', {
                     style: {'word-break': 'break-all'},
                     layout: 'fit',
                     resetButtonHidden: true,
-                    labelWidth: 250
+                    labelWidth: 300
                 }
             });
             propertyForm.loadRecord(record.customPropertySets().getAt(i));

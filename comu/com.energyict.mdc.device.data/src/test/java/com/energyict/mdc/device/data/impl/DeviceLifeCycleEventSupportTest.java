@@ -8,6 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.Meter;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
@@ -61,6 +62,8 @@ public class DeviceLifeCycleEventSupportTest {
     private ProtocolDialectProperties protocolDialectProperties;
     @Mock
     private DeviceMessage deviceMessage;
+    @Mock
+    private Meter meter;
 
     @Before
     public void initializeMocks() {
@@ -81,6 +84,8 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.otherFiniteStateMachine.getState(anyString())).thenReturn(Optional.empty());
         when(this.otherFiniteStateMachine.getState(STATE_NAME)).thenReturn(Optional.of(this.otherState));
         when(this.device.getName()).thenReturn(DEVICE_NAME);
+        when(this.device.getMeter()).thenReturn(this.meter);
+        when(this.device.getMeter().getId()).thenReturn(DEVICE_ID);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.device.getState()).thenReturn(this.state);
         when(this.comTaskExecution.getDevice()).thenReturn(this.device);

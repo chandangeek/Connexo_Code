@@ -19,7 +19,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
@@ -201,7 +201,7 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
                         this.registerMap.put(register,
                                 new DLMSAttribute(
                                         getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
-                                        MbusClientAttributes.STATUS.getAttributeNumber(),
+                                        MBusClientAttributes.STATUS.getAttributeNumber(),
                                         DLMSClassId.MBUS_CLIENT.getClassId()
                                 )
                         );
@@ -210,7 +210,7 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
                         this.registerMap.put(register,
                                 new DLMSAttribute(
                                         getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
-                                        MbusClientAttributes.ALARM.getAttributeNumber(),
+                                        MBusClientAttributes.ALARM.getAttributeNumber(),
                                         DLMSClassId.MBUS_CLIENT.getClassId()
                                 )
                         );

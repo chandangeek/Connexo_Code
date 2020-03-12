@@ -5,6 +5,10 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -23,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -36,13 +41,15 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
+    private final MessageService messageService;
 
     @Inject
-    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
+    public Installer(DataModel dataModel, EventService eventService, UserService userService, MessageService messageService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
+        this.messageService = messageService;
     }
 
     @Override
@@ -50,6 +57,22 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         createEventTypes();
         userService.addModulePrivileges(this);
+
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
+        try {
+            destinationSpec.subscribe(
+                    TranslationKeys.DEVICE_TYPES_CHANGES_EVENT_SUBSC,
+                    DeviceConfigurationService.COMPONENTNAME,
+                    Layer.DOMAIN,
+                    whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/CREATED")
+                            .or(whereCorrelationId().isEqualTo("com/elster/jupiter/metering/enddeviceevent/CREATED"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/DELETED"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/dlc/UPDATED"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/lifecycle/config/dlc/update"))
+                            .or(whereCorrelationId().isEqualTo("com/elster/jupiter/fsm/UPDATED")));
+        } catch (DuplicateSubscriberNameException e) {
+            // subscriber already exists, ignoring
+        }
     }
 
     private void createEventTypes() {

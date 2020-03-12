@@ -334,6 +334,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(PreparedStatement statement) throws SQLException {
         Map<Long, Map<CompletionCode, Long>> counters = new HashMap<>();
         try (ResultSet resultSet = statement.executeQuery()) {
+            resultSet.setFetchSize(SqlBuilder.FETCH_SIZE);
             while (resultSet.next()) {
                 long businessObjectId = resultSet.getLong(1);
                 int completionCodeOrdinal = resultSet.getInt(2);

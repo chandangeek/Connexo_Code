@@ -44,7 +44,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -110,6 +110,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
+                    getProtocol().journal("Message is not supported or configured serial number does not match with device reported serial number.");
                 }
             } catch (IOException e) {
                 if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession().getProperties().getRetries() + 1)) {
@@ -129,6 +130,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
         collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
+        getProtocol().journal("Message is not supported or configured serial number does not match with device reported serial number.");
         return collectedMessage;
     }
 
@@ -138,6 +140,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
         collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
+        getProtocol().journal("Message is not supported or configured serial number does not match with device reported serial number.");
         return collectedMessage;
     }
 
@@ -173,10 +176,6 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
 
     private void doDecommission(OfflineDeviceMessage pendingMessage) throws IOException {
         getMBusClient(pendingMessage.getDeviceSerialNumber()).deinstallSlave();
-    }
-
-    protected void setCryptoserverMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new IOException("Received message to renew MBus keys using the Cryptoserver, but Cryptoserver usage is not supported in this protocol");
     }
 
     protected void setMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -228,8 +227,8 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
             String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
             String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getValue();
-            Date fromDate = new Date(Long.valueOf(fromDateEpoch));
-            Date toDate = new Date(Long.valueOf(toDateEpoch));
+            Date fromDate = new Date(Long.parseLong(fromDateEpoch));
+            Date toDate = new Date(Long.parseLong(toDateEpoch));
             SimpleDateFormat formatter = AbstractMessageConverter.dateTimeFormatWithTimeZone;
             String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", formatter.format(fromDate), formatter.format(toDate), loadProfileContent);
 
@@ -239,7 +238,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
             fullLpr = checkLoadProfileReader(fullLpr, builder.getMeterSerialNumber());
-            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
+            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -252,7 +251,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                 }
             }
 
-            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
+            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Collections.singletonList(fullLpr));
             CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0), fullLpr);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
             return collectedMessage;
@@ -283,8 +282,8 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
     protected CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
         String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
-        String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage("LoadProfileRegister", "fromDate", loadProfileContent);
-        Date fromDate = new Date(Long.valueOf(fromDateEpoch));
+        Date fromDate = new Date(Long.parseLong(fromDateEpoch));
+        String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage("LoadProfileRegister", AbstractMessageConverter.dateTimeFormatWithTimeZone.format(fromDate), loadProfileContent);
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
@@ -296,7 +295,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
-            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
+            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -309,7 +308,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                 }
             }
 
-            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
+            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Collections.singletonList(fullLpr));
 
             CollectedLoadProfile collectedLoadProfile = loadProfileData.get(0);
             IntervalData intervalDatas = null;

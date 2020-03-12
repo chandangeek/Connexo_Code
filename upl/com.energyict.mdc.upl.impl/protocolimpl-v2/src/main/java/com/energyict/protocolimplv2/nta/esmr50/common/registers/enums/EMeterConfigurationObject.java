@@ -4,8 +4,6 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.Structure;
 
-import java.util.Iterator;
-
 /**
  * Created by iulian on 8/27/2016.
  */
@@ -47,7 +45,6 @@ public class EMeterConfigurationObject {
     private String decodeFlags(BitString flags) {
         StringBuilder sb = new StringBuilder();
         int b = flags.getNrOfBits()-1;
-        Iterator<Boolean> iterator = flags.iterator();
         while (b >= 0){
             boolean bit = flags.get(b);
 

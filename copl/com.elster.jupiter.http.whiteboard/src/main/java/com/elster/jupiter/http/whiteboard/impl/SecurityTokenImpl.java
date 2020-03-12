@@ -6,9 +6,12 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListToken;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -137,8 +140,42 @@ public class SecurityTokenImpl {
         this.eventService = eventService;
     }
 
-    public TokenValidation verifyToken(String token, UserService userService, String ipAddr) {
+    class TokenValidation {
+        private final boolean valid;
+        private final User user;
+        private final String token;
+
+        TokenValidation(boolean valid, User user, String token) {
+            this.valid = valid;
+            this.user = user;
+            this.token = token;
+        }
+
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public Optional<User> getUser() {
+            if (isValid()) {
+                return Optional.ofNullable(user);
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        public String getToken() {
+            if (valid) {
+                return token;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public TokenValidation verifyToken(String token, UserService userService, String ipAddr, BlackListTokenService blackListTokenService) {
         Optional<User> user = Optional.empty();
+        Optional<User> logoutUser = Optional.empty();
         try {
             Optional<SignedJWT> signedJWT = checkTokenIntegrity(token, ipAddr);
 
@@ -146,6 +183,15 @@ public class SecurityTokenImpl {
                     .getJWTClaimsSet()
                     .getCustomClaim("cnt") < maxTokenCount) {
                 long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
+
+                logoutUser = userService.getLoggedInUserFromCache(userId);
+                if(!logoutUser.isPresent()){
+                    Optional<BlackListToken> bltoken = blackListTokenService.findToken(userId, token);
+                    if(bltoken.isPresent()){
+                        logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
+                        return new TokenValidation(false, null, null);
+                    }
+                }
                 user = userService.getLoggedInUser(userId);
 
                 if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {

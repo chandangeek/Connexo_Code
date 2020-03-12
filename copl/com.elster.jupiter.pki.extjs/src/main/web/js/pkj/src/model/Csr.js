@@ -12,7 +12,10 @@ Ext.define('Pkj.model.Csr', {
         'O',
         'L',
         'ST',
-        'C'
+        'C',
+        'caName',
+        'endEntityName',
+        'certificateProfileName'
     ],
 
     proxy: {

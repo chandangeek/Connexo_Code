@@ -16,12 +16,16 @@ import com.elster.jupiter.http.whiteboard.impl.token.UserJWT;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListToken;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.nimbusds.jose.JOSEException;
@@ -33,6 +37,7 @@ import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -65,7 +70,9 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.Checks.is;
 
-@Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService", property = {"name=" + BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"}, immediate = true, service = {HttpAuthenticationService.class})
+@Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
+        property = {"name=" + BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
+        immediate = true, service = {HttpAuthenticationService.class})
 public final class BasicAuthentication implements HttpAuthenticationService {
 
     public static final String COMPONENT_NAME = "HTW";
@@ -77,14 +84,25 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     // Resources used by the login page so access is required before authenticating
     private static final String[] RESOURCES_NOT_SECURED = {
             // Anything below will only be used in development.
-            "/apps/sky/", "/apps/uni/", "/apps/ext/", "/api/apps/security/acs", "/api/apps/saml/v2/logout"};
+            "/apps/sky/",
+            "/apps/uni/",
+            "/apps/ext/",
+            "/api/apps/security/acs",
+            "/api/apps/saml/v2/logout"
+    };
 
     // No caching for index.html files, so that authentication will be verified first;
     // Note that resources used in these files are still cached
-    private static final String[] RESOURCES_NOT_CACHED = {"index.html", "index-dev.html"};
+    private static final String[] RESOURCES_NOT_CACHED = {
+            "index.html",
+            "index-dev.html"
+    };
 
     // Rest resources return UNAUTHORIZED rather than redirecting to the login page
-    private static final String[] RESOURCES_UNAUTHORIZED = {"/api/", "/public/api/"};
+    private static final String[] RESOURCES_UNAUTHORIZED = {
+            "/api/",
+            "/public/api/"
+    };
 
     private static final String SSO_ENABLED_PROPERTY = "sso.enabled";
     private static final String SSO_IDP_ENDPOINT_PROPERTY = "sso.idp.endpoint";
@@ -106,6 +124,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile MessageService messageService;
     private volatile SamlRequestService samlRequestService;
     private volatile TokenService<UserJWT> tokenService;
+    private volatile BlackListTokenService blackListTokenService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -121,12 +140,16 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> ssoAdminUser;
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService, BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
+                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService) throws
+            InvalidKeySpecException,
+            NoSuchAlgorithmException {
         setUserService(userService);
         setOrmService(ormService);
         setDataVaultService(dataVaultService);
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
+        setBlackListdTokenService(blackListTokenService);
         activate(context);
     }
 
@@ -183,6 +206,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     @Reference
+    public void setBlackListdTokenService(BlackListTokenService blackListdTokenService) {
+        this.blackListTokenService = blackListdTokenService;
+    }
+
+    @Reference
     public void setTokenService(TokenService<UserJWT> tokenService) {
         this.tokenService = tokenService;
     }
@@ -198,6 +226,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(BlackListTokenService.class).toInstance(blackListTokenService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
                 bind(TokenService.class).toInstance(tokenService);
             }
@@ -422,6 +451,17 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (logoutParameter instanceof User) {
             //the eventService is sent ONLY if the Object is an instance of User class,
             postWhiteboardEvent(WhiteboardEvent.LOGOUT.topic(), new LocalEventUserSource((User) logoutParameter));
+            blackListToken(((User) logoutParameter).getId(), tokenCookie.get().getValue());
+        }
+    }
+
+    private void blackListToken(long userId, String cookieValue) {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            BlackListTokenService.BlackListTokenBuilder blackListTokenBuilder = blackListTokenService.getBlackListTokenService();
+            blackListTokenBuilder.setUerId(userId);
+            blackListTokenBuilder.setToken(cookieValue);
+            blackListTokenBuilder.save();
+            transactionContext.commit();
         }
     }
 
@@ -450,8 +490,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
-//        TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
-//                .getRemoteAddr());
         TokenValidation validation = null;
         try {
             validation = tokenService.validateSignedJWT(SignedJWT.parse(tokenCookie.getValue()));

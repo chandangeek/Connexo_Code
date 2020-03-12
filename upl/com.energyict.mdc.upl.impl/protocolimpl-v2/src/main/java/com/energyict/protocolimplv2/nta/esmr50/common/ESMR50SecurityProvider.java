@@ -8,7 +8,7 @@ public class ESMR50SecurityProvider extends Dsmr40SecurityProvider {
      * Create a new instance of LocalSecurityProvider
      *
      * @param properties - contains the keys for the authentication/encryption
-     * @param authenticationLevel
+     * @param authenticationLevel integer representing the configured authentication level
      */
     public ESMR50SecurityProvider(com.energyict.mdc.upl.TypedProperties properties, int authenticationLevel) {
         super(properties, authenticationLevel);

@@ -12,6 +12,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.BusinessDocumentMessageID;
@@ -53,7 +54,7 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
 
     private void handleMessage(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
         LocationMessage locationMsg = new LocationMessage(msg);
-        saveRelatedAttribute( SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), locationMsg.deviceId);
+        saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), locationMsg.deviceId);
         if (locationMsg.isValid()) {
             Optional<Device> device = sapCustomPropertySets.getDevice(locationMsg.deviceId);
             if (device.isPresent()) {
@@ -66,11 +67,13 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
                 log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(locationMsg.deviceId));
             }
         } else {
-            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(locationMsg.getMissingFields()));
         }
     }
 
-    private class LocationMessage {
+    private class LocationMessage extends AbstractSapMessage {
+        private static final String LOCATION_ID_XML_NAME = "InstallationPointID";
+
         private String requestId;
         private String uuid;
         private String deviceId;
@@ -81,10 +84,15 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
             uuid = getUuid(msg);
             deviceId = getDeviceId(msg);
             locationId = getLocationId(msg);
-        }
-
-        private boolean isValid() {
-            return (requestId != null || uuid != null) && deviceId != null && locationId != null;
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (deviceId == null) {
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
+            }
+            if (locationId == null) {
+                addMissingField(LOCATION_ID_XML_NAME);
+            }
         }
 
         private String getRequestId(UtilsDvceERPSmrtMtrLocNotifMsg msg) {

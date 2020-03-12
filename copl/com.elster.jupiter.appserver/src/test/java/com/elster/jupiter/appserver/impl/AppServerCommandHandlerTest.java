@@ -248,9 +248,9 @@ public class AppServerCommandHandlerTest {
         ArgumentCaptor<String> msg = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<LogLevel> logLevelArgumentCaptor = ArgumentCaptor.forClass(LogLevel.class);
 
-        verify(deletedEndPointConfiguration).log(logLevelArgumentCaptor.capture(), msg.capture());
-        assertThat(msg.getValue()).startsWith("Stopping");
-        assertThat(logLevelArgumentCaptor.getValue()).isEqualTo(LogLevel.FINE);
+        verify(deletedEndPointConfiguration, never()).log(logLevelArgumentCaptor.capture(), msg.capture());
+        verify(webServicesService).removeEndPoint(deletedEndPointConfiguration);
+
         verify(webServicesService, never()).publishEndPoint(endPointConfiguration1);
         verify(webServicesService, never()).removeEndPoint(endPointConfiguration1);
         verify(webServicesService, never()).publishEndPoint(endPointConfiguration2);

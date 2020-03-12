@@ -25,6 +25,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
@@ -79,6 +80,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile Thesaurus thesaurus;
     private volatile BundleContext bundleContext;
     private volatile SamlResponseService samlResponseService;
+    private volatile BlackListTokenService blackListTokenService;
     private volatile TokenService<UserJWT> tokenService;
     private volatile SAMLSingleLogoutService samlSingleLogoutService;
 
@@ -97,11 +99,12 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Inject
     WhiteBoardImpl(BundleContext bundleContext, TransactionService transactionService, QueryService queryService,
-                   HttpAuthenticationService httpAuthenticationService) {
+                   HttpAuthenticationService httpAuthenticationService, BlackListTokenService blackListTokenService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
         setHttpAuthenticationService(httpAuthenticationService);
+        setBlackListTokenService(blackListTokenService);
         activate(bundleContext, null);
     }
 
@@ -153,6 +156,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     @Reference
     public void setSamlResponseService(SamlResponseService samlResponseService) {
         this.samlResponseService = samlResponseService;
+    }
+
+    @Reference
+    public void setBlackListTokenService(BlackListTokenService blackListTokenService){
+        this.blackListTokenService = blackListTokenService;
     }
 
     @Reference
@@ -248,6 +256,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 this.bind(samlResponseService).to(SamlResponseService.class);
                 this.bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
                 this.bind(thesaurus).to(Thesaurus.class);
+                this.bind(blackListTokenService).to(BlackListTokenService.class);
                 this.bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);
                 this.bind(tokenService).to(TokenService.class);
             }

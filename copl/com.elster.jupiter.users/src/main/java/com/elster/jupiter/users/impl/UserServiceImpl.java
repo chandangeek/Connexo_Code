@@ -804,6 +804,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public Optional<User> getLoggedInUserFromCache(long userId) {
+        return loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
+    }
+
+    @Override
     public void addLoggedInUser(User user) {
         if (!loggedInUsers.contains(user)) {
             loggedInUsers.add(user);

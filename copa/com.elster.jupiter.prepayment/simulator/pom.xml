@@ -8,14 +8,14 @@
 
     <properties>
         <revision>-SNAPSHOT</revision>
-        <jetty.version>9.4.15.v20190215</jetty.version>
+        <jetty.version>9.4.26.v20200117</jetty.version>
         <jersey.version>2.13</jersey.version>
     </properties>
 
     <parent>
         <groupId>com.energyict</groupId>
 		<artifactId>prepayment</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
     </parent>
 
     <artifactId>prepayment.simulator</artifactId>

@@ -3,6 +3,7 @@ package com.elster.jupiter.http.whiteboard;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 

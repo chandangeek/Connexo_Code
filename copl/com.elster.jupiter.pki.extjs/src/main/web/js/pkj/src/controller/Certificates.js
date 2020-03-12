@@ -17,7 +17,11 @@ Ext.define('Pkj.controller.Certificates', {
     stores: [
         'Pkj.store.Certificates',
         'Pkj.store.KeyEncryptionMethods',
-        'Pkj.store.CertificateTypes'
+        'Pkj.store.CertificateTypes',
+        'Pkj.store.EJBCAEndEntities',
+        'Pkj.store.EJBCACaNames',
+        'Pkj.store.EJBCACertProfiles'
+
     ],
     models: [
         'Pkj.model.Certificate',
@@ -163,6 +167,7 @@ Ext.define('Pkj.controller.Certificates', {
             typeCombo = widget.down('#pkj-csr-add-form-certificate-type-combo'),
             keyEncryptionMethodsStore = Ext.getStore('Pkj.store.KeyEncryptionMethods'),
             typesStore = Ext.getStore('Pkj.store.CertificateTypes'),
+
             onEncryptionMethodsLoaded = function(store, records, successful) {
                 if (successful && store.getCount()===1) {
                     csrRecord2Load.keyTypeId = store.getAt(0).get('id');

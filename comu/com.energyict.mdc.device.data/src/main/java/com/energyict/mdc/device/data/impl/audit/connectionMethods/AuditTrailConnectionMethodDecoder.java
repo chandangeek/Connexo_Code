@@ -66,7 +66,9 @@ public class AuditTrailConnectionMethodDecoder extends AbstractCPSAuditDecoder {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         connectionTask
                 .map(ct -> {
-                    builder.put("name", ct.getName());
+                    String name = ct.getName();
+                    if (name != null)
+                        builder.put("name", name);
                     return builder;
          });
         return builder.build();

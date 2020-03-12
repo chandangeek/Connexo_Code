@@ -10,7 +10,9 @@ Ext.define('Idv.view.Detail', {
         'Idv.view.DetailForm',
         'Isu.view.issues.CommentsList',
         'Uni.view.toolbar.PreviousNextNavigation',
-        'Idv.view.NonEstimatedDataGrid'
+        'Idv.view.NonEstimatedDataGrid',
+        'Bpm.monitorissueprocesses.view.ProcessList',
+        'Uni.view.toolbar.PreviousNextNavigation'
     ],
     router: null,
     issuesListLink: null,
@@ -56,8 +58,52 @@ Ext.define('Idv.view.Detail', {
                 router: me.router
             },
             {
-                xtype: 'issue-comments',
-                itemId: 'data-validation-issue-comments'
+                xtype: 'panel',
+                ui: 'medium',
+                title: Uni.I18n.translate('issue.workspace.datacollection.context', 'IDV', 'Contextual information'),
+                items: [
+                    {
+                        xtype: 'tabpanel',
+                        itemId: 'tab-issue-context',
+                        activeTab: 0,
+                        items: [
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.datacollection.timeline', 'IDV', 'Timeline'),
+                                itemId: 'tab-panel-issue-timeline',
+                                items: [
+                                    {
+                                        xtype: 'issue-timeline',
+                                        itemId: 'data-validation-issue-timeline'
+                                    }
+                                ]
+                            },
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.datacollection.comments', 'IDV', 'Comments'),
+                                itemId: 'tab-panel-issue-comments',
+                                items: [
+                                    {
+                                        xtype: 'issue-comments',
+                                        itemId: 'data-validation-issue-comments'
+                                    }
+                                ]
+                            },
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.datacollection.processes', 'IDV', 'Processes'),
+                                itemId: 'tab-panel-issue-processes',
+                                privileges: Isu.privileges.Issue.canViewProcesses(),
+                                items: [
+                                    {
+                                        xtype: 'issue-process-list',
+                                        itemId: 'data-validation-issue-process'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             }
         ];
 

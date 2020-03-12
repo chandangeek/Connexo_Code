@@ -253,5 +253,4 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     private RangeSet<Version> intersectWithTable(RangeSet<Version> set) {
         return intersection(table.get().getVersions(), set);
     }
-
 }

@@ -5,6 +5,7 @@
 package com.elster.jupiter.prepayment.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.util.stream.Stream;

@@ -75,7 +75,7 @@ public class TaskManager {
                     ComServerDAO remoteComServerDAO = guiWorker.getOfflineExecuter().getRemoteComServerDAO();
 
                     try {
-                        List<ComJob> comJobs = remoteComServerDAO.findExecutableOutboundComTasks((OutboundComPort) comPort);
+                        List<ComJob> comJobs = remoteComServerDAO.findPendingOutboundComTasks((OutboundComPort) comPort);
                         //Now that the number of comjobs is known, set the size of the progress bar (no longer indeterminate)
                         UiHelper.getMainWindow().setProgressBarSize(comJobs.size());
 
