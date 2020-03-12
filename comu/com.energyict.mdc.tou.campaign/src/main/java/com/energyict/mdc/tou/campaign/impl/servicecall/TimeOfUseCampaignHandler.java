@@ -95,6 +95,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).ifPresent(item -> item.cancel(true));
                 timeOfUseCampaignService.streamDevicesInCampaigns()
                         .filter(Where.where("device").isEqualTo(device))
+                        .join(ServiceCall.class)
                         .map(TimeOfUseCampaignItem::getServiceCall)
                         .forEach(ServiceCall::delete);
                 break;
