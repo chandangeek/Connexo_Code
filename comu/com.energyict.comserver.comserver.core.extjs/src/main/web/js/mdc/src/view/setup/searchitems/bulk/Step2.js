@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
             },
             {
                 itemId: 'searchitemsaddtozone',
-                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.searchItems.bulk.addToZone', 'MDC', 'Add to zone') + '</b>',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.searchItems.bulk.linkToZone', 'MDC', 'Link to zone') + '</b>',
                 name: 'operation',
                 inputValue: 'addToZone',
                 privileges: Cfg.privileges.Validation.adminZones,
