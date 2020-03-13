@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                                 method: 'GET',
                                 success: function (response) {
                                     var sapData = Ext.JSON.decode(response.responseText);
-                                    hasSapAttributes = sapData && !!sapData.sapAttributes;
+                                    hasSapAttributes = sapData && sapData.sapAttributes === "true";
                                 },
                                 callback: function(){
                                     widget = Ext.widget('deviceLoadProfileChannelsSetup', {
