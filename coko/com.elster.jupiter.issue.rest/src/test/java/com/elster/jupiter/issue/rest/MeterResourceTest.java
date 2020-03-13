@@ -39,7 +39,7 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
         List<Meter> meters = new ArrayList<>();
         meters.add(mockMeter(1, "0.0.1.2"));
         meters.add(mockMeter(2, "0.0.1.8"));
-        meters.add(mockMeter(2, "0.1.1.8"));
+        meters.add(mockMeter(3, "0.1.1.8"));
 
         Finder<Meter> finder = mock(Finder.class);
         when(meteringService.findMeters(any(MeterFilter.class))).thenReturn(finder);
