@@ -14,6 +14,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.data.Device;
@@ -47,6 +48,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
     private final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
     private final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
     private final static String TOU_CAMPAIGN_EDITED = "com/energyict/mdc/tou/campaign/toucampaign/EDITED";
+    private final static String DEVICE_BEFORE_DELETE = "com/energyict/mdc/device/data/device/BEFORE_DELETE";
     private TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private Clock clock;
     private ServiceCallService serviceCallService;
@@ -87,6 +89,15 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                     threadPrincipalService.set(principal);
                     transactionService.run(() -> timeOfUseCampaignService.editCampaignItems((TimeOfUseCampaign) event.getSource()));
                 }, Executors.newSingleThreadExecutor());
+                break;
+            case DEVICE_BEFORE_DELETE:
+                Device device = (Device) event.getSource();
+                timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).ifPresent(item -> item.cancel(true));
+                timeOfUseCampaignService.streamDevicesInCampaigns()
+                        .filter(Where.where("device").isEqualTo(device))
+                        .join(ServiceCall.class)
+                        .map(TimeOfUseCampaignItem::getServiceCall)
+                        .forEach(ServiceCall::delete);
                 break;
             default:
                 break;
