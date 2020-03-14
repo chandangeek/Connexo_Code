@@ -10,11 +10,12 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_SUCH_DEVICE(1, "NoSuchDevice", "No device with id ''{0}''."),
+    NO_SUCH_DEVICE(1, "NoSuchDevice", "No device with name ''{0}''."),
     NO_REGISTERED_NOTIFICATION_ENDPOINT(2, "NoRegisteredNotificationEndPoint", "No registered notification end point is found by id ''{0}''."),
     DEVICE_ID_ATTRIBUTE_IS_NOT_SET(3, "DeviceIdAttributeIsNotSet", "''Device identifier'' attribute is not set on Device SAP info CAS."),
     NO_LRN(4, "NoLrn", "No LRN is available on current or future data sources on the device."),
     DEVICE_ALREADY_REGISTERED(5, "DeviceAlreadyRegistered", "Device already registered (Registered flag is true on Device SAP info CAS)."),
+    WEB_SERVICE_ENDPOINT_NOT_PROCESSED(6, "WebServiceEndpointNotProcessed", "Failed to properly send request to the following web service endpoint: {0}."),
     ;
 
     private final int number;

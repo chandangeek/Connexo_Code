@@ -39,7 +39,6 @@ import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -186,7 +185,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     @Override
-    public void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
+    public boolean call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
@@ -198,6 +197,9 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
                 .keySet();
         if (!processedEndpoints.isEmpty()) {
             sapCustomPropertySets.setRegistered(sapDeviceId, true);
+            return true;
+        }else{
+            return false;
         }
     }
 

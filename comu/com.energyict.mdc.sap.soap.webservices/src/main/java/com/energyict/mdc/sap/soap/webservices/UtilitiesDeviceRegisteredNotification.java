@@ -16,5 +16,5 @@ public interface UtilitiesDeviceRegisteredNotification {
      */
     void call(String sapDeviceId);
 
-    void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations);
+    boolean call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations);
 }

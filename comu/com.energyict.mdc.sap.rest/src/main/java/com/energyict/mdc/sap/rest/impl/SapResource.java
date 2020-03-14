@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.sap.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -40,20 +39,18 @@ public class SapResource {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final EndPointConfigurationService endPointConfigurationService;
     private final RegisteredNotificationEndPointInfoFactory registeredNotificationEndPointInfoFactory;
-    private final Thesaurus thesaurus;
     private final UtilitiesDeviceRegisteredNotification utilitiesDeviceRegisteredNotification;
     private final Clock clock;
 
     @Inject
     public SapResource(ExceptionFactory exceptionFactory, DeviceService deviceService, SAPCustomPropertySets sapCustomPropertySets,
                        EndPointConfigurationService endPointConfigurationService, RegisteredNotificationEndPointInfoFactory registeredEndPointConfigurationInfoFactory,
-                       Thesaurus thesaurus, UtilitiesDeviceRegisteredNotification utilitiesDeviceRegisteredNotification, Clock clock) {
+                       UtilitiesDeviceRegisteredNotification utilitiesDeviceRegisteredNotification, Clock clock) {
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.endPointConfigurationService = endPointConfigurationService;
         this.registeredNotificationEndPointInfoFactory = registeredEndPointConfigurationInfoFactory;
-        this.thesaurus = thesaurus;
         this.utilitiesDeviceRegisteredNotification = utilitiesDeviceRegisteredNotification;
         this.clock = clock;
     }
@@ -72,13 +69,14 @@ public class SapResource {
             hasSapCas = true;
         }
 
-        return Response.ok(new HasSapCas(hasSapCas)).build();
+        return Response.ok().entity("{\"exist\":\"" + hasSapCas + "\"}").build();
     }
 
     @GET
     @Transactional
     @Path("/registerednotificationendpoints")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
     public Response getAvailableRegisteredNotificationEndpoints(@BeanParam JsonQueryParameters queryParams) {
         List<RegisteredNotificationEndPointInfo> registeredNotificationEndPointInfos = getActiveRegisteredNotificationEndpointConfigurations()
                 .stream()
@@ -91,11 +89,11 @@ public class SapResource {
 
     @POST
     @Transactional
+    @Path("/devices/{deviceName}/sendregisterednotification/{endpointId}") //TODO: remove "endpointId" query parameter or payload on BE/FE
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
-    @Path("/devices/{deviceName}/sendregisterednotification/{endpointId}")
-    public Response sendRegisteredNotification(@PathParam("deviceName") String deviceName, @PathParam("endpointId") long endpointId, RegisteredNotificationEndPointInfo registeredNotificationEndPointInfo) {
+    public Response sendRegisteredNotification(@PathParam("deviceName") String deviceName, RegisteredNotificationEndPointInfo registeredNotificationEndPointInfo) {
 
         EndPointConfiguration endPointConfiguration = getActiveRegisteredNotificationEndpointConfigurations().stream()
                 .filter(endPoint -> endPoint.getId() == registeredNotificationEndPointInfo.id)
@@ -108,17 +106,17 @@ public class SapResource {
         String sapDeviceId = sapCustomPropertySets.getSapDeviceId(device)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_ID_ATTRIBUTE_IS_NOT_SET));
 
-        long deviceId = device.getId();
-
         if (sapCustomPropertySets.isRegistered(device)) {
             throw exceptionFactory.newException(MessageSeeds.DEVICE_ALREADY_REGISTERED);
         }
 
-        if (!sapCustomPropertySets.isAnyLrnPresent(deviceId, clock.instant())) {
+        if (!sapCustomPropertySets.isAnyLrnPresent(device.getId(), clock.instant())) {
             throw exceptionFactory.newException(MessageSeeds.NO_LRN);
         }
 
-        utilitiesDeviceRegisteredNotification.call(sapDeviceId, Collections.singletonList(endPointConfiguration));
+        if (!utilitiesDeviceRegisteredNotification.call(sapDeviceId, Collections.singletonList(endPointConfiguration))) {
+            throw exceptionFactory.newException(MessageSeeds.WEB_SERVICE_ENDPOINT_NOT_PROCESSED, endPointConfiguration.getName());
+        }
 
         return Response.ok().build();
     }
