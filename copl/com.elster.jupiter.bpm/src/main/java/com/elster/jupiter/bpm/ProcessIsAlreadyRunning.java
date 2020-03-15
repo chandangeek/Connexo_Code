@@ -2,7 +2,7 @@
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.bpm.exception;
+package com.elster.jupiter.bpm;
 
 import com.elster.jupiter.bpm.impl.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;

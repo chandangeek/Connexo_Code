@@ -14,7 +14,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
-import com.elster.jupiter.bpm.exception.ProcessIsAlreadyRunning;
+import com.elster.jupiter.bpm.ProcessIsAlreadyRunning;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -296,7 +296,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
             String businessObjectId = getSingletonInstanceProcesses().get(processName);
             Optional<Object> businessObjectValue = Optional.ofNullable(parameters.get(businessObjectId));
             businessObjectValue.ifPresent(value -> {
-                String filter = "?variableid=" + businessObjectId + "&variablevalue=" + businessObjectValue;
+                String filter = "?variableid=" + businessObjectId + "&variablevalue=" + value;
                 boolean processIsRunning = getRunningProcesses(null, filter)
                         .processes
                         .stream()
