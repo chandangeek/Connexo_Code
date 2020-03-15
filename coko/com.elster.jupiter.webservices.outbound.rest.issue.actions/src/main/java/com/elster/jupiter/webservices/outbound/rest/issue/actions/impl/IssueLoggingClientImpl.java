@@ -30,10 +30,8 @@ public class IssueLoggingClientImpl implements IssueWebServiceClient {
     {
         try {
             StringBuilder comment = new StringBuilder();
-            comment.append(issue.getIssueId() + ": " + issue.getTitle() + " has been generated ");
-            if (issue.getDevice() != null) {
-                comment.append("for " + issue.getDevice().getName() + " device; ");
-            }
+            comment.append(issue.getIssueId() + ": " + issue.getTitle() + " has been generated");
+            comment.append(issue.getDevice() != null ? " for " + issue.getDevice().getName() + " device; " : "; ");
             comment.append("issue created on " + issue.getCreateDateTime().toString());
             LOGGER.log(Level.INFO, comment.toString());
 

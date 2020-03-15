@@ -8,9 +8,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.EventType;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class DeviceTypeChangedEventHandler implements MessageHandler {
@@ -31,10 +33,11 @@ public class DeviceTypeChangedEventHandler implements MessageHandler {
         Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
         if (messageProperties.get("id") != null) {
             long deviceTypeId = ((Number) messageProperties.get("id")).longValue();
-            if (!deviceConfigurationService.findDeviceType(deviceTypeId).isPresent()) {
+            Optional<DeviceType> optionalDeviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+            if (!optionalDeviceType.isPresent()) {
                 LOGGER.warning("Device type with id " + deviceTypeId + " no longer exists");
             } else {
-                eventService.postEvent(EventType.DEVICE_TYPE_LIFE_CYCLE_CACHE_RECALCULATED.topic(), deviceConfigurationService.findDeviceType(deviceTypeId).get());
+                eventService.postEvent(EventType.DEVICE_TYPE_LIFE_CYCLE_CACHE_RECALCULATED.topic(), optionalDeviceType.get());
             }
         }
     }

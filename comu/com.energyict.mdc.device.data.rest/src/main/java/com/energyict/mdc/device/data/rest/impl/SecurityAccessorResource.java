@@ -124,7 +124,10 @@ public class SecurityAccessorResource {
             com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getKeys(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
+        List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()))
+                .stream()
+                .sorted(Comparator.comparing(s -> s.name.toLowerCase()))
+                .collect(toList());
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 

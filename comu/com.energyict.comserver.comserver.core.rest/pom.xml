@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
 
     </parent>
 
@@ -139,7 +139,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
         <!--INTEGRATION TESTS-->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

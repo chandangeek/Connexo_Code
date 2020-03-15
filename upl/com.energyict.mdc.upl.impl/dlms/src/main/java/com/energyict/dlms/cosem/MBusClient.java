@@ -448,6 +448,24 @@ public class MBusClient extends AbstractCosemObject {
     }
 
     /**
+     * Read the KeyStatus attribute from the Devices and returns the meaningful description
+     * @return
+     */
+    public String readKeyStatusAsText() throws IOException {
+        TypeEnum keyStatus = readKeyStatus();
+        int value = keyStatus.getValue();
+        switch (value){
+            case 0: return "no encryption_key";
+            case 1: return "encryption_key set but not in use by E-meter";
+            case 2: return "encryption_key transferred";
+            case 3: return "encryption_key set and transferred to G-meter and in use by E-mete";
+            case 4: return "encryption_key set and in use by E and G-meter";
+        }
+
+        return "unknown status ("+value+")";
+    }
+
+    /**
      * Force to install the mbus meter with the given primaryAddress
      *
      * @param primaryAddress an int holding the primary address to write
