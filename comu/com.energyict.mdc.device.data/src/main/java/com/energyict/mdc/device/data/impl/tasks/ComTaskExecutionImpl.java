@@ -381,8 +381,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void update() {
-        LOGGER.info("UPDATE EXECUTION TASK = "+this.toString());
+        LOGGER.warning("CXO-11731: UPDATE EXECUTION TASK = "+this.toString());
         Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
+        LOGGER.warning("CXO-11731: Updated.");
         this.notifyUpdated();
     }
 
@@ -899,6 +900,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
+        LOGGER.warning("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = "+this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
@@ -935,7 +937,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         markSuccessfullyCompleted();
         Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
         doReschedule(rescheduleDate);
-        LOGGER.info("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
+        LOGGER.warning("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
         updateForScheduling(true);
         getBehavior().comTaskCompleted();
         this.postEvent(EventType.COMTASKEXECUTION_COMPLETION);
@@ -945,7 +947,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void executionRescheduled(Instant rescheduleDate) {
         currentRetryCount++;    // increment the current number of retries
         if (currentRetryCount < getMaxNumberOfTries()) {
-            LOGGER.info("[comtaskexec] executionRescheduled for " + getDevice().getName() +
+            LOGGER.warning("[comtaskexec] executionRescheduled for " + getDevice().getName() +
                     "; currentRetryCount=" + currentRetryCount + "; reschedule for " + rescheduleDate);
             doReschedule(rescheduleDate);
         } else {
@@ -985,7 +987,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     protected void doExecutionAttemptFailed() {
         this.lastExecutionFailed = true;
         Instant rescheduleDate = calculateNextExecutionTimestampAfterFailure();
-        LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+        LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
         this.doReschedule(rescheduleDate);
     }
 
@@ -1045,11 +1047,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.lastExecutionFailed = true;
         this.resetCurrentRetryCount();
         if (isAdHoc()) {
-            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
+            LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
             this.doReschedule(null, null);
         } else {
             Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
-            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+            LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
             this.doReschedule(rescheduleDate);
         }
         getBehavior().comTaskFailed();
