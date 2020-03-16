@@ -1121,7 +1121,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(TranslationKeys.values()));
         keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
-        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }
 
