@@ -98,6 +98,7 @@ public class RegisterResource {
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).find()
                 .stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
+                .filter(register -> !jsonQueryFilter.hasProperty("logicalRegisterNumber") || resourceHelper.filterLogicalRegisterNumber(register, getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter)))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         Collections.sort(registerInfos, this::compareRegisterInfos);
         return PagedInfoList.fromCompleteList("data", registerInfos, queryParameters);
@@ -132,10 +133,6 @@ public class RegisterResource {
             registers = registers
                     .stream()
                     .filter(register -> allowedReadingTypes.contains(register.getReadingType()))
-                    .collect(Collectors.toList());
-            List<Register> sapFilteredChannels = resourceHelper.filterSapAttributes(device.getRegisters(), getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter));
-            registers = registers.stream()
-                    .filter(register -> sapFilteredChannels.stream().anyMatch(sapRegister -> compareRegisters(register, sapRegister) == 0))
                     .collect(Collectors.toList());
         }
         return registers.stream().map(Register::getReadingType).collect(Collectors.toList());

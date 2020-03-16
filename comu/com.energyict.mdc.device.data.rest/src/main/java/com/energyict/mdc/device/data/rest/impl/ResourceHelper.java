@@ -1336,22 +1336,20 @@ public class ResourceHelper {
                     .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
             if (cps.isPresent()) {
                 List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
-                return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")) && profileId.test((String)value.getProperty("profileId")));
+                return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")) && value.getProperty("profileId") != null && profileId.test((String)value.getProperty("profileId")));
             }
-            return true;
+            return false;
         }).collect(Collectors.toList());
     }
 
-    public List<Register> filterSapAttributes(List<Register> registers, Predicate<String> logicalRegisterNumber) {
-        return registers.stream().filter(register -> {
+    public boolean filterLogicalRegisterNumber(Register register, Predicate<String> logicalRegisterNumber) {
             Optional<RegisteredCustomPropertySet> cps = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
                     .filter(f -> f.isViewableByCurrentUser())
                     .filter(f -> f.getCustomPropertySetId().equals(REGISTER_SAP_ID));
             if (cps.isPresent()) {
                 List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());
-                return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
+                return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
             }
-            return true;
-        }).collect(Collectors.toList());
+            return false;
     }
 }

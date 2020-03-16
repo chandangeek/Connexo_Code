@@ -356,12 +356,15 @@ public class ChannelResource {
                 .filter(c -> filterByChannelName.test(c.getReadingType().getFullAliasName()))
                 .collect(Collectors.toList());
 
-        Predicate<String> filterByLogicalRegisterNumber = getStringFilterIfAvailable("logicalRegisterNumber", filter);
-        Predicate<String> filterByProfileId = getStringFilterIfAvailable("profileId", filter);
-        List<Channel> sapFilteredChannels = resourceHelper.filterSapAttributes(channels, filterByLogicalRegisterNumber, filterByProfileId);
-        return channels.stream()
-                .filter(channel -> sapFilteredChannels.stream().anyMatch(sapChannel -> channel.getId() == sapChannel.getId()))
-                .collect(Collectors.toList());
+        if (filter.hasProperty("logicalRegisterNumber") || filter.hasProperty("profileId")) {
+            Predicate<String> filterByLogicalRegisterNumber = getStringFilterIfAvailable("logicalRegisterNumber", filter);
+            Predicate<String> filterByProfileId = getStringFilterIfAvailable("profileId", filter);
+            List<Channel> sapFilteredChannels = resourceHelper.filterSapAttributes(channels, filterByLogicalRegisterNumber, filterByProfileId);
+            channels = channels.stream()
+                    .filter(channel -> sapFilteredChannels.stream().anyMatch(sapChannel -> channel.getId() == sapChannel.getId()))
+                    .collect(Collectors.toList());
+        }
+        return channels;
     }
 
     private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter) {
