@@ -22,12 +22,10 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
-import com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210CatM;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,8 +72,7 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
     */
     public static final ObisCode LTE_MONITORING_LOAD_PROFILE = ObisCode.fromString("0.0.99.18.0.255");
 
-    // Gas Hourly load profile
-    private static final ObisCode MBUS_GAS_HOURLY_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.3.255");
+    private static final ObisCode MBUS_LP_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.3.255");
 
     private static final boolean DO_IGNORE_DST_STATUS_CODE = true;
 
@@ -235,11 +232,13 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
         for (CollectedLoadProfileConfiguration lpc : loadProfileConfigurationList) {
             if (lpc.getObisCode().equals(LTE_MONITORING_LOAD_PROFILE)) {
                 lpc.setChannelInfos(getLTEMonitoringChannelInfos(lpc));
-            } else if (lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_LP1_OBISCODE)) {
+            } else if (lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_HOURLY_LP_OBISCODE) ||
+                    lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2) ||
+                    lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3)) {
                 List<ChannelInfo> channelInfos = lpc.getChannelInfos();
                 // remap duplicated 0.x.24.2.3.255 (timestamp) to 0.x.24.2.5.255
                 channelInfos.stream().filter(
-                        ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_GAS_HOURLY_DUPLICATED_CHANNEL) &&
+                        ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_LP_DUPLICATED_CHANNEL) &&
                               ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                 ).forEach(
                         ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
@@ -285,15 +284,15 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
     }
 
     private boolean mustUseSlaveTimeZone(ObisCode profileObisCode) {
-        if (ESMR50Protocol.MBUS_LP1_OBISCODE.equals(profileObisCode)){
+        if (ESMR50Protocol.MBUS_HOURLY_LP_OBISCODE.equals(profileObisCode)) {
             return true;
         }
 
-        if (ESMR50Protocol.MBUS_LP2_OBISCODE_SAME_AS_EMETER_LP2.equals(profileObisCode)){
+        if (ESMR50Protocol.MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2.equals(profileObisCode)) {
             return true;
         }
 
-        if (ESMR50Protocol.MBUS_LP3_OBISCODE_SAME_AS_EMETER_LP3.equals(profileObisCode)){
+        if (ESMR50Protocol.MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3.equals(profileObisCode)) {
             return true;
         }
         return false;
