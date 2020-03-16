@@ -11,7 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -34,6 +33,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import javax.inject.Inject;
 import javax.xml.ws.Service;
@@ -83,9 +83,13 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         setWebServiceActivator(webServiceActivator);
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    public void unsetWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = null;
     }
 
     @Reference
@@ -219,12 +223,12 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
         UtilsDvceERPSmrtMtrRegedNotifSmrtMtr smartMeter = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifSmrtMtr();
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
-        smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
+        if (webServiceActivator != null) {
+            smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
+        }
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
-        if (device.isPresent()) {
-            sapCustomPropertySets.getStartDate(device.get(), now).ifPresent(sD -> smartMeter.setStartDate(sD));
-        }
+        device.ifPresent(dev -> sapCustomPropertySets.getStartDate(dev, now).ifPresent(smartMeter::setStartDate));
 
         utilsDevice.setID(deviceId);
         utilsDevice.setSmartMeter(smartMeter);
@@ -241,7 +245,9 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
-        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        if (webServiceActivator != null) {
+            header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        }
         header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;

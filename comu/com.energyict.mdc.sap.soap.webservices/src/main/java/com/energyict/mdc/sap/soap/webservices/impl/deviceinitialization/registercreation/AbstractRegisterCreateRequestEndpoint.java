@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
 import com.elster.jupiter.domain.util.Finder;
@@ -85,18 +88,12 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
         saveRelatedAttributes(values);
 
-        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
-            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                    UtilitiesDeviceRegisterCreateConfirmation.NAME);
-        }
-
-        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredNotification.NAME)) {
-            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                    UtilitiesDeviceRegisteredNotification.NAME);
-        }
+        validateConfiguredEndpoints();
 
         createServiceCallAndTransition(requestMessage);
     }
+
+    abstract void validateConfiguredEndpoints();
 
     private void createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage message) {
         if (message.isValid()) {
@@ -112,7 +109,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         }
     }
 
-    private boolean isAnyActiveEndpoint(String name) {
+    boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()

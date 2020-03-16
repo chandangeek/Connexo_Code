@@ -5,10 +5,14 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.PodNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceLocationNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
@@ -66,7 +70,6 @@ public enum TranslationKeys implements TranslationKey {
     RECURRENCE_CODE("recurrenceCode", "Recurrence Code"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
-    PROFILE_ID("profileId", "Profile id"),
     EXPORTER("exporter", "Exporter"),
     EXPORTER_DESCRIPTION("exporterDescription", "Specifies the type of exporter to be used to select and export readings"),
     DEVICE_TYPE("deviceType", "Device type"),
@@ -84,6 +87,8 @@ public enum TranslationKeys implements TranslationKey {
     DIVISION_CATEGORY("divisionCategory", "Division category code"),
     REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "Requested scheduled reading date"),
     AT_LEAST_ONE_OF("atLeastOneOf", "at least one of"),
+    LOCATION_ID("locationId", "Location ID"),
+    POD_ID("podId", "Point of delivery ID"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
@@ -107,6 +112,14 @@ public enum TranslationKeys implements TranslationKey {
             UtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
     MASTER_CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.master.connection.status.change",
             MasterConnectionStatusChangeCustomPropertySet.class.getSimpleName()),
+    MASTER_UTILITIES_DEVICE_LOCATION_NOTIFICATION_CPS("servicecall.cps.master.utilities.device.location.notification",
+            MasterUtilitiesDeviceLocationNotificationCustomPropertySet.class.getSimpleName()),
+    UTILITIES_DEVICE_LOCATION_NOTIFICATION_CPS("servicecall.cps.utilities.device.location.notification",
+            UtilitiesDeviceLocationNotificationCustomPropertySet.class.getSimpleName()),
+    MASTER_POD_NOTIFICATION_CPS("servicecall.cps.master.pod.notification",
+            MasterPodNotificationCustomPropertySet.class.getSimpleName()),
+    POD_NOTIFICATION_CPS("servicecall.cps.pod.notification",
+            PodNotificationCustomPropertySet.class.getSimpleName()),
 
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),

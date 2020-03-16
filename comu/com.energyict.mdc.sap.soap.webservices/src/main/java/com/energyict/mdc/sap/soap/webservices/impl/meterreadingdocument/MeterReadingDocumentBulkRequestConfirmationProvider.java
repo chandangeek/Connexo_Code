@@ -6,11 +6,18 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkRequestConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.MeterReadingDocumentID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPBulkCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -18,6 +25,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.sap.meterreadingdocumentbulkrequest.outbound.provider",
         service = {MeterReadingDocumentBulkRequestConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -61,8 +69,24 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider extends Abstrac
 
     @Override
     public void call(MeterReadingDocumentRequestConfirmationMessage confirmationMessage) {
+        SetMultimap<String, String> values = HashMultimap.create();
+        SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = confirmationMessage.getBulkConfirmationMessage()
+                .orElseThrow(() -> new IllegalStateException("Unable to get bulk confirmation message"));
+
+        bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage().forEach(cnfMsg -> {
+            getMeterReadingDocumentId(cnfMsg).ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
+        });
+
         using("smartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut")
-                .send(confirmationMessage.getBulkConfirmationMessage());
+                .withRelatedAttributes(values)
+                .send(bulkConfirmationMessage);
+    }
+
+    private static Optional<String> getMeterReadingDocumentId(SmrtMtrMtrRdngDocERPCrteConfMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(SmrtMtrMtrRdngDocERPCrteConfMsg::getMeterReadingDocument)
+                .map(SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc::getID)
+                .map(MeterReadingDocumentID::getValue);
     }
 
     @Override

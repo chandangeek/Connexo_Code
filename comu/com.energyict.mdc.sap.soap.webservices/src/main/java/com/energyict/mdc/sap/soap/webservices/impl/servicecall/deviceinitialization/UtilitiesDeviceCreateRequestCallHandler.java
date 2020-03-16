@@ -25,6 +25,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -97,6 +98,8 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
                 extension.setError(((LocalizedException) ex).getMessageSeed(), ((LocalizedException) ex).getMessageArgs());
             } else {
                 extension.setError(MessageSeeds.ERROR_PROCESSING_METER_CREATE_REQUEST, ex.getLocalizedMessage());
+                serviceCall.log(MessageFormat.format(MessageSeeds.ERROR_PROCESSING_METER_CREATE_REQUEST.getDefaultFormat(),
+                        ex.getLocalizedMessage()), ex);
             }
 
             serviceCall.update(extension);

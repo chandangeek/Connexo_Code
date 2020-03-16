@@ -27,6 +27,8 @@ public enum MessageSeeds implements MessageSeed {
     REQUEST_WAS_FAILED(14, "RequestWasFailed", "Request has failed."),
     ONE_OF_MRD_IS_INVALID(15, "OneOfMrdIsInvalid", "One of the meter reading document has invalid message format"),
     DATA_EXPORT_TASK_WAS_INTERRUPTED(16, "DataExportTaskWasInterrupted", "Data export task was interrupted while waiting for data export confirmation."),
+    SEVERITY_CODE_AND_ERROR_MESSAGE(17, "SeverityCodeAndErrorMessage", "Severity code {0}: {1}."),
+    NO_SEVERITY_CODE_AND_ERROR_MESSAGE(18, "NoSeverityCodeAndErrorMessage", "No severity code: {0}."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -88,6 +90,10 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST(4034, "ErrorProcessingMeterRegisterCreateRequest",
             "Error while processing meter register create request: ''{0}''."),
     START_DATE_IS_BEFORE_SHIPMENT_DATE(4035, "StartDateIsBeforeShipmentDate", "Start date is before meter shipment date"),
+    ERROR_PROCESSING_METER_LOCATION_NOTIFICATION(4036, "ErrorProcessingMeterLocationNotification",
+            "Error while processing meter location notification: ''{0}''."),
+    ERROR_PROCESSING_METER_POD_NOTIFICATION(4037, "ErrorProcessingMeterPodNotification",
+            "Error while processing meter pod notification: ''{0}''."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),

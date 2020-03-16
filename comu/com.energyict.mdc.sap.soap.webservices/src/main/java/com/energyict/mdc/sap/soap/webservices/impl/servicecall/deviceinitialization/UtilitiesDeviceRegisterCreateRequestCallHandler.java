@@ -7,7 +7,6 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.Pair;
@@ -21,9 +20,13 @@ import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.CIMPattern;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.AbstractChildRetryServiceCallHandler;
 
 import com.energyict.obis.ObisCode;
+import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,43 +38,52 @@ import java.util.stream.Collectors;
 
 @Component(name = UtilitiesDeviceRegisterCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + UtilitiesDeviceRegisterCreateRequestCallHandler.NAME, immediate = true)
-public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceCallHandler {
+public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChildRetryServiceCallHandler {
 
     public static final String NAME = "UtilitiesDeviceRegisterCreateRequestCallHandler";
-    public static final String VERSION = "v1.0";
-    public static final String APPLICATION = "MDC";
 
-    private volatile SAPCustomPropertySets sapCustomPropertySets;
-    private volatile WebServiceActivator webServiceActivator;
-
-    @Override
-    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        switch (newState) {
-            case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                break;
-            case ONGOING:
-                processServiceCall(serviceCall);
-                break;
-            case CANCELLED:
-                cancelServiceCall(serviceCall);
-                break;
-            default:
-                // No specific action required for these states
-                break;
-        }
+    //For OSGI
+    public UtilitiesDeviceRegisterCreateRequestCallHandler() {
     }
 
-    private void processServiceCall(ServiceCall serviceCall) {
+    @Inject
+    public UtilitiesDeviceRegisterCreateRequestCallHandler(SAPCustomPropertySets sapCustomPropertySets, WebServiceActivator webServiceActivator) {
+        this();
+        setSAPCustomPropertySets(sapCustomPropertySets);
+        setWebServiceActivator(webServiceActivator);
+    }
+
+    @Override
+    protected void cancelServiceCall(ServiceCall serviceCall) {
+        UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+        extension.setError(MessageSeeds.REGISTER_SERVICE_CALL_WAS_CANCELLED, extension.getObis());
+        serviceCall.update(extension);
+    }
+
+    @Override
+    protected void setError(ServiceCall serviceCall, MessageSeed error, Object... args) {
+        UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+        extension.setError(error, args);
+        serviceCall.update(extension);
+    }
+
+    @Override
+    protected RetrySearchDataSourceDomainExtension getMasterDomainExtension(ServiceCall serviceCall) {
+        return serviceCall.getParent().get().getParent().get()
+                .getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+    }
+
+    @Override
+    protected void processServiceCall(ServiceCall serviceCall) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
         try {
             processDeviceRegisterCreation(extension);
         } catch (LocalizedException localizedEx) {
-            failServiceCall(extension, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
+            failServiceCall(serviceCall, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
         } catch (Exception ex) {
-            failServiceCall(extension, MessageSeeds.ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST, ex.getLocalizedMessage());
+            failServiceCallWithException(serviceCall, ex, MessageSeeds.ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST, ex.getLocalizedMessage());
         }
     }
 
@@ -121,7 +133,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 processChannel(device.get(), extension.getServiceCall(), obis, period, cimPattern);
             }
         } else {
-            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
+            failedAttempt(extension.getServiceCall(), MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
         }
     }
 
@@ -138,6 +150,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
+
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -165,6 +178,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
+
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -172,12 +186,6 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         } else {
             failServiceCallByNoFound(extension, period, cimPattern, obis);
         }
-    }
-
-    private void cancelServiceCall(ServiceCall serviceCall) {
-        UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-        extension.setError(MessageSeeds.REGISTER_SERVICE_CALL_WAS_CANCELLED, extension.getObis());
-        serviceCall.update(extension);
     }
 
     private void failServiceCallBySeveralDataSources(UtilitiesDeviceRegisterCreateRequestDomainExtension extension,
@@ -223,11 +231,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
     }
 
     private void failServiceCall(UtilitiesDeviceRegisterCreateRequestDomainExtension extension, MessageSeed messageSeed, Object... args) {
-        ServiceCall serviceCall = extension.getServiceCall();
-
-        extension.setError(messageSeed, args);
-        serviceCall.update(extension);
-        serviceCall.requestTransition(DefaultState.FAILED);
+        failServiceCall(extension.getServiceCall(), messageSeed, args);
     }
 
     private Set<Channel> findChannelByObis(Device device, String obis, Pair<MacroPeriod, TimeAttribute> period) {

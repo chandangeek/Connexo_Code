@@ -66,7 +66,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         setDeviceIdentifier((String) propertyValues.getProperty(FieldNames.DEVICE_IDENTIFIER.javaName()));
         setDeviceLocation((String) propertyValues.getProperty(FieldNames.DEVICE_LOCATION.javaName()));
         setPointOfDelivery((String) propertyValues.getProperty(FieldNames.POINT_OF_DELIVERY.javaName()));
-        this.setRegistered((boolean) propertyValues.getProperty(FieldNames.REGISTERED.javaName()));
+        setRegistered((boolean) Optional.ofNullable(propertyValues.getProperty(FieldNames.REGISTERED.javaName()))
+                        .orElse(false));
     }
 
     @Override

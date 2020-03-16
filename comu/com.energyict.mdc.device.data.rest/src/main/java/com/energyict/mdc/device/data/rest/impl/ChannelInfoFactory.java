@@ -39,10 +39,12 @@ public class ChannelInfoFactory {
         info.interval = new TimeDurationInfo(channel.getInterval());
         info.lastReading = channel.getLastReading().orElse(null);
         Optional<Channel> slaveChannel = topologyService.getSlaveChannel(channel, clock.instant());
-        if (slaveChannel.isPresent()) {
+        if (!slaveChannel.isPresent()) {
+            info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
+        } else {
             info.dataloggerSlaveName = slaveChannel.get().getDevice().getName();
+            info.lastValueTimestamp = slaveChannel.get().getLastDateTime().orElse(null);
         }
-        info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = readingTypeInfoFactory.from(channel.getReadingType());
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = readingTypeInfoFactory.from(readingType1));
         channel.getChannelSpec().getOverflow().ifPresent(channelSpecOverflow -> info.overflowValue = channelSpecOverflow);

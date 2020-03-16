@@ -6,8 +6,8 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 public enum AdditionalProperties {
 
-    REGISTER_SEARCH_ATTEMPTS("com.elster.jupiter.sap.registersearchattempts", 3),
-    REGISTER_SEARCH_INTERVAL("com.elster.jupiter.sap.registersearchinterval", 1),
+    OBJECT_SEARCH_ATTEMPTS("com.elster.jupiter.sap.objectsearchattempts", 2),
+    OBJECT_SEARCH_INTERVAL("com.elster.jupiter.sap.objectsearchinterval", 1),
     READING_DATE_WINDOW("com.elster.jupiter.sap.readingdatewindow", 4320),
     READING_COLLECTION_INTERVAL("com.elster.jupiter.sap.readingcollectioninterval", 60),
     CONFIRMATION_TIMEOUT("com.elster.jupiter.sap.confirmationtimeout", 5),
