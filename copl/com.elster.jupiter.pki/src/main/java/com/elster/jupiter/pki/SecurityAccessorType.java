@@ -31,7 +31,8 @@ import java.util.Set;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @XmlAccessorType(XmlAccessType.NONE)
-public interface SecurityAccessorType extends HasId, HasName  {
+public interface
+SecurityAccessorType extends HasId, HasName  {
 
 
     /**
@@ -97,6 +98,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     Purpose getPurpose();
 
+    KeyPurpose getKeyPurpose();
+
     /**
      *
      * @return import capability (only for HSM key type) or null
@@ -155,6 +158,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
          */
         SecurityAccessorType.Builder purpose(Purpose purpose);
 
+        SecurityAccessorType.Builder keyPurpose(KeyPurpose keyPurpose);
+
         Builder jssType(HsmJssKeyType jssType);
 
         /**
@@ -180,6 +185,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater name(String name);
 
         Updater description(String description);
+
+        Updater keyPurpose(KeyPurpose keyPurpose);
 
         Updater duration(TimeDuration duration);
 
