@@ -110,21 +110,19 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
                 .select(expiredCertificateCondition)
                 .stream()
                 .collect(Collectors.toList());
-        logger.log(Level.INFO, "Number of security accessors to process:  " + securityAccessors.size());
+        logger.log(Level.INFO, "Number of expired security accessors:  " + securityAccessors.size());
         printSecurityAccessors(securityAccessors, logger);
 
-        List<SecurityAccessor> resultList = securityAccessors
+        Optional<SecurityAccessor> securityAccessor = securityAccessors
                 .stream()
                 .filter(this::checkSecuritySets)
                 .filter(SecurityAccessor::isEditable)
-                .collect(Collectors.toList());
+                .findFirst();
 
-        logger.log(Level.INFO, "Number of security accessors to trigger bpm:  " + resultList.size());
-        printSecurityAccessors(resultList, logger);
-        if (!resultList.isEmpty()) {
-            // the process is triggered by task only for one accessor per time
-            triggerBpmProcess(resultList.get(0), occurrence, logger);
-        }
+        securityAccessor.ifPresent(sA -> {
+            logger.log(Level.INFO, "Security accessor to trigger bpm:  " + sA);
+            triggerBpmProcess(sA, occurrence, logger);
+        });
     }
 
     @Override

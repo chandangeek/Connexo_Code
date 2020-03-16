@@ -70,7 +70,5 @@ public interface BpmService {
 
     ProcessInstanceInfos getRunningProcesses(String authorization, String filter, String appKey);
 
-    Map<String, String> getSingletonInstanceProcesses();
-
     void addSingletonInstanceProcess(String processName, String businessObjectId);
 }

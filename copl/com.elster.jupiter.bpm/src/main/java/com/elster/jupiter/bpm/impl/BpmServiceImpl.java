@@ -14,7 +14,6 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
-import com.elster.jupiter.bpm.ProcessIsAlreadyRunning;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -58,6 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -84,7 +84,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
-    private Map<String, String> singletonInstanceProcesses = new HashMap();
+    private Map<String, String> singletonInstanceProcesses = new ConcurrentHashMap();
 
     private final static String TOKEN_AUTH = "com.elster.jupiter.token";
 
@@ -205,12 +205,11 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
 
     @Override
     public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters) {
-        verifyProcessIsAlreadyRunning(deploymentId, process, parameters);
+        verifyProcessIsAlreadyRunning(deploymentId, process, parameters, null);
         return runProcess(deploymentId, process, parameters);
     }
 
     private boolean runProcess(String deploymentId, String process, Map<String, Object> parameters) {
-        verifyProcessIsAlreadyRunning(deploymentId, process, parameters);
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
         if (found.isPresent()) {
@@ -242,7 +241,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
                     String processName = task.getString("name");
                     String version = task.getString("version");
                     if (processName.equals(bpmProcessDefinition.getProcessName()) && version.equals(bpmProcessDefinition.getVersion())) {
-                        checkProcessIsAlreadyRunning(processName, version, parameters);
+                        checkProcessIsAlreadyRunning(processName, version, parameters, null);
                         return runProcess(task.getString("deploymentId"), task.getString("id"), parameters);
                     }
                 } catch (JSONException e) {
@@ -255,7 +254,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
 
     @Override
     public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters, String auth) {
-        verifyProcessIsAlreadyRunning(deploymentId, process, parameters);
+        verifyProcessIsAlreadyRunning(deploymentId, process, parameters, auth);
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
         if (found.isPresent()) {
@@ -266,11 +265,11 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         return result;
     }
 
-    private void verifyProcessIsAlreadyRunning(String deploymentId, String id, Map<String, Object> parameters) {
+    private void verifyProcessIsAlreadyRunning(String deploymentId, String id, Map<String, Object> parameters, String auth) {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000");
+            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes");
             if (!"".equals(jsonContent)) {
                 JSONObject jsonbject = new JSONObject(jsonContent);
                 arr = jsonbject.getJSONArray("processDefinitionList");
@@ -282,7 +281,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
                 try {
                     JSONObject task = arr.getJSONObject(i);
                     if (task.getString("deploymentId").equals(deploymentId) && task.getString("id").equals(id)) {
-                        checkProcessIsAlreadyRunning(task.getString("name"), task.getString("version"), parameters);
+                        checkProcessIsAlreadyRunning(task.getString("name"), task.getString("version"), parameters, auth);
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -291,13 +290,13 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         }
     }
 
-    private void checkProcessIsAlreadyRunning(String processName, String version, Map<String, Object> parameters) {
-        if (getSingletonInstanceProcesses().keySet().contains(processName)) {
-            String businessObjectId = getSingletonInstanceProcesses().get(processName);
+    private void checkProcessIsAlreadyRunning(String processName, String version, Map<String, Object> parameters, String auth) {
+        String businessObjectId = getSingletonInstanceProcesses().get(processName);
+        if (businessObjectId != null) {
             Optional<Object> businessObjectValue = Optional.ofNullable(parameters.get(businessObjectId));
             businessObjectValue.ifPresent(value -> {
                 String filter = "?variableid=" + businessObjectId + "&variablevalue=" + value;
-                boolean processIsRunning = getRunningProcesses(null, filter)
+                boolean processIsRunning = getRunningProcesses(auth, filter)
                         .processes
                         .stream()
                         .anyMatch(p -> p.name.equals(processName) && p.status.equals(ACTIVE_STATUS));
