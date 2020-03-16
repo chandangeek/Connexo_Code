@@ -393,6 +393,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ACUD_WATER(328, "com.energyict.protocolimplv2.dlms.acud.AcudWater", FamilyRule.ACUD),
     ACUD_ELECTRICITY(329, "com.energyict.protocolimplv2.dlms.acud.AcudElectricity", FamilyRule.ACUD),
 
+    ELSTER_AS253(330, "com.energyict.protocolimplv2.dlms.as253.AS253"),
+    ELSTER_AS1253(331, "com.energyict.protocolimplv2.dlms.as253.A1S253"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

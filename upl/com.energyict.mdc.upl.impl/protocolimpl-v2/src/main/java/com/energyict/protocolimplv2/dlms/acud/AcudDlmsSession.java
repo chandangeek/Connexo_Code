@@ -12,13 +12,4 @@ public class AcudDlmsSession extends DlmsSession {
     AcudDlmsSession(ComChannel comChannel, DlmsSessionProperties properties, HHUSignOnV2 hhuSignOn, String deviceId) {
         super(comChannel, properties, hhuSignOn, deviceId);
     }
-
-    /**
-    * Set connection mode to HDLC (A1800 supports only HDLC connection)
-    *
-    * */
-    @Override
-    protected DlmsV2Connection defineTransportDLMSConnection() {
-        return new HDLCConnection(getComChannel(), getProperties());
-    }
 }

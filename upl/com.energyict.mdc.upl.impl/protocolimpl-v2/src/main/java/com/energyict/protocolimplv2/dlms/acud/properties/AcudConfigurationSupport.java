@@ -11,20 +11,8 @@ import java.util.List;
 
 public class AcudConfigurationSupport extends DlmsConfigurationSupport {
 
-    public static final String PROPERTY_LP_MULTIPLIER = "ApplyLoadProfileMultiplier";
-
     public AcudConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
-    @Override
-    public List<PropertySpec> getUPLPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
-        propertySpecs.add(loadProfilerMultiplierPropertySpec());
-        return propertySpecs;
-    }
-
-    protected PropertySpec loadProfilerMultiplierPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PROPERTY_LP_MULTIPLIER, false, PropertyTranslationKeys.V2_PUSHING_COMPACT_FRAMES, getPropertySpecService()::stringSpec).finish();
-    }
 }
