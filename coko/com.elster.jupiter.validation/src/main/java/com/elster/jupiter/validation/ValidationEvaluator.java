@@ -137,14 +137,11 @@ public interface ValidationEvaluator {
         channel.getBulkQuantityReadingType().ifPresent(bulkReadingType -> channel.getCimChannel(bulkReadingType).ifPresent(channels::add));
 
         List<List<ReadingQualityRecord>> readingQualitiesList = new ArrayList<>(2);
-        readingQualitiesList.add(readingQualities.stream().filter(rqr -> rqr.getReadingType() == channel.getMainReadingType()).collect(Collectors.toList()));
-        channel.getBulkQuantityReadingType().ifPresent(bulkReadingType -> {
-            readingQualitiesList.add(readingQualities.stream().filter(rqr -> rqr.getReadingType() == bulkReadingType).collect(Collectors.toList()));
-        });
+        readingQualitiesList.add(readingQualities.stream().filter(rqr -> rqr.getReadingType().equals(channel.getMainReadingType())).collect(Collectors.toList()));
+        channel.getBulkQuantityReadingType().ifPresent(bulkReadingType ->
+                readingQualitiesList.add(readingQualities.stream().filter(rqr -> rqr.getReadingType().equals(bulkReadingType)).collect(Collectors.toList())));
         return getValidationStatus(qualityCodeSystems, channels, timeStamp, readingQualitiesList);
     }
-
-    ;
 
     DataValidationStatus getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
                                              Instant timeStamp, List<List<ReadingQualityRecord>> readingQualities);

@@ -93,8 +93,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -125,6 +127,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     private volatile LocationTemplate locationTemplate;
     private static ImmutableList<TemplateField> locationTemplateMembers;
 
+    private Map<Long, ReadingType> readingTypeCache;
+
     public MeteringServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus, Clock clock, IdsService idsService,
                                EventService eventService, QueryService queryService, MessageService messageService, JsonService jsonService,
                                UpgradeService upgradeService) {
@@ -138,6 +142,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
         this.messageService = messageService;
         this.jsonService = jsonService;
         this.upgradeService = upgradeService;
+
+        readingTypeCache = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -174,7 +180,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Optional<ReadingType> getReadingTypeById(long id) {
-        return dataModel.stream(ReadingType.class).filter(where("id").isEqualTo(id)).findAny();
+        return Optional.ofNullable(readingTypeCache.computeIfAbsent(id,
+                key -> dataModel.stream(ReadingType.class).filter(where("id").isEqualTo(id)).findAny().orElse(null)));
     }
 
     @Override
