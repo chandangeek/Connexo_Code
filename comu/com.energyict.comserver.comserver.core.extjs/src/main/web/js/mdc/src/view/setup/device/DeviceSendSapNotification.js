@@ -34,24 +34,42 @@ Ext.define('Mdc.view.setup.device.DeviceSendSapNotification', {
                         },
                         items: [
                             {
-                                name: 'errors',
                                 xtype: 'uni-form-error-message',
                                 itemId: 'deviceSendSapNotificationFormErrors',
                                 text: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.'),
                                 hidden: true
                             },
                             {
-                                xtype: 'combobox',
-                                editable: false,
-                                displayField: 'name',
-                                valueField: 'id',
-                                queryMode: 'local',
+                                xtype: 'fieldcontainer',
+                                layout: 'vbox',
                                 fieldLabel: Uni.I18n.translate('sap.webserviceendpoint', 'MDC', 'Web service endpoint'),
-                                store: me.endPointsStore,
-                                emptyText: Uni.I18n.translate('sap.selectwebserviceendpoint', 'MDC', 'Select a web service endpoint'),
-                                required: true,
-                                allowBlank: false,
-                                name: 'id'
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        itemId: 'deviceSendSapNotificationEndpointNoItem',
+                                        html: 'No active web service endpoints available',
+                                        hidden: me.endPointsStore.getCount(),
+                                        style: {
+                                             'margin-top': '4px',
+                                             'color': 'red'
+                                        }
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        editable: false,
+                                        displayField: 'name',
+                                        valueField: 'id',
+                                        queryMode: 'local',
+                                        itemId: 'deviceSendSapNotificationEndpointCombo',
+                                        store: me.endPointsStore,
+                                        required: true,
+                                        allowBlank: false,
+                                        hidden: !me.endPointsStore.getCount(),
+                                        html: 'No active web service endpoints available',
+                                        name: 'id',
+                                        fieldLabel: Uni.I18n.translate('sap.webserviceendpoint', 'MDC', 'Web service endpoint'),
+                                    },
+                                ]
                             },
                             {
                                 xtype: 'fieldcontainer',

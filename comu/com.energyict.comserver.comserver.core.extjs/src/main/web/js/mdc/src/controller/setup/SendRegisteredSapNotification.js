@@ -53,13 +53,6 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         errorPanel.setVisible(true);
     },
 
-    showErrorAlert: function (){
-         var me = this;
-         var errorText = me.deviceId + Uni.I18n.translate('general.failedToSendSapNotificationText', 'MDC', ' attribute is not set on Device SAP info CAS and/or no LRN is available on current or future data sources on the device. The request sending has failed. See web service history for details');
-         var titleText = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action');
-         this.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
-    },
-
     sendSapNotification: function(button){
         var me = this;
         var form = button.up('form');
