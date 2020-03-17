@@ -869,11 +869,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         }
         if (deviceId){
             Ext.Ajax.request({
-                url: "/api/ddr/devices/" + deviceId + "/registers/sapattributes",
+                url: "/api/sap/devices/" + deviceId + "/registers/havesapcas",
                 method: 'GET',
                 success: function (response) {
                     var sapData = Ext.JSON.decode(response.responseText);
-                    hasSapAttributes = sapData && sapData.sapAttributes === "true";
+                    hasSapAttributes = sapData && sapData.value === "true";
                 },
                 callback: function(){
                     createDeviceRegistersViewPanel(hasSapAttributes);

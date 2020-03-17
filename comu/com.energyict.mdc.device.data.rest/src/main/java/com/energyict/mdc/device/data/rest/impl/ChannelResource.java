@@ -140,15 +140,6 @@ public class ChannelResource {
     }
 
     @GET
-    @Path("/sapattributes")
-    @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response isSapCasPresent(@PathParam("name") String name) {
-        return channelHelper.get().isSapCasPresent(name, (d -> d.getLoadProfiles().stream().flatMap(l -> l.getChannels().stream()).collect(Collectors.toList())));
-    }
-
-    @GET
     @Transactional
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

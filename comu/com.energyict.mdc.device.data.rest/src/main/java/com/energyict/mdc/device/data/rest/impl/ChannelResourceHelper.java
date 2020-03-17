@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.rest.util.BooleanValue;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -63,18 +61,6 @@ public class ChannelResourceHelper {
 
         Collections.sort(channelInfos, this::compareChannelInfo);
         return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
-    }
-
-    public Response isSapCasPresent(String deviceName, Function<Device, List<Channel>> channelsProvider) {
-        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        List<Channel> channels = channelsProvider.apply(device);
-        boolean sapAttributes = channels.stream().anyMatch(channel -> {
-            Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = device
-                    .getDeviceType()
-                    .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
-            return registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().getCustomPropertySetId().equals(ResourceHelper.CHANNEL_SAP_ID);
-        });
-        return Response.ok().entity(new BooleanValue(sapAttributes)).build();
     }
 
     private int compareChannelInfo(ChannelInfo ci1, ChannelInfo ci2) {

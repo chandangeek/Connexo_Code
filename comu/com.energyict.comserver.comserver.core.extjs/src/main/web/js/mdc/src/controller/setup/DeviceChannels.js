@@ -100,11 +100,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         if (record.get('hasLoadProfiles')) {
                             me.getApplication().fireEvent('loadDevice', record);
                             Ext.Ajax.request({
-                                url: "/api/ddr/devices/" + deviceId + "/channels/sapattributes",
+                                url: "/api/sap/devices/" + deviceId + "/channels/havesapcas",
                                 method: 'GET',
                                 success: function (response) {
                                     var sapData = Ext.JSON.decode(response.responseText);
-                                    hasSapAttributes = sapData && sapData.sapAttributes === "true";
+                                    hasSapAttributes = sapData && sapData.value === "true";
                                 },
                                 callback: function(){
                                     widget = Ext.widget('deviceLoadProfileChannelsSetup', {

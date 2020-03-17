@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.sap.rest.impl;
 
+import com.elster.jupiter.rest.util.BooleanValue;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -70,6 +71,28 @@ public class SapResource {
         }
 
         return Response.ok().entity("{\"exist\":\"" + hasSapCas + "\"}").build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/devices/{deviceName}/registers/havesapcas")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
+    public Response isSapCasAssignedToAnyRegister(@PathParam("deviceName") String deviceName) {
+        Device device = deviceService.findDeviceByName(deviceName).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceName));
+        boolean haveSapCas = device.getRegisters().stream().anyMatch(sapCustomPropertySets::doesRegisterHaveSapCPS);
+        return Response.ok().entity(new BooleanValue(haveSapCas)).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/devices/{deviceName}/channels/havesapcas")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
+    public Response isSapCasAssignedToAnChannel(@PathParam("deviceName") String deviceName) {
+        Device device = deviceService.findDeviceByName(deviceName).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceName));
+        boolean haveSapCas = device.getChannels().stream().anyMatch(sapCustomPropertySets::doesChannelHaveSapCPS);
+        return Response.ok().entity(new BooleanValue(haveSapCas)).build();
     }
 
     @GET
