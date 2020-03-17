@@ -52,7 +52,7 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_EXPIRED(1018, "SecurityAccessorExpired", "Security accessor expired."),
     SIGNATURE_VALIDATION_FAILED(1019, "SignatureValidationFailed", "Incorrect firmware file: image signature verification failed."),
     FIRMWARE_UPLOAD_RETRIED(1020, "FirmwareUploadRetried", "Firmware upload retried."),
-    VERIFICATION_RETRIED(1020, "VerificationRetried", "Verification retried."),
+    VERIFICATION_RETRIED(1021, "VerificationRetried", "Verification retried."),
 
     DEVICETYPE_WITH_ID_ISNT_FOUND(2000, "DeviceTypeWithIdIsntFound", "Device type with id {0} isn''t found."),
     PROTOCOL_WITH_ID_ISNT_FOUND(2001, "ProtocolWithIdIsntFound", "Protocol supported firmware option with id ''{0}'' isn''t found.");
