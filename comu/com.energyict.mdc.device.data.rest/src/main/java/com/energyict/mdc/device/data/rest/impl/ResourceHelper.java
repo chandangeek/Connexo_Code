@@ -1329,22 +1329,20 @@ public class ResourceHelper {
                 .collect(Collectors.toList());
     }
 
-    public List<Channel> filterSapAttributes(List<Channel> channels, Predicate<String> logicalRegisterNumber, Predicate<String> profileId) {
-        return channels.stream().filter(channel -> {
-            Optional<RegisteredCustomPropertySet> cps = channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
-                    .filter(f -> f.isViewableByCurrentUser())
-                    .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
-            if (cps.isPresent()) {
-                List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
-                return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")) && value.getProperty("profileId") != null && profileId.test((String)value.getProperty("profileId")));
-            }
-            return false;
-        }).collect(Collectors.toList());
+    public boolean filterSapAttributes(Channel channel, Predicate<String> logicalRegisterNumber, Predicate<String> profileId) {
+        Optional<RegisteredCustomPropertySet> cps = channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
+        if (cps.isPresent()) {
+            List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
+            return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")) && value.getProperty("profileId") != null && profileId.test((String)value.getProperty("profileId")));
+        }
+        return false;
     }
 
     public boolean filterLogicalRegisterNumber(Register register, Predicate<String> logicalRegisterNumber) {
             Optional<RegisteredCustomPropertySet> cps = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
-                    .filter(f -> f.isViewableByCurrentUser())
+                    .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                     .filter(f -> f.getCustomPropertySetId().equals(REGISTER_SAP_ID));
             if (cps.isPresent()) {
                 List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());

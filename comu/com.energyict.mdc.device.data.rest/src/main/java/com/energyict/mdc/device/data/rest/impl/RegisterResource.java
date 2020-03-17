@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.rest.util.BooleanValue;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -98,7 +99,7 @@ public class RegisterResource {
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).find()
                 .stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
-                .filter(register -> !jsonQueryFilter.hasProperty("logicalRegisterNumber") || resourceHelper.filterLogicalRegisterNumber(register, getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter)))
+                .filter(register -> !jsonQueryFilter.hasProperty("logicalRegisterNumber") || resourceHelper.filterLogicalRegisterNumber(register, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter)))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         Collections.sort(registerInfos, this::compareRegisterInfos);
         return PagedInfoList.fromCompleteList("data", registerInfos, queryParameters);
@@ -138,24 +139,6 @@ public class RegisterResource {
         return registers.stream().map(Register::getReadingType).collect(Collectors.toList());
     }
 
-    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter) {
-        if (filter.hasProperty(name)) {
-            Pattern pattern = getFilterPattern(filter.getString(name));
-            if (pattern != null) {
-                return s -> pattern.matcher(s).matches();
-            }
-        }
-        return s -> true;
-    }
-
-    private Pattern getFilterPattern(String filter) {
-        if (filter != null) {
-            filter = Pattern.quote(filter.replace('%', '*'));
-            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
-        }
-        return null;
-    }
-
     private int compareRegisters(Register r1, Register r2) {
         ReadingType readingType1 = r1.getRegisterSpec().getRegisterType().getReadingType();
         ReadingType readingType2 = r2.getRegisterSpec().getRegisterType().getReadingType();
@@ -175,11 +158,7 @@ public class RegisterResource {
                     .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
             return registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().getCustomPropertySetId().equals(ResourceHelper.REGISTER_SAP_ID);
         });
-        if (sapAttributes) {
-            return Response.ok().entity("{\"sapAttributes\":\"true\"}").build();
-        } else {
-            return Response.ok().entity("{\"sapAttributes\":\"false\"}").build();
-        }
+        return Response.ok().entity(new BooleanValue(sapAttributes)).build();
     }
 
     @GET
