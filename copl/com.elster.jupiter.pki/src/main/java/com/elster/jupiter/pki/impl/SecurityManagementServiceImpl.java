@@ -35,6 +35,7 @@ import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.IssuerParameterFilter;
+import com.elster.jupiter.pki.KeyPurpose;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.KeyUsagesParameterFilter;
@@ -495,6 +496,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public KeyPurpose getKeyPurpose(String key) {
+        return KeyPurposeImpl.from(key).asKeyPurpose(thesaurus);
+    }
+
+    @Override
     public Optional<KeyType> getKeyType(long id) {
         return this.getDataModel().mapper(KeyType.class).getUnique(KeyTypeImpl.Fields.ID.fieldName(), id);
     }
@@ -507,6 +513,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public Finder<KeyType> findAllKeyTypes() {
         return DefaultFinder.of(KeyType.class, dataModel).defaultSortColumn(KeyTypeImpl.Fields.NAME.fieldName());
+    }
+
+    @Override
+    public List<KeyPurpose> getAllKeyPurposes() {
+        return Stream.of(KeyPurposeImpl.values()).map(keyPurposes -> keyPurposes.asKeyPurpose(thesaurus)).collect(Collectors.toList());
     }
 
     @Override
@@ -629,7 +640,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 Arrays.stream(TranslationKeys.values()),
                 Arrays.stream(Privileges.values()),
                 Arrays.stream(SecurityAccessorTypePurposeTranslation.values()),
-                Arrays.stream(CSRImporterTranslatedProperty.values())
+                Arrays.stream(CSRImporterTranslatedProperty.values()),
+                Arrays.stream(KeyPurposeImpl.values())
         )
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());

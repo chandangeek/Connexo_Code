@@ -316,6 +316,12 @@ public enum TableSpecs {
                     .notNull()
                     .since(Version.version(10, 3))
                     .add();
+            table.column("KEYPURPOSE")
+                    .varChar(30)
+                    .conversion(ColumnConversion.CHAR2ENUM)
+                    .map(SecurityAccessorTypeImpl.Fields.KEYPURPOSE.fieldName())
+                    .since(Version.version(10, 4, 9))
+                    .add();
             Column trustStoreId = table.column("TRUSTSTOREID")
                     .number()
                     .since(Version.version(10, 3))
