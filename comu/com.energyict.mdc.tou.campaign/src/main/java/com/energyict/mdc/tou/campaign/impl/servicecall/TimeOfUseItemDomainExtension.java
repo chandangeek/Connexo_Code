@@ -99,9 +99,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
 //                throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
 //            }
 //        } else
-        if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-            serviceCall.requestTransition(DefaultState.CANCELLED);
-        }
+        serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
         return serviceCallService.getServiceCall(serviceCall.getId()).get();
     }
 
