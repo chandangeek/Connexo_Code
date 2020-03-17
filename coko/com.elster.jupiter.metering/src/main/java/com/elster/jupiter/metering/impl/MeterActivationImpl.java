@@ -543,18 +543,14 @@ public final class MeterActivationImpl implements IMeterActivation {
         newActivation.saveInternal();
         // create the same channels for the new activation
         getChannelsContainer().getChannels().forEach(channel -> {
-            List<ReadingType> extraReadingTypes = new ArrayList<>(channel.getReadingTypes());
-            extraReadingTypes.remove(channel.getMainReadingType());
-            ReadingType mainReadingType;
+            ReadingType collectedReadingType;
             if(channel.getBulkQuantityReadingType().isPresent()){
-                mainReadingType = channel.getBulkQuantityReadingType().get();
+                collectedReadingType = channel.getBulkQuantityReadingType().get();
             } else {
-                mainReadingType = channel.getReadingTypes().size() > 1
-                        ? channel.getReadingTypes().get(1)
-                        : channel.getMainReadingType();
+                List<? extends ReadingType> readingTypes = channel.getReadingTypes();
+                collectedReadingType = readingTypes.get(readingTypes.size()-1);
             }
-            extraReadingTypes.remove(mainReadingType);
-            newActivation.getChannelsContainer().createChannel(mainReadingType, extraReadingTypes.toArray(new ReadingType[extraReadingTypes.size()]));
+            newActivation.getChannelsContainer().createChannel(collectedReadingType);
         });
         newActivation.moveAllChannelsData(this, newRange);
         doEndAt(breakTime);
