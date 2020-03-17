@@ -140,6 +140,15 @@ public class ChannelResource {
     }
 
     @GET
+    @Path("/sapattributes")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public Response isSapCasPresent(@PathParam("name") String name) {
+        return channelHelper.get().isSapCasPresent(name, (d -> d.getLoadProfiles().stream().flatMap(l -> l.getChannels().stream()).collect(Collectors.toList())));
+    }
+
+    @GET
     @Transactional
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -339,54 +348,17 @@ public class ChannelResource {
     }
 
     private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter) {
-        Predicate<String> filterByLoadProfileName = getStringListFilterIfAvailable("loadProfileName", filter);
-        Predicate<String> filterByChannelName = getStringFilterIfAvailable("channelName", filter);
-        return device.getLoadProfiles().stream()
+        Predicate<String> filterByLoadProfileName = FilterHelper.getStringListFilterIfAvailable("loadProfileName", filter);
+        Predicate<String> filterByChannelName = FilterHelper.getStringFilterIfAvailable("channelName", filter);
+        List<Channel> channels = device.getLoadProfiles().stream()
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
                 .filter(c -> filterByChannelName.test(c.getReadingType().getFullAliasName()))
+                .filter(channel -> !filter.hasProperty("logicalRegisterNumber")
+                        || !filter.hasProperty("profileId")
+                        || resourceHelper.filterSapAttributes(channel, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", filter), FilterHelper.getStringFilterIfAvailable("profileId", filter)))
                 .collect(Collectors.toList());
-    }
-
-    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter) {
-        if (filter.hasProperty(name)) {
-            Pattern pattern = getFilterPattern(filter.getString(name));
-            if (pattern != null) {
-                return s -> pattern.matcher(s).matches();
-            }
-        }
-        return s -> true;
-    }
-
-    private Predicate<String> getStringListFilterIfAvailable(String name, JsonQueryFilter filter) {
-        if (filter.hasProperty(name)) {
-            List<String> entries = filter.getStringList(name);
-            List<Pattern> patterns = new ArrayList<>();
-            for (String entry : entries) {
-                patterns.add(getFilterPattern(entry));
-            }
-            if (!patterns.isEmpty()) {
-                return s -> {
-                    boolean match = false;
-                    for (Pattern pattern : patterns) {
-                        match = match || pattern.matcher(s).matches();
-                        if (match) {
-                            break;
-                        }
-                    }
-                    return match;
-                };
-            }
-        }
-        return s -> true;
-    }
-
-    private Pattern getFilterPattern(String filter) {
-        if (filter != null) {
-            filter = Pattern.quote(filter.replace('%', '*'));
-            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
-        }
-        return null;
+        return channels;
     }
 
     @GET

@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
     itemId: 'deviceLoadProfileChannelsSetup',
     router: null,
     device: null,
+    hasSapAttributes: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -67,7 +68,8 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
             dockedItems: [
                 {
                     dock: 'top',
-                    xtype: 'mdc-view-setup-devicechannels-channelstopfilter'
+                    xtype: 'mdc-view-setup-devicechannels-channelstopfilter',
+                    hasSapAttributes: me.hasSapAttributes
                 }
             ]
         };

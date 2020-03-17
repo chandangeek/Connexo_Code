@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.rest.util.BooleanValue;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -53,6 +55,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class RegisterResource {
@@ -95,6 +99,7 @@ public class RegisterResource {
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).find()
                 .stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
+                .filter(register -> !jsonQueryFilter.hasProperty("logicalRegisterNumber") || resourceHelper.filterLogicalRegisterNumber(register, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter)))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         Collections.sort(registerInfos, this::compareRegisterInfos);
         return PagedInfoList.fromCompleteList("data", registerInfos, queryParameters);
@@ -138,6 +143,22 @@ public class RegisterResource {
         ReadingType readingType1 = r1.getRegisterSpec().getRegisterType().getReadingType();
         ReadingType readingType2 = r2.getRegisterSpec().getRegisterType().getReadingType();
         return readingType1.getAliasName().compareToIgnoreCase(readingType2.getAliasName());
+    }
+
+    @GET
+    @Transactional
+    @Path("/sapattributes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response isSapCasPresent(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        boolean sapAttributes = device.getRegisters().stream().anyMatch(register -> {
+            Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = device
+                    .getDeviceType()
+                    .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
+            return registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().getCustomPropertySetId().equals(ResourceHelper.REGISTER_SAP_ID);
+        });
+        return Response.ok().entity(new BooleanValue(sapAttributes)).build();
     }
 
     @GET
