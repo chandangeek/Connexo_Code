@@ -48,7 +48,8 @@ public class FirmwareComTaskResource {
     }
 
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/retry")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -70,6 +71,9 @@ public class FirmwareComTaskResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
 
         firmwareComTaskExecution.runNow();
-        return Response.ok().build();
+        String taskRetried = firmwareComTaskExecution.isFirmware()
+                ? thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_RETRIED).format()
+                : thesaurus.getSimpleFormat(MessageSeeds.VERIFICATION_RETRIED).format();
+        return Response.ok(taskRetried).build();
     }
 }
