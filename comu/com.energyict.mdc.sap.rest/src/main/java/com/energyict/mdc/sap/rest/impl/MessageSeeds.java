@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_ID_ATTRIBUTE_IS_NOT_SET(3, "DeviceIdAttributeIsNotSet", "''Device identifier'' attribute is not set on Device SAP info CAS."),
     NO_LRN(4, "NoLrn", "No LRN is available on current or future data sources on the device."),
     DEVICE_ALREADY_REGISTERED(5, "DeviceAlreadyRegistered", "Device already registered (Registered flag is true on Device SAP info CAS)."),
-    WEB_SERVICE_ENDPOINT_NOT_PROCESSED(6, "WebServiceEndpointNotProcessed", "Failed to properly send request to the following web service endpoint: {0}."),
+    REQUEST_SENDING_HAS_FAILED(6, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),
     ;
 
     private final int number;
