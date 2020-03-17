@@ -115,7 +115,7 @@ public class SapResource {
         }
 
         if (!utilitiesDeviceRegisteredNotification.call(sapDeviceId, Collections.singletonList(endPointConfiguration))) {
-            throw exceptionFactory.newException(MessageSeeds.REQUEST_SENDING_HAS_FAILED, endPointConfiguration.getName());
+            throw exceptionFactory.newException(MessageSeeds.REQUEST_SENDING_HAS_FAILED);
         }
 
         return Response.ok().build();
