@@ -89,7 +89,7 @@ public class SapResource {
     @Path("/devices/{deviceName}/channels/havesapcas")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
-    public Response isSapCasAssignedToAnChannel(@PathParam("deviceName") String deviceName) {
+    public Response isSapCasAssignedToAnyChannel(@PathParam("deviceName") String deviceName) {
         Device device = deviceService.findDeviceByName(deviceName).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceName));
         boolean haveSapCas = device.getChannels().stream().anyMatch(sapCustomPropertySets::doesChannelHaveSapCPS);
         return Response.ok().entity(new BooleanValue(haveSapCas)).build();
