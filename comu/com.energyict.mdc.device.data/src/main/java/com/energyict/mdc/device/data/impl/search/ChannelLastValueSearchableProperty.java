@@ -36,7 +36,9 @@ public class ChannelLastValueSearchableProperty extends AbstractDateSearchablePr
     /**
      * <code>
      * select MTR_METERACTIVATION.METERID from MTR_CHANNEL
-     * right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL.METERACTIVATIONID AND MTR_METERACTIVATION.STARTTIME > {now} AND MTR_METERACTIVATION.ENDTIME < {now}
+     * right join MTR_CHANNEL_CONTAINER on MTR_CHANNEL_CONTAINER.ID = MTR_CHANNEL.CHANNEL_CONTAINER
+     * right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL_CONTAINER.METER_ACTIVATION
+     * AND MTR_METERACTIVATION.STARTTIME > {now} AND MTR_METERACTIVATION.ENDTIME < {now}
      * left join IDS_TIMESERIES on MTR_CHANNEL.TIMESERIESID = IDS_TIMESERIES.ID
      * where IDS_TIMESERIES.LASTTIME = {criteria};
      * </code>
@@ -46,7 +48,9 @@ public class ChannelLastValueSearchableProperty extends AbstractDateSearchablePr
         SqlBuilder builder = new SqlBuilder();
         builder.append(JoinClauseBuilder.Aliases.END_DEVICE + ".id IN (");
         builder.append("select MTR_METERACTIVATION.METERID from MTR_CHANNEL " +
-                "right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL.METERACTIVATIONID AND MTR_METERACTIVATION.STARTTIME <= ");
+                "right join MTR_CHANNEL_CONTAINER on MTR_CHANNEL_CONTAINER.ID = MTR_CHANNEL.CHANNEL_CONTAINER " +
+                "right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL_CONTAINER.METER_ACTIVATION " +
+                "AND MTR_METERACTIVATION.STARTTIME <= ");
         builder.addLong(now.toEpochMilli());
         builder.append(" AND MTR_METERACTIVATION.ENDTIME > ");
         builder.addLong(now.toEpochMilli());
