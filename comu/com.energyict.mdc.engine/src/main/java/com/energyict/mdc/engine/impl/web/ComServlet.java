@@ -10,6 +10,7 @@ import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
 import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -72,8 +73,11 @@ public class ComServlet extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter responseWriter = response.getWriter();
         responseWriter.println("<HTML><BODY><H1>ComServer servlet based com port connector for ComPort " + this.comPort.getName() + "</H1><TABLE>");
-        responseWriter.println("<TR><TD>Jupiter version:</TD><TD>" + this.getJupiterVersion() + "</TD></TR>");
+        responseWriter.println("<TR><TD>Connexo version:</TD><TD>" + this.getJupiterVersion() + "</TD></TR>");
         responseWriter.println("<TR><TD>Servlet version:</TD><TD>" + getWebVersion() + "</TD></TR>");
+        responseWriter.println("<TR><TD>Connexo system name:</TD><TD style='color:" + getSystemIdentifierColor() + "'>" + getSystemIdentifier() + "</TD></TR>");
+        responseWriter.println("<TR><TD>ComServer name:</TD><TD>" +  getComServerName() + "</TD></TR>");
+
         this.statistics.printWith(responseWriter);
         responseWriter.println("</TABLE></BODY></HTML>");
         responseWriter.close();
@@ -180,7 +184,7 @@ public class ComServlet extends HttpServlet {
     }
 
     private String getJupiterVersion() {
-        return "1.0.0-SNAPSHOT";
+        return String.valueOf(EngineServiceImpl.engineProperties.get(EngineServiceImpl.SYSTEM_VERSION));
     }
 
     private String getWebVersion() {
@@ -190,6 +194,20 @@ public class ComServlet extends HttpServlet {
 
     public String getVersion() {
         return "$Date: 2012-10-11 17:21:47 +0200 $";
+    }
+
+    private String getSystemIdentifier () {
+       return String.valueOf(EngineServiceImpl.engineProperties.get(EngineServiceImpl.SYSTEM_IDENTIFIER));
+    }
+
+    private String getSystemIdentifierColor () {
+        return String.valueOf(EngineServiceImpl.engineProperties.get(EngineServiceImpl.SYSTEM_IDENTIFIER_COLOR));
+    }
+
+    private String getComServerName() {
+        if(comServerDAO.getThisComServer() != null)
+            return comServerDAO.getThisComServer().getName();
+        return "-";
     }
 
     private class Statistics {
