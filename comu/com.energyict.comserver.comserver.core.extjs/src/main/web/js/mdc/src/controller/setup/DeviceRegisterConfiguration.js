@@ -873,7 +873,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 method: 'GET',
                 success: function (response) {
                     var sapData = Ext.JSON.decode(response.responseText);
-                    hasSapAttributes = sapData && sapData.value === "true";
+                    hasSapAttributes = sapData && sapData.value;
                 },
                 callback: function(){
                     createDeviceRegistersViewPanel(hasSapAttributes);

@@ -269,6 +269,9 @@ Ext.define('Mdc.controller.setup.Devices', {
             success: function (response) {
                 var hasSapCas = Ext.JSON.decode(response.responseText);
                 callback(hasSapCas && hasSapCas.exist);
+            },
+            failure: function(){
+                callback(false);
             }
         });
     },
