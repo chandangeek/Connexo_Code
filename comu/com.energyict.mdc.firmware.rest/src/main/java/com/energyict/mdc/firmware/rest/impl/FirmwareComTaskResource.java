@@ -65,13 +65,13 @@ public class FirmwareComTaskResource {
 
         firmwareService.resumeFirmwareUploadForDevice(device);
 
-        ComTaskExecution firmwareComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
+        ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
+                .filter(cte -> cte.getComTask().getId() == comTaskId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
 
-        firmwareComTaskExecution.runNow();
-        String taskRetried = firmwareComTaskExecution.isFirmware()
+        comTaskExecution.runNow();
+        String taskRetried = comTaskExecution.isFirmware()
                 ? thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_RETRIED).format()
                 : thesaurus.getSimpleFormat(MessageSeeds.VERIFICATION_RETRIED).format();
         return Response.ok(taskRetried).build();
