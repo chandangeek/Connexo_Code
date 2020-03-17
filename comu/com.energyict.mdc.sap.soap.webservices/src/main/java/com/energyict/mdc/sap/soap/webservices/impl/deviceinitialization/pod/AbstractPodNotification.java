@@ -57,6 +57,7 @@ public class AbstractPodNotification extends AbstractInboundEndPoint implements 
                 .getPodMessages()
                 .forEach(podMessage -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), podMessage.getDeviceId()));
 
+        saveRelatedAttributes(values);
         createServiceCallAndTransition(podNotificationMessage);
     }
 

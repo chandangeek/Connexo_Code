@@ -174,7 +174,14 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         customAttributesStore.getProxy().setParams(me.deviceId, record.get('id'));
         customAttributesStore.load(function() {
             if (preview.rendered) {
-                preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                var casForm = preview.down('#custom-attribute-sets-placeholder-form-id');
+                casForm.loadStore(customAttributesStore);
+                var propertiesForm = casForm.down('property-form');
+                propertiesForm.setWidth(400);
+                var textFields = propertiesForm.query('displayfield');
+                Ext.Array.each(textFields, function(textfield){
+                    textfield.setFieldStyle({'word-break' : 'break-all', 'line-height': '28px', 'margin-top':'0px' })
+                })
                 preview.setLoading(false);
             }
         });

@@ -8,11 +8,13 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MeterReadingDocumentERPResultBulkCreateConfirmationCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MeterReadingDocumentID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MtrRdngDocERPRsltBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MtrRdngDocERPRsltCrteConfMtrRdngDoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MtrRdngDocERPRsltCrteConfUtilsDvce;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MtrRdngDocERPRsltCrteConfUtilsMsmtTsk;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.UtilitiesDeviceID;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -34,9 +36,12 @@ public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint extends Ab
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                         SetMultimap<String, String> values = HashMultimap.create();
-                        requestMessage.getMeterReadingDocumentERPResultCreateConfirmationMessage().forEach(msg ->
-                                getDeviceId(msg.getMeterReadingDocument())
-                                        .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value)));
+                        requestMessage.getMeterReadingDocumentERPResultCreateConfirmationMessage().forEach(msg -> {
+                            getDeviceId(msg.getMeterReadingDocument())
+                                    .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                            getMeterReadingDocumentId(msg.getMeterReadingDocument())
+                                    .ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
+                        });
                         saveRelatedAttributes(values);
                         serviceCallCommands
                                 .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
@@ -54,6 +59,12 @@ public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint extends Ab
                 .map(MtrRdngDocERPRsltCrteConfUtilsMsmtTsk::getUtiltiesDevice)
                 .map(MtrRdngDocERPRsltCrteConfUtilsDvce::getUtilitiesDeviceID)
                 .map(UtilitiesDeviceID::getValue);
+    }
+
+    private static Optional<String> getMeterReadingDocumentId(MtrRdngDocERPRsltCrteConfMtrRdngDoc doc) {
+        return Optional.ofNullable(doc)
+                .map(MtrRdngDocERPRsltCrteConfMtrRdngDoc::getID)
+                .map(MeterReadingDocumentID::getValue);
     }
 
     @Override

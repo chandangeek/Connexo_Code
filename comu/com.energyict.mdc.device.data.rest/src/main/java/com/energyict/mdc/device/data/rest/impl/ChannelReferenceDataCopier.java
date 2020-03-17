@@ -99,8 +99,9 @@ public class ChannelReferenceDataCopier {
             Optional.ofNullable(correctedRanges.get(record.getRange()))
                     .flatMap(r -> Optional.ofNullable(referenceReadings.get(r.upperEndpoint())))
                     .ifPresent(referenceReading -> {
-                        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(sourceChannel, record, isValidationActive, deviceValidation,  ChannelPeriodType.of(sourceChannel));
-                        ChannelDataInfo referenceDataInfo = deviceDataInfoFactory.createChannelDataInfo(referenceChannel, referenceReading, isValidationActive, deviceValidation,  ChannelPeriodType.of(referenceChannel));
+                        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(sourceChannel, record, isValidationActive, deviceValidation, null, ChannelPeriodType.of(sourceChannel));
+                        ChannelDataInfo referenceDataInfo = deviceDataInfoFactory.createChannelDataInfo(referenceChannel, referenceReading, isValidationActive, deviceValidation, null, ChannelPeriodType
+                                .of(referenceChannel));
                         channelDataInfo.value = referenceDataInfo.value
                                 .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier() - sourceChannel.getReadingType().getMultiplier().getMultiplier());
                         channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;

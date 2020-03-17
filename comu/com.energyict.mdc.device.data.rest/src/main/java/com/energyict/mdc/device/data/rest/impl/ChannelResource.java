@@ -380,13 +380,15 @@ public class ChannelResource {
 
             // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
             // devices which are not dataloggers
-            List<Pair<Channel, Range<Instant>>> channelTimeLine = Collections.singletonList(Pair.of(channel, range));
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
             List<ChannelDataInfo> infos = channelTimeLine.stream()
                     .flatMap(channelRangePair -> {
                         Channel channelWithData = channelRangePair.getFirst();
                         List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(Interval.of(channelRangePair.getLast()).toOpenClosedRange());
                         return loadProfileReadings.stream()
-                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channelPeriodType));
+                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel
+                                        .equals(channelWithData) ? null : channelWithData
+                                        .getDevice(), channelPeriodType));
                     })
                     .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());
@@ -417,14 +419,16 @@ public class ChannelResource {
 
             // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
             // devices which are not dataloggers
-            List<Pair<Channel, Range<Instant>>> channelTimeLine = Collections.singletonList(Pair.of(channel, range));
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
             List<ChannelHistoryDataInfo> infos = channelTimeLine.stream()
                     .flatMap(channelRangePair -> {
                         Channel channelWithData = channelRangePair.getFirst();
                         List<LoadProfileJournalReading> loadProfileJournalReadings = channelWithData.getChannelWithHistoryData(Interval.of(channelRangePair.getLast())
                                 .toOpenClosedRange(), changedDataOnly);
                         return loadProfileJournalReadings.stream()
-                                .map(loadProfileJournalReading -> deviceDataInfoFactory.createChannelHistoryDataInfo(channelWithData, loadProfileJournalReading, isValidationActive, deviceValidation, channelPeriodType));
+                                .map(loadProfileJournalReading -> deviceDataInfoFactory.createChannelHistoryDataInfo(channelWithData, loadProfileJournalReading, isValidationActive, deviceValidation, channel
+                                        .equals(channelWithData) ? null : channelWithData
+                                        .getDevice(), channelPeriodType));
                     })
                     .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());

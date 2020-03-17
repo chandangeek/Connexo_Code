@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -162,10 +163,14 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                 .getRelatedAttributesByValueLike(toFind);
 
         List<WebServiceCallRelatedAttribute> listRelatedObjects = finder.find();
-        List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream()
-                .sorted(Comparator.comparingInt((WebServiceCallRelatedAttribute obj) -> obj.getValue().toLowerCase().indexOf(toFind.toLowerCase()))
-                        .thenComparing(Comparator.comparingInt((WebServiceCallRelatedAttribute obj) -> obj.getValue().length())))
-                .filter(obj -> translationTxt == null ? true : webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt))
+        Stream<WebServiceCallRelatedAttribute> streamInfo = listRelatedObjects.stream()
+                .sorted(Comparator.comparingInt((WebServiceCallRelatedAttribute obj) -> obj.getValue().length())
+                        .thenComparingInt(obj -> obj.getValue().toLowerCase().indexOf(toFind.toLowerCase()))
+                        .thenComparing(WebServiceCallRelatedAttribute::getValue))
+                .filter(obj -> translationTxt == null ? true : webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt));
+        streamInfo = params.getStart().map(streamInfo::skip).orElse(streamInfo);
+        streamInfo = params.getLimit().map(i -> i + 1).map(streamInfo::limit).orElse(streamInfo);
+        List<RelatedAttributeInfo> listInfo = streamInfo
                 .map(obj -> {
                     return new RelatedAttributeInfo(obj.getId(),
                             obj.getValue() + " (" + webServiceCallOccurrenceService.translateAttributeType(obj.getKey()) + ")");

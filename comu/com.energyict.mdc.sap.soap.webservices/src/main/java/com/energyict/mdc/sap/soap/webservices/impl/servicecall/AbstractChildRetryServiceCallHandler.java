@@ -70,6 +70,12 @@ public abstract class AbstractChildRetryServiceCallHandler implements ServiceCal
         serviceCall.requestTransition(DefaultState.FAILED);
     }
 
+    protected void failServiceCallWithException(ServiceCall serviceCall, Exception exception, MessageSeed messageSeed, Object... args ) {
+        serviceCall.log(MessageFormat.format(messageSeed.getDefaultFormat(), args), exception);
+        setError(serviceCall, messageSeed, args);
+        serviceCall.requestTransition(DefaultState.FAILED);
+    }
+
     protected void failedAttempt(ServiceCall serviceCall, MessageSeeds error, Object... args) {
         RetrySearchDataSourceDomainExtension masterExtension = getMasterDomainExtension(serviceCall);
         BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.OBJECT_SEARCH_ATTEMPTS));
