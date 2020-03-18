@@ -1335,7 +1335,7 @@ public class ResourceHelper {
                 .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
         if (cps.isPresent()) {
             List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
-            return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")) && value.getProperty("profileId") != null && profileId.test((String)value.getProperty("profileId")));
+            return values.stream().anyMatch(value -> (value.getProperty("logicalRegisterNumber") == null || logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber"))) && (value.getProperty("profileId") == null || profileId.test((String)value.getProperty("profileId"))));
         }
         return false;
     }

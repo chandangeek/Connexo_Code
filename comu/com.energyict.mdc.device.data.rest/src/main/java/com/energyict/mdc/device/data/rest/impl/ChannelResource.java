@@ -345,9 +345,13 @@ public class ChannelResource {
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
                 .filter(c -> filterByChannelName.test(c.getReadingType().getFullAliasName()))
-                .filter(channel -> !filter.hasProperty("logicalRegisterNumber")
-                        || !filter.hasProperty("profileId")
-                        || resourceHelper.filterSapAttributes(channel, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", filter), FilterHelper.getStringFilterIfAvailable("profileId", filter)))
+                .filter(channel -> {
+                    if (filter.hasProperty("logicalRegisterNumber") || filter.hasProperty("profileId")) {
+                        return resourceHelper.filterSapAttributes(channel, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", filter), FilterHelper.getStringFilterIfAvailable("profileId", filter));
+                    } else {
+                        return true;
+                    }
+                })
                 .collect(Collectors.toList());
         return channels;
     }
