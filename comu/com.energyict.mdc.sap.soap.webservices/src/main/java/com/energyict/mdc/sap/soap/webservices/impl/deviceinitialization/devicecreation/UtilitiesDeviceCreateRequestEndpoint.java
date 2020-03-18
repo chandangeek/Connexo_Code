@@ -39,7 +39,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestE
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder()
+                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder(getThesaurus())
                                         .from(requestMessage)
                                         .build();
 

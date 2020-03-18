@@ -18,9 +18,11 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
     private String requestID;
     private String uuid;
     private boolean bulk;
+    private Thesaurus thesaurus;
     private List<UtilitiesDeviceRegisterCreateMessage> utilitiesDeviceRegisterCreateMessages = new ArrayList<>();
 
-    private UtilitiesDeviceRegisterCreateRequestMessage() {
+    private UtilitiesDeviceRegisterCreateRequestMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public boolean isBulk() {
@@ -39,8 +41,8 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
         return utilitiesDeviceRegisterCreateMessages;
     }
 
-    static UtilitiesDeviceRegisterCreateRequestMessage.Builder builder() {
-        return new UtilitiesDeviceRegisterCreateRequestMessage().new Builder();
+    static UtilitiesDeviceRegisterCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
+        return new UtilitiesDeviceRegisterCreateRequestMessage(thesaurus).new Builder();
     }
 
     public class Builder {
@@ -59,7 +61,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                     .builder()
                     .from(requestMessage, lrnEndInterval)
-                    .build());
+                    .build(thesaurus));
             return this;
         }
 
@@ -76,7 +78,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
                             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                                     .builder()
                                     .from(message, lrnEndInterval)
-                                    .build()));
+                                    .build(thesaurus)));
             return this;
         }
 
@@ -84,6 +86,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
             if (requestID == null && uuid == null) {
                 addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
+            utilitiesDeviceRegisterCreateMessages.forEach(utilitiesDeviceRegisterCreateMessage -> addMissingFields(utilitiesDeviceRegisterCreateMessage.getMissingFieldsSet()));
             return UtilitiesDeviceRegisterCreateRequestMessage.this;
         }
 

@@ -233,8 +233,8 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
             if (lpc.getObisCode().equals(LTE_MONITORING_LOAD_PROFILE)) {
                 lpc.setChannelInfos(getLTEMonitoringChannelInfos(lpc));
             } else if (lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_HOURLY_LP_OBISCODE) ||
-                    lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2) ||
-                    lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3)) {
+                       lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2) ||
+                       lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3)) {
                 List<ChannelInfo> channelInfos = lpc.getChannelInfos();
                 // remap duplicated 0.x.24.2.3.255 (timestamp) to 0.x.24.2.5.255
                 channelInfos.stream().filter(
@@ -284,15 +284,15 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
     }
 
     private boolean mustUseSlaveTimeZone(ObisCode profileObisCode) {
-        if (ESMR50Protocol.MBUS_HOURLY_LP_OBISCODE.equals(profileObisCode)) {
+        if (ESMR50Protocol.MBUS_HOURLY_LP_OBISCODE.equals(profileObisCode)){
             return true;
         }
 
-        if (ESMR50Protocol.MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2.equals(profileObisCode)) {
+        if (ESMR50Protocol.MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2.equals(profileObisCode)){
             return true;
         }
 
-        if (ESMR50Protocol.MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3.equals(profileObisCode)) {
+        if (ESMR50Protocol.MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3.equals(profileObisCode)){
             return true;
         }
         return false;

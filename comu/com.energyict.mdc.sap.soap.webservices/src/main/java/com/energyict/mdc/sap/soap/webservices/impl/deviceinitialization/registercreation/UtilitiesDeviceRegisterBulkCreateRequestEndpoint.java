@@ -50,7 +50,7 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                                UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
+                                UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder(getThesaurus())
                                         .from(requestMessage, getWebServiceActivator().getSapProperty(AdditionalProperties.LRN_END_INTERVAL))
                                         .build(getThesaurus());
 

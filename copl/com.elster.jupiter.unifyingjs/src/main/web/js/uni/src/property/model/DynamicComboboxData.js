@@ -6,5 +6,9 @@ Ext.define('Uni.property.model.DynamicComboboxData', {
 
     fields: [
         { name: 'name', type: 'auto' },
-    ],
+        { name: 'value',
+         mapping: function (data) {
+             return data.value !== null && data.value !== undefined ? data.value : data.name;
+        }}
+    ]
 });

@@ -458,6 +458,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      * @param message
      */
     public void journal(Level level, String message) {
+        getLogger().log(level, message);
         journal("["+level.getLocalizedName()+"]: "+message);
     }
 

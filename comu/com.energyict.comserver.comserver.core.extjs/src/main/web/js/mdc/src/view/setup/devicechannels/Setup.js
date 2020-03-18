@@ -8,6 +8,8 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
     itemId: 'deviceLoadProfileChannelsSetup',
     router: null,
     device: null,
+    autoScroll : true,
+    minWidth: 1350,
     hasSapAttributes: null,
 
     requires: [

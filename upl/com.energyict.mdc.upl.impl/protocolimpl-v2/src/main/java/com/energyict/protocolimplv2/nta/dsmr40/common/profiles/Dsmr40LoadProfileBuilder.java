@@ -59,7 +59,8 @@ public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends Lo
                     registerObject.getAttribute();
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject));
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode()
+                                .toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
@@ -79,7 +80,7 @@ public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends Lo
      * Channels who store the capture timestamp will be fixed assigned ScalerUnit seconds.<br></br>
      * For all other channels, the ScalerUnit will be requested from the device.
      *
-     * @param registerObject   the CapturedRegisterObject
+     * @param registerObject the CapturedRegisterObject
      * @param ccoRegisterUnits the ComposedCosemObject
      * @return the ScalerUnit for the channel
      * @throws java.io.IOException

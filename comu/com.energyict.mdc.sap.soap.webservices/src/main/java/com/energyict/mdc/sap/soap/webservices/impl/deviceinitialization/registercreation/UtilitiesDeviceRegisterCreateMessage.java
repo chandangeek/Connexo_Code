@@ -3,13 +3,18 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UtilitiesDeviceRegisterCreateMessage {
+public class UtilitiesDeviceRegisterCreateMessage extends AbstractSapMessage {
+
+    private static final String DEVICE_ID_XML_NAME = "UtilitiesDevice.ID";
 
     private String requestId;
     private String uuid;
@@ -30,10 +35,6 @@ public class UtilitiesDeviceRegisterCreateMessage {
 
     public String getDeviceId() {
         return deviceId;
-    }
-
-    public boolean isValid() {
-        return (requestId != null || uuid != null) && deviceId != null && getUtilitiesDeviceRegisterMessages().stream().allMatch(bodyMessage -> bodyMessage.isValid());
     }
 
     static UtilitiesDeviceRegisterCreateMessage.Builder builder() {
@@ -81,7 +82,14 @@ public class UtilitiesDeviceRegisterCreateMessage {
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateMessage build() {
+        public UtilitiesDeviceRegisterCreateMessage build(Thesaurus thesaurus) {
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (deviceId == null) {
+                addMissingField(DEVICE_ID_XML_NAME);
+            }
+            utilitiesDeviceRegisterMessages.forEach(utilitiesDeviceRegisterMessage -> addMissingFields(utilitiesDeviceRegisterMessage.getMissingFieldsSet()));
             return UtilitiesDeviceRegisterCreateMessage.this;
         }
 
