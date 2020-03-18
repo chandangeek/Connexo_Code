@@ -240,6 +240,10 @@ public enum EndDeviceEventTypeMapping {
     ASS_DEVICE_INPUT_ERROR  (221, EndDeviceEventTypeFactory.getAssociatedDeviceInputError()),
     MODEM_SESSION_FAILED    (222, EndDeviceEventTypeFactory.getModemSessionFailed()),
 
+    TOO_HIGH_CONSUMPTION_OR_PRODUCTION  (352, EndDeviceEventTypeFactory.getHighConsumptionOrProductionEnergy()),
+    INDEX_VALUE_DECREASE_OR_RESET       (353, EndDeviceEventTypeFactory.getIndexValuesDecreaseOrReset()),
+    MISMATCH_BETWEEN_TOTAL_AND_TARIFF_REGISTERS(354, EndDeviceEventTypeFactory.getMismatchBetweenTotalAndTariffRegisters()),
+
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),
     POWER_MANAGEMENT_SWITCH_FULL_POWER      (100003, EndDeviceEventTypeFactory.getPowerManagementSwitchFullPowerEventType()),

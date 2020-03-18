@@ -1398,7 +1398,15 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.19.129.85");
     }
 
+    public static EndDeviceEventType getHighConsumptionOrProductionEnergy() {
+        return new EndDeviceEventType("3.21.67.93");
+    }
 
+    public static EndDeviceEventType getIndexValuesDecreaseOrReset() {
+        return new EndDeviceEventType("3.21.89.215");
+    }
 
-
+    public static EndDeviceEventType getMismatchBetweenTotalAndTariffRegisters() {
+        return new EndDeviceEventType("3.20.140.159");
+    }
 }
