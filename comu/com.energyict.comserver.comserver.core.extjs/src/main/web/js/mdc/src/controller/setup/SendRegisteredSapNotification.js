@@ -53,7 +53,7 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         errorPanel.setVisible(true);
     },
 
-    sendSapNotification: function(button){
+    sendSapNotification: function (button) {
         var me = this;
         var form = button.up('form');
 
@@ -63,7 +63,7 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         }
 
         form.updateRecord();
-        form.setLoading();
+        fom.setLoading();
         var record = form.getRecord();
         record.getProxy().setUrl(me.deviceId);
         form.getRecord().save({

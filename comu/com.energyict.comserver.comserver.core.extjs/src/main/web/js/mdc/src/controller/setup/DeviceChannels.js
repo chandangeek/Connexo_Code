@@ -243,7 +243,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('readingType').fullAliasName]),
                         msg: ''
                     });
-                } else {general.failedToMakeActionTitle
+                } else {
                     if (res && res.errorCode) {
                         code = res.errorCode;
                     }
