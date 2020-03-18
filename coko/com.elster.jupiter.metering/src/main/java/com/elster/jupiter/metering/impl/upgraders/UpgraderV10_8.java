@@ -21,23 +21,19 @@ public class UpgraderV10_8 implements Upgrader {
     private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final DataModel dataModel;
     private final Clock clock;
-    private final ServerMeteringService meteringService;
     private final DefaultDeviceEventTypesInstaller defaultDeviceEventTypesInstaller;
     private final Logger logger;
 
     @Inject
-    UpgraderV10_8( DataModel dataModel, ServerMeteringService meteringService, DefaultDeviceEventTypesInstaller defaultDeviceEventTypesInstaller, Clock clock ) {
+    UpgraderV10_8( DataModel dataModel, DefaultDeviceEventTypesInstaller defaultDeviceEventTypesInstaller, Clock clock ) {
         this.dataModel = dataModel;
         this.clock = clock;
-        this.meteringService = meteringService;
         this.defaultDeviceEventTypesInstaller = defaultDeviceEventTypesInstaller;
         this.logger = Logger.getLogger(this.getClass().getName());
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
-        new EndDeviceControlTypeInstallerUtil(meteringService).createEndDeviceControlTypes(logger);
         defaultDeviceEventTypesInstaller.installIfNotPresent(logger);
         //append partition for next month and enable auto increment partition interval
         if (dataModel.getSqlDialect().hasPartitioning()) {
