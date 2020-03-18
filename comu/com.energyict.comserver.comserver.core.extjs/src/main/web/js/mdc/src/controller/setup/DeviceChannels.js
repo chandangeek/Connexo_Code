@@ -93,17 +93,29 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             loadProfilesStore = me.getStore('Mdc.store.LoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
+            hasSapAttributes,
             showPage = function () {
                 deviceModel.load(deviceId, {
                     success: function (record) {
                         if (record.get('hasLoadProfiles')) {
                             me.getApplication().fireEvent('loadDevice', record);
-                            widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                                router: router,
-                                device: record
+                            Ext.Ajax.request({
+                                url: "/api/sap/devices/" + deviceId + "/channels/havesapcas",
+                                method: 'GET',
+                                success: function (response) {
+                                    var sapData = Ext.JSON.decode(response.responseText);
+                                    hasSapAttributes = sapData && sapData.value;
+                                },
+                                callback: function(){
+                                    widget = Ext.widget('deviceLoadProfileChannelsSetup', {
+                                        router: router,
+                                        device: record,
+                                        hasSapAttributes: hasSapAttributes
+                                    });
+                                    me.getApplication().fireEvent('changecontentevent', widget);
+                                    channelsOfLoadProfilesOfDeviceStore.load();
+                                }
                             });
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                            channelsOfLoadProfilesOfDeviceStore.load();
                         } else {
                             window.location.replace(router.getRoute('notfound').buildUrl());
                         }

@@ -855,12 +855,33 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         Ext.suspendLayouts();
         panel.removeAll();
-        panel.add({
-            xtype: 'deviceRegistersView',
-            device: me.device,
-            router: router
-        });
-        Ext.resumeLayouts(true);
+
+        var deviceId = me.device && me.device.get('name');
+
+        function createDeviceRegistersViewPanel(hasSapAttributes){
+            panel.add({
+                xtype: 'deviceRegistersView',
+                device: me.device,
+                router: router,
+                hasSapAttributes: hasSapAttributes
+            });
+            Ext.resumeLayouts(true);
+        }
+        if (deviceId){
+            Ext.Ajax.request({
+                url: "/api/sap/devices/" + deviceId + "/registers/havesapcas",
+                method: 'GET',
+                success: function (response) {
+                    var sapData = Ext.JSON.decode(response.responseText);
+                    hasSapAttributes = sapData && sapData.value;
+                },
+                callback: function(){
+                    createDeviceRegistersViewPanel(hasSapAttributes);
+                }
+            });
+        } else {
+            createDeviceRegistersViewPanel();
+        }
     },
 
     showReadingsTab: function (panel) {
