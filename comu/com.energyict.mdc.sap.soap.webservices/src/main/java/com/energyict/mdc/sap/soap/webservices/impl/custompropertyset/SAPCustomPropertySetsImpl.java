@@ -296,8 +296,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public boolean isAnyLrnPresent(long deviceId) {
-        return isAnyRegisterLrn(deviceId) || isAnyChannelLrn(deviceId);
+    public boolean isAnyLrnPresent(long deviceId, Instant currentTime) {
+        return isAnyRegisterLrn(deviceId, currentTime) || isAnyChannelLrn(deviceId, currentTime);
     }
 
     @Override
@@ -720,21 +720,27 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
 
-    private boolean isAnyRegisterLrn(long deviceId) {
+    private boolean isAnyRegisterLrn(long deviceId, Instant currentTime) {
         return getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName())
+                        .isEffective(currentTime)
+                        .or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(currentTime.toEpochMilli())))
                 .findAny()
                 .isPresent();
     }
 
 
-    private boolean isAnyChannelLrn(long deviceId) {
+    private boolean isAnyChannelLrn(long deviceId, Instant currentTime) {
         return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName())
+                        .isEffective(currentTime)
+                        .or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(currentTime.toEpochMilli())))
                 .findAny()
                 .isPresent();
     }
@@ -952,6 +958,18 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return channelSpec.getDeviceConfiguration().getDeviceType().getLoadProfileTypeCustomPropertySet(channelSpec.getLoadProfileSpec().getLoadProfileType())
                 .filter(f -> f.getCustomPropertySetId().equals(cpsId) && f.isViewableByCurrentUser())
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId));
+    }
+
+    @Override
+    public boolean doesDeviceHaveSapCPS(Device device) {
+        List<RegisteredCustomPropertySet> deviceCPSs = device.getDeviceType()
+                .getCustomPropertySets();
+
+        return deviceCPSs
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(RegisteredCustomPropertySet::getCustomPropertySetId)
+                .anyMatch(deviceInfo.getId()::equals);
     }
 
     public boolean doesRegisterHaveSapCPS(Register register) {
