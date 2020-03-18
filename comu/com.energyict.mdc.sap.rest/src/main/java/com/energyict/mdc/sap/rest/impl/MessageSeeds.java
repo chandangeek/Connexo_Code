@@ -12,7 +12,7 @@ public enum MessageSeeds implements MessageSeed {
 
     NO_SUCH_DEVICE(1, "NoSuchDevice", "No device with name ''{0}''."),
     NO_REGISTERED_NOTIFICATION_ENDPOINT(2, "NoRegisteredNotificationEndPoint", "No registered notification end point is found by id ''{0}''."),
-    DEVICE_ID_ATTRIBUTE_IS_NOT_SET(3, "DeviceIdAttributeIsNotSet", "''Device identifier'' attribute is not set on Device SAP info CAS."),
+    DEVICE_ID_ATTRIBUTE_IS_NOT_SET(3, "DeviceIdAttributeIsNotSet", "''Device identifier'' attribute isn''t set on Device SAP info CAS."),
     NO_LRN(4, "NoLrn", "No LRN is available on current or future data sources on the device."),
     DEVICE_ALREADY_REGISTERED(5, "DeviceAlreadyRegistered", "Device already registered (Registered flag is true on Device SAP info CAS)."),
     REQUEST_SENDING_HAS_FAILED(6, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),

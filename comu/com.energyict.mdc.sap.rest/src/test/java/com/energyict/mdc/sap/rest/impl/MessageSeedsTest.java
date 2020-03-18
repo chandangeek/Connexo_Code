@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.sap.rest.impl;
 
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +19,7 @@ public class MessageSeedsTest {
     @Test
     public void testAllSeedsHaveUniqueNumber() {
         Set<Integer> uniqueIds = new HashSet<>();
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(uniqueIds.add(messageSeed.getNumber())).as(messageSeed.name() + " does not have a unique number")
                     .isTrue();
         }
@@ -30,7 +28,7 @@ public class MessageSeedsTest {
     @Test
     public void testAllMessageSeedsHaveUniqueKeys() {
         Set<String> uniqueKeys = new HashSet<>();
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(uniqueKeys.add(messageSeed.getKey())).as(messageSeed.name() + " does not have a unique key")
                     .isTrue();
         }
@@ -38,14 +36,14 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveNonNullKey() {
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getKey()).as(messageSeed.name() + " has null key").isNotNull();
         }
     }
 
     @Test
     public void testKeyDoesntStartOrEndWithANonPrintableChar() {
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             String key = messageSeed.getKey();
             assertThat(key.trim().length()).as(messageSeed.name() + " has empty key").isNotZero()
                     .as(messageSeed.name() + " key should not start or end with a non-printable character")
@@ -55,7 +53,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllMessageSeedKeysAreWithinLengthLimit() {
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getKey().length()).as(messageSeed.name() + " key is longer than max of 256")
                     .isLessThanOrEqualTo(256);
         }
@@ -63,14 +61,14 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveNonNullDefaultFormat() {
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getDefaultFormat()).as(messageSeed.name() + " has null default format").isNotNull();
         }
     }
 
     @Test
     public void testDefaultFormatDoesntStartOrEndWithANonPrintableChar() {
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             String defaultFormat = messageSeed.getDefaultFormat();
             assertThat(defaultFormat.trim().length()).as(messageSeed.name() + " has empty default format").isNotZero()
                     .as(messageSeed.name() + " default format should not start or end with a non-printable character")
@@ -80,7 +78,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllMessageSeedDefaultFormatsAreWithinLengthLimit() {
-        for (com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getDefaultFormat().length())
                     .as(messageSeed.name() + " default format is longer than max of 256").isLessThanOrEqualTo(256);
         }

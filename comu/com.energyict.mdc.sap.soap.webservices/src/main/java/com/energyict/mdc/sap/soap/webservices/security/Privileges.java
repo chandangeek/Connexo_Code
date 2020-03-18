@@ -7,7 +7,6 @@ package com.energyict.mdc.sap.soap.webservices.security;
 import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
     //Resources
@@ -15,8 +14,7 @@ public enum Privileges implements TranslationKey {
     RESOURCE_SAP_DESCRIPTION("sap.sap.description", "Manage SAP"),
 
     //Privileges
-    SEND_WEB_SERVICE_REQUEST(Constants.SEND_WEB_SERVICE_REQUEST, "Send web service request")
-    ;
+    SEND_WEB_SERVICE_REQUEST(Constants.SEND_WEB_SERVICE_REQUEST, "Send web service request");
 
     private final String key;
     private final String description;
@@ -42,8 +40,7 @@ public enum Privileges implements TranslationKey {
     public static String[] keys() {
         return Arrays.stream(Privileges.values())
                 .map(Privileges::getKey)
-                .collect(Collectors.toList())
-                .toArray(new String[Privileges.values().length]);
+                .toArray(String[]::new);
     }
 
     public interface Constants {

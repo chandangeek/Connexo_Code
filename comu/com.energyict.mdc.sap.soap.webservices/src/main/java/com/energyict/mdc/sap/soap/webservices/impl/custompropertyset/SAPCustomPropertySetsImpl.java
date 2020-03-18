@@ -960,6 +960,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId));
     }
 
+    @Override
     public boolean doesDeviceHaveSapCPS(Device device) {
         List<RegisteredCustomPropertySet> deviceCPSs = device.getDeviceType()
                 .getCustomPropertySets();

@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PrivilegesProviderV10_7_2 implements PrivilegesProvider {
+public class SAPPrivilegeProvider implements PrivilegesProvider {
     private final UserService userService;
 
     @Inject
-    public PrivilegesProviderV10_7_2(UserService userService) {
+    public SAPPrivilegeProvider(UserService userService) {
         this.userService = userService;
     }
 

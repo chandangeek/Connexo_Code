@@ -52,7 +52,7 @@ public class UpgraderV10_7_2 implements Upgrader {
     private final DeviceService deviceService;
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final UserService userService;
-    private final PrivilegesProviderV10_7_2 privilegesProviderV10_7_2;
+    private final SAPPrivilegeProvider sapPrivilegeProvider;
     private final Clock clock;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
@@ -60,13 +60,13 @@ public class UpgraderV10_7_2 implements Upgrader {
 
     @Inject
     public UpgraderV10_7_2(DataModel dataModel, OrmService ormService, DeviceService deviceService,
-                           SAPCustomPropertySets sapCustomPropertySets, PrivilegesProviderV10_7_2 privilegesProviderV10_7_2, UserService userService,
+                           SAPCustomPropertySets sapCustomPropertySets, SAPPrivilegeProvider sapPrivilegeProvider, UserService userService,
                            Clock clock, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
         this.dataModel = dataModel;
         this.ormService = ormService;
         this.deviceService = deviceService;
         this.sapCustomPropertySets = sapCustomPropertySets;
-        this.privilegesProviderV10_7_2 = privilegesProviderV10_7_2;
+        this.sapPrivilegeProvider = sapPrivilegeProvider;
         this.userService = userService;
         this.clock = clock;
         this.serviceCallService = serviceCallService;
@@ -78,7 +78,7 @@ public class UpgraderV10_7_2 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, version(10, 7, 2));
         removeOldChannelAndRegisterSapCasValues();
         updateRegisteredFlag();
-        userService.addModulePrivileges(privilegesProviderV10_7_2);
+        userService.addModulePrivileges(sapPrivilegeProvider);
         createNewlyAddedServiceCallTypes();
     }
 
@@ -129,7 +129,6 @@ public class UpgraderV10_7_2 implements Upgrader {
             }
         }
     }
-
 
     private void removeOldChannelAndRegisterSapCasValues() {
         ImmutableList.Builder<String> sqlQueries = ImmutableList.builder();

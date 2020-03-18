@@ -102,43 +102,44 @@ public class SapResourceTest extends SapApplicationJerseyTest {
         Entity<RegisteredNotificationEndPointInfo> entity = Entity.json(info);
 
         //no registered notification end points
-        when(endPointConfigurationService.getEndPointConfigurationsForWebService(UtilitiesDeviceRegisteredNotification.NAME))
-                .thenReturn(Collections.emptyList());
+        when(endPointConfigurationService.getEndPointConfiguration(info.id))
+                .thenReturn(Optional.empty());
 
-        Response response = target("/devices/testDevice/sendregisterednotification").request().post(entity);
+        Response response = target("/devices/testDevice/sendregisterednotification/10").request().post(entity);
         assertBadRequest(response, "No registered notification end point is found by id '10'.", "NoRegisteredNotificationEndPoint");
 
         //no such device
+        when(endPointConfigurationService.getEndPointConfiguration(info.id))
+                .thenReturn(Optional.of(endPointConfiguration));
         when(deviceService.findDeviceByName("testDevice")).thenReturn(Optional.empty());
         mockRegisteredNotificationEndPoint();
 
-        response = target("/devices/testDevice/sendregisterednotification").request().post(entity);
+        response = target("/devices/testDevice/sendregisterednotification/10").request().post(entity);
         assertBadRequest(response, "No device with name 'testDevice'.", "NoSuchDevice");
 
         //device id attribute is not set
         when(deviceService.findDeviceByName("testDevice")).thenReturn(Optional.of(device));
         when(sapCustomPropertySets.getSapDeviceId(device)).thenReturn(Optional.empty());
-        response = target("/devices/testDevice/sendregisterednotification").request().post(entity);
-        assertBadRequest(response, "'Device identifier' attribute is not set on Device SAP info CAS.", "DeviceIdAttributeIsNotSet");
+        response = target("/devices/testDevice/sendregisterednotification/10").request().post(entity);
+        assertBadRequest(response, "'Device identifier' attribute isn't set on Device SAP info CAS.", "DeviceIdAttributeIsNotSet");
 
         //device already registered
         when(sapCustomPropertySets.getSapDeviceId(device)).thenReturn(Optional.of("SAP10001"));
         when(sapCustomPropertySets.isRegistered(device)).thenReturn(true);
-        response = target("/devices/testDevice/sendregisterednotification").request().post(entity);
+        response = target("/devices/testDevice/sendregisterednotification/10").request().post(entity);
         assertBadRequest(response, "Device already registered (Registered flag is true on Device SAP info CAS).", "DeviceAlreadyRegistered");
 
         //no lrn
         when(sapCustomPropertySets.isRegistered(device)).thenReturn(false);
         when(sapCustomPropertySets.isAnyLrnPresent(1, now)).thenReturn(false);
-        response = target("/devices/testDevice/sendregisterednotification").request().post(entity);
+        response = target("/devices/testDevice/sendregisterednotification/10").request().post(entity);
         assertBadRequest(response, "No LRN is available on current or future data sources on the device.", "NoLrn");
 
         //registered notification is sent
         when(sapCustomPropertySets.isAnyLrnPresent(1, now)).thenReturn(true);
-        response = target("/devices/testDevice/sendregisterednotification").request().post(entity);
+        when(utilitiesDeviceRegisteredNotification.call("SAP10001", Collections.singleton(endPointConfiguration))).thenReturn(true);
+        response = target("/devices/testDevice/sendregisterednotification/10").request().post(entity);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        verify(utilitiesDeviceRegisteredNotification).call("SAP10001", Collections.singletonList(endPointConfiguration));
     }
 
     private void mockRegisteredNotificationEndPoint() {

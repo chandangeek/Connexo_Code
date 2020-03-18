@@ -4,7 +4,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -44,6 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -59,7 +59,6 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
-    private volatile MeteringService meteringService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile DeviceService deviceService;
     private volatile WebServiceActivator webServiceActivator;
@@ -70,14 +69,13 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
     @Inject
     public UtilitiesDeviceRegisteredNotificationProvider(Clock clock,
-                                                         SAPCustomPropertySets sapCustomPropertySets, MeteringService meteringService,
+                                                         SAPCustomPropertySets sapCustomPropertySets,
                                                          EndPointConfigurationService endPointConfigurationService,
                                                          DeviceService deviceService,
                                                          WebServiceActivator webServiceActivator) {
         this();
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
-        this.meteringService = meteringService;
         this.endPointConfigurationService = endPointConfigurationService;
         this.deviceService = deviceService;
         setWebServiceActivator(webServiceActivator);
@@ -95,11 +93,6 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     @Reference
     public void setThesaurus(WebServiceActivator webServiceActivator) {
         thesaurus = webServiceActivator.getThesaurus();
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
     }
 
     @Reference
@@ -160,17 +153,15 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
     @Override
     public void call(long endDeviceId, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
-        meteringService.findEndDeviceById(endDeviceId).ifPresent(endDevice -> {
-            deviceService.findDeviceByMrid(endDevice.getMRID()).ifPresent(
-                    device -> {
-                        sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
-                            if (!sapCustomPropertySets.isRegistered(device) && sapCustomPropertySets.isAnyLrnPresent(device.getId(), effectiveDate)) {
-                                call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
-                            }
-                        });
-                    }
-            );
-        });
+        deviceService.findDeviceByMeterId(endDeviceId).ifPresent(
+                device -> {
+                    sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
+                        if (!sapCustomPropertySets.isRegistered(device) && sapCustomPropertySets.isAnyLrnPresent(device.getId(), effectiveDate)) {
+                            call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
+                        }
+                    });
+                }
+        );
     }
 
     @Override
@@ -189,7 +180,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     @Override
-    public boolean call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
+    public boolean call(String sapDeviceId, Set<EndPointConfiguration> endPointConfigurations) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
@@ -202,7 +193,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         if (!processedEndpoints.isEmpty()) {
             sapCustomPropertySets.setRegistered(sapDeviceId, true);
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -236,8 +227,8 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         return utilsDevice;
     }
 
-    private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
-        return endPointConfigurationService.streamEndPointConfigurations().filter(where("id").in(endPointConfigurationIds)).select();
+    private Set<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
+        return endPointConfigurationService.streamEndPointConfigurations().filter(where("id").in(endPointConfigurationIds)).collect(Collectors.toSet());
     }
 
     private BusinessDocumentMessageHeader createMessageHeader(Instant now) {

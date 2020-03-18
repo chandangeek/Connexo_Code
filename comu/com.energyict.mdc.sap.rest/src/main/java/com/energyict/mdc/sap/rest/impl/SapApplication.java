@@ -5,6 +5,7 @@
 package com.energyict.mdc.sap.rest.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -12,24 +13,26 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.sap.rest", service = {Application.class}, immediate = true,
         property = {"alias=/sap", "app=MDC", "name=" + SapApplication.COMPONENT_NAME})
-public class SapApplication extends Application {
+public class SapApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "SPR";
 
     private volatile NlsService nlsService;
@@ -50,10 +53,20 @@ public class SapApplication extends Application {
 
     @Override
     public Set<Object> getSingletons() {
-        Set<Object> hashSet = new HashSet<>();
-        hashSet.addAll(super.getSingletons());
-        hashSet.add(new HK2Binder());
-        return Collections.unmodifiableSet(hashSet);
+        return ImmutableSet.of(
+                super.getSingletons(),
+                new HK2Binder()
+        );
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {

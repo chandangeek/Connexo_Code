@@ -5,16 +5,20 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
-import java.util.List;
+import aQute.bnd.annotation.ProviderType;
 
+import java.util.Set;
+
+@ProviderType
 public interface UtilitiesDeviceRegisteredNotification {
     String NAME = "SAP SmartMeterRegisteredNotification";
 
     /**
      * Invoked when the SAP utilities device is registered
+     *
      * @param sapDeviceId
      */
     void call(String sapDeviceId);
 
-    boolean call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations);
+    boolean call(String sapDeviceId, Set<EndPointConfiguration> endPointConfigurations);
 }

@@ -29,8 +29,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/")
 public class SapResource {
@@ -58,7 +60,6 @@ public class SapResource {
     @GET
     @Transactional
     @Path("/devices/{deviceName}/hassapcas")
-    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
     public Response hasSapCas(@PathParam("deviceName") String deviceName) {
@@ -79,9 +80,8 @@ public class SapResource {
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
     public Response getAvailableRegisteredNotificationEndpoints(@BeanParam JsonQueryParameters queryParams) {
         List<RegisteredNotificationEndPointInfo> registeredNotificationEndPointInfos = getActiveRegisteredNotificationEndpointConfigurations()
-                .stream()
                 .map(registeredNotificationEndPointInfoFactory::from)
-                .sorted((e1, e2) -> e1.name.compareToIgnoreCase(e2.name))
+                .sorted(Comparator.comparing(info -> info.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromCompleteList("registeredNotificationEndpoints", registeredNotificationEndPointInfos, queryParams)).build();
@@ -89,15 +89,15 @@ public class SapResource {
 
     @POST
     @Transactional
-    @Path("/devices/{deviceName}/sendregisterednotification/{endpointId}") //TODO: remove "endpointId" query parameter or payload on BE/FE
+    @Path("/devices/{deviceName}/sendregisterednotification/{endpointId}") //TODO: remove "endpointId" query parameter on BE/FE
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
     public Response sendRegisteredNotification(@PathParam("deviceName") String deviceName, RegisteredNotificationEndPointInfo registeredNotificationEndPointInfo) {
 
-        EndPointConfiguration endPointConfiguration = getActiveRegisteredNotificationEndpointConfigurations().stream()
-                .filter(endPoint -> endPoint.getId() == registeredNotificationEndPointInfo.id)
-                .findFirst()
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(registeredNotificationEndPointInfo.id)
+                .filter(EndPointConfiguration::isActive)
+                .filter(e -> e.getWebServiceName().equals(UtilitiesDeviceRegisteredNotification.NAME))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_REGISTERED_NOTIFICATION_ENDPOINT, registeredNotificationEndPointInfo.id));
 
         Device device = deviceService.findDeviceByName(deviceName)
@@ -114,17 +114,17 @@ public class SapResource {
             throw exceptionFactory.newException(MessageSeeds.NO_LRN);
         }
 
-        if (!utilitiesDeviceRegisteredNotification.call(sapDeviceId, Collections.singletonList(endPointConfiguration))) {
+        if (!utilitiesDeviceRegisteredNotification.call(sapDeviceId, Collections.singleton(endPointConfiguration))) {
             throw exceptionFactory.newException(MessageSeeds.REQUEST_SENDING_HAS_FAILED);
         }
 
         return Response.ok().build();
     }
 
-    private List<EndPointConfiguration> getActiveRegisteredNotificationEndpointConfigurations() {
+    private Stream<EndPointConfiguration> getActiveRegisteredNotificationEndpointConfigurations() {
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(UtilitiesDeviceRegisteredNotification.NAME)
                 .stream()
-                .filter(EndPointConfiguration::isActive).collect(Collectors.toList());
+                .filter(EndPointConfiguration::isActive);
     }
 }
