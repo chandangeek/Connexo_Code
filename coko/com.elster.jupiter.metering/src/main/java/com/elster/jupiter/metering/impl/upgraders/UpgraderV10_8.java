@@ -7,9 +7,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.metering.impl.DefaultDeviceEventTypesInstaller;
-import com.elster.jupiter.metering.impl.EndDeviceControlTypeInstallerUtil;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.orm.Version;
 
 import javax.inject.Inject;
 import java.time.Clock;
