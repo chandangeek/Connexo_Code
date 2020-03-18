@@ -4,10 +4,10 @@
 
 package com.elster.jupiter.rest.util;
 
-public class BooleanValue {
+public class BooleanValueInfo {
     private final boolean value;
 
-    public BooleanValue(boolean value) {
+    public BooleanValueInfo(boolean value) {
         this.value = value;
     }
 

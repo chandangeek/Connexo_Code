@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.sap.rest.impl;
 
-import com.elster.jupiter.rest.util.BooleanValue;
+import com.elster.jupiter.rest.util.BooleanValueInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -81,7 +81,7 @@ public class SapResource {
     public Response isSapCasAssignedToAnyRegister(@PathParam("deviceName") String deviceName) {
         Device device = deviceService.findDeviceByName(deviceName).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceName));
         boolean haveSapCas = device.getRegisters().stream().anyMatch(sapCustomPropertySets::doesRegisterHaveSapCPS);
-        return Response.ok().entity(new BooleanValue(haveSapCas)).build();
+        return Response.ok().entity(new BooleanValueInfo(haveSapCas)).build();
     }
 
     @GET
@@ -92,7 +92,7 @@ public class SapResource {
     public Response isSapCasAssignedToAnyChannel(@PathParam("deviceName") String deviceName) {
         Device device = deviceService.findDeviceByName(deviceName).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, deviceName));
         boolean haveSapCas = device.getChannels().stream().anyMatch(sapCustomPropertySets::doesChannelHaveSapCPS);
-        return Response.ok().entity(new BooleanValue(haveSapCas)).build();
+        return Response.ok().entity(new BooleanValueInfo(haveSapCas)).build();
     }
 
     @GET
