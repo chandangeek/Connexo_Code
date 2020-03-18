@@ -20,7 +20,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         this.control({
             '#time-sliced-custom-attribute-set-action-menu-id': {
                 moveToEditPage: this.moveToEditPage,
-                moveToClonePage: this.moveToClonePage
+                moveToClonePage: this.moveToClonePage,
+                removeVersion: this.removeVersion
             },
             '#custom-attribute-set-versions-setup-id button[action=moveToAddVersionPage]': {
                 click: this.moveToAddPage
@@ -113,6 +114,62 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
     moveToClonePage: function (type, versionId) {
         var route = Mdc.customattributesonvaluesobjects.service.RouteMap.getRoute(type, true, 'clone');
         this.navigateToRoute(route, type, versionId, false);
+    },
+
+    removeVersion: function (type, versionId, versionPeriod) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            router = me.getController('Uni.controller.history.Router'),
+            routeArguments = router.arguments,
+            routeQueryParams = router.queryParams,
+            cpsId = routeArguments.customAttributeSetId || routeQueryParams.customAttributeSetId,
+            url = "";
+
+        switch(type){
+            case "device":
+                var deviceId = routeArguments.deviceId;
+                url = 'api/ddr/devices/' + deviceId;
+            break;
+            case "channel":
+                var deviceId = routeArguments.deviceId;
+                var channelId = routeArguments.channelId;
+                url = 'api/ddr/devices/' + deviceId + '/channels/' + channelId;
+            break;
+            case "register":
+                var deviceId = routeArguments.deviceId;
+                var registerId = routeArguments.registerId;
+                url = 'api/ddr/devices/' + deviceId + '/registers/' + registerId;
+            break;
+            case "usagePoint":
+                var usagePointName = usagePointId;
+                url = '/api/udr/usagepoints/' + usagePointName;
+            break;
+            default:
+            break;
+        }
+        if (url){
+            url += '/customproperties/' + cpsId + '/versions/';
+        }
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'MDC', 'This version will on longer be available.'),
+                title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'MDC', 'Remove {0} version?', versionPeriod),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        Ext.Ajax.request({
+                            url: url,
+                            method: 'DELETE',
+                            success: function (response) {
+                                var data = Ext.JSON.decode(response.responseText).data;
+                                var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'MDC', '{0} version removed', versionPeriod)
+                                me.getApplication().fireEvent('acknowledge', messageText);
+                            },
+                            callback: function(){
+                                router.getState().forward();
+                            }
+                        });
+                }
+            });
     },
 
     moveToAddPage: function (button) {
