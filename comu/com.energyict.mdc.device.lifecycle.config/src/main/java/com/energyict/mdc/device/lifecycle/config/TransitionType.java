@@ -123,7 +123,9 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.START_ALL_COMMUNICATION
+            );
         }
 
         @Override
