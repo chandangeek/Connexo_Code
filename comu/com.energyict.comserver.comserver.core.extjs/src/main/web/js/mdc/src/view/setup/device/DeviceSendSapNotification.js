@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.device.DeviceSendSapNotification', {
                                 layout: 'vbox',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('sap.webserviceendpoint', 'MDC', 'Web service endpoint'),
+                                margin: '0 0 -20 0',
                                 items: [
                                     {
                                         xtype: 'displayfield',
@@ -62,6 +63,7 @@ Ext.define('Mdc.view.setup.device.DeviceSendSapNotification', {
                                         store: me.endPointsStore,
                                         allowBlank: false,
                                         hidden: !me.endPointsStore.getCount(),
+                                        emptyText: Uni.I18n.translate('sap.selectwebserviceendpoint', 'MDC', 'Select a web service endpoint'),
                                         width: 300,
                                         name: 'id'
                                     },
