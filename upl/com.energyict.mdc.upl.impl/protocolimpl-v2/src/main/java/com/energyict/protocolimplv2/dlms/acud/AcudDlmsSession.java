@@ -12,4 +12,9 @@ public class AcudDlmsSession extends DlmsSession {
     AcudDlmsSession(ComChannel comChannel, DlmsSessionProperties properties, HHUSignOnV2 hhuSignOn, String deviceId) {
         super(comChannel, properties, hhuSignOn, deviceId);
     }
+
+    @Override
+    protected DlmsV2Connection defineTransportDLMSConnection() {
+        return new HDLCConnection(getComChannel(), getProperties());
+    }
 }
