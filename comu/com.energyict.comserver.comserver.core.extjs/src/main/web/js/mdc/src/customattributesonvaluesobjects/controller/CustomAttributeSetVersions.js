@@ -165,7 +165,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
                             callback: function(){
-                                //router.getState().forward();
+                                router.getRoute().forward();
                             }
                         });
                     }
