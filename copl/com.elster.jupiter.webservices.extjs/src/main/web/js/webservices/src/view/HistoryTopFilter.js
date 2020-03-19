@@ -48,7 +48,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 multiSelect: true,
                 listConfig: {
                     minWidth: 180,
-                    maxWidth: 500
+                    maxWidth: 600
                 },
                 listeners: {
                     expand: function (combo) {
