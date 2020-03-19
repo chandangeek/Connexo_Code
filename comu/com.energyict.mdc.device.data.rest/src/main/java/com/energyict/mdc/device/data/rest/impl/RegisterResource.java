@@ -97,7 +97,7 @@ public class RegisterResource {
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).find()
                 .stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
-                .filter(register -> !jsonQueryFilter.hasProperty("logicalRegisterNumber") || resourceHelper.filterLogicalRegisterNumber(register, FilterHelper.getStringFilterIfAvailableCheckNull("logicalRegisterNumber", jsonQueryFilter)))
+                .filter(register -> !jsonQueryFilter.hasProperty("logicalRegisterNumber") || resourceHelper.filterLogicalRegisterNumber(register, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter)))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         Collections.sort(registerInfos, this::compareRegisterInfos);
         return PagedInfoList.fromCompleteList("data", registerInfos, queryParameters);

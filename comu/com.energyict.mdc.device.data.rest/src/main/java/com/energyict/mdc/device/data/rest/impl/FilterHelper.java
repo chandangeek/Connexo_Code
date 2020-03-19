@@ -20,20 +20,7 @@ public final class FilterHelper {
         if (filter.hasProperty(name)) {
             Pattern pattern = getFilterPattern(filter.getString(name));
             if (pattern != null) {
-                return s -> pattern.matcher(s).matches();
-            }
-        }
-        return s -> true;
-    }
-
-    public static Predicate<String> getStringFilterIfAvailableCheckNull(String name, JsonQueryFilter filter) {
-        if (name == null) {
-            return s -> false;
-        }
-        if (filter.hasProperty(name)) {
-            Pattern pattern = getFilterPattern(filter.getString(name));
-            if (pattern != null) {
-                return s -> pattern.matcher(s).matches();
+                return s -> pattern.matcher(s == null ? "" : s).matches();
             }
         }
         return s -> true;

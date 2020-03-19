@@ -347,7 +347,7 @@ public class ChannelResource {
                 .filter(c -> filterByChannelName.test(c.getReadingType().getFullAliasName()))
                 .filter(channel -> {
                     if (filter.hasProperty("logicalRegisterNumber") || filter.hasProperty("profileId")) {
-                        return resourceHelper.filterSapAttributes(channel, FilterHelper.getStringFilterIfAvailableCheckNull("logicalRegisterNumber", filter), FilterHelper.getStringFilterIfAvailableCheckNull("profileId", filter));
+                        return resourceHelper.filterSapAttributes(channel, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", filter), FilterHelper.getStringFilterIfAvailable("profileId", filter));
                     } else {
                         return true;
                     }
