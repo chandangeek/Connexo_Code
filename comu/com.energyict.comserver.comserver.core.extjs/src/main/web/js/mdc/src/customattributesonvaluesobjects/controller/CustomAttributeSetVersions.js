@@ -148,7 +148,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
             break;
         }
         if (url){
-            url += '/customproperties/' + cpsId + '/versions/';
+            url += '/customproperties/' + cpsId + '/versions/' + versionId;
         }
         confirmationWindow.show(
             {
@@ -165,9 +165,10 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
                             callback: function(){
-                                router.getState().forward();
+                                //router.getState().forward();
                             }
                         });
+                    }
                 }
             });
     },
