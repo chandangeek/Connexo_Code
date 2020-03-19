@@ -71,7 +71,7 @@ public class SapResource {
             hasSapCas = true;
         }
 
-        return Response.ok().entity("{\"exist\":\"" + hasSapCas + "\"}").build();
+        return Response.ok().entity(new BooleanValueInfo(hasSapCas)).build();
     }
 
     @GET
