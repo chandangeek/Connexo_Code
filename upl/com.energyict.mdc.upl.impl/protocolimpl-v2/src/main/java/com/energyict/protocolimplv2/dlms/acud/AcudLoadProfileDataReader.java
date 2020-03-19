@@ -31,21 +31,7 @@ import java.util.Map;
 
 public class AcudLoadProfileDataReader {
 
-    private static final ObisCode SELF_READ_DATA_TOTAL = ObisCode.fromString("0.0.98.1.0.255");
-
-    static final ObisCode LOAD_PROFILE_PULSES              = ObisCode.fromString("1.0.99.1.0.255");
-    static final ObisCode LOAD_PROFILE_EU_CUMULATIVE       = ObisCode.fromString("1.0.99.1.1.255");
-    static final ObisCode LOAD_PROFILE_EU_NONCUMULATIVE    = ObisCode.fromString("1.0.99.1.2.255");
-    static final ObisCode PROFILE_INSTRUMENTATION_SET1     = ObisCode.fromString("1.0.99.128.0.255");
-    static final ObisCode PROFILE_INSTRUMENTATION_SET2     = ObisCode.fromString("1.0.99.129.0.255");
-
-    static final ObisCode MULTIPLIER_INSTRUMENTATION       = ObisCode.fromString("1.1.96.131.1.255");
-    static final ObisCode MULTIPLIER_NON_INSTRUMENTATION   = ObisCode.fromString("1.1.96.132.1.255");
-    static final ObisCode SCALE_FACTOR_INSTRUMENTATION     = ObisCode.fromString("1.1.96.131.2.255");
-    static final ObisCode SCALE_FACTOR_NON_INSTRUMENTATION = ObisCode.fromString("1.1.96.132.2.255");
-
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
-    private final List<ObisCode> supportedLoadProfiles;
     protected final AbstractDlmsProtocol protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
@@ -58,14 +44,6 @@ public class AcudLoadProfileDataReader {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.offlineDevice = offlineDevice;
-        supportedLoadProfiles = new ArrayList<>();
-        supportedLoadProfiles.add(LOAD_PROFILE_PULSES);
-        supportedLoadProfiles.add(LOAD_PROFILE_EU_CUMULATIVE);
-        supportedLoadProfiles.add(LOAD_PROFILE_EU_NONCUMULATIVE);
-        supportedLoadProfiles.add(PROFILE_INSTRUMENTATION_SET1);
-        supportedLoadProfiles.add(PROFILE_INSTRUMENTATION_SET2);
-        supportedLoadProfiles.add(SELF_READ_DATA_TOTAL);
-
     }
 
     @SuppressWarnings("unchecked")
@@ -78,7 +56,7 @@ public class AcudLoadProfileDataReader {
                             .getProfileObisCode(), offlineDevice.getDeviceIdentifier()));
 
             List<ChannelInfo> channelInfos = getChannelInfosMap().get(loadProfileReader);
-            if (isSupported(loadProfileReader) && (channelInfos != null)) {
+            if ((channelInfos != null)) {
                 try {
                     AcudProfileDataHelper profileHelper = new AcudProfileDataHelper(protocol, loadProfileReader);
                     List<IntervalData> intervalDatas = profileHelper.getIntervalData();
@@ -217,15 +195,6 @@ public class AcudLoadProfileDataReader {
 
     private boolean isCumulative(ObisCode obisCode) {
         return ParseUtils.isObisCodeCumulative(obisCode);
-    }
-
-    private boolean isSupported(LoadProfileReader loadProfileReader) {
-        for (ObisCode supportedLoadProfile : supportedLoadProfiles) {
-            if (loadProfileReader.getProfileObisCode().equalsIgnoreBChannel(supportedLoadProfile)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private Map<LoadProfileReader, List<ChannelInfo>> getChannelInfosMap() {

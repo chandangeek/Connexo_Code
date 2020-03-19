@@ -13,12 +13,12 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimpl.elster.a1800.tables.PowerQualityMonitorLog;
-import com.energyict.protocolimpl.elster.a1800.tables.SagLog;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -27,19 +27,7 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
     private static final Logger sLogger = Logger.getLogger(AcudLogBookFactory.class.getName());
     private static final int OCTESTS = 100;
 
-    private static ObisCode EVENT_LOG = ObisCode.fromString("1.1.99.98.0.255");
-    private static ObisCode SAG_LOG = ObisCode.fromString("1.1.99.98.2.255");
-    private static ObisCode PQM_LOG = ObisCode.fromString("1.1.99.98.3.255");
-
-    //Obis codes used for retrying the number of entries of SAG_LOG and PQM_LOG
-    //DON'T use this obis codes for another purpose
-    private static ObisCode PQM_TESTS = ObisCode.fromString("0.0.65.16.48.255");
-    private static ObisCode SAG_LOG_CONFIGURATION = ObisCode.fromString("0.0.65.16.52.255");
-
-    private final Map<ObisCode, ObisCode> mapObisCodeAnsiCode = Collections.unmodifiableMap(createMap());
-
     private final List<ObisCode> supportedLogBooks;
-    private final List<ObisCode> supportedAnsiLogBooks;
     private Acud protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
@@ -49,10 +37,6 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
         this.issueFactory = issueFactory;
         this.protocol = protocol;
         supportedLogBooks = new ArrayList<>();
-        supportedLogBooks.add(EVENT_LOG);
-        supportedAnsiLogBooks = new ArrayList<>();
-        supportedAnsiLogBooks.add(SAG_LOG);
-        supportedAnsiLogBooks.add(PQM_LOG);
     }
 
     @SuppressWarnings("unchecked")
@@ -63,8 +47,6 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
             CollectedLogBook collectedLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
             if (isSupportedDLMS(logBookReader)) {
                 getDLMSLogBookData(logBookReader, collectedLogBook);
-            } else if (isSupportedANSI(logBookReader)) {
-                getANSILogBookData(logBookReader, collectedLogBook);
             } else {
                 collectedLogBook.setFailureInformation(ResultType.NotSupported, issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
@@ -103,39 +85,6 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
                 if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
-            }
-        }
-    }
-
-    private void getANSILogBookData(LogBookReader logBookReader, CollectedLogBook collectedLogBook) {
-        if (logBookReader.getLogBookObisCode().equals(PQM_LOG)) {
-            try {
-                int numberOfEntries = getNumberOfEntries(PQM_TESTS, 16, 2);
-
-                if (numberOfEntries > 0) {
-                    TableRead tableRead = protocol.getDlmsSession().getCosemObjectFactory().getTableRead(mapObisCodeAnsiCode.get(logBookReader.getLogBookObisCode()));
-                    byte[] buffer = fullRead(tableRead, numberOfEntries, 11, 9);
-                    PowerQualityMonitorLog powerQualityMonitorLog = new PowerQualityMonitorLog(null, true);
-                    powerQualityMonitorLog.parse(buffer);
-                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(powerQualityMonitorLog.getMeterEvents()).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList()));
-                }
-            } catch (IOException e) {
-                sLogger.severe("Error trying to read the table buffer for " + PQM_LOG);
-            }
-        }
-        if (logBookReader.getLogBookObisCode().equals(SAG_LOG)) {
-            try {
-                int numberOfEntries = getNumberOfEntries(SAG_LOG_CONFIGURATION, 4, 2);
-
-                if (numberOfEntries > 0) {
-                    TableRead tableRead = protocol.getDlmsSession().getCosemObjectFactory().getTableRead(mapObisCodeAnsiCode.get(logBookReader.getLogBookObisCode()));
-                    byte[] buffer = fullRead(tableRead, numberOfEntries, 7, 9);
-                    SagLog sagLog = new SagLog(null, null);
-                    sagLog.parse(buffer);
-                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(sagLog.getMeterEvents()).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList()));
-                }
-            } catch (IOException e) {
-                sLogger.severe("Error trying to read the table buffer for " + SAG_LOG);
             }
         }
     }
@@ -249,21 +198,5 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
             }
         }
         return false;
-    }
-
-    private boolean isSupportedANSI(LogBookReader logBookReader) {
-        for (ObisCode supportedLogBook : supportedAnsiLogBooks) {
-            if (supportedLogBook.equalsIgnoreBChannel(logBookReader.getLogBookObisCode())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Map<ObisCode, ObisCode> createMap() {
-        Map<ObisCode, ObisCode> map = new HashMap<>();
-        map.put(PQM_LOG, ObisCode.fromString("0.0.65.16.49.255"));
-        map.put(SAG_LOG, ObisCode.fromString("0.0.65.16.53.255"));
-        return map;
     }
 }

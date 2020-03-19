@@ -7,7 +7,6 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -54,8 +53,6 @@ public abstract class Acud extends AbstractDlmsProtocol {
     private AcudRegisterFactory registerFactory;
     private AcudLogBookFactory logBookFactory;
     private AcudLoadProfileDataReader loadProfileDataReader;
-
-    private AcudStoredValues storedValues;
 
     private final NlsService nlsService;
 
@@ -152,13 +149,6 @@ public abstract class Acud extends AbstractDlmsProtocol {
             this.logBookFactory = new AcudLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
         }
         return this.logBookFactory;
-    }
-
-    public StoredValues getStoredValues() {
-        if (storedValues == null) {
-            storedValues = new AcudStoredValues(this);
-        }
-        return storedValues;
     }
 
     @Override
