@@ -3,10 +3,6 @@ package com.energyict.protocolimplv2.dlms.acud;
 import com.energyict.cim.EndDeviceType;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -85,29 +81,6 @@ public abstract class Acud extends AbstractDlmsProtocol {
                 new SioOpticalConnectionType(getPropertySpecService()),
                 new RxTxOpticalConnectionType(getPropertySpecService()),
                 new OutboundTcpIpConnectionType(getPropertySpecService()));
-    }
-
-    @Override
-    public void logOn() {
-        getDlmsSession().assumeConnected(getDlmsSessionProperties().getMaxRecPDUSize(), getDlmsSessionProperties().getConformanceBlock());
-        getDlmsSession().getDlmsV2Connection().connectMAC();
-        getDlmsSession().getDLMSConnection().setInvokeIdAndPriorityHandler(
-                new IncrementalInvokeIdAndPriorityHandler(new InvokeIdAndPriority((byte) 0x41)));
-        checkCacheObjects();
-    }
-
-    protected void checkCacheObjects() {
-        if (getDeviceCache() == null) {
-            setDeviceCache(new DLMSCache());
-        }
-        DLMSCache dlmsCache = getDeviceCache();
-        if (dlmsCache.getObjectList() == null) {
-            readObjectList();
-            dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
-        } else {
-            UniversalObject[] objectList = dlmsCache.getObjectList();
-            getDlmsSession().getMeterConfig().setInstantiatedObjectList(objectList);
-        }
     }
 
     @Override
