@@ -1335,8 +1335,8 @@ public class ResourceHelper {
                 .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
         if (cps.isPresent()) {
             List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
-            return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") == null || logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")))
-                    && values.stream().anyMatch(value -> value.getProperty("profileId") == null || profileId.test((String)value.getProperty("profileId")));
+            return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")))
+                    && values.stream().anyMatch(value -> profileId.test((String)value.getProperty("profileId")));
         }
         return false;
     }
@@ -1347,7 +1347,7 @@ public class ResourceHelper {
                     .filter(f -> f.getCustomPropertySetId().equals(REGISTER_SAP_ID));
             if (cps.isPresent()) {
                 List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());
-                return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
+                return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
             }
             return false;
     }
