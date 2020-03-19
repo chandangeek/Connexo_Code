@@ -49,14 +49,14 @@ public class SapResourceTest extends SapApplicationJerseyTest {
 
         String stringResponse = target("/devices/testDevice/hassapcas").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
-        assertThat(model.<Number>get("$.exist")).isEqualTo("false");
+        assertThat(model.<Number>get("$.value")).isEqualTo(false);
 
         //device has sap cps
         when(sapCustomPropertySets.doesDeviceHaveSapCPS(device)).thenReturn(true);
 
         stringResponse = target("/devices/testDevice/hassapcas").request().get(String.class);
         model = JsonModel.create(stringResponse);
-        assertThat(model.<Number>get("$.exist")).isEqualTo("true");
+        assertThat(model.<Number>get("$.value")).isEqualTo(true);
     }
 
     @Test

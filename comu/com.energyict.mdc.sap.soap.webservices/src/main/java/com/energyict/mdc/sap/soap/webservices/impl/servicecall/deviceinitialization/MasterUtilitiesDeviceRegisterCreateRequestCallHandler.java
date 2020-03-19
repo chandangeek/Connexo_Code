@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,9 +61,10 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler extends Abstr
     protected void sendResultMessage(ServiceCall serviceCall) {
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         List<ServiceCall> children = ServiceCallHelper.findChildren(serviceCall);
+        Instant now = clock.instant();
         UtilitiesDeviceRegisterCreateConfirmationMessage resultMessage = UtilitiesDeviceRegisterCreateConfirmationMessage
                 .builder()
-                .from(serviceCall, children, webServiceActivator.getMeteringSystemId(), clock.instant(), extension.isBulk())
+                .from(serviceCall, children, webServiceActivator.getMeteringSystemId(), now, extension.isBulk())
                 .build();
         if (extension.isBulk()) {
             WebServiceActivator.UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION.forEach(sender -> sender.call(resultMessage));
@@ -73,7 +75,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler extends Abstr
 
         //check device active and send registered notification
         try {
-            List<String> deviceIds = findIdsOfActiveDevicesWithLRN(children);
+            List<String> deviceIds = findIdsOfActiveDevicesWithLRN(children, now);
             if (!deviceIds.isEmpty()) {
                 if (extension.isBulk()) {
                     WebServiceActivator.UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.forEach(sender -> sender.call(deviceIds));
@@ -87,7 +89,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler extends Abstr
         }
     }
 
-    private List<String> findIdsOfActiveDevicesWithLRN(List<ServiceCall> children) {
+    private List<String> findIdsOfActiveDevicesWithLRN(List<ServiceCall> children, Instant now) {
         List<String> deviceIds = new ArrayList<>();
         children.forEach(child -> {
             SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
@@ -95,7 +97,8 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler extends Abstr
             Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
             if (device.isPresent() &&
                     !sapCustomPropertySets.isRegistered(device.get()) &&
-                    (child.getState() == DefaultState.SUCCESSFUL || ServiceCallHelper.hasAnyChildState(ServiceCallHelper.findChildren(child), DefaultState.SUCCESSFUL))) {
+                    (child.getState() == DefaultState.SUCCESSFUL || ServiceCallHelper.hasAnyChildState(ServiceCallHelper.findChildren(child), DefaultState.SUCCESSFUL)) &&
+                    sapCustomPropertySets.isAnyLrnPresent(device.get().getId(), now)) {
                 deviceIds.add(deviceId);
             }
         });
