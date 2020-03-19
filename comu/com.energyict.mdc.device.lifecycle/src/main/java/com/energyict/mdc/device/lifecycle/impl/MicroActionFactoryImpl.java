@@ -34,6 +34,7 @@ import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDeviceFromSta
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveLocation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetMultiplier;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartAllCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartRecurringCommunication;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -195,6 +196,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case LINK_TO_USAGE_POINT: {
                 return new LinkToUsagePoint(thesaurus, metrologyConfigurationService);
+            }
+            case START_ALL_COMMUNICATION:{
+                return new StartAllCommunication(thesaurus,deviceService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
