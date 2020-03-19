@@ -1063,7 +1063,7 @@ public class UsagePointBuilder {
                             Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()));
                 }
             }
-            CustomPropertySetValues newValues = CustomPropertySetValues.empty();
+            CustomPropertySetValues newValues = CustomPropertySetValues.emptyDuring(range);
             if (additionalPrimaryKeyObject != null) {
                 customPropertySetService.setValuesVersionFor(customPropertySet, businessObject,
                         updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);
