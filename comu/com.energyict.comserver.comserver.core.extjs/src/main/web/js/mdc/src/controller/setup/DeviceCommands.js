@@ -256,7 +256,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             if (operation.response.status === 409) {
                                 return
                             }
-                            var title =Uni.I18n.translate('devicemessages.revoke.failurexTitle', 'MDC', 'Couldn\'t perform your action'),
+                            var title =Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                                 json = Ext.decode(operation.response.responseText),
                                 message = '',
                                 code = '';

@@ -192,7 +192,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                         title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', record.get('name'))
                     });
                 } else {
-                    var title = Uni.I18n.translate('deviceloadprofiles.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                    var title = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                         message = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', record.get('name'))
                             + '. ' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile.'),
                         code = '',

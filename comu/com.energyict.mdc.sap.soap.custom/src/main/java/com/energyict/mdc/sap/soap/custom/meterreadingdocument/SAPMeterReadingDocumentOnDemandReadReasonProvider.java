@@ -33,24 +33,24 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
-import static com.elster.jupiter.cbo.MeasurementKind.VOLUME;
-import static com.elster.jupiter.util.Checks.is;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Singleton
 @Component(name = "com.energyict.mdc.sap.soap.custom.meterreadingdocument.ondemandreadreason.provider",
         service = SAPMeterReadingDocumentReason.class, immediate = true, property = "name=ReadingReasonCode2")
 public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMeterReadingDocumentReason {
-
+    private static final Logger LOGGER = Logger.getLogger(SAPMeterReadingDocumentOnDemandReadReasonProvider.class.getName());
     private static final String REASON_CODES_ONDEMAND = "com.elster.jupiter.sap.reasoncodes.ondemand";
     private static final String REASON_CODES_ONDEMAND_DEFAULT_VALUE = "2";
     private static final String SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND = "com.elster.jupiter.sap.sheduledmeterreadingdateshift.ondemand";
     private static final int SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE = 1;
-    private static final String ONDEMAND_SKIP_COMMUNICATION_WATER_METERS = "com.elster.jupiter.sap.ondemand.skipcommunicationwatermeters";
+    private static final String ONDEMAND_SKIP_COMMUNICATION = "com.elster.jupiter.sap.ondemand.skipcommunication";
 
     private static List<String> codes;
     private static int dateShift = SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE;
-    private static boolean skipCommunicationWaterMeters;
+    private static List<CIMCodePattern> skipCommunicationPatterns;
 
     private volatile DeviceService deviceService;
     private volatile SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper;
@@ -73,12 +73,24 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private void initDateShift(BundleContext bundleContext) {
         Optional.ofNullable(bundleContext.getProperty(SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND))
-                .ifPresent(property->dateShift = Integer.valueOf(property));
+                .ifPresent(property -> dateShift = Integer.valueOf(property));
     }
 
     private void initSkipCommunicationWaterMeters(BundleContext bundleContext) {
-        String value = bundleContext.getProperty(ONDEMAND_SKIP_COMMUNICATION_WATER_METERS);
-        skipCommunicationWaterMeters = !is(value).emptyOrOnlyWhiteSpace() && Boolean.parseBoolean(value);
+        try {
+            String value = bundleContext.getProperty(ONDEMAND_SKIP_COMMUNICATION);
+            skipCommunicationPatterns = Arrays.stream(value.split(","))
+                    .map(String::trim)
+                    .map(item -> {
+                        String[] codes = item.split("\\.");
+                        return CIMCodePattern.parseFromString(codes);
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error while loading property " + ONDEMAND_SKIP_COMMUNICATION +
+                    ": " + ex.getLocalizedMessage());
+            skipCommunicationPatterns = Collections.emptyList();
+        }
     }
 
     @Reference
@@ -186,7 +198,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     }
 
     private boolean skipCommunicationForWaterMeters(ReadingType readingType) {
-        return skipCommunicationWaterMeters && readingType.getMeasurementKind().equals(VOLUME);
+        return skipCommunicationPatterns.stream().anyMatch(cimCodePattern -> cimCodePattern.matches(readingType));
     }
 
     private Optional<ComTaskExecution> findLastTaskExecution(Device device, boolean isRegular, ReadingType readingType) {

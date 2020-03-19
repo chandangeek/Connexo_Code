@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
 
     store: 'Mdc.store.RegisterConfigsOfDevice',
     deviceId: null,
+    hasSapAttributes: null,
 
     initComponent: function () {
         var me = this,
@@ -52,6 +53,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
                 valueField: 'id',
                 store: registerStore,
                 itemId: 'mdc-register-filter'
+            },
+            {
+                type: 'text',
+                hidden: me.hasSapAttributes ? false : true,
+                dataIndex: 'logicalRegisterNumber',
+                emptyText: Uni.I18n.translate('devicechannels.channelstopfilter.lrn.emptytext', 'MDC', 'Logical register number')
             }
         ];
 

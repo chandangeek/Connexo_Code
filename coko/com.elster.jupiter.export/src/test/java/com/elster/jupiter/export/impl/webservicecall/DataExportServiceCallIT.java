@@ -58,7 +58,6 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.servicecall.impl.ServiceCallStateChangeTopicHandler;
@@ -91,9 +90,9 @@ import org.osgi.service.log.LogService;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -103,13 +102,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataExportServiceCallIT {
@@ -139,12 +135,12 @@ public class DataExportServiceCallIT {
     private static Injector injector;
     private static ServiceCallService serviceCallService;
     private static DataExportServiceCallType dataExportServiceCallType;
-    private static ServiceCallHandler serviceCallHandler;
     private static CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
     private static TransactionService transactionService;
     private static long dataSourceId1;
     private static long dataSourceId2;
     private static List<ReadingTypeDataExportItem> itemList;
+    private static Map<ReadingTypeDataExportItem, String> data;
 
     @Rule
     public TestRule transactional = new TransactionalRule(transactionService);
@@ -206,8 +202,6 @@ public class DataExportServiceCallIT {
             serviceCallCPS = new WebServiceDataExportCustomPropertySet(thesaurus, propertySpecService, dataExportService);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(serviceCallCPS);
             dataExportServiceCallType = dataExportService.getDataExportServiceCallType();
-            serviceCallHandler = new WebServiceDataExportServiceCallHandler(thesaurus, dataExportServiceCallType, serviceCallCPS);
-            serviceCallService.addServiceCallHandler(serviceCallHandler, ImmutableMap.of("name", WebServiceDataExportServiceCallHandler.NAME));
 
             MeteringService meteringService = injector.getInstance(MeteringService.class);
             AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
@@ -252,6 +246,10 @@ public class DataExportServiceCallIT {
                     .getId();
 
             itemList = selectorConfig.getExportItems();
+            data = new HashMap<>();
+            for (ReadingTypeDataExportItem item : itemList) {
+                data.put(item, "");
+            }
 
             return null;
         });
@@ -265,7 +263,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStart() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
@@ -274,14 +272,14 @@ public class DataExportServiceCallIT {
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
             return properties.getDeviceName().equals(DEVICE_NAME_1) &&
                     properties.getReadingTypeMRID().equals(MRID_1) &&
                     properties.getDataSourceId() == dataSourceId1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
             return properties.getDeviceName().equals(DEVICE_NAME_2) &&
                     properties.getReadingTypeMRID().equals(MRID_2) &&
@@ -292,7 +290,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStartAsync() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, data);
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -301,14 +299,14 @@ public class DataExportServiceCallIT {
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
             return properties.getDeviceName().equals(DEVICE_NAME_1) &&
                     properties.getReadingTypeMRID().equals(MRID_1) &&
                     properties.getDataSourceId() == dataSourceId1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
             return properties.getDeviceName().equals(DEVICE_NAME_2) &&
                     properties.getReadingTypeMRID().equals(MRID_2) &&
@@ -322,7 +320,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStartAsyncWithNoDataSources() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, Collections.emptyList());
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, Collections.emptyMap());
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         assertThat(serviceCall.findChildren().stream().collect(Collectors.toList())).isEmpty();
@@ -338,7 +336,7 @@ public class DataExportServiceCallIT {
     public void testFindServiceCall() {
         assertThat(dataExportServiceCallType.findServiceCall(UUID)).isEmpty();
 
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
@@ -367,7 +365,7 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testFailServiceCall() {
         String error = "Errorrrr";
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
@@ -400,7 +398,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testPassServiceCall() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryPassingServiceCall(serviceCall);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -433,7 +431,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetOngoingStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -465,7 +463,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetSuccessfulStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryPassingServiceCall(serviceCall);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
 
@@ -499,7 +497,7 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testGetFailedStatus() {
         String error = "myError";
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -531,7 +529,7 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetAnotherStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         serviceCall.requestTransition(DefaultState.PAUSED);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
@@ -550,9 +548,9 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testGetStatuses() {
-        ServiceCall serviceCall1 = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall1 = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
         dataExportServiceCallType.tryFailingServiceCall(serviceCall1, "Fail!");
-        ServiceCall serviceCall2 = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, itemList);
+        ServiceCall serviceCall2 = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, data);
         Map<ServiceCall, ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(ImmutableSet.of(serviceCall1, serviceCall2)).stream()
                 .collect(Collectors.toMap(ServiceCallStatus::getServiceCall, Function.identity()));
 
@@ -575,119 +573,15 @@ public class DataExportServiceCallIT {
 
     @Test
     @Transactional
-    public void testServiceCallHandlerDirectExceptionFailsServiceCallWithoutExtension() {
-        ServiceCall serviceCall = serviceCallService.getServiceCallTypes().find().get(0).newServiceCall().create();
-        serviceCall.requestTransition(DefaultState.PENDING);
-        serviceCall.requestTransition(DefaultState.ONGOING);
-        serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
-        ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
-
-        assertThat(status.getServiceCall()).isEqualTo(serviceCall);
-        assertThat(status.getState()).isSameAs(DefaultState.FAILED);
-        assertThat(status.isOpen()).isFalse();
-        assertThat(status.isFailed()).isTrue();
-        assertThat(status.isSuccessful()).isFalse();
-        assertThat(status.getErrorMessage()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void testServiceCallHandlerExecutionExceptionFailsServiceCall() {
-        long timeout = WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1500; // 1.5 times the pause before status check
-        String error = "Error mess";
-        ServiceCall realServiceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, itemList);
-        ServiceCall serviceCall = mock(ServiceCall.class);
-        WebServiceDataExportDomainExtension extension = mock(WebServiceDataExportDomainExtension.class);
-        when(serviceCall.getExtensionFor(serviceCallCPS)).thenReturn(Optional.of(extension));
-        when(extension.getTimeout()).thenReturn(timeout);
-        when(serviceCall.getId()).thenAnswer(new Answer<Long>() {
-            private boolean notTheFirstTime;
-
-            @Override
-            public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
-                if (notTheFirstTime) {
-                    return realServiceCall.getId(); // let the results be kept for realServiceCall
-                }
-                notTheFirstTime = true;
-                throw new UnsupportedOperationException(error); // but make serviceCallType.getStatus(serviceCall) fail
-            }
-        });
-        serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
-
-        assertProperties(realServiceCall, DefaultState.FAILED, UUID, timeout, "Failure while waiting for data export confirmation: " + error);
-    }
-
-    @Test
-    @Transactional
-    public void testServiceCallHandlerTimeoutExceptionFailsServiceCall() {
-        long timeout = 1; // less than the pause before status check
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, itemList);
-        serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
-        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-
-        assertProperties(serviceCall, DefaultState.FAILED, UUID, timeout, "No data export confirmation has been received in the configured timeout.");
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd -> {
-            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
-            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
-                    properties.getReadingTypeMRID().equals(MRID_1) &&
-                    properties.getDataSourceId() == dataSourceId1;
-        }).findFirst()).isPresent();
-
-        assertThat(srvCallChild.stream().filter(srvCallChd -> {
-            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
-            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
-                    properties.getReadingTypeMRID().equals(MRID_2) &&
-                    properties.getDataSourceId() == dataSourceId2;
-        }).findFirst()).isPresent();
-    }
-
-    @Test
-    @Transactional
-    public void testServiceCallHandlerPasses() {
-        long timeout = WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1500; // 1.5 times the pause before status check
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, itemList);
-        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
-        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-
-        assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, timeout, null);
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd -> {
-            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
-            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
-                    properties.getReadingTypeMRID().equals(MRID_1) &&
-                    properties.getDataSourceId() == dataSourceId1;
-        }).findFirst()).isPresent();
-
-        assertThat(srvCallChild.stream().filter(srvCallChd -> {
-            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
-            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
-                    properties.getReadingTypeMRID().equals(MRID_2) &&
-                    properties.getDataSourceId() == dataSourceId2;
-        }).findFirst()).isPresent();
-    }
-
-    @Test
-    @Transactional
-    public void testServiceCallHandlerDoesNothing() {
-        serviceCallHandler.onStateChange(null, DefaultState.CREATED, DefaultState.PENDING);
-        serviceCallHandler.onStateChange(null, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
-        serviceCallHandler.onStateChange(null, DefaultState.ONGOING, DefaultState.FAILED);
-        serviceCallHandler.onStateChange(null, DefaultState.ONGOING, DefaultState.CANCELLED);
-    }
-
-    @Test
-    @Transactional
     public void testGetDataSources() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
-        assertThat(dataExportServiceCallType.getDataSources(serviceCall)).containsOnly(itemList.toArray(new ReadingTypeDataExportItem[itemList.size()]));
-        serviceCall = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, Collections.emptyList());
-        assertThat(dataExportServiceCallType.getDataSources(serviceCall)).isEmpty();
-        serviceCall = dataExportServiceCallType.startServiceCall("UUID", TIMEOUT, itemList.subList(0, 1));
-        assertThat(dataExportServiceCallType.getDataSources(serviceCall)).containsOnly(itemList.get(0));
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall.findChildren()
+                .stream()
+                .collect(Collectors.toList()))).containsOnly(itemList.toArray(new ReadingTypeDataExportItem[itemList.size()]));
+        serviceCall = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, Collections.emptyMap());
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall.findChildren().stream().collect(Collectors.toList()))).isEmpty();
+        serviceCall = dataExportServiceCallType.startServiceCall("UUID", TIMEOUT, ImmutableMap.of(itemList.get(0), ""));
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall.findChildren().stream().collect(Collectors.toList()))).containsOnly(itemList.get(0));
     }
 
     private static void assertProperties(ServiceCall serviceCall, DefaultState state, String uuid, long timeout, String error) {

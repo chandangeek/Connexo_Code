@@ -51,6 +51,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -454,6 +455,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     transactionContext.commit();
                 }
             }
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", DataExportServiceCallType.HANDLER_NAME));
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", DataExportServiceCallType.CHILD_HANDLER_NAME));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;

@@ -47,7 +47,7 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
         if (serviceCall.getTargetObject().isPresent()) {
-            serviceCallFilter.targetObject = serviceCall.getTargetObject().get();
+            serviceCallFilter.targetObjects.add(serviceCall.getTargetObject().get());
             serviceCallFilter.states = Arrays.stream(DefaultState.values())
                     .filter(DefaultState::isOpen)
                     .map(DefaultState::name)
