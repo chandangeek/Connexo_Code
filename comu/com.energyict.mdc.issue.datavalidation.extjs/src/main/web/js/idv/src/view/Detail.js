@@ -58,10 +58,6 @@ Ext.define('Idv.view.Detail', {
                 router: me.router
             },
             {
-                xtype: 'issue-comments',
-                itemId: 'data-validation-issue-comments'
-            },
-            {
                 xtype: 'panel',
                 ui: 'medium',
                 title: Uni.I18n.translate('issue.workspace.datacollection.context', 'IDV', 'Contextual information'),
@@ -78,7 +74,7 @@ Ext.define('Idv.view.Detail', {
                                 items: [
                                     {
                                         xtype: 'issue-timeline',
-                                        itemId: 'data-collection-issue-timeline'
+                                        itemId: 'data-validation-issue-timeline'
                                     }
                                 ]
                             },
@@ -89,7 +85,7 @@ Ext.define('Idv.view.Detail', {
                                 items: [
                                     {
                                         xtype: 'issue-comments',
-                                        itemId: 'data-collection-issue-comments'
+                                        itemId: 'data-validation-issue-comments'
                                     }
                                 ]
                             },
@@ -101,7 +97,7 @@ Ext.define('Idv.view.Detail', {
                                 items: [
                                     {
                                         xtype: 'issue-process-list',
-                                        itemId: 'data-collection-issue-process'
+                                        itemId: 'data-validation-issue-process'
                                     }
                                 ]
                             }

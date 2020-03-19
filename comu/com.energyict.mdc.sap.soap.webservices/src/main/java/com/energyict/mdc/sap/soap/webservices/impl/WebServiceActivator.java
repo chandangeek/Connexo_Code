@@ -55,6 +55,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
+import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryBulkAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationBulkNotificationEndpoint;
@@ -118,6 +119,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHan
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.security.Privileges;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -154,6 +156,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -651,6 +654,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .findFirst();
     }
 
+    public List<UtilitiesDeviceRegisteredNotification> getUtilitiesDeviceRegisteredNotifications() {
+        return Collections.unmodifiableList(UTILITIES_DEVICE_REGISTERED_NOTIFICATION);
+    }
+
     private void loadProperties(BundleContext context) {
         EnumSet.allOf(AdditionalProperties.class)
                 .forEach(key -> sapProperties.put(key, Optional.ofNullable(context.getProperty(key.getKey()))
@@ -1114,6 +1121,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(TranslationKeys.values()));
         keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }
 

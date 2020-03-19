@@ -58,6 +58,7 @@ public class AbstractLocationNotificationEndpoint extends AbstractInboundEndPoin
                 .getLocationMessages()
                 .forEach(locationMessage -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), locationMessage.getDeviceId()));
 
+        saveRelatedAttributes(values);
         createServiceCallAndTransition(locationNotificationMessage);
     }
 

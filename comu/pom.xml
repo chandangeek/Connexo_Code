@@ -419,6 +419,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.sap.rest</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.sap.soap.webservices</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
@@ -509,6 +515,17 @@
                 <artifactId>mail</artifactId>
                 <version>1.4.7</version>
             </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.6.1</version>
+            </dependency>
+
             <!-- ComPort libraries -->
             <!-- need to depend on org.rxtx version -->
             <!-- but at runtime se.joel.osgi will be provided to get the osgi version -->
@@ -723,6 +740,7 @@
         <module>com.energyict.mdc.protocol.api</module>
         <module>com.energyict.mdc.protocol.pluggable</module>
         <module>com.energyict.mdc.protocols</module>
+        <module>com.energyict.mdc.sap.rest</module>
         <module>com.energyict.mdc.sap.soap.webservices</module>
         <module>com.energyict.mdc.sap.soap.wsdl</module>
         <module>com.energyict.mdc.scheduling</module>

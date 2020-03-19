@@ -106,6 +106,9 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class ResourceHelper {
 
+    public static final String CHANNEL_SAP_ID = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceChannelSAPInfoCustomPropertySet";
+    public static final String REGISTER_SAP_ID = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceRegisterSAPInfoCustomPropertySet";
+
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
@@ -1367,6 +1370,29 @@ public class ResourceHelper {
                 .from(queryParameters)
                 .stream()
                 .collect(Collectors.toList());
+    }
+
+    public boolean filterSapAttributes(Channel channel, Predicate<String> logicalRegisterNumber, Predicate<String> profileId) {
+        Optional<RegisteredCustomPropertySet> cps = channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
+        if (cps.isPresent()) {
+            List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
+            return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") == null || logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")))
+                    && values.stream().anyMatch(value -> value.getProperty("profileId") == null || profileId.test((String)value.getProperty("profileId")));
+        }
+        return false;
+    }
+
+    public boolean filterLogicalRegisterNumber(Register register, Predicate<String> logicalRegisterNumber) {
+            Optional<RegisteredCustomPropertySet> cps = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
+                    .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                    .filter(f -> f.getCustomPropertySetId().equals(REGISTER_SAP_ID));
+            if (cps.isPresent()) {
+                List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());
+                return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
+            }
+            return false;
     }
 
     public void deleteCustomPropertySetVersion(Register register, CustomPropertySetInfo customPropertySetInfo) {

@@ -21,6 +21,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.CIMPattern;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.AbstractChildRetryServiceCallHandler;
 
@@ -80,9 +81,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
         try {
             processDeviceRegisterCreation(extension);
         } catch (LocalizedException localizedEx) {
-            failServiceCall(extension, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
+            failServiceCall(serviceCall, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
         } catch (Exception ex) {
-            failServiceCall(extension, MessageSeeds.ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST, ex.getLocalizedMessage());
+            failServiceCallWithException(serviceCall, ex, MessageSeeds.ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST, ex.getLocalizedMessage());
         }
     }
 

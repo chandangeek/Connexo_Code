@@ -19,6 +19,7 @@ import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class MeterReadingDocumentBulkResultTest extends AbstractOutboundWebservi
     public void setUp() {
         meterReadingDocumentERPResultCreateRequestMessage.add(crteReqMsg);
         when(webServiceCallOccurrence.getId()).thenReturn(1L);
-        when(outboundMessage.getBulkResultMessage()).thenReturn(resultMessage);
+        when(outboundMessage.getBulkResultMessage()).thenReturn(Optional.ofNullable(resultMessage));
         when(resultMessage.getMeterReadingDocumentERPResultCreateRequestMessage()).thenReturn(meterReadingDocumentERPResultCreateRequestMessage);
         when(crteReqMsg.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue()).thenReturn("UtilMesurmentTaskId");
         when(crteReqMsg.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceId");
