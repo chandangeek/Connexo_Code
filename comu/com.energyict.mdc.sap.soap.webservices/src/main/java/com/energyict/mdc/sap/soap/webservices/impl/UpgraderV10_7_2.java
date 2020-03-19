@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.ChannelSpec;
@@ -37,6 +38,7 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Clock;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.Set;
@@ -49,16 +51,24 @@ public class UpgraderV10_7_2 implements Upgrader {
     private final OrmService ormService;
     private final DeviceService deviceService;
     private final SAPCustomPropertySets sapCustomPropertySets;
+    private final UserService userService;
+    private final SAPPrivilegeProvider sapPrivilegeProvider;
+    private final Clock clock;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
 
+
     @Inject
     public UpgraderV10_7_2(DataModel dataModel, OrmService ormService, DeviceService deviceService,
-                           SAPCustomPropertySets sapCustomPropertySets, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+                           SAPCustomPropertySets sapCustomPropertySets, SAPPrivilegeProvider sapPrivilegeProvider, UserService userService,
+                           Clock clock, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
         this.dataModel = dataModel;
         this.ormService = ormService;
         this.deviceService = deviceService;
         this.sapCustomPropertySets = sapCustomPropertySets;
+        this.sapPrivilegeProvider = sapPrivilegeProvider;
+        this.userService = userService;
+        this.clock = clock;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
     }
@@ -68,6 +78,7 @@ public class UpgraderV10_7_2 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, version(10, 7, 2));
         removeOldChannelAndRegisterSapCasValues();
         updateRegisteredFlag();
+        userService.addModulePrivileges(sapPrivilegeProvider);
         createNewlyAddedServiceCallTypes();
     }
 
@@ -103,7 +114,7 @@ public class UpgraderV10_7_2 implements Upgrader {
                     .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()).isEqualTo(false))
                     .map(DeviceSAPInfoDomainExtension::getDevice)
                     .forEach(device -> {
-                        if (device.getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey()) && sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
+                        if (device.getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey()) && sapCustomPropertySets.isAnyLrnPresent(device.getId(), clock.instant())) {
                             sqlQueries.add("UPDATE SAP_CAS_DI1 SET REGISTERED = 'Y' WHERE DEVICE = " + device.getId());
                         }
                     });
@@ -118,7 +129,6 @@ public class UpgraderV10_7_2 implements Upgrader {
             }
         }
     }
-
 
     private void removeOldChannelAndRegisterSapCasValues() {
         ImmutableList.Builder<String> sqlQueries = ImmutableList.builder();

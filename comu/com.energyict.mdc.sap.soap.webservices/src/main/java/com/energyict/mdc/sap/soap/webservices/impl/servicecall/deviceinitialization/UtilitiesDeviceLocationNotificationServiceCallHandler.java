@@ -12,6 +12,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.AbstractChildRetryServiceCallHandler;
 
@@ -50,7 +51,7 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
         } catch (LocalizedException localizedEx) {
             failServiceCall(serviceCall, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
         } catch (Exception ex) {
-            failServiceCall(serviceCall, MessageSeeds.ERROR_PROCESSING_METER_LOCATION_NOTIFICATION, ex.getLocalizedMessage());
+            failServiceCallWithException(serviceCall, ex, MessageSeeds.ERROR_PROCESSING_METER_LOCATION_NOTIFICATION, ex.getLocalizedMessage());
         }
     }
 

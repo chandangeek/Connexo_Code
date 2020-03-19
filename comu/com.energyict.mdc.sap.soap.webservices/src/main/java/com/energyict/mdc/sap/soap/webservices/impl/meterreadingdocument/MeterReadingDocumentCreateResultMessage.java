@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 public class MeterReadingDocumentCreateResultMessage {
 
@@ -47,12 +48,12 @@ public class MeterReadingDocumentCreateResultMessage {
     private int documentsCancelledBySap;
     private int documentsSuccessfullyProcessed;
 
-    public MtrRdngDocERPRsltBulkCrteReqMsg getBulkResultMessage() {
-        return bulkResultMessage;
+    public Optional<MtrRdngDocERPRsltBulkCrteReqMsg> getBulkResultMessage() {
+        return Optional.ofNullable(bulkResultMessage);
     }
 
-    public MtrRdngDocERPRsltCrteReqMsg getResultMessage() {
-        return resultMessage;
+    public Optional<MtrRdngDocERPRsltCrteReqMsg> getResultMessage() {
+        return Optional.ofNullable(resultMessage);
     }
 
     public boolean isBulk() {
