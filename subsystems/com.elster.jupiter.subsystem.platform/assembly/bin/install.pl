@@ -485,7 +485,7 @@ sub install_connexo {
 			}
 		}
 	} else {
-			print "\n\nSkip installation of Connexo Flow\n";
+			print "\n\nSkip installation of Connexo\n";
 	}
 	    replace_row_in_file($config_cmd, "dbPassword=", "set dbPassword=");
 }
@@ -718,7 +718,7 @@ sub install_facts {
             add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=http://$HOST_NAME/facts/");
         }
 	} else {
-		print "\n\nSkip installation of Connexo Flow\n";
+		print "\n\nSkip installation of Connexo Facts\n";
 	}
 }
 
