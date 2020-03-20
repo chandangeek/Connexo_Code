@@ -3503,7 +3503,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         public int compare(SyncDeviceWithKoreMeter o1, SyncDeviceWithKoreMeter o2) {
             int a = o1.canUpdateCurrentMeterActivation() ? 1 : 0;
             int b = o2.canUpdateCurrentMeterActivation() ? 1 : 0;
-            return new Integer(a).compareTo(b);
+            return Integer.compare(a, b);
         }
     }
 }

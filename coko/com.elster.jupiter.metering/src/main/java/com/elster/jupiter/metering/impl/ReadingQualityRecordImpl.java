@@ -243,12 +243,12 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
                 && Objects.equals(getChannel(), ((ReadingQualityRecordImpl) o).getChannel())
                 && Objects.equals(getReadingTimestamp(), ((ReadingQualityRecordImpl) o).getReadingTimestamp())
                 && Objects.equals(getType(), ((ReadingQualityRecordImpl) o).getType())
-                && Objects.equals(getReadingType(), ((ReadingQualityRecordImpl) o).getReadingType());
+                && Objects.equals(readingTypeId, ((ReadingQualityRecordImpl) o).readingTypeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getChannel(), getReadingTimestamp(), getType(), getReadingType());
+        return Objects.hash(getChannel(), getReadingTimestamp(), getType(), readingTypeId);
     }
 
     void copy(ReadingQualityRecord source) {
