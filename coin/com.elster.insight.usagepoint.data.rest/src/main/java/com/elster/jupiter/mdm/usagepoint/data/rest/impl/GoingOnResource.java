@@ -62,7 +62,7 @@ public class GoingOnResource {
         List<GoingOnInfo> issues = Collections.emptyList();
 
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
-        serviceCallFilter.targetObject = usagePoint;
+        serviceCallFilter.targetObjects.add(usagePoint);
         serviceCallFilter.states = serviceCallService.nonFinalStates().stream().map(Enum::name).collect(Collectors.toList());
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
         if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){

@@ -102,11 +102,6 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                         .markRequired()
                         .finish(),
                 this.propertySpecService
-                        .specForValuesOf(new InstantFactory())
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.CREATE_END_DATE.javaName(), TranslationKeys.CREATE_END_DATE)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
                         .stringSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.TIME_ZONE.javaName(), TranslationKeys.TIME_ZONE)
                         .fromThesaurus(thesaurus)
@@ -207,11 +202,6 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.END_DATE.javaName())
                     .notNull()
-                    .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.CREATE_END_DATE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.CREATE_END_DATE.javaName())
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.TIME_ZONE.databaseName())
                     .varChar(NAME_LENGTH)

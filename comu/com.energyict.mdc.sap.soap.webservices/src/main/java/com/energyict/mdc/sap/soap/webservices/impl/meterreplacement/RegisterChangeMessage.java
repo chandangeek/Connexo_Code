@@ -15,7 +15,6 @@ public class RegisterChangeMessage extends AbstractSapMessage {
     private String lrn;
     private Instant startDate;
     private Instant endDate;
-    private Instant createEndDate;
     private String timeZone;
     private String obis;
     private String recurrenceCode;
@@ -32,8 +31,8 @@ public class RegisterChangeMessage extends AbstractSapMessage {
         return startDate;
     }
 
-    public Instant getCreateEndDate() {
-        return createEndDate;
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
     }
 
     public Instant getEndDate() {
@@ -87,10 +86,6 @@ public class RegisterChangeMessage extends AbstractSapMessage {
 
         public void setRecurrenceCode(String recurrenceCode) {
             registerChangeMessage.recurrenceCode = recurrenceCode;
-        }
-
-        public void setCreateEndDate(Instant createEndDate) {
-            registerChangeMessage.createEndDate = createEndDate;
         }
 
         public void setStartDate(Instant startDate) {
