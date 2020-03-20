@@ -33,15 +33,17 @@ public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
             if (isNone) {
                 return NoneOrBigDecimal.none();
             } else {
-                Double value = null;
+                String value = null;
                 Object valueObj = ((Map) infoValue).get("value");
-                if (valueObj instanceof Integer) {
-                    value = ((Integer) valueObj).doubleValue();
+                if (valueObj instanceof String) {
+                    value = (String) valueObj;
+                } else if (valueObj instanceof Integer) {
+                    value = ((Integer) valueObj).toString();
                 } else if (valueObj instanceof Double) {
-                    value = (Double) valueObj;
+                    value = valueObj.toString();
                 }
                 if (value != null) {
-                    return NoneOrBigDecimal.of(BigDecimal.valueOf(value));
+                    return NoneOrBigDecimal.of(new BigDecimal(value));
                 }
             }
         }
@@ -52,7 +54,7 @@ public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
             if (domainValue instanceof NoneOrBigDecimal) {
-                return String.valueOf(domainValue);
+                return domainValue;
             }
         }
         return null;
