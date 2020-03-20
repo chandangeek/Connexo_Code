@@ -704,7 +704,7 @@ public class DeviceResource {
     @Transactional
     @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE})
     public Response deleteDeviceCustomPropertyVersion(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         CustomPropertySetInfo cpsInfo = resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
@@ -724,7 +724,7 @@ public class DeviceResource {
     @Transactional
     @Path("/{name}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
     public IntervalInfo getCurrentTimeInterval(@PathParam("name") String name, @PathParam("cpsId") long cpsId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(device, cpsId));
