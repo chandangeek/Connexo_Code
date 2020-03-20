@@ -128,17 +128,17 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         switch(type){
             case "device":
                 var deviceId = routeArguments.deviceId;
-                url = 'api/ddr/devices/' + deviceId;
+                url = '/api/ddr/devices/' + deviceId;
             break;
             case "channel":
                 var deviceId = routeArguments.deviceId;
                 var channelId = routeArguments.channelId;
-                url = 'api/ddr/devices/' + deviceId + '/channels/' + channelId;
+                url = '/api/ddr/devices/' + deviceId + '/channels/' + channelId;
             break;
             case "register":
                 var deviceId = routeArguments.deviceId;
                 var registerId = routeArguments.registerId;
-                url = 'api/ddr/devices/' + deviceId + '/registers/' + registerId;
+                url = '/api/ddr/devices/' + deviceId + '/registers/' + registerId;
             break;
             case "usagePoint":
                 var usagePointName = usagePointId;
@@ -160,12 +160,11 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                             url: url,
                             method: 'DELETE',
                             success: function (response) {
-                                var data = Ext.JSON.decode(response.responseText).data;
                                 var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'MDC', '{0} version removed', versionPeriod)
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
                             callback: function(){
-                                //router.getState().forward();
+                                router.getRoute().forward();
                             }
                         });
                     }
