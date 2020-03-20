@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -134,6 +135,7 @@ public class ResourceHelper {
     private final MeteringService meteringService;
     private final SearchService searchService;
     private final MeteringTranslationService meteringTranslationService;
+    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
 
     @Inject
     public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
@@ -144,7 +146,8 @@ public class ResourceHelper {
                           MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
                           TopologyService topologyService, NlsService nlsService,
                           MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, SearchService searchService,
-                          MeteringTranslationService meteringTranslationService) {
+                          MeteringTranslationService meteringTranslationService,
+                          CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -173,6 +176,7 @@ public class ResourceHelper {
                 .join(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST));
         this.searchService = searchService;
         this.meteringTranslationService = meteringTranslationService;
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
 
     public Long getCurrentDeviceConfigurationVersion(long id) {
@@ -781,28 +785,11 @@ public class ResourceHelper {
     }
 
     private void setLastItemDeletable(RegisteredCustomPropertySet registeredCps, Object object, Optional<Long> id, CustomPropertySetInfo cpsInfo) {
-        if (cpsInfo.timesliced && isLastItem(registeredCps, object, id, cpsInfo)) {
+        if (cpsInfo.timesliced && customPropertySetInfoFactory.isLastItem(registeredCps, cpsInfo.versionId, object, id)) {
             if (cpsInfo.properties.stream().noneMatch(prop -> prop.required)) {
                 cpsInfo.deletable = true;
             }
         }
-    }
-
-    private boolean isLastItem(RegisteredCustomPropertySet registeredCps,  Object object, Optional<Long> id, CustomPropertySetInfo cpsInfo) {
-        List<CustomPropertySetValues> allVersions;
-        if (id.isPresent()) {
-            allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCps.getCustomPropertySet(), object, id.get());
-        } else {
-            allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCps.getCustomPropertySet(), object);
-        }
-        if (!allVersions.isEmpty()) {
-            CustomPropertySetValues version = allVersions.get(allVersions.size() - 1);
-            long versionId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli(): 0;
-            if (versionId == cpsInfo.versionId) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @SuppressWarnings("unchecked")

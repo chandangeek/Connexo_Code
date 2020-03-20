@@ -25,6 +25,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -78,7 +79,7 @@ public class CustomPropertySetInfoFactory {
     }
 
 
-    public CustomPropertySetInfo getFullInfo(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetValues customPropertySetValue) {
+    public CustomPropertySetInfo getUsagePointFullInfo(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetValues customPropertySetValue) {
         CustomPropertySetInfo info = getGeneralInfo(rcps);
         if (rcps != null) {
             if (info.isVersioned) {
@@ -95,19 +96,24 @@ public class CustomPropertySetInfoFactory {
     }
 
     private void setLastItemDeletable(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetInfo info) {
-        if (info.isVersioned && isLastItem(rcps, object, info)) {
+        if (info.isVersioned && isLastItem(rcps, info.versionId, object, Optional.empty())) {
             if (info.properties == null || info.properties.stream().noneMatch(prop -> ((CustomPropertySetAttributeInfo)prop).required)) {
                 info.deletable = true;
             }
         }
     }
 
-    private boolean isLastItem(RegisteredCustomPropertySet registeredCps, Object object, CustomPropertySetInfo cpsInfo) {
-        List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCps.getCustomPropertySet(), object);
+    public boolean isLastItem(RegisteredCustomPropertySet registeredCps, long versionId, Object object, Optional<Long> id) {
+        List<CustomPropertySetValues> allVersions;
+        if (id.isPresent()) {
+            allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCps.getCustomPropertySet(), object, id.get());
+        } else {
+            allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCps.getCustomPropertySet(), object);
+        }
         if (!allVersions.isEmpty()) {
             CustomPropertySetValues version = allVersions.get(allVersions.size() - 1);
-            long versionId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli(): 0;
-            if (versionId == cpsInfo.versionId) {
+            long versId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli(): 0;
+            if (versId == versionId) {
                 return true;
             }
         }

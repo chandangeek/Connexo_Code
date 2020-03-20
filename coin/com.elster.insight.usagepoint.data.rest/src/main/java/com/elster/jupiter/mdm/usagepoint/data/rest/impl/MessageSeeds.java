@@ -83,7 +83,7 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_UNLINK_BEFORE_LINK_DATE(77,"InvalidDateOfUnlink", "The meter can''t be unlinked before the date of linking."),
     METER_CANNOT_BE_UNLINKED(78, "meter.cannot.be.unlinked", "Meter unlinking error. Meter ''{0}'' is already unlinked from usage point ''{1}'' at {2}."),
     NO_STATE_FOR_LIFECYCLE(79,"NoStateForLifeCycle","The life cycle ''{0}'' doesn''t contain the current state ''{1}''."),
-    CUSTOMPROPERTY_VERSION_NOT_DELETABLE(80, "CustomPropertyVersionNotDeletable", "Version of {0} of custom property set {1} can''t be deleted. It''s either not last version or it has required attributes.")
+    CUSTOMPROPERTY_VERSION_NOT_DELETABLE(80, "CustomPropertyVersionNotDeletable", "Version of custom property set {0} at {1} can''t be deleted. It is either not the last version or it has required attributes.")
     ;
 
     private final int number;

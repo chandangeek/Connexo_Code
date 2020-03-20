@@ -340,7 +340,7 @@ public class RegisterResource {
         if (customPropertySetInfo.deletable) {
             resourceHelper.deleteCustomPropertySetVersion(register, customPropertySetInfo);
         } else {
-            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, Instant.ofEpochMilli(timeStamp), customPropertySetInfo.name);
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, customPropertySetInfo.name, Instant.ofEpochMilli(timeStamp));
         }
         return Response.ok().build();
     }

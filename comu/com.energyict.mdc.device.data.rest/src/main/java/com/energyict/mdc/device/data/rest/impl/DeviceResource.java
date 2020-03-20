@@ -715,7 +715,7 @@ public class DeviceResource {
         if (cpsInfo.deletable) {
             resourceHelper.deleteCustomPropertySetVersion(device, cpsInfo);
         } else {
-            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, Instant.ofEpochMilli(timeStamp), cpsInfo.name);
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, cpsInfo.name, Instant.ofEpochMilli(timeStamp));
         }
         return Response.ok().build();
     }

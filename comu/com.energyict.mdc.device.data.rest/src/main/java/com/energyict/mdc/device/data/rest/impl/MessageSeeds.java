@@ -154,7 +154,7 @@ public enum MessageSeeds implements MessageSeed {
     NOT_ALL_PROPS_ARE_DEFINDED_TLS(337, "notAllPropsAreDefinedTLS", "One of the following property is not set, Communication port pool, hostname, port number or Server TLS certificate!"),
     RUN_COMTASK_WITH_PRIO_IMPOSSIBLE(338, "runComTaskWithPrioImpossible", "Running the communication task with priority is not possible, since there are no priority connections allowed on its communication port pool."),
     UNIDENTIFIED_CRL_SIGNER(339, "UnknownCRLSigner", "Found none or too many CRL signers"),
-    CUSTOMPROPERTY_VERSION_NOT_DELETABLE(340, "CustomPropertyNotDeletable", "Version of {0} of custom property set {1} can''t be deleted. It''s either not last version or it has required attributes.")
+    CUSTOMPROPERTY_VERSION_NOT_DELETABLE(340, "CustomPropertyNotDeletable", "Version of custom property set {0} at {1} can''t be deleted. It is either not the last version or it has required attributes.")
     ;
 
     private final int number;
