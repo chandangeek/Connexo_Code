@@ -34,7 +34,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
                 handler: function() {
                     me.fireEvent('removeVersion', me.type, me.record.get('versionId'), me.record.get('period'));
                 },
-                section: this.SECTION_ACTION
+                section: this.SECTION_REMOVE
             }
         ];
 

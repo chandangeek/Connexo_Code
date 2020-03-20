@@ -152,7 +152,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         }
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'MDC', 'This version will no longer be available.'),
+                msg: Uni.I18n.translate('sapattribute.removeVersionMsg', 'MDC', 'This version will no longer be available.'),
                 title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'MDC', 'Remove {0} version?', versionPeriod),
                 fn: function (state) {
                     if (state === 'confirm') {
@@ -160,7 +160,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                             url: url,
                             method: 'DELETE',
                             success: function (response) {
-                                var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'MDC', '{0} version removed', versionPeriod)
+                                var messageText = versionPeriod + Uni.I18n.translate('sapattribute.version.succesfullyRemoved', 'MDC', ' version removed.')
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
                             callback: function(){
