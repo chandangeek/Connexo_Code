@@ -127,18 +127,18 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
         switch(type){
             case "device":
-                var deviceId = routeArguments.deviceId;
-                url = '/api/ddr/devices/' + deviceId;
+                var deviceName = routeArguments.deviceId;
+                url = '/api/ddr/devices/' + deviceName;
             break;
             case "channel":
-                var deviceId = routeArguments.deviceId;
+                var deviceName = routeArguments.deviceId;
                 var channelId = routeArguments.channelId;
-                url = '/api/ddr/devices/' + deviceId + '/channels/' + channelId;
+                url = '/api/ddr/devices/' + deviceName + '/channels/' + channelId;
             break;
             case "register":
-                var deviceId = routeArguments.deviceId;
+                var deviceName = routeArguments.deviceId;
                 var registerId = routeArguments.registerId;
-                url = '/api/ddr/devices/' + deviceId + '/registers/' + registerId;
+                url = '/api/ddr/devices/' + deviceName + '/registers/' + registerId;
             break;
             case "usagePoint":
                 var usagePointName = usagePointId;
@@ -152,7 +152,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         }
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'MDC', 'This version will on longer be available.'),
+                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'MDC', 'This version will no longer be available.'),
                 title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'MDC', 'Remove {0} version?', versionPeriod),
                 fn: function (state) {
                     if (state === 'confirm') {
