@@ -484,6 +484,8 @@ sub install_connexo {
 				chmod 0755,"$CONNEXO_DIR/bin/stop-connexo.sh";
 			}
 		}
+	} else {
+			print "\n\nSkip installation of Connexo\n";
 	}
 	    replace_row_in_file($config_cmd, "dbPassword=", "set dbPassword=");
 }
@@ -715,6 +717,8 @@ sub install_facts {
 		if ("$ACTIVATE_SSO" eq "yes") {
             add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=http://$HOST_NAME/facts/");
         }
+	} else {
+		print "\n\nSkip installation of Connexo Facts\n";
 	}
 }
 
@@ -810,6 +814,8 @@ sub install_flow {
             add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$TOMCAT_ADMIN_PASSWORD");
         }
+	} else {
+		print "\n\nSkip installation of Connexo Flow\n";
 	}
 }
 
