@@ -620,6 +620,13 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int MODEM_SESSION_FAILED = 222;
 
+    public static final int TAMPER_BATTERY = 355;
+
+    public static final int HLC_DAMAGE = 356;
+
+    public static final int PERMANENT_LOG_FILLED_UP_90_PERSENT = 357;
+
+    public static final int DEVICE_ABOUT_HIBERNATION_MODE = 358;
 
     /**
      * Start of Beacon3100 custom codes
@@ -1178,6 +1185,14 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Dlms authentication failure.");
             case DLMS_CIPHERING_ERROR:
                 return ("Dlms ciphering error.");
+            case TAMPER_BATTERY:
+                return ("Tamper Battery");
+            case HLC_DAMAGE:
+                return ("HLC damage");
+            case PERMANENT_LOG_FILLED_UP_90_PERSENT:
+                return ("Permanent Log filled up to 90%");
+            case DEVICE_ABOUT_HIBERNATION_MODE:
+                return ("Device is about to enter hibernation mode");
             case CLEARED:
                 return ("Cleared.");
             case UNKNOWN_REGISTER:
