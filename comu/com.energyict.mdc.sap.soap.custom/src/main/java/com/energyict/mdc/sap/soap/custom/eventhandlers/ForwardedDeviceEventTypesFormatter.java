@@ -68,6 +68,9 @@ class ForwardedDeviceEventTypesFormatter {
             LOGGER.warning("SAP device id isn't found for device '" + eventRecord.getEndDevice().getName() + "'.");
             return Optional.empty();
         }
+        if (!sapCustomPropertySets.isAnyLrnPresentForDate(Long.parseLong(eventRecord.getEndDevice().getAmrId()), eventRecord.getCreatedDateTime())) {
+            return Optional.empty();
+        }
         UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt info = objectFactory.createUtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt();
         info.setUtilitiesDeviceID(formatDeviceId(sapDeviceId.get()));
         info.setID(formatEventId(sapDeviceId.get(), eventType, eventRecord.getCreatedDateTime()));

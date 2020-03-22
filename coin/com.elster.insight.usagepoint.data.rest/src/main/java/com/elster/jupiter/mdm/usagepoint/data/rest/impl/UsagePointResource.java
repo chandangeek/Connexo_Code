@@ -1010,7 +1010,7 @@ public class UsagePointResource {
                 DefaultState.WAITING);
 
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.targetObject = usagePoint;
+        filter.targetObjects.add(usagePoint);
         filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
 
         List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCallFinder(filter)
@@ -1045,7 +1045,7 @@ public class UsagePointResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter, appKey);
-        filter.targetObject = usagePoint;
+        filter.targetObjects.add(usagePoint);
         serviceCallService.getServiceCallFinder(filter)
                 .from(queryParameters)
                 .stream()

@@ -3,6 +3,7 @@
  */
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -12,10 +13,12 @@ import com.google.inject.Inject;
 
 public class UpgraderV10_7_2 implements Upgrader {
     private final DataModel dataModel;
+    private final DataExportServiceCallTypeImpl dataExportServiceCallType;
 
     @Inject
-    UpgraderV10_7_2(DataModel dataModel) {
+    UpgraderV10_7_2(DataModel dataModel, DataExportServiceCallTypeImpl dataExportServiceCallType) {
         this.dataModel = dataModel;
+        this.dataExportServiceCallType = dataExportServiceCallType;
     }
 
     @Override
@@ -27,5 +30,6 @@ public class UpgraderV10_7_2 implements Upgrader {
                     "alter table DES_RTDATAEXPORTITEM drop column READINGINTERVALCOUNT",
                     "alter table DES_RTDATAEXPORTITEM drop column READINGINTERVALUNIT");
         }
+        dataExportServiceCallType.findOrCreateChildType();
     }
 }
