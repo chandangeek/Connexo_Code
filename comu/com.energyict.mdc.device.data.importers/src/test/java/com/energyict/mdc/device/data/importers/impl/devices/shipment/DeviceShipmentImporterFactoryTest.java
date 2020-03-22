@@ -114,7 +114,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 
@@ -123,7 +123,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
+        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
         verify(device).setSerialNumber("0001");
         verify(device).setManufacturer("ELSTER");
         verify(device).setModelNumber("AS200");
@@ -399,7 +399,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         doThrow(new RuntimeException("Error!")).when(deviceService)
-                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
+                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
