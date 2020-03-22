@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import org.osgi.service.component.annotations.Component;
@@ -38,11 +39,13 @@ public class ArmServiceCallHandler extends AbstractContactorOperationServiceCall
     }
 
     // Constructor only to be used in JUnit tests
-    public ArmServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack) {
+    public ArmServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus,
+                                 CompletionOptionsCallBack completionOptionsCallBack, CommunicationTaskService communicationTaskService) {
         super.setMessageService(messageService);
         super.setDeviceService(deviceService);
         super.setThesaurus(thesaurus);
         super.setCompletionOptionsCallBack(completionOptionsCallBack);
+        super.setCommunicationTaskService(communicationTaskService);
     }
 
     @Reference
@@ -63,6 +66,11 @@ public class ArmServiceCallHandler extends AbstractContactorOperationServiceCall
     @Reference
     public void setNlsService(NlsService nlsService) {
         super.setThesaurus(nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        super.setCommunicationTaskService(communicationTaskService);
     }
 
     @Override

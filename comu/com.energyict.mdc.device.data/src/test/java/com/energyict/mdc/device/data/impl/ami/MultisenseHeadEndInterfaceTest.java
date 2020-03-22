@@ -55,6 +55,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import org.osgi.framework.BundleContext;
@@ -140,6 +141,8 @@ public class MultisenseHeadEndInterfaceTest {
     private EndDeviceControlType contactorOpenEndDeviceControlType;
     @Mock
     private EndDeviceControlType contactoCloseEndDeviceControlType;
+    @Mock
+    private volatile CommunicationTaskService communicationTaskService;
     private MultiSenseHeadEndInterfaceImpl headEndInterface;
 
     @Before
@@ -148,7 +151,8 @@ public class MultisenseHeadEndInterfaceTest {
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(user.hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)).thenReturn(true);
         when(context.getProperty(MultiSenseHeadEndInterfaceImpl.MDC_URL)).thenReturn(url);
-        headEndInterface = Mockito.spy(new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory, threadPrincipalService, clock));
+        headEndInterface = Mockito.spy(new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService,
+                customPropertySetService, endDeviceCommandFactory, threadPrincipalService, clock, communicationTaskService));
         when(headEndInterface.getServiceCallCommands()).thenReturn(serviceCallCommands);    // Use mocked variant of ServiceCallCommands, as for this test we are not interested in what happens with ServiceCalls
         headEndInterface.activate(context);
         when(serviceCallCommands.createOperationServiceCall(any(), any(), any(), any())).thenReturn(serviceCall);
@@ -221,6 +225,9 @@ public class MultisenseHeadEndInterfaceTest {
         when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(messagesTask, statusInformationTask));
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
+        when(comTaskExecution.getId()).thenReturn(999L);
+        when(comTaskExecution.getVersion()).thenReturn(3339L);
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(999L, 3339L)).thenReturn(Optional.of(comTaskExecution));
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class, Mockito.RETURNS_DEEP_STUBS);
         when(device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));

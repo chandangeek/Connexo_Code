@@ -40,7 +40,7 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
         switch (newState) {
             case PENDING:
                 serviceCall.findChildren().stream().forEach(child -> {
-                    if(child.canTransitionTo(DefaultState.PENDING)) {
+                    if (child.canTransitionTo(DefaultState.PENDING)) {
                         child.requestTransition(DefaultState.PENDING);
                     }
                 });
@@ -117,7 +117,7 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
                     WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0)));
                 }
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             //If we could not send registered notification due to any exception, we should continue to process service call
             serviceCall.log(LogLevel.WARNING, "Exception while sending registered (bulk) notification: " + ex.getLocalizedMessage());
         }
@@ -130,7 +130,9 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
             if (extension.isCreateRequest()) {
                 String deviceId = extension.getDeviceId();
                 Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
-                if (device.isPresent() && (child.getState() == DefaultState.SUCCESSFUL || ServiceCallHelper.hasAnyChildState(ServiceCallHelper.findChildren(child), DefaultState.SUCCESSFUL))) {
+                if (device.isPresent() &&
+                        !sapCustomPropertySets.isRegistered(device.get()) &&
+                        (child.getState() == DefaultState.SUCCESSFUL || ServiceCallHelper.hasAnyChildState(ServiceCallHelper.findChildren(child), DefaultState.SUCCESSFUL))) {
                     deviceIds.add(deviceId);
                 }
             }

@@ -17,15 +17,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
-    private final Integer meterReplacementAddInterval;
+    private final Integer lrnEndInterval;
 
     private String requestId;
     private String uuid;
     private List<MeterRegisterChangeMessage> meterRegisterChangeMessages = new ArrayList<>();
     private Thesaurus thesaurus;
 
-    private MeterRegisterBulkChangeRequestMessage(Integer meterReplacementAddInterval, Thesaurus thesaurus) {
-        this.meterReplacementAddInterval = meterReplacementAddInterval;
+    private MeterRegisterBulkChangeRequestMessage(Integer lrnEndInterval, Thesaurus thesaurus) {
+        this.lrnEndInterval = lrnEndInterval;
         this.thesaurus = thesaurus;
     }
 
@@ -41,8 +41,8 @@ public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
         return meterRegisterChangeMessages;
     }
 
-    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer meterReplacementAddInterval, Thesaurus thesaurus) {
-        return new MeterRegisterBulkChangeRequestMessage(meterReplacementAddInterval, thesaurus).new Builder();
+    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer lrnEndInterval, Thesaurus thesaurus) {
+        return new MeterRegisterBulkChangeRequestMessage(lrnEndInterval, thesaurus).new Builder();
     }
 
     public class Builder {
@@ -60,7 +60,7 @@ public class MeterRegisterBulkChangeRequestMessage extends AbstractSapMessage {
             requestMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeRequestMessage()
                     .forEach(message ->
                             meterRegisterChangeMessages.add(MeterRegisterChangeBulkMessageBuilder
-                                    .builder(meterReplacementAddInterval)
+                                    .builder(lrnEndInterval)
                                     .from(message)
                                     .build(thesaurus)));
             return this;
