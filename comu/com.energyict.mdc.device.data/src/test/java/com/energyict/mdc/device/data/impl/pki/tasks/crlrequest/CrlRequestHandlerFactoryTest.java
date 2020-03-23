@@ -73,6 +73,8 @@ public class CrlRequestHandlerFactoryTest {
     @Mock
     private CrlRequestTaskProperty crlRequestTaskProperty;
     @Mock
+    private SecurityAccessor securityAccessor;
+    @Mock
     private CertificateWrapper certificateWrapper;
     @Mock
     private X509Certificate x509Certificate;
@@ -99,7 +101,8 @@ public class CrlRequestHandlerFactoryTest {
         when(caService.isConfigured()).thenReturn(true);
         when(caService.getPkiCaNames()).thenReturn(caNames);
         when(crlRequestTaskProperty.getCaName()).thenReturn(CA_NAME);
-        when(crlRequestTaskProperty.getCRLSigner()).thenReturn(certificateWrapper);
+        when(crlRequestTaskProperty.getSecurityAccessor()).thenReturn(securityAccessor);
+        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(certificateWrapper));
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(x509Certificate));
         when(x509Certificate.getNotAfter()).thenReturn(new Date());
         when(x509Certificate.getPublicKey()).thenReturn(publicKey);
@@ -139,7 +142,7 @@ public class CrlRequestHandlerFactoryTest {
     public void testGetSecurityAccessor() {
         executor.execute(taskOccurrence);
         executor.postExecute(taskOccurrence);
-        verify(crlRequestTaskProperty).getCRLSigner();
+        verify(crlRequestTaskProperty).getSecurityAccessor();
     }
 
     @Test

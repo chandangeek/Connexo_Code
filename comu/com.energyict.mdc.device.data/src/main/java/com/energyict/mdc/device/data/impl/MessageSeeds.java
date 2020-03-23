@@ -192,6 +192,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_CERTIFICATE_REMOVAL_USED_ON_DEVICE(2164, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a device security accessor."),
     COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE(2165, Keys.COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE, "The device command ''{0}'' should have a ''key type'' attribute"),
     PROPERTY_VALUE_REQUIRED(2166, "InvalidPropertyValue", "Value for property {0} is required"),
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_CRL_TASK(2167, "VetoSecurityAccessorRemovalFromCrlTask", "The security accessor couldn''t be removed since it is used by task {0}."),
     NO_CRL_REQUEST_TASK_PROPERTIES(2168, "NoCrlRequestTaskProperties", "No CRL request task properties."),
     CA_WITH_NAME_NOT_CONFIGURED(2169, "CaWithNameNotConfigured", "CA ''{0}'' isn''t configured."),
     CRL_SIGNATURE_VERIFICATION_FAILED(2170, "CrlSignatureVerificationFailed", "CRL signature verification has failed: {0}"),
@@ -220,7 +221,7 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized."),
     WRONG_STATUS(2194, Keys.WRONG_STATUS, "Wrong status value. Possible values: {0}"),
     WRONG_CARD_FORMAT(2195, Keys.WRONG_CARD_FORMAT, "Wrong card format value. Possible values: {0}"),
-    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\, !, *, '', (, ), :, @, &, =, $, ,, [, ]."),
+    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\"),
     NO_COMTASK_EXECUTION(2197, Keys.NO_COMTASK_EXECUTION, "A communication task execution for the device messages can''t be located or it is inactive."),
     NO_STATUS_INFORMATION_COMTASK_EXECUTION(2198, Keys.NO_STATUS_INFORMATION_COMTASK_EXECUTION, "A communication task execution to read out the status information can''t be located or it is inactive."),
     ;

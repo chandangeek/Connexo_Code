@@ -1,12 +1,8 @@
 package com.energyict.dlms.cosem.attributes;
 
-import com.energyict.dlms.cosem.methods.MBusClientMethods;
+import com.energyict.dlms.cosem.methods.MbusClientMethods;
 import org.junit.Test;
 
-import static com.energyict.dlms.cosem.MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION;
-import static com.energyict.dlms.cosem.MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION;
-import static com.energyict.dlms.cosem.MBusClient.VERSION.VERSION0_D_S_M_R_23_SPEC;
-import static com.energyict.dlms.cosem.MBusClient.VERSION.VERSION1;
 import static junit.framework.Assert.assertEquals;
 
 /**
@@ -16,42 +12,28 @@ import static junit.framework.Assert.assertEquals;
  */
 public class MbusClientMethodsTest {
 
+    private static final int version9 = 9;
+    private static final int version10 = 10;
+
     @Test
     public final void forVersionTest() {
-        assertEquals(0x68, MBusClientMethods.SLAVE_INSTALL.forVersion(VERSION0_D_S_M_R_23_SPEC).getShortName());
-        assertEquals(0x70, MBusClientMethods.SLAVE_DEINSTALL.forVersion(VERSION0_D_S_M_R_23_SPEC).getShortName());
-        assertEquals(0x78, MBusClientMethods.CAPTURE.forVersion(VERSION0_D_S_M_R_23_SPEC).getShortName());
-        assertEquals(0x80, MBusClientMethods.RESET_ALARM.forVersion(VERSION0_D_S_M_R_23_SPEC).getShortName());
-        assertEquals(0x88, MBusClientMethods.SYNCHRONIZE_CLOCK.forVersion(VERSION0_D_S_M_R_23_SPEC).getShortName());
-        assertEquals(0x90, MBusClientMethods.DATA_SEND.forVersion(VERSION0_D_S_M_R_23_SPEC).getShortName());
-        assertEquals(0x98, MBusClientMethods.SET_ENCRYPTION_KEY.forVersion(VERSION0_D_S_M_R_23_SPEC).getShortName());
+        assertEquals(0x68, MbusClientMethods.SLAVE_INSTALL.forVersion(version9).getShortName());
+        assertEquals(0x70, MbusClientMethods.SLAVE_DEINSTALL.forVersion(version9).getShortName());
+        assertEquals(0x78, MbusClientMethods.CAPTURE.forVersion(version9).getShortName());
+        assertEquals(0x80, MbusClientMethods.RESET_ALARM.forVersion(version9).getShortName());
+        assertEquals(0x88, MbusClientMethods.SYNCHRONIZE_CLOCK.forVersion(version9).getShortName());
+        assertEquals(0x90, MbusClientMethods.DATA_SEND.forVersion(version9).getShortName());
+        assertEquals(0x98, MbusClientMethods.SET_ENCRYPTION_KEY.forVersion(version9).getShortName());
+        assertEquals(0xA0, MbusClientMethods.TRANSFER_KEY.forVersion(version9).getShortName());
 
-        assertEquals(0x68, MBusClientMethods.SLAVE_INSTALL.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-        assertEquals(0x70, MBusClientMethods.SLAVE_DEINSTALL.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-        assertEquals(0x78, MBusClientMethods.CAPTURE.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-        assertEquals(0x80, MBusClientMethods.RESET_ALARM.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-        assertEquals(0x88, MBusClientMethods.SYNCHRONIZE_CLOCK.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-        assertEquals(0x90, MBusClientMethods.DATA_SEND.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-        assertEquals(0x98, MBusClientMethods.SET_ENCRYPTION_KEY.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-        assertEquals(0xA0, MBusClientMethods.TRANSFER_KEY.forVersion(VERSION0_BLUE_BOOK_9TH_EDITION).getShortName());
-
-        assertEquals(0x60, MBusClientMethods.SLAVE_INSTALL.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-        assertEquals(0x68, MBusClientMethods.SLAVE_DEINSTALL.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-        assertEquals(0x70, MBusClientMethods.CAPTURE.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-        assertEquals(0x78, MBusClientMethods.RESET_ALARM.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-        assertEquals(0x80, MBusClientMethods.SYNCHRONIZE_CLOCK.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-        assertEquals(0x88, MBusClientMethods.DATA_SEND.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-        assertEquals(0x90, MBusClientMethods.SET_ENCRYPTION_KEY.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-        assertEquals(0x98, MBusClientMethods.TRANSFER_KEY.forVersion(VERSION0_BLUE_BOOK_10TH_EDITION).getShortName());
-
-        assertEquals(0x70, MBusClientMethods.SLAVE_INSTALL.forVersion(VERSION1).getShortName());
-        assertEquals(0x78, MBusClientMethods.SLAVE_DEINSTALL.forVersion(VERSION1).getShortName());
-        assertEquals(0x80, MBusClientMethods.CAPTURE.forVersion(VERSION1).getShortName());
-        assertEquals(0x88, MBusClientMethods.RESET_ALARM.forVersion(VERSION1).getShortName());
-        assertEquals(0x90, MBusClientMethods.SYNCHRONIZE_CLOCK.forVersion(VERSION1).getShortName());
-        assertEquals(0x98, MBusClientMethods.DATA_SEND.forVersion(VERSION1).getShortName());
-        assertEquals(0xA0, MBusClientMethods.SET_ENCRYPTION_KEY.forVersion(VERSION1).getShortName());
-        assertEquals(0xA8, MBusClientMethods.TRANSFER_KEY.forVersion(VERSION1).getShortName());
+        assertEquals(0x60, MbusClientMethods.SLAVE_INSTALL.forVersion(version10).getShortName());
+        assertEquals(0x68, MbusClientMethods.SLAVE_DEINSTALL.forVersion(version10).getShortName());
+        assertEquals(0x70, MbusClientMethods.CAPTURE.forVersion(version10).getShortName());
+        assertEquals(0x78, MbusClientMethods.RESET_ALARM.forVersion(version10).getShortName());
+        assertEquals(0x80, MbusClientMethods.SYNCHRONIZE_CLOCK.forVersion(version10).getShortName());
+        assertEquals(0x88, MbusClientMethods.DATA_SEND.forVersion(version10).getShortName());
+        assertEquals(0x90, MbusClientMethods.SET_ENCRYPTION_KEY.forVersion(version10).getShortName());
+        assertEquals(0x98, MbusClientMethods.TRANSFER_KEY.forVersion(version10).getShortName());
     }
 
 }

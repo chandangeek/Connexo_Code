@@ -101,16 +101,17 @@ public class TopIssuesResource extends BaseResource {
                         and(conditionStatus).
                         and(conditionUser.
                                 or(conditionNullUser.
-                                        and(conditionWG))), 1, 7, new Order[]{
-                                                Order.descending(PRIORITYTOTAL),
-                                                Order.ascending(DUEDATE),
-                                                Order.ascending(CREATIONDATE),
-                                                Order.ascending(DEVICE),
-                                                Order.ascending(USAGEPOINT),
-                                                Order.ascending(ISSUEID),
-                                                Order.ascending(REASON)
-                });
-        return new TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
+                                        and(conditionWG))), 1, 7, Order
+                        .ascending(PRIORITYTOTAL)
+                        .ascending(DUEDATE)
+                        .ascending(CREATIONDATE)
+                        .ascending(DEVICE)
+                        .ascending(USAGEPOINT)
+                        .ascending(ISSUEID)
+                        .ascending(REASON));
+        return new
+
+                TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
     }
 
     private boolean isIssue(IssueTypes issueType) {

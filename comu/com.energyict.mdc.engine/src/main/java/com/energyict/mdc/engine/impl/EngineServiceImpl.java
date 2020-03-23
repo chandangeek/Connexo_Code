@@ -118,12 +118,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private static final Logger LOGGER = Logger.getLogger(EngineService.class.getName());
     public static final String COMSERVER_USER = "comserver";
     public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
-    public static final String ADAPTIVE_QUERY_PROPERTY = "com.elster.jupiter.adaptive.query";
-
-    public static final String SYSTEM_IDENTIFIER =  "com.elster.jupiter.system.identifier";
-    public static final String SYSTEM_IDENTIFIER_COLOR = "com.elster.jupiter.system.identifier.color";
-    public static final String SYSTEM_VERSION = "system.version";
-
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -166,7 +160,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
-    public static final Properties engineProperties = new Properties();
+    private Properties engineProperties = new Properties();
     private BundleContext bundleContext = null;
 
     public EngineServiceImpl() {
@@ -528,10 +522,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
             setEngineProperty(SERVER_TYPE_PROPERTY_NAME, bundleContext.getProperty(SERVER_TYPE_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
-            setEngineProperty(SYSTEM_IDENTIFIER, Optional.ofNullable(bundleContext.getProperty(SYSTEM_IDENTIFIER)).orElse("-"));
-            setEngineProperty(SYSTEM_IDENTIFIER_COLOR, Optional.ofNullable(bundleContext.getProperty(SYSTEM_IDENTIFIER_COLOR)).orElse("#000000"));
-            setEngineProperty(SYSTEM_VERSION, Optional.ofNullable(bundleContext.getBundle().getVersion().toString()).orElse("-"));
-
             this.launchComServer();
             ComServerAliveLoopImpl comServerAliveLoop = new ComServerAliveLoopImpl(clock, engineConfigurationService, statusService, transactionService);
             register(comServerAliveLoop);
@@ -702,11 +692,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             this.launcher.stopComServer();
             this.launcher = null;
         }
-    }
-
-    public boolean isAdaptiveQuery() {
-        String property = bundleContext.getProperty(ADAPTIVE_QUERY_PROPERTY);
-        return property != null && property.trim().toLowerCase().equals("true");
     }
 
 //    @Override

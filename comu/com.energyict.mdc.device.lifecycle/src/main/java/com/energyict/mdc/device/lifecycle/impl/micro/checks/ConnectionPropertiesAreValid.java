@@ -5,7 +5,6 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
@@ -17,10 +16,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Checks that all the {@link ConnectionTask}s of a Device are complete.
@@ -28,9 +24,6 @@ import java.util.stream.Collectors;
  * and the KeyAccessor has an actualValue
  */
 public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
-
-    private final static String PROPERTY_SPEC_NAME_HOST = "host";
-    private final static String PROPERTY_SPEC_NAME_PORT_NUMBER = "portNumber";
 
     @Override
     public String getCategory() {
@@ -55,24 +48,15 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
             return true;
         }
 
-        boolean comTaskEnablementHasExecution = false;
-        Map<String, ConnectionTask<?,?>> deviceConnectionTasks = device.getConnectionTasks().stream().collect(Collectors.toMap(ConnectionTask::getName, connectionTask->connectionTask));
-
+        boolean isHasExecution = false;
         for(ComTaskEnablement comTaskEnablement:device.getDeviceConfiguration().getComTaskEnablements()){
             for(ComTaskExecution comTaskExecution:device.getComTaskExecutions()){
                 if(comTaskEnablement.getComTask().getId() == comTaskExecution.getComTask().getId()) {
                     Optional<ConnectionTask<?,?>> connectionTask = comTaskExecution.getConnectionTask();
                     if (connectionTask.isPresent()) {
-                        comTaskEnablementHasExecution = true;
-                        Map<String,PropertySpec> propertySpecs = connectionTask.get().getPluggableClass().getPropertySpecs().stream().collect(Collectors.toMap(PropertySpec::getName, propertySpec->propertySpec));
-                        if(propertySpecs.size()!=0){
-                            if(
-                                Optional.ofNullable(propertySpecs.get(PROPERTY_SPEC_NAME_HOST)).isPresent() &&
-                                Optional.ofNullable(propertySpecs.get(PROPERTY_SPEC_NAME_PORT_NUMBER)).isPresent() &&
-                                hasUnsetHostOrPort(connectionTask.get())
-                            ){
-                                return true;
-                            }
+                        isHasExecution = true;
+                        if(isHasHostOrPort(connectionTask.get().getTypedProperties())){
+                            return true;
                         }
                         if(connectionTask.get().getProperties().stream()
                                 .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
@@ -84,25 +68,14 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                         break;
                     }
                 }else{
-                    comTaskEnablementHasExecution = false;
+                    isHasExecution = false;
                 }
             }
-
-            if(!comTaskEnablementHasExecution){
+            if(!isHasExecution){
                 Optional<PartialConnectionTask> connectionTask = comTaskEnablement.getPartialConnectionTask();
                 if (connectionTask.isPresent()) {
-                    Map<String,PropertySpec> propertySpecs = connectionTask.get().getPluggableClass().getPropertySpecs().stream().collect(Collectors.toMap(PropertySpec::getName, propertySpec->propertySpec));
-                    if(propertySpecs.size()!=0){
-                        //Com task enablement doesn't have filled typed properties unlike com task execution( or connection task from device )
-                        Optional<ConnectionTask<?, ?>> devConnectionTask = Optional.ofNullable(deviceConnectionTasks.get(connectionTask.get().getName()));
-                        if(
-                            Optional.ofNullable(propertySpecs.get(PROPERTY_SPEC_NAME_HOST)).isPresent() &&
-                            Optional.ofNullable(propertySpecs.get(PROPERTY_SPEC_NAME_PORT_NUMBER)).isPresent() &&
-                            devConnectionTask.isPresent() &&
-                            hasUnsetHostOrPort(devConnectionTask.get())
-                        ){
-                            return true;
-                        }
+                    if(isHasHostOrPort(connectionTask.get().getTypedProperties())){
+                        return true;
                     }
                     if(connectionTask.get().getProperties().stream()
                             .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
@@ -117,8 +90,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
         return false;
     }
 
-    private boolean hasUnsetHostOrPort(ConnectionTask<?,?>  connectionTask){
-        TypedProperties typedProperties = connectionTask.getTypedProperties();
-        return typedProperties.getTypedProperty(PROPERTY_SPEC_NAME_HOST) == null || typedProperties.getTypedProperty(PROPERTY_SPEC_NAME_PORT_NUMBER) == null;
+    private boolean isHasHostOrPort(TypedProperties typedProperties){
+        return typedProperties.getTypedProperty("host") == null || typedProperties.getTypedProperty("portNumber") == null;
     }
 }

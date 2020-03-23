@@ -20,7 +20,7 @@ public class CryptoMbusDevice extends CryptoESMR50MbusDevice {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2020-02-22";
+        return "Crypto version: 2019-12-28";
     }
 
     @Override

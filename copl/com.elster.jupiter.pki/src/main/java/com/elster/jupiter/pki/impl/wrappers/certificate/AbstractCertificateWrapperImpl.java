@@ -175,7 +175,13 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             if (getCertificateKeyUsages(certificate).size() > 0) {
                 this.keyUsagesCsv = stringifyKeyUsages(getCertificateKeyUsages(certificate), getCertificateExtendedKeyUsages(certificate));
             }
-            setCertificateRequestData(certificateRequestUserData);
+
+            if (certificateRequestUserData.isPresent()) {
+                this.caName = certificateRequestUserData.get().getCaName();
+                this.caEndEntityName = certificateRequestUserData.get().getEndEntityName();
+                this.caProfileName = certificateRequestUserData.get().getCertificateProfileName();
+            }
+
             this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
@@ -438,14 +444,6 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             return Optional.of(new CertificateRequestData(this.caName, this.caEndEntityName, this.caProfileName));
         }
         return Optional.empty();
-    }
-
-    public void setCertificateRequestData(Optional<CertificateRequestData> certificateRequestData){
-        if (certificateRequestData.isPresent()) {
-            this.caName = certificateRequestData.get().getCaName();
-            this.caEndEntityName = certificateRequestData.get().getEndEntityName();
-            this.caProfileName = certificateRequestData.get().getCertificateProfileName();
-        }
     }
 
     @Override

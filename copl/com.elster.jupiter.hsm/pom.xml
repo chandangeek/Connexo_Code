@@ -8,20 +8,19 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Hermes-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>hsm</artifactId>
     <name>[Jupiter] com.elster.jupiter.hsm</name>
     <packaging>bundle</packaging>
 
     <properties>
-        <jss.version>9.8.0</jss.version>
-        <!-- This version is smaller than JSS uses but it is incompatible with out bundle plugin since it is java 9 jar (the one used by JSS, 1.64)-->
+        <jss.version>9.6.0</jss.version>
         <bouncycastle.version>1.60</bouncycastle.version>
-        <spring.version>5.2.3.RELEASE</spring.version>
+        <spring.version>5.1.5.RELEASE</spring.version>
         <jackson.version>2.4.0</jackson.version>
-        <antlr.version>4.8</antlr.version>
-        <netty.version>4.1.45.Final</netty.version>
+        <antlr.version>4.7.2</antlr.version>
+        <netty.version>4.1.33.Final</netty.version>
     </properties>
 
     <build>
@@ -33,7 +32,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            artifactId=jss-runtime-embedded|jss-commondev|jss-commondev-base|jss-core|antlr4|antlr4-runtime|antlr-runtime|bcpkix-jdk15on|bcprov-jdk15on|checker-qual|commons-lang3|classmate|failureaccess|groovy|gson|guava|icu4j|hibernate-validator|jakarta.validation-api|javax.el|javax.json|jboss-logging|jcl-over-slf4j|logback-classic|logback-core|metrics-core|netty-buffer|netty-codec|netty-common|netty-handler|netty-resolver|netty-transport|org.abego.treelayout.core|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jcl|spring-jdbc|spring-tx|ST4|validation-api
+                            artifactId=jss-runtime-embedded|jss-commondev|jss-commondev-base|jss-core|antlr4|antlr4-runtime|antlr-runtime|bcpkix-jdk15on|bcprov-jdk15on|checker-qual|commons-lang3|failureaccess|groovy|gson|guava|icu4j|javax.json|jcl-over-slf4j|logback-classic|logback-core|metrics-core|netty-buffer|netty-codec|netty-common|netty-handler|netty-resolver|netty-transport|org.abego.treelayout.core|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx|ST4
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -95,6 +94,19 @@
             <artifactId>commons-beanutils</artifactId>
             <scope>provided</scope>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>4.3.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
@@ -109,7 +121,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- JSS -->
@@ -162,17 +173,12 @@
         <dependency>
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
-            <version>2.10.0</version>
+            <version>2.5.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.9</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml</groupId>
-            <artifactId>classmate</artifactId>
-            <version>1.3.4</version>
+            <version>3.8.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -182,9 +188,8 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>2.5.9</version>
+            <version>2.5.6</version>
         </dependency>
-        <!-- This version is smaller than JSS uses but it is incompatible with out bundle plugin since it is java 9 jar (the one used by JSS, 1.64)-->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -193,12 +198,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>28.2-jre</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>6.1.1.Final</version>
+            <version>27.1-jre</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.icu</groupId>
@@ -206,29 +206,14 @@
             <version>65.1</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <version>3.0.1-b11</version>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
             <version>1.0.4</version>
         </dependency>
         <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-            <version>3.3.2.Final</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.30</version>
+            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -243,7 +228,7 @@
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-            <version>4.1.2</version>
+            <version>4.0.5</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -283,7 +268,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
+            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -312,11 +297,6 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-jcl</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
         </dependency>
@@ -328,14 +308,8 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>ST4</artifactId>
-            <version>4.3</version>
+            <version>4.1</version>
         </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>2.0.1.Final</version>
-        </dependency>
-
         <!-- Following is commented while importer (in another bundle) will behave strange>
         <dependency>
             <groupId>xerces</groupId>

@@ -20,6 +20,7 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.webservice.issue.WebServiceIssueService;
 import com.elster.jupiter.webservice.issue.impl.actions.CloseIssueAction;
+import com.elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction;
 import com.elster.jupiter.webservice.issue.impl.actions.WebServiceIssueActionsFactory;
 import com.elster.jupiter.webservice.issue.impl.event.WebServiceEventDescription;
 
@@ -66,6 +67,7 @@ class Installer implements FullInstaller {
         issueService.createReason(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON, type,
                 TranslationKeys.WEB_SERVICE_ISSUE_REASON, TranslationKeys.WEB_SERVICE_ISSUE_REASON_DESCRIPTION);
         issueActionService.createActionType(WebServiceIssueActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
+        issueActionService.createActionType(WebServiceIssueActionsFactory.ID, StartProcessWebServiceIssueAction.class.getName(), type, CreationRuleActionPhase.CREATE);
     }
 
     private void setAQSubscriber() {

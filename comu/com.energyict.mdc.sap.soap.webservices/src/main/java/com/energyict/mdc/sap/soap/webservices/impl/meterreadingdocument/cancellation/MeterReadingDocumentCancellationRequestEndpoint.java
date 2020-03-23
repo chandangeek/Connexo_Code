@@ -34,7 +34,7 @@ public class MeterReadingDocumentCancellationRequestEndpoint extends AbstractCan
             }
 
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> handleMessage(MeterReadingDocumentCancellationRequestMessage.builder(getThesaurus())
+                    .ifPresent(requestMessage -> handleMessage(MeterReadingDocumentCancellationRequestMessage.builder()
                             .from(requestMessage)
                             .build()));
             return null;

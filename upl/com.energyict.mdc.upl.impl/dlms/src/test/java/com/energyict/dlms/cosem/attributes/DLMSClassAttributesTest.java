@@ -25,7 +25,7 @@ public class DLMSClassAttributesTest {
             ExtendedRegisterAttributes.values(),
             Ipv4SetupAttributes.values(),
             LimiterAttributes.values(),
-            MBusClientAttributes.values(),
+            MbusClientAttributes.values(),
             PrivacyEnhancingDataAggregationAttributes.values(),
             RegisterAttributes.values(),
             SFSKActiveInitiatorAttribute.values(),

@@ -23,10 +23,6 @@ Ext.define('Pkj.model.Certificate', {
         'notAfter',
         'signatureAlgorithm',
 
-        'endEntityName',
-        'caName',
-        'certProfileName',
-
         {
             name: 'file',
             useNull: true

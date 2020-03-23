@@ -2,8 +2,6 @@ package com.energyict.protocolimplv2.nta.esmr50.common;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
@@ -32,7 +30,6 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(this.workingKeyLabelPhase1());
         propertySpecs.add(this.workingKeyLabelPhase2());
         propertySpecs.add(this.readCache());
-        propertySpecs.add(this.increaseFrameCounterOnHLSReply());
         return propertySpecs;
     }
 
@@ -57,16 +54,5 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec readCache(){
         return UPLPropertySpecFactory.specBuilder(READCACHE_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_READCACHE, getPropertySpecService()::booleanSpec).finish();
-    }
-
-    /**
-     * Property spec indicating whether or not to increment the FC for the reply to HLS.
-     *
-     * @return The corresponding PropertySpec.
-     */
-    private PropertySpec increaseFrameCounterOnHLSReply() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec)
-                .setDefaultValue(false)
-                .finish();
     }
 }

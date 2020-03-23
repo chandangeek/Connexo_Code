@@ -352,7 +352,7 @@ class ReadingStorerImpl implements ReadingStorer {
 
     private BigDecimal getMultiplier(ChannelContract channelContract, Instant instant, IReadingType source, IReadingType target) {
         MultiplierType multiplierType = getMultiplierType(channelContract, source, target, instant).get();
-        return channelContract.getChannelsContainer().getMultiplier(multiplierType).orElse(BigDecimal.ONE);
+        return channelContract.getChannelsContainer().getMultiplier(multiplierType).get();
     }
 
     private BigDecimal getMultiplier(ChannelContract channelContract, Instant instant, IReadingType target) {

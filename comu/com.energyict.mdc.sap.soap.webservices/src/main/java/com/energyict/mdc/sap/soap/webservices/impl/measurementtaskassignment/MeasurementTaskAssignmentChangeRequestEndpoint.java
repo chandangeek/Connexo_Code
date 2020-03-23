@@ -94,7 +94,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
             saveRelatedAttributes(values);
             if (!message.isValid()) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
 
             if (!message.arePeriodsValid()) {

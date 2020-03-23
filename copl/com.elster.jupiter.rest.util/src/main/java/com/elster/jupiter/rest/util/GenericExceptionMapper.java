@@ -40,10 +40,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
         }
     }
     private void log(String errorReference, Exception exception) {
-        if(exception != null)
-            LOGGER.log(Level.SEVERE, errorReference + " - " + exception.getMessage(), exception);
-        else
-            LOGGER.log(Level.SEVERE, errorReference + " - " + exception, exception);
+        LOGGER.log(Level.SEVERE, errorReference + " - " + exception.getMessage(), exception);
     }
 }
 

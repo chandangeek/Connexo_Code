@@ -52,6 +52,13 @@ public class ValidateUpdatableChannelSpecFieldsValidator implements ConstraintVa
                     addConstraintViolation();
             return true;
         }
+        if (oldChannelSpec.getNbrOfFractionDigits() > channelSpec.getNbrOfFractionDigits()) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED + "}").
+                    addPropertyNode(ChannelSpecImpl.ChannelSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).
+                    addConstraintViolation();
+            return true;
+        }
         return false;
     }
 

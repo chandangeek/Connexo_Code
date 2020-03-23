@@ -1,12 +1,11 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
-import com.elster.jupiter.servicecall.ServiceCallFilter;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -22,6 +21,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNoti
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
@@ -31,9 +31,9 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
@@ -43,20 +43,20 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
     private final Clock clock;
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final Thesaurus thesaurus;
+    private final OrmService ormService;
     private final WebServiceActivator webServiceActivator;
-    private final ServiceCallService serviceCallService;
 
     @Inject
     AbstractRegisterCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
                                           Clock clock, SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus,
-                                          WebServiceActivator webServiceActivator, ServiceCallService serviceCallService) {
+                                          OrmService ormService, WebServiceActivator webServiceActivator) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.thesaurus = thesaurus;
+        this.ormService = ormService;
         this.webServiceActivator = webServiceActivator;
-        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
     private void createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage message) {
         if (message.isValid()) {
-            if (hasOpenUtilDeviceRegisterRequestServiceCall(message.getRequestID(), message.getUuid())) {
+            if (hasUtilDeviceRegisterRequestServiceCall(message.getRequestID(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST).ifPresent(serviceCallType -> {
@@ -104,7 +104,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 
@@ -138,7 +138,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT, requestMessage.getMissingFields());
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 
@@ -182,12 +182,12 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         serviceCallBuilder.create();
     }
 
-    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
+    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage = null;
         confirmationMessage =
                 UtilitiesDeviceRegisterCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -202,25 +202,16 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         }
     }
 
-    private boolean hasOpenUtilDeviceRegisterRequestServiceCall(String id, String uuid) {
-        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST)
-                .stream()
-                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .anyMatch(domainExtension -> {
-                    if (id != null) {
-                        return domainExtension.getRequestID() != null && domainExtension.getRequestID().equals(id);
-                    } else {
-                        return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
-                    }
-                });
-    }
-
-    public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
-        ServiceCallFilter filter = new ServiceCallFilter();
-        filter.types.add(serviceCallType.getTypeName());
-        Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).forEach(filter.states::add);
-        return serviceCallService.getServiceCallFinder(filter);
+    private boolean hasUtilDeviceRegisterRequestServiceCall(String id, String uuid) {
+        Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.MODEL_NAME);
+        if (id != null) {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                    .orElse(false);
+        } else {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
+                    .orElse(false);
+        }
     }
 }

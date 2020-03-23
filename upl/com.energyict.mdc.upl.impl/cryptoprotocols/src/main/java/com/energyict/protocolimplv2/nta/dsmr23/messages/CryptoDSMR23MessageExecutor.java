@@ -52,11 +52,6 @@ public class CryptoDSMR23MessageExecutor extends Dsmr23MessageExecutor {
     }
 
     @Override
-    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        commonCryptoMessageExecutor.renewKey(pendingMessage, keyAccessorTypeExtractor);
-    }
-
-    @Override
     protected void changeEncryptionKeyUsingServiceKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
         commonCryptoMessageExecutor.changeEncryptionKeyUsingServiceKey(pendingMessage);
     }

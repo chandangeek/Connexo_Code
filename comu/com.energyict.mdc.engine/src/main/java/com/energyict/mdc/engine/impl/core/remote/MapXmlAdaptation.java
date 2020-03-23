@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -113,7 +115,7 @@ public class MapXmlAdaptation {
 
     private ObjectMapper getObjectMapper() {
         if (this.objectMapper == null) {
-            objectMapper = ObjectMapperFactory.getObjectMapper();
+            objectMapper = ObjectMapperFactory.newMapper();
         }
         return this.objectMapper;
     }

@@ -12,7 +12,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
@@ -150,7 +150,7 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
                         this.registerMap.put(register,
                                 new DLMSAttribute(
                                         getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
-                                        MBusClientAttributes.STATUS.getAttributeNumber(),
+                                        MbusClientAttributes.STATUS.getAttributeNumber(),
                                         DLMSClassId.MBUS_CLIENT.getClassId()
                                 )
                         );
@@ -159,7 +159,7 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
                         this.registerMap.put(register,
                                 new DLMSAttribute(
                                         getCorrectedRegisterObisCode(MBUS_CLIENT, register.getSerialNumber()),
-                                        MBusClientAttributes.ALARM.getAttributeNumber(),
+                                        MbusClientAttributes.ALARM.getAttributeNumber(),
                                         DLMSClassId.MBUS_CLIENT.getClassId()
                                 )
                         );

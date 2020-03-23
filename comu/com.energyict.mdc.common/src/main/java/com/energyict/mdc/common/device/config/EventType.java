@@ -17,26 +17,26 @@ import com.elster.jupiter.orm.TransactionRequired;
  */
 public enum EventType {
 
-    DEVICETYPE_CREATED("devicetype/CREATED") {
+    DEVICETYPE_CREATED("devicetype/CREATED"){
         @Override
         EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
             return eventTypeBuilder.shouldPublish();
         }
     },
-    DEVICETYPE_UPDATED("devicetype/UPDATED") {
+    DEVICETYPE_UPDATED("devicetype/UPDATED"){
         @Override
         EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
             return eventTypeBuilder.shouldPublish();
         }
     },
     DEVICETYPE_VALIDATE_DELETE("devicetype/VALIDATEDELETE"),
-    DEVICETYPE_DELETED("devicetype/DELETED") {
+    DEVICETYPE_DELETED("devicetype/DELETED"){
         @Override
         EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
             return eventTypeBuilder.shouldPublish();
         }
     },
-    DEVICELIFECYCLE_UPDATED("devicetype/dlc/UPDATED") {
+    DEVICELIFECYCLE_UPDATED("devicetype/dlc/UPDATED"){
         @Override
         EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
             return eventTypeBuilder.shouldPublish();
@@ -303,8 +303,7 @@ public enum EventType {
     ALLOWED_CALENDAR_VALIDATE_DELETE("allowedcalendar/VALIDATE_DELETE"),
     DEVICE_MESSAGE_FILE_OBSOLETE("devicemessagefile/OBSOLETE"),
     SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE("securityaccessortype/VALIDATE_DELETE"),
-    DEVICE_TYPE_PRE_DELETE("devicetype/PRE_DELETE"),
-    DEVICE_TYPE_LIFE_CYCLE_CACHE_RECALCULATED("devicetype/LIFE_CYCLE_CACHE_RECALCULATED");
+    DEVICE_TYPE_PRE_DELETE("devicetype/PRE_DELETE");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;

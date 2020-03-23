@@ -4,14 +4,12 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesMeasurementRecurrenceCode;
 
 import java.time.Instant;
 import java.util.List;
@@ -41,8 +39,7 @@ public class MeterRegisterChangeBulkMessageBuilder {
         return this;
     }
 
-    public MeterRegisterChangeMessage build(Thesaurus thesaurus) {
-        message.validate(thesaurus);
+    public MeterRegisterChangeMessage build() {
         return message;
     }
 
@@ -88,16 +85,11 @@ public class MeterRegisterChangeBulkMessageBuilder {
     }
 
     private RegisterChangeMessage getRegister(UtilsDvceERPSmrtMtrRegChgReqReg reg) {
-        RegisterChangeMessage.Builder registerBuilder = new RegisterChangeMessage.Builder();
-        registerBuilder.setLrn(getLrn(reg));
-        registerBuilder.setStartDate(reg.getStartDate());
-        registerBuilder.setEndDate(calculateEndDate(reg));
-        registerBuilder.setCreateEndDate(reg.getEndDate());
-        registerBuilder.setTimeZone(getTimeZone(reg));
-        registerBuilder.setObis(getObis(reg));
-        registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
-        registerBuilder.setDivisionCategory(getDivisionCategory(reg));
-        return registerBuilder.build();
+        RegisterChangeMessage register = new RegisterChangeMessage();
+        register.setLrn(getLrn(reg));
+        register.setEndDate(calculateEndDate(reg));
+        register.setTimeZone(getTimeZone(reg));
+        return register;
     }
 
     private String getLrn(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
@@ -118,24 +110,5 @@ public class MeterRegisterChangeBulkMessageBuilder {
 
     private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
         return requestRegister.getEndDate().plus(meterReplacementAddInterval, MINUTES);
-    }
-
-    private String getObis(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
-        return Optional.ofNullable(requestRegister.getUtilitiesObjectIdentificationSystemCodeText())
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private String getRecurrenceCode(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
-        return Optional.ofNullable(requestRegister.getUtilitiesMeasurementRecurrenceCode())
-                .map(UtilitiesMeasurementRecurrenceCode::getValue)
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private String getDivisionCategory(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
-        return Optional.ofNullable(requestRegister.getUtilitiesDivisionCategoryCode())
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
     }
 }

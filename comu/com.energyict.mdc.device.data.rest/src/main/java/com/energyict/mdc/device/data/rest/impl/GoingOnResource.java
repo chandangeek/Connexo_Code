@@ -147,12 +147,10 @@ public class GoingOnResource {
         }
 
         List<GoingOnInfo> processInstances = new ArrayList<>();
-        if(hasCurrentUserTasksPrivileges(appPrivileges)) {
+        if(hasCurrentUserTasksPrivileges(appPrivileges) && queryParameters.getStart().map(l -> l.equals(0)).orElse(Boolean.TRUE)) {
             processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
                     .processes
                     .stream()
-                    .skip(queryParameters.getStart().orElse(0))
-                    .limit(queryParameters.getLimit().orElse(0) + 1)
                     .map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }

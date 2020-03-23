@@ -53,6 +53,13 @@ public class ValidateUpdatableRegisterSpecFieldsValidator implements ConstraintV
                     addConstraintViolation();
             return true;
         }
+        if (oldNumericalRegisterSpec.getNumberOfFractionDigits()>numericalRegisterSpec.getNumberOfFractionDigits()) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}").
+                    addPropertyNode(RegisterSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).
+                    addConstraintViolation();
+            return true;
+        }
         if (oldNumericalRegisterSpec.getRegisterType().getId()!=numericalRegisterSpec.getRegisterType().getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG +"}").

@@ -3,7 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
-import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -19,8 +19,8 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractCreateRequ
 
     @Inject
     UtilitiesDeviceBulkCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                             Clock clock, WebServiceActivator webServiceActivator, DeviceService deviceService, ServiceCallService serviceCallService) {
-        super(serviceCallCommands, endPointConfigurationService, clock, webServiceActivator, deviceService, serviceCallService);
+                                             Clock clock, OrmService ormService, WebServiceActivator webServiceActivator, DeviceService deviceService) {
+        super(serviceCallCommands, endPointConfigurationService, clock, ormService, webServiceActivator, deviceService);
     }
 
     @Override
@@ -28,8 +28,8 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractCreateRequ
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder(getThesaurus())
-                                        .from(requestMessage, getThesaurus())
+                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder()
+                                        .from(requestMessage)
                                         .build();
 
                                 handleRequestMessage(message);

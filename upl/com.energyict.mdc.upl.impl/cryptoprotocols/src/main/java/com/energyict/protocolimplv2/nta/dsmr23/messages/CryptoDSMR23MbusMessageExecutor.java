@@ -1,57 +1,27 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.common.CommonCryptoMbusMessageExecutor;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.common.CommonCryptoMbusMessageExecutor;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.common.CryptoDSMR23Properties;
+import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MbusMessageExecutor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CryptoDSMR23MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
-
-    private CommonCryptoMbusMessageExecutor mbusCryptoMessageExecutor;
-
+    private CommonCryptoMbusMessageExecutor mbusCryptoMessageExecutor = null;
     public CryptoDSMR23MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
         this.mbusCryptoMessageExecutor = new CommonCryptoMbusMessageExecutor(isUsingCryptoServer(), getProtocol(), collectedDataFactory, issueFactory);
     }
 
     @Override
-    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        List<OfflineDeviceMessage> messagesForSuper = new ArrayList<>();
-        CollectedMessageList collectedMessages = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
-        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.SetEncryptionKeysUsingCryptoserver)) {
-                CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
-                try {
-                    mbusCryptoMessageExecutor.setCryptoserverMbusEncryptionKeys(pendingMessage);
-                } catch (IOException e) {
-                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession().getProperties().getRetries() + 1)) {
-                        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                        collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
-                        collectedMessage.setDeviceProtocolInformation(e.getMessage());
-                    }
-                }
-                collectedMessages.addCollectedMessage(collectedMessage);
-            }
-            else {
-                messagesForSuper.add(pendingMessage);
-            }
-        }
-        collectedMessages.addCollectedMessages(super.executePendingMessages(messagesForSuper));
-        return collectedMessages;
+    protected void setCryptoserverMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
+        mbusCryptoMessageExecutor.setCryptoserverMbusEncryptionKeys(pendingMessage);
     }
 
     private boolean isUsingCryptoServer() {

@@ -33,9 +33,6 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    MasterMeterReadingDocumentCreateRequestCustomPropertySet() {
-    }
-
     @Inject
     public MasterMeterReadingDocumentCreateRequestCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;

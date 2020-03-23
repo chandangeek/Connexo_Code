@@ -32,7 +32,6 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -317,8 +316,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
                     injector.getInstance(SecurityManagementService.class),
-                    injector.getInstance(MeteringTranslationService.class),
-                    injector.getInstance(MessageService.class));
+                    injector.getInstance(MeteringTranslationService.class));
             ctx.commit();
         }
         setupMasterData();
@@ -399,8 +397,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.save();
 
         outboundConnectionTask = deviceConfiguration
-                .newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                        .get(0))
+                .newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -443,15 +440,12 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
                 .asDefault(false).build();
-        theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .asDefault(true).build();
         deviceConfiguration.save();
@@ -476,15 +470,12 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        notTheDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
                 .asDefault(true).build();
-        theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        theDefault = deviceConfiguration.newPartialScheduledConnectionTask("MyDefault", connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .asDefault(true).build();
         deviceConfiguration.save();
@@ -502,7 +493,7 @@ public class PartialOutboundConnectionTaskCrudIT {
      */
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "protocolDialectConfigurationProperties")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}" , property = "protocolDialectConfigurationProperties")
     public void testCreateWithoutProtocolDialect() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -531,10 +522,10 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.save();
 
         outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask(
-                "MyOutbound",
-                connectionTypePluggableClass,
-                SIXTY_SECONDS,
-                ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                                                        "MyOutbound",
+                                                        connectionTypePluggableClass,
+                                                        SIXTY_SECONDS,
+                                                        ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS), new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
@@ -575,57 +566,57 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     public void testUpdateProtocolDialectProperties() {
         PartialScheduledConnectionTask outboundConnectionTask;
-        DeviceConfiguration deviceConfiguration;
-        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceConfiguration = deviceType.newConfiguration("Normal").add();
-        deviceConfiguration.setDirectlyAddressable(true);
-        deviceConfiguration.save();
+         DeviceConfiguration deviceConfiguration;
+         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+         deviceConfiguration = deviceType.newConfiguration("Normal").add();
+         deviceConfiguration.setDirectlyAddressable(true);
+         deviceConfiguration.save();
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec1", "test property 1");
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec2", "test property 2");
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec3", "test property 3");
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec4", "test property 4");
+         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec1","test property 1");
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec2","test property 2");
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec3","test property 3");
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec4","test property 4");
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, protocolDialectConfigurationProperties)
-                .comPortPool(outboundComPortPool)
-                .comWindow(COM_WINDOW)
-                .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS), new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
-                .asDefault(true).build();
-        deviceConfiguration.save();
-        reset(eventService.getSpy());
+         outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, protocolDialectConfigurationProperties)
+                 .comPortPool(outboundComPortPool)
+                 .comWindow(COM_WINDOW)
+                 .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS), new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
+                 .asDefault(true).build();
+         deviceConfiguration.save();
+         reset(eventService.getSpy());
 
-        ComWindow newComWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 2, DateTimeConstants.SECONDS_PER_HOUR * 3);
-        PartialScheduledConnectionTask task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-        task.setDefault(false);
-        task.setComportPool(outboundComPortPool1);
-        task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
-        task.setTemporalExpression(new TemporalExpression(TWELVE_HOURS, TWO_HOURS));
-        task.setComWindow(newComWindow);
-        task.setName("Changed");
-        task.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
-        task.save();
+         ComWindow newComWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 2, DateTimeConstants.SECONDS_PER_HOUR * 3);
+         PartialScheduledConnectionTask task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+         task.setDefault(false);
+         task.setComportPool(outboundComPortPool1);
+         task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
+         task.setTemporalExpression(new TemporalExpression(TWELVE_HOURS, TWO_HOURS));
+         task.setComWindow(newComWindow);
+         task.setName("Changed");
+         task.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
+         task.save();
 
-        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found.isPresent()).isTrue();
-        PartialConnectionTask partialConnectionTask = found.get();
-        assertThat(partialConnectionTask).isInstanceOf(PartialScheduledConnectionTaskImpl.class);
-        PartialScheduledConnectionTaskImpl reloadedPartialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
-        assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
-        assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
-        assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(reloadedPartialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
-        assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
-        assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
-        assertThat(reloadedPartialOutboundConnectionTask.getName()).isEqualTo("Changed");
-        ProtocolDialectConfigurationProperties dialectConfigurationProperties = reloadedPartialOutboundConnectionTask.getProtocolDialectConfigurationProperties();
-        ProtocolDialectConfigurationProperties spyDialectConfigurationProperties = spy(dialectConfigurationProperties);
-        when(spyDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect1); // Need to force this
-        assertThat(spyDialectConfigurationProperties.getPropertySpecs()).hasSize(4);
-        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec1")).isEqualTo("test property 1");
-        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec2")).isEqualTo("test property 2");
-        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec3")).isEqualTo("test property 3");
-        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec4")).isEqualTo("test property 4");
+         Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
+         assertThat(found.isPresent()).isTrue();
+         PartialConnectionTask partialConnectionTask = found.get();
+         assertThat(partialConnectionTask).isInstanceOf(PartialScheduledConnectionTaskImpl.class);
+         PartialScheduledConnectionTaskImpl reloadedPartialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
+         assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
+         assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
+         assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
+         assertThat(reloadedPartialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
+         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
+         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
+         assertThat(reloadedPartialOutboundConnectionTask.getName()).isEqualTo("Changed");
+         ProtocolDialectConfigurationProperties dialectConfigurationProperties = reloadedPartialOutboundConnectionTask.getProtocolDialectConfigurationProperties();
+         ProtocolDialectConfigurationProperties spyDialectConfigurationProperties = spy(dialectConfigurationProperties);
+         when(spyDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect1); // Need to force this
+         assertThat(spyDialectConfigurationProperties.getPropertySpecs()).hasSize(4);
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec1")).isEqualTo("test property 1");
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec2")).isEqualTo("test property 2");
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec3")).isEqualTo("test property 3");
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec4")).isEqualTo("test property 4");
     }
 
     @Test
@@ -640,14 +631,12 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
                 .asDefault(false).build();
-        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .asDefault(false).build();
         deviceConfiguration.save();
@@ -676,14 +665,12 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName1, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
                 .asDefault(true).build();
-        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName2, connectionTypePluggableClass2, TimeDuration.days(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .asDefault(false).build();
         deviceConfiguration.save();
@@ -714,9 +701,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .nextExecutionSpec().temporalExpression(TimeDuration.minutes(30)).set()
                 .asDefault(true).build();
@@ -753,8 +738,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(false);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .asDefault(true).build();
@@ -772,8 +756,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .nextExecutionSpec().temporalExpression(TimeDuration.hours(3)).set()
                 .asDefault(true).build();
@@ -791,9 +774,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .asDefault(true).build();
@@ -829,9 +810,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .asDefault(true).build();
@@ -861,17 +840,14 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, SIXTY_SECONDS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, SIXTY_SECONDS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .rescheduleDelay(SIXTY_SECONDS)
                 .build();
         deviceConfiguration.save();
 
         PartialScheduledConnectionTask outboundConnectionTask;
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -910,8 +886,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, null, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, null, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -930,8 +905,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .asDefault(true).build();
@@ -949,8 +923,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.hours(12), TimeDuration.hours(4)).set()
@@ -969,8 +942,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(59), ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(59), ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -988,8 +960,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -1010,8 +981,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -1031,9 +1001,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -1066,9 +1034,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialScheduledConnectionTask("MyOutboundWhichIsActuallyAnInbound", inboundConnectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        deviceConfiguration.newPartialScheduledConnectionTask("MyOutboundWhichIsActuallyAnInbound", inboundConnectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -1091,9 +1057,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         clonedDeviceConfig.setDirectlyAddressable(true);
         clonedDeviceConfig.save();
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -1115,9 +1079,9 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
     }
 
-    private static void enhanceEventServiceForConflictCalculation() {
+    private static void enhanceEventServiceForConflictCalculation(){
         doAnswer(invocationOnMock -> {
-            LocalEvent localEvent = mock(LocalEvent.class);
+                    LocalEvent localEvent = mock(LocalEvent.class);
             com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
             when(eventType.getTopic()).thenReturn((String) invocationOnMock.getArguments()[0]);
             when(localEvent.getType()).thenReturn(eventType);
@@ -1267,9 +1231,7 @@ public class PartialOutboundConnectionTaskCrudIT {
     }
 
     private PartialScheduledConnectionTask createPartialConnectionTask(DeviceConfiguration firstConfig, String name) {
-        PartialScheduledConnectionTask outboundConnectionTask1 = firstConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, firstConfig
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        PartialScheduledConnectionTask outboundConnectionTask1 = firstConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, firstConfig.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()

@@ -117,10 +117,6 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         {
             issueModel = 'Isc.model.Issue';
         }
-        else if (router.queryParams.issueType === "datavalidation")
-        {
-            issueModel = 'Idv.model.Issue';
-        }
         viewport.setLoading();
 
 

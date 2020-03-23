@@ -40,7 +40,6 @@ public class HttpContextImpl implements HttpContext {
             response.setHeader("WWW-Authenticate","Custom");
         }
         response.addHeader("X-Content-Type-Options", "nosniff");
-        response.setContentType("application/octet-stream");
         return authorize;
     }
 }

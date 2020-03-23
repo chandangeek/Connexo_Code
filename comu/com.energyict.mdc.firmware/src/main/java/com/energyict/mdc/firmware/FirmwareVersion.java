@@ -87,6 +87,4 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
         }
         return Integer.compare(fw1.getRank(), fw2.getRank());
     }
-
-    String getLocalizedStatus();
 }

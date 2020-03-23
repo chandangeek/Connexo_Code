@@ -31,27 +31,10 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
     },
     setResultMessage: function (result, success) {
         var me = this,
-            states = '',
-            errorMessage = '',
-            message = '',
-            additionalInfo = '';
+            states = '';
 
         if (success) {
-            if (result.message){
-                message = result.message;
-                if (result.affectedRules && result.affectedRules.length){
-                    additionalInfo = '<ul>';
-                    Ext.Array.each(result.affectedRules, function (rule) {
-                        if (rule){
-                            additionalInfo += '<li style="margin-left: 20px">' + rule + '</li>';
-                        }
-                    });
-                    additionalInfo += '</ul>';
-                }
-            }else{
-                message = Uni.I18n.translate('deviceLifeCycle.change.successMsg', 'MDC', 'Successfully changed device life cycle');
-            }
-            me.update('<h3>' + message + '</h3>' + additionalInfo);
+            me.update('<h3>' + Uni.I18n.translate('deviceLifeCycle.change.successMsg', 'MDC', 'Successfully changed device life cycle') + '</h3>');
         } else {
             if (result.notMappableStates && result.notMappableStates.length) {
                 states = '<ul>';
@@ -63,19 +46,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
                 me.down('#change-device-life-cycle-failed').setText(Uni.I18n.translate('deviceLifeCycle.change.errorMsg', 'MDC', '{0} has states that cannot be mapped to states of {1} and there are devices in that states: {2}', ['<h3>' + result.errorMessage + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' + result.currentDeviceLifeCycle.name + '</a>', '<a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a>', states], false));
                 me.down('#change-device-life-cycle-failed').show();
             } else {
-                errorMessage = result.errorMessage;
-                if (!errorMessage && result.errors && result.errors.length){
-                    errorMessage = '<ul>';
-                    Ext.Array.each(result.errors, function(error){
-                       if (error.id){
-                            errorMessage += '<li style="margin-left: 20px">' + Uni.I18n.translate('general.errorOnCustomItem', 'MDC', 'Error on item {0}: {1}', [error.msg, error.id]) + '</li>';
-                       }else{
-                            errorMessage += '<li style="margin-left: 20px">' + Uni.I18n.translate('general.commonError', 'MDC', 'Error:') + ': ' + error.msg + '</li>';
-                       }
-                    })
-                    errorMessage += '</ul>';
-                }
-                me.down('#change-device-life-cycle-failed').setText('<h3>' + errorMessage + '</h3>');
+                me.down('#change-device-life-cycle-failed').setText('<h3>' + result.errorMessage + '</h3>');
                 me.down('#change-device-life-cycle-failed').show();
             }
         }

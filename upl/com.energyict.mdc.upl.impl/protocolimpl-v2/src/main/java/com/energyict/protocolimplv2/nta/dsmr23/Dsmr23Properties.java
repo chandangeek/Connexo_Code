@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import java.math.BigDecimal;
+
 import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_BULK_REQUEST;
 
 
 /**

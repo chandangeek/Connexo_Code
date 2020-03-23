@@ -153,8 +153,6 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
 
     Optional<CertificateRequestData> getCertificateRequestData();
 
-    void setCertificateRequestData(Optional<CertificateRequestData> certificateRequestData);
-
     /**
      *
      * @return parent certificate wrapper. if issuer is different than subject it means we should find a matching parent certificate
@@ -162,18 +160,4 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      * null is returned if this is a root CA
      */
     CertificateWrapper getParent();
-
-    default boolean isCRLSigner() {
-        Optional<String> allKeyUsages = getAllKeyUsages();
-        if (allKeyUsages.isPresent()) {
-            String usages = allKeyUsages.get();
-            String[] allUsages = usages.split(",");
-            for (String usage: allUsages) {
-                if ("cRLSign".equals(usage.trim())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }

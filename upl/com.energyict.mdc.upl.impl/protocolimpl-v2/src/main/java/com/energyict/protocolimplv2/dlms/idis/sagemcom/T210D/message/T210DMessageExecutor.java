@@ -634,12 +634,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
 
     private MBusClient getMbusClientForVersion(String version, ObisCode obisCode) throws NotInObjectListException {
         try {
-            if (Integer.parseInt(version, 16) == 9 ) {
-                return getCosemObjectFactory().getMbusClient(obisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
-            }
-            else {
-                return getCosemObjectFactory().getMbusClient(obisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
-            }
+            return getCosemObjectFactory().getMbusClient(obisCode, Integer.parseInt(version, 16));
         } catch (NotInObjectListException e) {
             setNotInObjectListMessage(collectedMessage, obisCode.toString(), pendingMessage, e);
             throw e;

@@ -70,7 +70,7 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
             }
         });
         when(sapCustomPropertySets.getDevice(anyString())).thenReturn(Optional.of(device));
-        when(sapCustomPropertySets.getStartDate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(Instant.EPOCH));
+        when(sapCustomPropertySets.getStartDate(any(Device.class))).thenReturn(Optional.of(Instant.EPOCH));
         when(webServiceActivator.getMeteringSystemId()).thenReturn(WebServiceActivator.DEFAULT_METERING_SYSTEM_ID);
     }
 

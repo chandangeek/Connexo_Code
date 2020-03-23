@@ -56,12 +56,12 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
                             itemId: 'value_radio_' + me.key
                         },
                         {
-                            xtype: 'textfield',
+                            xtype: 'numberfield',
                             disabled: true,
                             width: 100,
                             minValue: 0,
                             value: 0,
-                            itemId: 'value_bigdecimal_field_' + me.key,
+                            itemId: 'value_number_field_' + me.key,
                             listeners: {
                                 blur: me.recurrenceNumberFieldValidation
                             }
@@ -75,7 +75,7 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
 
 
     getValueNumberField: function () {
-        return this.down('#value_bigdecimal_field_' + this.key);
+        return this.down('#value_number_field_' + this.key);
     },
 
     getValueRadioField: function () {

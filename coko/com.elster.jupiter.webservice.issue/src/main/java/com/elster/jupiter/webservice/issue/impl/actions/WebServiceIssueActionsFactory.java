@@ -142,6 +142,7 @@ public class WebServiceIssueActionsFactory implements IssueActionFactory {
     private void addDefaultActions() {
         try {
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
+            actionProviders.put(StartProcessWebServiceIssueAction.class.getName(), injector.getProvider(StartProcessWebServiceIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

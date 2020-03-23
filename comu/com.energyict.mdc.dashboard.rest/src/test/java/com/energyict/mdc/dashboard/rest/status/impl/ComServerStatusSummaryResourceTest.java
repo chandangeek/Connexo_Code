@@ -94,7 +94,7 @@ public class ComServerStatusSummaryResourceTest extends DashboardApplicationJers
         when(comServerAliveStatus.isBlocked()).thenReturn(true);
         Instant now = Instant.now();
         when(comServerAliveStatus.getBlockedSince()).thenReturn(Optional.of(now));
-        when(comServerAliveStatus.getBlockedTime()).thenReturn(Optional.of(800L));
+        when(comServerAliveStatus.getBlockedTime()).thenReturn(Optional.of(800));
         when(engineConfigurationService.getAliveStatus(comServer)).thenReturn(Optional.of(comServerAliveStatus));
 
         // Business method

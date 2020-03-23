@@ -3,6 +3,9 @@
  */
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;
@@ -13,16 +16,9 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
-
-import static com.energyict.dlms.cosem.attributes.PPPSetupAttributes.IPCP_OPTIONS;
-import static com.energyict.dlms.cosem.attributes.PPPSetupAttributes.LCP_OPTIONS;
-import static com.energyict.dlms.cosem.attributes.PPPSetupAttributes.PHY_REFERENCE;
-import static com.energyict.dlms.cosem.attributes.PPPSetupAttributes.PPP_AUTHENTICATION;
 
 /**
  * @author gna
@@ -48,7 +44,10 @@ public class PPPSetup extends AbstractCosemObject {
     /**
      * Attribute numbers
      */
-
+    private static final int ATTRB_PHY_REFERENCE = 2;
+    private static final int ATTRB_LCP_OPTIONS = 3;
+    private static final int ATTRB_IPCP_OPTIONS = 4;
+    private static final int ATTRB_PPP_AUTHENTICATION = 5;
     private static final int ATTRB_PPP_IDLE_TIME = -1;
 
     /**
@@ -76,7 +75,7 @@ public class PPPSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public OctetString readPhyReference() throws IOException {
-        this.phyReference = new OctetString(getResponseData(PHY_REFERENCE.getAttributeNumber()), 0);
+        this.phyReference = new OctetString(getResponseData(ATTRB_PHY_REFERENCE), 0);
         return this.phyReference;
     }
 
@@ -88,7 +87,7 @@ public class PPPSetup extends AbstractCosemObject {
      */
     public LCPOptionsType readLCPOptionsType() throws IOException {
         try {
-            this.lcpOptions = new LCPOptionsType(getLNResponseData(LCP_OPTIONS.getAttributeNumber()));
+            this.lcpOptions = new LCPOptionsType(getLNResponseData(ATTRB_LCP_OPTIONS));
             return this.lcpOptions;
         } catch (IOException e) {
             e.printStackTrace();
@@ -117,7 +116,7 @@ public class PPPSetup extends AbstractCosemObject {
      */
     public PPPAuthenticationType readPPPAuthenticationType() throws IOException {
         try {
-            this.pppAuthentication = new PPPAuthenticationType(getLNResponseData(PPP_AUTHENTICATION.getAttributeNumber()));
+            this.pppAuthentication = new PPPAuthenticationType(getLNResponseData(ATTRB_PPP_AUTHENTICATION));
             return this.pppAuthentication;
         } catch (IOException e) {
             e.printStackTrace();
@@ -145,7 +144,7 @@ public class PPPSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public Structure readPPPAuthentication() throws IOException {
-        this.pppAuth = new Structure(getResponseData(PPP_AUTHENTICATION.getAttributeNumber()), 0, 0);
+        this.pppAuth = new Structure(getResponseData(ATTRB_PPP_AUTHENTICATION), 0, 0);
         return this.pppAuth;
     }
 
@@ -156,7 +155,7 @@ public class PPPSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public Array readLCPOptions() throws IOException {
-        this.lcpOpt = new Array(getResponseData(LCP_OPTIONS.getAttributeNumber()), 0, 0);
+        this.lcpOpt = new Array(getResponseData(ATTRB_LCP_OPTIONS), 0, 0);
         return this.lcpOpt;
     }
 
@@ -167,7 +166,7 @@ public class PPPSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public Array readIPCPOptions() throws IOException {
-        this.ipcpOpt = new Array(getResponseData(IPCP_OPTIONS.getAttributeNumber()), 0, 0);
+        this.ipcpOpt = new Array(getResponseData(ATTRB_IPCP_OPTIONS), 0, 0);
         return this.ipcpOpt;
     }
 
@@ -189,7 +188,7 @@ public class PPPSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public void writePPPAuthenticationType(PPPAuthenticationType pppAuthenticationType) throws IOException {
-        write(PPP_AUTHENTICATION.getAttributeNumber(), pppAuthenticationType.getBEREncodedByteArray());
+        write(ATTRB_PPP_AUTHENTICATION, pppAuthenticationType.getBEREncodedByteArray());
         this.pppAuthentication = pppAuthenticationType;
     }
 
@@ -200,7 +199,7 @@ public class PPPSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public void writePPPAuthenticationType(Structure pppAuthenticationType) throws IOException {
-        write(PPP_AUTHENTICATION.getAttributeNumber(), pppAuthenticationType.getBEREncodedByteArray());
+        write(ATTRB_PPP_AUTHENTICATION, pppAuthenticationType.getBEREncodedByteArray());
         this.pppAuthentication = new PPPAuthenticationType(pppAuthenticationType.getBEREncodedByteArray());
     }
 

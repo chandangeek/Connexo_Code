@@ -4,13 +4,11 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.Optional;
 
 public class CertificateWrapperInfo {
     public long id;
@@ -33,18 +31,4 @@ public class CertificateWrapperInfo {
     public Instant notBefore;
     public Instant notAfter;
     public String signatureAlgorithm;
-
-
-    public String endEntityName;
-    public String caName;
-    public String certProfileName;
-
-    public void setCertificateRequestData(Optional<CertificateRequestData> certificateRequestData) {
-        if (certificateRequestData.isPresent()) {
-            CertificateRequestData requestData = certificateRequestData.get();
-            this.endEntityName = requestData.getEndEntityName();
-            this.caName = requestData.getCaName();
-            this.certProfileName = requestData.getCertificateProfileName();
-        }
-    }
 }

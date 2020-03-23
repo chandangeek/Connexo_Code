@@ -66,7 +66,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat()));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
@@ -79,23 +79,23 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
             UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confMsg.setUtilitiesDevice(createChildBody(message.getDeviceId()));
 
             confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(confMsg);
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), senderBusinessSystemId, now));
 
             createBody(confirmationMessage, messages, senderBusinessSystemId, now);
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
             return this;
         }
 
@@ -160,7 +160,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             if (!Strings.isNullOrEmpty(id)) {
                 header.setReferenceID(createID(id));
             }
-            if (!Strings.isNullOrEmpty(uuid)) {
+            if (!Strings.isNullOrEmpty(uuid)){
                 header.setReferenceUUID(createUUID(uuid));
             }
             header.setSenderBusinessSystemID(senderBusinessSystemId);

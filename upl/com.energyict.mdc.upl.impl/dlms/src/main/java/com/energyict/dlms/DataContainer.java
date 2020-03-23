@@ -7,7 +7,6 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -443,21 +442,13 @@ public class DataContainer implements Serializable {
 					} break;
 
 					case DOUBLE_LONG:
+					case DOUBLE_LONG_UNSIGNED:
 					{
 						i++;
 						addInteger(ProtocolUtils.getInt(responseData,i));
 						i+=4;
 					} break;
-					case DOUBLE_LONG_UNSIGNED:
-					{
-						i++;
-						try {
-							addLong(ProtocolUtils.getLong(responseData,i,4));
-						} catch (ProtocolException e) {
-							throw new DataContainerException(e.getMessage());
-						}
-						i+=4;
-					} break;
+
 					case INTEGER: {
 						i++;
 						addInteger(responseData[i]);    //Signed

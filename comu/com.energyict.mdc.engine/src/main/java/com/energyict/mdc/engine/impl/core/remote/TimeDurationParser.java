@@ -32,7 +32,7 @@ public class TimeDurationParser {
 
     private TimeDuration parseQueryResult (JSONObject timeDurationJSon) {
         try {
-            ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
+            ObjectMapper mapper = ObjectMapperFactory.newMapper();
             TimeDurationXmlWrapper wrapper = mapper.readValue(new StringReader(timeDurationJSon.toString()), TimeDurationXmlWrapper.class);
             return wrapper.timeDuration;
         }

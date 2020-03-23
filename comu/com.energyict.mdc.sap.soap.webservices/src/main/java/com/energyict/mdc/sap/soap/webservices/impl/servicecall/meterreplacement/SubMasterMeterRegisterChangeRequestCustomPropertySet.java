@@ -10,7 +10,6 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -88,23 +87,18 @@ public class SubMasterMeterRegisterChangeRequestCustomPropertySet implements Cus
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.ID)
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .booleanSpec()
-                        .named(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.CREATE_REQUEST.javaName(), TranslationKeys.CREATE_REQUEST)
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
@@ -126,7 +120,7 @@ public class SubMasterMeterRegisterChangeRequestCustomPropertySet implements Cus
 
         @Override
         public String domainFieldName() {
-            return SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.DOMAIN.javaName();
+            return MeterRegisterChangeRequestDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -151,24 +145,18 @@ public class SubMasterMeterRegisterChangeRequestCustomPropertySet implements Cus
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(NAME_LENGTH)
-                    .map(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
                     .add();
-            table.column(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar(NAME_LENGTH)
-                    .map(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .add();
-            table.column(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
                     .varChar(NAME_LENGTH)
-                    .map(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName())
-                    .add();
-            table.column(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.CREATE_REQUEST.databaseName())
-                    .bool()
-                    .map(SubMasterMeterRegisterChangeRequestDomainExtension.FieldNames.CREATE_REQUEST.javaName())
-                    .installValue("'N'")
-                    .since(Version.version(10, 7, 2))
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName())
                     .add();
         }
 

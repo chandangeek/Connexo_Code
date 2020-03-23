@@ -210,10 +210,6 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
             }
         }
 
-        if(rule && rule.getTemplate() && rule.getTemplate().id){
-            actionTypesStoreProxy.setExtraParam('template', rule.getTemplate().id);
-        }
-
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
         if ( rule && (issueReasonId = rule.get('reason_id')) ){
             actionTypesStoreProxy.extraParams['reason'] = issueReasonId;

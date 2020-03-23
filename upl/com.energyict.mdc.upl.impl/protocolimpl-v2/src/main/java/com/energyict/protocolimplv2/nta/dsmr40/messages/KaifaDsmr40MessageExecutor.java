@@ -14,6 +14,7 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
@@ -24,6 +25,7 @@ import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.ibm.KaifaRegisterFactory;
+import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,7 +34,7 @@ import java.util.List;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.phaseAttributeName;
 
-public final class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor{
+public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor{
     public KaifaDsmr40MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor);
     }
@@ -87,21 +89,20 @@ public final class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor{
 
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
         //Find the MBus channel based on the given MBus serial number
-        String mbusSerialNumberAttributeValue = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.mbusSerialNumber);
-
+        String mbusSerialNumber = pendingMessage.getDeviceSerialNumber();
         int channel = 0;
         for (DeviceMapping deviceMapping : ((AbstractSmartNtaProtocol)getProtocol()).getMeterTopology().getMbusMeterMap()) {
-            if (deviceMapping.getSerialNumber().equals(mbusSerialNumberAttributeValue)) {
+            if (deviceMapping.getSerialNumber().equals(mbusSerialNumber)) {
                 channel = deviceMapping.getPhysicalAddress();
                 break;
             }
         }
         if (channel == 0) {
-            throw new IOException("No MBus slave meter with serial number '" + mbusSerialNumberAttributeValue + "' is installed on this e-meter");
+            throw new IOException("No MBus slave meter with serial number '" + mbusSerialNumber + "' is installed on this e-meter");
         }
 
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);
-        MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode,  MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
+        MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
         try{
             mbusClient.setIdentificationNumber(new Unsigned32(0));
             mbusClient.setManufacturerID(new Unsigned16(0));

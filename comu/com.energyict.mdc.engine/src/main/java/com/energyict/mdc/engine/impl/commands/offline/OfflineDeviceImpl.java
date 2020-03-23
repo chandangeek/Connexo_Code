@@ -5,7 +5,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.util.HasId;
@@ -180,7 +179,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         List<SecurityAccessor> slaveSecurityAccessors = new ArrayList<>();
 
         setLocation(device.getLocation().map(Object::toString).orElse(""));
-        setUsagePoint(device.getUsagePoint().map(UsagePoint::getName).orElse(""));
+        setUsagePoint(device.getUsagePoint().map(Object::toString).orElse(""));
         setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
         setmRID(this.device.getmRID());
@@ -447,7 +446,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
-    @XmlElement(type = OfflineDeviceImpl.class)
+    @XmlAttribute
     public List<OfflineDevice> getAllSlaveDevices() {
         return slaveDevices;
     }

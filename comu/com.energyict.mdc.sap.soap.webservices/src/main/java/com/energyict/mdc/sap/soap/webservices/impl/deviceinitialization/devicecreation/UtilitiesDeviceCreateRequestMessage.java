@@ -3,9 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrBlkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
@@ -14,17 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
+public class UtilitiesDeviceCreateRequestMessage {
 
     private String requestID;
     private String uuid;
     private List<UtilitiesDeviceCreateMessage> utilitiesDeviceCreateMessages = new ArrayList<>();
     private boolean bulk;
 
-    private Thesaurus thesaurus;
-
-    private UtilitiesDeviceCreateRequestMessage(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    private UtilitiesDeviceCreateRequestMessage() {
     }
 
     public String getRequestID() {
@@ -43,8 +38,12 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
         return bulk;
     }
 
-    static UtilitiesDeviceCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
-        return new UtilitiesDeviceCreateRequestMessage(thesaurus).new Builder();
+    static UtilitiesDeviceCreateRequestMessage.Builder builder() {
+        return new UtilitiesDeviceCreateRequestMessage().new Builder();
+    }
+
+    public boolean isValid() {
+        return requestID != null || uuid != null;
     }
 
     public class Builder {
@@ -63,11 +62,11 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
             utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
                     .builder()
                     .from(requestMessage)
-                    .build(thesaurus));
+                    .build());
             return this;
         }
 
-        public UtilitiesDeviceCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrBlkCrteReqMsg requestMessage, Thesaurus thesaurus) {
+        public UtilitiesDeviceCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrBlkCrteReqMsg requestMessage) {
             bulk = true;
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
@@ -76,21 +75,15 @@ public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
                     });
 
             requestMessage.getUtilitiesDeviceERPSmartMeterCreateRequestMessage()
-                    .forEach(message -> utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
+                    .forEach(message ->utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
                             .builder()
                             .from(message)
-                            .build(thesaurus))
+                            .build())
                     );
             return this;
         }
 
         public UtilitiesDeviceCreateRequestMessage build() {
-            if (requestID == null && uuid == null) {
-                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
-            }
-            for (UtilitiesDeviceCreateMessage message : utilitiesDeviceCreateMessages) {
-                addMissingFields(message.getMissingFieldsSet());
-            }
             return UtilitiesDeviceCreateRequestMessage.this;
         }
 

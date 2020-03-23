@@ -5,13 +5,11 @@
 package com.elster.jupiter.export.webservicecall;
 
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,12 +40,6 @@ public interface DataExportServiceCallType {
      * @return {@link Optional} of found service call, or empty if not found.
      */
     Optional<ServiceCall> findServiceCall(String uuid);
-
-    /**
-     * @param states EnumSet<DefaultState> set of the service call states.
-     * @return {@link List} of found service calls.
-     */
-    List<ServiceCall> findServiceCalls(EnumSet<DefaultState> states);
 
     /**
      * Tries failing a given service call. If it is already closed, does nothing.

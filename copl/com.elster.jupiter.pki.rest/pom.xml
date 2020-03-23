@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Hermes-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>pki.rest</artifactId>
@@ -116,10 +116,13 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
+
+        <!--  EJBCA library dependencies -->
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-elster-bundle</artifactId>
         </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>

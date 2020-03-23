@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.sap.soap.custom.meterreadingdocument;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -34,9 +33,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.cbo.MeasurementKind.VOLUME;
-import static com.elster.jupiter.util.Checks.is;
-
 @Singleton
 @Component(name = "com.energyict.mdc.sap.soap.custom.meterreadingdocument.ondemandreadreason.provider",
         service = SAPMeterReadingDocumentReason.class, immediate = true, property = "name=ReadingReasonCode2")
@@ -46,40 +42,26 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     private static final String REASON_CODES_ONDEMAND_DEFAULT_VALUE = "2";
     private static final String SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND = "com.elster.jupiter.sap.sheduledmeterreadingdateshift.ondemand";
     private static final int SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE = 1;
-    private static final String ONDEMAND_SKIP_COMMUNICATION_WATER_METERS = "com.elster.jupiter.sap.ondemand.skipcommunicationwatermeters";
 
     private static List<String> codes;
     private static int dateShift = SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE;
-    private static boolean skipCommunicationWaterMeters;
 
     private volatile DeviceService deviceService;
     private volatile SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper;
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        initReasonCodes(bundleContext);
-        initDateShift(bundleContext);
-        initSkipCommunicationWaterMeters(bundleContext);
-    }
-
-    private void initReasonCodes(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_ONDEMAND);
         if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
             codes = Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE);
-        } else {
+        }else{
             codes = Arrays.asList((valueCodes.split(",")));
         }
-    }
 
-    private void initDateShift(BundleContext bundleContext) {
         Optional.ofNullable(bundleContext.getProperty(SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND))
                 .ifPresent(property->dateShift = Integer.valueOf(property));
     }
 
-    private void initSkipCommunicationWaterMeters(BundleContext bundleContext) {
-        String value = bundleContext.getProperty(ONDEMAND_SKIP_COMMUNICATION_WATER_METERS);
-        skipCommunicationWaterMeters = !is(value).emptyOrOnlyWhiteSpace() && Boolean.parseBoolean(value);
-    }
 
     @Reference
     public final void setDeviceService(DeviceService deviceService) {
@@ -103,7 +85,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     @Override
     public long getShiftDate() {
-        return dateShift * SECONDS_IN_DAY;
+        return dateShift* SECONDS_IN_DAY;
     }
 
     @Override
@@ -117,66 +99,45 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     }
 
     @Override
+    public boolean isBulk() {
+        return true;
+    }
+
+    @Override
+    public boolean isSingle() {
+        return true;
+    }
+
+    @Override
     public void process(SAPMeterReadingDocumentCollectionData collectionData) {
-        if (hasCommunicationConnection(collectionData)) {
+        if (hasCommunicationConnection(collectionData.getServiceCall(),
+                collectionData.getDeviceName(), collectionData.isRegular(), collectionData.getScheduledReadingDate())) {
             collectionData.calculate();
         }
     }
 
-    @Override
-    public boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular, ReadingType readingType) {
-        if (skipCommunicationForWaterMeters(readingType)) {
-            return true;
-        } else {
-            return findOrCreateComTaskExecution(device, isRegular, readingType).isPresent();
-        }
-    }
-
-    private Optional<ComTaskExecution> findOrCreateComTaskExecution(Device device, boolean isRegular, ReadingType readingType) {
-        Optional<ComTaskExecution> comTaskExecution = findLastTaskExecution(device, isRegular, readingType);
-        ComTaskExecution execution = null;
-        if (comTaskExecution.isPresent()) {
-            execution = comTaskExecution.get();
-        } else {
-            Optional<ComTaskEnablement> comTaskEnablement = getComTaskEnablementForDevice(device, isRegular, readingType);
-            if (comTaskEnablement.isPresent()) {
-                execution = createAdHocComTaskExecution(device, comTaskEnablement.get());
-            }
-        }
-        return Optional.ofNullable(execution);
-    }
-
-    private boolean hasCommunicationConnection(SAPMeterReadingDocumentCollectionData collectionData) {
-        ServiceCall serviceCall = collectionData.getServiceCall();
-        String deviceName = collectionData.getDeviceName();
-        boolean isRegular = collectionData.isRegular();
-        Instant scheduledReadingDate = collectionData.getScheduledReadingDate();
-        Optional<ReadingType> meterReadingType = collectionData.getMeterReadingType();
-
-        if (!meterReadingType.isPresent()) {
-            // unreachable case
-            serviceCall.log(LogLevel.SEVERE, "A reading type isn't defined for finding communication task");
-            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
-            return false;
-        }
-
-        if (skipCommunicationForWaterMeters(meterReadingType.get())) {
-            return true;
-        }
-
+    private boolean hasCommunicationConnection(ServiceCall serviceCall, String deviceName, boolean isRegular,
+                                               Instant scheduledReadingDate) {
         Optional<Device> device = deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
-            Optional<ComTaskExecution> comTaskExecution = findOrCreateComTaskExecution(device.get(), isRegular, meterReadingType.get());
-
+            Optional<ComTaskExecution> comTaskExecution = findLastTaskExecution(device.get(), isRegular);
+            ComTaskExecution execution;
             if (comTaskExecution.isPresent()) {
-                return hasLastTaskExecutionTimestamp(comTaskExecution.get(), scheduledReadingDate)
-                        ? checkTaskStatus(serviceCall, (comTaskExecution.get()))
-                        : runTask(serviceCall, comTaskExecution.get());
+                execution = comTaskExecution.get();
             } else {
-                serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages couldn't be located");
-                serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
-                return false;
+                Optional<ComTaskEnablement> comTaskEnablement = getComTaskEnablementForDevice(device.get(), isRegular);
+                if (comTaskEnablement.isPresent()) {
+                    execution = createAdHocComTaskExecution(device.get(), comTaskEnablement.get());
+                } else {
+                    serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages couldn't be located");
+                    serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+                    return false;
+                }
             }
+
+            return hasLastTaskExecutionTimestamp(execution, scheduledReadingDate)
+                    ? checkTaskStatus(serviceCall, execution)
+                    : runTask(serviceCall, execution);
         } else {
             serviceCall.log(LogLevel.SEVERE, "Couldn't find device " + deviceName);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
@@ -185,41 +146,29 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     }
 
-    private boolean skipCommunicationForWaterMeters(ReadingType readingType) {
-        return skipCommunicationWaterMeters && readingType.getMeasurementKind().equals(VOLUME);
-    }
-
-    private Optional<ComTaskExecution> findLastTaskExecution(Device device, boolean isRegular, ReadingType readingType) {
+    private Optional<ComTaskExecution> findLastTaskExecution(Device device, boolean isRegular) {
         return device.getComTaskExecutions()
                 .stream()
                 .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
                 .filter(comTaskExecution -> comTaskExecution.getComTask().getProtocolTasks()
                         .stream()
-                        .anyMatch(protocolTask -> {
-                            if (isRegular) {
-                                return protocolTask instanceof LoadProfilesTask && hasReadingType((LoadProfilesTask) protocolTask, readingType);
-                            } else {
-                                return protocolTask instanceof RegistersTask && hasReadingType((RegistersTask) protocolTask, readingType);
-                            }
-                        }))
+                        .allMatch(protocolTask -> isRegular
+                                ? protocolTask instanceof LoadProfilesTask
+                                : protocolTask instanceof RegistersTask))
                 .min(Comparator.nullsLast((e1, e2) -> e2.getLastSuccessfulCompletionTimestamp()
                         .compareTo(e1.getLastSuccessfulCompletionTimestamp())));
     }
 
-    private Optional<ComTaskEnablement> getComTaskEnablementForDevice(Device device, boolean isRegular, ReadingType readingType) {
+    private Optional<ComTaskEnablement> getComTaskEnablementForDevice(Device device, boolean isRegular) {
         return device.getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks()
                         .stream()
-                        .anyMatch(protocolTask -> {
-                            if (isRegular) {
-                                return protocolTask instanceof LoadProfilesTask && hasReadingType((LoadProfilesTask) protocolTask, readingType);
-                            } else {
-                                return protocolTask instanceof RegistersTask && hasReadingType((RegistersTask) protocolTask, readingType);
-                            }
-                        }))
+                        .anyMatch(protocolTask -> isRegular
+                                ? protocolTask instanceof LoadProfilesTask
+                                : protocolTask instanceof RegistersTask))
                 .findFirst();
     }
 
@@ -264,17 +213,5 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
             comTaskExecution.runNow();
         }
         return false;
-    }
-
-    private boolean hasReadingType(LoadProfilesTask loadProfilesTask, ReadingType readingType) {
-        return loadProfilesTask.getLoadProfileTypes().stream()
-                .anyMatch(loadProfile -> loadProfile.getChannelTypes().stream()
-                        .anyMatch(channelType -> channelType.getReadingType().equals(readingType)));
-    }
-
-    private boolean hasReadingType(RegistersTask registersTask, ReadingType readingType) {
-        return registersTask.getRegisterGroups().stream()
-                .anyMatch(registerGroup -> registerGroup.getRegisterTypes().stream()
-                        .anyMatch(registerType -> registerType.getReadingType().equals(readingType)));
     }
 }

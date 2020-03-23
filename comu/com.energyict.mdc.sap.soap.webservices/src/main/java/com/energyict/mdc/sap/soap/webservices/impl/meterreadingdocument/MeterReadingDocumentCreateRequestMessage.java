@@ -3,9 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPBulkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
 
@@ -14,17 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage {
+public class MeterReadingDocumentCreateRequestMessage {
 
     private boolean bulk;
     private BigDecimal attemptNumber = BigDecimal.ZERO;
     private String id;
     private String uuid;
     private List<MeterReadingDocumentCreateMessage> meterReadingDocumentCreateMessages = new ArrayList<>();
-    private Thesaurus thesaurus;
 
-    private MeterReadingDocumentCreateRequestMessage(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    private MeterReadingDocumentCreateRequestMessage() {
     }
 
     public String getId() {
@@ -43,12 +39,16 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
         return meterReadingDocumentCreateMessages;
     }
 
+    public boolean isValid() {
+        return id != null || uuid != null;
+    }
+
     public boolean isBulk() {
         return bulk;
     }
 
-    static MeterReadingDocumentCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
-        return new MeterReadingDocumentCreateRequestMessage(thesaurus).new Builder();
+    static MeterReadingDocumentCreateRequestMessage.Builder builder() {
+        return new MeterReadingDocumentCreateRequestMessage().new Builder();
     }
 
     public class Builder {
@@ -63,12 +63,10 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
                         setId(getId(messageHeader));
                         setUuid(getUuid(messageHeader));
                     });
-            MeterReadingDocumentCreateMessage message = MeterReadingDocumentCreateMessage
+            meterReadingDocumentCreateMessages.add(MeterReadingDocumentCreateMessage
                     .builder()
                     .from(requestMessage.getMeterReadingDocument())
-                    .build();
-            meterReadingDocumentCreateMessages.add(message);
-            addMissingFields(message.getMissingFieldsSet());
+                    .build());
             return this;
         }
 
@@ -80,14 +78,11 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
                         setUuid(getUuid(messageHeader));
                     });
             requestMessage.getSmartMeterMeterReadingDocumentERPCreateRequestMessage()
-                    .forEach(message -> {
-                        MeterReadingDocumentCreateMessage documentCreateMessage = MeterReadingDocumentCreateMessage
-                                .builder()
-                                .from(message)
-                                .build();
-                        meterReadingDocumentCreateMessages.add(documentCreateMessage);
-                        addMissingFields(documentCreateMessage.getMissingFieldsSet());
-                    });
+                    .forEach(message ->
+                            meterReadingDocumentCreateMessages.add(MeterReadingDocumentCreateMessage
+                                    .builder()
+                                    .from(message)
+                                    .build()));
             return this;
         }
 
@@ -102,9 +97,6 @@ public class MeterReadingDocumentCreateRequestMessage extends AbstractSapMessage
         }
 
         public MeterReadingDocumentCreateRequestMessage build() {
-            if (id == null && uuid == null) {
-                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
-            }
             return MeterReadingDocumentCreateRequestMessage.this;
         }
 

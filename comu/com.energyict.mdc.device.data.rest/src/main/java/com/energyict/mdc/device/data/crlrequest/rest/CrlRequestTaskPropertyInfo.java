@@ -9,7 +9,7 @@ import java.time.Instant;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CrlRequestTaskPropertyInfo {
-    public IdWithNameInfo crlSigner;
+    public IdWithNameInfo securityAccessor;
     public String caName;
     public IdWithNameInfo logLevel;
     public PeriodicalExpressionInfo periodicalExpressionInfo;

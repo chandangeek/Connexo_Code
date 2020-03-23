@@ -42,7 +42,6 @@ public class BasicAuthentication implements HttpContext {
             IOException {
         String authentication = httpServletRequest.getHeader("Authorization");
         httpServletResponse.addHeader("X-Content-Type-Options", "nosniff");
-        httpServletResponse.setContentType("application/octet-stream");
         if (authentication == null) {
             httpServletResponse.setStatus(Response.Status.UNAUTHORIZED.getStatusCode());
             return false;

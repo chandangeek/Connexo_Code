@@ -4,17 +4,14 @@
 
 package com.elster.jupiter.issue.share;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.properties.HasDynamicProperties;
 
-import aQute.bnd.annotation.ConsumerType;
-
 import javax.naming.OperationNotSupportedException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @ConsumerType
@@ -60,8 +57,5 @@ public interface CreationRuleTemplate extends HasDynamicProperties {
         throw new OperationNotSupportedException("Method is not supported for current rule template");
     }
 
-    default List<CreationRule> getCreationRulesWithDeviceType(Long deviceTypeId) {
-        return Collections.emptyList();
-    }
-
+    ;
 }

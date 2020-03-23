@@ -6,7 +6,10 @@ import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.PropertyType;
 import com.elster.jupiter.issue.share.entity.values.AssignIssueFormValue;
 import com.elster.jupiter.issue.share.entity.values.CloseIssueFormValue;
 import com.elster.jupiter.issue.share.entity.values.ProcessValue;
@@ -21,8 +24,11 @@ import com.elster.jupiter.users.WorkGroup;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class ProcessAction extends AbstractIssueAction {
 
@@ -71,24 +77,9 @@ public class ProcessAction extends AbstractIssueAction {
                 final Map<String, Object> processInputParameters = new HashMap<>();
                 processInputParameters.put("issueId", issue.getId());
 
-                if (issue instanceof HasLastSuspectOccurrenceDatetime) {
-                    final Instant lastSuspectOccurrenceDatetime = ((HasLastSuspectOccurrenceDatetime) issue).getLastSuspectOccurrenceDatetime();
-                    if (Objects.nonNull(lastSuspectOccurrenceDatetime)) {
-                        processInputParameters.put("lastSuspectOccurrenceDatetime", lastSuspectOccurrenceDatetime.getEpochSecond());
-                    }
-                }
-
-                if (issue instanceof HasTotalOccurrencesNumber) {
-                    final long totalOccurrencesNumber = ((HasTotalOccurrencesNumber) issue).getTotalOccurrencesNumber();
-                    if (totalOccurrencesNumber != 0) {
-                        processInputParameters.put("totalOccurrencesNumber", totalOccurrencesNumber);
-                    }
-                }
-
                 if (bpmService.startProcess(processDefinition, processInputParameters)) {
                     assignIssueSubAction(issue);
                     closeIssueSubAction(issue);
-                    issue.update();
                     result.success(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_SUCCESS).format());
                 } else {
                     result.fail(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_FAIL).format());

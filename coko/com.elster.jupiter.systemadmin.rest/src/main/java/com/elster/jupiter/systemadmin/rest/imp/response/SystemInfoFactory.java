@@ -5,7 +5,6 @@
 package com.elster.jupiter.systemadmin.rest.imp.response;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
-
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;

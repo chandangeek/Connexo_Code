@@ -19,8 +19,6 @@ import java.time.Clock;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
@@ -33,8 +31,6 @@ import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatu
  * @since 2014-08-06 (13:06)
  */
 abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementProvider {
-    private static final Logger LOGGER = Logger.getLogger(ConnectionTaskBreakdownSqlBuilder.class.getName());// just for time measurement
-
 
     private final GroupByAspect groupByAspect;
     private final EnumSet<ServerConnectionTaskStatus> taskStatusses;

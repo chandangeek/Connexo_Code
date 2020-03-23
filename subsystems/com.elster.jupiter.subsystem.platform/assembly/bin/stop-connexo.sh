@@ -4,4 +4,3 @@ for p in $PID
 do
 	pkill -P $p
 done
-

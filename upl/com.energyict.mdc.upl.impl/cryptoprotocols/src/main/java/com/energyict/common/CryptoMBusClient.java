@@ -16,11 +16,11 @@ import java.io.IOException;
  */
 public class CryptoMBusClient extends MBusClient {
 
-    public CryptoMBusClient(ProtocolLink protocolLink, ObjectReference objectReference, MBusClient.VERSION version) {
+    public CryptoMBusClient(ProtocolLink protocolLink, ObjectReference objectReference, int version) {
         super(protocolLink, objectReference, version);
     }
 
-    public CryptoMBusClient(MBusClient mBusClient, MBusClient.VERSION version) {
+    public CryptoMBusClient(MBusClient mBusClient, int version) {
         super(mBusClient.getProtocolLink(), mBusClient.getObjectReference(), version);
     }
 

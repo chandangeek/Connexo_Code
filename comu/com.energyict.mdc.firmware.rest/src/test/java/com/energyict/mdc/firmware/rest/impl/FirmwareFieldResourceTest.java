@@ -8,13 +8,11 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.tasks.ComTask;
-import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.jayway.jsonpath.JsonModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +23,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FirmwareFieldResourceTest extends BaseFirmwareTest {
+public class FirmwareFieldResourceTest extends BaseFirmwareTest{
 
     @Test
     public void testGetComTasks() {
@@ -66,8 +64,6 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest {
         when(comTask.getId()).thenReturn(1L);
         when(comTask.isManualSystemTask()).thenReturn(true);
         when(comTask.getName()).thenReturn(TaskService.FIRMWARE_COMTASK_NAME);
-        FirmwareManagementTask firmwareManagementTask = mock(FirmwareManagementTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(firmwareManagementTask));
 
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("devType");

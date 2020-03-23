@@ -59,7 +59,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-import javax.validation.ConstraintViolationException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -144,11 +143,7 @@ public class UsagePointBuilder {
             @Override
             public com.elster.jupiter.metering.UsagePoint create() throws FaultMessage {
                 basicFaultMessage = MessageSeeds.UNABLE_TO_CREATE_USAGE_POINT;
-                try {
-                    return UsagePointBuilder.this.create();
-                } catch (ConstraintViolationException constraintViolationException) {
-                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.DUPLICATE_USAGE_POINT_NAME).get();
-                }
+                return UsagePointBuilder.this.create();
             }
 
             @Override
@@ -1063,7 +1058,7 @@ public class UsagePointBuilder {
                             Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()));
                 }
             }
-            CustomPropertySetValues newValues = CustomPropertySetValues.emptyDuring(range);
+            CustomPropertySetValues newValues = CustomPropertySetValues.empty();
             if (additionalPrimaryKeyObject != null) {
                 customPropertySetService.setValuesVersionFor(customPropertySet, businessObject,
                         updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);

@@ -9,10 +9,10 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
 
@@ -38,20 +38,20 @@ public class CryptoKaifaMessageExecutor extends CryptoDSMR40MessageExecutor {
     @Override
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
         //Find the MBus channel based on the given MBus serial number
-        String mbusSerialNumberAttributeValue = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.mbusSerialNumber);
+        String mbusSerialNumber = pendingMessage.getDeviceSerialNumber();
         int channel = 0;
         for (com.energyict.protocolimplv2.common.topology.DeviceMapping deviceMapping : ((com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol)getProtocol()).getMeterTopology().getMbusMeterMap()) {
-            if (deviceMapping.getSerialNumber().equals(mbusSerialNumberAttributeValue)) {
+            if (deviceMapping.getSerialNumber().equals(mbusSerialNumber)) {
                 channel = deviceMapping.getPhysicalAddress();
                 break;
             }
         }
         if (channel == 0) {
-            throw new IOException("No MBus slave meter with serial number '" + mbusSerialNumberAttributeValue + "' is installed on this e-meter");
+            throw new IOException("No MBus slave meter with serial number '" + mbusSerialNumber + "' is installed on this e-meter");
         }
 
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);
-        MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
+        MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
         try{
             mbusClient.setIdentificationNumber(new Unsigned32(0));
             mbusClient.setManufacturerID(new Unsigned16(0));

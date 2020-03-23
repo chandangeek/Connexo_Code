@@ -200,13 +200,11 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
         @Override
         public int scheduleAll(List<ComJob> jobs) {
-            long start = System.currentTimeMillis();
             List<ScheduledComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
             for (ComJob job : jobs) {
                 groups.add(newComTaskGroup(job));
             }
             this.scheduleGroups(groups);
-            LOGGER.warning("perf - Finished scheduleAll, " + (System.currentTimeMillis() - start));
             giveTheConsumersSomeSpace();
             return -1;
         }
@@ -224,7 +222,6 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         }
 
         private void scheduleGroups(Collection<ScheduledComTaskExecutionGroup> groups) {
-            LOGGER.warning("perf - nb of free connections: " + (threadPoolSize - getActiveJobCount()) + " enqueued: " + getDeviceCommandExecutor().getCurrentSize());
             for (ScheduledComTaskExecutionGroup group : groups) {
                 try {
                     try {

@@ -29,7 +29,6 @@ Import-Package: !com.sun.jdi.*,\
     !sun.security.krb5.*,\
     !sun.security.util,\
     *
-DynamicImport-Package: com.elster.jupiter.pki.impl.accessors
 Export-Package: \
     com.energyict.mdc.engine,\
     com.energyict.mdc.engine.exceptions,\

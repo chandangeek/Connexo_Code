@@ -17,7 +17,7 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                     {
                         xtype: 'uni-grid-filtertop-combobox',
                         itemId: 'device-type',
-                        fieldLabel: Uni.I18n.translate('device.type', 'UNI', 'Device type'),
+                        fieldLabel: Uni.I18n.translate('device.state', 'UNI', 'Device state'),
                         queryMode: 'local',
                         name: 'deviceType',
                         labelWidth: 260,
@@ -87,7 +87,7 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                         itemId: 'device-state',
                         enabled: false,
                         disabled: true,
-                        fieldLabel: Uni.I18n.translate('device.state', 'UNI', 'Device state'),
+                        fieldLabel: '&nbsp',
                         queryMode: 'local',
                         name: this.getName(),
                         labelWidth: 260,

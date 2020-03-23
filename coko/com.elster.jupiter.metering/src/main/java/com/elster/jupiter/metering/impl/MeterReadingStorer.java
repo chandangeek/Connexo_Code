@@ -322,14 +322,6 @@ public class MeterReadingStorer {
                 return null;
             }
         }
-        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
-            for (Channel channel : channelsContainer.getChannels()) {
-                if (channel.getReadingTypes().contains(readingType)) {
-                    return channel;
-                }
-            }
-            return null;
-        }
         return null;
     }
 

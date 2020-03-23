@@ -11,26 +11,7 @@ Ext.define('Idv.controller.history.Workspace', {
     previousPath: '',
     currentPath: null,
 
-    routeConfig: {
-        "workspace/issues/view/startProcess": {
-            title: Uni.I18n.translate('general.startProcess','IDV','Start process'),
-            route: 'workspace/issues/{issueId}/startProcess',
-            controller: 'Isu.controller.StartProcess',
-            action: 'showStartProcess',
-            privileges: Isu.privileges.Issue.viewAdminProcesses
-        },
-        "workspace/issues/view/viewProcesses": {
-            title: Uni.I18n.translate('general.processes','IDV','Processes'),
-            route: 'workspace/issues/{issueId}/processes',
-            controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
-            action: 'showProcesses',
-            privileges: Isu.privileges.Issue.viewAdminProcesses,
-            params: {
-                process: '',
-
-            },
-        }
-    },
+    routeConfig: null,
 
     init: function () {
         var router = this.getController('Uni.controller.history.Router');

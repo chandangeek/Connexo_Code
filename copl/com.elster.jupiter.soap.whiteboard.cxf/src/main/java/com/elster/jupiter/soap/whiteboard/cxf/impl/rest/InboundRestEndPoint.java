@@ -143,7 +143,6 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         public boolean handleSecurity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws
                 IOException {
             httpServletResponse.addHeader("X-Content-Type-Options", "nosniff");
-            httpServletResponse.setContentType("application/octet-stream");
             return true;
         }
 

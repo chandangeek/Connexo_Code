@@ -3,20 +3,18 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeterRegisterChangeMessage extends AbstractSapMessage {
-    private static final String DEVICE_ID_XML_NAME = "UtilitiesDevice.ID";
-    private static final String REGISTER_XML_NAME = "Register";
-
+public class MeterRegisterChangeMessage {
     private String id;
     private String uuid;
     private String deviceId;
     private List<RegisterChangeMessage> registers = new ArrayList<>();
+
+    public boolean isValid() {
+        return (id != null || uuid != null) && deviceId != null;
+    }
 
     public String getId() {
         return id;
@@ -44,17 +42,5 @@ public class MeterRegisterChangeMessage extends AbstractSapMessage {
 
     public List<RegisterChangeMessage> getRegisters() {
         return registers;
-    }
-
-    public void validate(Thesaurus thesaurus) {
-        if (id == null && uuid == null) {
-            addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
-        }
-        if (deviceId == null) {
-            addMissingField(DEVICE_ID_XML_NAME);
-        }
-        if (registers.isEmpty()) {
-            addMissingField(REGISTER_XML_NAME);
-        }
     }
 }

@@ -61,7 +61,6 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             searchResults = Ext.getStore('Uni.store.search.Results'),
             widget,
             goOnWithTheCurrentSearchResults = function() {
-                search.service.bulkAction = true;
                 if (!searchResults.getCount()) {
                     me.goBack();
                 } else {
@@ -265,6 +264,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 restore: true
             };
         }
+
         router.getRoute('search').forward(null, queryParams);
     },
 

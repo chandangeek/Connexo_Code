@@ -119,6 +119,10 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
                     collectedMessage.getDeviceProtocolInformation());
             ((CollectedDeviceData) collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
         } catch (Throwable t) {
+            comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(),
+                    DeviceMessageStatus.FAILED,
+                    collectedMessage.getSentDate(),
+                    collectedMessage.getDeviceProtocolInformation());
             addIssueToExecutionLogger(CompletionCode.UnexpectedError,
                     getIssueService().newProblem(this, MessageSeeds.COLLECTED_DATA_ISSUE, collectedMessage.getMessageIdentifier(), t.getLocalizedMessage()));
         }

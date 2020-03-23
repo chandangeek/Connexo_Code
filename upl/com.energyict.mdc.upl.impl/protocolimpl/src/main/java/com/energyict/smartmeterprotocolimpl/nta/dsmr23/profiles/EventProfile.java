@@ -5,7 +5,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -79,7 +79,7 @@ public class EventProfile {
 
             int channel = mbusDevices.getPhysicalAddress() - 1;
             UniversalObject mbusClient = getMeterConfig().getMbusClient(channel);
-            DLMSAttribute attribute = new DLMSAttribute(mbusClient.getObisCode(), MBusClientAttributes.STATUS);
+            DLMSAttribute attribute = new DLMSAttribute(mbusClient.getObisCode(), MbusClientAttributes.STATUS);
             long mbusStatus = getCosemObjectFactory().getGenericRead(attribute).getValue();
             if ((mbusStatus & 0x10) == 0x10) {
                 int eventId = Integer.parseInt("1" + (mbusDevices.getPhysicalAddress() - 1) + "5");

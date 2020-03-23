@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+
 public class UtilitiesDeviceCreateConfirmationMessage {
 
     private static final CreateBulkConfirmationMessageFactory BULK_MESSAGE_FACTORY = new CreateBulkConfirmationMessageFactory();
@@ -23,7 +25,6 @@ public class UtilitiesDeviceCreateConfirmationMessage {
     public Optional<UtilsDvceERPSmrtMtrCrteConfMsg> getConfirmationMessage() {
         return Optional.ofNullable(confirmationMessage);
     }
-
     public Optional<UtilsDvceERPSmrtMtrBlkCrteConfMsg> getBulkConfirmationMessage() {
         return Optional.ofNullable(bulkConfirmationMessage);
     }
@@ -46,11 +47,11 @@ public class UtilitiesDeviceCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
+        public Builder from(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
             if (message.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(message, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(message, messageSeed, senderBusinessSystemId, now);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(message, messageSeed, senderBusinessSystemId, now, messageSeedArgs);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(message, messageSeed, senderBusinessSystemId, now);
             }
             return this;
         }

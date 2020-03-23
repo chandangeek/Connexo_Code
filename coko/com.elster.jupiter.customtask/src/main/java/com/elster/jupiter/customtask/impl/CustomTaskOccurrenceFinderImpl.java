@@ -28,7 +28,10 @@ class CustomTaskOccurrenceFinderImpl implements CustomTaskOccurrenceFinder {
     private Integer start;
     private Integer limit;
 
+    CustomTaskOccurrenceFinderImpl() {}
+
     CustomTaskOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
+        this();
         this.dataModel = dataModel;
         this.condition = condition;
         this.defaultOrder = order;
@@ -89,14 +92,8 @@ class CustomTaskOccurrenceFinderImpl implements CustomTaskOccurrenceFinder {
         QueryStream<CustomTaskOccurrence> queryStream = dataModel.stream(CustomTaskOccurrence.class)
                 .join(TaskOccurrence.class)
                 .join(RecurrentTask.class)
-                .filter(condition);
-
-        if(sortingColumns.length == 0){
-            queryStream.sorted(defaultOrder, sortingColumns);
-        }else{
-            queryStream.sorted(sortingColumns[0], sortingColumns);
-        }
-
+                .filter(condition)
+                .sorted(defaultOrder, sortingColumns);
         if (start != null) {
             queryStream.skip(start);
         }

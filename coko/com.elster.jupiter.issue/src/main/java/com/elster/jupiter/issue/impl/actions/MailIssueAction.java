@@ -174,7 +174,7 @@ public class MailIssueAction extends AbstractIssueAction {
         String issueId = issue.getIssueId(),
                 issueReason = issue.getReason().getName(),
                 issueType = issue.getReason().getIssueType().getName(),
-                device = issue.getDevice() != null ? issue.getDevice().getName() : "-",
+                device = issue.getDevice().getName(),
                 userName = user.get(),
                 priority = String.valueOf(totalPriority),
                 creationTime = formattedDtm;

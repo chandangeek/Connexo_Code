@@ -4,7 +4,15 @@
 
 package com.elster.jupiter.properties.rest;
 
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListReadingQualityFactory;
+import com.elster.jupiter.properties.ListValueFactory;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
+import com.elster.jupiter.properties.NoneOrTimeDurationValueFactory;
+import com.elster.jupiter.properties.RelativePeriodFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -59,8 +67,8 @@ public enum SimplePropertyType implements PropertyType {
     SERVICE_CALL(HasIdAndName.class),
     SERVICE_CALL_STATE(HasIdAndName.class),
     CUSTOM_EVENT_TYPE(HasIdAndName.class),
-    EXCLUDED_COM_TASKS(ListValueFactory.class),
-    VALIDATION_RULES_DROPDOWN(ListValueFactory.class);
+    EXCLUDED_COM_TASKS(ListValueFactory.class);
+
 
     private Class typeClass;
 

@@ -154,14 +154,15 @@ Ext.define('Wss.view.PreviewForm', {
                     fieldLabel: Uni.I18n.translate('general.userRole', 'WSS', 'User role'),
                     name: 'group',
                     renderer: function (value, field) {
-                        if (field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && field.up('form').getRecord().get('direction').id === 'INBOUND') {
+                        if (field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && Ext.isEmpty(value) && field.up('form').getRecord().get('direction').id === 'INBOUND') {
                             this.show();
-                            if(Ext.isEmpty(value) )
-                                return Uni.I18n.translate('endPointAdd.all', 'WSS', 'All');
-                            else
-                                return value.name;
-                        } else {
+                            return Uni.I18n.translate('endPointAdd.all', 'WSS', 'All');
+                        }
+                        else if (Ext.isEmpty(value)) {
                             this.hide();
+                            return value;
+                        } else {
+                            this.show();
                             return value.name;
                         }
                     }

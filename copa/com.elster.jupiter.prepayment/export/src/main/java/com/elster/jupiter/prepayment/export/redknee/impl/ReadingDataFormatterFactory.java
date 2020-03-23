@@ -93,7 +93,7 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
 
     @Reference
     public void setThesaurus(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.REST).join(nlsService.getThesaurus("RKN", Layer.REST));
+        this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
     }
 
     @Override

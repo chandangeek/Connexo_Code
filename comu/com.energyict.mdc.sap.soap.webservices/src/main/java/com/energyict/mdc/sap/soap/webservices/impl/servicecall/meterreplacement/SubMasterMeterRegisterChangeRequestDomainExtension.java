@@ -24,7 +24,6 @@ public class SubMasterMeterRegisterChangeRequestDomainExtension extends Abstract
         DEVICE_ID("deviceId", "DEVICE_ID"),
         REQUEST_ID("requestId", "REQUEST_ID"),
         UUID("uuid", "UUID"),
-        CREATE_REQUEST("createRequest", "CREATE_REQUEST")
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -54,7 +53,6 @@ public class SubMasterMeterRegisterChangeRequestDomainExtension extends Abstract
     private String requestId;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String uuid;
-    private boolean createRequest;
 
     public String getRequestId() {
         return requestId;
@@ -80,14 +78,6 @@ public class SubMasterMeterRegisterChangeRequestDomainExtension extends Abstract
         this.deviceId = deviceId;
     }
 
-    public boolean isCreateRequest() {
-        return createRequest;
-    }
-
-    public void setCreateRequest(boolean createRequest) {
-        this.createRequest = createRequest;
-    }
-
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -98,7 +88,6 @@ public class SubMasterMeterRegisterChangeRequestDomainExtension extends Abstract
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
         this.setRequestId((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
         this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
-        this.setCreateRequest((Boolean) propertyValues.getProperty(FieldNames.CREATE_REQUEST.javaName()));
     }
 
     @Override
@@ -106,7 +95,6 @@ public class SubMasterMeterRegisterChangeRequestDomainExtension extends Abstract
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
         propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestId());
         propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
-        propertySetValues.setProperty(FieldNames.CREATE_REQUEST.javaName(), this.isCreateRequest());
     }
 
     @Override

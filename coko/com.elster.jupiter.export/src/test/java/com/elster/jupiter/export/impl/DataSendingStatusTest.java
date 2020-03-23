@@ -106,7 +106,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m1:r1>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -119,7 +119,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m1:r1>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -132,7 +132,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m1:r1>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -145,7 +145,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -158,7 +158,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -171,7 +171,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -223,7 +223,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m1:r1>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -236,7 +236,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m1:r1>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -249,7 +249,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m1:r1>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -262,7 +262,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -275,7 +275,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -288,7 +288,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 1 data source(s) to one or more destinations: <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -301,7 +301,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 2 data source(s) to one or more destinations: <m1:r1>, <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>, <m2:r2>.");
     }
 
     @Test
@@ -314,7 +314,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailedForChangedData(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export 2 data source(s) to one or more destinations: <m1:r1>, <m2:r2>.");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>, <m2:r2>.");
     }
 
     @Test

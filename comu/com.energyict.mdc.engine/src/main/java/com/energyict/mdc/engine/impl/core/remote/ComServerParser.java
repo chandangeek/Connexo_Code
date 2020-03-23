@@ -52,7 +52,7 @@ public class ComServerParser {
         try {
             convertAllClassNamesFor(comServerJSon);
             Class<? extends ComServer> remoteComServerClass = this.getClassFor(comServerJSon);
-            ComServerImpl comServer =  (ComServerImpl) ObjectMapperFactory.getObjectMapper().readValue(new StringReader(comServerJSon.toString()), remoteComServerClass);
+            ComServerImpl comServer =  (ComServerImpl) ObjectMapperFactory.newMapper().readValue(new StringReader(comServerJSon.toString()), remoteComServerClass);
             return initializeParentFields(comServer);
         } catch (IOException e) {
             throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);

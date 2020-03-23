@@ -3,9 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts;
@@ -24,12 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
-
-    private final static String ID_XML_NAME = "UtilitiesConnectionStatusChangeRequest.ID";
-    private final static String CATEGORY_CODE_XML_NAME = "CategoryCode";
-    private final static String PLANNED_PROCESS_XML_NAME = "PlannedProcessingDateTime";
-    private final static String CONNECTION_STATUS_XML_NAME = "DeviceConnectionStatus";
+public class StatusChangeRequestCreateMessage {
 
     private Instant plannedProcessingDateTime;
     private Map<String, String> deviceConnectionStatus;
@@ -73,6 +66,11 @@ public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
 
     public boolean isBulk() {
         return bulk;
+    }
+
+    public boolean isValid() {
+        return (requestId != null || uuid != null) && id != null && categoryCode != null && plannedProcessingDateTime != null &&
+                !deviceConnectionStatus.isEmpty();
     }
 
     public static Builder builder() {
@@ -148,22 +146,7 @@ public class StatusChangeRequestCreateMessage extends AbstractSapMessage {
             return this;
         }
 
-        public StatusChangeRequestCreateMessage build(Thesaurus thesaurus) {
-            if (requestId == null && uuid == null) {
-                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
-            }
-            if (id == null) {
-                addMissingField(ID_XML_NAME);
-            }
-            if (categoryCode == null) {
-                addMissingField(CATEGORY_CODE_XML_NAME);
-            }
-            if (plannedProcessingDateTime == null) {
-                addMissingField(PLANNED_PROCESS_XML_NAME);
-            }
-            if (deviceConnectionStatus.isEmpty()) {
-                addMissingField(CONNECTION_STATUS_XML_NAME);
-            }
+        public StatusChangeRequestCreateMessage build() {
             return StatusChangeRequestCreateMessage.this;
         }
 

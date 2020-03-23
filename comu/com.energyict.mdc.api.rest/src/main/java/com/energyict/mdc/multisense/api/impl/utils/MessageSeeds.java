@@ -89,7 +89,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CUSTOM_PROPERTY_SET(89, "NoSuchCustomPropertySet", "No such custom property set."),
     HSM_EXCEPTION(90, "HsmException", "HSM exception: {0}"),
     SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(91, "SecurityAccessorTypeIsNotHSM", "Security accessor type is not HSM"),
-    NO_WRAPPING_KEYACCESSOR_FOR_DEVICE(92, "NoWrappingKeyAccessorForDevice", "No wrapping key for such security accessor on this device."),
     ;
 
     private final int number;

@@ -20,13 +20,4 @@ public interface ComJobFactory {
      */
     List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions);
 
-    /**
-     * Collects all the {@link ComTaskExecution}s from the ResultSet
-     * and wraps them in the appropriate {@link com.energyict.mdc.engine.impl.core.ComJob}s.
-     *
-     *
-     * @param comTaskExecutions the fetched ComTaskExecutions
-     */
-    List<ComJob> collect(Iterator<ComTaskExecution> comTaskExecutions);
-
 }

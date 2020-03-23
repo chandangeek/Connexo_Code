@@ -11,7 +11,8 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.DeviceService;
-import org.apache.commons.lang3.math.NumberUtils;
+
+import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
 

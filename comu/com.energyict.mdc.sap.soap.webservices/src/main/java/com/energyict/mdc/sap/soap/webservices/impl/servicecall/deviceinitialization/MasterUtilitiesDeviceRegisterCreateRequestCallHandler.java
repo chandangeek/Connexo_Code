@@ -124,7 +124,8 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
             SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
             String deviceId = extension.getDeviceId();
             Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
-            if (device.isPresent() && (child.getState() == DefaultState.SUCCESSFUL || hasAnyChildState(findChildren(child), DefaultState.SUCCESSFUL))) {
+            if (device.isPresent() && device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey()) &&
+                    (child.getState() == DefaultState.SUCCESSFUL || hasAnyChildState(findChildren(child), DefaultState.SUCCESSFUL))) {
                 deviceIds.add(deviceId);
             }
         });

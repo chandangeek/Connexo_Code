@@ -5,8 +5,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -14,7 +15,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
@@ -101,12 +101,12 @@ public class CrlRequestTaskResource {
 
     @GET
     @Transactional
-    @Path("/crlsigners")
+    @Path("/securityaccessors")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
-    public PagedInfoList getCRLSigners(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("crlsigners", getCRLSigners(), queryParameters);
+    public PagedInfoList getSecurityAccessors(@BeanParam JsonQueryParameters queryParameters) {
+        return PagedInfoList.fromCompleteList("securityAccessors", getSecurityAccessors(), queryParameters);
     }
 
     @GET
@@ -212,22 +212,20 @@ public class CrlRequestTaskResource {
     }
 
     private void createCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
-        CertificateWrapper crlSigner = getCRLSigner(info);
-
+        SecurityAccessor securityAccessor = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(sa -> sa.getKeyAccessorTypeReference().getId() == (Integer) info.securityAccessor.id)
+                .filter(sa -> sa.getActualPassphraseWrapperReference().isPresent() &&
+                        sa.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) sa.getActualPassphraseWrapperReference().get()).getCertificate().isPresent())
+                .findAny()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.id));
         String caName = info.caName;
         if (!crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).isPresent()) {
-            crlRequestTaskPropertiesService.createCrlRequestTaskPropertiesForCa(recurrentTask, crlSigner, caName);
+            crlRequestTaskPropertiesService.createCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
         } else {
-            crlRequestTaskPropertiesService.updateCrlRequestTaskPropertiesForCa(recurrentTask, crlSigner, caName);
+            crlRequestTaskPropertiesService.updateCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
         }
-    }
-
-    private CertificateWrapper getCRLSigner(CrlRequestTaskPropertyInfo info) {
-        List<CertificateWrapper> crlSigners = securityManagementService.getCertificateWrapperQuery().select(Where.where("id").isEqualTo(info.crlSigner.id));
-        if (crlSigners.size() != 1) {
-            throw exceptionFactory.newException(MessageSeeds.UNIDENTIFIED_CRL_SIGNER, info.crlSigner.id);
-        }
-        return crlSigners.get(0);
     }
 
     private Optional<RecurrentTask> updateCrlRequestRecurrentTask(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
@@ -247,12 +245,19 @@ public class CrlRequestTaskResource {
     }
 
     private void updateCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
-        CertificateWrapper crlSigner = getCRLSigner(info);
+        SecurityAccessor securityAccessor = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(sa -> sa.getKeyAccessorTypeReference().getId() == (Integer) info.securityAccessor.id)
+                .filter(sa -> sa.getActualPassphraseWrapperReference().isPresent() &&
+                        sa.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) sa.getActualPassphraseWrapperReference().get()).getCertificate().isPresent())
+                .findAny()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.id));
         String caName = info.caName;
         if (crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).isPresent()) {
-            crlRequestTaskPropertiesService.updateCrlRequestTaskPropertiesForCa(recurrentTask, crlSigner, caName);
+            crlRequestTaskPropertiesService.updateCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
         } else {
-            crlRequestTaskPropertiesService.createCrlRequestTaskPropertiesForCa(recurrentTask, crlSigner, caName);
+            crlRequestTaskPropertiesService.createCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
         }
     }
 
@@ -270,25 +275,15 @@ public class CrlRequestTaskResource {
         return logLevels;
     }
 
-    private List<IdWithNameInfo> getCRLSigners() {
-        List<IdWithNameInfo> crlSigners = new ArrayList<>();
-        crlSigners.addAll(getCertificateFromTrustStores());
-        return crlSigners;
-    }
-
-    private List<IdWithNameInfo> getCertificateFromTrustStores() {
-        List<IdWithNameInfo> crlSigners = new ArrayList<>();
-        List<TrustStore> allTrustStores = securityManagementService.getAllTrustStores();
-        for (TrustStore t: allTrustStores) {
-            SecurityManagementService.DataSearchFilter dataSearchFilter = new SecurityManagementService.DataSearchFilter();
-            dataSearchFilter.trustStore = Optional.of(t);
-            crlSigners.addAll(securityManagementService.findTrustedCertificatesByFilter(dataSearchFilter)
-                    .stream()
-                    .filter(f -> f.isCRLSigner())
-                    .map(f -> new IdWithNameInfo(f.getId(), f.getAlias()))
-                    .collect(Collectors.toList()));
-        }
-        return crlSigners;
+    private List<IdWithNameInfo> getSecurityAccessors() {
+        return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(securityAccessor -> securityAccessor.getActualPassphraseWrapperReference().isPresent() &&
+                        securityAccessor.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) securityAccessor.getActualPassphraseWrapperReference().get()).getCertificate().isPresent())
+                .map(SecurityAccessor::getKeyAccessorTypeReference)
+                .map(securityAccessorType -> new IdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName()))
+                .collect(Collectors.toList());
     }
 
     private String getTaskName(CrlRequestTaskPropertyInfo info) {

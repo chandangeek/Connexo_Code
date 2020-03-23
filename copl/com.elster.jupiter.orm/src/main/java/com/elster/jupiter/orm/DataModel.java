@@ -13,7 +13,6 @@ import com.google.inject.Module;
 import javax.validation.ValidatorFactory;
 import java.security.Principal;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.SortedSet;
@@ -24,6 +23,7 @@ import java.util.logging.Logger;
  */
 @ProviderType
 public interface DataModel {
+
     /*
      * persist the argument by inserting a new tuple
      */
@@ -118,7 +118,7 @@ public interface DataModel {
     }
 
     @ConsumerType
-    interface ConnectionConsumer {
+    static interface ConnectionConsumer {
         void accept(Connection connection) throws SQLException;
     }
 
@@ -153,30 +153,11 @@ public interface DataModel {
     /*
      * obtain a DataDropper to remove old data from the table with the given name
      */
-    DataDropper dataDropper(String tableName, Logger logger);
-
-    /*
-     * obtain a PartitionCreator for the table with the given name
-     */
-    PartitionCreator partitionCreator(String tableName, Logger logger);
+	DataDropper dataDropper(String tableName, Logger logger);
+	/*
+	 * obtain a PartitionCreator for the table with the given name
+	 */
+	PartitionCreator partitionCreator(String tableName, Logger logger);
 
     Version getVersion();
-
-    default boolean doesTableExist(String name) {
-        try (Connection connection = getConnection(false);
-             ResultSet resultSet = connection.getMetaData().getTables(connection.getCatalog(), connection.getSchema(), name, new String[]{"TABLE"})) {
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    default boolean doesColumnExist(String table, String name) {
-        try (Connection connection = getConnection(false);
-             ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), table, name)) {
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
 }

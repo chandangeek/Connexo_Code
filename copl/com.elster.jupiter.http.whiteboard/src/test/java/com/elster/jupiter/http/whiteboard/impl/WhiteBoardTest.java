@@ -8,7 +8,6 @@ import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.blacklist.BlackListTokenService;
 
 import org.osgi.framework.BundleContext;
 
@@ -35,12 +34,10 @@ public class WhiteBoardTest {
     @Mock
     private HttpAuthenticationService httpAuthenticationService;
 
-    @Mock
-    private BlackListTokenService blackListTokenService;
     @Test
     public void testAddResource() {
         TranslationKeyProvider translationKeyProvider = new WhiteBoardImpl(bundleContext, transactionService,
-                queryService, httpAuthenticationService, blackListTokenService);
+                queryService, httpAuthenticationService);
         List<TranslationKey> translationKeysList = translationKeyProvider.getKeys();
         assertThat(translationKeysList.size()).isEqualTo(3);
         verify(bundleContext, times(1)).getProperty(WhiteBoardProperties.SYSTEM_IDENTIFIER.getKey());

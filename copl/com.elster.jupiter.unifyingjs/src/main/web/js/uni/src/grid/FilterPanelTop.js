@@ -225,9 +225,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
         var me = this;
 
         me.filters.each(function (filter) {
-            if (filter.type !== 'noui'){
-                filter.resetValue();
-            }
+            filter.resetValue();
         }, me);
 
         me.applyFilters();

@@ -41,6 +41,7 @@ import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
@@ -139,7 +140,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected MBusClient getMBusClient(String serialNumber) throws IOException {
-        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION0_D_S_M_R_23_SPEC);
+        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
     }
 
     private ObisCode getMbusClientObisCode(String serialNumber) throws IOException {
@@ -331,20 +332,10 @@ public abstract class AbstractMessageExecutor {
         return convertUnixToDateTime(time, TimeZone.getTimeZone("GMT"));
     }
 
-    public AXDRDateTime convertUnixToDateTime(long epochInMillis){
-        return convertUnixToDateTime(epochInMillis, TimeZone.getTimeZone("GMT"));
-    }
-
     public AXDRDateTime convertUnixToDateTime(String time, TimeZone timeZone) {
         Calendar cal = Calendar.getInstance(timeZone);
         cal.setTimeInMillis(Long.parseLong(time) * 1000);
         return new AXDRDateTime(cal);
-    }
-
-    public AXDRDateTime convertUnixToDateTime(long epochInMillis, TimeZone timeZone){
-        Calendar cal = Calendar.getInstance(timeZone);
-        cal.setTimeInMillis(epochInMillis);
-        return new AXDRDateTime(cal.getTime(), timeZone);
     }
 
     /**

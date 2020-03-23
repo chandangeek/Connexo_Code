@@ -1,6 +1,16 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.BaseUnit;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -19,15 +29,6 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
-import com.energyict.mdc.upl.LoadProfileConfigurationException;
-import com.energyict.mdc.upl.issue.Issue;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -48,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_LP_DUPLICATED_CHANNEL;
+import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_GAS_HOURLY_DUPLICATED_CHANNEL;
 import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.setFieldAndGet;
 
 /**
@@ -174,12 +175,10 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
                     List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
 
-                    if (lpc.getObisCode().equalsIgnoreBChannel(Dsmr40LoadProfileBuilder.MBUS_HOURLY_LP_OBISCODE) ||
-                        lpc.getObisCode().equalsIgnoreBChannel(Dsmr40LoadProfileBuilder.MBUS_DAILY_LP_OBISCODE) ||
-                        lpc.getObisCode().equalsIgnoreBChannel(Dsmr40LoadProfileBuilder.MBUS_MONTHLY_LP_OBISCODE)) {
+                    if (lpc.getObisCode().equalsIgnoreBChannel(Dsmr40LoadProfileBuilder.MBUS_LP1_OBISCODE)) {
                         // remap duplicated 0.x.24.2.1.255 (timestamp) to 0.x.24.2.5.255
                         channelInfos.stream().filter(
-                                ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_LP_DUPLICATED_CHANNEL) &&
+                                ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_GAS_HOURLY_DUPLICATED_CHANNEL) &&
                                         ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                         ).forEach(
                                 ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )

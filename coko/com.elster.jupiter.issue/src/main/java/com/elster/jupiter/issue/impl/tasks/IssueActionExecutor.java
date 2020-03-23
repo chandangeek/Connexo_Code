@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.issue.impl.tasks;
 
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -14,9 +17,6 @@ import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.nls.Thesaurus;
 
-import java.util.Optional;
-import java.util.logging.Logger;
-
 public class IssueActionExecutor implements Runnable {
     public static final Logger LOG = Logger.getLogger(IssueActionExecutor.class.getName());
     private Issue issue;
@@ -25,10 +25,10 @@ public class IssueActionExecutor implements Runnable {
     private IssueActionService issueActionService;
 
     public IssueActionExecutor(Issue issue, CreationRuleActionPhase phase, Thesaurus thesaurus, IssueActionService issueActionService) {
-        if (issue == null) {
+        if (issue == null){
             throw new IllegalArgumentException("Issue for execution can't be null");
         }
-        if (phase == null) {
+        if (phase == null){
             throw new IllegalArgumentException("Phase for execution can't be null");
         }
         this.issue = issue;
@@ -44,7 +44,7 @@ public class IssueActionExecutor implements Runnable {
             return;
         }
 
-        for (CreationRuleAction action : rule.getActions()) {
+        for (CreationRuleAction action : rule.getActions()){
             if (action.getPhase() == phase) {
                 executeAction(action);
             }
@@ -61,7 +61,7 @@ public class IssueActionExecutor implements Runnable {
             try {
                 realAction.get().initAndValidate(action.getProperties()).execute(issue);
             } catch (RuntimeException e) {
-                MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, realAction.get().getDisplayName(), issue.getTitle());
+                MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, issue.getTitle());
             }
         }
     }

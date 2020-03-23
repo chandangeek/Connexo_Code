@@ -27,7 +27,6 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
@@ -50,7 +49,6 @@ import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeExceptio
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.exceptions.DeviceIconTooBigException;
 import com.energyict.mdc.device.config.exceptions.DeviceMessageFileTooBigException;
-import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
@@ -93,7 +91,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -128,8 +125,6 @@ public class DeviceTypeResource {
 
     private static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
     private static final String DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE = "DeviceLifecycleIssueCreationRuleTemplate";
-    private static final String DEVICE_LIFECYCLE_IN_DEVICE_TYPE = "DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes";
-
 
     @Inject
     public DeviceTypeResource(
@@ -338,50 +333,34 @@ public class DeviceTypeResource {
         DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
         DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(info.targetDeviceLifeCycle.id);
 
-        Collection<CreationRuleTemplate> ruleTemplates = issueService.getCreationRuleTemplates().values();
-
-        List<String> alarmRules = ruleTemplates
+        Optional<CreationRuleTemplate> ruleTemplate = issueService.getCreationRuleTemplates().values()
                 .stream()
-                .filter(issueTemplate -> issueTemplate.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE))
-                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWithDeviceType(id))
-                .flatMap(Collection::stream)
-                .map(CreationRule::getName)
-                .collect(Collectors.toList());
+                .filter(template -> template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE))
+                .findFirst();
 
-
-        List<String> issueRules = ruleTemplates
-                .stream()
-                .filter(issueTemplate -> issueTemplate.getName().equals(DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE))
-                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWithDeviceType(id))
-                .flatMap(Collection::stream)
-                .map(CreationRule::getName)
-                .collect(Collectors.toList());
-
-
-        List<CreationRule> issueCreationRules = issueService.getIssueCreationService().getCreationRuleQuery()
-                .select(Condition.TRUE);
-
-        List<CreationRule> rules = new ArrayList<>();
-        issueCreationRules.forEach(issueCreationRule -> {
-            Object props = issueCreationRule.getProperties().get(DEVICE_LIFECYCLE_IN_DEVICE_TYPE);
-            if (props != null && ((List) (props))
-                    .stream()
-                    .filter(property -> ((DeviceLifeCycleInDeviceTypeInfo) property).getDeviceTypeId() == id)
-                    .findFirst().isPresent()) {
-                rules.add(issueCreationRule);
+        if (ruleTemplate.isPresent()) {
+            Optional<CreationRule> deviceAlarmCreationRule = ruleTemplate.get().getCreationRuleWhichUsesDeviceType(id);
+            if (deviceAlarmCreationRule.isPresent()) {
+                info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_CREATION_RULE)
+                                .format(deviceType.getName(), deviceType.getDeviceLifeCycle().getName(), deviceAlarmCreationRule.get().getName())
+                        , Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
+                return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
-        });
+        }
 
-        List<String> issueRules2 = rules.stream()
-                .map(CreationRule::getName)
-                .collect(Collectors.toList());
-
-        issueRules.addAll(issueRules2);
+        for (CreationRuleTemplate issueRuleTemplate : issueService.getCreationRuleTemplates().values()){
+            Optional<CreationRule> creationRule = issueRuleTemplate.getCreationRuleWhichUsesDeviceType(id);
+            if(creationRule.isPresent()) {
+                info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE)
+                                .format(deviceType.getName(), deviceType.getDeviceLifeCycle().getName(), creationRule.get().getName()),
+                        Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
+                return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
+            }
+        }
 
         new RestValidationBuilder()
                 .isCorrectId(info.targetDeviceLifeCycle != null ? info.targetDeviceLifeCycle.id : null, "deviceLifeCycleId")
                 .validate();
-
 
         try {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
@@ -394,24 +373,8 @@ public class DeviceTypeResource {
                     .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
             return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
         }
-        if (!(alarmRules.isEmpty() && issueRules.isEmpty())) {
-            LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format() + " "
-                            + thesaurus.getSimpleFormat(MessageSeeds.CLARIFICATION_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format(),
-                    DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
-            return Response.ok(lifeCycleChangeInfo).build();
-        }
-        LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.SUCCESSFULLY_CHANGED_LIFE_CYCLE).format(),
-                DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
-        return Response.ok(lifeCycleChangeInfo).build();
+        return Response.ok(DeviceTypeInfo.from(deviceType)).build();
     }
-
-    private LifeCycleChangeInfo createChangeCreationRulesInfo(String message, DeviceTypeInfo deviceTypeInfo, List<String> alarmRules, List<String> issueRules) {
-        return new LifeCycleChangeInfo(message,
-                deviceTypeInfo,
-                alarmRules.size() > 0 ? thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ALARM_RULES).format(String.join(", ", alarmRules)) : "",
-                issueRules.size() > 0 ? thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ISSUE_RULES).format(String.join(", ", issueRules)) : "");
-    }
-
 
     @GET
     @Transactional
@@ -457,8 +420,8 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response editDeviceCustomAttributes(@PathParam("id") long id,
-                                               @PathParam("cpsId") long cpsId,
-                                               DeviceTypeCustomPropertySetInfo info) {
+                                              @PathParam("cpsId") long cpsId,
+                                              DeviceTypeCustomPropertySetInfo info) {
         DeviceType lockedDeviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.deviceTypeVersion,
                 info.deviceTypeName);
         resourceHelper.setDeviceTypeCustomPropertySetInfo(lockedDeviceType, cpsId, info);
@@ -487,7 +450,7 @@ public class DeviceTypeResource {
     @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class, DeviceType.class));
+        deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class,DeviceType.class));
         return Response.ok().build();
     }
 

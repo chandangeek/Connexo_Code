@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -17,6 +16,7 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -63,7 +63,7 @@ public class IDISMBus extends IDIS {
         for (int i = 1; i <= MAX_MBUS_CHANNELS; i++) {
             try {
                 obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
-                long serialNumberValue = getCosemObjectFactory().getMbusClient(obisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION).getIdentificationNumber().getValue();
+                long serialNumberValue = getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
                 if (serialNumberValue != 0) {
                     serial = String.valueOf(serialNumberValue);
                     receivedSerialNumbers.add(serial);

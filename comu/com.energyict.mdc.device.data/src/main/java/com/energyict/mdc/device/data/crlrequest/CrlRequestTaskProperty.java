@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.crlrequest;
 
-import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.tasks.RecurrentTask;
 
 import aQute.bnd.annotation.ProviderType;
@@ -14,9 +14,9 @@ public interface CrlRequestTaskProperty {
 
     void setRecurrentTask(RecurrentTask recurrentTask);
 
-    CertificateWrapper getCRLSigner();
+    SecurityAccessor getSecurityAccessor();
 
-    void setCrlSigner(CertificateWrapper securityAccessor);
+    void setSecurityAccessor(SecurityAccessor securityAccessor);
 
     String getCaName();
 

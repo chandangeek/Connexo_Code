@@ -287,8 +287,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 return data.task.destinations;
             }
-        },
-        {name: 'statusId', type: 'number'}
+        }
 
     ],
 

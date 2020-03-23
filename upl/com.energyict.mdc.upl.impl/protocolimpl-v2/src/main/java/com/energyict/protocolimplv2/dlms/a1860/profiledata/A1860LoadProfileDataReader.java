@@ -139,8 +139,6 @@ public class A1860LoadProfileDataReader {
                 if (u.isUndefined()) {
                     u = Unit.get(BaseUnit.NOTAVAILABLE, u.getScale());
                 }
-                u = Unit.get(u.getBaseUnit().getDlmsCode(), 0); // SET SCALE to ZERO since it's already applied and converted to Engineering Unit by the protocol
-
                 unitMap.put(capturedObject.getLogicalName().getObisCode(), u);
                 channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
             }

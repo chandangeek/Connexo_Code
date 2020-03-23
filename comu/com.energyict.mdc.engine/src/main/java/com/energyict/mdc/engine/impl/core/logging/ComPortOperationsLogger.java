@@ -99,13 +99,4 @@ public interface ComPortOperationsLogger {
     @Configuration(format = "ComPort ''{0}'' ran into the following unexpected problem: {1}", logLevel = LogLevel.ERROR)
     public void unexpectedError (String comPortThreadName, String message);
 
-
-    /**
-     * Logs that store task queue is full having specific loadPercentage.
-     *
-     * @param queueLoadPercentage The name of the thread that started
-     */
-    @Configuration(format = "No work to execute caused by store task queue load: ''{0}''%", logLevel = LogLevel.WARN)
-    public void storeTaskQueueIsFull (int queueLoadPercentage);
-
 }

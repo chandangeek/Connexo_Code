@@ -34,7 +34,7 @@ public class AllRequiredCustomPropertySetsHaveValuesValidator implements Constra
     public boolean isValid(UsagePointImpl usagePoint, ConstraintValidatorContext context) {
         if (Stream.concat(
                 usagePoint.getServiceCategory().getCustomPropertySets().stream()
-                        .filter(c -> c.getCustomPropertySet() != null && c.getCustomPropertySet().isRequired())
+                        .filter(c -> c.getCustomPropertySet().isRequired())
                         .map(c -> new CustomPropertySetValuesProviderImpl(c, usagePoint, Range.greaterThan(usagePoint.getInstallationTime()))),
                 usagePoint.getAllEffectiveMetrologyConfigurations().stream()
                         .map(mc -> new MetrologyConfigurationCustomPropertySetValuesValidator(mc, usagePoint)))

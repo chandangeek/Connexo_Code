@@ -64,12 +64,9 @@ public class TopAlarmsResource extends BaseAlarmResource {
         Condition conditionNullUser = where("user").isNull();
         Condition conditionWG = where("workGroup").in(currentUser.getWorkGroups());
         List<OpenIssue> alarms = alarmQuery.select(conditionAlarm.and(conditionStatus)
-                .and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5,
-                new Order[]{
-                        Order.descending("priorityTotal"),
-                        Order.ascending("dueDate"),
-                        Order.ascending("reason")
-        });
+                .and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5, Order.ascending("priorityTotal")
+                .ascending("dueDate")
+                .ascending("reason"));
         Optional<Long> alarmTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
                 entry.getKey().equals(IssueTypes.DEVICE_ALARM))
                 .findFirst().map(Map.Entry::getValue);

@@ -638,6 +638,8 @@ public class DataModelImpl implements DataModel {
     }
 
     void addAllTables(DataModelImpl other) {
-        other.getTables().forEach(this::add);
+        other.getTables()
+                .stream()
+                .forEach(this::add);
     }
 }

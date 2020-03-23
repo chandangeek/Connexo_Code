@@ -99,8 +99,7 @@ public enum MessageSeeds implements MessageSeed {
     ENCRYPTED_KEY_INVALID(1084, "CouldNotRenewKey", "The encrypted key couldn''t be created"),
     INVALID_LABEL(1085, Keys.INVALID_LABEL, "This label is invalid (non empty label required)"),
     SKIPPING_SIGNATURE_VERIFICATION(1086, "SkipSignatureVerification", "Skipping signature verification"),
-    PROCESSING_CSR(1087, "ProcessingCSR", "Processing CSR for serial {0} and alias {1}" , Level.INFO),
-    FUAK_RENEW_NOT_SUPPORTED(1088, "FUAKRenewNotSupported", "FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.", Level.INFO);
+    PROCESSING_CSR(1087, "ProcessingCSR", "Processing CSR for serial {0} and alias {1}" , Level.INFO);
 
     private final int number;
     private final String key;

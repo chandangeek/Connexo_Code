@@ -17,7 +17,6 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_TYPE("deviceType.with.article", "a device type"),
     CHANNEL("com.energyict.mdc.device.config.ChannelSpec", "Channel"),
     REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register"),
-    DEVICE_TYPES_CHANGES_EVENT_SUBSC("DeviceTypesChanges","Invalidate cache when changes happen to device types"),
     ;
 
     private final String key;

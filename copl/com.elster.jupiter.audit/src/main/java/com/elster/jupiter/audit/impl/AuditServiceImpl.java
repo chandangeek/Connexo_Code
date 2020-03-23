@@ -92,7 +92,7 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
             upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                     dataModel,
                     InstallerImpl.class,
-                    ImmutableMap.of(version(10, 6), UpgraderV10_6.class, version(10, 7, 1), UpgraderV10_7_1.class));
+                    ImmutableMap.of(version(10, 6), UpgraderV10_6.class));
 
         } catch (Exception e) {
             e.printStackTrace();

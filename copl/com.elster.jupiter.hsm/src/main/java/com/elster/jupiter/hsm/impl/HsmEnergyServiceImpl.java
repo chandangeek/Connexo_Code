@@ -3,12 +3,10 @@
  */
 package com.elster.jupiter.hsm.impl;
 
-import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyCapability;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
-import com.elster.jupiter.hsm.model.FUAKPassiveGenerationNotSupportedException;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
@@ -65,6 +63,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.X509KeyManager;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -130,7 +129,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     }
 
-    public HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException, FUAKPassiveGenerationNotSupportedException {
+    public HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException {
         try {
             KeyLabel newLabel = new KeyLabel(renewKeyRequest.getRenewLabel());
             ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getMasterKeyLabel()), renewKeyRequest.getMasterKey());
@@ -144,13 +143,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
                 String kekLabel = ((KeyLabel) psk.getKek()).getValue();
                 return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
             } else {
-                final ProtectedSessionKeyCapability keyCapability = renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability();
-
-                if (keyCapability.equals( ProtectedSessionKeyCapability.SM_WK_MBUSFWAUTH_RENEWAL )) {
-                    throw new FUAKPassiveGenerationNotSupportedException("FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.");
-                }
-
-                KeyRenewalResponse response = Energy.cosemKeyRenewal(keyCapability,
+                KeyRenewalResponse response = Energy.cosemKeyRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
                         protectedSessionKey,
                         newLabel,
                         renewKeyRequest.getHsmKeyType().getSessionKeyType());
@@ -563,10 +556,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         try {
             com.atos.worldline.jss.api.custom.energy.KeyRenewalMBusResponse response = Energy.renewMBusUserKey(toProtectedSessionKey(encrKey), method7apdu, initializationVector, toProtectedSessionKey(authKey), toProtectedSessionKey(defaultKey), getAtosSecuritySuite(securitySuite));
             ProtectedSessionKey protectedSessionKey = response.getMdmSmWK();
-            HsmIrreversibleKey mdmSmWK = null;
-            if (protectedSessionKey!=null) {
-                mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
-            }
+            HsmIrreversibleKey mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
             return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), mdmSmWK, response.getMBusAuthTag());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException("Failed to send MBus encryption keys using the cryptoserver: " + e.getMessage());
@@ -590,7 +580,9 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             HsmBaseException {
         try {
             com.atos.worldline.jss.api.custom.energy.KeyRenewalMBusResponse response = Energy.renewMBusUserKeyWithGCM(toProtectedSessionKey(encrKey), apduTemplate, eMeterIV, toProtectedSessionKey(authKey), toProtectedSessionKey(defaultKey), mbusIV, getAtosSecuritySuite(securitySuite));
-            return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), null, response.getMBusAuthTag());
+            ProtectedSessionKey protectedSessionKey = response.getMdmSmWK();
+            HsmIrreversibleKey mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+            return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), mdmSmWK, response.getMBusAuthTag());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException("Failed to send Mbus P2 key using the cryptoserver: " + e.getMessage());
         }

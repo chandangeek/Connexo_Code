@@ -711,8 +711,7 @@ public class AssociationControlServiceElement {
 
                                 i += lenghtOfTaggedComponent;
                                 if (lenghtOfTaggedComponent != 0) {
-                                    byte releaseReason = responseData[i++];
-                                    switch (releaseReason) {
+                                    switch (responseData[i++]) {
                                         case 0x00:
                                             return; // normal release
                                         case 0x01:
@@ -720,7 +719,7 @@ public class AssociationControlServiceElement {
                                         case 0x30:
                                             throw new DLMSConnectionException("Response from the release is userDefined: " + 30);
                                         default:
-                                            throw new DLMSConnectionException("Unknown release response ["+releaseReason+"]");
+                                            throw new DLMSConnectionException("Unknown release response");
                                     }
                                 } else {
                                     break;

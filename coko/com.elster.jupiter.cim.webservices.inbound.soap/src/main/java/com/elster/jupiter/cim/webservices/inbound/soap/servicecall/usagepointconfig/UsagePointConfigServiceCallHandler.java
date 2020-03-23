@@ -10,7 +10,6 @@ import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.UsagePoi
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 
 import ch.iec.tc57._2011.executeusagepointconfig.FaultMessage;
@@ -21,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -34,14 +34,12 @@ public class UsagePointConfigServiceCallHandler extends AbstractServiceCallHandl
 
     private final Provider<UsagePointBuilder> usagePointBuilderProvider;
     private final JsonService jsonService;
-    private final TransactionService transactionService;
 
     @Inject
     public UsagePointConfigServiceCallHandler(Provider<UsagePointBuilder> usagePointBuilderProvider,
-                                              JsonService jsonService, TransactionService transactionService) {
+            JsonService jsonService) {
         this.usagePointBuilderProvider = usagePointBuilderProvider;
         this.jsonService = jsonService;
-        this.transactionService = transactionService;
     }
 
     @Override
@@ -49,27 +47,23 @@ public class UsagePointConfigServiceCallHandler extends AbstractServiceCallHandl
         UsagePointConfigDomainExtension extension = serviceCall.getExtension(UsagePointConfigDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         UsagePoint usagePoint = jsonService.deserialize(extension.getUsagePoint(), UsagePoint.class);
-        Action action = Action.valueOf(extension.getOperation());
         try {
-            transactionService.runInIndependentTransaction(() ->
-            {
-                switch (action) {
-                    case CREATE:
-                        UsagePointBuilder.PreparedUsagePointBuilder builder = usagePointBuilderProvider.get().from(usagePoint,
-                                0);
-                        Instant requestTimestamp = extension.getRequestTimestamp();
-                        if (requestTimestamp != null) {
-                            builder.at(requestTimestamp);
-                        }
-                        builder.create();
-                        break;
-                    case UPDATE:
-                        usagePointBuilderProvider.get().from(usagePoint, 0).update();
-                        break;
-                    default:
-                        break;
+            switch (Action.valueOf(extension.getOperation())) {
+            case CREATE:
+                UsagePointBuilder.PreparedUsagePointBuilder builder = usagePointBuilderProvider.get().from(usagePoint,
+                        0);
+                Instant requestTimestamp = extension.getRequestTimestamp();
+                if (requestTimestamp != null) {
+                    builder.at(requestTimestamp);
                 }
-            });
+                builder.create();
+                break;
+            case UPDATE:
+                usagePointBuilderProvider.get().from(usagePoint, 0).update();
+                break;
+            default:
+                break;
+            }
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception faultMessage) {
             if (faultMessage instanceof FaultMessage) {

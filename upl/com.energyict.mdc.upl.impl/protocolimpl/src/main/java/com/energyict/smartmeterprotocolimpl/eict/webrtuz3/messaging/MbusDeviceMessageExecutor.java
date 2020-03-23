@@ -139,7 +139,7 @@ public class MbusDeviceMessageExecutor extends MessageParser {
 
                 getLogger().log(Level.INFO, "Handling MbusMessage: Decommission MBus device");
 
-                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
+                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
                 mbusClient.deinstallSlave();
 
                 success = true;
@@ -150,7 +150,7 @@ public class MbusDeviceMessageExecutor extends MessageParser {
                 String openKey = messageHandler.getOpenKey();
                 String transferKey = messageHandler.getTransferKey();
 
-                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
+                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
 
                 if (openKey == null) {
                     mbusClient.setEncryptionKey("");
@@ -172,7 +172,7 @@ public class MbusDeviceMessageExecutor extends MessageParser {
 //				corrSwitch.setValueAttr(bo);
 
                 getLogger().log(Level.INFO, "Handling MbusMessage: Set loadprofile to corrected values");
-                MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
+                MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
                 Array capDef = new Array();
                 Structure struct = new Structure();
                 OctetString dib = OctetString.fromByteArray(new byte[]{0x0C});
@@ -187,7 +187,7 @@ public class MbusDeviceMessageExecutor extends MessageParser {
             } else if (mbusUnCorrected) {
 
                 getLogger().log(Level.INFO, "Handling MbusMessage: Set loadprofile to unCorrected values");
-                MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
+                MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
                 Array capDef = new Array();
                 Structure struct = new Structure();
                 OctetString dib = OctetString.fromByteArray(new byte[]{(byte) 0x0C});

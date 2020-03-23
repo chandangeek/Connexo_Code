@@ -41,8 +41,6 @@ public interface DataExportService {
 
     Optional<? extends ExportTask> findAndLockExportTask(long id, long version);
 
-    Optional<? extends ExportTask> findAndLockReadingTypeDataExportTaskByName(String name);
-
     Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name);
 
     List<DataFormatterFactory> getAvailableFormatters();

@@ -151,19 +151,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     ComPort refreshComPort(ComPort comPort);
 
     /**
-     * Finds and returns all the ComJobs that are in
-     * pending state by the specified OutboundComPort.
-     *
-     * @param comPort The OutboundComPort
-     * @return The List of ComJobs that represent all the ComTaskExecutions that are ready to be executed
-     * @see OutboundComPort
-     */
-    List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort);
-
-    /**
      * Finds and returns all the ComJobs that are ready
      * to be executed by the specified OutboundComPort.
-     * Depends on the simultaneous connection number
      *
      * @param comPort The OutboundComPort
      * @return The List of ComJobs that represent all the ComTaskExecutions that are ready to be executed

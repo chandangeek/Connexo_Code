@@ -167,19 +167,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<ComJob> findPendingOutboundComTasks(OutboundComPort comPort) {
-        if (!isComServerDAOShutDown()) {
-            Map<String, Object> queryParameters = new HashMap<>();
-            queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
-            JSONObject response = post(QueryMethod.FindPendingOutboundComTasks, queryParameters);
-            ComJob[] comJobs = toArrayObject(response, new ObjectParser<ComTaskExecutionGroup[]>(), ComTaskExecutionGroup[].class);
-            return CollectionConverter.convertGenericArrayToList(comJobs);
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         if (!isComServerDAOShutDown()) {
             Map<String, Object> queryParameters = new HashMap<>();
@@ -1147,7 +1134,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
          */
         public String marshall() throws JSONException {
             StringWriter writer = new StringWriter();
-            ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
+            ObjectMapper mapper = ObjectMapperFactory.newMapper();
             try {
                 mapper.writeValue(writer, specs);
             } catch (IOException e) {

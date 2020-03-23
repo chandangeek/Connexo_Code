@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders.type;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -7,8 +11,7 @@ import javax.inject.Inject;
 import java.util.function.Consumer;
 
 public class AttachDeviceSAPInfoCPSPostBuilder implements Consumer<DeviceType> {
-
-    public static final String CPS_ID = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceSAPInfoCustomPropertySet";
+    public static final String CPS_ID = "com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet";
 
     private final CustomPropertySetService customPropertySetService;
 

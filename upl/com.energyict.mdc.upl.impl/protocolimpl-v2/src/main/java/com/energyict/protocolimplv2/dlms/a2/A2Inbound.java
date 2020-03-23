@@ -78,7 +78,7 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
     public DiscoverResultType doDiscovery() {
         this.inboundDAO = context.getInboundDAO();
         readFrameCounter(comChannel);
-        setDlmsSession(createDlmsSession(comChannel, getDlmsProperties()));
+        setDlmsSession(new DlmsSession(comChannel, getDlmsProperties(), getLogger()));
         return DiscoverResultType.DATA;
     }
 
@@ -93,7 +93,9 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
 
         long frameCounter;
         String logicalDeviceName;
-        DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, publicClientProperties);
+        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
+        connectWithRetries(publicDlmsSession);
         try {
             getLogger().info("Public client connected, reading frame counter " + FRAME_COUNTER_MANAGEMENT.toString() + ", corresponding to client " + publicClientProperties.getClientMacAddress());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAME_COUNTER_MANAGEMENT).getValueAttr().longValue();
@@ -120,17 +122,6 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
         getDlmsProperties().setSecurityPropertySet( getSecurityPropertySet( this.deviceIdentifier ) );
 
         getDlmsProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
-    }
-
-    protected DlmsSession getPublicDlmsSession(ComChannel comChannel, DlmsProperties dlmsProperties) {
-        DlmsSession publicDlmsSession = createDlmsSession(comChannel, dlmsProperties);
-        getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
-        connectWithRetries(publicDlmsSession);
-        return publicDlmsSession;
-    }
-
-    public A2DlmsSession createDlmsSession(ComChannel comChannel, DlmsProperties dlmsProperties) {
-        return new A2DlmsSession(comChannel, dlmsProperties, getLogger());
     }
 
     /**
@@ -207,7 +198,7 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-11-29 12:00:00 +0200 (Fri, 29 Sep 2019) $";
+        return "$Date: 2019-03-08 10:00:00 +0200 (Fri, 08 Mar 2019) $";
     }
 
     @Override
@@ -231,7 +222,8 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
         DlmsProperties securityProperties = getNewInstanceOfProperties();
         securityProperties.setSecurityPropertySet(getSecurityPropertySet(originDeviceIdentified));
         securityProperties.addProperties(getSecurityPropertySet(originDeviceIdentified).getSecurityProperties());
-        this.dlmsSession = createDlmsSession(comChannel, securityProperties);
+
+        this.dlmsSession = new DlmsSession(comChannel, securityProperties);
         SecurityContext securityContext = dlmsSession.getAso().getSecurityContext();
         securityContext.getSecurityProvider().setRespondingFrameCounterHandling(new DefaultRespondingFrameCounterHandler());
         return securityContext;
@@ -257,16 +249,12 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
         return dlmsConfigurationSupport;
     }
 
-    protected DlmsProperties getNewInstanceOfProperties() {
+    private DlmsProperties getNewInstanceOfProperties() {
         return new A2Properties();
     }
 
     public void setDlmsSession(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
-    }
-
-    public PropertySpecService getPropertySpecService() {
-        return propertySpecService;
     }
 
     protected Logger getLogger() {

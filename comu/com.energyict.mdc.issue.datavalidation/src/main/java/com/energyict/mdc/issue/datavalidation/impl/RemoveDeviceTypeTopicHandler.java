@@ -17,6 +17,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -27,8 +28,8 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
-import static com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS;
-import static com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
+import static com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS;
+import static com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.RemoveDeviceTypeTopicHandler", service = TopicHandler.class, immediate = true)
 public class RemoveDeviceTypeTopicHandler implements TopicHandler {
@@ -58,15 +59,15 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler {
                 .anyMatch(info -> configIds.contains(info.getId()));
 
         boolean deviceTypeInUse = validationCreationRules.stream()
-                .map(rule -> (List) rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
+                .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
                 .filter(list -> !list.isEmpty())
                 .flatMap(Collection::stream)
                 .anyMatch(info -> ((DeviceLifeCycleInDeviceTypeInfo) info).getDeviceTypeId() == deviceType.getId());
 
-        if (configOfDeviceTypeInUse)
+        if(configOfDeviceTypeInUse)
             throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType, MessageSeeds.DEVICE_TYPE_DEVICE_CONFIG_IN_USE);
 
-        if (deviceTypeInUse) {
+        if(deviceTypeInUse) {
             throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType, MessageSeeds.DEVICE_TYPE_IN_USE);
         }
     }

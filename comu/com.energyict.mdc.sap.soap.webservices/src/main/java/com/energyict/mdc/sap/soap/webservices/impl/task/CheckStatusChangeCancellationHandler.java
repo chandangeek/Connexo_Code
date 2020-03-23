@@ -44,8 +44,7 @@ public class CheckStatusChangeCancellationHandler implements TaskExecutor {
                 .stream()
                 .forEach(serviceCall -> {
                     ConnectionStatusChangeDomainExtension extension = serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class).get();
-                    Instant maxDate = extension.getProcessDate().isAfter(serviceCall.getCreationTime()) ? extension.getProcessDate() : serviceCall.getCreationTime();
-                    if (Duration.between(maxDate, now).get(ChronoUnit.SECONDS) > timeoutMinutes * 60) {
+                    if (Duration.between(extension.getProcessDate(), now).get(ChronoUnit.SECONDS) > timeoutMinutes * 60) {
                         serviceCall.log(LogLevel.INFO, "Cancelling service call by timeout");
                         serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
                     }

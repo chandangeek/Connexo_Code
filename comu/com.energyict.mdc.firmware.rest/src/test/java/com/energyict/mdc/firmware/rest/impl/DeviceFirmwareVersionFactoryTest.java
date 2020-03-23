@@ -127,7 +127,6 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(communicationVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(communicationVersion.getFirmwareVersion()).thenReturn("COM-001-ACT");
         when(communicationVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
-        when(communicationVersion.getLocalizedStatus()).thenReturn("Final");
         when(communicationVersion.getImageIdentifier()).thenReturn("10.4.0");
         when(activatedCommunicationVersion.getDevice()).thenReturn(device);
         when(activatedCommunicationVersion.getFirmwareVersion()).thenReturn(communicationVersion);
@@ -159,8 +158,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(firmwareMessage);
 
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock
-                        .getArguments()[0], false)
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0], false)
         );
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class), eq(true))).thenAnswer(
                 invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0], true)

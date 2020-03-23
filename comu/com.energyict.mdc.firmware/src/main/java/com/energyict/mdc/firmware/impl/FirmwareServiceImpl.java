@@ -817,8 +817,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 TranslationKeys.values(),
                 FirmwareType.values(),
                 new TranslationKey[]{FirmwareCheck.CHECK_PREFIX},
-                FirmwareCheckTranslationKeys.values(),
-                FirmwareStatusTranslationKeys.values()
+                FirmwareCheckTranslationKeys.values()
         )
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
@@ -936,10 +935,5 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         } else {
             serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get().cancel();
         }
-    }
-
-    @Override
-    public String getLocalizedFirmwareStatus(FirmwareStatus firmwareStatus) {
-        return FirmwareStatusTranslationKeys.translationFor(firmwareStatus, thesaurus);
     }
 }

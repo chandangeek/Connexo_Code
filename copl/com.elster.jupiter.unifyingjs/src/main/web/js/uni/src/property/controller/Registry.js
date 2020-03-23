@@ -80,9 +80,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.webservices.WebServiceIssue',
         'Uni.property.view.property.WebServiceCombo',
         'Uni.property.view.property.CloseIssueForm',
-        'Uni.property.view.property.DynamicCombobox',
-        'Uni.property.view.property.ValidationRuleCombo',
-        'Uni.property.view.property.BigDecimal'
+        'Uni.property.view.property.DynamicCombobox'
     ],
 
     /**
@@ -122,7 +120,7 @@ Ext.define('Uni.property.controller.Registry', {
         LONG: 'Uni.property.view.property.Number',
         NONE_OR_TIMEDURATION: 'Uni.property.view.property.NoneOrTimeDuration',
         NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
-        NUMBER: 'Uni.property.view.property.BigDecimal',
+        NUMBER: 'Uni.property.view.property.DecimalNumber',
         OBISCODE: 'Uni.property.view.property.ObisCode',
         PASSWORD: 'Uni.property.view.property.Password',
         QUANTITY: 'Uni.property.view.property.Quantity',
@@ -159,8 +157,7 @@ Ext.define('Uni.property.controller.Registry', {
         CUSTOM_EVENT_TYPE: 'Uni.property.view.property.CustomEventTypeReference',
         EXCLUDED_COM_TASKS: 'Uni.property.view.property.comtasks.ComTasks',
         ENDPOINT_CONFIGURATION_LIST: 'Uni.property.view.property.webservices.WebServiceIssue',
-        DYNAMIC_COMBOBOX: 'Uni.property.view.property.DynamicCombobox',
-        VALIDATION_RULES_DROPDOWN: 'Uni.property.view.property.ValidationRuleCombo'
+        DYNAMIC_COMBOBOX: 'Uni.property.view.property.DynamicCombobox'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

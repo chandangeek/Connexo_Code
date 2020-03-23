@@ -3,10 +3,8 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
@@ -49,7 +47,7 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
             dataSourceInterval = Pair.of("0", "0");
         } else {
             String[] intervals = valueDataSourceInterval.split(",");
-            dataSourceInterval = Pair.of(intervals[0].trim(), intervals[1].trim());
+            dataSourceInterval =  Pair.of(intervals[0].trim(),intervals[1].trim());
         }
     }
 
@@ -84,12 +82,17 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     }
 
     @Override
-    public void process(SAPMeterReadingDocumentCollectionData collectionData) {
-        collectionData.calculate();
+    public boolean isBulk() {
+        return true;
     }
 
     @Override
-    public boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular, ReadingType readingType) {
+    public boolean isSingle() {
         return true;
+    }
+
+    @Override
+    public void process(SAPMeterReadingDocumentCollectionData collectionData) {
+        collectionData.calculate();
     }
 }

@@ -27,7 +27,7 @@ public class BeaconMessageValidator {
             return null;
         }
 
-        return String.valueOf(deviceMessageAttribute.getValue());
+        return (String) deviceMessageAttribute.getValue();
     }
 
     public static DeviceMessageAttribute getDeviceMessageAttribute(DeviceMessage deviceMessage, String attributeName) {

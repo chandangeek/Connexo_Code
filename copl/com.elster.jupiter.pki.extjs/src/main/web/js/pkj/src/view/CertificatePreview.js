@@ -106,18 +106,6 @@ Ext.define('Pkj.view.CertificatePreview', {
                         {
                             fieldLabel: Uni.I18n.translate('general.signatureAlgorithm', 'PKJ', 'Signature algorithm'),
                             name: 'signatureAlgorithm'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('general.ejbca.endentity', 'PKJ', 'End Entity'),
-                            name: 'endEntityName'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('general.ejbca.caname', 'PKJ', 'CA Name'),
-                            name: 'caName'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('general.ejbca.certprofile', 'PKJ', 'Certificate profile'),
-                            name: 'certProfileName'
                         }
                     ]
                 }

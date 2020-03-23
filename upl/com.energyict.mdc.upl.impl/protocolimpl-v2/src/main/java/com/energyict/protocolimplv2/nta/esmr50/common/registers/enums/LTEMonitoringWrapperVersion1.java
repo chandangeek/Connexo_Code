@@ -5,9 +5,11 @@ import com.energyict.dlms.axrdencoding.Structure;
 
 /**
  * Created by Paul van Minderhout on 11/07/2019.
+ */
 
- LTE_quality_of_service
-
+/**
+ LTE_quality_of_
+ service
  Represent the quality of service for the LTE network
  LTE_qos_type ::= structure
  {
@@ -132,17 +134,19 @@ public class LTEMonitoringWrapperVersion1 extends LTEMonitoringWrapper{
     }
 
     public String toString(){
-        return "T3402:" + t3402 + SEP +
-                "T3412:" + t3412 + SEP +
-                "T3412ext2:" + t3412ext2 + SEP +
-                "T3324:" + t3324 + SEP +
-                "TeDRX:" + teDrx + SEP +
-                "TPTW:" + tptw + SEP +
-                "(N)RSRQ:" + rsrq + SEP +
-                "(N)RSRP:" + rsrp + SEP +
-                "qRxlevMin:" + qRxlevMin + SEP +
-                "qRxlevMinCE-r13:" + qRxlevMinCEr13 + SEP +
-                "qRxlevMinCE1-r13:" + qRxlevMinCE1r13 + SEP;
+        StringBuilder sb = new StringBuilder();
+        sb.append("T3402:").append(t3402).append(SEP);
+        sb.append("T3412:").append(t3412).append(SEP);
+        sb.append("T3412ext2:").append(t3412ext2).append(SEP);
+        sb.append("T3324:").append(t3324).append(SEP);
+        sb.append("TeDRX:").append(teDrx).append(SEP);
+        sb.append("TPTW:").append(tptw).append(SEP);
+        sb.append("(N)RSRQ:").append(rsrq).append(SEP);
+        sb.append("(N)RSRP:").append(rsrp).append(SEP);
+        sb.append("qRxlevMin:").append(qRxlevMin).append(SEP);
+        sb.append("qRxlevMinCE-r13:").append(qRxlevMinCEr13).append(SEP);
+        sb.append("qRxlevMinCE1-r13:").append(qRxlevMinCE1r13).append(SEP);
+        return sb.toString();
     }
 
     public long getT3412ext2() {
@@ -153,9 +157,9 @@ public class LTEMonitoringWrapperVersion1 extends LTEMonitoringWrapper{
         return t3324;
     }
 
-    public long getTeDrx() { return teDrx; }
+    public long getTeDrx() { return teDrx; };
 
-    public long getTptw() { return tptw; }
+    public long getTptw() { return tptw; };
 
     public int getqRxlevMinCEr13() {
         return qRxlevMinCEr13;

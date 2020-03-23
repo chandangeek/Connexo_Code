@@ -5,15 +5,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 
 import com.elster.jupiter.util.Checks;
 
-import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
-
 import java.time.Instant;
 import java.util.Optional;
 
-public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
-
-    private static final String LRN_XML_NAME = "UtilitiesMeasurementTaskID";
-
+public class UtilitiesDeviceRegisterMessage {
     private String obis;
     private String recurrenceCode;
     private String lrn;
@@ -54,6 +49,10 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
         return timeZone;
     }
 
+    public boolean isValid() {
+        return lrn != null;
+    }
+
     public class Builder {
 
         private Builder() {
@@ -84,9 +83,6 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
         }
 
         public UtilitiesDeviceRegisterMessage build() {
-            if (lrn == null) {
-                addMissingField(LRN_XML_NAME);
-            }
             return UtilitiesDeviceRegisterMessage.this;
         }
 

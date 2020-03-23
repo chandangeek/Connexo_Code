@@ -28,9 +28,9 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayPr
 
 public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    private List<DeviceMessageSpec> supportedMessages;
+    protected List<DeviceMessageSpec> supportedMessages;
 
-    private A2MessageExecutor messageExecutor;
+    protected A2MessageExecutor messageExecutor;
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
@@ -104,15 +104,4 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
         return Optional.empty();
     }
 
-    public PropertySpecService getPropertySpecService() {
-        return propertySpecService;
-    }
-
-    public NlsService getNlsService() {
-        return nlsService;
-    }
-
-    public Converter getConverter() {
-        return converter;
-    }
 }

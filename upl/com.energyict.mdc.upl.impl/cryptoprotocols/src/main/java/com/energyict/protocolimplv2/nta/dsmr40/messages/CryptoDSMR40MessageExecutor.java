@@ -1,15 +1,21 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
-import com.energyict.common.CommonCryptoMessageExecutor;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.common.CommonCryptoMessageExecutor;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +33,7 @@ public class CryptoDSMR40MessageExecutor extends Dsmr40MessageExecutor {
         super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor);
         this.commonCryptoMessageExecutor = new CommonCryptoMessageExecutor(protocol, collectedDataFactory, issueFactory);
     }
+
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
@@ -48,11 +55,6 @@ public class CryptoDSMR40MessageExecutor extends Dsmr40MessageExecutor {
     @Override
     protected AbstractMessageExecutor getMbusMessageExecutor() {
         return new CryptoDSMR40MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
-    }
-
-    @Override
-    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        commonCryptoMessageExecutor.renewKey(pendingMessage, keyAccessorTypeExtractor);
     }
 
     @Override

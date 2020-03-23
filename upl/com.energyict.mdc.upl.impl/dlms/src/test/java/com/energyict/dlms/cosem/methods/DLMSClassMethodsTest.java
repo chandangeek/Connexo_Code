@@ -19,7 +19,7 @@ public class DLMSClassMethodsTest {
             ChangeOfSupplierManagementMethods.values(),
             ChangeOfTenantManagementMethods.values(),
             ChangeOfTenantManagementMethods.values(),
-            MBusClientMethods.values(),
+            MbusClientMethods.values(),
             PrivacyEnhancingDataAggregationMethods.values(),
             SpecialDaysTableMethods.values(),
             SupplierIdMethods.values(),

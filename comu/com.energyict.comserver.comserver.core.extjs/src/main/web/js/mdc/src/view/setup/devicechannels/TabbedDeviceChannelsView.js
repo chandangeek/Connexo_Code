@@ -170,12 +170,11 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                             count = store.getCount();
 
                                         for (var i = 0; i < count; i++) {
-                                            var record = store.getAt(i);
-                                            if ((record.get('value') !== null && record.get('value') !== undefined )||
-                                                record.get('collectedValue') ||
-                                                record.get('collectedValue') == 0 ||
-                                                record.get('validationResult').main === 'suspect' ||
-                                                record.get('validationResult').bulk === 'suspect')
+                                            if (store.getAt(i).get('value') ||
+                                                store.getAt(i).get('collectedValue') ||
+                                                store.getAt(i).get('collectedValue') == 0 ||
+                                                store.getAt(i).get('validationResult').main === 'suspect' ||
+                                                store.getAt(i).get('validationResult').bulk === 'suspect')
                                             {
                                                 noItemsSteps && noItemsSteps.setVisible(false);
                                                 addReadingsButton && addReadingsButton.setVisible(false);

@@ -60,7 +60,7 @@ Ext.define('Uni.property.view.property.EventTime', {
 
         var fieldKey = this.initialConfig.property.getData().key;
 
-        if (fieldKey === "BasicDataCollectionRuleTemplate.threshold" || fieldKey === "SuspectCreationRuleTemplate.threshold") {
+        if (fieldKey === "BasicDataCollectionRuleTemplate.threshold") {
             this.occurencesFieldLabel = Uni.I18n.translate('general.create.issues.when', 'UNI', 'Create issues when at least');
         } else if (fieldKey === "BasicDeviceAlarmRuleTemplate.threshold") {
             this.occurencesFieldLabel = Uni.I18n.translate('general.create.alarms.when', 'UNI', 'Create alarms when at least');

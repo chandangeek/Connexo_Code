@@ -17,12 +17,9 @@ import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_4_9;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_6;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_7;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_7_2;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_8;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -265,13 +262,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .put(version(10, 2), UpgraderV10_2.class)
                         .put(version(10, 3), UpgraderV10_3.class)
                         .put(version(10, 4), UpgraderV10_4.class)
-                        .put(version(10, 4, 9), UpgraderV10_4_9.class)
                         .put(version(10, 5), UpgraderV10_5.class)
                         .put(version(10, 6), UpgraderV10_6.class)
-                        .put(version(10, 7), UpgraderV10_7.class)
-                        .put(version(10, 7, 2), UpgraderV10_7_2.class)
-                        .put(version(10, 8), UpgraderV10_8.class)
-                        .build()
+                        .put(version(10, 7), UpgraderV10_7.class).build()
         );
     }
 
@@ -634,10 +627,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds) {
+    public Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds){
         Map<Long, List<String>> issuesPerReason = new HashMap<>();
 
-        if (deviceIds.size() == 0) {
+        if (deviceIds.size() == 0){
             return issuesPerReason;
         }
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT " +
@@ -1000,7 +993,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
 
         // filter by SNOOZEDATETIME
-        if (filter.getUntilSnoozeDateTime().isPresent()) {
+        if (filter.getUntilSnoozeDateTime().isPresent()){
             condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
         }
 
@@ -1016,7 +1009,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
 
         // filter by SNOOZEDATETIME
-        if (filter.getUntilSnoozeDateTime().isPresent()) {
+        if (filter.getUntilSnoozeDateTime().isPresent()){
             condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
         }
         return condition;

@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
@@ -19,12 +18,10 @@ import java.util.Optional;
 public class MeterReadingDocumentCreateBulkEndpoint extends AbstractInboundEndPoint implements SmartMeterMeterReadingDocumentERPBulkCreateRequestCIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
-    private final Thesaurus thesaurus;
 
     @Inject
-    MeterReadingDocumentCreateBulkEndpoint(ServiceCallCommands serviceCallCommands, Thesaurus thesaurus) {
+    MeterReadingDocumentCreateBulkEndpoint(ServiceCallCommands serviceCallCommands) {
         this.serviceCallCommands = serviceCallCommands;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -32,7 +29,7 @@ public class MeterReadingDocumentCreateBulkEndpoint extends AbstractInboundEndPo
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request).ifPresent(requestMessage -> {
 
-                MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder(thesaurus)
+                MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder()
                         .from(requestMessage)
                         .build();
                 SetMultimap<String, String> values = HashMultimap.create();

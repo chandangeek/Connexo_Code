@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -19,7 +19,7 @@ public class CrlRequestTaskPropertyImpl implements CrlRequestTaskProperty {
 
     public enum Fields {
         TASK("recurrentTask"),
-        CRL_SIGNER("crlSigner"),
+        SECURITY_ACCESSOR("securityAccessor"),
         CA_NAME("caName");
 
         private final String javaFieldName;
@@ -45,7 +45,7 @@ public class CrlRequestTaskPropertyImpl implements CrlRequestTaskProperty {
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    private Reference<CertificateWrapper> crlSigner = ValueReference.absent();
+    private Reference<SecurityAccessor> securityAccessor = ValueReference.absent();
 
     @NotNull(message = MessageSeeds.Keys.FIELD_REQUIRED, groups = {Save.Create.class, Save.Update.class})
     private String caName;
@@ -67,13 +67,13 @@ public class CrlRequestTaskPropertyImpl implements CrlRequestTaskProperty {
     }
 
     @Override
-    public CertificateWrapper getCRLSigner() {
-        return crlSigner.get();
+    public SecurityAccessor getSecurityAccessor() {
+        return securityAccessor.get();
     }
 
     @Override
-    public void setCrlSigner(CertificateWrapper certificate) {
-        this.crlSigner.set(certificate);
+    public void setSecurityAccessor(SecurityAccessor securityAccessor) {
+        this.securityAccessor.set(securityAccessor);
     }
 
     @Override

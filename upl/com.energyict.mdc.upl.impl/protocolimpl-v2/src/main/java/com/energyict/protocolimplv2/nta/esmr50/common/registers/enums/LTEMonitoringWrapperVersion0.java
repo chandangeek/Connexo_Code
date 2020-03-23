@@ -5,8 +5,10 @@ import com.energyict.dlms.axrdencoding.Structure;
 
 /**
  * Created by iulian on 8/18/2016.
+ */
 
- LTE_quality_of_service
+/**
+ * LTE_quality_of_service
  Represent the quality of service for the LTE network
  LTE_qos_type ::= structure
  {
@@ -55,11 +57,13 @@ public class LTEMonitoringWrapperVersion0 extends LTEMonitoringWrapper {
     }
 
     public String toString(){
-        return  "T3402:" + t3402 + SEP +
-                "T3412:" + t3412 + SEP +
-                "RSRQ:" + rsrq + SEP +
-                "RSRP:" + rsrp + SEP +
-                "qRxlevMin:" + qRxlevMin + SEP;
+        StringBuilder sb = new StringBuilder();
+        sb.append("T3402:").append(t3402).append(SEP);
+        sb.append("T3412:").append(t3412).append(SEP);
+        sb.append("RSRQ:").append(rsrq).append(SEP);
+        sb.append("RSRP:").append(rsrp).append(SEP);
+        sb.append("qRxlevMin:").append(qRxlevMin).append(SEP);
+        return sb.toString();
     }
 
 }

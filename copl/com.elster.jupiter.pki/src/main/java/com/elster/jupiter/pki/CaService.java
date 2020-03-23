@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.pki;
 
-import com.elster.jupiter.rest.util.IdWithNameInfo;
-
 import aQute.bnd.annotation.ProviderType;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
@@ -88,13 +86,5 @@ public interface CaService {
      */
     String getPkiInfo();
 
-    /**
-     * @return list of available end entities in EJBCA
-     */
-    List<IdWithNameInfo> getEndEntities();
-
-    List<IdWithNameInfo> getCaName(int endEntityId);
-
-    List<IdWithNameInfo> getCertificateProfile(int endEntityId);
 }
 

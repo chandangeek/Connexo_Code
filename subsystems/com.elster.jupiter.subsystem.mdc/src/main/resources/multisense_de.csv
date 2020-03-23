@@ -8287,7 +8287,6 @@ PR1;DOMAIN;upl.property.v2.edp.readCache;Read cache;Cache lesen;;;;;
 PR1;DOMAIN;upl.property.v2.eict.timezone;Timezone;Zeitzone;;;;;
 PR1;DOMAIN;upl.property.v2.elster.source;Source;Quelle;;;;;
 PR1;DOMAIN;upl.property.v2.nta.readCache;Read cache;Cache lesen;;;;;
-PR1;DOMAIN;upl.property.v2.nta.compactFrames;Compact Frames;Kompakte Rahmen;;;;;
 PR1;DOMAIN;upl.property.v2.tasks.address;Node address;Knotenadresse;;;;;
 PR1;DOMAIN;upl.property.v2.tasks.retries;Retries;Erneute Versuche;;;;;
 PR1;DOMAIN;upl.property.v2.tasks.timeout;Timeout;Zeitbegrenzung;;;;;
@@ -8964,7 +8963,6 @@ PR1;DOMAIN;upl.property.v2.edp.serverUpperMacAddress;Server upper MAC address;Ob
 PR1;DOMAIN;upl.property.v2.eict.timezone.description;Timezone;Zeitzone;;;;;
 PR1;DOMAIN;upl.property.v2.elster.source.description;Source;Quelle;;;;;
 PR1;DOMAIN;upl.property.v2.nta.readCache.description;Read cache;Cache lesen;;;;;
-PR1;DOMAIN;upl.property.v2.nta.compactFrames.description;Pushing compact frames of data;Kompakter datenrahmen schieben;;;;;
 PR1;DOMAIN;upl.property.v2.nta.serverLowerMacAddress;Server lower MAC address;Untere Server-MAC-Adresse;;;;;
 PR1;DOMAIN;upl.property.v2.tasks.address.description;Node address;Knotenadresse;;;;;
 PR1;DOMAIN;upl.property.v2.tasks.retries.description;Retries;Erneute Versuche;;;;;

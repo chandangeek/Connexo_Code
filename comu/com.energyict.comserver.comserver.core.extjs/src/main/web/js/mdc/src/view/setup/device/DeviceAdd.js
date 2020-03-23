@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
         'Mdc.widget.DeviceConfigurationField'
     ],
     labelWidth: 250,
-    formWidth: 1000,
+    formWidth: 650,
     deviceTypeStore: undefined,
 
     initComponent: function () {
@@ -35,11 +35,10 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                         buttonAlign: 'left',
                         layout: {
                             type: 'vbox',
-                            align: 'left'
+                            align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: me.labelWidth,
-                            width: 750
+                            labelWidth: me.labelWidth
                         },
                         items: [
                             {

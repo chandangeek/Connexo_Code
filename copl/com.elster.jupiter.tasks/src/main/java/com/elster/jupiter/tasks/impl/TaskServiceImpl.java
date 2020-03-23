@@ -36,7 +36,6 @@ import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
@@ -44,6 +43,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
@@ -69,7 +69,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks",
@@ -140,15 +139,14 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                 InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                 dataModel,
                 InstallerImpl.class,
-                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(Version.version(10, 3), V10_3SimpleUpgrader.class)
-                        .put(Version.version(10, 4), V10_4SimpleUpgrader.class)
-                        .put(Version.version(10, 4, 9), UpgraderV10_4_9.class)
-                        .put(Version.version(10, 6), UpgraderV10_6.class)
-                        .put(Version.version(10, 7), UpgraderV10_7.class)
-                        .put(Version.version(10, 7, 1), UpgraderV10_7_1.class)
-                        .put(Version.version(10, 8), UpgraderV10_8.class)
-                        .build()
+                ImmutableMap.of(
+                        Version.version(10, 3), V10_3SimpleUpgrader.class,
+                        Version.version(10, 4), V10_4SimpleUpgrader.class,
+                        Version.version(10, 6), UpgraderV10_6.class,
+                        Version.version(10, 7), UpgraderV10_7.class,
+                        Version.version(10, 7, 1), UpgraderV10_7_1.class
+
+                )
         );
     }
 

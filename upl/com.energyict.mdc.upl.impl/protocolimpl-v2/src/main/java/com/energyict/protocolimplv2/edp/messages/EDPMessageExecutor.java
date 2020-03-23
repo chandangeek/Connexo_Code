@@ -257,6 +257,19 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
         activityCalendar.writeActivatePassiveCalendarTime(new OctetString(axdrDateTime.getBEREncodedByteArray(), 0));
     }
 
+    private AXDRDateTime convertUnixToDateTime(long epochInMillis, TimeZone timeZone) throws IOException {
+        try {
+            AXDRDateTime dateTime;
+            Calendar cal = Calendar.getInstance(timeZone);
+            cal.setTimeInMillis(epochInMillis);
+            dateTime = new AXDRDateTime(cal.getTime(), timeZone);
+            return dateTime;
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            throw new IOException("Could not parse " + epochInMillis + " to a long value");
+        }
+    }
+
     private void closeRelay(OfflineDeviceMessage pendingMessage) throws IOException {
         int relayNumber = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         ObisCode obisCode = ProtocolTools.setObisCodeField(RELAY_CONTROL_OBISCODE, 1, (byte) relayNumber);

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.esmr50.common.messages;
 
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.encryption.AesGcm;
 import com.energyict.encryption.BitVector;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
@@ -20,6 +21,7 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MbusMessageExecutor;
+import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusClient;
 import com.energyict.sercurity.KeyRenewalInfo;
 
 import javax.naming.ConfigurationException;
@@ -80,21 +82,22 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
         journal(Level.INFO,"Complete key data " + ProtocolTools.getHexStringFromBytes(keyData));
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
-            MBusClient mbusClient = getMBusClient(serialNumber);
+            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
+            ESMR50MbusClient mBusClient5 = new ESMR50MbusClient(mbusClient.getProtocolLink(), mbusClient.getObjectReference(), MbusClientAttributes.VERSION9);
 
             if (MBusKeyID.FUAK.equals(keyID)) {
                 journal(Level.INFO, "Invoking FUAK method");
-                mbusClient.transferFUAK(keyData);
+                mBusClient5.transferFUAK(keyData);
                 journal(Level.INFO, "Successfully wrote the new MBus FUAK");
             } else if (MBusKeyID.P2.equals(keyID)) {
 
                 journal(Level.INFO, "Invoking transportKey method with the full key data");
                 // this is to pass the key to the g-meter
-                mbusClient.setTransportKey(keyData);
+                mBusClient5.setTransportKey(keyData);
 
                 journal(Level.INFO, "Invoking encryptionKey method to send the openKey: " + newOpenKey);
                 // this is to store the key
-                mbusClient.setEncryptionKey(ProtocolTools.getBytesFromHexString(newOpenKey,2));
+                mBusClient5.setEncryptionKey(ProtocolTools.getBytesFromHexString(newOpenKey,2));
 
                 journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
             }
@@ -326,7 +329,7 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
         journal(Level.FINE, factory.toString());
 
         byte[] kcc = getKCC();
-        byte[] reversedKCC = kcc;
+        byte[] reversedKCC = getKCC();
         ProtocolTools.reverseByteArray(reversedKCC);
         journal(Level.FINE, "Updating image header with the new values:");
 
@@ -380,10 +383,5 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
     protected void journal(Level logLevel, String message) {
         getProtocol().journal(logLevel, message);
-    }
-
-    @Override
-    protected MBusClient getMBusClient(String serialNumber) throws IOException {
-        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
     }
 }

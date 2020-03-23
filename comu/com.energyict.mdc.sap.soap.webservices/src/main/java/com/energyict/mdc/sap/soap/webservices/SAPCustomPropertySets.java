@@ -95,7 +95,8 @@ public interface SAPCustomPropertySets {
     Map<String, RangeSet<Instant>> getProfileId(ReadingContainer readingContainer, ReadingType readingType, Range<Instant> range);
 
     /**
-     * This method returns start of the first active LRN.
+     * This method returns start of the first LRN after the latest transition to operational stage
+     * or the date of this transition, if no such LRN is present.
      */
-    Optional<Instant> getStartDate(Device device, Instant now);
+    Optional<Instant> getStartDate(Device device);
 }

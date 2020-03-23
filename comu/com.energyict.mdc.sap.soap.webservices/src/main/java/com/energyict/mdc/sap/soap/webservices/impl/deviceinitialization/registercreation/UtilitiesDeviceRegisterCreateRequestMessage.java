@@ -3,9 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegBulkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg;
 
@@ -13,16 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMessage {
+public class UtilitiesDeviceRegisterCreateRequestMessage {
 
     private String requestID;
     private String uuid;
     private boolean bulk;
-    private Thesaurus thesaurus;
     private List<UtilitiesDeviceRegisterCreateMessage> utilitiesDeviceRegisterCreateMessages = new ArrayList<>();
 
-    private UtilitiesDeviceRegisterCreateRequestMessage(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    private UtilitiesDeviceRegisterCreateRequestMessage() {
     }
 
     public boolean isBulk() {
@@ -41,8 +37,12 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
         return utilitiesDeviceRegisterCreateMessages;
     }
 
-    static UtilitiesDeviceRegisterCreateRequestMessage.Builder builder(Thesaurus thesaurus) {
-        return new UtilitiesDeviceRegisterCreateRequestMessage(thesaurus).new Builder();
+    static UtilitiesDeviceRegisterCreateRequestMessage.Builder builder() {
+        return new UtilitiesDeviceRegisterCreateRequestMessage().new Builder();
+    }
+
+    public boolean isValid() {
+        return requestID != null || uuid != null;
     }
 
     public class Builder {
@@ -61,7 +61,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                     .builder()
                     .from(requestMessage)
-                    .build(thesaurus));
+                    .build());
             return this;
         }
 
@@ -78,15 +78,11 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
                             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                                     .builder()
                                     .from(message)
-                                    .build(thesaurus)));
+                                    .build()));
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateRequestMessage build(Thesaurus thesaurus) {
-            if (requestID == null && uuid == null) {
-                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
-            }
-            utilitiesDeviceRegisterCreateMessages.forEach(utilitiesDeviceRegisterCreateMessage -> addMissingFields(utilitiesDeviceRegisterCreateMessage.getMissingFieldsSet()));
+        public UtilitiesDeviceRegisterCreateRequestMessage build() {
             return UtilitiesDeviceRegisterCreateRequestMessage.this;
         }
 

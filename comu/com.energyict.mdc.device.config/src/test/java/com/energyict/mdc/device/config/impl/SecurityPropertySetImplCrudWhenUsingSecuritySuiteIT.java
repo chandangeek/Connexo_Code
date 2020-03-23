@@ -31,7 +31,6 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -296,8 +295,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
                     injector.getInstance(SecurityManagementService.class),
-                    injector.getInstance(MeteringTranslationService.class),
-                    injector.getInstance(MessageService.class));
+                    injector.getInstance(MeteringTranslationService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();
@@ -320,8 +318,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(protocolPluggableService.adapt(any(SecuritySuite.class))).thenAnswer(invocationOnMock -> UPLSecuritySuiteLevelAdapter.adaptTo(((SecuritySuite) invocationOnMock.getArguments()[0]), null));
-        when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLAuthenticationLevelAdapter.adaptTo(((AuthenticationDeviceAccessLevel) invocationOnMock
-                .getArguments()[0]), null));
+        when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLAuthenticationLevelAdapter.adaptTo(((AuthenticationDeviceAccessLevel) invocationOnMock.getArguments()[0]), null));
         when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLEncryptionLevelAdapter.adaptTo(((EncryptionDeviceAccessLevel) invocationOnMock.getArguments()[0]), null));
         when(protocolPluggableService.adapt(any(RequestSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLRequestSecurityLevelAdapter.adaptTo(((RequestSecurityLevel) invocationOnMock.getArguments()[0]), null));
         when(protocolPluggableService.adapt(any(ResponseSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLResponseSecurityLevelAdapter.adaptTo(((ResponseSecurityLevel) invocationOnMock.getArguments()[0]), null));

@@ -4,18 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Encrypter;
-import com.elster.jupiter.orm.FieldType;
-import com.elster.jupiter.orm.IllegalTableMappingException;
-import com.elster.jupiter.orm.LifeCycleClass;
-import com.elster.jupiter.orm.MappingException;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.TableAudit;
-import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.audit.TableAuditImpl;
@@ -30,7 +19,6 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 
 import com.google.common.base.Joiner;
-import com.google.common.cache.CacheStats;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -82,9 +70,6 @@ public class TableImpl<T> implements Table<T> {
     @SuppressWarnings("unused")
     private int position;
     private boolean cached;
-    private Long cacheTtl;
-    private long cacheMaximumSize;
-    private boolean cacheRecordStat;
     private boolean autoInstall = true;
     private boolean forceJournal = false;
     private int indexOrganized = -1;
@@ -204,25 +189,12 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public boolean isCached() {
-        return this.cached;
+        return cached;
     }
 
     @Override
     public void cache() {
-        cache(600000L, 10000L, true);
-    }
-
-    @Override
-    public void cache(long cacheTtl, long maximumSize, boolean recordStat) {
         this.cached = true;
-        this.cacheTtl = cacheTtl;
-        this.cacheMaximumSize = maximumSize;
-        this.cacheRecordStat = recordStat;
-    }
-
-    @Override
-    public CacheStats getCacheStats() {
-        return cache.getCacheStats();
     }
 
     @Override
@@ -835,7 +807,7 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
-        cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
     }
 
     private void checkMapped(Column column) {
@@ -1100,7 +1072,7 @@ public class TableImpl<T> implements Table<T> {
 
     PartitionMethod getPartitionMethod() {
         if (partitionColumn().isPresent()) {
-            return isIndexOrganized() ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;
+            return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;
         }
         if (refPartitionConstraint().isPresent()) {
             return PartitionMethod.REFERENCE;
@@ -1248,18 +1220,18 @@ public class TableImpl<T> implements Table<T> {
     public TableAudit getTableAudit(Object object) {
         // find first by ContextColumn
         Optional<TableAudit> findByContext = tableAuditList.stream()
-                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() > 0 && tableAudit.getContextPkValues(object).size() > 0)
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0 && tableAudit.getContextPkValues(object).size()>0)
                 .findFirst();
 
-        if (findByContext.isPresent()) {
+        if (findByContext.isPresent()){
             return findByContext.get();
         }
 
         Optional<TableAudit> findOnlyByDomain = tableAuditList.stream()
-                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() > 0)
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0)
                 .findFirst();
 
-        if (findOnlyByDomain.isPresent()) {
+        if (findOnlyByDomain.isPresent()){
             return findOnlyByDomain.get();
         }
         return tableAuditList.get(0); //this is not correct, but should not happened

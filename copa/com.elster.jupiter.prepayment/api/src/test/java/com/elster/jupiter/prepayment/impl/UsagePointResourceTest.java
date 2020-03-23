@@ -131,7 +131,7 @@ public class UsagePointResourceTest {
         Response response = usagePointResource.updateContactor(INVALID_USAGE_POINT_MRID, new ContactorInfo(), uriInfo);
 
         // Asserts
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.NO_SUCH_USAGE_POINT).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_USAGE_POINT.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -143,7 +143,7 @@ public class UsagePointResourceTest {
         Response response = usagePointResource.updateContactor(USAGE_POINT_MRID, new ContactorInfo(), uriInfo);
 
         // Asserts
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.NO_CURRENT_METER_ACTIVATION).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_CURRENT_METER_ACTIVATION.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -155,7 +155,7 @@ public class UsagePointResourceTest {
         Response response = usagePointResource.updateContactor(USAGE_POINT_MRID, new ContactorInfo(), uriInfo);
 
         // Asserts
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.NO_METER_IN_ACTIVATION).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_METER_IN_ACTIVATION.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -167,7 +167,7 @@ public class UsagePointResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.INCOMPLETE_CONTACTOR_INFO).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.INCOMPLETE_CONTACTOR_INFO.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -183,7 +183,7 @@ public class UsagePointResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.TOLERANCE_WITHOUT_LOAD_LIMIT).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.TOLERANCE_WITHOUT_LOAD_LIMIT.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -198,7 +198,7 @@ public class UsagePointResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.INCOMPLETE_LOADLIMIT).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.INCOMPLETE_LOADLIMIT.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -213,7 +213,7 @@ public class UsagePointResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.INCOMPLETE_LOADLIMIT).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.INCOMPLETE_LOADLIMIT.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -228,7 +228,7 @@ public class UsagePointResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, thesaurus.getFormat(MessageSeeds.UNKNOWN_UNIT_CODE).format());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.UNKNOWN_UNIT_CODE.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 

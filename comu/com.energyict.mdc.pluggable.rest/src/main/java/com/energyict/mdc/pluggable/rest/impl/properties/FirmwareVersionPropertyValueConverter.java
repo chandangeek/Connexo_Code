@@ -31,14 +31,14 @@ public class FirmwareVersionPropertyValueConverter implements PropertyValueConve
         return new FirmwareVersionInfo((FirmwareVersion) domainValue);
     }
 
-    private class FirmwareVersionInfo {
+    private class FirmwareVersionInfo{
         public Object id;
         public String name;
         public String imageIdentifier;
 
-        FirmwareVersionInfo(FirmwareVersion firmwareVersion) {
+        FirmwareVersionInfo(FirmwareVersion firmwareVersion){
             this.id = firmwareVersion.getId();
-            this.name = firmwareVersion.getFirmwareVersion() + " (" + firmwareVersion.getLocalizedStatus() + ")";
+            this.name = firmwareVersion.getFirmwareVersion();
             this.imageIdentifier = firmwareVersion.getImageIdentifier();
         }
     }

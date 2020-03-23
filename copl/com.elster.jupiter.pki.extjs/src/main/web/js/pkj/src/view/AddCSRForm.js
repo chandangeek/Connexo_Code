@@ -54,103 +54,6 @@ Ext.define('Pkj.view.AddCSRForm', {
                 name: 'keyEncryptionMethod',
                 required: true,
                 allowBlank: false,
-                forceSelection: true,
-                listeners: {
-                    select: function (combo, records) {
-                        var keyTypeName = records[0].get('name');
-                        var endEntityCombo = me.down('#pkj-csr-add-form-end-entity');
-                        var caCombo = me.down('#pkj-csr-add-form-ca-name');
-                        var cpCombo = me.down('#pkj-csr-add-form-cert-profile');
-                        if ( keyTypeName == "HSM") {
-                            endEntityCombo.setDisabled(true);
-                            endEntityCombo.setVisible(false);
-
-                            caCombo.setDisabled(true);
-                            caCombo.setVisible(false);
-
-                            cpCombo.setDisabled(true);
-                            cpCombo.setVisible(false);
-                        }
-                        else {
-                            endEntityCombo.getStore().load();
-                            endEntityCombo.setDisabled(false);
-                            endEntityCombo.setVisible(true);
-
-                            caCombo.setDisabled(false);
-                            caCombo.setVisible(true);
-
-                            cpCombo.setDisabled(false);
-                            cpCombo.setVisible(true);
-                        }
-
-                    }
-                }
-            },
-            {
-                xtype: 'combo',
-                fieldLabel: Uni.I18n.translate('general.ejbca.endentity', 'PKJ', 'End Entity'),
-                emptyText: Uni.I18n.translate('general.select.ejbca.endentity', 'PKJ', 'Select an available end entity...'),
-                store: 'Pkj.store.EJBCAEndEntities',
-                queryMode: 'local',
-                displayField: 'name',
-                valueField: 'name',
-                editable: false,
-                disabled: true,
-                hidden: true,
-                itemId: 'pkj-csr-add-form-end-entity',
-                name: 'endEntityName',
-                allowBlank: false,
-                required: true,
-                forceSelection: true,
-                listeners: {
-                    select: function (combo, records) {
-                        var eId = records[0].get('id');
-                        var caCombo = me.down('#pkj-csr-add-form-ca-name');
-                        var caStore = caCombo.getStore();
-                        caCombo.setDisabled(false);
-                        caStore.getProxy().setUrl(eId);
-                        caStore.load();
-
-                        var cpCombo = me.down('#pkj-csr-add-form-cert-profile');
-                        var certStore = cpCombo.getStore();
-                        certStore.getProxy().setUrl(eId);
-                        cpCombo.setDisabled(false);
-                        certStore.load();
-                    }
-                }
-            },
-            {
-                xtype: 'combo',
-                fieldLabel: Uni.I18n.translate('general.ejbca.caname', 'PKJ', 'CA Name'),
-                emptyText: Uni.I18n.translate('general.select.ejbca.caname', 'PKJ', 'Select an available CA name...'),
-                store: 'Pkj.store.EJBCACaNames',
-                queryMode: 'local',
-                displayField: 'name',
-                valueField: 'name',
-                editable: false,
-                disabled: true,
-                hidden: true,
-                itemId: 'pkj-csr-add-form-ca-name',
-                name: 'caName',
-                allowBlank: false,
-                required: true,
-                forceSelection: true
-            },
-            {
-                xtype: 'combo',
-                fieldLabel: Uni.I18n.translate('general.ejbca.certprofile', 'PKJ', 'Certificate profile'),
-                emptyText: Uni.I18n.translate('general.select.ejbca.certprofile', 'PKJ', 'Select an available certificate profile...'),
-                store: 'Pkj.store.EJBCACertProfiles',
-                queryMode: 'local',
-                displayField: 'name',
-                valueField: 'name',
-                editable: false,
-                disabled: true,
-                hidden: true,
-                itemId: 'pkj-csr-add-form-cert-profile',
-                name: 'certificateProfileName',
-                allowBlank: false,
-                required: true,
                 forceSelection: true
             },
             {
@@ -237,7 +140,6 @@ Ext.define('Pkj.view.AddCSRForm', {
                 ]
             }
         ];
-
         me.callParent(arguments);
     }
 });

@@ -35,10 +35,10 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 name: 'task'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.crlSigner', 'MDC', 'CRL signer alias'),
+                                fieldLabel: Uni.I18n.translate('general.securityAccessor', 'MDC', 'Security accessor'),
                                 xtype: 'displayfield',
                                 itemId: 'crl-security-accessor',
-                                name: 'crlSigner'
+                                name: 'securityAccessor'
                             },
                             {
                                 xtype: 'displayfield',

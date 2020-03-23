@@ -11,9 +11,6 @@ Ext.define('Uni.property.store.DynamicComboboxData', {
     proxy: {
         type: 'rest',
         url: '',
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined,
         reader: {
             type: 'json'
         },
@@ -24,15 +21,10 @@ Ext.define('Uni.property.store.DynamicComboboxData', {
     getPropertiesData: function(){
         var records = this.getRange();
         if (records && records.length){
-            var propertiesData = Ext.Array.map(records[0] && records[0].getData() && records[0].getData().propertiesData, function(item){
-                item['value'] = item.value || item.name;
-                return item;
-            })
-
-            if (propertiesData){
+            if (records[0] && records[0].getData() && records[0].getData().propertiesData){
                 return Ext.create('Ext.data.Store', {
-                    fields: ['id', 'name', 'value'],
-                    data : propertiesData
+                    fields: ['id', 'name'],
+                    data : records[0].getData().propertiesData
                 })
             }
         }

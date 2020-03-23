@@ -46,7 +46,7 @@ public class CreateConfirmationMessageFactory {
         confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
 
         if (serviceCall.getState().equals(DefaultState.CANCELLED)) {
-            confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
+            confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
         } else if (serviceCall.getState().equals(DefaultState.SUCCESSFUL)) {
             confirmationMessage.setLog(createSuccessfulLog());
         } else if (serviceCall.getState().equals(DefaultState.FAILED)) {
@@ -59,13 +59,13 @@ public class CreateConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
+    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
         confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         if (!message.getUtilitiesDeviceCreateMessages().isEmpty()) {
             confirmMsg.setUtilitiesDevice(createUtilitiesDevice(message.getUtilitiesDeviceCreateMessages().get(0).getDeviceId()));
         }
-        confirmMsg.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
+        confirmMsg.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
         return confirmMsg;
     }
 

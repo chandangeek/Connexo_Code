@@ -243,7 +243,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
         if (executePendingTaskOnInboundConnection) {
             //execute remaining pending tasks on same inbound connection
-            return super.prepareAll(root, comTaskExecutions, false);
+            return super.prepareAll(comTaskExecutions, false);
         } else {
             return root;
         }

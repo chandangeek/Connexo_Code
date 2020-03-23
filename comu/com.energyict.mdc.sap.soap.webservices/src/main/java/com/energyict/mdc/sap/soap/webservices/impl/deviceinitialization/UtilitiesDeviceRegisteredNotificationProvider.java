@@ -195,12 +195,12 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         Instant createTime = clock.instant();
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifMsg();
         notificationMessage.setMessageHeader(createMessageHeader(createTime));
-        notificationMessage.setUtilitiesDevice(createBody(sapDeviceId, createTime));
+        notificationMessage.setUtilitiesDevice(createBody(sapDeviceId));
 
         return notificationMessage;
     }
 
-    private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createBody(String sapDeviceId, Instant now) {
+    private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createBody(String sapDeviceId) {
         UtilsDvceERPSmrtMtrRegedNotifUtilsDvce utilsDevice = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
         UtilitiesDeviceID deviceId = objectFactory.createUtilitiesDeviceID();
         deviceId.setValue(sapDeviceId);
@@ -211,7 +211,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
         if (device.isPresent()) {
-            sapCustomPropertySets.getStartDate(device.get(), now).ifPresent(sD -> smartMeter.setStartDate(sD));
+            sapCustomPropertySets.getStartDate(device.get()).ifPresent(sD -> smartMeter.setStartDate(sD));
         }
 
         utilsDevice.setID(deviceId);

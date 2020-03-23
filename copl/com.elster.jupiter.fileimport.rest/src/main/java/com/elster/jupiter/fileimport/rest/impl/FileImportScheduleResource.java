@@ -32,7 +32,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.Range;
@@ -72,7 +71,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -156,7 +154,7 @@ public class FileImportScheduleResource {
     @Produces(MediaType.TEXT_PLAIN)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.IMPORT_FILE})
     @Transactional
-    public Response uploadFile(@FormDataParam("file") InputStream inputStream,
+    public Response uploadFile(@FormDataParam("file")InputStream inputStream,
                                @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
                                @FormDataParam("scheduleId") InputStream scheduleId) throws IOException {
         long importScheduleId = parseScheduleId(scheduleId);
@@ -363,15 +361,9 @@ public class FileImportScheduleResource {
                                                           @PathParam("occurrenceId") long occurrenceId,
                                                           @Context SecurityContext securityContext) {
 
-        Optional<Order> timeStampOrder = queryParameters.getSortingColumns().stream()
-                .filter(col -> col.getName().equals("timestamp"))
-                .findAny();
-
         List<ImportLogEntry> logEntries = fileImportService
                 .getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
-                .getLogsFinder().from(queryParameters)
-                .sorted("position", !timeStampOrder.isPresent() || timeStampOrder.get().ascending())
-                .find();
+                .getLogsFinder().from(queryParameters).find();
 
         List<ImportLogEntryInfo> data = logEntries.stream().map(ImportLogEntryInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
@@ -386,7 +378,7 @@ public class FileImportScheduleResource {
                 });
     }
 
-    private ImportSchedule fetchAndLockImportSchedule(FileImportScheduleInfo info) {
+    private ImportSchedule fetchAndLockImportSchedule(FileImportScheduleInfo info){
         return fileImportService.findAndLockImportScheduleByIdAndVersion(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> fileImportService.getImportSchedule(info.id).map(ImportSchedule::getVersion).orElse(null))
@@ -404,10 +396,10 @@ public class FileImportScheduleResource {
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    private java.nio.file.Path getPath(String value) {
+    private java.nio.file.Path getPath(String value){
         try {
             return fileSystem.getPath(value);
-        } catch (InvalidPathException e) {
+        } catch (InvalidPathException e ){
             throw new IllegalArgumentException(e);
         }
     }
@@ -427,10 +419,10 @@ public class FileImportScheduleResource {
 
     private void loadFile(InputStream inputStream, String fileName, String importFolder, String appServerName) {
         File copiedFile = new File(importFolder + File.separator + FilenameUtils.getBaseName(fileName) + ".tmp");
-        try (FileOutputStream outputStream = new FileOutputStream(copiedFile.getPath()); InputStream ins = inputStream) {
+        try(FileOutputStream outputStream = new FileOutputStream(copiedFile.getPath()); InputStream ins = inputStream ) {
             byte[] buffer = new byte[1024];
             int length;
-            while ((length = ins.read(buffer)) != -1) {
+            while((length = ins.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, length);
                 if (outputStream.getChannel().size() > MAX_FILE_SIZE) {
                     outputStream.close();
@@ -448,7 +440,7 @@ public class FileImportScheduleResource {
 
     private long parseScheduleId(InputStream inputStream) {
         Scanner sc = new Scanner(inputStream);
-        if (sc.hasNextLong()) {
+        if(sc.hasNextLong()) {
             return sc.nextLong();
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);

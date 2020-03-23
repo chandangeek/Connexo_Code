@@ -61,6 +61,4 @@ public interface DataExportOccurrence {
     void summarize(String summaryMessage);
 
     TaskOccurrence getTaskOccurrence();
-
-    void setToFailed();
 }

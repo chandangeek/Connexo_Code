@@ -93,7 +93,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
                 minutes = nextRunDate.minutes();
 
             record.set('nextRun', nextRun);
-            record.set('crlSigner', { id: record.get('crlSigner')});
+            record.set('securityAccessor', { id: record.get('securityAccessor')});
             record.set('logLevel', { id: record.get('logLevel')});
 
             var timeUnit = recurrenceType.getValue(),
@@ -235,7 +235,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
         model.load(router.arguments.taskManagementId, {
             success: function (record) {
                 var periodicalExpressionInfo = record.get('periodicalExpressionInfo') ? record.get('periodicalExpressionInfo') : {};
-                record.set('crlSigner', record.get('crlSigner').id);
+                record.set('securityAccessor', record.get('securityAccessor').id);
                 record.set('logLevel', record.get('logLevel').id);
                 setTitleFunc.call(controller, record.get('caName'));
                 form.loadRecord(record);
@@ -329,7 +329,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
                 var periodicalExpressionInfo = record.get('periodicalExpressionInfo');
 
                 record.set('id', me.getType());
-                record.set('crlSigner', record.get('crlSigner').name);
+                record.set('securityAccessor', record.get('securityAccessor').name);
                 record.set('logLevel', record.get('logLevel').name);
                 record.set('task', record.get('task').name);
                 widget.loadRecord(record);

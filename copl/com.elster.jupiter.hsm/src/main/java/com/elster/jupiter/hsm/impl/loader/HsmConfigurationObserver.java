@@ -1,7 +1,8 @@
-package com.elster.jupiter.hsm.impl.loader;
+package com.elster.jupiter.hsm.impl;
 
-import com.elster.jupiter.hsm.impl.HsmConfigurationService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.impl.loader.HsmResourceLoader;
+import com.elster.jupiter.hsm.impl.loader.HsmResourceLoaderFactory;
 import com.elster.jupiter.hsm.impl.resources.HsmReloadableConfigResource;
 import com.elster.jupiter.hsm.impl.resources.HsmReloadableJssConfigResource;
 import com.elster.jupiter.hsm.model.HsmBaseException;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Objects;
 
 public class HsmConfigurationObserver implements Runnable {
 

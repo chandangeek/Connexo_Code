@@ -6,7 +6,7 @@ Ext.define('Mdc.crlrequest.model.CrlRequest', {
     extend: 'Uni.model.Version',
 
     fields: [
-        {name: 'crlSigner', type: 'auto', defaultValue: null},
+        {name: 'securityAccessor', type: 'auto', defaultValue: null},
         {name: 'caName', type: 'string', defaultValue: null},
         {name: 'logLevel', type: 'auto', defaultValue: null},
         {name: 'periodicalExpressionInfo', type: 'auto', defaultValue: null},

@@ -77,7 +77,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat()));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createPartiallySuccessfulLog());
             } else {
@@ -162,7 +162,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
                 messageBody.setLog(createSuccessfulLog());
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
-                messageBody.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat()));
+                messageBody.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
                 messageBody.setLog(createPartiallySuccessfulLog());
             } else {

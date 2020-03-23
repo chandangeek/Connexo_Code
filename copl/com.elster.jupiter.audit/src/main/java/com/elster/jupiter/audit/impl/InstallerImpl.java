@@ -24,20 +24,17 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final UserService userService;
-    private final InstallerV10_7_1Impl installerV10_7_1;
 
     @Inject
-    InstallerImpl(DataModel dataModel, UserService userService, InstallerV10_7_1Impl installerV10_7_1) {
+    InstallerImpl(DataModel dataModel, UserService userService) {
         this.dataModel = dataModel;
         this.userService = userService;
-        this.installerV10_7_1 = installerV10_7_1;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         userService.addModulePrivileges(this);
-        installerV10_7_1.install(dataModelUpgrader, logger);
     }
 
     @Override

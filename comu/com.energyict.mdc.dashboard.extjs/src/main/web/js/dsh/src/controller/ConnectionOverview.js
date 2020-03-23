@@ -89,9 +89,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
                 var proxy = reportsStore.getProxy();
                 proxy.setExtraParam('category', 'MDC');
                 proxy.setExtraParam('subCategory', 'Device Connections');
-                Ext.Ajax.suspendEvent('requestexception');
                 reportsStore.load(function (records) {
-                    Ext.Ajax.resumeEvent('requestexception');
                     var quickLinks = Ext.isArray(me.getQuickLinks().data) ? me.getQuickLinks().data : [];
                     Ext.each(records, function (record) {
                         var reportName = record.get('name');

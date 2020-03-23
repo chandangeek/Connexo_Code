@@ -51,8 +51,8 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
                     && exportTask.get().getReadingDataSelectorConfig().get().getExportItems().stream()
                     .filter(item -> ((EndDevice) item.getDomainObject()).getId() == endDeviceEntry.getMember().getId())
                     .allMatch(item -> {
-                        Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdIntervalForChannelOnDevice(Long.parseLong(endDeviceEntry.getMember().getAmrId()),
-                                item.getReadingType().getMRID());
+                        Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdIntervalForChannelOnDevice(endDeviceEntry.getMember()
+                                .getId(), item.getReadingType().getMRID());
                         if (lastProfileIdInterval.isPresent()) {
                             if (lastProfileIdInterval.get().getEnd() == null) {
                                 return false;

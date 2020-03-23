@@ -75,7 +75,7 @@ import java.util.stream.Collectors;
 public class JbpmTaskResource {
 
     private static final String PROPERTY = "property";
-    private static final String DEFAULT_SORTING = " order by p.START_DATE DESC";
+    private static final String DEFAULT_SORTING = " order by p.START_DATE";
 
     @Inject
     @PersistenceUnit(unitName = "org.jbpm.domain")
@@ -529,7 +529,7 @@ public class JbpmTaskResource {
                     "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
                     "where UPPER (v.VARIABLEID) = UPPER (:variableid) and UPPER (v.VALUE) = UPPER (:variablevalue) " +
                     "and p.STATUS = 1 OR p.STATUS = 0" +
-                    "order by p.START_DATE DESC";
+                    "order by p.START_DATE";
             Query query = em.createNativeQuery(queryString);
             query.setParameter("variableid", variableId);
             query.setParameter("variablevalue", variableValue);
@@ -649,7 +649,7 @@ public class JbpmTaskResource {
             String queryString = "select DISTINCT p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION " +
                     "from processinstancelog p " +
                     "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
-                    "where UPPER (v.VARIABLEID) = UPPER (:variableid) and UPPER (v.VALUE) = UPPER (:variablevalue)";
+                    "where UPPER (v.VARIABLEID) = UPPER (:variableid) and UPPER (v.VALUE) = UPPER (:variablevalue) ";
 
             queryString += addFilterToQuery(filterProperties, true);
             queryString += DEFAULT_SORTING;

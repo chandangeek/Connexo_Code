@@ -435,12 +435,10 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                                             }
                                      });
                                  }else{
-                                      wizard.setLoading(false);
                                       propertyForm.loadRecord(startProcessRecord);
                                       propertyForm.show();
                                  }
                              } else {
-                                 wizard.setLoading(false);
                                  propertyForm.hide();
                              }
                          },

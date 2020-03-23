@@ -266,7 +266,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         valueField: 'id',
                         listeners: {
                             change: function (checkBox, value) {
-                                if (this.originalValue != value) {
+                                if (this.originalValue !== value) {
                                     me.down('#fwc-campaign-send-connection-strategy-reset').enable();
                                 } else {
                                     me.down('#fwc-campaign-send-connection-strategy-reset').disable();
@@ -337,7 +337,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         valueField: 'id',
                         listeners: {
                             change: function (checkBox, value) {
-                                if (this.originalValue != value) {
+                                if (this.originalValue !== value) {
                                     me.down('#fwc-campaign-validation-connection-strategy-reset').enable();
                                 } else {
                                     me.down('#fwc-campaign-validation-connection-strategy-reset').disable();

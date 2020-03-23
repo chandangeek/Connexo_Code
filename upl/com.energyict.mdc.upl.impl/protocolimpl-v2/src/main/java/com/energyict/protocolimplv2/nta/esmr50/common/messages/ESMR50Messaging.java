@@ -87,7 +87,6 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         // MBUS Setup
         supportedMessages.add(this.get(MBusSetupDeviceMessage.ChangeMBusAttributes));
         supportedMessages.add(this.get(MBusSetupDeviceMessage.MBusClientRemoteCommission));
-        supportedMessages.add(this.get(MBusSetupDeviceMessage.Reset_MBus_Client));
 
         // Network and Connectivity
         supportedMessages.add(this.get(NetworkConnectivityMessage.CHANGE_LTE_APN_NAME));

@@ -126,11 +126,6 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName(), TranslationKeys.REQUESTED_SCHEDULED_READING_DATE)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .specForValuesOf(new InstantFactory())
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.SCHEDULED_READING_DATE.javaName(), TranslationKeys.SCHEDULED_READING_DATE)
                         .describedAs(TranslationKeys.SCHEDULED_READING_DATE)
                         .fromThesaurus(thesaurus)
@@ -209,7 +204,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .describedAs(TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
-        );
+                );
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterReadingDocumentCreateResultDomainExtension> {
@@ -365,12 +360,6 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName())
-                    .since(Version.version(10, 7, 2))
-                    .add();
-            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
         }

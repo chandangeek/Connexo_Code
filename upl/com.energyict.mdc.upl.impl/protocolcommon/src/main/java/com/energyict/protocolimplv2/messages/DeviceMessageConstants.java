@@ -1285,7 +1285,7 @@ public final class DeviceMessageConstants {
     public static final String typeAttributeName = "type";
     public static final String typeAttributeDefaultTranslation = "type";
     public static final String destinationAddressAttributeName = "AlarmConfigurationMessage.destinationAddress";
-    public static final String destinationAddressAttributeDefaultTranslation = "Destination address (host:port)";
+    public static final String destinationAddressAttributeDefaultTranslation = "Destination address";
     public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
     public static final String messageTypeAttributeDefaultTranslation = "Message type";
 
@@ -1836,25 +1836,4 @@ public final class DeviceMessageConstants {
     public static final String ADP_LOW_LQIDefaultTranslation = "ADP Low LQI";
     public static final String ADP_HIGH_LQI = "DeviceMessageConstants.ADP_HIGH_LQI";
     public static final String ADP_HIGH_LQIDefaultTranslation = "ADP High LQI";
-
-    public static final String schedulerNumber = "schedulerNumber";
-    public static final String schedulerNumberDefaultTranslation = "Scheduler Number";
-    public static final String executionTime = "executionTime";
-    public static final String executionTimeDefaultTranslation = "Execution Time";
-
-    public static final String pushNumber = "pushNumber";
-    public static final String pushNumberDefaultTranslation = "Push number";
-    public static final String pushObjectList = "pushObjectList";
-    public static final String pushObjectListDefaultTranslation = "Push Object List";
-    public static final String communicationWindowStartTime = "communicationWindowStartTime";
-    public static final String communicationWindowStartTimeDefaultTranslation = "Communication Window Start Time";
-    public static final String communicationWindowStopTime = "communicationWindowStopTime";
-    public static final String communicationWindowStopTimeDefaultTranslation = "Communication Window Stop Time";
-    public static final String randomizationStartInterval = "randomizationStartInterval";
-    public static final String randomizationStartIntervalDefaultTranslation = "Randomization Start Interval";
-    public static final String numberOfRetries = "numberOfRetries";
-    public static final String numberOfRetriesDefaultTranslation = "Number Of Retries";
-    public static final String repetitionDelay = "repetitionDelay";
-    public static final String repetitionDelayDefaultTranslation = "Repetition Delay";
-
 }

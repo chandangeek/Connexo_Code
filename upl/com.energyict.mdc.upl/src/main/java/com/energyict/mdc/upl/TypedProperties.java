@@ -482,10 +482,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
             Map.Entry pairs = (Map.Entry) o;
             String key = (String) pairs.getKey();
             Object value = pairs.getValue();
-            if (value == null)
-                map.put(key, String.class.getName());
-            else
-                map.put(key, value.getClass().getName());
+            map.put(key, value.getClass().getName());
         }
         return map;
     }

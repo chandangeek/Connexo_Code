@@ -49,8 +49,6 @@ public class CertificateInfoFactory implements CertificateFormatter {
         setKeyEncryptionMethod(certificateWrapper, info);
         setX500Properties(certificateWrapper, info);
 
-        info.setCertificateRequestData(certificateWrapper.getCertificateRequestData());
-
         return info;
     }
 

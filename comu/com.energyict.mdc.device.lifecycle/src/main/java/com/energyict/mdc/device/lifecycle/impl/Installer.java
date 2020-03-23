@@ -8,6 +8,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleUpdater;
@@ -17,6 +18,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.EnumSet;
@@ -56,7 +58,12 @@ public class Installer implements FullInstaller {
     }
 
     private boolean isCheckbitsColumnPresent() {
-        return dataModel.doesColumnExist("DLD_AUTHORIZED_ACTION", "CHECKBITS");
+        try (Connection connection = dataModel.getConnection(false);
+             ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), "DLD_AUTHORIZED_ACTION", "CHECKBITS")) {
+            return resultSet.next();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     private void installChecksOnDefaultLifecycle() {

@@ -48,7 +48,6 @@ import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.topology.TopologyService;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
@@ -145,9 +144,6 @@ public class DeviceReadingsImporterFactoryTest {
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
         when(meteringService.getReadingTypeByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.getReadingType(anyString())).thenReturn(Optional.empty());
-        TopologyService topologyService = mock(TopologyService.class);
-        when(context.getTopologyService()).thenReturn(topologyService);
-        when(topologyService.getSlaveRegister(any(),any())).thenReturn(Optional.empty());
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -346,6 +342,86 @@ public class DeviceReadingsImporterFactoryTest {
     }
 
     @Test
+    public void testReadingDateIsNotCorrect() {
+        ZonedDateTime firstReadingDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationStartDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationEndDate = ZonedDateTime.of(2015, 8, 3, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime lastReadingDate = ZonedDateTime.of(2015, 8, 4, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;01/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501\n" +
+                "VPB0001;04/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100500";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        MeterActivation meterActivation = mockMeterActivation(Range.closedOpen(meterActivationStartDate.toInstant(), meterActivationEndDate.toInstant()));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION)
+                .format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION).format(3, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(lastReadingDate)));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
+    }
+
+    @Test
+    public void testReadingDateIsEqualsToMeterActivationDate() {
+        ZonedDateTime readingDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationStartDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;02/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        MeterActivation meterActivation = mockMeterActivation(Range.atLeast(meterActivationStartDate.toInstant()));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION).format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate)));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
+    }
+
+    @Test
+    public void testReadingDatesAreOnEdgesOfMeterActivation() {
+        ZonedDateTime firstReadingDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationStartDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationEndDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime lastReadingDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;01/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100\n" +
+                "VPB0001;02/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;101";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        mockChannel(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        MeterActivation meterActivation = mockMeterActivation(Range.closedOpen(meterActivationStartDate.toInstant(), meterActivationEndDate.toInstant()));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION)
+                .format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
+
+        ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
+        verify(device).store(readingArgumentCaptor.capture());
+        List<IntervalBlock> intervalBlocks = readingArgumentCaptor.getValue().getIntervalBlocks();
+        assertThat(intervalBlocks).hasSize(1);
+        assertThat(intervalBlocks.get(0).getReadingTypeCode()).isEqualTo("11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        List<IntervalReading> intervals = intervalBlocks.get(0).getIntervals();
+        assertThat(intervals).hasSize(1);
+        assertThat(intervals.get(0).getTimeStamp()).isEqualTo(lastReadingDate.toInstant());
+        assertThat(intervals.get(0).getValue()).isEqualTo(BigDecimal.valueOf(101L));
+    }
+
+    @Test
     public void testReadingTypeNotFound() {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
@@ -367,13 +443,11 @@ public class DeviceReadingsImporterFactoryTest {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        Device device = mockDevice("VPB0001");
-        Register register = mock(Register.class);
-        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
+        mockDevice("VPB0001");
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
         when(readingType.isRegular()).thenReturn(true);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(register.getReadingType()).thenReturn(readingType);
+
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
@@ -444,20 +518,14 @@ public class DeviceReadingsImporterFactoryTest {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        Device device = mockDevice("VPB0001");
-        ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
-        Register register = mock(Register.class);
-        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
-        when(register.getReadingType()).thenReturn(readingType);
-        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
-        when(register.getRegisterSpec()).thenReturn(registerSpec);
-        when(registerSpec.isTextual()).thenReturn(true);
+        mockDevice("VPB0001");
+        mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", false);
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }

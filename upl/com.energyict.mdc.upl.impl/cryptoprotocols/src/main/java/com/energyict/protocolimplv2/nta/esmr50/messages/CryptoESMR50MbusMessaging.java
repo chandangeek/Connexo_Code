@@ -1,15 +1,11 @@
 package com.energyict.protocolimplv2.nta.esmr50.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
@@ -19,9 +15,7 @@ import java.util.List;
 
 public class CryptoESMR50MbusMessaging extends ESMR50MbusMessaging {
 
-    public CryptoESMR50MbusMessaging(AbstractNtaMbusDevice mbusProtocol, PropertySpecService propertySpecService,
-                                     NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor,
-                                     KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    public CryptoESMR50MbusMessaging(AbstractNtaMbusDevice mbusProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(mbusProtocol, propertySpecService, nlsService, converter, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
@@ -32,13 +26,5 @@ public class CryptoESMR50MbusMessaging extends ESMR50MbusMessaging {
         supportedMessages.add(this.get(MBusSetupDeviceMessage.MBUS_TRANSFER_P2KEY));
         supportedMessages.add(this.get(MBusSetupDeviceMessage.MBUS_READ_DETAILED_VERSION_INFORMATION_TAG));
         return supportedMessages;
-    }
-
-    @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        if (DeviceMessageConstants.FUAKeyAttributeName.equals(propertySpec.getName())) {
-            return null;
-        }
-        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 }

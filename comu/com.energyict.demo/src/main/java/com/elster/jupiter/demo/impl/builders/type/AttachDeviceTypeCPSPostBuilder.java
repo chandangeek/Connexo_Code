@@ -13,25 +13,19 @@ import java.util.function.Consumer;
 public class AttachDeviceTypeCPSPostBuilder implements Consumer<DeviceType> {
     private final Provider<AttachEMeterInfoCPSPostBuilder> eMeterCpsInfoProvider;
     private final Provider<AttachDeviceSAPInfoCPSPostBuilder> deviceSapCpsInfoProvider;
-    private final Provider<AttachDeviceRegisterSAPInfoCPSPostBuilder> deviceRegisterSAPInfoCPSPostBuilderProvider;
-    private final Provider<AttachDeviceChannelSAPInfoCPSPostBuilder> channelSAPInfoCPSPostBuilderProvider;
+    private final Provider<AttachChannelSAPInfoCPSPostBuilder> channelSapCpsInfoProvider;
 
     @Inject
-    public AttachDeviceTypeCPSPostBuilder(Provider<AttachEMeterInfoCPSPostBuilder> eMeterCpsInfoProvider,
-                                          Provider<AttachDeviceSAPInfoCPSPostBuilder> deviceSapCpsInfoProvider,
-                                          Provider<AttachDeviceRegisterSAPInfoCPSPostBuilder> deviceRegisterSAPInfoCPSPostBuilderProvider,
-                                          Provider<AttachDeviceChannelSAPInfoCPSPostBuilder> channelSAPInfoCPSPostBuilderProvider) {
+    public AttachDeviceTypeCPSPostBuilder(Provider<AttachEMeterInfoCPSPostBuilder> eMeterCpsInfoProvider, Provider<AttachDeviceSAPInfoCPSPostBuilder> deviceSapCpsInfoProvider, Provider<AttachChannelSAPInfoCPSPostBuilder> channelSapCpsInfoProvider) {
         this.eMeterCpsInfoProvider = eMeterCpsInfoProvider;
         this.deviceSapCpsInfoProvider = deviceSapCpsInfoProvider;
-        this.channelSAPInfoCPSPostBuilderProvider = channelSAPInfoCPSPostBuilderProvider;
-        this.deviceRegisterSAPInfoCPSPostBuilderProvider = deviceRegisterSAPInfoCPSPostBuilderProvider;
+        this.channelSapCpsInfoProvider = channelSapCpsInfoProvider;
     }
 
     @Override
     public void accept(DeviceType deviceType) {
         this.eMeterCpsInfoProvider.get().accept(deviceType);
         this.deviceSapCpsInfoProvider.get().accept(deviceType);
-        this.channelSAPInfoCPSPostBuilderProvider.get().accept(deviceType);
-        this.deviceRegisterSAPInfoCPSPostBuilderProvider.get().accept(deviceType);
+        this.channelSapCpsInfoProvider.get().accept(deviceType);
     }
 }

@@ -8,8 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
-import com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate;
-import com.energyict.mdc.issue.datavalidation.impl.template.SuspectCreatedIssueCreationRuleTemplate;
 
 
 public enum TranslationKeys implements TranslationKey {
@@ -32,10 +30,7 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
     DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES("deviceLifecycleInDeviceStates", "Device lifecycle state in device type "),
     CLOSE_ACTION_DEVICE_EXCLUDED_FROM_CLOSING("action.issue.close.device.excluded", "Device ''{0}'' is excluded from autoclosure"),
-    SUSCPECT_CREATION_RULE_TEMPLATE_NAME("SuspectCreationRuleTemplateName", "Create issue when suspects created"),
-    SUSCPECT_CREATION_RULE_TEMPLATE_DESCRIPTION("SuspectCreationRuleTemplateDescription", "Create issue when suspects created"),
-    EVENT_TEMPORAL_THRESHOLD("eventTemporalThreshold", "Event time threshold"),
-    VALIDATION_RULES_PROPERTY(SuspectCreatedIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, "Validation rules");
+    ;
 
     private final String key;
     private final String defaultFormat;

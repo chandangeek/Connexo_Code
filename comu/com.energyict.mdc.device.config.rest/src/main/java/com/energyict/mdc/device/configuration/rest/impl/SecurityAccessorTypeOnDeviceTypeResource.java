@@ -57,7 +57,6 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     private final DeviceMessageService deviceMessageService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Thesaurus thesaurus;
-    protected static final String MASTERKEY = "MasterKey";
 
     @Inject
     public SecurityAccessorTypeOnDeviceTypeResource(ResourceHelper resourceHelper, SecurityManagementService securityManagementService,
@@ -226,27 +225,19 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     public Response removeSecurityAccessorTypeFromDeviceType(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, SecurityAccessorsForDeviceTypeInfo info) {
 
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
-        deviceType.getDeviceSecurityAccessorType()
+        Optional<SecurityAccessorType> any = deviceType.getDeviceSecurityAccessorType()
                 .stream()
                 .filter(f -> f.getWrappingSecurityAccessor().isPresent() && f.getWrappingSecurityAccessor().get().getId() == securityAccessorId)
-                .map(f -> f.getSecurityAccessor())
-                .findAny()
-                .ifPresent(securityAccessor -> {
-                    throw exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.SECACC_WRAPPER_IN_USE, securityAccessor.getName()).get();
-                });
+                .map(f -> f.getSecurityAccessor()).findAny();
+
+        if (any.isPresent()) {
+            throw exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.SECACC_WRAPPER_IN_USE, any.get().getName()).get();
+        }
 
         DeviceSecurityAccessorType securityAccessorType = deviceType.getDeviceSecurityAccessorType().stream()
                 .filter(kFType -> kFType.getSecurityAccessor().getId() == securityAccessorId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
-
-        deviceType.getConfigurations().stream()
-                .filter(deviceConfiguration -> securityAccessorType.getSecurityAccessor().equals(deviceConfiguration.getDeviceProtocolProperties().getProperty(MASTERKEY)))
-                .findAny()
-                .ifPresent(deviceConfiguration -> {
-                    throw exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.SECACC_MASTER_KEY_IN_USE, deviceConfiguration.getName()).get();
-                });
-
         if (deviceType.removeDeviceSecurityAccessorType(securityAccessorType)) {
             deviceType.update();
         }

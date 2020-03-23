@@ -80,7 +80,6 @@ Ext.define('Uni.form.field.DateTime', {
                 format: 'd M \'y',
                 width: '100%',
                 editable: false,
-                beforeBlur: Ext.emptyFn,
                 listeners: {
                     change: {
                         fn: me.onItemChange,

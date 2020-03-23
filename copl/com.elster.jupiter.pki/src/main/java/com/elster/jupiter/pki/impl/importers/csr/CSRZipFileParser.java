@@ -6,7 +6,8 @@ package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.impl.MessageSeeds;
-import org.apache.commons.lang3.StringUtils;
+
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.io.BufferedReader;

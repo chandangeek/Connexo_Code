@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestCustomPropertySet;
@@ -75,7 +76,7 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
                             .build();
             sendMessage(confirmationMessage, message.isBulk());
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 
@@ -201,11 +202,11 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
         }
     }
 
-    private void sendProcessError(MeterReadingDocumentCancellationRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
+    private void sendProcessError(MeterReadingDocumentCancellationRequestMessage message, MessageSeeds messageSeed) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         MeterReadingDocumentCancellationConfirmationMessage confirmationMessage =
                 MeterReadingDocumentCancellationConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId(), messageSeedArgs)
+                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

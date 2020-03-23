@@ -117,7 +117,6 @@ Ext.define('Uni.view.widget.WorkList', {
             dataview = me.down('#dtv-work-list');
 
         me.setLoading();
-        Ext.Ajax.suspendEvent('requestexception');
         Ext.Ajax.request({
             url: workItem.get('workItem').url,
             method: 'GET',
@@ -135,19 +134,7 @@ Ext.define('Uni.view.widget.WorkList', {
                 me.setLoading(false);
             },
             failure: function (response) {
-                countContainer.removeAll();
-                countContainer.add([
-                    {
-                        xtype: 'label',
-                        itemId: 'lbl-top-most',
-                        style: 'font-weight: normal; margin: 0px 0px 0px 5px',
-                        text: 'Connexo Flow is not available.'
-                    }
-                ]);
                 me.setLoading(false);
-            },
-            callback: function(){
-                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },

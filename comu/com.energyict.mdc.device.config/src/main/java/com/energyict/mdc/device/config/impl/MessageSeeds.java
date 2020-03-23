@@ -98,7 +98,6 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can''t change the load profile configuration of an existing channel configuration"),
     CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(11025, Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
     CHANNEL_SPEC_OVERFLOW_VALUE_INVALID(11026, Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be larger than 0 and smaller than " + Integer.MAX_VALUE),
-    CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_MAX(11027, Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED, "The maximum value is {max}."),
     DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required"),
     DEVICE_CONFIGURATION_DEVICE_TYPE_IS_REQUIRED(12002, "deviceConfig.deviceType.required", "The device type of the device configuration is required"),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_DELETE(12003, "deviceConfig.active", "You can''t remove an active device configuration"),
@@ -187,8 +186,7 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(15032, "securityAccessorTypeIsNotHSM", "The security accessor type ''{0}'' is not HSM"),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(15033, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),
     SECURITY_ACCESSOR_WRAPPER_IN_USE(15034, Keys.SECURITY_ACCESSOR_WRAPPER_IN_USE, "Security accessor is defined as wrapper for another security accessor"),
-    SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND(15035, Keys.SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND, "Found multiple security accessor type with name: {0}"),
-    VETO_DEVICETYPE_DELETION(15036, Keys.VETO_DEVICETYPE_DELETION_KEY, "Device type {0} is still in use by a device group", Level.SEVERE);
+    SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND(15035, Keys.SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND, "Found multiple security accessor type with name: {0}");
 
     private final int number;
     private final String key;
@@ -275,7 +273,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
         public static final String REGISTER_SPEC_DUPLICATE_REGISTER_TYPE = "register.spec.duplicate.register.type";
         public static final String CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "channelSpec.invalidNumberOfFractionDigits";
-        public static final String CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED = "channelSpec.numberOfFractionDigitsLargerThanExpected";
         public static final String CHANNEL_SPEC_INVALID_OVERFLOW_VALUE = "channelSpec.invalidOverflow";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
         public static final String SECURITY_PROPERTY_SET_IN_USE = "securityPropertySet.inUse";
@@ -325,8 +322,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SECURITY_ACCESSOR_TYPE_NOT_FOUND = "security.accessor.type.not.found";
         public static final String SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND = "security.accessor.type.multiple";
         public static final String SECURITY_ACCESSOR_WRAPPER_IN_USE = "security.accessor.type.in.use";
-        public static final String VETO_DEVICETYPE_DELETION_KEY = "devicetype.still.in.use.by.devicegroup";
-
 
     }
 }

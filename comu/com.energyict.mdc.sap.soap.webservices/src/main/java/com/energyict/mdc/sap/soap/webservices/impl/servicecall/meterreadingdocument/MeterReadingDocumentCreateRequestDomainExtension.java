@@ -11,13 +11,11 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -44,11 +42,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
 
         REFERENCE_ID("referenceID", "REFERENCE_ID"),
-        REFERENCE_UUID("referenceUuid", "REFERENCE_UUID"),
-
-        REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "REQUESTED_READING_DATE"),
-
-        ERROR_MESSAGE("errorMessage", "ERROR_MESSAGE");
+        REFERENCE_UUID("referenceUuid", "REFERENCE_UUID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -108,11 +102,6 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
     private String referenceID;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String referenceUuid;
-
-    private Instant requestedScheduledReadingDate;
-
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String errorMessage;
 
 
     public MeterReadingDocumentCreateRequestDomainExtension() {
@@ -228,9 +217,9 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
     }
 
     public void setCancelledBySap(boolean isCancelledBySap) {
-        if (isCancelledBySap) {
+        if(isCancelledBySap){
             setCancelledBySap("Yes");
-        } else {
+        }else{
             setCancelledBySap("No");
         }
     }
@@ -249,26 +238,6 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
 
     public void setReferenceUuid(String referenceUuid) {
         this.referenceUuid = referenceUuid;
-    }
-
-    public Instant getRequestedScheduledReadingDate() {
-        return requestedScheduledReadingDate;
-    }
-
-    public void setRequestedScheduledReadingDate(Instant requestedScheduledReadingDate) {
-        this.requestedScheduledReadingDate = requestedScheduledReadingDate;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public void setErrorMessage(MessageSeed messageSeed, Object... args) {
-        this.errorMessage = MessageFormat.format(messageSeed.getDefaultFormat(), args);
     }
 
 
@@ -291,8 +260,6 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         this.setCancelledBySap((String) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
         this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
         this.setReferenceUuid((String) propertyValues.getProperty(FieldNames.REFERENCE_UUID.javaName()));
-        this.setRequestedScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName()));
-        this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
 
     @Override
@@ -312,15 +279,13 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.getCancelledBySap());
         propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());
         propertySetValues.setProperty(FieldNames.REFERENCE_UUID.javaName(), this.getReferenceUuid());
-        propertySetValues.setProperty(FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName(), this.getRequestedScheduledReadingDate());
-        propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }
 
     @Override
     public void validateDelete() {
     }
 
-    public ServiceCall getServiceCall() {
+    public ServiceCall getServiceCall(){
         return serviceCall.get();
     }
 }

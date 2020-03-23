@@ -125,13 +125,11 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     @Override
     public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
-        // TODO: will need to be returned
-//        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
-//            if (!initFromCampaign) {
-//                throw new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
-//            }
-//        } else
-            if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
+            if (!initFromCampaign) {
+                throw new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
+            }
+        } else if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }
         return serviceCallService.getServiceCall(serviceCall.getId()).get();

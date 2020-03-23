@@ -20,7 +20,7 @@ import java.util.Set;
 
 public final class SkpProcessNotRunning implements ExecutableMicroCheck {
     private static final String PROCESS_NAME = "Service key provisioning";
-    private static final String PROCESS_VERSION = "1.1";
+    private static final String PROCESS_VERSION = "1.0";
     private final Thesaurus thesaurus;
     private final BpmService bpmService;
 

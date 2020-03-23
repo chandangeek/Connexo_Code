@@ -16,7 +16,6 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
@@ -43,8 +42,6 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_8SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
@@ -184,7 +181,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
     private volatile MeteringTranslationService meteringTranslationService;
-    private volatile MessageService messageService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -216,8 +212,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                           UpgradeService upgradeService,
                                           DeviceMessageSpecificationService deviceMessageSpecificationService,
                                           SecurityManagementService securityManagementService,
-                                          MeteringTranslationService meteringTranslationService,
-                                          MessageService messageService) {
+                                          MeteringTranslationService meteringTranslationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -244,7 +239,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setSecurityManagementService(securityManagementService);
         this.setMeteringTranslationService(meteringTranslationService);
         setUpgradeService(upgradeService);
-        this.setMessageService(messageService);
         this.activate();
     }
 
@@ -687,11 +681,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.securityManagementService = securityManagementService;
     }
 
-    @Reference
-    private void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -717,8 +706,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
-                bind(MessageService.class).toInstance(messageService);
-                bind(DeviceConfigurationServiceImpl.class).toInstance(DeviceConfigurationServiceImpl.this);
             }
         };
     }
@@ -735,11 +722,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         .put(Version.version(10, 4), UpgraderV10_4.class)
                         .put(Version.version(10, 4, 1), UpgraderV10_4_1.class)
                         .put(Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class)
-                        .put(Version.version(10, 4, 8), V10_4_8SimpleUpgrader.class)
-                        .put(Version.version(10, 4, 9), V10_4_9SimpleUpgrader.class)
                         .put(Version.version(10, 6), V10_6SimpleUpgrader.class)
                         .put(Version.version(10, 7), V10_7SimpleUpgrader.class)
-                        .put(Version.version(10, 8), UpgraderV10_8.class)
                         .build());
         initPrivileges();
     }
@@ -1142,7 +1126,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .find().stream()
                 .sorted(Comparator.comparing(DeviceType::getId))
                 .forEach(deviceType -> deviceLifeCycleInDeviceTypes.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
-                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), meteringTranslationService)));
+                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()),  meteringTranslationService)));
     }
 
 }

@@ -12,7 +12,6 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
-import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageID;
@@ -21,9 +20,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotific
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsDvce;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsMsmtTsk;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsPtDeliv;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UtilitiesPointOfDeliveryPartyID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UUID;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -68,12 +67,11 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
                 log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(podMsg.deviceId));
             }
         } else {
-            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format(podMsg.getMissingFields()));
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
         }
     }
 
-    private class PodMessage extends AbstractSapMessage {
-        private static final String POD_ID_XML_NAME = "UtilitiesPointOfDeliveryPartyID";
+    private class PodMessage {
         private String requestId;
         private String uuid;
         private String deviceId;
@@ -84,15 +82,10 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
             uuid = getUuid(msg);
             deviceId = getDeviceId(msg);
             podId = getPodId(msg);
-            if (requestId == null && uuid == null) {
-                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
-            }
-            if (deviceId == null) {
-                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
-            }
-            if (podId == null) {
-                addMissingField(POD_ID_XML_NAME);
-            }
+        }
+
+        private boolean isValid() {
+            return (requestId != null || uuid != null) && deviceId != null && podId != null;
         }
 
         private String getRequestId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {

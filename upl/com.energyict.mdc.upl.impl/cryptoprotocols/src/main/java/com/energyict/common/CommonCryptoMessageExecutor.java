@@ -1,5 +1,13 @@
 package com.energyict.common;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
@@ -7,14 +15,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.FrameCounterCache;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -22,15 +23,11 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
-import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
@@ -43,7 +40,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMa
  */
 public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
 
-    public static final String SEPARATOR = ",";
+    private static final String SEPARATOR = ",";
 
     public CommonCryptoMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -88,64 +85,6 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(getHsmIrreversibleKeyBytes(newKey));
         }
 
-    }
-
-    public void renewKey(OfflineDeviceMessage pendingMessage, KeyAccessorTypeExtractor keyAccessorTypeExtractor) throws IOException {
-        final String keyAccessorTypeNameAndTempValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
-        if (keyAccessorTypeNameAndTempValue == null) {
-            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
-        }
-
-        final String[] nameAndHsmKeyAndSmartMeterKey = keyAccessorTypeNameAndTempValue.split(CommonCryptoMessageExecutor.SEPARATOR);
-        String keyAccessorName;
-        if (nameAndHsmKeyAndSmartMeterKey.length > 2) {
-            keyAccessorName = nameAndHsmKeyAndSmartMeterKey[0];
-        } else {
-            throw new ProtocolException("Could not parse Key Accessor Type! Expected 3 parts.");
-        }
-
-        Optional<String> securityAttribute = keyAccessorTypeExtractor.correspondingSecurityAttribute(
-                keyAccessorName,
-                getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()
-        );
-
-        final RenewKeyData renewKeyData = new RenewKeyData(keyAccessorName, nameAndHsmKeyAndSmartMeterKey[1], nameAndHsmKeyAndSmartMeterKey[2]);
-
-        if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())) {
-            renewKeyFor(renewKeyData, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(),
-                    getCosemObjectFactory().getSecuritySetup().getObisCode(),
-                    getProtocol().getDlmsSession().getProperties().getClientMacAddress());
-        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())) {
-            renewKeyFor(renewKeyData, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(),
-                    getCosemObjectFactory().getSecuritySetup().getObisCode(),
-                    getProtocol().getDlmsSession().getProperties().getClientMacAddress());
-        } else {
-            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
-        }
-    }
-
-    private void renewKeyFor(RenewKeyData renewKeyData, int keyId, ObisCode clientSecuritySetupObis, int clientToChangeKeyFor) throws IOException {
-        String newKey = renewKeyData.getNewKey();
-        String newWrappedKey = renewKeyData.getNewWrappedKey();
-        byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
-
-        Array keyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(keyId));
-        keyData.addDataType(OctetString.fromByteArray(keyBytes));
-        keyArray.addDataType(keyData);
-
-        getProtocol().getDlmsSession().getCosemObjectFactory().getSecuritySetup(clientSecuritySetupObis).transferGlobalKey(keyArray);
-
-        // Use the new key immediately, if it was renewed for the current client
-        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
-        if (isForCurrentClient(clientToChangeKeyFor, clientInUse)) {
-            if (keyId == SecurityMessage.KeyID.AUTHENTICATION_KEY.getId()) {
-                getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(getHsmIrreversibleKeyBytes(newKey));
-            } else if (keyId == SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()) {
-                getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(getHsmIrreversibleKeyBytes(newKey));
-            }
-        }
     }
 
     /**

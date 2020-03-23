@@ -118,7 +118,7 @@ public final class UsagePointOpenIssueDataValidationImpl extends UsagePointIssue
     private Range<Instant> computeNotEstimatedBlockInterval(Channel channel, Instant timeStamp) {
         Range<Instant> interval;
         if (channel.isRegular()) {
-            interval = Range.openClosed(channel.getPreviousDateTime(timeStamp), timeStamp);
+            interval = Range.openClosed(timeStamp.minus(channel.getIntervalLength().get()), timeStamp);
         } else {
             List<BaseReadingRecord> readingsBefore = channel.getReadingsBefore(timeStamp, 1);
             if (readingsBefore.isEmpty()) {

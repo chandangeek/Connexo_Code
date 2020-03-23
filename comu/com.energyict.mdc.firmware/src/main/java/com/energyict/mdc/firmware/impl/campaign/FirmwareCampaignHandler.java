@@ -23,6 +23,7 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
@@ -100,12 +101,8 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             if (serviceCall.getState().equals(DefaultState.ONGOING)) {
                 FirmwareCampaign firmwareCampaign = serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get();
                 if (comTaskExecution.isFirmware()) {
-                    Optional<DeviceMessage> deviceMessageOptional = deviceInFirmwareCampaign.getDeviceMessage();
-                    if (deviceMessageOptional.isPresent() && deviceMessageOptional.get().getReleaseDate().isBefore(clock.instant())) {
-                        DeviceMessage deviceMessage = deviceMessageOptional.get();
-                        if (deviceMessage.getStatus().isPredecessorOf(DeviceMessageStatus.FAILED)) {
-                            deviceMessage.updateDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                        }
+                    Optional<DeviceMessage> deviceMessage = deviceInFirmwareCampaign.getDeviceMessage();
+                    if (deviceMessage.isPresent() && deviceMessage.get().getStatus().equals(DeviceMessageStatus.FAILED)) {
                         serviceCallService.lockServiceCall(serviceCall.getId());
                         serviceCall.requestTransition(DefaultState.FAILED);
                         serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());

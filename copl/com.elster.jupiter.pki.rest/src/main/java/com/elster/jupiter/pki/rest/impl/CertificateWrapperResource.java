@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CaService;
-import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
@@ -280,7 +279,7 @@ public class CertificateWrapperResource {
         PKCS10CertificationRequest pkcs10CertificationRequest = certificateWrapper.getCSR().get();
         timeout = timeout == 0 ? 30 : timeout;
         try {
-            X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest, certificateWrapper.getCertificateRequestData()).get(timeout, TimeUnit.SECONDS);
+            X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest).get(timeout, TimeUnit.SECONDS);
             try {
                 certificateWrapper.setCertificate(certificate, Optional.empty());
                 certificateWrapper.save();
@@ -295,8 +294,8 @@ public class CertificateWrapperResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest, Optional<CertificateRequestData> certificateRequestData) {
-        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest, certificateRequestData), Executors.newSingleThreadExecutor());
+    private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest) {
+        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest, Optional.empty()), Executors.newSingleThreadExecutor());
     }
 
     @POST
@@ -493,7 +492,6 @@ public class CertificateWrapperResource {
     private Response createClientCertificateWrapper(CsrInfo csrInfo, KeyType keyType) {
         ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(keyType, csrInfo.keyEncryptionMethod).alias(csrInfo.alias).add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
-        clientCertificateWrapper.setCertificateRequestData(csrInfo.getCertificateRequestData());
         X500Name x500Name = getX500Name(csrInfo);
         clientCertificateWrapper.generateCSR(x500Name);
         return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(clientCertificateWrapper)).build();
@@ -568,31 +566,6 @@ public class CertificateWrapperResource {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
         }
     }
-
-    @GET
-    @Path("ejbca/endentities")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCAEndEntity(){
-        return Response.ok(new Options(caService.getEndEntities())).build();
-    }
-
-    @GET
-    @Path("ejbca/caname/{endentityId}")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCACaName(@PathParam("endentityId") int endentityId){
-        return Response.ok(new Options(caService.getCaName(endentityId))).build();
-    }
-
-    @GET
-    @Path("ejbca/certificateprofile/{endentityId}")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCACertProfile(@PathParam("endentityId")int endentityId){
-        return Response.ok(new Options(caService.getCertificateProfile(endentityId))).build();
-    }
-
 
     private X500Name getX500Name(CsrInfo csrInfo) {
         X500NameBuilder x500NameBuilder = new X500NameBuilder();

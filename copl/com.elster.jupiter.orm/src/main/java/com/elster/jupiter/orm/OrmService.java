@@ -73,6 +73,4 @@ public interface OrmService {
     DataModelUpgrader getDataModelUpgrader(Logger logger);
 
     DataModelDifferencesLister getDataModelDifferences(Logger logger);
-
-    boolean isTest();
 }

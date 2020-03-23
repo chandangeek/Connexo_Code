@@ -83,7 +83,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                                     StatusChangeRequestCancellationConfirmation.NAME);
                         }
-                        handleMessage(StatusChangeRequestCancellationRequestMessage.builder(thesaurus)
+                        handleMessage(StatusChangeRequestCancellationRequestMessage.builder()
                                 .from(requestMessage)
                                 .build());
                     });
@@ -119,9 +119,10 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         try {
             if (message.isValid()) {
                 CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
+
                 sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, webServiceActivator.getMeteringSystemId(), clock.instant()));
             } else {
-                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
+                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
         } catch (BaseException be) {
             sendProcessError(message, be.getMessageSeed().getDefaultFormat());
@@ -184,9 +185,9 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
 
     }
 
-    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
-        log(LogLevel.SEVERE, thesaurus.getSimpleFormat(messageSeed).format(messageSeedArgs));
-        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs));
+    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, MessageSeeds messageSeed) {
+        log(LogLevel.SEVERE, thesaurus.getSimpleFormat(messageSeed).format());
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant()));
     }
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg) {

@@ -34,7 +34,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -237,7 +236,6 @@ public class InMemoryIntegrationPersistence {
     private AuditService auditService;
     private OrmService ormService;
     private MeteringZoneService meteringZoneService;
-    private MessageService messageService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -384,7 +382,6 @@ public class InMemoryIntegrationPersistence {
             this.calendarService = injector.getInstance(CalendarService.class);
             this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             this.securityManagementService = injector.getInstance(SecurityManagementService.class);
-            this.messageService = injector.getInstance(MessageService.class);
             injector.getInstance(UsagePointLifeCycleService.class);
             initHeadEndInterface();
             initializePrivileges();
@@ -404,7 +401,7 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializePrivileges() {
-        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService, messageService).getModuleResources()
+        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
                         .stream().toArray(String[]::new)));
         new InstallerV10_2Impl(userService, meteringService, serviceCallService, customPropertySetService).getModuleResources()
@@ -567,17 +564,9 @@ public class InMemoryIntegrationPersistence {
         return deviceProtocolService;
     }
 
-    public ValidationService getValidationService() {
-        return validationService;
-    }
+    public ValidationService getValidationService() { return validationService; }
 
-    public MeteringZoneService getMeteringZoneService() {
-        return meteringZoneService;
-    }
-
-    public MessageService getMessageService() {
-        return messageService;
-    }
+    public MeteringZoneService getMeteringZoneService() { return meteringZoneService; }
 
     public FiniteStateMachineService getFiniteStateMachineService() {
         return finiteStateMachineService;
@@ -694,7 +683,7 @@ public class InMemoryIntegrationPersistence {
 
                 if (id == DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue()) {
                     return Optional.of(DeviceMessageTestSpec.CONTACTOR_OPEN_WITH_OUTPUT);
-                } else if (id == DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue()) {
+                }  else if (id == DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue()) {
                     return Optional.of(DeviceMessageTestSpec.SET_DISPLAY_MESSAGE_WITH_OPTIONS);
                 } else {
                     DeviceMessageSpec deviceMessageSpec = new DeviceMessageSpec() {
