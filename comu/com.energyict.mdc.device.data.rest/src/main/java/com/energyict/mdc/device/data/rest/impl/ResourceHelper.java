@@ -778,17 +778,13 @@ public class ResourceHelper {
 
     private void setLastItemDeletable(List<CustomPropertySetInfo> cpsList) {
         if (!cpsList.isEmpty()) {
-            if (cpsList.get(cpsList.size() - 1).properties.stream().noneMatch(prop -> prop.required)) {
-                cpsList.get(cpsList.size() - 1).deletable = true;
-            }
+            cpsList.get(cpsList.size() - 1).deletable = true;
         }
     }
 
     private void setLastItemDeletable(RegisteredCustomPropertySet registeredCps, Object object, Optional<Long> id, CustomPropertySetInfo cpsInfo) {
         if (cpsInfo.timesliced && customPropertySetInfoFactory.isLastItem(registeredCps, cpsInfo.versionId, object, id)) {
-            if (cpsInfo.properties.stream().noneMatch(prop -> prop.required)) {
-                cpsInfo.deletable = true;
-            }
+            cpsInfo.deletable = true;
         }
     }
 
