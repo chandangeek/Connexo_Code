@@ -45,7 +45,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
             record = me.record,
             removeMenuItem = me.down('#time-sliced-custom-attribute-set-action-menu-remove-btn-id');
 
-        record.get('deletable') ? removeMenuItem.show() : removeMenuItem.hide();
+        record.get('removable') ? removeMenuItem.show() : removeMenuItem.hide();
         me.callParent(arguments);
 
 

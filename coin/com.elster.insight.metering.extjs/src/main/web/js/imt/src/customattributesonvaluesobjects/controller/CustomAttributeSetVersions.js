@@ -11,6 +11,10 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
     refs: [
         {
+            ref: 'versionsContainer',
+            selector: '#centerContainer'
+        },
+        {
             ref: 'restoreBtn',
             selector: '#centerContainer #custom-attributes-versions-restore-to-default-btn'
         }
@@ -20,7 +24,8 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         this.control({
             '#time-sliced-custom-attribute-set-action-menu-id': {
                 moveToEditPage: this.moveToEditPage,
-                moveToClonePage: this.moveToClonePage
+                moveToClonePage: this.moveToClonePage,
+                removeVersion: this.removeVersion
             },
             '#custom-attribute-set-versions-setup-id button[action=moveToAddVersionPage]': {
                 click: this.moveToAddPage
@@ -104,6 +109,38 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
     moveToClonePage: function (type, versionId) {
         var route = Imt.customattributesonvaluesobjects.service.RouteMap.getRoute(type, true, 'clone');
         this.navigateToRoute(route, type, versionId, false);
+    },
+    removeVersion: function (type, versionId, versionPeriod) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            router = me.getController('Uni.controller.history.Router'),
+            routeArguments = router.arguments,
+            routeQueryParams = router.queryParams,
+            cpsId = routeArguments.customAttributeSetId || routeQueryParams.customAttributeSetId,
+            usagePointName = routeArguments.usagePointId,
+            url = '/api/udr/usagepoints/' + usagePointName + '/customproperties/' + cpsId + '/versions/' + versionId;;
+
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'MDC', 'This version will on longer be available.'),
+                title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'MDC', 'Remove {0} version?', versionPeriod),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        Ext.Ajax.request({
+                            url: url,
+                            method: 'DELETE',
+                            success: function (response) {
+                                var data = Ext.JSON.decode(response.responseText).data;
+                                var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'MDC', '{0} version removed', versionPeriod)
+                                me.getApplication().fireEvent('acknowledge', messageText);
+                            },
+                            callback: function(){
+                                router.getRoute().forward(routeArguments, routeQueryParams);
+                            }
+                        });
+                    }
+                }
+            });
     },
 
     moveToAddPage: function (button) {
