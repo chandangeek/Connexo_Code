@@ -489,7 +489,7 @@ public class ResourceHelper {
     }
 
     public void deleteCustomPropertySetVersion(UsagePoint usagePoint, CustomPropertySetInfo customPropertySetInfo) {
-        if (customPropertySetInfo.deletable) {
+        if (customPropertySetInfo.removable) {
             UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySetInfo.id);
             List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(versionedPropertySet.getCustomPropertySet(), usagePoint);
             customPropertySetService.removeValuesFor(versionedPropertySet.getCustomPropertySet(), usagePoint);

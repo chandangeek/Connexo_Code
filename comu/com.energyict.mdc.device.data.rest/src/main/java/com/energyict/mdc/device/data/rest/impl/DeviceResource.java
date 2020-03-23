@@ -704,16 +704,19 @@ public class DeviceResource {
     @Transactional
     @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE})
-    public Response deleteDeviceCustomPropertyVersion(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
+    public Response removeDeviceCustomPropertyVersion(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        CustomPropertySetInfo cpsInfo = resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
+        resourceHelper.lockDeviceTypeOrThrowException(device.getDeviceType().getId(), device.getDeviceType().getVersion());
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(device.getId(), name, device.getVersion());
+
+        CustomPropertySetInfo cpsInfo = resourceHelper.getDeviceCustomPropertySetInfos(lockedDevice, Instant.ofEpochMilli(timeStamp))
                 .stream()
                 .filter(f -> f.id == cpsId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
-        if (cpsInfo.deletable) {
-            resourceHelper.deleteCustomPropertySetVersion(device, cpsInfo);
+        if (cpsInfo.removable) {
+            resourceHelper.deleteCustomPropertySetVersion(lockedDevice, cpsInfo);
         } else {
             throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, cpsInfo.name, Instant.ofEpochMilli(timeStamp));
         }
@@ -724,7 +727,7 @@ public class DeviceResource {
     @Transactional
     @Path("/{name}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public IntervalInfo getCurrentTimeInterval(@PathParam("name") String name, @PathParam("cpsId") long cpsId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(device, cpsId));

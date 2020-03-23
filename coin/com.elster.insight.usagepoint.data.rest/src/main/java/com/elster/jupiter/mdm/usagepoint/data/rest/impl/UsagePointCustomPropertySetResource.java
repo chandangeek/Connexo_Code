@@ -315,15 +315,16 @@ public class UsagePointCustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response deleteTimeSlicedCustomAttributeSetVersion(@PathParam("name") String usagePointName,
+    public Response removeTimeSlicedCustomAttributeSetVersion(@PathParam("name") String usagePointName,
                                                                            @PathParam("rcpsId") long rcpsId,
                                                                            @PathParam("timestamp") long timestamp) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
-        UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
+        UsagePoint lockedUsagePoint = resourceHelper.lockUsagePointOrThrowException(usagePoint.getId(), usagePoint.getVersion(), usagePointName);
+        UsagePointVersionedPropertySet versionedPropertySet = lockedUsagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
         CustomPropertySetInfo info = customPropertySetInfoFactory.getUsagePointFullInfo(versionedPropertySet,
                 versionedPropertySet.getUsagePoint(),
                 versionedPropertySet.getVersionValues(Instant.ofEpochMilli(timestamp)));
-        resourceHelper.deleteCustomPropertySetVersion(usagePoint, info);
+        resourceHelper.deleteCustomPropertySetVersion(lockedUsagePoint, info);
         return Response.ok().build();
     }
 

@@ -685,7 +685,7 @@ public class ResourceHelper {
                     device.getDeviceType().getId(),
                     device.getDeviceType().getVersion(),
                     customPropertySetValues.getEffectiveRange());
-            setLastItemDeletable(registeredCustomPropertySet, device, Optional.empty(), cpsInfo);
+            setLastItemRemovable(registeredCustomPropertySet, device, cpsInfo);
             return cpsInfo;
         }
     }
@@ -716,7 +716,7 @@ public class ResourceHelper {
                 device.getDeviceType().getId(),
                 device.getDeviceType().getVersion(),
                 customPropertySetValues.getEffectiveRange());
-        setLastItemDeletable(registeredCustomPropertySet, device, Optional.empty(), cpsInfo);
+        setLastItemRemovable(registeredCustomPropertySet, device, cpsInfo);
         return cpsInfo;
     }
 
@@ -772,23 +772,19 @@ public class ResourceHelper {
                 .filter(cps -> cps.getId() == cpsId)
                 .flatMap(cps -> getHistoryInfo(cps, businessObject, businessObjectId, businessObjectVersion, object, objectTypeId, objectTypeVersion))
                 .collect(Collectors.toList());
-        setLastItemDeletable(cpsList);
+        setLastItemRemovable(cpsList);
         return cpsList;
     }
 
-    private void setLastItemDeletable(List<CustomPropertySetInfo> cpsList) {
+    private void setLastItemRemovable(List<CustomPropertySetInfo> cpsList) {
         if (!cpsList.isEmpty()) {
-            if (cpsList.get(cpsList.size() - 1).properties.stream().noneMatch(prop -> prop.required)) {
-                cpsList.get(cpsList.size() - 1).deletable = true;
-            }
+            cpsList.get(cpsList.size() - 1).removable = true;
         }
     }
 
-    private void setLastItemDeletable(RegisteredCustomPropertySet registeredCps, Object object, Optional<Long> id, CustomPropertySetInfo cpsInfo) {
-        if (cpsInfo.timesliced && customPropertySetInfoFactory.isLastItem(registeredCps, cpsInfo.versionId, object, id)) {
-            if (cpsInfo.properties.stream().noneMatch(prop -> prop.required)) {
-                cpsInfo.deletable = true;
-            }
+    private void setLastItemRemovable(RegisteredCustomPropertySet registeredCps, Object object, CustomPropertySetInfo cpsInfo, Object... id) {
+        if (cpsInfo.timesliced && customPropertySetInfoFactory.isLastItem(registeredCps, cpsInfo.endTime, object, id)) {
+            cpsInfo.removable = true;
         }
     }
 
@@ -1018,7 +1014,7 @@ public class ResourceHelper {
                         register.getRegisterSpec().getRegisterType().getId(),
                         register.getRegisterSpec().getRegisterType().getVersion(),
                         customPropertySetValues.getEffectiveRange());
-                setLastItemDeletable(registeredCustomPropertySet.get(), register.getRegisterSpec(), Optional.of(register.getDevice().getId()), cpsInfo);
+                setLastItemRemovable(registeredCustomPropertySet.get(), register.getRegisterSpec(), cpsInfo, register.getDevice().getId());
                 return cpsInfo;
             }
         } else {
@@ -1089,7 +1085,7 @@ public class ResourceHelper {
                         channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType().getId(),
                         channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType().getVersion(),
                         customPropertySetValues.getEffectiveRange());
-                setLastItemDeletable(registeredCustomPropertySet.get(), channel.getChannelSpec(), Optional.of(channel.getDevice().getId()), cpsInfo);
+                setLastItemRemovable(registeredCustomPropertySet.get(), channel.getChannelSpec(), cpsInfo, channel.getDevice().getId());
                 return cpsInfo;
             }
         } else {
