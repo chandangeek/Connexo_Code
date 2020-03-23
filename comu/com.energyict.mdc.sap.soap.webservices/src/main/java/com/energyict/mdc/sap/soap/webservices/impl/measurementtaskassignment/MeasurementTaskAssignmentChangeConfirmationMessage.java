@@ -20,6 +20,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchan
 import com.google.common.base.Strings;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -33,8 +34,8 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private UtilsTmeSersERPMsmtTskAssgmtChgConfMsg confirmationMessage;
 
-    public UtilsTmeSersERPMsmtTskAssgmtChgConfMsg getConfirmationMessage() {
-        return confirmationMessage;
+    public Optional<UtilsTmeSersERPMsmtTskAssgmtChgConfMsg> getConfirmationMessage() {
+        return Optional.ofNullable(confirmationMessage);
     }
 
     public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid, String meteringSystemId, String profileId) {

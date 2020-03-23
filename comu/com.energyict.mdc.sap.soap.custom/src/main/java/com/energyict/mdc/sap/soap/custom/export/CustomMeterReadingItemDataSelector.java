@@ -16,6 +16,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -31,6 +32,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.RangeSets;
+import com.elster.jupiter.util.time.RangeBuilder;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
 import com.google.common.collect.Range;
@@ -100,42 +102,77 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         String itemDescription = item.getDescription();
         item.overrideReadingInterval(TimeDuration.hours(1));
 
-        RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
-        currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
+        if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {
+            RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
+            currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
 
-        if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
-            warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
+            if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                Instant lowerEndpoint = currentExportInterval.lowerEndpoint();
+                Instant upperEndpoint = currentExportInterval.upperEndpoint();
+                Instant upperEndpointPlusMilli = upperEndpoint.plus(1, ChronoUnit.MILLIS);
+                warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
-            List<Instant> instants = new ArrayList<>();
-            Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
+                List<Instant> instants = new ArrayList<>();
+                Instant instant = truncateToDays(lowerEndpoint).plus(1, ChronoUnit.HOURS);
 
-            while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
-                if (exportRangeSet.contains(instant)) {
-                    instants.add(instant);
-                }
-                instant = instant.plus(1, ChronoUnit.HOURS);
-            }
-
-            if (!instants.isEmpty()) {
-                List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
-                        .collect(Collectors.toList());
-
-                Map<Instant, String> readingStatuses = new HashMap<>();
-                IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
-                for (Instant time : instants) {
-                    Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
-                            .filter(r -> r.getTimeStamp().equals(time)).findAny();
-                    if (readingOptional.isPresent()) {
-                        readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
-                    } else {
-                        readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
-                        readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                while (!instant.isAfter(upperEndpoint)) {
+                    if (exportRangeSet.contains(instant)) {
+                        instants.add(instant);
                     }
+                    instant = instant.plus(1, ChronoUnit.HOURS);
                 }
-                readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
-                MeterReadingImpl meterReading = asMeterReading(item, readings);
-                exportCount++;
-                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+
+                if (!instants.isEmpty()) {
+                    List<BaseReading> readings = filterAndSortReadings(getReadings(item, currentExportInterval))
+                            .collect(Collectors.toList());
+                    Range<Instant> profileIdsRange = Range.closed(lowerEndpoint, upperEndpointPlusMilli);
+                    Map<String, RangeSet<Instant>> profileIds = sapCustomPropertySets.getProfileId(item.getReadingContainer(), item.getReadingType(), profileIdsRange);
+                    Map<Instant, String> readingStatuses = new HashMap<>();
+                    IntervalBlock intervalBlock = buildIntervalBlock(item, readings);
+                    String currentProfileId = getProfileId(profileIds, lowerEndpoint).orElse(null);
+                    boolean profileIdChanged = false;
+                    IntervalReadingRecord readingToFillGaps;
+                    if (!readings.isEmpty()) {
+                        readingToFillGaps = (IntervalReadingRecord) readings.get(0);
+                    } else {
+                        readingToFillGaps = null;
+                    }
+                    List<Instant> gaps = new ArrayList<>();
+                    for (Instant time : instants) {
+                        Optional<IntervalReading> readingOptional = intervalBlock.getIntervals().stream()
+                                .filter(r -> r.getTimeStamp().equals(time)).findAny();
+                        Optional<String> profileId = getProfileId(profileIds, time);
+                        if (readingOptional.isPresent()) {
+                            readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                            if (!profileId.get().equals(currentProfileId)) {
+                                fillGaps(readingToFillGaps != null, item, gaps, readings, readingStatuses, readingToFillGaps);
+                                currentProfileId = profileId.get();
+                                gaps.clear();
+                            }
+                            readingToFillGaps = ((IntervalReadingImpl) readingOptional.get()).getIntervalReadingRecord();
+                            fillGaps(profileIdChanged, item, gaps, readings, readingStatuses, readingToFillGaps);
+                            profileIdChanged = false;
+                            gaps.clear();
+                        } else {
+                            if (!profileId.get().equals(currentProfileId)) {
+                                fillGaps(readingToFillGaps != null, item, gaps, readings, readingStatuses, readingToFillGaps);
+                                readingToFillGaps = null;
+                                gaps.clear();
+                                profileIdChanged = true;
+                                currentProfileId = profileId.get();
+                            }
+                            gaps.add(time);
+                        }
+                    }
+                    String lastProfileId = getProfileId(profileIds, upperEndpointPlusMilli).orElse(null);
+                    fillGaps(readingToFillGaps != null && currentProfileId != null && !currentProfileId.equals(lastProfileId),
+                            item, gaps, readings, readingStatuses, readingToFillGaps);
+
+                    readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
+                    MeterReadingImpl meterReading = asMeterReading(item, readings);
+                    exportCount++;
+                    return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+                }
             }
         }
 
@@ -143,8 +180,29 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
-        item.postponeExport();
+        item.postponeExportForNewData();
         return Optional.empty();
+    }
+
+    private void fillGaps(boolean fillWithReadings, ReadingTypeDataExportItem item, List<Instant> gaps, List<BaseReading> readings, Map<Instant, String> readingStatuses, IntervalReadingRecord readingToFillGaps) {
+        if (fillWithReadings) {
+            for (Instant gap : gaps) {
+                readings.add(GapsIntervalReadingImpl.intervalReading(readingToFillGaps, gap));
+                readingStatuses.put(gap, ReadingStatus.ACTUAL.getValue());
+            }
+        } else {
+            for (Instant gap : gaps) {
+                readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), gap));
+                readingStatuses.put(gap, ReadingStatus.INVALID.getValue());
+            }
+        }
+    }
+
+    private Optional<String> getProfileId(Map<String, RangeSet<Instant>> profileIds, Instant time) {
+        return profileIds.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(time))
+                .map(Map.Entry::getKey)
+                .findFirst();
     }
 
     private boolean checkIntervalIsLessThanOrEqualToHour(ReadingType readingType) {
@@ -166,11 +224,14 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     }
 
     private Stream<? extends BaseReadingRecord> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
-        return item.getReadingContainer().getReadings(exportInterval, item.getReadingType()).stream();
+        return item.getReadingContainer().getReadings(exportInterval, item.getReadingType()).stream()
+                .filter(r -> r.getValue() != null);
     }
 
     private List<BaseReading> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
-        return new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since));
+        return item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since).stream()
+                .filter(r -> r.getValue() != null)
+                .collect(Collectors.toList());
     }
 
     private Optional<? extends ReadingDataSelectorConfig> getDataSelectorConfig(DataExportOccurrence occurrence) {
@@ -198,7 +259,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getInterval().toOpenClosedRange() : Range.all();
         Range<Instant> exportWindowInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
         Optional<Instant> exportStart = item.getLastExportedPeriodEnd();
-        RangeSet<Instant> profileIdIntervals =  exportStart.map(start -> getRangeSinceRequestedDate(exportWindowInterval, start)) // start from the previous period end if exists
+        RangeSet<Instant> profileIdIntervals = exportStart.map(start -> getRangeSinceRequestedDate(exportWindowInterval, start)) // start from the previous period end if exists
                 .orElse(Optional.of(exportWindowInterval))
                 .map(interval -> getAllProfileIdsRangeSet(item, interval)) // take only the intervals where profile id is set
                 .orElseGet(TreeRangeSet::create); // everything is exported
@@ -268,30 +329,43 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             return Optional.empty();
         }
 
-        Optional<Range<Instant>> updateInterval = determineUpdateInterval(occurrence, item);
-        if (updateInterval.isPresent()) {
-            List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval.get(), since);
+        if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {
+            Optional<Range<Instant>> updateInterval = determineUpdateInterval(occurrence, item);
+            if (updateInterval.isPresent()) {
+                List<BaseReading> readings = getReadingsUpdatedSince(item, updateInterval.get(), since);
 
-            Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
-            if (updateWindow.isPresent()) {
-                RelativePeriod window = updateWindow.get();
-                RangeSet<Instant> rangeSet = readings.stream()
-                        .map(baseReadingRecord -> window.getOpenClosedInterval(
-                                ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
-                        .collect(toImmutableRangeSet());
-                readings = rangeSet.asRanges().stream()
-                        .flatMap(range -> getReadings(item, range))
-                        .collect(Collectors.toCollection(ArrayList::new));
-            }
+                Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
+                if (updateWindow.isPresent()) {
+                    RelativePeriod window = updateWindow.get();
+                    RangeSet<Instant> rangeSet = readings.stream()
+                            .map(baseReadingRecord -> window.getOpenClosedInterval(
+                                    ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
+                            .collect(toImmutableRangeSet());
+                    readings = rangeSet.asRanges().stream()
+                            .flatMap(range -> getReadings(item, range))
+                            .collect(Collectors.toCollection(ArrayList::new));
+                }
 
-            if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
-                readings = filterAndSortReadings(readings.stream())
-                        .collect(Collectors.toList());
-                MeterReadingImpl meterReading = asMeterReading(item, readings);
-                Map<Instant, String> readingStatuses = new HashMap<>();
-                readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
-                updateCount++;
-                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+                RangeBuilder builder = new RangeBuilder();
+                readings.forEach(reading -> builder.add(reading.getTimeStamp()));
+                if (builder.hasRange()) {
+                    Range<Instant> readingsRange = builder.getRange();
+                    RangeSet<Instant> profileIdRangeSet = getAllProfileIdsRangeSet(item, readingsRange);
+
+                    readings = readings.stream()
+                            .filter(reading -> profileIdRangeSet.contains(reading.getTimeStamp()))
+                            .collect(Collectors.toList());
+
+                    if (!readings.isEmpty() && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
+                        readings = filterAndSortReadings(readings.stream())
+                                .collect(Collectors.toList());
+                        MeterReadingImpl meterReading = asMeterReading(item, readings);
+                        Map<Instant, String> readingStatuses = new HashMap<>();
+                        readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
+                        updateCount++;
+                        return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
+                    }
+                }
             }
 
             try (TransactionContext context = transactionService.getContext()) {
@@ -299,6 +373,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                 context.commit();
             }
         }
+        item.postponeExportForChangedData();
         return Optional.empty();
     }
 

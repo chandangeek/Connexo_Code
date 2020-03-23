@@ -43,10 +43,10 @@ public class DeviceShipmentImportProcessor extends AbstractDeviceDataFileImportP
             try {
                 if (!is(data.getBatch()).emptyOrOnlyWhiteSpace()) {
                     device = getContext().getDeviceService()
-                            .newDevice(deviceConfiguration, data.getDeviceIdentifier(), data.getBatch(), Instant.from(data.getShipmentDate()));
+                            .newDevice(deviceConfiguration, data.getSerialNumber(),  data.getDeviceIdentifier(), data.getBatch(), Instant.from(data.getShipmentDate()));
                 } else {
                     device = getContext().getDeviceService()
-                            .newDevice(deviceConfiguration, data.getDeviceIdentifier(), Instant.from(data.getShipmentDate()));
+                            .newDevice(deviceConfiguration, data.getSerialNumber(), data.getDeviceIdentifier(), Instant.from(data.getShipmentDate()));
                 }
             } catch (NoLifeCycleActiveAt e) {
                 connection.rollback(savepoint);
