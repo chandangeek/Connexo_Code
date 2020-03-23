@@ -47,7 +47,7 @@ public class SecurityAccessorTypeInfoFactory {
         info.name = securityAccessorType.getName();
         info.description = securityAccessorType.getDescription();
         info.keyType = new KeyTypeInfo(securityAccessorType.getKeyType());
-        info.storageMethod = info.keyType.isKey ? securityAccessorType.getKeyEncryptionMethod() : null;
+        info.storageMethod = securityAccessorType.getKeyEncryptionMethod();
         info.trustStoreId = !info.keyType.isKey && securityAccessorType.getTrustStore().isPresent() ? securityAccessorType
                 .getTrustStore().get().getId() : 0;
         info.purpose = purposeToInfo(securityAccessorType.getPurpose());
