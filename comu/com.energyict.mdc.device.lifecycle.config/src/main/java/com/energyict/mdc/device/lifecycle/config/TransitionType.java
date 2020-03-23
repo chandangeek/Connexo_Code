@@ -44,7 +44,9 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.START_ALL_COMMUNICATION,
+                    MicroAction.START_ALL_RECURRING_COMMUNICATIONS);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -83,7 +85,9 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.START_ALL_COMMUNICATION,
+                    MicroAction.START_ALL_RECURRING_COMMUNICATIONS);
         }
 
         @Override
@@ -124,7 +128,8 @@ public enum TransitionType {
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
                     MicroAction.LINK_TO_USAGE_POINT,
-                    MicroAction.START_ALL_COMMUNICATION
+                    MicroAction.START_ALL_COMMUNICATION,
+                    MicroAction.START_ALL_RECURRING_COMMUNICATIONS
             );
         }
 

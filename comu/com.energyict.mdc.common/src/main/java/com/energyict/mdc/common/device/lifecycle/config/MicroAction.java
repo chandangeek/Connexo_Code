@@ -55,6 +55,8 @@ public enum MicroAction {
 
     START_ALL_COMMUNICATION(MicroCategory.COMMUNICATION),
 
+    START_ALL_RECURRING_COMMUNICATIONS(MicroCategory.COMMUNICATION),
+
     /**
      * Closes the current meter activation on the device.
      * Requires that the user specifies the timestamp

@@ -29,6 +29,7 @@ import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableEstimation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.ForceValidationAndEstimation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.LinkToUsagePoint;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.RecurringCommunications;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDevice;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDeviceFromStaticGroups;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveLocation;
@@ -199,6 +200,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case START_ALL_COMMUNICATION:{
                 return new StartAllCommunication(thesaurus,deviceService);
+            }
+            case START_ALL_RECURRING_COMMUNICATIONS:{
+                return new RecurringCommunications(thesaurus,deviceService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
