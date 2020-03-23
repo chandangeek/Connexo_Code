@@ -11,6 +11,8 @@ import com.elster.jupiter.fileimport.csvimport.exceptions.ImportException;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.util.logging.Level;
+
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
 
     protected SyntheticLoadProfileDataImporterContext context;
@@ -45,13 +47,14 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
         String message;
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+            fileImportOccurrence.getLogger().warning(message);
         } else {
             // Always specify line number and mrid
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.Labels.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
                     .format(lineNumber, exception.toString());
+            fileImportOccurrence.getLogger().log(Level.WARNING, message, exception);
         }
-        fileImportOccurrence.getLogger().warning(message);
     }
 
     @Override
@@ -64,8 +67,10 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
         String message = exception.toString();
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+            fileImportOccurrence.getLogger().severe(message);
+        } else {
+            fileImportOccurrence.getLogger().log(Level.SEVERE, message, exception);
         }
-        fileImportOccurrence.getLogger().severe(message);
         summarizeFailedImport();
     }
 
