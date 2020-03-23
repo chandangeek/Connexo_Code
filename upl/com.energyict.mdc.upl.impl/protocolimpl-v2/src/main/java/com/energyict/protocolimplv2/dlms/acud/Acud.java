@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.dlms.acud;
 import com.energyict.cim.EndDeviceType;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -81,6 +83,20 @@ public abstract class Acud extends AbstractDlmsProtocol {
                 new SioOpticalConnectionType(getPropertySpecService()),
                 new RxTxOpticalConnectionType(getPropertySpecService()),
                 new OutboundTcpIpConnectionType(getPropertySpecService()));
+    }
+
+    protected void checkCacheObjects() {
+        if (getDeviceCache() == null) {
+            setDeviceCache(new DLMSCache());
+        }
+        DLMSCache dlmsCache = getDeviceCache();
+        if (dlmsCache.getObjectList() == null) {
+            readObjectList();
+            dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
+        } else {
+            UniversalObject[] objectList = dlmsCache.getObjectList();
+            getDlmsSession().getMeterConfig().setInstantiatedObjectList(objectList);
+        }
     }
 
     @Override
