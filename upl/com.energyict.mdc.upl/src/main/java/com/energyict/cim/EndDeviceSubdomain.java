@@ -184,7 +184,16 @@ public enum EndDeviceSubdomain  implements CimMnemonicProvider {
     PHASECREACTIVEPOWER(297,"PhaseCReactivePower"),
     INITIALISATION(298,"Initialisation"),
     DAYLIMIT(299,"DayLimit"),
-    RECODER(300,"Recoder");
+    RECODER(300,"Recoder"),
+    ELSTER_DEFINED_SETUP1(301, "Setup1"),
+    ELSTER_DEFINED_SETUP2(302, "Setup2"),
+    ELSTER_DEFINED_SETUP3(303, "Setup3"),
+    ELSTER_DEFINED_SETUP4(304, "Setup4"),
+    ELSTER_DEFINED_PIB(311, "Pib"),
+    ELSTER_DEFINED_MIB(312, "Mib"),
+    ELSTER_DEFINED_PM1_AFFILATION(313, "Pm1Affiliation"),
+    ELSTER_DEFINED_VALVE_PGV(314, "ValvePgv"),
+    ELSTER_DEFINED_PDR(315, "Pdr");
 
     private int value;
     private String mnemonic;

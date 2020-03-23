@@ -540,7 +540,7 @@ public final class ChannelImpl implements SimpleChannelContract {
     }
 
     private BaseReadingRecord asDifferingReading(TimeSeriesEntry entry, ReadingType readingType, Instant since) {
-        BaseReadingRecord currentReading = toReadingFunction().apply(entry);
+        BaseReadingRecord currentReading = toReadingFunction().apply(entry).filter(readingType);
         Optional<TimeSeriesEntry> oldEntry = entry.getVersion(since);
         if (!oldEntry.isPresent()) {
             return currentReading;

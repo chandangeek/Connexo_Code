@@ -28,7 +28,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         REQUEST_ID("requestId", "REQUEST_ID"), // used up to 10.7.1
         UUID("uuid", "UUID"), // used up to 10.7.1
         LRN("lrn", "LRN"),
-        CREATE_END_DATE("createEndDate", "CREATE_END_DATE"),
         TIME_ZONE("timeZone", "TIME_ZONE"),
         OBIS("obis", "OBIS"),
         RECURRENCE_CODE("recurrenceCode", "INTERVAL"),
@@ -69,8 +68,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant endDate;
-
-    private Instant createEndDate;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String timeZone;
@@ -114,14 +111,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
-    }
-
-    public Instant getCreateEndDate() {
-        return createEndDate;
-    }
-
-    public void setCreateEndDate(Instant createEndDate) {
-        this.createEndDate = createEndDate;
     }
 
     public String getObis() {
@@ -185,7 +174,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
-        this.setCreateEndDate((Instant) propertyValues.getProperty(FieldNames.CREATE_END_DATE.javaName()));
         this.setTimeZone((String) propertyValues.getProperty(FieldNames.TIME_ZONE.javaName()));
         this.setObis((String) propertyValues.getProperty(FieldNames.OBIS.javaName()));
         this.setRecurrenceCode((String) propertyValues.getProperty(FieldNames.RECURRENCE_CODE.javaName()));
@@ -199,7 +187,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
-        propertySetValues.setProperty(FieldNames.CREATE_END_DATE.javaName(), this.getCreateEndDate());
         propertySetValues.setProperty(FieldNames.TIME_ZONE.javaName(), this.getTimeZone());
         propertySetValues.setProperty(FieldNames.OBIS.javaName(), this.getObis());
         propertySetValues.setProperty(FieldNames.RECURRENCE_CODE.javaName(), this.getRecurrenceCode());

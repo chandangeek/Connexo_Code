@@ -285,17 +285,18 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name, Instant startDate) {
         Device device = this.deviceDataModelService.dataModel()
                 .getInstance(DeviceImpl.class)
                 .initialize(deviceConfiguration, name, startDate);
+        device.setSerialNumber(serialNumber);
         device.save(); // always returns a persisted device
         return device;
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String batch, Instant startDate) {
-        Device device = newDevice(deviceConfiguration, name, startDate);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name, String batch, Instant startDate) {
+        Device device = newDevice(deviceConfiguration, serialNumber, name, startDate);
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }

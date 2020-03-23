@@ -1,6 +1,11 @@
 package com.energyict.protocolimplv2.dlms.a1860;
 
 import com.energyict.cim.EndDeviceType;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -16,6 +21,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -26,21 +32,17 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a1860.events.A1860LogBookFactory;
+import com.energyict.protocolimplv2.dlms.a1860.messages.A1860Messaging;
 import com.energyict.protocolimplv2.dlms.a1860.profiledata.A1860LoadProfileDataReader;
 import com.energyict.protocolimplv2.dlms.a1860.properties.A1860ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.a1860.properties.A1860Properties;
@@ -49,7 +51,6 @@ import com.energyict.protocolimplv2.dlms.a1860.registers.A1860StoredValues;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +59,8 @@ import java.util.Optional;
 public class A1860 extends AbstractDlmsProtocol {
 
     private final EndDeviceType typeMeter = EndDeviceType.ELECTRICMETER;
+    private final Converter converter;
+    private final LoadProfileExtractor loadProfileExtractor;
 
     private A1860RegisterFactory registerFactory;
     private A1860LoadProfileDataReader loadProfileDataReader;
@@ -66,17 +69,21 @@ public class A1860 extends AbstractDlmsProtocol {
     private HHUSignOnV2 hhuSignOn;
     private OfflineDevice offlineDevice;
     private final NlsService nlsService;
+    private A1860Messaging deviceMessaging;
 
-    public A1860(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
+    public A1860(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                 NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
+        this.converter = converter;
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("1.0.96.1.0.255");
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-09-09$";
+        return "$Date: 2020-03-20$";
     }
 
     @Override
@@ -114,7 +121,7 @@ public class A1860 extends AbstractDlmsProtocol {
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return getLoadProfileDataReader().getLoadProfileData(loadProfiles);
+        return getLoadProfileDataReader().getLoadProfileData(loadProfiles, false);
     }
 
     @Override
@@ -191,8 +198,8 @@ public class A1860 extends AbstractDlmsProtocol {
         return storedValues;
     }
 
-    public A1860LoadProfileDataReader getLoadProfileDataReader(){
-        if(loadProfileDataReader == null){
+    public A1860LoadProfileDataReader getLoadProfileDataReader() {
+        if (loadProfileDataReader == null) {
             loadProfileDataReader = new A1860LoadProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(), offlineDevice);
             return loadProfileDataReader;
         } else {
@@ -208,17 +215,17 @@ public class A1860 extends AbstractDlmsProtocol {
         return hhuSignOn;
     }
 
-    private A1860LogBookFactory getLogBookFactory(){
-        if(logBookFactory == null){
+    private A1860LogBookFactory getLogBookFactory() {
+        if (logBookFactory == null) {
             logBookFactory = new A1860LogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
             return logBookFactory;
-        }else {
+        } else {
             return logBookFactory;
         }
     }
 
-    private A1860RegisterFactory getA1860RegisterFactory(){
-        if(registerFactory == null){
+    private A1860RegisterFactory getA1860RegisterFactory() {
+        if (registerFactory == null) {
             registerFactory = new A1860RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
         }
         return registerFactory;
@@ -226,27 +233,35 @@ public class A1860 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return new ArrayList<>();
+        return getDeviceMessaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
+        return getDeviceMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return getDeviceMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+        return getDeviceMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return null;
+        return getDeviceMessaging().prepareMessageContext(device, offlineDevice, deviceMessage);
+    }
+
+    private A1860Messaging getDeviceMessaging() {
+        if (this.deviceMessaging == null) {
+            this.deviceMessaging = new A1860Messaging(this, this.getPropertySpecService(),
+                    this.nlsService, this.converter, this.loadProfileExtractor);
+        }
+        return this.deviceMessaging;
     }
 
     public NlsService getNlsService() {
@@ -255,5 +270,9 @@ public class A1860 extends AbstractDlmsProtocol {
 
     public EndDeviceType getTypeMeter() {
         return typeMeter;
+    }
+
+    public LoadProfileExtractor getLoadProfileExtractor() {
+        return loadProfileExtractor;
     }
 }

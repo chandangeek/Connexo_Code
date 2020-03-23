@@ -61,6 +61,7 @@ public class ActionResource extends BaseResource {
                 .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds, issueReason))
                 .filter(at -> filterByIssueRuleTemplateId(at, ruleTemplateParam))
                 .map(issueActionType -> actionInfoFactory.asInfo(issueActionType, reasonParam, issueType.orElse(null), issueReason.orElse(null)))
+                .filter(item -> (!((item.name).equals("Email") && issueTypeParam.equals("usagepointdatavalidation"))))
                 .sorted(Comparator.comparing(a -> a.name))
                 .collect(Collectors.toList());
 

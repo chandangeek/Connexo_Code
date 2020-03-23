@@ -11,6 +11,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public class MeterReadingDocumentRequestConfirmationMessage {
 
@@ -20,12 +21,12 @@ public class MeterReadingDocumentRequestConfirmationMessage {
     private SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage;
     private SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage;
 
-    public SmrtMtrMtrRdngDocERPBulkCrteConfMsg getBulkConfirmationMessage() {
-        return bulkConfirmationMessage;
+    public Optional<SmrtMtrMtrRdngDocERPBulkCrteConfMsg> getBulkConfirmationMessage() {
+        return Optional.ofNullable(bulkConfirmationMessage);
     }
 
-    public SmrtMtrMtrRdngDocERPCrteConfMsg getConfirmationMessage() {
-        return confirmationMessage;
+    public Optional<SmrtMtrMtrRdngDocERPCrteConfMsg> getConfirmationMessage() {
+        return Optional.ofNullable(confirmationMessage);
     }
 
     public static Builder builder() {
