@@ -2,10 +2,9 @@ package com.energyict.protocolimplv2.nta.esmr50.common.registers.enums;
 
 /**
  * Created by iulian on 8/18/2016.
- */
 
-/**
- * ps_status
+ ps_status
+
  The ps_status value field indicates the packet switched status of the modem.
  enum:
  (0) inactive,

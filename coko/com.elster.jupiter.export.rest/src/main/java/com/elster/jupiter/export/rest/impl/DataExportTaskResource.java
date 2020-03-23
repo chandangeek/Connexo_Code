@@ -136,10 +136,9 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     public PagedInfoList getDataExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
-        String applicationName = getApplicationNameFromCode(appCode);
-        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
-        finder.setStart(queryParameters.getStart().orElse(0));
-        finder.setLimit(queryParameters.getLimit().orElse(0) + 1);
+        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(getApplicationNameFromCode(appCode));
+        queryParameters.getStart().ifPresent(finder::setStart);
+        queryParameters.getLimit().map(limit -> limit + 1).ifPresent(finder::setLimit);
         List<DataExportTaskInfo> infos = finder.stream()
                 .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
                 .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
@@ -642,6 +641,25 @@ public class DataExportTaskResource {
                             .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
 
                     exportTask.retryNow(dataExportOccurrence);
+                });
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("history/{historyId}/setToFailed")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
+    public Response setToFailedDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
+        dataExportService.findExportTask(historyInfo.task.id)
+                .ifPresent(exportTask ->
+                {
+                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
+                            .setId(historyId).stream()
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
+
+                    dataExportOccurrence.setToFailed();
                 });
         return Response.status(Response.Status.OK).build();
     }

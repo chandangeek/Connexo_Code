@@ -3,9 +3,12 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceBulkCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilitiesDeviceERPSmartMeterBulkCreateRequestCIn;
@@ -19,8 +22,16 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractCreateRequ
 
     @Inject
     UtilitiesDeviceBulkCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                             Clock clock, OrmService ormService, WebServiceActivator webServiceActivator, DeviceService deviceService) {
-        super(serviceCallCommands, endPointConfigurationService, clock, ormService, webServiceActivator, deviceService);
+                                             Clock clock, WebServiceActivator webServiceActivator, DeviceService deviceService, ServiceCallService serviceCallService) {
+        super(serviceCallCommands, endPointConfigurationService, clock, webServiceActivator, deviceService, serviceCallService);
+    }
+
+    @Override
+    void validateConfiguredEndpoints() {
+        if (!isAnyActiveEndpoint(UtilitiesDeviceBulkCreateConfirmation.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceBulkCreateConfirmation.NAME);
+        }
     }
 
     @Override
@@ -28,8 +39,8 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractCreateRequ
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder()
-                                        .from(requestMessage)
+                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder(getThesaurus())
+                                        .from(requestMessage, getThesaurus())
                                         .build();
 
                                 handleRequestMessage(message);

@@ -24,8 +24,6 @@ public interface IssueEvent {
         return Optional.empty();
     }
 
-    ;
-
     Optional<? extends OpenIssue> findExistingIssue();
 
     void apply(Issue issue);
@@ -34,6 +32,8 @@ public interface IssueEvent {
         return true;
     }
 
-    ;
+    default boolean checkOccurrenceConditions(final String relativePeriodWithCount) {
+        return true;
+    }
 
 }

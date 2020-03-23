@@ -6,19 +6,19 @@ package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocu
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class MasterMeterReadingDocumentCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class MasterMeterReadingDocumentCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements RetrySearchDataSourceDomainExtension {
 
     public enum FieldNames {
 
@@ -114,5 +114,10 @@ public class MasterMeterReadingDocumentCreateRequestDomainExtension extends Abst
 
     @Override
     public void validateDelete() {
+    }
+
+    @Override
+    public ServiceCall getServiceCall() {
+        return serviceCall.get();
     }
 }

@@ -49,7 +49,7 @@ public class CreateBulkConfirmationMessageFactory {
 
         switch (parent.getState()) {
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
                 break;
             case SUCCESSFUL:
                 confirmationMessage.setLog(createSuccessfulLog());
@@ -69,7 +69,7 @@ public class CreateBulkConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
         confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         message.getUtilitiesDeviceCreateMessages()
@@ -79,7 +79,7 @@ public class CreateBulkConfirmationMessageFactory {
                             .add(createFailedChildMessage(item, senderBusinessSystemId, now));
 
                 });
-        confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+        confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
         return confirmationMessage;
     }
 
@@ -128,10 +128,10 @@ public class CreateBulkConfirmationMessageFactory {
     private BusinessDocumentMessageHeader createChildHeader(String requestId, String uuid, String senderBusinessSystemId, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
-        if (!Strings.isNullOrEmpty(uuid)){
+        if (!Strings.isNullOrEmpty(uuid)) {
             header.setReferenceUUID(createUUID(uuid));
         }
         header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
@@ -145,11 +145,11 @@ public class CreateBulkConfirmationMessageFactory {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
         header.setUUID(createUUID(uuid));
-        if (!Strings.isNullOrEmpty(referenceUuid)){
+        if (!Strings.isNullOrEmpty(referenceUuid)) {
             header.setReferenceUUID(createUUID(referenceUuid));
         }
         header.setSenderBusinessSystemID(senderBusinessSystemId);

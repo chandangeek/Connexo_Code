@@ -46,6 +46,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +126,7 @@ public class GoingOnResource {
         }
 
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
-        serviceCallFilter.targetObject = device;
+        serviceCallFilter.targetObjects = Arrays.asList(device, device.getMeter());
         serviceCallFilter.states = serviceCallService.nonFinalStates().stream().map(Enum::name).collect(Collectors.toList());
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
         if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
@@ -147,10 +148,12 @@ public class GoingOnResource {
         }
 
         List<GoingOnInfo> processInstances = new ArrayList<>();
-        if(hasCurrentUserTasksPrivileges(appPrivileges) && queryParameters.getStart().map(l -> l.equals(0)).orElse(Boolean.TRUE)) {
+        if(hasCurrentUserTasksPrivileges(appPrivileges)) {
             processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
                     .processes
                     .stream()
+                    .skip(queryParameters.getStart().orElse(0))
+                    .limit(queryParameters.getLimit().orElse(0) + 1)
                     .map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }

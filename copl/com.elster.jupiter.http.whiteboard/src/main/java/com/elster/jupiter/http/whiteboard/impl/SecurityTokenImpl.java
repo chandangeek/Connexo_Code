@@ -5,6 +5,7 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;

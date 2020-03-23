@@ -65,7 +65,7 @@ public class MeterRegisterChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat()));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
@@ -78,11 +78,11 @@ public class MeterRegisterChangeConfirmationMessage {
             return this;
         }
 
-        public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+        public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object... messageSeedArgs) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
             return this;
         }
 

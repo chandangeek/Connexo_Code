@@ -1935,7 +1935,7 @@ public class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, Protoc
 
                     getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Decommission MBus device");
 
-                    final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
+                    final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
                     mbusClient.deinstallSlave();
 
                     success = true;
@@ -1946,7 +1946,7 @@ public class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, Protoc
                     final String openKey = messageHandler.getOpenKey();
                     final String transferKey = messageHandler.getTransferKey();
 
-                    final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
+                    final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
 
                     if (openKey == null) {
                         mbusClient.setEncryptionKey("");

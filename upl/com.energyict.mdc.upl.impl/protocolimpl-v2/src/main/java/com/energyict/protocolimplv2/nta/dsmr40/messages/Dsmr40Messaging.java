@@ -51,6 +51,7 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
             supportedMessages.add(this.get(ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP));
             supportedMessages.add(this.get(MBusSetupDeviceMessage.MBusClientRemoteCommission));
             supportedMessages.add(this.get(MBusSetupDeviceMessage.ChangeMBusAttributes));
+            supportedMessages.add(this.get(MBusSetupDeviceMessage.Reset_MBus_Client));
         }
 
         // security related

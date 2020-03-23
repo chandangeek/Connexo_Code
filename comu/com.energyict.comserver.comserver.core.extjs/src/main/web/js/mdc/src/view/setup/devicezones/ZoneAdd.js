@@ -110,7 +110,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                             {
                                 xtype: 'button',
                                 itemId: 'mdc-zone-add-button',
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                text: Uni.I18n.translate('general.link', 'MDC', 'Link'),
                                 ui: 'action',
                                 action: 'add',
                                 deviceId: me.device.get('name'),

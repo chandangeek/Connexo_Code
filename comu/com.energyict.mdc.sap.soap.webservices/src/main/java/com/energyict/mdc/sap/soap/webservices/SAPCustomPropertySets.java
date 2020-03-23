@@ -62,7 +62,12 @@ public interface SAPCustomPropertySets {
 
     void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime);
 
-    boolean isAnyLrnPresent(long deviceId);
+    /**
+     *  Is there at least one LRN at the current time or in the future.
+     */
+    boolean isAnyLrnPresent(long deviceId, Instant currentTime);
+
+    boolean isAnyLrnPresentForDate(long deviceId, Instant dateTime);
 
     Optional<Channel> getChannel(String lrn, Instant when);
 
@@ -88,6 +93,10 @@ public interface SAPCustomPropertySets {
 
     Optional<Interval> getLastProfileIdIntervalForChannelOnDevice(long deviceId, String readingTypeMrid);
 
+    boolean areAllProfileIdsClosedBeforeDate(long deviceId, Instant dateTime);
+
+    boolean doesDeviceHaveSapCPS(Device device);
+
     boolean doesRegisterHaveSapCPS(Register register);
 
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
@@ -95,8 +104,13 @@ public interface SAPCustomPropertySets {
     Map<String, RangeSet<Instant>> getProfileId(ReadingContainer readingContainer, ReadingType readingType, Range<Instant> range);
 
     /**
-     * This method returns start of the first LRN after the latest transition to operational stage
-     * or the date of this transition, if no such LRN is present.
+     * This method returns start of the first active LRN.
      */
-    Optional<Instant> getStartDate(Device device);
+    Optional<Instant> getStartDate(Device device, Instant now);
+
+    boolean isRegistered(Device device);
+
+    boolean isRegistered(EndDevice endDevice);
+
+    void setRegistered(String sapDeviceId, boolean registered);
 }

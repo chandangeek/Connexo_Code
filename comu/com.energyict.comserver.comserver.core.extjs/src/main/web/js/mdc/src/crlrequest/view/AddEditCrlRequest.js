@@ -10,7 +10,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
 
     require: [
         'Cfg.store.DaysWeeksMonths',
-        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
+        'Mdc.crlrequest.store.CRLSigners',
         'Mdc.crlrequest.store.LogLevel'
     ],
 
@@ -27,22 +27,20 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
             {
                 xtype: 'combobox',
                 itemId: 'crl-security-accessor-purpose',
-                name: 'securityAccessor',
+                name: 'crlSigner',
                 width: 600,
-                fieldLabel: Uni.I18n.translate('general.securityAccessor', 'MDC', 'Security accessor'),
+                fieldLabel: Uni.I18n.translate('general.crlSigner', 'MDC', 'CRL signer alias'),
                 labelWidth: 250,
-                store: Ext.create('Mdc.crlrequest.store.SecurityAccessorsWithPurpose'),
+                store: Ext.create('Mdc.crlrequest.store.CRLSigners'),
                 required: true,
-                emptyText: Uni.I18n.translate('crlrequest.securityAccessorPrompt', 'MDC', 'Select security accessor...'),
-                queryDelay: 500,
-                queryCaching: false,
+                emptyText: Uni.I18n.translate('general.crlSigner.select', 'MDC', 'Select CRL signer...'),
                 minChars: 0,
                 allowBlank: false,
-                forceSelection: false,
-                editable: false,
+                forceSelection: true,
+                valueField: 'id',
                 displayField: 'name',
-                queryMode: 'remote',
-                valueField: 'id'
+                queryMode: 'local',
+                triggerAction: 'all'
             },
             {
                 xtype: 'textfield',

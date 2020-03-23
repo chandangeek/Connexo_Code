@@ -172,6 +172,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             searchResults = Ext.getStore('Uni.store.search.Results'),
             widget,
             goOnWithTheCurrentSearchResults = function() {
+                search.service.bulkAction = true;
                 if (!searchResults.getCount()) {
                     me.goBack();
                 } else {
@@ -626,7 +627,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 restore: true
             };
         }
-
         router.getRoute('search').forward(null, queryParams);
     }
     ,
@@ -1380,7 +1380,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
                     break;
                 case 'addToZone' : {
-                    title = Uni.I18n.translate('searchItems.bulk.addToZone', 'MDC', 'Add to zone')
+                    title = Uni.I18n.translate('searchItems.bulk.linkToZone', 'MDC', 'Link to zone')
                 }
                     break;
                 case 'removeFromZone' : {

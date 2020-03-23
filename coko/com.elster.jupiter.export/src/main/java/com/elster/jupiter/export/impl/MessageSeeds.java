@@ -33,13 +33,14 @@ public enum MessageSeeds implements MessageSeed {
     FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}."),
     MISSING_INTERVAL(1020, "dataexport.item.missinginterval", "The interval(s) starting from {0} till {1} with missing data are not exported for item {2}", Level.INFO),
     MISSING_WINDOW(1021, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for item {2}", Level.INFO),
+    FIELD_TOO_LONG(1022, Keys.FIELD_TOO_LONG, "Field mustn''t exceed {max} characters."),
 
     SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported for item {2}", Level.INFO),
     SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO),
     MUST_SELECT_EVENT_TYPE(1024, Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE, "At least one event type has to be selected"),
     DATA_EXPORTED_TO(1025, "dataexport.dataexportedto", "Data exported to {0}", Level.INFO),
     DATA_MAILED_TO(1026, "dataexport.datamailedto", "Data exported to {0} with attachment(s) {1} ", Level.INFO),
-    SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of device group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
+    SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of device group {0} don''t contain the selected reading type(s) that have to be exported.", Level.INFO),
     EXPORT_PERIOD_COVERS_FUTURE(1029, "dataexport.exportwindow.overlapsfuture", "The export window {0} overlaps with the future. As a result the exported data is incomplete.", Level.WARNING),
     NO_DATA_TOEXPORT(1030, "dataexport.nodata", "There is no data to export.", Level.INFO),
 
@@ -57,22 +58,24 @@ public enum MessageSeeds implements MessageSeed {
     NO_CPS_FOUND(1040, "service.call.cps.not.found", "No active custom attribute set is found with id ''{0}''."),
     NO_CPS_VALUES_FOUND(1041, "service.call.cps.values.not.found", "No properties are kept for web service call {0}."),
     WEB_SERVICE_EXPORT_FAILURE(1042, "webservice.export.failure", "Failure while exporting data via web service: {0}"),
-    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed for service call {0}: {1}"),
+    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed for service call {0}. {1}"),
     WEB_SERVICE_EXPORT_NO_CONFIRMATION(1044, "webservice.export.no.confirmation", "No data export confirmation has been received in the configured timeout."),
     WEB_SERVICE_EXPORT_UNEXPECTED_STATE(1045, "webservice.export.unexpected.state", "Unexpected state of the service call: {0}."),
     WEB_SERVICE_EXPORT_WAITING_FAILURE(1046, "webservice.export.waiting.failure", "Failure while waiting for data export confirmation: {0}"),
     WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE(1047, "webservice.export.no.error.message", "Received error code, but no error has been provided."),
 
-    NULL_FORMATTER_WITH_FILE_DESTINATIONS(1048, Keys.NULL_FORMATTER_WITH_FILE_DESTINATIONS, "Null formatter is supported only by web service destination."),
+    NULL_FORMATTER_WITH_FILE_DESTINATIONS(1048, Keys.NULL_FORMATTER_WITH_FILE_DESTINATIONS, "Not applicable(for 'Web service' destination) formatter is supported only by web service destination."),
     NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA(1049, Keys.NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA,
             "Web service endpoint for updated data should be specified on web service destinations if updated data is exported."),
     ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task."),
     BAD_ENDPOINTS_FOR_DATA_SELECTOR(1051, Keys.BAD_ENDPOINTS_FOR_DATA_SELECTOR, "Endpoints specified on web service destinations mismatch the data selector."),
-    ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW(1052, "dataexport.item.created.nodata", "Item {0} doesn''t contain created data for the selected export window.", Level.WARNING),
-    ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.WARNING),
+    ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW(1052, "dataexport.item.created.nodata", "Item {0} doesn''t contain created data for the selected export window.", Level.INFO),
+    ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.INFO),
+
+    OCCURRENCE_HAS_BEEN_SET_TO_FAILED(1054, "occurrence.has.been.set.to.failed", "The status of the occurrence has been manually set to failed.", Level.INFO),
 
     DATA_SENDING_FAILED_ALL_DATA_SOURCES(2000, "data.sending.failed.all.data.sources", "Failed to export all data to one or more destinations."),
-    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}."),
+    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export {0} data source(s) to one or more destinations: {1}."),
     WEB_SERVICE_EXPORT_NO_SERVICE_CALL(2002, "webservice.export.no.service.call", "Couldn''t find tracking service call for data source {0}.");
 
     private final int number;
@@ -142,6 +145,7 @@ public enum MessageSeeds implements MessageSeed {
         String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
         String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
         String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
+        String FIELD_TOO_LONG = "FieldTooLong";
     }
 }
 

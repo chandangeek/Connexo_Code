@@ -4,9 +4,14 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterBulkCreateConfirmation;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilitiesDeviceERPSmartMeterRegisterBulkCreateRequestCIn;
@@ -21,8 +26,22 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
 
     @Inject
     UtilitiesDeviceRegisterBulkCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                                     Clock clock, SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus, OrmService ormService, WebServiceActivator webServiceActivator) {
-        super(serviceCallCommands, endPointConfigurationService, clock, sapCustomPropertySets, thesaurus, ormService, webServiceActivator);
+                                                     Clock clock, SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus, WebServiceActivator webServiceActivator,
+                                                     ServiceCallService serviceCallService) {
+        super(serviceCallCommands, endPointConfigurationService, clock, sapCustomPropertySets, thesaurus, webServiceActivator, serviceCallService);
+    }
+
+    @Override
+    void validateConfiguredEndpoints() {
+        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);
+        }
+
+        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceRegisteredBulkNotification.NAME);
+        }
     }
 
     @Override
@@ -31,9 +50,9 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                                UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
-                                        .from(requestMessage)
-                                        .build();
+                                UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder(getThesaurus())
+                                        .from(requestMessage, getWebServiceActivator().getSapProperty(AdditionalProperties.LRN_END_INTERVAL))
+                                        .build(getThesaurus());
 
                                 handleRequestMessage(message);
                             }

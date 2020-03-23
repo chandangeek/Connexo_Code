@@ -55,6 +55,7 @@ public class CustomPropertySetSearchDomainExtensionTest {
         when(this.activeCustomPropertySet.getDataModel()).thenReturn(this.dataModel);
         when(this.activeCustomPropertySet.getCustomPropertySet()).thenReturn(this.customPropertySet);
         when(this.customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(this.propertySpec));
+        when(this.customPropertySet.getId()).thenReturn("testId");
     }
 
     private CustomPropertySetSearchDomainExtension getTestInstance() {

@@ -4,7 +4,9 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts;
@@ -23,18 +25,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class StatusChangeRequestBulkCreateMessage {
+public class StatusChangeRequestBulkCreateMessage extends AbstractSapMessage {
+    private static final String REQUEST_XML_NAME = "SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestMessage.UtilitiesConnectionStatusChangeRequest";
 
     private String id;
     private String uuid;
 
     private List<StatusChangeRequestCreateMessage> requests = new ArrayList<>();
+    private Thesaurus thesaurus;
 
-    private StatusChangeRequestBulkCreateMessage() {
+    private StatusChangeRequestBulkCreateMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
-    public static StatusChangeRequestBulkCreateMessage.Builder builder() {
-        return new StatusChangeRequestBulkCreateMessage().new Builder();
+    public static StatusChangeRequestBulkCreateMessage.Builder builder(Thesaurus thesaurus) {
+        return new StatusChangeRequestBulkCreateMessage(thesaurus).new Builder();
     }
 
     public String getId() {
@@ -47,10 +52,6 @@ public class StatusChangeRequestBulkCreateMessage {
 
     public List<StatusChangeRequestCreateMessage> getRequests() {
         return requests;
-    }
-
-    public boolean isValid() {
-        return (id != null || uuid != null) && !requests.isEmpty();
     }
 
     public class Builder {
@@ -92,10 +93,17 @@ public class StatusChangeRequestBulkCreateMessage {
                     getUtilitiesServiceDisconnectionReasonCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     msg.getUtilitiesConnectionStatusChangeRequest() != null ? msg.getUtilitiesConnectionStatusChangeRequest().getPlannedProcessingDateTime() : null,
                     getDeviceConnectionStatus(msg.getUtilitiesConnectionStatusChangeRequest()),
-                    true).build();
+                    true).build(thesaurus);
         }
 
         public StatusChangeRequestBulkCreateMessage build() {
+            if (id == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (requests.isEmpty()) {
+                addMissingField(REQUEST_XML_NAME);
+            }
+            requests.forEach(statusChangeRequestCreateMessage -> addMissingFields(statusChangeRequestCreateMessage.getMissingFieldsSet()));
             return StatusChangeRequestBulkCreateMessage.this;
         }
 

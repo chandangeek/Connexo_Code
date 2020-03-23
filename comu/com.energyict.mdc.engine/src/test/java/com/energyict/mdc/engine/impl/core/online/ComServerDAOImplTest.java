@@ -350,8 +350,8 @@ public class ComServerDAOImplTest {
         this.comServerDAO.releaseTasksFor(this.comPort);
 
         // Asserts
-        verify(communicationTaskService).releaseInterruptedComTasks(comPort);
-        verify(connectionTaskService).releaseInterruptedConnectionTasks(comPort);
+        verify(communicationTaskService).findLockedByComPort(comPort);
+        verify(connectionTaskService).findLockedByComPort(comPort);
     }
 
     @Test

@@ -49,7 +49,9 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -58,6 +60,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -93,11 +96,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -239,6 +244,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public Optional<? extends ExportTask> findAndLockExportTask(long id, long version) {
         return dataModel.mapper(IExportTask.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<? extends ExportTask> findAndLockReadingTypeDataExportTaskByName(String name) {
+        Optional<? extends ExportTask> exportTask = getReadingTypeDataExportTaskByName(name);
+        return Optional.ofNullable(exportTask.map(et -> dataModel.mapper(IExportTask.class).lock(et.getId())).orElse(null));
     }
 
     @Override
@@ -435,6 +446,17 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7, 1), UpgraderV10_7_1.class)
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
                             .build());
+
+            if (transactionService.isInTransaction()) {
+                failOngoingExportTaskOccurrences();
+            } else {
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    failOngoingExportTaskOccurrences();
+                    transactionContext.commit();
+                }
+            }
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", DataExportServiceCallType.HANDLER_NAME));
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", DataExportServiceCallType.CHILD_HANDLER_NAME));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -445,6 +467,16 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public final void deactivate() {
         customPropertySetService.removeCustomPropertySet(serviceCallCPS);
         customPropertySetService.removeCustomPropertySet(childServiceCallCPS);
+    }
+
+    private void failOngoingExportTaskOccurrences() {
+            List<Long> dataExportTaskIds = this.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
+            List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
+                    .withExportTask(dataExportTaskIds)
+                    .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
+                    .find();
+            dataExportOccurrences.stream()
+                    .forEach(o -> o.setToFailed());
     }
 
     @Reference

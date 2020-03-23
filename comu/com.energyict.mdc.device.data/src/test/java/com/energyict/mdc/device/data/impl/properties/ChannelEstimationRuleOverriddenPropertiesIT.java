@@ -48,6 +48,7 @@ public class ChannelEstimationRuleOverriddenPropertiesIT extends PersistenceInte
     private static final String DELTA_A_PLUS_KWH = "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0";
 
     private static final String DEVICE_NAME = "SPE001";
+    private static final String SERIAL_NUMBER = "SPE001";
     private static final String ESTIMATION_RULE = "VR01";
     private static final String ESTIMATOR = "com...estimator";
 
@@ -307,7 +308,7 @@ public class ChannelEstimationRuleOverriddenPropertiesIT extends PersistenceInte
     }
 
     private Device createDevice(String name) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, Instant.now());
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, name, Instant.now());
     }
 
     private ReadingType findReadingType(String readingTypeMrid) {

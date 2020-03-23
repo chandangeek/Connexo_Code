@@ -108,6 +108,26 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.OBIS.javaName(), TranslationKeys.OBIS)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.RECURRENCE_CODE.javaName(), TranslationKeys.RECURRENCE_CODE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.START_DATE.javaName(), TranslationKeys.START_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.DIVISION_CATEGORY.javaName(), TranslationKeys.DIVISION_CATEGORY)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -186,6 +206,27 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.TIME_ZONE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.TIME_ZONE.javaName())
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.OBIS.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.OBIS.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.RECURRENCE_CODE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.RECURRENCE_CODE.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.START_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.START_DATE.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.DIVISION_CATEGORY.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.DIVISION_CATEGORY.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

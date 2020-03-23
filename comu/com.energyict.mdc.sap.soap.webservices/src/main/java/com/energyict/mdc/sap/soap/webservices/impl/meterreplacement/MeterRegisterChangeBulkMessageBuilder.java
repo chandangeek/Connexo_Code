@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesMeasurementRecurrenceCode;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,16 +21,16 @@ import java.util.stream.Collectors;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 public class MeterRegisterChangeBulkMessageBuilder {
-    private final Integer meterReplacementAddInterval;
+    private final Integer lrnEndInterval;
 
     private MeterRegisterChangeMessage message = new MeterRegisterChangeMessage();
 
-    private MeterRegisterChangeBulkMessageBuilder(Integer meterReplacementAddInterval) {
-        this.meterReplacementAddInterval = meterReplacementAddInterval;
+    private MeterRegisterChangeBulkMessageBuilder(Integer lrnEndInterval) {
+        this.lrnEndInterval = lrnEndInterval;
     }
 
-    public static MeterRegisterChangeBulkMessageBuilder builder(Integer meterReplacementAddInterval) {
-        return new MeterRegisterChangeBulkMessageBuilder(meterReplacementAddInterval);
+    public static MeterRegisterChangeBulkMessageBuilder builder(Integer lrnEndInterval) {
+        return new MeterRegisterChangeBulkMessageBuilder(lrnEndInterval);
     }
 
     public MeterRegisterChangeBulkMessageBuilder from(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
@@ -39,7 +41,8 @@ public class MeterRegisterChangeBulkMessageBuilder {
         return this;
     }
 
-    public MeterRegisterChangeMessage build() {
+    public MeterRegisterChangeMessage build(Thesaurus thesaurus) {
+        message.validate(thesaurus);
         return message;
     }
 
@@ -85,11 +88,15 @@ public class MeterRegisterChangeBulkMessageBuilder {
     }
 
     private RegisterChangeMessage getRegister(UtilsDvceERPSmrtMtrRegChgReqReg reg) {
-        RegisterChangeMessage register = new RegisterChangeMessage();
-        register.setLrn(getLrn(reg));
-        register.setEndDate(calculateEndDate(reg));
-        register.setTimeZone(getTimeZone(reg));
-        return register;
+        RegisterChangeMessage.Builder registerBuilder = new RegisterChangeMessage.Builder();
+        registerBuilder.setLrn(getLrn(reg));
+        registerBuilder.setStartDate(reg.getStartDate());
+        registerBuilder.setEndDate(calculateEndDate(reg));
+        registerBuilder.setTimeZone(getTimeZone(reg));
+        registerBuilder.setObis(getObis(reg));
+        registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
+        registerBuilder.setDivisionCategory(getDivisionCategory(reg));
+        return registerBuilder.build();
     }
 
     private String getLrn(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
@@ -109,6 +116,25 @@ public class MeterRegisterChangeBulkMessageBuilder {
     }
 
     private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
-        return requestRegister.getEndDate().plus(meterReplacementAddInterval, MINUTES);
+        return requestRegister.getEndDate().plus(lrnEndInterval, MINUTES);
+    }
+
+    private String getObis(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
+        return Optional.ofNullable(requestRegister.getUtilitiesObjectIdentificationSystemCodeText())
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getRecurrenceCode(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
+        return Optional.ofNullable(requestRegister.getUtilitiesMeasurementRecurrenceCode())
+                .map(UtilitiesMeasurementRecurrenceCode::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getDivisionCategory(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
+        return Optional.ofNullable(requestRegister.getUtilitiesDivisionCategoryCode())
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
     }
 }

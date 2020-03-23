@@ -12,8 +12,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
     // General
     OK_RESULT(0, "OkMessageFormat", "OK", Level.INFO),
-    INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format"),
-    MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message already exists"),
+    INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format. Missing attributes: {0}."),
+    MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message with the same ID or UUID is currently being processed."),
     UNEXPECTED_CONFIRMATION_MESSAGE(3, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
     WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to properly send request to the following web service endpoint(s): {0}."),
     NO_WEB_SERVICE_ENDPOINTS(6, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
@@ -25,6 +25,10 @@ public enum MessageSeeds implements MessageSeed {
     BULK_ITEM_PROCESSING_WAS_NOT_STARTED(12, "BulkItemProcessingWasNotStarted", "Bulk item processing hasn''t started due to request issue."),
     UNKNOWN_ERROR(13, "UnknownError", "Unknown error."),
     REQUEST_WAS_FAILED(14, "RequestWasFailed", "Request has failed."),
+    ONE_OF_MRD_IS_INVALID(15, "OneOfMrdIsInvalid", "One of the meter reading document has invalid message format"),
+    DATA_EXPORT_TASK_WAS_INTERRUPTED(16, "DataExportTaskWasInterrupted", "Data export task was interrupted while waiting for data export confirmation."),
+    SEVERITY_CODE_AND_ERROR_MESSAGE(17, "SeverityCodeAndErrorMessage", "Severity code {0}: {1}."),
+    NO_SEVERITY_CODE_AND_ERROR_MESSAGE(18, "NoSeverityCodeAndErrorMessage", "No severity code: {0}."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -37,9 +41,11 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
     COULD_NOT_FIND_DOMAIN_EXTENSION(2003, "CouldNotFindDEForSC", "Couldn''t find domain extension for service call."),
     INVALID_READING_REASON_CODE(2004, "InvalidReadingReasonCode", "Invalid reading reason code {0}."),
-    SERVICE_CALL_WAS_CANCELLED(2005, "ServiceCallWasCancelled", "Service call was cancelled."),
+    REQUEST_CANCELLED(2005, "RequestCancelled", "Request cancelled."),
     REGISTER_SERVICE_CALL_WAS_CANCELLED(2006, "RegisterServiceCallWasCancelled", "Service call for register ''{0}'' was cancelled."),
     REGISTER_LRN_SERVICE_CALL_WAS_CANCELLED(2007, "RegisterLrnServiceCallWasCancelled", "Service call for register with LRN ''{0}'' was cancelled."),
+    REQUEST_CANCELLED_MANUALLY(2008, "RequestCancelledManually", "Request cancelled manually."),
+    REQUEST_CANCELLED_BY_SAP(2009, "RequestCancelledBySap", "Request cancelled by SAP."),
 
     // Web services
     NO_REPLY_ADDRESS(3001, "NoReplyAddress", "Reply address is required"),
@@ -49,7 +55,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_REQUIRED_OUTBOUND_END_POINT(3005, "NoRequiredOutboundEndPoint", "No required outbound end point configuration is found by name ''{0}''."),
 
     // Device
-    // Period is not needed for some messages as these meesages are used as part of message.
+    // Period is not needed for some messages as these messages are used as part of message.
     NO_DEVICE_FOUND_BY_SAP_ID(4001, "NoDeviceFoundBySapId", "No device found with SAP device identifier ''{0}''."),
     NO_HEAD_END_INTERFACE_FOUND(4002, "NoHeadEndInterfaceFound", "No head end interface found for device with id ''{0}''."),
     LRN_NOT_FOUND_FOR_CHANNEL(4003, "LRNNotFoundForChannel", "Logical Register Number isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
@@ -83,17 +89,29 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_PROCESSING_METER_CREATE_REQUEST(4033, "ErrorProcessingMeterCreateRequest", "Error while processing meter create request: ''{0}''."),
     ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST(4034, "ErrorProcessingMeterRegisterCreateRequest",
             "Error while processing meter register create request: ''{0}''."),
+    START_DATE_IS_BEFORE_SHIPMENT_DATE(4035, "StartDateIsBeforeShipmentDate", "Start date is before meter shipment date"),
+    ERROR_PROCESSING_METER_LOCATION_NOTIFICATION(4036, "ErrorProcessingMeterLocationNotification",
+            "Error while processing meter location notification: ''{0}''."),
+    ERROR_PROCESSING_METER_POD_NOTIFICATION(4037, "ErrorProcessingMeterPodNotification",
+            "Error while processing meter pod notification: ''{0}''."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
     ERROR_CANCELLING_STATUS_CHANGE_REQUEST(5002, "ErrorCancellingStatusChangeRequest", "Error while cancelling status change request: ''{0}''."),
-    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_LOG(5003, "ErrorCancellingStatusChangeRequestLog", "''{0}'' of ''{1}'' status change requests per device are cancelled. ''{2}'' status change requests aren''t cancelled."),
-    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS(5004, "ErrorCancellingStatusChangeRequestNoRequests", "No status change requests are found to cancel with id ''{0}'' and category code ''{1}''."),
-    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed", "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_LOG(5003, "ErrorCancellingStatusChangeRequestLog",
+            "''{0}'' of ''{1}'' status change requests per device are cancelled. ''{2}'' status change requests aren''t cancelled."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS(5004, "ErrorCancellingStatusChangeRequestNoRequests",
+            "No status change requests are found to cancel with id ''{0}'' and category code ''{1}''."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed",
+            "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
+    CHANNEL_REGISTER_IS_NOT_FOUND(5006, "ChannelRegisterIsNotFound", "The channel/register isn''t found."),
+    DEVICE_IS_NOT_FOUND(5007, "DeviceIsNotFound", "The device isn''t found."),
+    COM_TASK_COULD_NOT_BE_LOCATED(5008, "ComTaskCouldNotBeLocated", "A communication task to execute the device messages couldn''t be located"),
+    READING_TYPE_IS_NOT_FOUND(5009, "ReadingTypeIsNotFound", "The reading type isn''t found."),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid message format."),
-    UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request"),
+    UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "Unsupported reason code"),
     NO_METER_READING_DOCUMENT(6003, "NoMeterReadingDocument", "No meter reading document found with id ''{0}''."),
     METER_READING_DOCUMENT_IS_PROCESSED(6004, "MeterReadingDocumentIsProcessed", "Meter reading document is processed."),
     ERROR_CANCELLING_METER_READING_DOCUMENT(6005, "ErrorCancellingMeterReadingDocument", "Error while cancelling meter reading document: ''{0}''."),

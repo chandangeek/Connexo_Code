@@ -86,6 +86,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
     private List<MeterReadingData> dataExportList = new ArrayList<>();
     private Map<String, RangeSet<Instant>> profileIdIntervals = new HashMap<>();
     private RangeSet<Instant> rangeSet = TreeRangeSet.create();
+    private Map<Instant, String> readingStatuses = new HashMap<>();
 
     private UtilitiesTimeSeriesBulkChangeRequestProvider provider;
 
@@ -143,6 +144,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(meterReadingData1.getItem().getRequestedReadingInterval()).thenReturn(Optional.empty());
         when(meterReadingData1.getValidationData()).thenReturn(validationData);
         when(meterReadingData1.getMeterReading()).thenReturn(meterReading1);
+        when(meterReadingData1.getReadingStatuses()).thenReturn(readingStatuses);
 
         ChannelsContainer channelContainer1 = mock(ChannelsContainer.class, RETURNS_DEEP_STUBS);
         when(channelContainer1.getInterval()).thenReturn(Interval.of(Range.open(Instant.now().minus(2, ChronoUnit.DAYS), Instant.now().plus(2, ChronoUnit.DAYS))));
@@ -175,6 +177,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(meterReadingData2.getItem().getRequestedReadingInterval()).thenReturn(Optional.empty());
         when(meterReadingData2.getValidationData()).thenReturn(validationData);
         when(meterReadingData2.getMeterReading()).thenReturn(meterReading2);
+        when(meterReadingData2.getReadingStatuses()).thenReturn(readingStatuses);
 
         ChannelsContainer channelContainer2 = mock(ChannelsContainer.class, RETURNS_DEEP_STUBS);
         when(channelContainer2.getInterval()).thenReturn(Interval.of(Range.open(Instant.now().minus(2, ChronoUnit.DAYS), Instant.now().plus(2, ChronoUnit.DAYS))));

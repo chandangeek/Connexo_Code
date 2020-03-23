@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 public abstract class BaseResource {
 
     protected final EndPointConfigurationService endPointConfigurationService;
@@ -129,14 +131,12 @@ public abstract class BaseResource {
         } else if (filter.hasProperty("finishedOnTo")) {
             finderBuilder.withEndTimeIn(Range.atMost(filter.getInstant("finishedOnTo")));
         }
-        /* Find endpoint by ID */
+        /* Find endpoints by ID */
         if (filter.hasProperty("webServiceEndPoint")) {
-
-            Long endPointId = filter.getLong("webServiceEndPoint");
-            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
-
-            finderBuilder.withEndPointConfigurations(Collections.singleton(epc));
+            Set<EndPointConfiguration> epcSet = endPointConfigurationService.streamEndPointConfigurations()
+                    .filter(where("id").in(filter.getLongList("webServiceEndPoint")))
+                    .collect(Collectors.toSet());
+            finderBuilder.withEndPointConfigurations(epcSet);
         }
 
         if (filter.hasProperty("status")) {

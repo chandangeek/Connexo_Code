@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -28,6 +29,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import javax.inject.Inject;
 import javax.xml.ws.Service;
@@ -36,6 +38,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider",
@@ -63,10 +66,15 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         setWebServiceActivator(webServiceActivator);
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
     }
+
+    public void unsetWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = null;
+    }
+
 
     @Reference
     public void setClock(Clock clock) {
@@ -121,9 +129,14 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
             notificationMessage.getUtilitiesDeviceERPSmartMeterRegisteredNotificationMessage().add(createChildMessage(deviceId, createTime));
         });
 
-        using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
+        Set<EndPointConfiguration> processedEndpoints = using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
                 .withRelatedAttributes(values)
-                .send(notificationMessage);
+                .send(notificationMessage)
+                .keySet();
+
+        if (!processedEndpoints.isEmpty()) {
+            deviceIds.forEach(deviceId -> sapCustomPropertySets.setRegistered(deviceId, true));
+        }
     }
 
     private BusinessDocumentMessageHeader createMessageHeader(Instant now) {
@@ -131,7 +144,9 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
-        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        if (webServiceActivator != null) {
+            header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        }
         header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
@@ -141,7 +156,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifMsg();
         notificationMessage.setMessageHeader(createChildHeader(now));
-        notificationMessage.setUtilitiesDevice(createChildBody(deviceId));
+        notificationMessage.setUtilitiesDevice(createChildBody(deviceId, now));
         return notificationMessage;
     }
 
@@ -156,24 +171,26 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
         header.setUUID(createUUID(UUID.randomUUID().toString()));
-        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        if (webServiceActivator != null) {
+            header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        }
         header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
 
-    private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createChildBody(String sapDeviceId) {
+    private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createChildBody(String sapDeviceId, Instant now) {
         UtilitiesDeviceID deviceId = objectFactory.createUtilitiesDeviceID();
         deviceId.setValue(sapDeviceId);
 
         UtilsDvceERPSmrtMtrRegedNotifSmrtMtr smartMeter = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifSmrtMtr();
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
-        smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
+        if (webServiceActivator != null) {
+            smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
+        }
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
-        if (device.isPresent()) {
-            sapCustomPropertySets.getStartDate(device.get()).ifPresent(sD -> smartMeter.setStartDate(sD));
-        }
+        device.ifPresent(dev -> sapCustomPropertySets.getStartDate(dev, now).ifPresent(smartMeter::setStartDate));
 
         UtilsDvceERPSmrtMtrRegedNotifUtilsDvce utilsDevice = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
         utilsDevice.setID(deviceId);

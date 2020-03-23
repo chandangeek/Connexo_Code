@@ -33,7 +33,7 @@ public class CryptoMx382 extends Mx382 {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-27";
+        return "Crypto version: 2020-03-09";
     }
 
     @Override
@@ -100,7 +100,8 @@ public class CryptoMx382 extends Mx382 {
         return this.cryptoMessageExecutor;
     }
 
-    protected CryptoDSMR23Messaging getMessaging() {
+    @Override
+    protected CryptoDSMR23Messaging getDsmr23Messaging() {
         if (this.cryptoMessaging == null) {
             this.cryptoMessaging = new CryptoDSMR23Messaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(),
                     this.getConverter(), this.getDeviceMessageFileExtractor(), this.getTariffCalendarExtractor(),

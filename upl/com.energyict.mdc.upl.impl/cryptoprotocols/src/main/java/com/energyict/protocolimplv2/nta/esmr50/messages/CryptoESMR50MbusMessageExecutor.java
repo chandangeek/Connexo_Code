@@ -7,7 +7,6 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
@@ -35,7 +34,6 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50Properties;
-import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusClient;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Properties;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50MbusMessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.MBusKeyID;
@@ -113,12 +111,11 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
             String serialNumber = pendingMessage.getDeviceSerialNumber();
-            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
-            ESMR50MbusClient mBusClient5 = new ESMR50MbusClient(mbusClient.getProtocolLink(), mbusClient.getObjectReference(), MbusClientAttributes.VERSION9);
+            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
 
             int dataParameter = 0;
             Unsigned8 data = new Unsigned8(dataParameter);
-            byte[] response = mBusClient5.readDetailedVersionInformation(data);
+            byte[] response = mbusClient.readDetailedVersionInformation(data);
             String msg = "Method response: " + ProtocolTools.getHexStringFromBytes(response, "");
             journal(Level.INFO, msg);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -133,7 +130,6 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         return collectedMessage;
     }
 
-    @Override
     protected void setCryptoserverMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
         mbusCryptoMessageExecutor.setCryptoserverMbusEncryptionKeys(pendingMessage);
     }
@@ -190,19 +186,18 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         journal(Level.INFO, "Complete key data " + ProtocolTools.getHexStringFromBytes(keyData));
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
-            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
-            ESMR50MbusClient mBusClient5 = new ESMR50MbusClient(mbusClient.getProtocolLink(), mbusClient.getObjectReference(), MbusClientAttributes.VERSION9);
-
+            MBusClient mbusClientESMR5 = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
             if (MBusKeyID.FUAK.equals(keyID)) {
                 journal(Level.INFO, "Invoking FUAK method");
-                mBusClient5.transferFUAK(keyData);
+                mbusClientESMR5.transferFUAK(keyData);
                 journal(Level.INFO, "Successfully wrote the new MBus FUAK");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
                 collectedMessage.setDeviceProtocolInformation(newKeyEncrypted);
             } else if (MBusKeyID.P2.equals(keyID)) {
 
                 if (isUsingCryptoServer()) {
-                    CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(mbusClient, MbusClientAttributes.VERSION9);
+                    MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
+                    CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(mbusClient, MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
 
                     journal(Level.INFO, "Invoking transportKey method with the full key data");
                     // this is to pass the key to the g-meter
@@ -217,18 +212,25 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
                     cryptoMBusClient.sendSetEncryptionKeyRequest(fullRequest);
 
                     journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
+
+                    journal(Level.FINEST, "Incrementing frame-counter");
+                    getProtocol().getDlmsSession().getAso().getSecurityContext().incFrameCounter();
+
+                    journal(Level.INFO, "Encryption key status is now: " + mbusClientESMR5.readKeyStatusAsText() );
+
                     journal(Level.INFO, "Saving the smartMeterKey: " + ProtocolTools.getHexStringFromBytes(smartMeterKey));
-                    //return MessageResult.createSuccess(msgEntry, ProtocolTools.getHexStringFromBytes(smartMeterKey));
+
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
                     collectedMessage.setDeviceProtocolInformation(ProtocolTools.getHexStringFromBytes(smartMeterKey));
                 } else {
+                    /** this part is obsolete, was copied from EIServer, now ENEXIS will use only CryptoServer! */
                     journal(Level.INFO, "Invoking transportKey method with the full key data");
                     // this is to pass the key to the g-meter
-                    mBusClient5.setTransportKey(keyData);
+                    mbusClientESMR5.setTransportKey(keyData);
 
                     journal(Level.INFO, "Invoking encryptionKey method to send the openKey: " + newOpenKey);
                     // this is to store the key
-                    mBusClient5.setEncryptionKey(ProtocolTools.getBytesFromHexString(newOpenKey, 2));
+                    mbusClientESMR5.setEncryptionKey(ProtocolTools.getBytesFromHexString(newOpenKey, 2));
 
                     journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
                     journal(Level.INFO, "Saving the messageInfo: " + newKeyEncrypted);
@@ -260,20 +262,16 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
         byte[] kcc = getKCC();
         byte[] mbusIV = getInitializationVector(kcc, serialNumber);
-        byte[] eMeterIV = mbusCryptoMessageExecutor.getNextInitializationVector();
 
-        String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
-        //IrreversibleKeyImpl encryptedKeyPhase2DefaultKey = EncryptedKeyPhase2.fromDataBaseString(defaultKeyProperty);
-        //ProtectedSessionKey defaultKey = encryptedKeyPhase2DefaultKey.toProtectedSessionKey();
-        IrreversibleKey defaultKey = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(defaultKeyProperty));
+        final String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
+        IrreversibleKey defaultKey = new IrreversibleKeyImpl(defaultKeyProperty);
 
         KeyRenewalMBusResponse response;
         if (MBusKeyID.FUAK.equals(keyID)) {
             journal(Level.INFO, "Calling renewMBusFuakWithGCM ...");
 
             AbstractSmartNtaProtocol protocol = (AbstractSmartNtaProtocol) getProtocol();
-            String workingKeyLabel = ((ESMR50Properties) protocol.getProperties()).getWorkingKeyLabelPhase2();
-
+            String workingKeyLabel = ((ESMR50Properties) protocol.getDlmsSessionProperties()).getWorkingKeyLabelPhase2();
 
             journal(Level.FINEST, " - mbusIV [" + mbusIV + "]: " + ProtocolTools.getHexStringFromBytes(mbusIV));
 
@@ -290,20 +288,24 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
             ret.add(response.getMdmSmWK().getEncryptedKey());
             return ret;
         } else if (MBusKeyID.P2.equals(keyID)) {
-            journal(Level.INFO, "Calling renewMBusUserKeyWithGCM ...");
+            journal(Level.INFO, "Preparing P2 meter data using HSM");
+
+            journal(Level.INFO, "Reading information required for apduTemplate");
+            byte[] apduTemplate = mbusCryptoMessageExecutor.createApduTemplate(serialNumber);
+
+            /** No other meter communication until method8 invocation to keep the frame-counter in sync! */
+            byte[] eMeterIV = mbusCryptoMessageExecutor.getNextInitializationVector();
+
+            journal(Level.INFO, "Calling renewMBusUserKeyWithGCM with the parameters:");
 
             SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
             SecurityProvider securityProvider = getProtocol().getDlmsSession().getProperties().getSecurityProvider();
             IrreversibleKey encrKey = IrreversibleKeyImpl.fromByteArray(securityContext.getEncryptionKey(false));
             IrreversibleKey authKey = IrreversibleKeyImpl.fromByteArray(securityProvider.getAuthenticationKey());
 
-            byte[] apduTemplate = mbusCryptoMessageExecutor.createApduTemplate(serialNumber);
-
-
             journal(Level.FINEST, " - apduTemplate [" + apduTemplate + "]: " + ProtocolTools.getHexStringFromBytes(apduTemplate));
             journal(Level.FINEST, " - eMeterIV [" + eMeterIV + "]: " + ProtocolTools.getHexStringFromBytes(eMeterIV));
-
-            journal(Level.FINEST, " - defaultKey : " + defaultKey);
+            journal(Level.FINEST, " - defaultKey : " + defaultKey.getKeyLabel()+":"+ProtocolTools.getHexStringFromBytes(defaultKey.getEncryptedKey()));
             journal(Level.FINEST, " - mbusIV [" + mbusIV + "]: " + ProtocolTools.getHexStringFromBytes(mbusIV));
 
             response = Services.hsmService().renewMBusUserKeyWithGCM(encrKey,
@@ -314,9 +316,12 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
                     mbusIV,
                     getProtocol().getDlmsSession().getProperties().getSecuritySuite());//mbus
             try {
-                journal(Level.FINEST, "Atos response:" + response.toString());
+                journal(Level.FINEST, "Atos smartMeterKey: \t" + ProtocolTools.getHexStringFromBytes(response.getSmartMeterKey()));
+                journal(Level.FINEST, "Atos authenticationTag: \t" + ProtocolTools.getHexStringFromBytes(response.getAuthenticationTag()));
+                journal(Level.FINEST, "Atos mbusDeviceKey: \t" + ProtocolTools.getHexStringFromBytes(response.getMbusDeviceKey()));
+                journal(Level.FINEST, "Atos authTag: \t" + ProtocolTools.getHexStringFromBytes(response.getMBusAuthTag()));
             } catch (NullPointerException e) {
-                journal(Level.FINEST, "smWK key is null");
+                journal(Level.FINEST, "Null pointer exception while reading the ATOS response");
             }
 
             journal(Level.FINEST, "KEY content:");

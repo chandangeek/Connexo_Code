@@ -15,6 +15,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
 
@@ -30,12 +31,17 @@ public class Installer implements FullInstaller {
     private final CustomPropertySetService customPropertySetService;
     private final MessageService messageService;
     private final ServiceCallService serviceCallService;
+    private final UserService userService;
+    private final SAPPrivilegeProvider sapPrivilegeProvider;
 
     @Inject
-    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, MessageService messageService) {
+    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
+                     MessageService messageService, UserService userService, SAPPrivilegeProvider sapPrivilegeProvider) {
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.messageService = messageService;
+        this.userService = userService;
+        this.sapPrivilegeProvider = sapPrivilegeProvider;
     }
 
     @Override
@@ -50,6 +56,7 @@ public class Installer implements FullInstaller {
                 this::createDestinationSpecs,
                 logger
         );
+        userService.addModulePrivileges(sapPrivilegeProvider);
     }
 
     private void createServiceCallTypes() {

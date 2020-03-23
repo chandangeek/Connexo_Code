@@ -147,7 +147,7 @@ public class WebSocketQueryApiService {
 
     protected void sendSerializedErrorMessage(String message, Throwable e, String queryId) {
         String fullMessage = ERROR_PREFIX + message + e.getMessage();
-        ObjectMapper mapper = ObjectMapperFactory.newMapper();
+        ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
         QueryResult result = QueryResult.forResult(queryId, fullMessage);
         StringWriter writer = new StringWriter();
 
@@ -165,7 +165,7 @@ public class WebSocketQueryApiService {
     private String execute(QueryMethod queryMethod, JSONObject jsonQuery, String queryId) throws JSONException, IOException {
         Map<String, Object> parameters = extractQueryParameters(jsonQuery);
         StringWriter writer = new StringWriter();
-        ObjectMapper mapper = ObjectMapperFactory.newMapper();
+        ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
         Object queryResultValue = queryMethod.execute(parameters, getQueryMethodServiceProvider());
         if (queryMethod == QueryMethod.DisconnectRemoteComServer) {
             // A DisConnectRemoteComServer message was sent by the remote: keep statistics ok

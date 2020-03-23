@@ -10,13 +10,16 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -67,6 +70,14 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
     }
 
     void handleMessage(MeterReadingDocumentCancellationRequestMessage message) {
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        message.getMeterReadingDocumentIds().forEach(meterReadingDocumentId -> {
+            values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), meterReadingDocumentId);
+        });
+
+        saveRelatedAttributes(values);
+
         if (message.isValid()) {
             List<CancelledMeterReadingDocument> documents = cancelMeterReadings(message);
 
@@ -76,7 +87,7 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
                             .build();
             sendMessage(confirmationMessage, message.isBulk());
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());
         }
     }
 
@@ -202,11 +213,11 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
         }
     }
 
-    private void sendProcessError(MeterReadingDocumentCancellationRequestMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(MeterReadingDocumentCancellationRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
         MeterReadingDocumentCancellationConfirmationMessage confirmationMessage =
                 MeterReadingDocumentCancellationConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId())
+                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

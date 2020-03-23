@@ -141,6 +141,7 @@ public class EndDeviceCommandImplTest {
         });
         when(endDevice.getAmrId()).thenReturn(String.valueOf(DEVICE_ID));
         when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();

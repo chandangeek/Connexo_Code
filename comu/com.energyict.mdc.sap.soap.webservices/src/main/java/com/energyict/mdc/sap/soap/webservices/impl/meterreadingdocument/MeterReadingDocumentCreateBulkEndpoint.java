@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
@@ -18,10 +19,12 @@ import java.util.Optional;
 public class MeterReadingDocumentCreateBulkEndpoint extends AbstractInboundEndPoint implements SmartMeterMeterReadingDocumentERPBulkCreateRequestCIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
+    private final Thesaurus thesaurus;
 
     @Inject
-    MeterReadingDocumentCreateBulkEndpoint(ServiceCallCommands serviceCallCommands) {
+    MeterReadingDocumentCreateBulkEndpoint(ServiceCallCommands serviceCallCommands, Thesaurus thesaurus) {
         this.serviceCallCommands = serviceCallCommands;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -29,7 +32,7 @@ public class MeterReadingDocumentCreateBulkEndpoint extends AbstractInboundEndPo
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request).ifPresent(requestMessage -> {
 
-                MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder()
+                MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder(thesaurus)
                         .from(requestMessage)
                         .build();
                 SetMultimap<String, String> values = HashMultimap.create();
@@ -38,6 +41,8 @@ public class MeterReadingDocumentCreateBulkEndpoint extends AbstractInboundEndPo
                             .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
                     Optional.ofNullable(msg.getDeviceId())
                             .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                    Optional.ofNullable(msg.getId())
+                            .ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
                 });
                 saveRelatedAttributes(values);
                 serviceCallCommands.createServiceCallAndTransition(message);

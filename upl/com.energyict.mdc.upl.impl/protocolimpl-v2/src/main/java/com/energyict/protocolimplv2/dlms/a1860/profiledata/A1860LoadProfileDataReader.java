@@ -69,7 +69,7 @@ public class A1860LoadProfileDataReader {
     }
 
     @SuppressWarnings("unchecked")
-    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReaders) {
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReaders, boolean selectiveHistoricRead) {
         List<CollectedLoadProfile> result = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
@@ -81,7 +81,7 @@ public class A1860LoadProfileDataReader {
             if (isSupported(loadProfileReader) && (channelInfos != null)) {
                 try {
                     A1860ProfileDataHelper profileHelper = new A1860ProfileDataHelper(protocol, loadProfileReader);
-                    List<IntervalData> intervalDatas = profileHelper.getIntervalData();
+                    List<IntervalData> intervalDatas = profileHelper.getIntervalData(selectiveHistoricRead);
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties()
@@ -139,6 +139,8 @@ public class A1860LoadProfileDataReader {
                 if (u.isUndefined()) {
                     u = Unit.get(BaseUnit.NOTAVAILABLE, u.getScale());
                 }
+                u = Unit.get(u.getBaseUnit().getDlmsCode(), 0); // SET SCALE to ZERO since it's already applied and converted to Engineering Unit by the protocol
+
                 unitMap.put(capturedObject.getLogicalName().getObisCode(), u);
                 channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
             }

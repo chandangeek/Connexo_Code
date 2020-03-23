@@ -31,7 +31,7 @@ public class FirmwareVersionInfoFactory {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.id = firmwareVersion.getId();
         info.firmwareVersion = firmwareVersion.getFirmwareVersion();
-        info.firmwareStatus = new FirmwareStatusInfo(firmwareVersion.getFirmwareStatus(), thesaurus);
+        info.firmwareStatus = new FirmwareStatusInfo(firmwareVersion.getFirmwareStatus(), firmwareVersion.getLocalizedStatus());
         info.firmwareType = new FirmwareTypeInfo(firmwareVersion.getFirmwareType(), thesaurus);
         info.version = firmwareVersion.getVersion();
         info.imageIdentifier = firmwareVersion.getImageIdentifier();

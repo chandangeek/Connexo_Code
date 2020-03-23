@@ -84,9 +84,8 @@ public class StoringThread extends Thread {
                             storeStartTime(model);
                             storeCollectedData(model);
                             executionFinished(model);
-                            storeComSessionShadow(model);
+                            storeComSession(model);
                             unlockComJob(model);
-
                             model.setState(ComJobState.Done);
                             offlineExecuter.updateGUI(model);
                         } catch (DataAccessException e) {
@@ -179,9 +178,11 @@ public class StoringThread extends Thread {
         }
     }
 
-    private void storeComSessionShadow(ComJobExecutionModel model) {
+    private void storeComSession(ComJobExecutionModel model) {
         ComSessionBuilderXmlWrapper comSessionBuilder = model.getComSessionBuilder();
-        getRemoteComServerDAO().createComSession(comSessionBuilder.getBuilder(), comSessionBuilder.getStopDate(), comSessionBuilder.getSuccessIndicator());
+        if (comSessionBuilder != null) {
+            getRemoteComServerDAO().createComSession(comSessionBuilder.getBuilder(), comSessionBuilder.getStopDate(), comSessionBuilder.getSuccessIndicator());
+        }
     }
 
     private boolean isUnexecutedMMRTask(ComJobExecutionModel model, ComTaskExecution comTaskExecution) {

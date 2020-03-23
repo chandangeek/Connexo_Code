@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -232,9 +231,9 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 
     private MBusClient getMbusClient(int physicalAddress) throws IOException {
         if (getAs220().getActiveFirmwareVersion().isHigherOrEqualsThen("2")) {
-            return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MbusClientAttributes.VERSION10);
+            return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         } else {
-            return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MbusClientAttributes.VERSION9);
+            return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
         }
     }
 

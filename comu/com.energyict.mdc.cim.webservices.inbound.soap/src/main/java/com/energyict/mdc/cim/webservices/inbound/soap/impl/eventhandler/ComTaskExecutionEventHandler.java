@@ -22,7 +22,7 @@ import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -215,7 +215,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
 
     private List<ServiceCall> findServiceCallsLinkedTo(Device device, String handlerName) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.targetObject = device;
+        filter.targetObjects.add(device);
         filter.states = Collections.singletonList(DefaultState.WAITING.name());
         filter.types = Collections.singletonList(handlerName);
         return serviceCallService.getServiceCallFinder(filter).find();

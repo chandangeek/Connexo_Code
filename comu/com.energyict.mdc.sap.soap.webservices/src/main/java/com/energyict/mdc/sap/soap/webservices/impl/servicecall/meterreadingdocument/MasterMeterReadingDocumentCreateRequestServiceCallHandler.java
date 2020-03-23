@@ -14,15 +14,17 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,6 +50,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     private volatile Thesaurus thesaurus;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile WebServiceActivator webServiceActivator;
+    private volatile Clock clock;
 
     private Map<Long, List<ServiceCall>> immediately = new HashMap<>();
     private Map<Long, List<ServiceCall>> scheduled = new HashMap<>();
@@ -68,10 +71,15 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
-                    serviceCall.findChildren()
+                    List<ServiceCall> openChildren = serviceCall.findChildren()
                             .stream()
                             .filter(child -> child.getState().isOpen())
-                            .forEach(child -> child.transitionWithLockIfPossible(DefaultState.ONGOING));
+                            .collect(Collectors.toList());
+                    if (openChildren.isEmpty()) {
+                        resultTransition(serviceCall);
+                    } else {
+                        openChildren.forEach(child -> child.requestTransition(DefaultState.ONGOING));
+                    }
                 } else {
                     resultTransition(serviceCall);
                 }
@@ -80,6 +88,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             case FAILED:
             case PARTIAL_SUCCESS:
             case SUCCESSFUL:
+                sendConfirmationMessage(serviceCall);
                 if (allChildrenCancelledBySap(serviceCall)) {
                     serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
                 } else {
@@ -122,19 +131,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 resultTransition(parentServiceCall);
                 break;
             case CANCELLED:
-                if (!requestDomainExtension.isCancelledBySap()) {
-                    immediately.merge(parentServiceCall.getId(), Collections.singletonList(childServiceCall), (list1, list2) ->
-                            Stream.of(list1, list2)
-                                    .flatMap(Collection::stream)
-                                    .collect(Collectors.toList()));
-                }
-                resultTransition(parentServiceCall);
-                break;
             case FAILED:
-                immediately.merge(parentServiceCall.getId(), Collections.singletonList(childServiceCall), (list1, list2) ->
-                        Stream.of(list1, list2)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList()));
                 resultTransition(parentServiceCall);
                 break;
             case SCHEDULED:
@@ -143,20 +140,14 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 break;
             case PAUSED:
                 parentServiceCall = lock(parentServiceCall);
-                MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = parentServiceCall
-                        .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
-                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-                BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
-                BigDecimal currentAttempt = masterExtension.getAttemptNumber();
-                if (currentAttempt.compareTo(attempts) == -1) {
+                List<ServiceCall> children = findChildren(parentServiceCall);
+                if (ServiceCallHelper.isLastPausedChild(children)) {
                     if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
                         if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
                             parentServiceCall.requestTransition(DefaultState.ONGOING);
                         }
                         parentServiceCall.requestTransition(DefaultState.PAUSED);
                     }
-                } else {
-                    parentServiceCall.requestTransition(DefaultState.CANCELLED);
                 }
                 break;
             default:
@@ -185,36 +176,35 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         this.webServiceActivator = webServiceActivator;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private boolean isLastChild(List<ServiceCall> serviceCalls) {
-        return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
-    }
-
-    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
-    }
-
     private void resultTransition(ServiceCall parent) {
         parent = lock(parent);
-        List<ServiceCall> children = findChildren(parent);
-        if (isLastChild(children)) {
+        List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
+        if (ServiceCallHelper.isLastPausedChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
-            } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (hasAnyChildState(children, DefaultState.CANCELLED) && parent.canTransitionTo(DefaultState.CANCELLED)) {
-                parent.requestTransition(DefaultState.CANCELLED);
-            } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.PAUSED)) {
+                if (parent.canTransitionTo(DefaultState.PAUSED)) {
+                    parent.requestTransition(DefaultState.PAUSED);
+                }
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
-            } else if (parent.canTransitionTo(DefaultState.FAILED) && parent.canTransitionTo(DefaultState.FAILED)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED) && parent.canTransitionTo(DefaultState.CANCELLED)) {
+                parent.requestTransition(DefaultState.CANCELLED);
+            } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 parent.requestTransition(DefaultState.FAILED);
+            } else if (parent.canTransitionTo(DefaultState.ONGOING)) {
+                parent.requestTransition(DefaultState.ONGOING);
             }
         }
     }
@@ -222,9 +212,9 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     private void createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(ServiceCall serviceCall) {
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.PENDING);
-        immediately.get(serviceCall.getId()).forEach(call -> {
-            createMeterReadingDocumentResultServiceCall(parentServiceCall, call).ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
-        });
+        immediately.get(serviceCall.getId()).forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
+                .ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.PENDING))
+        );
 
         if (parentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
             parentServiceCall.requestTransition(DefaultState.CANCELLED);
@@ -235,9 +225,9 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     private void createMasterMeterReadingDocumentResultServiceCallForScheduling(ServiceCall serviceCall) {
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.SCHEDULED);
-        scheduled.get(serviceCall.getId()).forEach(call -> {
-            createMeterReadingDocumentResultServiceCall(parentServiceCall, call).ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.SCHEDULED));
-        });
+        scheduled.get(serviceCall.getId()).forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
+                .ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.SCHEDULED))
+        );
 
         if (parentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
             parentServiceCall.requestTransition(DefaultState.CANCELLED);
@@ -280,6 +270,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             childDomainExtension.setExtraDataSource(requestDomainExtension.getExtraDataSource());
             childDomainExtension.setFutureCase(requestDomainExtension.isFutureCase());
             childDomainExtension.setLrn(requestDomainExtension.getLrn());
+            childDomainExtension.setRequestedScheduledReadingDate(requestDomainExtension.getRequestedScheduledReadingDate());
             childDomainExtension.setScheduledReadingDate(requestDomainExtension.getScheduledReadingDate());
             childDomainExtension.setReferenceID(requestDomainExtension.getReferenceID());
             childDomainExtension.setReferenceUuid(requestDomainExtension.getReferenceUuid());
@@ -301,20 +292,32 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
     private boolean allChildrenCancelledBySap(ServiceCall serviceCall) {
         List<ServiceCall> children = findChildren(serviceCall);
-        return children.stream().allMatch(sc -> isServiceCallCancelledBySap(sc));
+        return children.stream().allMatch(this::isServiceCallCancelledBySap);
     }
 
     private boolean isServiceCallCancelledBySap(ServiceCall sc) {
         Optional<MeterReadingDocumentCreateRequestDomainExtension> extension = sc.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class);
-        if (extension.isPresent()) {
-            return extension.get().isCancelledBySap();
-        } else {
-            return false;
-        }
+        return extension.map(MeterReadingDocumentCreateRequestDomainExtension::isCancelledBySap).orElse(false);
     }
 
     private ServiceCall lock(ServiceCall serviceCall) {
         return serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    private void sendConfirmationMessage(ServiceCall serviceCall) {
+        MasterMeterReadingDocumentCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MasterMeterReadingDocumentCreateRequestCustomPropertySet()).get();
+        MeterReadingDocumentRequestConfirmationMessage confirmationMessage = MeterReadingDocumentRequestConfirmationMessage
+                .builder()
+                .from(extension, findChildren(serviceCall), clock.instant(), webServiceActivator.getMeteringSystemId())
+                .build();
+
+        if (extension.isBulk()) {
+            WebServiceActivator.METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATIONS
+                    .forEach(service -> service.call(confirmationMessage));
+        } else {
+            WebServiceActivator.METER_READING_DOCUMENT_REQUEST_CONFIRMATIONS
+                    .forEach(service -> service.call(confirmationMessage));
+        }
     }
 }

@@ -94,7 +94,7 @@ public class SAPMeterReadingDocumentOnDemandHandler extends EventHandler<LocalEv
 
     private Finder<ServiceCall> findAvailableServiceCalls(Device device, String serviceCallTypeName) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.targetObject = device;
+        filter.targetObjects.add(device);
         filter.types.add(serviceCallTypeName);
         filter.states.add(DefaultState.ONGOING.name());
         return serviceCallService.getServiceCallFinder(filter);
