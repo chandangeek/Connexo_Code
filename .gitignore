@@ -1,6 +1,10 @@
 .idea/
 *.iml
 target/
+dependency-reduced-pom.xml
+.settings
+.project
+.classpath
 
 # Following lines will ignore pkg files we create and import during FE component (app) build
 copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline
