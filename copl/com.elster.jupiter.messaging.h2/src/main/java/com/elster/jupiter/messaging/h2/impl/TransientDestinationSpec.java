@@ -132,6 +132,11 @@ class TransientDestinationSpec implements DestinationSpec {
     }
 
     @Override
+    public SubscriberSpec subscribe(SubscriberSpec subscriberSpec) {
+        return this.subscribe(subscriberSpec.getName(), subscriberSpec.getDisplayName());
+    }
+
+    @Override
     public void unSubscribe(String subscriberSpecName) {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, name);

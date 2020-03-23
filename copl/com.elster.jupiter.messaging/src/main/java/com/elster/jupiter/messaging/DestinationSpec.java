@@ -90,6 +90,8 @@ public interface DestinationSpec extends HasName {
 
     SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer, Condition filter);
 
+    SubscriberSpec subscribe(SubscriberSpec subscriberSpec);
+
     SubscriberSpec subscribeSystemManaged(String name);
 
     void save();

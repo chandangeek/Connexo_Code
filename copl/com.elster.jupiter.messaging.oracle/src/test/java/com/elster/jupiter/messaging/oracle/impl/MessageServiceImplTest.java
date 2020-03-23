@@ -89,7 +89,7 @@ public class MessageServiceImplTest {
         when(dataModel.mapper(QueueTableSpec.class)).thenReturn(queueTableSpecFactory);
         when(dataModel.mapper(DestinationSpec.class)).thenReturn(destinationSpecFactory);
         when(dataModel.mapper(SubscriberSpec.class)).thenReturn(subscriberSpecFactory);
-        when(dataModel.addTable(anyString(),any())).thenReturn(table);
+        when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, aqFacade, thesaurus));
@@ -115,7 +115,7 @@ public class MessageServiceImplTest {
         when(dataModel.getValidatorFactory()).thenReturn(validationFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
 
-        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QTS, RAW, MULTI_CONSUMER);
+        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QTS, RAW, null, MULTI_CONSUMER);
 
         assertThat(queueTableSpec).isNotNull();
         assertThat(queueTableSpec.getName()).isEqualTo(QTS);

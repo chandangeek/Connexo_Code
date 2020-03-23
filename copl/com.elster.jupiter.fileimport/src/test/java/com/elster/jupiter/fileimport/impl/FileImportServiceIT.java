@@ -230,7 +230,7 @@ public class FileImportServiceIT {
         });
 
         transactionService.execute(() -> {
-            queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", true);
+            queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", null, true);
             destination = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 0);
             destination.activate();
             subscriberSpec = destination.subscribe(new SimpleTranslationKey(DESTINATION_NAME, DESTINATION_NAME), "TST", Layer.DOMAIN);
@@ -325,8 +325,9 @@ public class FileImportServiceIT {
     public void testImportFileWithSuccess() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if (!Files.exists(file))
+        if (!Files.exists(file)) {
             Files.createFile(file);
+        }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccess(SUCCESS_MESSAGE));
 
@@ -353,8 +354,9 @@ public class FileImportServiceIT {
     public void testImportFileWithFailure() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if (!Files.exists(file))
+        if (!Files.exists(file)) {
             Files.createFile(file);
+        }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markFailure(FAILURE_MESSAGE));
 
@@ -381,8 +383,9 @@ public class FileImportServiceIT {
     public void testImportFileSuccessWithFailures() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if (!Files.exists(file))
+        if (!Files.exists(file)) {
             Files.createFile(file);
+        }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccessWithFailures(SUCCESS_WITH_FAILURE_MESSAGE));
 
