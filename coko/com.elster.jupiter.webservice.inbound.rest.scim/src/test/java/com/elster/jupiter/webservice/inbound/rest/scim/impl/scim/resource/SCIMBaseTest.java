@@ -51,8 +51,6 @@ public class SCIMBaseTest extends OAuthBaseTest {
             "members",
     };
 
-    protected String JWS;
-
     @Mock
     protected User user;
 
@@ -62,15 +60,6 @@ public class SCIMBaseTest extends OAuthBaseTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-
-        final Response httpResponse = target(TOKEN_RESOURCE_PATH)
-                .request(MediaType.APPLICATION_FORM_URLENCODED)
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + CLIENT_CREDENTIALS)
-                .buildPost(Entity.form(TOKEN_REQUEST_FORM_WITH_GRANT_TYPE_CLIENT_CREDENTIALS))
-                .invoke();
-
-        JWS = httpResponse.readEntity(TokenResponse.class).getAccessToken();
     }
 
     @Override
@@ -84,7 +73,7 @@ public class SCIMBaseTest extends OAuthBaseTest {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
 
-        return new SCIMApplication(userService);
+        return new SCIMApplication(userService, tokenService);
     }
 
     protected void configureBehaviorOfUserServiceMock() {
@@ -121,7 +110,6 @@ public class SCIMBaseTest extends OAuthBaseTest {
     protected UserSchema createUserWithinConnexoWithAttributeValues() {
         return target(USER_RESOURCE_PATH)
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildPost(Entity.entity(createUserSchemaWithRandomAttributeValues(), "application/scim+json"))
                 .invoke()
                 .readEntity(UserSchema.class);
@@ -130,7 +118,6 @@ public class SCIMBaseTest extends OAuthBaseTest {
     protected GroupSchema createGroupWithinConnexoWithAttributeValues() {
         return target(GROUP_RESOURCE_PATH)
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildPost(Entity.entity(createGroupSchemaWithRandomAttributeValues(), "application/scim+json"))
                 .invoke()
                 .readEntity(GroupSchema.class);

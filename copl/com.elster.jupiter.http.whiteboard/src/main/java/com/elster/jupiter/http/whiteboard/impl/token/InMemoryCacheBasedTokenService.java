@@ -1,6 +1,8 @@
 package com.elster.jupiter.http.whiteboard.impl.token;
 
 import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.TokenValidation;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.http.whiteboard.impl.RoleClaimInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
@@ -136,6 +138,29 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         return userJWT;
     }
 
+    @Override
+    public SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException {
+        final UUID jwtId = UUID.randomUUID();
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet();
+        claimsSet.setJWTID(jwtId.toString());
+        claimsSet.setSubject(String.valueOf(subject.hashCode()));
+        claimsSet.setIssuer(issuer);
+        claimsSet.setIssueTime(new Date());
+        claimsSet.setExpirationTime(new Date(expiresIn));
+        claimsSet.setCustomClaims(customClaims);
+
+        final UserJWT userJWT = new UserJWT(
+                null,
+                createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet),
+                Instant.ofEpochMilli(expiresIn)
+        );
+
+        CASHE.put(jwtId, userJWT);
+
+        return userJWT.getSignedJWT();
+    }
+
     private SignedJWT createAndSignSignedJWT(final JWSHeader jwsHeader, final JWTClaimsSet jwtClaimsSet) throws JOSEException {
         final SignedJWT signedJWT = new SignedJWT(jwsHeader, jwtClaimsSet);
         JWSSigner jwsSigner = new RSASSASigner(privateKey);
@@ -156,7 +181,7 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         final User user = getAssociatedUser(Long.parseLong(jwtClaimsSet.getSubject()));
 
         final boolean result = Objects.nonNull(user)
-                && verifyIfUserHasUsetJWTInCache(user, UUID.fromString(jwtClaimsSet.getJWTID()))
+                && verifyIfUserHasUserJWTInCache(user, UUID.fromString(jwtClaimsSet.getJWTID()))
                 && verifyJWTSignature(signedJWT)
                 && verifyJWTIssuer(jwtClaimsSet.getIssuer())
                 && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime())
@@ -165,11 +190,21 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         return new TokenValidation(result, user, signedJWT.serialize());
     }
 
+    @Override
+    public TokenValidation validateServiceSignedJWT(SignedJWT signedJWT) throws JOSEException, ParseException {
+        final ReadOnlyJWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
+
+        final boolean result = verifyJWTSignature(signedJWT)
+                && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime());
+
+        return new TokenValidation(result, null, signedJWT.serialize());
+    }
+
     private boolean verifyBlackList(final String userId, final String token) {
         return !blackListTokenService.findToken(Long.parseLong(userId), token).isPresent();
     }
 
-    private boolean verifyIfUserHasUsetJWTInCache(final User user, final UUID jwtId) {
+    private boolean verifyIfUserHasUserJWTInCache(final User user, final UUID jwtId) {
         final UserJWT userJWT = getUserJWT(jwtId);
 
         if (userJWT == null) {
@@ -206,6 +241,7 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
     @Override
     public void invalidateAllUserJWTsForUser(final User user) {
         final List<UUID> userJWTS = CASHE.asMap().entrySet().stream()
+                .filter(uuidUserJWTEntry -> Objects.nonNull(uuidUserJWTEntry.getValue().getUser()))
                 .filter(uuidUserJWTEntry -> filterUserJWTEntryByUser(uuidUserJWTEntry, user))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());

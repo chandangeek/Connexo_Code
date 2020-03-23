@@ -21,6 +21,8 @@ import java.util.Optional;
 public final class InboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements InboundEndPointConfiguration {
 
     private Reference<Group> group = Reference.empty();
+    private String clientId;
+    private String clientSecret;
 
     @Inject
     public InboundEndPointConfigurationImpl(DataModel dataModel, Clock clock, TransactionService transactionService, WebServicesService webServicesService) {
@@ -35,6 +37,26 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
     @Override
     public void setGroup(Group group) {
         this.group.set(group);
+    }
+
+    @Override
+    public String getClientId() {
+        return clientId;
+    }
+
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    @Override
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    @Override
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 
     @Override

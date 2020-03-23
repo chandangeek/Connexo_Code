@@ -23,7 +23,6 @@ public class GroupResourceTest extends SCIMBaseTest {
 
         final Response response = target(GROUP_RESOURCE_PATH)
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildPost(Entity.entity(groupSchema, "application/scim+json"))
                 .invoke();
 
@@ -38,7 +37,6 @@ public class GroupResourceTest extends SCIMBaseTest {
     public void shouldReturnNoGroup() {
         final Response response = target(GROUP_RESOURCE_PATH + "/" + UUID.randomUUID())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildGet()
                 .invoke();
 
@@ -54,7 +52,6 @@ public class GroupResourceTest extends SCIMBaseTest {
 
         final Response response = target(GROUP_RESOURCE_PATH + "/" + existingGroup.getExternalId())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildPut(Entity.entity(existingGroup, "application/scim+json"))
                 .invoke();
 
@@ -73,7 +70,6 @@ public class GroupResourceTest extends SCIMBaseTest {
 
         final Response response = target(GROUP_RESOURCE_PATH + "/" + existingGroup.getExternalId())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildDelete()
                 .invoke();
 
@@ -83,7 +79,6 @@ public class GroupResourceTest extends SCIMBaseTest {
 
         final Response getDeletedUserResponse = target(GROUP_RESOURCE_PATH + "/" + existingGroup.getExternalId())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildGet()
                 .invoke();
 

@@ -4,7 +4,7 @@ import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SAMLSingleLogoutServiceImpl;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
-import com.elster.jupiter.http.whiteboard.impl.token.UserJWT;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
@@ -19,11 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 public class SLOBaseTest extends JerseyTest {
 

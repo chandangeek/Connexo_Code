@@ -5,8 +5,6 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -39,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

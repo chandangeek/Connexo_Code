@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -82,6 +83,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile TokenService tokenService;
     private volatile TransactionService transactionService;
     private volatile HttpService httpService;
     private volatile Clock clock;
@@ -169,6 +171,11 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     }
 
     @Reference
+    public void setTokenService(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
@@ -231,6 +238,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(TokenService.class).toInstance(tokenService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(HttpService.class).toInstance(httpService);
                 bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);

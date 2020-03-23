@@ -1,7 +1,10 @@
 package com.elster.jupiter.http.whiteboard.impl.token;
 
+import com.elster.jupiter.http.whiteboard.TokenValidation;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.nimbusds.jose.JOSEException;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +30,7 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +44,9 @@ public class InMemoryCacheBasedTokenServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private BlackListTokenService blackListTokenService;
 
     private static volatile InMemoryCacheBasedTokenService inMemoryCacheBasedTokenService;
 
@@ -59,7 +66,10 @@ public class InMemoryCacheBasedTokenServiceTest {
         inMemoryCacheBasedTokenService = new InMemoryCacheBasedTokenService();
         inMemoryCacheBasedTokenService.activate();
         inMemoryCacheBasedTokenService.setUserService(userService);
+        inMemoryCacheBasedTokenService.setBlackListTokenService(blackListTokenService);
         inMemoryCacheBasedTokenService.initialize(PUBLIC_KEY, PRIVATE_KEY, TOKEN_EXPIRATION_TIME, TOKEN_REFRESH_MAX_COUNT, TIMEOUT);
+
+        when(blackListTokenService.findToken(anyLong(), anyString())).thenReturn(Optional.empty());
     }
 
     private static void generetaSelfSignedCert() throws NoSuchAlgorithmException {

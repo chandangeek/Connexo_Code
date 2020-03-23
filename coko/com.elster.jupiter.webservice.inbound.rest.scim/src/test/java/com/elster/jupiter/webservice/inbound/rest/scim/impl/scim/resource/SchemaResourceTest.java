@@ -16,7 +16,6 @@ public class SchemaResourceTest extends SCIMBaseTest {
     public void shouldReturnResourceTypeSchemes() {
         final Response response = target(RESOURCE_TYPE_RESOURCE_PATH)
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildGet()
                 .invoke();
 

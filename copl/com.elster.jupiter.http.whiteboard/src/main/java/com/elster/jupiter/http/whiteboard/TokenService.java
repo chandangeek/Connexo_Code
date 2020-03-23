@@ -1,9 +1,7 @@
 package com.elster.jupiter.http.whiteboard;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.http.whiteboard.impl.token.TokenValidation;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -38,6 +36,12 @@ public interface TokenService<T> {
     T createUserJWT(User user, Map<String, Object> customClaims) throws JOSEException;
 
     /**
+     * Creates a signed JWT (JSON Web Token) for third party services that authorize
+     * using OAuth 2.0 protocol
+     */
+    SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException;
+
+    /**
      *
      */
     T getUserJWT(UUID jwtId);
@@ -49,6 +53,15 @@ public interface TokenService<T> {
      * @throws JOSEException encryption exception in case of failed validation
      */
     TokenValidation validateSignedJWT(SignedJWT signedJWT) throws JOSEException, ParseException;
+
+
+    /**
+     * Validates a signed JWT (JSON Web Token) for service
+     *
+     * @param signedJWT - a signed JWT token
+     * @throws JOSEException encryption exception in case of failed validation
+     */
+    TokenValidation validateServiceSignedJWT(SignedJWT signedJWT) throws JOSEException, ParseException;
 
     /**
      * Invalidates a signed JWT (JSON Web Token)

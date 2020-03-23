@@ -15,7 +15,7 @@ import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
 import com.elster.jupiter.http.whiteboard.impl.saml.sso.AcsResource;
-import com.elster.jupiter.http.whiteboard.impl.token.UserJWT;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;

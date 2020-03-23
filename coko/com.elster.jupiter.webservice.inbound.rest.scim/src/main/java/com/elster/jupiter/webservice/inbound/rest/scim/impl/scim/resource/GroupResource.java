@@ -1,6 +1,5 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.resource;
 
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.filter.SCIMResourceOnlyFilter;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.SCIMService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.GroupSchema;
 
@@ -17,7 +16,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 @Path("Groups")
-@SCIMResourceOnlyFilter
 public class GroupResource {
 
     @Inject

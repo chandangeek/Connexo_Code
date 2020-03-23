@@ -14,7 +14,6 @@ public class ServiceProviderConfigResourceTest extends SCIMBaseTest {
     public void shouldReturnServiceProviderConfig() {
         final Response response = target(SERVICE_PROVDER_CONFIG_RESOURCE_PATH)
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildGet()
                 .invoke();
 

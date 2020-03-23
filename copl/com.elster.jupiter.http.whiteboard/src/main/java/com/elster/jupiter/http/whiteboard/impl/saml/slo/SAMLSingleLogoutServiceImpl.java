@@ -3,7 +3,7 @@ package com.elster.jupiter.http.whiteboard.impl.saml.slo;
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
-import com.elster.jupiter.http.whiteboard.impl.token.UserJWT;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import org.opensaml.saml.saml2.core.LogoutRequest;

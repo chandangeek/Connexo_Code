@@ -5,7 +5,6 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.HttpHeaders;
 
-@TokenResourceOnlyFilter
 public class TokenEndPointResponseFilter implements ContainerResponseFilter {
 
     @Override

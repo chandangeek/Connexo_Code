@@ -1,4 +1,4 @@
-package com.elster.jupiter.http.whiteboard.impl.token;
+package com.elster.jupiter.http.whiteboard;
 
 import com.elster.jupiter.users.User;
 

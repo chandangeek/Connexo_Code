@@ -1,5 +1,6 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs;
 
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;
@@ -21,16 +22,23 @@ public class SCIMRESTfulWebServiceProvider implements InboundRestEndPointProvide
 
     private volatile UserService userService;
 
+    private volatile TokenService tokenService;
+
     public SCIMRESTfulWebServiceProvider() {
     }
 
     @Override
     public Application get() {
-        return new SCIMApplication(userService);
+        return new SCIMApplication(userService, tokenService);
     }
 
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setTokenService(TokenService tokenService) {
+        this.tokenService = tokenService;
     }
 }

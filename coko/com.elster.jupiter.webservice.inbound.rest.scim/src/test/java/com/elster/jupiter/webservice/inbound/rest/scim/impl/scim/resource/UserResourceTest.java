@@ -30,7 +30,6 @@ public class UserResourceTest extends SCIMBaseTest {
 
         final Response response = target(USER_RESOURCE_PATH)
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildPost(Entity.entity(userWithRandomData, "application/scim+json"))
                 .invoke();
 
@@ -45,7 +44,6 @@ public class UserResourceTest extends SCIMBaseTest {
     public void shouldReturnNoUser() {
         final Response response = target(USER_RESOURCE_PATH + "/" + UUID.randomUUID())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildGet()
                 .invoke();
 
@@ -61,7 +59,6 @@ public class UserResourceTest extends SCIMBaseTest {
 
         final Response response = target(USER_RESOURCE_PATH + "/" + existingUser.getExternalId())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildPut(Entity.entity(existingUser, "application/scim+json"))
                 .invoke();
 
@@ -80,7 +77,6 @@ public class UserResourceTest extends SCIMBaseTest {
 
         final Response response = target(USER_RESOURCE_PATH + "/" + existingUser.getExternalId())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildDelete()
                 .invoke();
 
@@ -90,7 +86,6 @@ public class UserResourceTest extends SCIMBaseTest {
 
         final Response getDeletedUserResponse = target(USER_RESOURCE_PATH + "/" + existingUser.getExternalId())
                 .request("application/scim+json")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + JWS)
                 .buildGet()
                 .invoke();
 

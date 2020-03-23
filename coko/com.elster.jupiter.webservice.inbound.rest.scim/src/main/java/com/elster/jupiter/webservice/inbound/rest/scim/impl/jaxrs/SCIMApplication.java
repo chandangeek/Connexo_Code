@@ -1,12 +1,10 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs;
 
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.OAuthExceptionMapper;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.SCIMExceptionMapper;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.filter.TokenEndPointResponseFilter;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.TokenService;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.impl.TokenServiceImpl;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.resource.TokenResource;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.SCIMService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.impl.SCIMServiceImpl;
@@ -27,9 +25,12 @@ public class SCIMApplication extends Application implements ApplicationSpecific 
 
     private final UserService userService;
 
+    private final TokenService tokenService;
+
     @Inject
-    public SCIMApplication(UserService userService) {
+    public SCIMApplication(UserService userService, TokenService tokenService) {
         this.userService = userService;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -41,12 +42,6 @@ public class SCIMApplication extends Application implements ApplicationSpecific 
                 UserResource.class,
                 GroupResource.class,
                 TokenResource.class,
-
-                // Filters
-                // TODO: Currently implementing OAuth 2.0 filters on connexo webservices framework level
-//                BasicAuthorizationFilter.class,
-//                BearerAuthorizationFilter.class,
-                TokenEndPointResponseFilter.class,
 
                 // Exception mappers
                 OAuthExceptionMapper.class,
@@ -64,9 +59,9 @@ public class SCIMApplication extends Application implements ApplicationSpecific 
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
-            bind(TokenServiceImpl.class).to(TokenService.class);
             bind(SCIMServiceImpl.class).to(SCIMService.class);
             bind(userService).to(UserService.class);
+            bind(tokenService).to(TokenService.class);
         }
     }
 
