@@ -90,34 +90,29 @@ public class CustomPropertySetInfoFactory {
                     .map(propertySpec -> getPropertyInfo(propertySpec, key -> customPropertySetValue != null ? customPropertySetValue
                             .getProperty(key) : null))
                     .collect(Collectors.toList());
-            setLastItemDeletable(rcps, object, info);
+            setLastItemRemovable(rcps, object, info);
         }
         return info;
     }
 
-    private void setLastItemDeletable(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetInfo info) {
-        if (info.isVersioned && isLastItem(rcps, info.versionId, object, Optional.empty())) {
-            if (info.properties == null || info.properties.stream().noneMatch(prop -> ((CustomPropertySetAttributeInfo)prop).required)) {
-                info.deletable = true;
-            }
+    private void setLastItemRemovable(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetInfo info) {
+        if (info.isVersioned
+                && (info.properties == null || info.properties.stream().noneMatch(prop -> ((CustomPropertySetAttributeInfo)prop).required))
+                && isLastItem(rcps, info.endTime, object)) {
+            info.removable = true;
         }
     }
 
-    public boolean isLastItem(RegisteredCustomPropertySet registeredCps, long versionId, Object object, Optional<Long> id) {
-        List<CustomPropertySetValues> allVersions;
-        if (id.isPresent()) {
-            allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCps.getCustomPropertySet(), object, id.get());
-        } else {
-            allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCps.getCustomPropertySet(), object);
+    public boolean isLastItem(RegisteredCustomPropertySet registeredCps, Long endTimestamp, Object object, Object... objects) {
+        if (endTimestamp == null || endTimestamp == 0) {
+            return true;
         }
-        if (!allVersions.isEmpty()) {
-            CustomPropertySetValues version = allVersions.get(allVersions.size() - 1);
-            long versId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli(): 0;
-            if (versId == versionId) {
-                return true;
-            }
+        Instant timestamp = Instant.ofEpochMilli(endTimestamp).plusMillis(1);
+        CustomPropertySetValues versionAfter = customPropertySetService.getUniqueValuesFor(registeredCps.getCustomPropertySet(), object, timestamp, objects);
+        if (versionAfter != null && !versionAfter.isEmpty()) {
+            return false;
         }
-        return false;
+        return true;
     }
 
     private void addTimeSliceCustomPropertySetInfo(CustomPropertySetInfo info, CustomPropertySetValues customPropertySetValue) {

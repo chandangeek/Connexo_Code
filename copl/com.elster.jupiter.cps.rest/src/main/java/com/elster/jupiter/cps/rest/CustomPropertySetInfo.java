@@ -33,6 +33,6 @@ public class CustomPropertySetInfo<T> {
     public Set<ViewPrivilege> defaultViewPrivileges;
     public Set<EditPrivilege> defaultEditPrivileges;
     public List<CustomPropertySetAttributeInfo> properties;
-    public boolean deletable;
+    public boolean removable;
     public T parent;
 }

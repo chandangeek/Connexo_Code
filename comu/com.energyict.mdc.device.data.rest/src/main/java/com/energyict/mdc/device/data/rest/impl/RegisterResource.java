@@ -329,13 +329,15 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response deleteRegisterCustomPropertyVersion(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+    public Response removeRegisterCustomPropertyVersion(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
         Register<?, ?> register = doGetRegister(name, registerId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, Instant.ofEpochMilli(timeStamp));
+        resourceHelper.lockRegisterTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
         if (customPropertySetInfo.id != cpsId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
-        if (customPropertySetInfo.deletable) {
+        if (customPropertySetInfo.removable) {
             resourceHelper.deleteCustomPropertySetVersion(register, customPropertySetInfo);
         } else {
             throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, customPropertySetInfo.name, Instant.ofEpochMilli(timeStamp));
