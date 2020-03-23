@@ -8,6 +8,8 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.PrimaryKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.TableConstraintImpl;
+
+import com.google.common.cache.CacheStats;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -156,6 +158,10 @@ public interface Table<T> {
      *
      */
     void cache();
+
+    void cache(long cacheTtl, long maximumSize, boolean recordStat);
+
+    CacheStats getCacheStats();
 
     void indexOrganized(int compressCount);
 
