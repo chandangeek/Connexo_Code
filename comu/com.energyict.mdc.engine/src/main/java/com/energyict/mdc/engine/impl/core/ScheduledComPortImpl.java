@@ -303,12 +303,12 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         excutableOutBoundComTaskPool.drainTo(tasks, nrOfTaskToProcess);
         List<ComJob> jobs;
         if (tasks.size() > 0) {
-            LOGGER.info("CXO-11783: Fetch data from pool counted as:" + tasks.size());
-            LOGGER.info("CXO-11783: " + getComPort().getName() + "- PoolSize after fetch:" + excutableOutBoundComTaskPool.size());
+            LOGGER.info("Prefetch: Fetch data from pool counted as:" + tasks.size());
+            LOGGER.info("Prefetch: " + getComPort().getName() + "- PoolSize after fetch:" + excutableOutBoundComTaskPool.size());
             ComJobFactory comJobFactory = getComJobFactoryFor(getComPort());
             jobs = comJobFactory.consume(tasks.iterator());
         } else {
-            LOGGER.info("CXO-11783: Fetch data from DB");
+            LOGGER.info("Prefetch: Fetch data from DB");
             jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
         }
         return jobs;

@@ -124,6 +124,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     public static final String PREFETCH_COMTASK_DELAY_PROPERTY = "com.elster.jupiter.prefetch.comtask.delay.sec";
     public static final String PREFETCH_COMTASK_LIMIT_PROPERTY = "com.elster.jupiter.prefetch.comtask.limit";
     public static final String PREFETCH_COMTASK_BALANCED_PROPERTY = "com.elster.jupiter.prefetch.comtask.balanced";
+    public static final String PREFETCH_COMTASK_ENABLED_PROPERTY = "com.elster.jupiter.prefetch.comtask.enabled";
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -733,6 +734,12 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Override
     public boolean isPrefetchBalanced() {
         String property = bundleContext.getProperty(PREFETCH_COMTASK_BALANCED_PROPERTY);
+        return property != null && property.trim().toLowerCase().equals("true");
+    }
+
+    @Override
+    public boolean isPrefetchEnabled() {
+        String property = bundleContext.getProperty(PREFETCH_COMTASK_ENABLED_PROPERTY);
         return property != null && property.trim().toLowerCase().equals("true");
     }
 

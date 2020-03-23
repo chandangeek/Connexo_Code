@@ -43,6 +43,7 @@ public class ComTaskExecFetcher implements Runnable, ServerProcess {
     private long waitTime;
     private long limitNrOfEntriesToReturn;
     private boolean prefetchBalanced;
+    private boolean prefetchEnabled;
     private Map<Long, Integer> balancingMap = new HashMap<>();
 
 
@@ -64,13 +65,14 @@ public class ComTaskExecFetcher implements Runnable, ServerProcess {
         this.waitTime = Duration.of(engineService.getPrefetchComTaskDelay(), ChronoUnit.SECONDS).toMillis();
         this.limitNrOfEntriesToReturn = engineService.getPrefetchComTaskLimit();
         this.prefetchBalanced = engineService.isPrefetchBalanced();
+        this.prefetchEnabled = engineService.isPrefetchEnabled();
     }
 
     @Override
     public void run() {
         while (continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
-                LOGGER.info("CXO-11783: " + comServer.getName() + ": Start Prefetch");
+                LOGGER.info("Prefetch: " + comServer.getName() + ": Start Prefetch");
                 processData();
                 Thread.sleep(waitTime);
             } catch (InterruptedException e) {
@@ -95,7 +97,7 @@ public class ComTaskExecFetcher implements Runnable, ServerProcess {
                 }
                 skip += limitNrOfEntriesToReturn;
             } else {
-                LOGGER.info("CXO-11783: " + comServer.getName() + ": No data to fetch!");
+                LOGGER.info("Prefetch: " + comServer.getName() + ": No data to fetch!");
             }
         } while (continueFetching);
     }
@@ -104,8 +106,8 @@ public class ComTaskExecFetcher implements Runnable, ServerProcess {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<ComTaskExecution> tasks = comServerDAO.findExecutableOutboundComTasks(comServer, delta, limit, skip);
         stopwatch.stop();
-        LOGGER.info("CXO-11783: " + comServer.getName() + ":  fetchDataTime: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
-        LOGGER.info("CXO-11783: " + comServer.getName() + ": fetchDataCount: " + tasks.size());
+        LOGGER.info("Prefetch: " + comServer.getName() + ":  fetchDataTime: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
+        LOGGER.info("Prefetch: " + comServer.getName() + ": fetchDataCount: " + tasks.size());
         return tasks;
     }
 
@@ -159,12 +161,14 @@ public class ComTaskExecFetcher implements Runnable, ServerProcess {
 
     @Override
     public void start() {
-        status = ServerProcessStatus.STARTING;
-        continueRunning = new AtomicBoolean(true);
-        self = threadFactory.newThread(this);
-        self.setName("ComTaskExecFetcher for " + comServer.getName());
-        self.start();
-        status = ServerProcessStatus.STARTED;
+        if (prefetchEnabled) {
+            status = ServerProcessStatus.STARTING;
+            continueRunning = new AtomicBoolean(true);
+            self = threadFactory.newThread(this);
+            self.setName("ComTaskExecFetcher for " + comServer.getName());
+            self.start();
+            status = ServerProcessStatus.STARTED;
+        }
     }
 
     @Override
@@ -178,8 +182,10 @@ public class ComTaskExecFetcher implements Runnable, ServerProcess {
     }
 
     private void doShutdown() {
-        status = ServerProcessStatus.SHUTTINGDOWN;
-        continueRunning.set(false);
-        self.interrupt();   // in case the thread was sleeping between detecting changes
+        if (prefetchEnabled) {
+            status = ServerProcessStatus.SHUTTINGDOWN;
+            continueRunning.set(false);
+            self.interrupt();   // in case the thread was sleeping between detecting changes
+        }
     }
 }
