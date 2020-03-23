@@ -7,9 +7,9 @@ package com.elster.jupiter.messaging;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.conditions.Condition;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.conditions.Condition;
 
 /**
  * Models a Subscriber on a Destination.
@@ -43,5 +43,7 @@ public interface SubscriberSpec extends HasName {
     String getNlsComponent();
 
     Condition getFilterCondition();
+
+    String getFilter();
 
 }
