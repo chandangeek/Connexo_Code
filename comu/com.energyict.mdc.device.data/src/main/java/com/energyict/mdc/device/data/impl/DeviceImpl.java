@@ -2234,7 +2234,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void setJournalReadingQualities(Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap, List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal, Channel mdcChannel, List<? extends ReadingQualityRecord> readingQualities) {
         final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
-        sortedHistoryLoadProfileReadingMap.entrySet().stream()
+        sortedHistoryLoadProfileReadingMap.entrySet()
                 .forEach(instantListEntry -> {
                     List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, instantListEntry.getKey());
                     List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
@@ -2245,10 +2245,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             .filter(o -> instantListEntry.getKey().equals(o.get().getReadingTimestamp()))
                             .filter(o -> channelReadingTypes.contains(o.get().getReadingType()))
                             .map(JournalEntry::get).collect(Collectors.toList());
-                    List<ReadingQualityRecord> allReadingQuality = readingQualityList.stream().collect(Collectors.toList());
-                    allReadingQuality.addAll(readingQualityJournalList.stream().collect(Collectors.toList()));
-                    allReadingQuality.stream().forEach(rqj -> {
-                        Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
+                    List<ReadingQualityRecord> allReadingQuality = new ArrayList<>(readingQualityList);
+                    allReadingQuality.addAll(readingQualityJournalList);
+                    allReadingQuality.forEach(rqj -> {
+                        Optional<LoadProfileJournalReadingImpl> journalReadingOptional;
                         if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
                             journalReadingOptional = instantListEntry.getValue()
                                     .stream()
@@ -2258,13 +2258,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         } else {
                             journalReadingOptional = instantListEntry.getValue()
                                     .stream()
-                                    .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
+                                    .sorted(Comparator.comparing(LoadProfileReadingImpl::getReadingTime))
                                     .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) >= 0)
                                     .findFirst();
                         }
                         journalReadingOptional.ifPresent(journalReading -> {
                             Map<Channel, List<? extends ReadingQualityRecord>> readingQualitiesList = journalReading.getReadingQualities();
-                            List<ReadingQualityRecord> original = readingQualitiesList.get(mdcChannel).stream().collect(Collectors.toList());
+                            List<ReadingQualityRecord> original = new ArrayList<>(readingQualitiesList.get(mdcChannel));
                             original.add(rqj);
                             journalReading.setReadingQualities(mdcChannel, original);
                         });
@@ -3503,7 +3503,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         public int compare(SyncDeviceWithKoreMeter o1, SyncDeviceWithKoreMeter o2) {
             int a = o1.canUpdateCurrentMeterActivation() ? 1 : 0;
             int b = o2.canUpdateCurrentMeterActivation() ? 1 : 0;
-            return new Integer(a).compareTo(b);
+            return Integer.compare(a, b);
         }
     }
 }
