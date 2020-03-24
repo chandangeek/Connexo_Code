@@ -130,7 +130,6 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                             url: url,
                             method: 'DELETE',
                             success: function (response) {
-                                var data = Ext.JSON.decode(response.responseText).data;
                                 var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'IMT', '{0} version removed', versionPeriod)
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
