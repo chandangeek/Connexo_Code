@@ -122,7 +122,7 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'IMT', 'This version will on longer be available.'),
+                msg: Uni.I18n.translate('sapattribute.removeVersionMsg', 'IMT', 'This version will no longer be available.'),
                 title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'IMT', 'Remove {0} version?', versionPeriod),
                 fn: function (state) {
                     if (state === 'confirm') {
@@ -130,7 +130,7 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                             url: url,
                             method: 'DELETE',
                             success: function (response) {
-                                var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'IMT', '{0} version removed', versionPeriod)
+                                var messageText = versionPeriod + Uni.I18n.translate('sapattribute.version.succesfullyRemoved', 'IMT', ' version removed.')
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
                             callback: function(){

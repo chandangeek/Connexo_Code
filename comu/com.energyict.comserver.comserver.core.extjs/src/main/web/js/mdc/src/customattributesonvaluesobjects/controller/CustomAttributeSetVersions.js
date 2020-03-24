@@ -140,10 +140,6 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                 var registerId = routeArguments.registerId;
                 url = '/api/ddr/devices/' + deviceName + '/registers/' + registerId;
             break;
-            case "usagePoint":
-                var usagePointName = usagePointId;
-                url = '/api/udr/usagepoints/' + usagePointName;
-            break;
             default:
             break;
         }
@@ -164,7 +160,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
                             callback: function(){
-                                router.getRoute().forward();
+                                router.getRoute().forward(routeArguments, routeQueryParams);
                             }
                         });
                     }
