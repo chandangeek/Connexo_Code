@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
+import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.DeviceService;
@@ -217,7 +218,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                         loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypesMRIDs));
                         loadProfiles.forEach(loadProfile -> {
                             Optional<Instant> lastReading = loadProfile.getChannels().stream()
-                                    .map(channel -> channel.getLastDateTime())
+                                    .map(Channel::getLastDateTime)
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
                                     .max(Comparator.naturalOrder());
@@ -226,7 +227,6 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                                 device.getLoadProfileUpdaterFor(loadProfile).setLastReading(lastReading.get()).update();
                             }
                         });
-
                     });
         }
     }
