@@ -140,7 +140,7 @@ public class MetrologyConfigurationResource {
             Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(upName);
             CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(), usagePoint.get(), Instant.now());
             if (!values.isEmpty()){
-                infos.add(customPropertySetInfoFactory.getUsagePointFullInfo(rcps, usagePoint.get(), values));
+                infos.add(customPropertySetInfoFactory.getFullInfo(rcps, usagePoint.get(), values));
             }
         }
         return PagedInfoList.fromCompleteList("customPropertySets",infos,queryParameters);
