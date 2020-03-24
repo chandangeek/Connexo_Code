@@ -358,17 +358,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         return comJobs;
     }
 
-    @Override
-    public List<ComTaskExecution> findExecutableOutboundComTasks(ComServer comServer, Duration delta, long limit, long skip) {
-        List<OutboundComPortPool> outboundComPortPools =
-                getEngineModelService().findContainingComPortPoolsForComServer(comServer)
-                        .stream().filter(ComPortPool::isActive)
-                        .filter(comPortPool -> !comPortPool.isInbound())
-                        .map(OutboundComPortPool.class::cast)
-                        .collect(Collectors.toList());
-        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(outboundComPortPools, delta, limit, skip);
-    }
-
     private QueryTuner getAdaptiveLimitCalculator(OutboundComPort comPort) {
         QueryTuner pendingQueryLimit = pendingQueryLimitCalculators.get(comPort.getId());
 
@@ -383,6 +372,18 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         return pendingQueryLimit;
     }
+
+    @Override
+    public List<ComTaskExecution> findExecutableOutboundComTasks(ComServer comServer, Duration delta, long limit, long skip) {
+        List<OutboundComPortPool> outboundComPortPools =
+                getEngineModelService().findContainingComPortPoolsForComServer(comServer)
+                        .stream().filter(ComPortPool::isActive)
+                        .filter(comPortPool -> !comPortPool.isInbound())
+                        .map(OutboundComPortPool.class::cast)
+                        .collect(Collectors.toList());
+        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(outboundComPortPools, delta, limit, skip);
+    }
+
 
     @Override
     public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {

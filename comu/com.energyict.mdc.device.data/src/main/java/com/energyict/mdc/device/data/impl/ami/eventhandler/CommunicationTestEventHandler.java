@@ -82,7 +82,7 @@ public class CommunicationTestEventHandler implements MessageHandler {
 
     private List<ServiceCall> findServiceCallsLinkedTo(Device device) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.targetObject = device;
+        filter.targetObjects.add(device);
         filter.states = Collections.singletonList(DefaultState.ONGOING.name());
         filter.types = Collections.singletonList(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         return serviceCallService.getServiceCallFinder(filter).find();

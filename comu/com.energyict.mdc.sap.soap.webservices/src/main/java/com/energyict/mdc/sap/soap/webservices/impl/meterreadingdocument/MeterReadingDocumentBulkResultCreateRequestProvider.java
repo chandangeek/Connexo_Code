@@ -11,6 +11,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkResul
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltBulkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMtrRdngDoc;
@@ -26,9 +27,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -75,21 +73,18 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
         SetMultimap<String, String> values = HashMultimap.create();
-        getCreateRequestMessages(resultMessage).forEach(reading -> {
-            getTaskId(reading).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
-            getDeviceId(reading).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+        MtrRdngDocERPRsltBulkCrteReqMsg bulkResultMessage = resultMessage.getBulkResultMessage()
+                .orElseThrow(() -> new IllegalStateException("Unable to get bulk result message"));
+
+        bulkResultMessage.getMeterReadingDocumentERPResultCreateRequestMessage().forEach(reqMsg -> {
+            getTaskId(reqMsg).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+            getDeviceId(reqMsg).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+            getMeterReadingDocumentId(reqMsg).ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
         });
 
         using("meterReadingDocumentERPResultBulkCreateRequestCOut")
                 .withRelatedAttributes(values)
-                .send(resultMessage.getBulkResultMessage());
-    }
-
-    private static List<MtrRdngDocERPRsltCrteReqMsg> getCreateRequestMessages(MeterReadingDocumentCreateResultMessage resultMessage) {
-        return Optional.ofNullable(resultMessage)
-                .map(MeterReadingDocumentCreateResultMessage::getBulkResultMessage)
-                .map(MtrRdngDocERPRsltBulkCrteReqMsg::getMeterReadingDocumentERPResultCreateRequestMessage)
-                .orElse(Collections.emptyList());
+                .send(bulkResultMessage);
     }
 
     private static Optional<String> getTaskId(MtrRdngDocERPRsltCrteReqMsg msg) {
@@ -107,6 +102,13 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
                 .map(MtrRdngDocERPRsltCrteReqUtilsMsmtTsk::getUtiltiesDevice)
                 .map(MtrRdngDocERPRsltCrteReqUtilsDvce::getUtilitiesDeviceID)
                 .map(UtilitiesDeviceID::getValue);
+    }
+
+    private static Optional<String> getMeterReadingDocumentId(MtrRdngDocERPRsltCrteReqMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(MtrRdngDocERPRsltCrteReqMsg::getMeterReadingDocument)
+                .map(MtrRdngDocERPRsltCrteReqMtrRdngDoc::getID)
+                .map(MeterReadingDocumentID::getValue);
     }
 
     @Override

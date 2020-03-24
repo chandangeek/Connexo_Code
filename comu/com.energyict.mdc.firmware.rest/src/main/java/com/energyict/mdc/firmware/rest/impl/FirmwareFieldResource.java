@@ -15,12 +15,13 @@ import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
-import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.Range;
 
@@ -67,11 +68,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareStatuses() {
-        return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", firmwareStatusesClientSideValues());
-    }
-
-    private List<String> firmwareStatusesClientSideValues() {
-        return Stream.of(FirmwareStatusTranslationKeys.values()).map(FirmwareStatusTranslationKeys::getKey).collect(Collectors.toList());
+        return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", Stream.of(FirmwareStatus.values()).map(FirmwareStatus::getStatus).collect(Collectors.toList()));
     }
 
     /**
@@ -188,7 +185,7 @@ public class FirmwareFieldResource extends FieldResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap(cnf -> cnf.getComTaskEnablements().stream())
-                .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME))
+                .filter(cte -> cte.getComTask().getProtocolTasks().stream().anyMatch(FirmwareManagementTask.class::isInstance))
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
         return Response.ok(comTasks).build();

@@ -118,7 +118,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                 url: '/api/ddr/devices/' + encodeURIComponent(btn.deviceId) + '/zones',
                 success: function (record, operation) {
                     if (operation.success) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.addSuccess', 'MDC', 'Zone added'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.linkedSuccess', 'MDC', 'Zone linked'));
                         var router = me.getController('Uni.controller.history.Router');
                         router.getRoute('devices/device/zones').forward();
                     }
@@ -218,7 +218,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                                 device: device,
                                 deviceTypesStore: deviceTypesStore,
                                 edit: false,
-                                title: Uni.I18n.translate('deviceZone.add.title', 'MDC', 'Add zone'),
+                                title: Uni.I18n.translate('deviceZone.link.title', 'MDC', 'Link zone'),
                                 disableAction: !(success && (records.length > 0))
                             });
 

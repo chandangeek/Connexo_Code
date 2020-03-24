@@ -17,6 +17,7 @@ import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -153,15 +155,39 @@ public class DynamicSearchResource {
                                  @FormParam("start") Integer start,
                                  @FormParam("limit") Integer limit,
                                  @FormParam("filter") String filter) throws InvalidValueException {
+        Principal principal = threadPrincipalService.getPrincipal();
+        User user = (User)principal;
+        List searchResults;
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
         JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start, limit);
 
-        List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
-
-        List searchResults = infoFactory.from(domainObjects);
+        if(checkPrivileges(user, domainId)) {
+            List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
+            searchResults = infoFactory.from(domainObjects);
+        }else {
+            searchResults = new ArrayList();
+        }
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+    }
+
+    public boolean checkPrivileges(User user, String domainId){
+        boolean adminPrivilege =  user.getPrivileges()
+                .stream()
+                .filter(privilege -> privilege.getName().equals("privilege.administrate.deviceData"))
+                .findAny()
+                .isPresent();
+        boolean viewPrivilege = user.getPrivileges()
+                .stream()
+                .filter(privilege -> privilege.getName().equals("privilege.view.device"))
+                .findAny()
+                .isPresent();
+        if (domainId.equals("com.elster.jupiter.users.User") || adminPrivilege && viewPrivilege){
+            return true;
+        }
+
+        return false;
     }
 
     @GET

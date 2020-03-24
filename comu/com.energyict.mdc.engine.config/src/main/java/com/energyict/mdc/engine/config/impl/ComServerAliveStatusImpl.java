@@ -18,7 +18,7 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
 
     private Instant lastActiveTime;
     private Instant blockedSince;
-    private Integer blockTime;
+    private Long blockTime;
     private Integer updateFreq;
     private boolean running;
     private final Reference<ComServer> comServer = ValueReference.absent();
@@ -91,12 +91,12 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
     }
 
     @Override
-    public Optional<Integer> getBlockedTime() {
+    public Optional<Long> getBlockedTime() {
         return Optional.ofNullable(blockTime);
     }
 
     @Override
-    public void update(Instant time, Integer updateFrequency, Instant blockedSince, Integer blockTime) {
+    public void update(Instant time, Integer updateFrequency, Instant blockedSince, Long blockTime) {
         this.lastActiveTime = time;
         this.blockedSince = blockedSince;
         this.blockTime = blockTime;

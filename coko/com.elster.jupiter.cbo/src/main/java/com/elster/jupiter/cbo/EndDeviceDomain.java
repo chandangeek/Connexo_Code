@@ -37,8 +37,11 @@ public enum EndDeviceDomain implements HasNumericCode {
     VIDEODISPLAY("VideoDisplay", 13, "Events or controls related to device CRT/display."),
     VOLUME("Volume", 40, "A quantity of 3-dimensional space enclosed by a boundary; the space occupied by a liquid or gas."),
     WATERSUPPLY("WaterSupply", 5, "Events or controls related to the supply of water."),
-    WATCHDOG("Watchdog", 37, "A hardware or software function triggered by a timer expiring.");
-
+    WATCHDOG("Watchdog", 37, "A hardware or software function triggered by a timer expiring."),
+    ELSTER_DEFINED_SCHEDULER1("Scheduler1", 51,  "Elster defined Scheduler 1."),
+    ELSTER_DEFINED_SCHEDULER2("Scheduler2", 52,  "Elster defined Scheduler 2."),
+    ELSTER_DEFINED_SCHEDULER3("Scheduler3", 53,  "Elster defined Scheduler 3."),
+    ELSTER_DEFINED_SCHEDULER4("Scheduler4", 54,  "Elster defined Scheduler 4.");
 
     EndDeviceDomain(String mnemonic, int value, String description) {
         this.description = description;

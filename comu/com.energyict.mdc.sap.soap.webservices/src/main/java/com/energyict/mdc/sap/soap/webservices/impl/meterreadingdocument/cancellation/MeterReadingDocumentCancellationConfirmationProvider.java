@@ -4,11 +4,17 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentCancellationConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationconfirmation.MeterReadingDocumentID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationconfirmation.SmartMeterMeterReadingDocumentERPCancellationConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationconfirmation.SmartMeterMeterReadingDocumentERPCancellationConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationconfirmation.SmrtMtrMtrRdngDocERPCanclnConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationconfirmation.SmrtMtrMtrRdngDocERPCanclnConfMtrRdngDoc;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -16,6 +22,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationConfirmationProvider",
         service = {MeterReadingDocumentCancellationConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -55,8 +62,22 @@ public class MeterReadingDocumentCancellationConfirmationProvider extends Abstra
 
     @Override
     public void call(MeterReadingDocumentCancellationConfirmationMessage confMsg) {
+        SetMultimap<String, String> values = HashMultimap.create();
+        SmrtMtrMtrRdngDocERPCanclnConfMsg message = confMsg.getConfirmationMessage()
+                .orElseThrow(() -> new IllegalStateException("Confirmation message is empty."));
+
+        getMeterReadingDocumentId(message).ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
+        
         using("smartMeterMeterReadingDocumentERPCancellationConfirmationCOut")
-                .send(confMsg.getConfirmationMessage().orElseThrow(() -> new IllegalStateException("Confirmation message is empty.")));
+                .withRelatedAttributes(values)
+                .send(message);
+    }
+
+    private static Optional<String> getMeterReadingDocumentId(SmrtMtrMtrRdngDocERPCanclnConfMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(SmrtMtrMtrRdngDocERPCanclnConfMsg::getMeterReadingDocument)
+                .map(SmrtMtrMtrRdngDocERPCanclnConfMtrRdngDoc::getID)
+                .map(MeterReadingDocumentID::getValue);
     }
 
     @Override

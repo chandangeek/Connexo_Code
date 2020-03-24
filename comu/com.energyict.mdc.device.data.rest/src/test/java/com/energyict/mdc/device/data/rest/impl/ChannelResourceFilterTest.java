@@ -103,6 +103,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(channel4.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.isDataloggerSlave()).thenReturn(false);
+        when(deviceType.getLoadProfileTypeCustomPropertySet(any())).thenReturn(Optional.empty());
         when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
@@ -111,6 +112,8 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         Unit unit = Unit.get("kWh");
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channelSpec.getOverflow()).thenReturn(Optional.empty());
+        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
+        when(channelSpec.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channel.getLastReading()).thenReturn(Optional.empty());
         when(channel.getName()).thenReturn("Channel: " + id);

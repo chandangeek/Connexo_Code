@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.hsm.model.FUAKPassiveGenerationNotSupportedException;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
@@ -125,7 +126,7 @@ public class HsmKeyTest {
     }
 
     @Test
-    public void generateValue() throws HsmBaseException {
+    public void generateValue() throws HsmBaseException, FUAKPassiveGenerationNotSupportedException {
         // This is an awful test yet this is the model we have and need to mock a bunch of stuff ... my apologies :)
         SecurityAccessorType securityAccesorType = mock(SecurityAccessorType.class);
         HsmKeyType keyType = new HsmKeyType(HsmJssKeyType.AUTHENTICATION,"label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16, false);

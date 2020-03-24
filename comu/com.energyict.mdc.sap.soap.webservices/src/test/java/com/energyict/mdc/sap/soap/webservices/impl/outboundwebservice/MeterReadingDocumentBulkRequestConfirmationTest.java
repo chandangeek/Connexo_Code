@@ -12,6 +12,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcre
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPBulkCrteConfMsg;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class MeterReadingDocumentBulkRequestConfirmationTest extends AbstractOut
     @Before
     public void setUp() {
         when(webServiceCallOccurrence.getId()).thenReturn(1L);
-        when(outboundMessage.getBulkConfirmationMessage()).thenReturn(confirmationMessage);
+        when(outboundMessage.getBulkConfirmationMessage()).thenReturn(Optional.ofNullable(confirmationMessage));
 
         provider = getProviderInstance(MeterReadingDocumentBulkRequestConfirmationProvider.class);
     }

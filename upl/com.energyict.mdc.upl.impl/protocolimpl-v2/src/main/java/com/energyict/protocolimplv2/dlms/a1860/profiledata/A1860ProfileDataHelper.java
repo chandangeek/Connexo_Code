@@ -40,33 +40,79 @@ public class A1860ProfileDataHelper {
     }
 
     @SuppressWarnings("Duplicates")
-    public List<IntervalData> getIntervalData() throws IOException {
+    public List<IntervalData> getIntervalData(boolean selectiveHistoricRead) throws IOException {
         readMultiplierAndScaleFactor(loadProfileReader.getProfileObisCode());
 
         Calendar from = getFromCalendar(loadProfileReader);
-        protocol.getLogger().info("Reading interval buffer from device for profile [" + loadProfileReader.getProfileObisCode() + "].");
+        protocol.journal("Reading interval buffer from device for profile [" + loadProfileReader.getProfileObisCode() + "].");
 
         int profileEntriesInUse = getProfileGeneric().getEntriesInUse(); // The number of profile entries currently in use
+
+        if (profileEntriesInUse == 0) {
+            protocol.journal("No profile entries currently in use.");
+            return new ArrayList<>();
+        }
+
         long interval = this.getProfileInterval();
         long a1800Time = protocol.getDlmsSession().getCosemObjectFactory().getClock(Clock.getDefaultObisCode()).getDateTime().getTime() / 1000;
         long fromTime = from.getTimeInMillis() / 1000;
 
         if (interval > 0) {
-            long entriesToRead = ((a1800Time - fromTime) / interval) + 1;
-            if (profileEntriesInUse == 0){
-                return new ArrayList<>();// In case the profile buffer is empty
-            } else if (entriesToRead > profileEntriesInUse) {
-                entriesToRead = profileEntriesInUse; // It makes no sense to request more entries than the amount of entries currently in use
-            } else if (entriesToRead < 0) {
-                entriesToRead = 1;                   // This is the case when fromTime is after a1800Time, in fact telling to read out the future -> read out only the last entry
-            }
+            if (!selectiveHistoricRead) {
+                long entriesToRead = ((a1800Time - fromTime) / interval) + 1;
+                if (entriesToRead > profileEntriesInUse) {
+                    entriesToRead = profileEntriesInUse; // It makes no sense to request more entries than the amount of entries currently in use
+                } else if (entriesToRead < 0) {
+                    entriesToRead = 1;                   // This is the case when fromTime is after a1800Time, in fact telling to read out the future -> read out only the last entry
+                }
 
-            byte[] bufferData = getProfileGeneric().getBufferData(0, (int) entriesToRead, 0, 0);
-            return parseBuffer(bufferData);
+                byte[] bufferData = getProfileGeneric().getBufferData(0, (int) entriesToRead, 0, 0);
+                return parseBuffer(bufferData);
+            } else {
+                return getHistoricData(profileEntriesInUse, a1800Time, interval);
+            }
         } else {
             return new ArrayList<>();
         }
 
+    }
+
+    private List<IntervalData> getHistoricData(int profileEntriesInUse, long a1800Time, long interval) throws IOException {
+        long fromTime = loadProfileReader.getStartReadingTime().getTime() / 1000;
+        long toTime = loadProfileReader.getEndReadingTime().getTime() / 1000;
+
+        long totalEntries = ((a1800Time - fromTime) / interval) + 1;
+
+        int fromEntry = (int) ((a1800Time - toTime) / interval) + 1;
+        int entriesToRead = (int) totalEntries - fromEntry;
+        int toEntry = fromEntry + entriesToRead;
+
+        if (fromEntry > profileEntriesInUse) {
+            protocol.journal("Trying to read from entry " + fromEntry + " but the maximum entry is " + profileEntriesInUse + ". No entries will be read.");
+            return new ArrayList<>();
+        } else if (fromEntry < 0) {
+            protocol.journal("Trying to read from entry " + fromEntry + " (data from the future not available yet). Overriding to 0.");
+            fromEntry = 0;
+        }
+
+        if (toEntry > profileEntriesInUse) {
+            protocol.journal("Trying to read until entry " + toEntry + " but the maximum entry is " + profileEntriesInUse + ". Overriding to maximum.");
+            toEntry = profileEntriesInUse;
+        } else if (toEntry < 0) {
+            protocol.journal("Trying to read until entry " + toEntry + " (data from the future not available yet). Overriding to 1.");
+            toEntry = 1;
+        }
+
+        protocol.journal("Requesting data from entry " + fromEntry + " to entry " + toEntry);
+
+        byte[] bufferData = getProfileGeneric().getBufferData(fromEntry, toEntry, 0, 0);
+        final List<IntervalData> intervalData = parseBuffer(bufferData);
+
+        if (intervalData.size() > 0) {
+            protocol.journal("Received intervals from " + intervalData.get(intervalData.size() - 1).getEndTime() + " to " + intervalData.get(0).getEndTime());
+        }
+
+        return intervalData;
     }
 
     private ProfileGeneric getProfileGeneric() {
@@ -95,25 +141,25 @@ public class A1860ProfileDataHelper {
             loadProfileScaleFactor = A1860LoadProfileDataReader.SCALE_FACTOR_INSTRUMENTATION;
 
         } else {
-            protocol.getLogger().info("Could not determine Load Profile Multiplier and Scale Factor for OBIS code " + obisCode.toString());
+            protocol.journal("Could not determine Load Profile Multiplier and Scale Factor for OBIS code " + obisCode.toString());
         }
 
         if (loadProfileScaleFactor != null) {
             final Data scaleFactorData = protocol.getDlmsSession().getCosemObjectFactory().getData(loadProfileScaleFactor);
             AbstractDataType adt = scaleFactorData.getValueAttr();
             if (adt.isInteger64()) {
-                scaleFactor = adt.getInteger64().intValue() == 1 ? 0 : adt.getInteger64().intValue();
+                scaleFactor = adt.getInteger64().intValue();
             } else if (adt.isInteger8()) {
-                scaleFactor = adt.getInteger8().intValue() == 1 ? 0 : adt.getInteger8().intValue();
+                scaleFactor = adt.getInteger8().intValue();
             }
-            protocol.getLogger().info("Profile scale factor: " + BigDecimal.ONE.scaleByPowerOfTen(scaleFactor));
+            protocol.journal("Profile scale factor: " + BigDecimal.ONE.scaleByPowerOfTen(scaleFactor));
         }
 
         if (loadProfileMultiplier != null) {
             final Data multiplierData = protocol.getDlmsSession().getCosemObjectFactory().getData(loadProfileMultiplier);
             AbstractDataType adt = multiplierData.getValueAttr();
             multiplier = adt.longValue();
-            protocol.getLogger().info("Profile multiplier: " + multiplier);
+            protocol.journal("Profile multiplier: " + multiplier);
         }
     }
 
@@ -147,9 +193,11 @@ public class A1860ProfileDataHelper {
         A1800DLMSProfileIntervals intervals = new A1800DLMSProfileIntervals(bufferData, 0x0001, 0x0002, -1, 0x0004, null);
         if (multiplier != null) {
             intervals.setMultiplier(multiplier);
+            protocol.journal("Setting multiplier = " + multiplier);
         }
         if (scaleFactor != null) {
             intervals.setScaleFactor(scaleFactor);
+            protocol.journal("Setting scale = " + scaleFactor);
         }
         return intervals.parseIntervals(getProfileInterval(), getTimeZone());
     }

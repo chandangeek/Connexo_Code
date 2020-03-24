@@ -85,6 +85,9 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
             },
             getModelData: function () {
                 return null;
+            },
+            isDirty: function () {
+                return false;
             }
         }
     },

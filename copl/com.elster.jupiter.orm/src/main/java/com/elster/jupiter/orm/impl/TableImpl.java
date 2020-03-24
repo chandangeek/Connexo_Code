@@ -4,7 +4,18 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Encrypter;
+import com.elster.jupiter.orm.FieldType;
+import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.LifeCycleClass;
+import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableAudit;
+import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.audit.TableAuditImpl;
@@ -1114,7 +1125,7 @@ public class TableImpl<T> implements Table<T> {
 
     PartitionMethod getPartitionMethod() {
         if (partitionColumn().isPresent()) {
-            return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;
+            return isIndexOrganized() ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;
         }
         if (refPartitionConstraint().isPresent()) {
             return PartitionMethod.REFERENCE;
@@ -1262,18 +1273,18 @@ public class TableImpl<T> implements Table<T> {
     public TableAudit getTableAudit(Object object) {
         // find first by ContextColumn
         Optional<TableAudit> findByContext = tableAuditList.stream()
-                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0 && tableAudit.getContextPkValues(object).size()>0)
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() > 0 && tableAudit.getContextPkValues(object).size() > 0)
                 .findFirst();
 
-        if (findByContext.isPresent()){
+        if (findByContext.isPresent()) {
             return findByContext.get();
         }
 
         Optional<TableAudit> findOnlyByDomain = tableAuditList.stream()
-                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0)
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() > 0)
                 .findFirst();
 
-        if (findOnlyByDomain.isPresent()){
+        if (findOnlyByDomain.isPresent()) {
             return findOnlyByDomain.get();
         }
         return tableAuditList.get(0); //this is not correct, but should not happened
