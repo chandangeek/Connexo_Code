@@ -30,7 +30,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
                 section: this.SECTION_ACTION
             },
             {
-                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                text: Uni.I18n.translate('general.remove', 'IMT', 'Remove'),
                 itemId: 'time-sliced-custom-attribute-set-action-menu-remove-btn-id',
                 handler: function() {
                     me.fireEvent('removeVersion', me.type, me.record.get('versionId'), me.record.get('period'));

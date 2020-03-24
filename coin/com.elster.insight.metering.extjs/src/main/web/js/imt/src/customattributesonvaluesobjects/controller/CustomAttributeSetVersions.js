@@ -122,8 +122,8 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'MDC', 'This version will on longer be available.'),
-                title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'MDC', 'Remove {0} version?', versionPeriod),
+                msg: Uni.I18n.translate('sapattribute.removeVersionText', 'IMT', 'This version will on longer be available.'),
+                title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'IMT', 'Remove {0} version?', versionPeriod),
                 fn: function (state) {
                     if (state === 'confirm') {
                         Ext.Ajax.request({
@@ -131,7 +131,7 @@ Ext.define('Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                             method: 'DELETE',
                             success: function (response) {
                                 var data = Ext.JSON.decode(response.responseText).data;
-                                var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'MDC', '{0} version removed', versionPeriod)
+                                var messageText = Uni.I18n.translate('sapattribute.succesfullyRemoved', 'IMT', '{0} version removed', versionPeriod)
                                 me.getApplication().fireEvent('acknowledge', messageText);
                             },
                             callback: function(){
