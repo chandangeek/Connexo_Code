@@ -79,7 +79,7 @@ public class CustomPropertySetInfoFactory {
     }
 
 
-    public CustomPropertySetInfo getUsagePointFullInfo(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetValues customPropertySetValue) {
+    public CustomPropertySetInfo getFullInfo(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetValues customPropertySetValue) {
         CustomPropertySetInfo info = getGeneralInfo(rcps);
         if (rcps != null) {
             if (info.isVersioned) {

@@ -339,7 +339,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
         info.customPropertySets = customPropertySetExtension.getAllPropertySets()
                 .stream()
-                .map(rcps -> customPropertySetInfoFactory.getUsagePointFullInfo(rcps, usagePoint, rcps.getValues()))
+                .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, usagePoint, rcps.getValues()))
                 .collect(Collectors.toList());
         info.customPropertySets.sort((cas1, cas2) -> cas1.name.compareTo(cas2.name));
     }
