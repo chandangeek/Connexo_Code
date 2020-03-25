@@ -385,7 +385,17 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
         protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(FirewallConfigurationMessage.values());
         }
-    };
+    },
+    /**
+     * This category summarizes all messages related to the device credit charge configuration
+     */
+    CHARGE_CONFIGURATION(40, "Device charge configuration", "This category summarizes all messages related to the device credit charge configuration") {
+        @Override
+        protected List<DeviceMessageSpecSupplier> factories() {
+            return Arrays.asList(ChargeDeviceMessage.values());
+        }
+    },
+    ;
 
     private final int id;
     private final String defaultNameTranslation;
