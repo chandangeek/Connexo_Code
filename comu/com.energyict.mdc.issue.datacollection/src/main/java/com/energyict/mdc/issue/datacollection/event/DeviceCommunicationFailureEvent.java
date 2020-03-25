@@ -22,6 +22,7 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
@@ -77,13 +78,13 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
     }
 
     @Override
-    public EventDescription getIssueCausingEvent() {
-        return DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
+    public String getIssueCausingEventName() {
+        return DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE.name();
     }
 
     @Override
-    public EventDescription getIssueResolvingEvent() {
-        return DataCollectionResolveEventDescription.DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE;
+    public String getIssueResolvingEventName() {
+        return DataCollectionResolveEventDescription.DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE.name();
     }
 
     protected void setComTaskId(Long comTaskId) {

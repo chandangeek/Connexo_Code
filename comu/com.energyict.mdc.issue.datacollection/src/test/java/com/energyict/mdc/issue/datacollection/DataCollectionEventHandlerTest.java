@@ -18,8 +18,12 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
@@ -29,8 +33,10 @@ import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
+
 import org.junit.Test;
 import org.mockito.Matchers;
+
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
@@ -47,12 +53,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DataCollectionEventHandlerTest extends BaseTest {
+    protected DeviceType deviceType;
+    protected DeviceConfiguration deviceConfiguration;
+
     @Test
+    @Transactional
     public void testSuccessfullProcess() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         MessageHandler handler = getDataCollectionEventHandler(getMockIssueCreationService());
 
@@ -67,11 +78,13 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
+    @Transactional
     public void testUnmappedEvent() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/unknown/EVENT");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         MessageHandler handler = getDataCollectionEventHandler(getMockIssueCreationService());
 
@@ -83,12 +96,14 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
+    @Transactional
     public void testEventMappingConnectionLost() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(ConnectionLostEvent.class, UnableToConnectResolvedEvent.class);
@@ -97,40 +112,14 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
+    @Transactional
     public void testEventSplittingConnectionLost() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1, 10, 47");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
-        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
-        Message message = getMockMessage(getJsonService().serialize(messageMap));
-        CheckEventCountServiceMock service = new CheckEventCountServiceMock();
-        getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(1);
-    }
-
-    @Test
-    public void testEventMappingDeviceCommunicationFailed() {
-        Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
-        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
-        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
-        Message message = getMockMessage(getJsonService().serialize(messageMap));
-        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionLostResolvedEvent.class, UnableToConnectResolvedEvent.class);
-        getDataCollectionEventHandler(mock).process(message);
-        assertThat(mock.isSuccessfull()).isTrue();
-    }
-
-    @Test
-    public void testEventSplittingDeviceCommunicationFailed() {
-        Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
-        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1, 17, 56, 57");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
@@ -139,26 +128,62 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
+    @Transactional
+    public void testEventMappingDeviceCommunicationFailed() {
+        Map<String, Object> messageMap = new HashMap<>();
+        messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
+        messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1");
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
+        Message message = getMockMessage(getJsonService().serialize(messageMap));
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionLostResolvedEvent.class, UnableToConnectResolvedEvent.class);
+        getDataCollectionEventHandler(mock).process(message);
+        assertThat(mock.isSuccessfull()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testEventSplittingDeviceCommunicationFailed() {
+        Map<String, Object> messageMap = new HashMap<>();
+        messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
+        messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1, 17, 56, 57");
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
+        Message message = getMockMessage(getJsonService().serialize(messageMap));
+        CheckEventCountServiceMock service = new CheckEventCountServiceMock();
+        getDataCollectionEventHandler(service).process(message);
+        assertThat(service.getCounter()).isEqualTo(6);
+    }
+
+    @Test
+    @Transactional
     public void testEventSplittingSeveralEvents() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "2,41,");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, " 1 , 17 ,  , 56 ");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(1);
+        assertThat(service.getCounter()).isEqualTo(5);
     }
 
     @Test
+    @Transactional
     public void testEventMappingUnableToConnect() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/FAILURE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnableToConnectEvent.class);
         getDataCollectionEventHandler(mock).process(message);
@@ -166,11 +191,13 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
+    @Transactional
     public void testEventMappingUnknownInboundDevice() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownInboundDeviceEvent.class);
         getDataCollectionEventHandler(mock).process(message);
@@ -178,11 +205,13 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
+    @Transactional
     public void testEventMappingUnknownOutboundDevice() {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        Device device = createDevice();
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownSlaveDeviceEvent.class);
@@ -192,12 +221,11 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     private MessageHandler getDataCollectionEventHandler(IssueCreationService issueCreationService) {
         IssueService issueService = mockIssueService(issueCreationService);
-        DeviceService deviceService = mockDeviceService();
         MeteringService meteringService = mockMeteringService();
         EventService eventService = mockEventService();
         DataCollectionEventHandlerFactory handlerFactory = getInjector().getInstance(DataCollectionEventHandlerFactory.class);
         handlerFactory.setIssueService(issueService);
-        handlerFactory.setDeviceService(deviceService);
+        handlerFactory.setDeviceService(getDeviceService());
         handlerFactory.setMeteringService(meteringService);
         handlerFactory.setEventService(eventService);
         return handlerFactory.newMessageHandler();
@@ -232,14 +260,6 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         when(amrSystem.findMeter(Matchers.anyString())).thenReturn(Optional.of(meter));
         return meteringService;
 
-    }
-
-    private DeviceService mockDeviceService() {
-        DeviceService deviceDataService = mock(DeviceService.class);
-        Device device = mock(Device.class);
-        when(device.getId()).thenReturn(1L);
-        when(deviceDataService.findDeviceById(1)).thenReturn(Optional.of(device));
-        return deviceDataService;
     }
 
     protected class CheckEventTypeServiceMock extends IssueCreationServiceImpl {
@@ -277,5 +297,20 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         public int getCounter() {
             return counter;
         }
+    }
+
+    private Device createDevice() {
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(1L);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
+        deviceType = getDeviceConfigurationService().newDeviceType("DeviceTypeTest", deviceProtocolPluggableClass);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigTest");
+        deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceConfiguration.activate();
+        Device device = getDeviceService().newDevice(deviceConfiguration, "DeviceTest", Instant.now());
+        device.save();
+        return device;
     }
 }

@@ -72,6 +72,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -274,6 +275,10 @@ public abstract class BaseTest {
 
     protected DeviceService getDeviceService() {
         return injector.getInstance(DeviceService.class);
+    }
+
+    public DeviceConfigurationService getDeviceConfigurationService() {
+        return injector.getInstance(DeviceConfigurationService.class);
     }
 
     protected CommunicationTaskService getCommunicationTaskService() {

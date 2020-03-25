@@ -19,6 +19,7 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
@@ -51,13 +52,13 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     }
 
     @Override
-    public EventDescription getIssueCausingEvent() {
-        return DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE;
+    public String getIssueCausingEventName() {
+        return DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE.name();
     }
 
     @Override
-    public EventDescription getIssueResolvingEvent() {
-        return DataCollectionResolveEventDescription.UNKNOWN_OUTBOUND_DEVICE_EVENT_AUTO_RESOLVE;
+    public String getIssueResolvingEventName() {
+        return DataCollectionResolveEventDescription.UNKNOWN_OUTBOUND_DEVICE_EVENT_AUTO_RESOLVE.name();
     }
 
     @Override

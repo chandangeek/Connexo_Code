@@ -1,10 +1,9 @@
 package com.energyict.mdc.issue.datacollection.impl.records;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -33,8 +32,8 @@ public final class DataCollectionEventMetadataImpl implements DataCollectionEven
         }
     }
 
-    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
-    private Reference<EventType> eventType = ValueReference.absent();
+    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    private String eventType;
 
     private Reference<Device> device = ValueReference.absent();
 
@@ -62,8 +61,8 @@ public final class DataCollectionEventMetadataImpl implements DataCollectionEven
         this.dataModel = dataModel;
     }
 
-    public DataCollectionEventMetadataImpl init(EventType eventType, Device device, Issue issue, Instant createDateTime) {
-        this.eventType.set(eventType);
+    public DataCollectionEventMetadataImpl init(String eventType, Device device, Issue issue, Instant createDateTime) {
+        this.eventType = eventType;
 
         if (device == null) {
             this.device.setNull();
@@ -82,8 +81,8 @@ public final class DataCollectionEventMetadataImpl implements DataCollectionEven
     }
 
     @Override
-    public EventType getEventType() {
-        return eventType.get();
+    public String getEventType() {
+        return eventType;
     }
 
     @Override
@@ -102,8 +101,8 @@ public final class DataCollectionEventMetadataImpl implements DataCollectionEven
     }
 
     @Override
-    public void setEventType(final EventType eventType) {
-        this.eventType.set(eventType);
+    public void setEventType(final String eventType) {
+        this.eventType = eventType;
     }
 
     @Override

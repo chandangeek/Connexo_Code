@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceTopologyEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
+import com.energyict.mdc.identifiers.DeviceIdentifierByDeviceName;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
@@ -277,7 +278,8 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         //TODO port EISERVERSG-4445 from 9.1 code
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = new HashMap<>();
         Collection<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers().keySet();
-        for (DeviceIdentifier slaveId : actualSlaveDevices) {
+        DeviceIdentifier slaveId = new DeviceIdentifierByDeviceName("Igor");
+        //for (DeviceIdentifier slaveId : actualSlaveDevices) {
             Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> slave = Optional.empty();
             try {
                 slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
@@ -293,7 +295,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
                 this.unknownSerialNumbersAddedToTopology.add(slaveId.toString());
                 this.topologyChanged = true;
             }
-        }
+        //}
         return actualSlavesByDeviceId;
     }
 

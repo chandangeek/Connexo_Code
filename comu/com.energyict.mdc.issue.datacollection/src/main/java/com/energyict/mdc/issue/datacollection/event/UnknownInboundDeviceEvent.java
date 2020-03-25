@@ -14,7 +14,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
-import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
@@ -35,12 +35,12 @@ public class UnknownInboundDeviceEvent extends UnknownSlaveDeviceEvent {
     }
 
     @Override
-    public EventDescription getIssueCausingEvent() {
-        return DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE;
+    public String getIssueCausingEventName() {
+        return DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE.name();
     }
 
     @Override
-    public EventDescription getIssueResolvingEvent() {
-        return DataCollectionResolveEventDescription.UNKNOWN_INBOUND_DEVICE_EVENT_AUTO_RESOLVE;
+    public String getIssueResolvingEventName() {
+        return DataCollectionResolveEventDescription.UNKNOWN_INBOUND_DEVICE_EVENT_AUTO_RESOLVE.name();
     }
 }

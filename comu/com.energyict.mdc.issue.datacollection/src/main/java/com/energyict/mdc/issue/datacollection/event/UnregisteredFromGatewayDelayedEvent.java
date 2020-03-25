@@ -16,9 +16,9 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventType;
+
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
@@ -57,12 +57,12 @@ public class UnregisteredFromGatewayDelayedEvent extends DataCollectionEvent {
     }
 
     @Override
-    public EventDescription getIssueCausingEvent() {
+    public String getIssueCausingEventName() {
         return null;
     }
 
     @Override
-    public EventDescription getIssueResolvingEvent() {
+    public String getIssueResolvingEventName() {
         return null;
     }
 

@@ -18,6 +18,7 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
@@ -53,13 +54,13 @@ public class UnregisteredFromGatewayEvent extends DataCollectionEvent {
     }
 
     @Override
-    public EventDescription getIssueCausingEvent() {
-        return DataCollectionEventDescription.UNREGISTERED_FROM_GATEWAY;
+    public String getIssueCausingEventName() {
+        return DataCollectionEventDescription.UNREGISTERED_FROM_GATEWAY.name();
     }
 
     @Override
-    public EventDescription getIssueResolvingEvent() {
-        return DataCollectionResolveEventDescription.REGISTERED_TO_GATEWAY;
+    public String getIssueResolvingEventName() {
+        return DataCollectionResolveEventDescription.REGISTERED_TO_GATEWAY.name();
     }
 
     public long getDeviceIdentifier() {
