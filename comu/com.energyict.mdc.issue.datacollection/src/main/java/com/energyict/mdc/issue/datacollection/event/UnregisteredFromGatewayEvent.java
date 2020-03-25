@@ -54,13 +54,13 @@ public class UnregisteredFromGatewayEvent extends DataCollectionEvent {
     }
 
     @Override
-    public String getIssueCausingEventName() {
-        return DataCollectionEventDescription.UNREGISTERED_FROM_GATEWAY.name();
+    public EventDescription getIssueCausingEvent() {
+        return DataCollectionEventDescription.UNREGISTERED_FROM_GATEWAY;
     }
 
     @Override
-    public String getIssueResolvingEventName() {
-        return DataCollectionResolveEventDescription.REGISTERED_TO_GATEWAY.name();
+    public EventDescription getIssueResolvingEvent() {
+        return DataCollectionResolveEventDescription.REGISTERED_TO_GATEWAY;
     }
 
     public long getDeviceIdentifier() {

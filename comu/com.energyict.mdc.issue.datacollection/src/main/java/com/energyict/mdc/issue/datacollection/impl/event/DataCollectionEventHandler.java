@@ -139,10 +139,7 @@ public class DataCollectionEventHandler implements MessageHandler {
     }
 
     protected Optional<String> getString(Map<?, ?> map, String key) {
-        String contents = (String) map.get(key);
-        if (contents != null) {
-            return Optional.of(contents);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(map.get(key))
+                .map(String.class::cast);
     }
 }

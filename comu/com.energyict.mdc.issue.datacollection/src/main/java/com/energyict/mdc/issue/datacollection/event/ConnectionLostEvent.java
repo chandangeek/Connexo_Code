@@ -17,6 +17,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 
 import com.google.inject.Injector;
 
@@ -37,13 +38,13 @@ public class ConnectionLostEvent extends ConnectionEvent {
     }
 
     @Override
-    public String getIssueCausingEventName() {
-        return DataCollectionEventDescription.CONNECTION_LOST.name();
+    public EventDescription getIssueCausingEvent() {
+        return DataCollectionEventDescription.CONNECTION_LOST;
     }
 
     @Override
-    public String getIssueResolvingEventName() {
-        return DataCollectionResolveEventDescription.CONNECTION_LOST_AUTO_RESOLVE.name();
+    public EventDescription getIssueResolvingEvent() {
+        return DataCollectionResolveEventDescription.CONNECTION_LOST_AUTO_RESOLVE;
     }
 
 }

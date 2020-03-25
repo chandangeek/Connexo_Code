@@ -12,17 +12,17 @@ import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 public interface OccurrenceConditionControllable {
 
     /**
-     * Returns a name of event which is treated as an issue causing event.
+     * Returns a description of event which is treated as an issue causing event.
      *
      * @return {@link EventDescription}
      */
-    String getIssueCausingEventName();
+    EventDescription getIssueCausingEvent();
 
     /**
-     * Returns a name of event which is treated as an issue resolving event.
+     * Returns a description of event which is treated as an issue resolving event.
      *
      * @return {@link EventDescription}
      */
-    String getIssueResolvingEventName();
+    EventDescription getIssueResolvingEvent();
 
 }

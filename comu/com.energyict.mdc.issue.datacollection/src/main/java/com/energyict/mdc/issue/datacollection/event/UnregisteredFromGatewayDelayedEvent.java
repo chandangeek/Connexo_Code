@@ -57,12 +57,12 @@ public class UnregisteredFromGatewayDelayedEvent extends DataCollectionEvent {
     }
 
     @Override
-    public String getIssueCausingEventName() {
+    public EventDescription getIssueCausingEvent() {
         return null;
     }
 
     @Override
-    public String getIssueResolvingEventName() {
+    public EventDescription getIssueResolvingEvent() {
         return null;
     }
 

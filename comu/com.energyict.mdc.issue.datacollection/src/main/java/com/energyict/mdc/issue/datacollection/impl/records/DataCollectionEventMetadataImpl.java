@@ -32,7 +32,7 @@ public final class DataCollectionEventMetadataImpl implements DataCollectionEven
         }
     }
 
-    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private String eventType;
 
     private Reference<Device> device = ValueReference.absent();

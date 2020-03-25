@@ -17,6 +17,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 
 import com.google.inject.Injector;
 
@@ -38,13 +39,13 @@ public class UnableToConnectEvent extends ConnectionEvent {
     }
 
     @Override
-    public String getIssueCausingEventName() {
-        return DataCollectionEventDescription.UNABLE_TO_CONNECT.name();
+    public EventDescription getIssueCausingEvent() {
+        return DataCollectionEventDescription.UNABLE_TO_CONNECT;
     }
 
     @Override
-    public String getIssueResolvingEventName() {
-        return DataCollectionResolveEventDescription.UNABLE_TO_CONNECT_AUTO_RESOLVE.name();
+    public EventDescription getIssueResolvingEvent() {
+        return DataCollectionResolveEventDescription.UNABLE_TO_CONNECT_AUTO_RESOLVE;
     }
 
 }

@@ -261,9 +261,9 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
 
         int counter = 0;
         for (DataCollectionEventMetadata event : dataCollectionEvents) {
-            if (event.getEventType().equals(this.getIssueResolvingEventName())) {
+            if (event.getEventType().equals(this.getIssueResolvingEvent().getName())) {
                 return false;
-            } else if (event.getEventType().equals(this.getIssueCausingEventName())) {
+            } else if (event.getEventType().equals(this.getIssueCausingEvent().getName())) {
                 if (closedInterval.contains(event.getCreateDateTime().atZone(clock.getZone()))) {
                     counter++;
                 }
@@ -337,9 +337,9 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
         return clone;
     }
 
-    public abstract String getIssueCausingEventName();
+    public abstract EventDescription getIssueCausingEvent();
 
-    public abstract String getIssueResolvingEventName();
+    public abstract EventDescription getIssueResolvingEvent();
 
     public boolean isResolveEvent() {
         return false;

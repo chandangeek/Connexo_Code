@@ -52,13 +52,13 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     }
 
     @Override
-    public String getIssueCausingEventName() {
-        return DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE.name();
+    public EventDescription getIssueCausingEvent() {
+        return DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE;
     }
 
     @Override
-    public String getIssueResolvingEventName() {
-        return DataCollectionResolveEventDescription.UNKNOWN_OUTBOUND_DEVICE_EVENT_AUTO_RESOLVE.name();
+    public EventDescription getIssueResolvingEvent() {
+        return DataCollectionResolveEventDescription.UNKNOWN_OUTBOUND_DEVICE_EVENT_AUTO_RESOLVE;
     }
 
     @Override

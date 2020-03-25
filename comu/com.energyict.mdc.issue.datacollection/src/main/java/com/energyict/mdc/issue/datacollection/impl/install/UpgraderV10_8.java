@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.List;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
@@ -45,6 +46,7 @@ public class UpgraderV10_8 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, version(10, 8));
         //append partition for next month and enable auto increment partition interval
         if (dataModel.getSqlDialect().hasPartitioning()) {
             execute(dataModel, "LOCK TABLE IDC_DATACOLLECTION_EVENT PARTITION FOR (" + clock.instant().plusMillis(PARTITIONSIZE).toEpochMilli() + ") IN SHARE MODE",
@@ -55,16 +57,7 @@ public class UpgraderV10_8 implements Upgrader {
     }
 
     private void updateDataCollectionEventMetadata() {
-        removeFKEventType();
         updateEventTypeColumn();
-    }
-
-    private void removeFKEventType() {
-        try {
-            execute(dataModel, "ALTER TABLE IDC_DATACOLLECTION_EVENT DROP CONSTRAINT IDC_DC_EVT_DES_FK_TO_EVENTTYPE");
-        } catch (Exception e) {
-            // no action if fk already not exists
-        }
     }
 
     private void updateEventTypeColumn() {

@@ -78,13 +78,13 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
     }
 
     @Override
-    public String getIssueCausingEventName() {
-        return DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE.name();
+    public EventDescription getIssueCausingEvent() {
+        return DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
     }
 
     @Override
-    public String getIssueResolvingEventName() {
-        return DataCollectionResolveEventDescription.DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE.name();
+    public EventDescription getIssueResolvingEvent() {
+        return DataCollectionResolveEventDescription.DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE;
     }
 
     protected void setComTaskId(Long comTaskId) {
