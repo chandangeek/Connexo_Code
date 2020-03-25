@@ -774,6 +774,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
         var connectionStatus = connectionMethod.get('status'),
             connectionStrategy = connectionMethod.get('connectionStrategy'),
+            connectionDirecion = connectionMethod.get('direction'),
             previousConnectionData = Object.assign({}, connectionMethod.data);
 
         if (connectionStatus === 'connectionTaskStatusIncomplete' || connectionStatus === 'connectionTaskStatusInActive') {
@@ -783,7 +784,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         }
         connectionMethod.data.status = connectionStatus;
 
-        if (connectionStrategy === 'AS_SOON_AS_POSSIBLE' || connectionStrategy === 'Inbound') {
+        if (connectionStrategy === 'AS_SOON_AS_POSSIBLE' || connectionDirecion === 'Inbound') {
             connectionMethod.data.nextExecutionSpecs = null;
         }
 
