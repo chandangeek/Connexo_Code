@@ -33,6 +33,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -73,7 +74,7 @@ public class UsagePointCustomPropertySetResource {
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(rcps -> {
-                    CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues());
+                    CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(rcps, rcps.getUsagePoint(), rcps.getValues());
                     info.parent = getParentInfo(rcps.getUsagePoint());
                     return info;
                 })
@@ -124,7 +125,7 @@ public class UsagePointCustomPropertySetResource {
                 .sorted(Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT))
                 .map(conflict -> {
                     ValuesRangeConflictInfo conflictInfo = customPropertySetInfoFactory.getValuesRangeConflictInfo(conflict);
-                    conflictInfo.customPropertySet = customPropertySetInfoFactory.getFullInfo(versionedPropertySet, conflict.getValues());
+                    conflictInfo.customPropertySet = customPropertySetInfoFactory.getFullInfo(versionedPropertySet, usagePointExtension.getUsagePoint(), conflict.getValues());
                     return conflictInfo;
                 })
                 .collect(Collectors.toList());
@@ -181,7 +182,7 @@ public class UsagePointCustomPropertySetResource {
                 .findUsagePointByNameOrThrowException(usagePointName)
                 .forCustomProperties()
                 .getPropertySet(rcpsId);
-        CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
+        CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getUsagePoint(), propertySet.getValues());
         info.parent = getParentInfo(propertySet.getUsagePoint());
         return info;
     }
@@ -221,7 +222,7 @@ public class UsagePointCustomPropertySetResource {
                 .getPropertySet(rcpsId);
         propertySet.setValues(this.customPropertySetInfoFactory
                 .getCustomPropertySetValues(info, propertySet.getCustomPropertySet().getPropertySpecs()));
-        return customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
+        return customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getUsagePoint(), propertySet.getValues());
     }
 
     @GET
@@ -252,7 +253,7 @@ public class UsagePointCustomPropertySetResource {
         List<CustomPropertySetInfo> versions = versionedPropertySet
                 .getAllVersionValues()
                 .stream()
-                .map(value -> customPropertySetInfoFactory.getFullInfo(versionedPropertySet, value))
+                .map(value -> customPropertySetInfoFactory.getFullInfo(versionedPropertySet, versionedPropertySet.getUsagePoint(), value))
                 .collect(Collectors.toList());
         Collections.reverse(versions);
         return PagedInfoList.fromCompleteList("versions", versions, queryParameters);
@@ -303,9 +304,28 @@ public class UsagePointCustomPropertySetResource {
                 .forCustomProperties()
                 .getVersionedPropertySet(rcpsId);
         CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(versionedPropertySet,
+                versionedPropertySet.getUsagePoint(),
                 versionedPropertySet.getVersionValues(Instant.ofEpochMilli(timestamp)));
         info.parent = getParentInfo(versionedPropertySet.getUsagePoint());
         return info;
+    }
+
+    @DELETE
+    @Path("{rcpsId}/versions/{timestamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    public Response removeTimeSlicedCustomAttributeSetVersion(@PathParam("name") String usagePointName,
+                                                                           @PathParam("rcpsId") long rcpsId,
+                                                                           @PathParam("timestamp") long timestamp) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
+        UsagePoint lockedUsagePoint = resourceHelper.lockUsagePointOrThrowException(usagePoint.getId(), usagePoint.getVersion(), usagePointName);
+        UsagePointVersionedPropertySet versionedPropertySet = lockedUsagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
+        CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(versionedPropertySet,
+                versionedPropertySet.getUsagePoint(),
+                versionedPropertySet.getVersionValues(Instant.ofEpochMilli(timestamp)));
+        resourceHelper.deleteCustomPropertySetVersion(lockedUsagePoint, info);
+        return Response.ok().build();
     }
 
     @PUT
@@ -339,6 +359,7 @@ public class UsagePointCustomPropertySetResource {
         }
         versionedPropertySet.setVersionValues(versionStartTime, values);
         return Response.ok(customPropertySetInfoFactory.getFullInfo(versionedPropertySet,
+                versionedPropertySet.getUsagePoint(),
                 versionedPropertySet.getVersionValues(versionStartTime))).build();
     }
 

@@ -27,9 +27,27 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
                     me.fireEvent('moveToClonePage', me.type, me.record.get('versionId'));
                 },
                 section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                itemId: 'time-sliced-custom-attribute-set-action-menu-remove-btn-id',
+                handler: function() {
+                    me.fireEvent('removeVersion', me.type, me.record.get('versionId'), me.record.get('period'));
+                },
+                section: this.SECTION_REMOVE
             }
         ];
 
         me.callParent(arguments);
+    },
+    onBeforeShow: function(){
+        var me = this,
+            record = me.record,
+            removeMenuItem = me.down('#time-sliced-custom-attribute-set-action-menu-remove-btn-id');
+
+        record.get('removable') ? removeMenuItem.show() : removeMenuItem.hide();
+        me.callParent(arguments);
+
+
     }
 });
