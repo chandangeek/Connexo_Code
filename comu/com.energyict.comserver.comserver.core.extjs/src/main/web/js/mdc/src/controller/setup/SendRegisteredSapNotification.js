@@ -63,7 +63,7 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         }
 
         form.updateRecord();
-        fom.setLoading();
+        form.setLoading();
         var record = form.getRecord();
         record.getProxy().setUrl(me.deviceId);
         form.getRecord().save({
