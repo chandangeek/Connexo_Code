@@ -17,7 +17,6 @@ import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceTopologyEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
-import com.energyict.mdc.identifiers.DeviceIdentifierByDeviceName;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
@@ -187,15 +186,15 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     private void handlePhysicalTopologyUpdate(ComServerDAO comServerDAO, OfflineDevice device) {
         Map<String, OfflineDevice> oldSlavesBySerialNumber = this.mapOldSlavesToSerialNumber(device);
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = this.mapActualSlavedToDeviceIdAndHandleUnknownDevices(comServerDAO);
-        Map<String, DeviceIdentifier> removedSlavesByDeviceId  = this.mapRemovedSlavesToSerialNumber(comServerDAO);
+        Map<String, DeviceIdentifier> removedSlavesByDeviceId = this.mapRemovedSlavesToSerialNumber(comServerDAO);
 
         if (deviceTopology.getJoinedSlaveDeviceIdentifiers() != null) {
             this.processJoinedSlaves(comServerDAO);
         } else {
             //the actual slaves list in case that some devices have been removed
-            if(actualSlavesByDeviceId.isEmpty() && !removedSlavesByDeviceId.isEmpty()){
+            if (actualSlavesByDeviceId.isEmpty() && !removedSlavesByDeviceId.isEmpty()) {
                 actualSlavesByDeviceId.putAll(oldSlavesBySerialNumber.entrySet().stream()
-                        .filter(item->!removedSlavesByDeviceId.containsKey(item.getKey()))
+                        .filter(item -> !removedSlavesByDeviceId.containsKey(item.getKey()))
                         .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().getDeviceIdentifier())));
             }
 
@@ -278,8 +277,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         //TODO port EISERVERSG-4445 from 9.1 code
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = new HashMap<>();
         Collection<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers().keySet();
-        DeviceIdentifier slaveId = new DeviceIdentifierByDeviceName("Igor");
-        //for (DeviceIdentifier slaveId : actualSlaveDevices) {
+        for (DeviceIdentifier slaveId : actualSlaveDevices) {
             Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> slave = Optional.empty();
             try {
                 slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
@@ -295,7 +293,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
                 this.unknownSerialNumbersAddedToTopology.add(slaveId.toString());
                 this.topologyChanged = true;
             }
-        //}
+        }
         return actualSlavesByDeviceId;
     }
 
@@ -311,7 +309,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     private Map<String, DeviceIdentifier> mapRemovedSlavesToSerialNumber(ComServerDAO comServerDAO) {
         Map<String, DeviceIdentifier> removedSlavesBySerialNumber = new HashMap<>();
         Collection<DeviceIdentifier> lostSlaveDevices = deviceTopology.getLostSlaveDeviceIdentifiers();
-        if(lostSlaveDevices !=  null){
+        if (lostSlaveDevices != null) {
             for (DeviceIdentifier slaveId : lostSlaveDevices) {
                 Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> slave = Optional.empty();
                 try {
