@@ -1857,4 +1857,18 @@ public final class DeviceMessageConstants {
     public static final String repetitionDelay = "repetitionDelay";
     public static final String repetitionDelayDefaultTranslation = "Repetition Delay";
 
+    public static final String chargeTypeAttributeName = "chargeType";
+    public static final String chargeTypeAttributeNameDefaultTranslation = "Charge Type";
+
+    public static final String passiveUnitCharge = "passiveUnitCharge";
+    public static final String passiveUnitChargeDefaultTranslation = "Passive Unit Charge";
+    public static final String passiveImmediateActivation = "passiveImmediateActivation";
+    public static final String passiveImmediateActivationDefaultTranslation = "Immediate Activation";
+    public static final String passiveUnitChargeActivationTime = "passiveUnitChargeActivationTime";
+    public static final String passiveUnitChargeActivationTimeDefaultTranslation = "Activation Time";
+    public static final String chargePeriod = "chargePeriod";
+    public static final String chargePeriodDefaultTranslation = "Charge Period";
+    public static final String chargeProportion = "chargeProportion";
+    public static final String chargeProportionDefaultTranslation = "Charge Proportion";
+
 }
