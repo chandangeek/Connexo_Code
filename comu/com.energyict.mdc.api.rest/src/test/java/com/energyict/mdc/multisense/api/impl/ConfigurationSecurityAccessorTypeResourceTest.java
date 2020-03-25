@@ -89,7 +89,7 @@ public class ConfigurationSecurityAccessorTypeResourceTest extends MultisensePub
     public void testKeyAccessorTypeFields() throws Exception {
         Response response = target("/devicetypes/x/keyAccessorTypes").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(3);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "name", "description");
+        assertThat(model.<List>get("$")).hasSize(4);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "name", "keyPurposeId", "description");
     }
 }
