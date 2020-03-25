@@ -132,13 +132,15 @@ public abstract class SecureDeviceImporterAbstract {
     private SecureDeviceImporterAbstract.DeviceCreator getDeviceCreator(Shipment shipment) {
         SecureDeviceImporterAbstract.DeviceCreator deviceCreator = null;
         if (Checks.is(shipment.getHeader().getBatchID()).emptyOrOnlyWhiteSpace()) {
-            deviceCreator = (deviceConfiguration, name) -> deviceService.newDevice(
+            deviceCreator = (deviceConfiguration, serialNumber, name) -> deviceService.newDevice(
                     deviceConfiguration,
+                    serialNumber,
                     name,
                     shipment.getHeader().getBatchID(),
                     shipment.getHeader().getDeliveryDate().toGregorianCalendar().toInstant());
         } else {
-            deviceCreator = (deviceConfiguration, name) -> deviceService.newDevice(deviceConfiguration,
+            deviceCreator = (deviceConfiguration, serialNumber, name) -> deviceService.newDevice(deviceConfiguration,
+                    serialNumber,
                     name,
                     shipment.getHeader().getDeliveryDate().toGregorianCalendar().toInstant());
         }
@@ -162,9 +164,8 @@ public abstract class SecureDeviceImporterAbstract {
                     log(logger, MessageSeeds.DEVICE_WITH_NAME_ALREADY_EXISTS, deviceName);
                     continue;
                 }
-                Device device = deviceCreator.createDevice(deviceConfiguration, deviceName);
+                Device device = deviceCreator.createDevice(deviceConfiguration, xmlDevice.getSerialNumber(), deviceName);
                 device.setManufacturer(shipment.getHeader().getManufacturer());
-                device.setSerialNumber(xmlDevice.getSerialNumber());
                 storeCertificationDate(device, shipment);
                 new ShipmentXmlUtils(logger, thesaurus).storeMacAddress(device, xmlDevice, logger);
                 device.save();
@@ -280,6 +281,6 @@ public abstract class SecureDeviceImporterAbstract {
     }
 
     private interface DeviceCreator {
-        Device createDevice(DeviceConfiguration deviceConfiguration, String name);
+        Device createDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name);
     }
 }
