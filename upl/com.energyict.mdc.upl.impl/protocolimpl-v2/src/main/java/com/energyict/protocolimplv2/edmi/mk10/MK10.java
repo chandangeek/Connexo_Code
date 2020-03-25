@@ -1,33 +1,26 @@
 package com.energyict.protocolimplv2.edmi.mk10;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.DeviceFunction;
-import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.*;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -38,7 +31,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
@@ -58,16 +50,11 @@ import com.energyict.protocolimplv2.edmi.mk10.profiles.MK10LoadProfileBuilder;
 import com.energyict.protocolimplv2.edmi.mk10.properties.MK10ConfigurationSupport;
 import com.energyict.protocolimplv2.edmi.mk10.properties.MK10Properties;
 import com.energyict.protocolimplv2.edmi.mk10.registers.MK10RegisterFactory;
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
+import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author sva
@@ -89,6 +76,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
     private final NlsService nlsService;
+    private HHUSignOnV2 hhuSignOn;
 
     public MK10(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
@@ -101,6 +89,17 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         this.comChannel = comChannel;
+        if (ComChannelType.OpticalComChannel.equals(comChannel.getComChannelType())) {
+            hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
+        }
+    }
+
+    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getProperties().getTimeout(), getProperties().getMaxRetries());
+        hhuSignOn.setMode(HHUSignOn.MODE_MANUFACTURER_SPECIFIC_SEVCD);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(false);
+        return hhuSignOn;
     }
 
     @Override
@@ -140,6 +139,8 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
         result.add(new InboundIpConnectionType());
         result.add(new SioAtModemConnectionType(propertySpecService));
         result.add(new RxTxAtModemConnectionType(propertySpecService));
+        result.add(new SioOpticalConnectionType(propertySpecService));
+        result.add(new RxTxOpticalConnectionType(propertySpecService));
         return result;
     }
 
@@ -149,6 +150,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
         result.add(new TcpDeviceProtocolDialect(propertySpecService, this.nlsService));
         result.add(new UdpDeviceProtocolDialect(propertySpecService, this.nlsService));
         result.add(new ModemDeviceProtocolDialect(propertySpecService, this.nlsService));
+        result.add(new SerialDeviceProtocolDialect(propertySpecService, this.nlsService));
         return result;
     }
 
@@ -231,6 +233,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
                         getOfflineDevice().getSerialNumber()
                 );
             }
+            commandLineConnection.setHHUSignOn(hhuSignOn);
         }
         return commandLineConnection;
     }
