@@ -53,35 +53,37 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     private void appendWhereClauses() {
         this.complete = new SqlBuilder();
         this.complete.add(this.underConstruction);
-        this.complete.append(" where ");
-        this.complete.add(
-                this.conditions
-                        .stream()
-                        .map(FragmentBuilder::new)
-                        .map(FragmentBuilder::build)
-                        .reduce(
-                                new SqlBuilder(),   // We could inject this.underConstruction but that would not be the Identity element
-                                (sqlBuilder, fragment) -> {
-                                    SqlBuilder temp;
-                                    if (sqlBuilder.getText().isEmpty()) {
-                                        if (fragment instanceof SqlBuilder) {
-                                            temp = (SqlBuilder) fragment;
+        if (!this.conditions.isEmpty()) {
+            this.complete.append(" where ");
+            this.complete.add(
+                    this.conditions
+                            .stream()
+                            .map(FragmentBuilder::new)
+                            .map(FragmentBuilder::build)
+                            .reduce(
+                                    new SqlBuilder(),   // We could inject this.underConstruction but that would not be the Identity element
+                                    (sqlBuilder, fragment) -> {
+                                        SqlBuilder temp;
+                                        if (sqlBuilder.getText().isEmpty()) {
+                                            if (fragment instanceof SqlBuilder) {
+                                                temp = (SqlBuilder) fragment;
+                                            } else {
+                                                temp = new SqlBuilder();
+                                                temp.add(fragment);
+                                            }
                                         } else {
                                             temp = new SqlBuilder();
+                                            temp.add(sqlBuilder);
+                                            temp.append(" and ");
                                             temp.add(fragment);
                                         }
-                                    } else {
-                                        temp = new SqlBuilder();
-                                        temp.add(sqlBuilder);
-                                        temp.append(" and ");
-                                        temp.add(fragment);
-                                    }
-                                    return temp;
-                                },
-                                (sqlBuilder, sqlBuilder2) -> {
-                                    sqlBuilder.add(sqlBuilder2);
-                                    return sqlBuilder;
-                                }));
+                                        return temp;
+                                    },
+                                    (sqlBuilder, sqlBuilder2) -> {
+                                        sqlBuilder.add(sqlBuilder2);
+                                        return sqlBuilder;
+                                    }));
+        }
     }
 
     public SqlBuilder toSqlBuilder() {

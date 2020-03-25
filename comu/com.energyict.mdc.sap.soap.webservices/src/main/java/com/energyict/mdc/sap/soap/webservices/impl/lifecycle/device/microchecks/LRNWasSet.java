@@ -60,7 +60,7 @@ public class LRNWasSet implements ExecutableMicroCheck {
 
     @Override
     public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
-        return !anyLRN(device) ?
+        return !anyLRN(device, effectiveTimestamp) ?
                 Optional.of(new ExecutableMicroCheckViolation(this, this.thesaurus.getSimpleFormat(MessageSeeds.AT_LEAST_ONE_LRN_WAS_SET).format())) :
                 Optional.empty();
     }
@@ -70,7 +70,7 @@ public class LRNWasSet implements ExecutableMicroCheck {
         return EnumSet.allOf(DefaultTransition.class);
     }
 
-    private boolean anyLRN(Device device) {
-            return sapCustomPropertySets.isAnyLrnPresent(device.getId());
+    private boolean anyLRN(Device device, Instant effectiveTimestamp) {
+            return sapCustomPropertySets.isAnyLrnPresent(device.getId(), effectiveTimestamp);
     }
 }

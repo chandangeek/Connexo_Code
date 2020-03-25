@@ -43,7 +43,7 @@ public interface DeviceService {
      * @param startDate           the meter activation's start date
      * @return the newly created Device
      */
-    Device newDevice(DeviceConfiguration deviceConfiguration, String name, Instant startDate);
+    Device newDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name, Instant startDate);
 
     /**
      * Creates a new Device based on the given name, DeviceConfiguration and batch.
@@ -56,7 +56,7 @@ public interface DeviceService {
      * @param startDate           the start date of the {@link com.elster.jupiter.metering.MeterActivation}
      * @return the newly created Device
      */
-    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String batch, Instant startDate);
+    Device newDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name, String batch, Instant startDate);
 
     /**
      * Creates a new Device builder based on the given name and DeviceConfiguration

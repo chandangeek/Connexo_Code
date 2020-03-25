@@ -293,10 +293,11 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         Response response = target("/occurrences/relatedattributes").queryParam("like", "").request().get();
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(jsonModel.<String>get("$.[0].displayValue")).isEqualTo("value1 (null)");
-        assertThat(jsonModel.<Integer>get("$.[0].id")).isEqualTo(0);
-        assertThat(jsonModel.<String>get("$.[1].displayValue")).isEqualTo("value2 (null)");
-        assertThat(jsonModel.<Integer>get("$.[1].id")).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("relatedattributes[0].displayValue")).isEqualTo("value1 (null)");
+        assertThat(jsonModel.<Integer>get("relatedattributes[0].id")).isEqualTo(0);
+        assertThat(jsonModel.<String>get("relatedattributes[1].displayValue")).isEqualTo("value2 (null)");
+        assertThat(jsonModel.<Integer>get("relatedattributes[1].id")).isEqualTo(0);
     }
 
 

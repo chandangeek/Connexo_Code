@@ -156,7 +156,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, Instant.now());
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "serialNumber", name, Instant.now());
     }
 
     private EstimationRuleSet createEstimationRuleSet(String name) {

@@ -21,16 +21,16 @@ import java.util.stream.Collectors;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 public class MeterRegisterChangeBulkMessageBuilder {
-    private final Integer meterReplacementAddInterval;
+    private final Integer lrnEndInterval;
 
     private MeterRegisterChangeMessage message = new MeterRegisterChangeMessage();
 
-    private MeterRegisterChangeBulkMessageBuilder(Integer meterReplacementAddInterval) {
-        this.meterReplacementAddInterval = meterReplacementAddInterval;
+    private MeterRegisterChangeBulkMessageBuilder(Integer lrnEndInterval) {
+        this.lrnEndInterval = lrnEndInterval;
     }
 
-    public static MeterRegisterChangeBulkMessageBuilder builder(Integer meterReplacementAddInterval) {
-        return new MeterRegisterChangeBulkMessageBuilder(meterReplacementAddInterval);
+    public static MeterRegisterChangeBulkMessageBuilder builder(Integer lrnEndInterval) {
+        return new MeterRegisterChangeBulkMessageBuilder(lrnEndInterval);
     }
 
     public MeterRegisterChangeBulkMessageBuilder from(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
@@ -92,7 +92,6 @@ public class MeterRegisterChangeBulkMessageBuilder {
         registerBuilder.setLrn(getLrn(reg));
         registerBuilder.setStartDate(reg.getStartDate());
         registerBuilder.setEndDate(calculateEndDate(reg));
-        registerBuilder.setCreateEndDate(reg.getEndDate());
         registerBuilder.setTimeZone(getTimeZone(reg));
         registerBuilder.setObis(getObis(reg));
         registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
@@ -117,7 +116,7 @@ public class MeterRegisterChangeBulkMessageBuilder {
     }
 
     private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
-        return requestRegister.getEndDate().plus(meterReplacementAddInterval, MINUTES);
+        return requestRegister.getEndDate().plus(lrnEndInterval, MINUTES);
     }
 
     private String getObis(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
