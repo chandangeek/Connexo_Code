@@ -672,7 +672,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                 protocolDialectsStore.load({
                                     callback: function () {
                                         comPortPoolStore.clearFilter(true);
-                                        comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionTask: connectionMethodsStore.findRecord('name', connectionMethod.get('name')).get('id')});
+                                        var ComPortPoolsProxy = comPortPoolStore.getProxy();
+                                        ComPortPoolsProxy.pageParam = false;
+                                        ComPortPoolsProxy.startParam = false;
+                                        ComPortPoolsProxy.limitParam = false;
+                                        ComPortPoolsProxy.extraParams = ({compatibleWithConnectionTask: connectionMethodsStore.findRecord('name', connectionMethod.get('name')).get('id')});
                                         comPortPoolStore.load({
                                             callback: function () {
                                                 connectionStrategiesStore.load({
