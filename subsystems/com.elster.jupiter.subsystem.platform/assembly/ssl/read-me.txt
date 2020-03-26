@@ -1,0 +1,73 @@
+# About SSL/TLS certificate files
+
+ssl/connexo-web-server.cert.pem
+-------------------------------
+* certificate for web TLS
+* path to this file is configured in Apache SSL httpd configuration file
+
+ssl/private/connexo-web-server.key.pem
+--------------------------------------
+* private key for web TLS
+* path to this file is configured in Apache SSL httpd configuration file
+
+
+ssl/connexo-trustchain.pem
+--------------------------
+* the trust-chain for the web TLS certificate above (SubCA, RootCA) in pem format
+* path to this file is configured in Apache SSL httpd configuration file
+
+
+ssl/connexo-truststore.p12
+--------------------------
+* password: jupiter
+* this should be used as single container for all trusted certificates in the project (and NOT the default Java cacerts!);
+* this file is shared between Connexo and Tomcat (Facts and Flow), so having a common container will solve trust issues via https.
+* if you need any public certificate from Java cacerts, export them and import them here;
+* the idea of using this dedicated container is to have better control in environments where mutual TLS authentication is used, and several trusted entities need to be track. The default java one will be overwritten on Java update and all the custom trust could be lost.
+* path to this file is set in several places:
+    * Connexo.vmoptions, ConnexoService.vmoptions
+    * catalina.properties (tomcat)
+
+
+ssl/connexo-keystore.p12
+------------------------
+* password: zoro2020
+* this is should be used to store any private key material necessary for mutual TLS authentication (like web-services clients)
+* path to this file is set in several places:
+    * Connexo.vmoptions, ConnexoService.vmoptions
+    * catalina.properties (tomcat)
+
+
+
+connexo-demo-trust-sources.p12
+------------------------------
+* password: jupiter
+* It's a "mini-demo-PKI", contains key-pairs for RootCA, SubCA, web-tls
+* this file is NOT used anywhere in Connexo in this form!
+* should be used only to generate test or demo data in TEST / SANDBOX environments
+* in PRODUCTION and ACCEPTANCE environment please generate a new certificates via a proper PKI and remove this file
+
+
+## Useful commands
+
+### Generate a private key and a Certificate-Signing-Request to be signed by a third-party PKI
+Use this option when you know the full-qualified-domain-name of Connexo server (ex: connexo.company-domain.com).
+Run the command below to generate a new private key and a CSR:
+
+    openssl req -new -newkey rsa:4096 -nodes -out connexo-fqdn.csr -keyout connexo-private.key -subj "/O=Honeywell/OU=SmartEnergy/CN=connexo.my-company-domain.com"
+
+* keep the _connexo-private.key_ private!
+* send the _connexo-fqdn.csr_ to the PKI authority, you'll receive a certificate
+* if a PKI is not available, you can still sign the CSR with the demo SubCA from _connexo-demo-trust-sources.p12_
+* configure the path for the new private key and certificates in Apache configuration
+
+### Generate a private key and a self-signed certificate
+    openssl req -new -x509 -key connexo-private.key -out connexo-public.cert -days 3650 -subj "/O=Honeywell/OU=SmartEnergy/CN=connexo.my-company-domain.com"
+
+* keep the _connexo-private.key_ private!
+* configure the path for the new private key and certificates in Apache configuration
+
+### Generate a new client certificate
+You can use this option if you need to do mutual authentication with other parties.
+Use _connexo-demo-trust-sources.p12_ - which contains the SubCA private key. Better to use a visual tool (or export the SubCAs private keys for OpenSSL)
+

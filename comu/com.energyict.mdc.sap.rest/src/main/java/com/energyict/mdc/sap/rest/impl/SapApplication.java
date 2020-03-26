@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.sap.rest", service = {Application.class}, immediate = true,
+@Component(name = "com.energyict.mdc.sap.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true,
         property = {"alias=/sap", "app=MDC", "name=" + SapApplication.COMPONENT_NAME})
 public class SapApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "SPR";
