@@ -149,7 +149,7 @@ abstract class ScheduledJobExecutor {
         }
     }
 
-    boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+    public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
         return this.currentJob != null && this.currentJob.containsOneOf(comTaskExecutions);
     }
 
