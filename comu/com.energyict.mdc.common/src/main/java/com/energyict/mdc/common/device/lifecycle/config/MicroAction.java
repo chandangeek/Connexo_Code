@@ -34,8 +34,23 @@ public enum MicroAction {
     DISABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "conflict_validation"),
 
     /**
-     * Activates all connection tasks on the device.
+     * Activates all communication tasks on the device.
+     *
      */
+    ACTIVATE_ALL_COMMUNICATION(MicroCategory.COMMUNICATION),
+
+    /**
+     * Activates all recurring communication tasks on the device.
+     *
+     */
+
+    ACTIVATE_ALL_RECURRING_COMMUNICATIONS(MicroCategory.COMMUNICATION),
+
+    /**
+     * Activates all connection tasks on the device.
+     *
+     */
+
     ACTIVATE_CONNECTION_TASKS_IN_USE(MicroCategory.COMMUNICATION),
 
     /**
@@ -53,9 +68,7 @@ public enum MicroAction {
      */
     DISABLE_COMMUNICATION(MicroCategory.COMMUNICATION),
 
-    START_ALL_COMMUNICATION(MicroCategory.COMMUNICATION),
 
-    START_ALL_RECURRING_COMMUNICATIONS(MicroCategory.COMMUNICATION),
 
     /**
      * Closes the current meter activation on the device.
