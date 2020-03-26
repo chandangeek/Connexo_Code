@@ -309,7 +309,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigTest");
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
-        Device device = getDeviceService().newDevice(deviceConfiguration, "DeviceTest", Instant.now());
+        Device device = getDeviceService().newDevice(deviceConfiguration, "SerialNumberTest", "DeviceTest", Instant.now());
         device.save();
         return device;
     }
