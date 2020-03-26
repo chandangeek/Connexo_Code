@@ -48,12 +48,13 @@ public class FirmwareComTaskResource {
     }
 
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/retry")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response retryFirmwareComTask(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, DeviceFirmwareActionInfo info) {
+    public Response retryFirmwareOrVerificationComTask(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, DeviceFirmwareActionInfo info) {
         String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_COMMUNICATION_TASK_NAME).format();
         Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.conflict()
@@ -64,12 +65,15 @@ public class FirmwareComTaskResource {
 
         firmwareService.resumeFirmwareUploadForDevice(device);
 
-        ComTaskExecution firmwareComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
+        ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
+                .filter(cte -> cte.getComTask().getId() == comTaskId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
 
-        firmwareComTaskExecution.runNow();
-        return Response.ok().build();
+        comTaskExecution.runNow();
+        String taskRetried = comTaskExecution.isFirmware()
+                ? thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_RETRIED).format()
+                : thesaurus.getSimpleFormat(MessageSeeds.VERIFICATION_RETRIED).format();
+        return Response.ok(taskRetried).build();
     }
 }

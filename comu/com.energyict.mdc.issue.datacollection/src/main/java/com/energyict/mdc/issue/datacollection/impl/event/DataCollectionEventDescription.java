@@ -15,6 +15,7 @@ import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnregisteredFromGatewayEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
 import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import static com.elster.jupiter.util.Checks.is;
 
 public enum DataCollectionEventDescription implements EventDescription {
     CONNECTION_LOST(
-            "com/energyict/mdc/connectiontask/FAILURE",
+            "com/energyict/mdc/connectiontask/COMPLETION",
             CommunicationErrorType.CONNECTION_FAILURE,
             ConnectionLostEvent.class,
             TranslationKeys.EVENT_TITLE_CONNECTION_LOST) {
@@ -40,7 +41,7 @@ public enum DataCollectionEventDescription implements EventDescription {
     },
 
     DEVICE_COMMUNICATION_FAILURE(
-            "com/energyict/mdc/connectiontask/FAILURE",
+            "com/energyict/mdc/connectiontask/COMPLETION",
             CommunicationErrorType.COMMUNICATION_FAILURE,
             DeviceCommunicationFailureEvent.class,
             TranslationKeys.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE) {
@@ -126,6 +127,11 @@ public enum DataCollectionEventDescription implements EventDescription {
 
     @Override
     public String getUniqueKey() {
+        return this.name();
+    }
+
+    @Override
+    public String getName() {
         return this.name();
     }
 
