@@ -16,9 +16,11 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  * Executes {@link ScheduledJob}s in a transactional
@@ -34,6 +36,7 @@ import java.util.function.Consumer;
  */
 abstract class ScheduledJobExecutor {
 
+    public static final Logger LOGGER = Logger.getLogger(ScheduledJobExecutor.class.getName());
     // The minimum log level that needs to be set before the stacktrace of a error is logged to System.err
     private static final ComServer.LogLevel REQUIRED_DEBUG_LEVEL = ComServer.LogLevel.DEBUG;
 
@@ -41,6 +44,9 @@ abstract class ScheduledJobExecutor {
     private final ComServer.LogLevel logLevel;
     private final DeviceCommandExecutor deviceCommandExecutor;
     private ScheduledJob currentJob;
+    private long totalClashingJobs = 0;
+    private long lastHourClashingJobs = 0;
+    private Instant lastHourStart = Instant.now();
 
     ScheduledJobExecutor(TransactionService transactionService, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
         this.transactionService = transactionService;
@@ -143,7 +149,7 @@ abstract class ScheduledJobExecutor {
         }
     }
 
-    public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+    boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
         return this.currentJob != null && this.currentJob.containsOneOf(comTaskExecutions);
     }
 
@@ -185,15 +191,30 @@ abstract class ScheduledJobExecutor {
 
         @Override
         public synchronized ValidationReturnStatus perform() {
-            boolean attemptLock = this.job.attemptLock();
-            if (attemptLock) {
-                if (this.job.isWithinComWindow()) {
-                    return ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
-                } else {
-                    return ValidationReturnStatus.JOB_OUTSIDE_COM_WINDOW;
-                }
+            if (!this.job.isStillPending()) {
+                updateClashingJobs();
+                return ValidationReturnStatus.NOT_PENDING_ANYMORE;
             } else {
-                return ValidationReturnStatus.ATTEMPT_LOCK_FAILED;
+                boolean attemptLock = this.job.attemptLock();
+                if (attemptLock) {
+                    if (this.job.isWithinComWindow()) {
+                        return ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
+                    } else {
+                        return ValidationReturnStatus.JOB_OUTSIDE_COM_WINDOW;
+                    }
+                } else {
+                    return ValidationReturnStatus.ATTEMPT_LOCK_FAILED;
+                }
+            }
+        }
+
+        private void updateClashingJobs() {
+            totalClashingJobs = totalClashingJobs < Long.MAX_VALUE ? ++totalClashingJobs : 0;
+            lastHourClashingJobs = lastHourClashingJobs < Long.MAX_VALUE ? ++lastHourClashingJobs : 0;
+            LOGGER.warning("perf - total clashing jobs: " + totalClashingJobs + " since " + lastHourStart + ": " + lastHourClashingJobs);
+            if (Instant.now().minusSeconds(3600).isAfter(lastHourStart)) {
+                lastHourStart = Instant.now();
+                lastHourClashingJobs = 0;
             }
         }
     }
