@@ -34,8 +34,30 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getTypes()),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.passiveUnitCharge, DeviceMessageConstants.passiveUnitChargeDefaultTranslation),
-                    this.booleanSpec(service, DeviceMessageConstants.passiveImmediateActivation, DeviceMessageConstants.passiveImmediateActivationDefaultTranslation)
+                    this.booleanSpec(service, DeviceMessageConstants.passiveImmediateActivation, DeviceMessageConstants.passiveImmediateActivationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeCommodityScale, DeviceMessageConstants.chargeCommodityScaleDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargePriceScale, DeviceMessageConstants.chargePriceScaleDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime1, DeviceMessageConstants.chargeTableTime1DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit1, DeviceMessageConstants.chargeTableUnit1DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime2, DeviceMessageConstants.chargeTableTime2DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit2, DeviceMessageConstants.chargeTableUnit2DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime3, DeviceMessageConstants.chargeTableTime3DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit3, DeviceMessageConstants.chargeTableUnit3DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime4, DeviceMessageConstants.chargeTableTime4DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit4, DeviceMessageConstants.chargeTableUnit4DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime5, DeviceMessageConstants.chargeTableTime5DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit5, DeviceMessageConstants.chargeTableUnit5DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime6, DeviceMessageConstants.chargeTableTime6DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit6, DeviceMessageConstants.chargeTableUnit6DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime7, DeviceMessageConstants.chargeTableTime7DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit7, DeviceMessageConstants.chargeTableUnit7DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime8, DeviceMessageConstants.chargeTableTime8DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit8, DeviceMessageConstants.chargeTableUnit8DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime9, DeviceMessageConstants.chargeTableTime9DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit9, DeviceMessageConstants.chargeTableUnit9DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime10, DeviceMessageConstants.chargeTableTime10DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit10, DeviceMessageConstants.chargeTableUnit10DefaultTranslation)
+
                     );
         }
     },
@@ -44,8 +66,29 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getTypes()),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.passiveUnitCharge, DeviceMessageConstants.passiveUnitChargeDefaultTranslation),
-                    this.dateTimeSpec(service, DeviceMessageConstants.passiveUnitChargeActivationTime, DeviceMessageConstants.passiveUnitChargeActivationTimeDefaultTranslation)
+                    this.dateTimeSpec(service, DeviceMessageConstants.passiveUnitChargeActivationTime, DeviceMessageConstants.passiveUnitChargeActivationTimeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeCommodityScale, DeviceMessageConstants.chargeCommodityScaleDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargePriceScale, DeviceMessageConstants.chargePriceScaleDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime1, DeviceMessageConstants.chargeTableTime1DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit1, DeviceMessageConstants.chargeTableUnit1DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime2, DeviceMessageConstants.chargeTableTime2DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit2, DeviceMessageConstants.chargeTableUnit2DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime3, DeviceMessageConstants.chargeTableTime3DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit3, DeviceMessageConstants.chargeTableUnit3DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime4, DeviceMessageConstants.chargeTableTime4DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit4, DeviceMessageConstants.chargeTableUnit4DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime5, DeviceMessageConstants.chargeTableTime5DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit5, DeviceMessageConstants.chargeTableUnit5DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime6, DeviceMessageConstants.chargeTableTime6DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit6, DeviceMessageConstants.chargeTableUnit6DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime7, DeviceMessageConstants.chargeTableTime7DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit7, DeviceMessageConstants.chargeTableUnit7DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime8, DeviceMessageConstants.chargeTableTime8DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit8, DeviceMessageConstants.chargeTableUnit8DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime9, DeviceMessageConstants.chargeTableTime9DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit9, DeviceMessageConstants.chargeTableUnit9DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.chargeTableTime10, DeviceMessageConstants.chargeTableTime10DefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.chargeTableUnit10, DeviceMessageConstants.chargeTableUnit10DefaultTranslation)
                     );
         }
     },
@@ -124,9 +167,9 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
     }
 
     public enum ChargeType {
-        ACTIVE_REACTIVE(0),
-        TOU_IMPORT_CHARGE(1),
-        MONTHLY_TAX_CHARGE(2);
+        Consumption_tax_charge(0),
+        TOU_import_charge(1),
+        Monthly_tax_charge(2);
 
         private final int id;
 

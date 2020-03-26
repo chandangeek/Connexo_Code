@@ -73,7 +73,7 @@ public class ChargeSetup extends AbstractCosemObject {
     }
 
     public AbstractDataType readProportion() throws IOException {
-        return readDataType(ChargeSetupAttributes.PROPERTION, Unsigned16.class);
+        return readDataType(ChargeSetupAttributes.PROPORTION, Unsigned16.class);
     }
 
     public void writeChargeAttribute(ChargeSetupAttributes attribute, AbstractDataType data) throws IOException {

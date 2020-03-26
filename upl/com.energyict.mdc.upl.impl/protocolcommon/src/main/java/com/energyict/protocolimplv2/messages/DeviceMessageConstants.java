@@ -1860,8 +1860,7 @@ public final class DeviceMessageConstants {
     public static final String chargeTypeAttributeName = "chargeType";
     public static final String chargeTypeAttributeNameDefaultTranslation = "Charge Type";
 
-    public static final String passiveUnitCharge = "passiveUnitCharge";
-    public static final String passiveUnitChargeDefaultTranslation = "Passive Unit Charge";
+
     public static final String passiveImmediateActivation = "passiveImmediateActivation";
     public static final String passiveImmediateActivationDefaultTranslation = "Immediate Activation";
     public static final String passiveUnitChargeActivationTime = "passiveUnitChargeActivationTime";
@@ -1870,5 +1869,49 @@ public final class DeviceMessageConstants {
     public static final String chargePeriodDefaultTranslation = "Charge Period";
     public static final String chargeProportion = "chargeProportion";
     public static final String chargeProportionDefaultTranslation = "Charge Proportion";
+    public static final String chargeCommodityScale = "chargeCommodityScale";
+    public static final String chargeCommodityScaleDefaultTranslation = "Charge Commodity Scale";
+    public static final String chargePriceScale = "chargePriceScale";
+    public static final String chargePriceScaleDefaultTranslation = "Charge Price Scale";
+    public static final String chargeTableTime1 = "chargeTableTime1";
+    public static final String chargeTableTime1DefaultTranslation = "Charge Table Time 1";
+    public static final String chargeTableUnit1 = "chargeTableUnit1";
+    public static final String chargeTableUnit1DefaultTranslation = "Charge Table Unit 1";
+    public static final String chargeTableTime2 = "chargeTableTime2";
+    public static final String chargeTableTime2DefaultTranslation = "Charge Table Time 2";
+    public static final String chargeTableUnit2 = "chargeTableUnit2";
+    public static final String chargeTableUnit2DefaultTranslation = "Charge Table Unit 2";
+    public static final String chargeTableTime3 = "chargeTableTime3";
+    public static final String chargeTableTime3DefaultTranslation = "Charge Table Time 3";
+    public static final String chargeTableUnit3 = "chargeTableUnit3";
+    public static final String chargeTableUnit3DefaultTranslation = "Charge Table Unit 3";
+    public static final String chargeTableTime4 = "chargeTableTime4";
+    public static final String chargeTableTime4DefaultTranslation = "Charge Table Time 4";
+    public static final String chargeTableUnit4 = "chargeTableUnit4";
+    public static final String chargeTableUnit4DefaultTranslation = "Charge Table Unit 4";
+    public static final String chargeTableTime5 = "chargeTableTime5";
+    public static final String chargeTableTime5DefaultTranslation = "Charge Table Time 5";
+    public static final String chargeTableUnit5 = "chargeTableUnit5";
+    public static final String chargeTableUnit5DefaultTranslation = "Charge Table Unit 5";
+    public static final String chargeTableTime6 = "chargeTableTime6";
+    public static final String chargeTableTime6DefaultTranslation = "Charge Table Time 6";
+    public static final String chargeTableUnit6 = "chargeTableUnit6";
+    public static final String chargeTableUnit6DefaultTranslation = "Charge Table Unit 6";
+    public static final String chargeTableTime7 = "chargeTableTime7";
+    public static final String chargeTableTime7DefaultTranslation = "Charge Table Time 7";
+    public static final String chargeTableUnit7 = "chargeTableUnit7";
+    public static final String chargeTableUnit7DefaultTranslation = "Charge Table Unit 7";
+    public static final String chargeTableTime8 = "chargeTableTime8";
+    public static final String chargeTableTime8DefaultTranslation = "Charge Table Time 8";
+    public static final String chargeTableUnit8 = "chargeTableUnit8";
+    public static final String chargeTableUnit8DefaultTranslation = "Charge Table Unit 8";
+    public static final String chargeTableTime9 = "chargeTableTime9";
+    public static final String chargeTableTime9DefaultTranslation = "Charge Table Time 9";
+    public static final String chargeTableUnit9 = "chargeTableUnit9";
+    public static final String chargeTableUnit9DefaultTranslation = "Charge Table Unit 9";
+    public static final String chargeTableTime10 = "chargeTableTime10";
+    public static final String chargeTableTime10DefaultTranslation = "Charge Table Time 10";
+    public static final String chargeTableUnit10 = "chargeTableUnit10";
+    public static final String chargeTableUnit10DefaultTranslation = "Charge Table Unit 10";
 
 }

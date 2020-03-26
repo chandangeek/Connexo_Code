@@ -23,7 +23,7 @@ public enum ChargeSetupAttributes implements DLMSClassAttributes {
     LAST_COLLECTION_TIME(10, 0x40),
     LAST_COLLECTION_AMOUNT(11, 0x48),
     TOTAL_AMOUNT_REMAINING(12, 0x50),
-    PROPERTION(13, 0x58);
+    PROPORTION(13, 0x58);
 
 
     private final int attributeNumber;

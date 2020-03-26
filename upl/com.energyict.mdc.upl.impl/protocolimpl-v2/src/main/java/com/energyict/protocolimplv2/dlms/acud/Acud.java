@@ -21,10 +21,12 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -33,6 +35,8 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.a2.messages.A2Messaging;
+import com.energyict.protocolimplv2.dlms.acud.messages.AcudMessaging;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
@@ -52,11 +56,17 @@ public abstract class Acud extends AbstractDlmsProtocol {
     private AcudLogBookFactory logBookFactory;
     private AcudLoadProfileDataReader loadProfileDataReader;
 
+    private final Converter converter;
     private final NlsService nlsService;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public Acud(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
+    private AcudMessaging messaging;
+
+    public Acud(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
+        this.converter = converter;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
@@ -165,29 +175,36 @@ public abstract class Acud extends AbstractDlmsProtocol {
         return dlmsConfigurationSupport;
     }
 
+    protected AcudMessaging getProtocolMessaging() {
+        if (messaging == null) {
+            messaging = new AcudMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
+        }
+        return messaging;
+    }
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return new ArrayList<>();
+        return getProtocolMessaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
+        return getProtocolMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return getProtocolMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+        return getProtocolMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return null;
+        return getProtocolMessaging().prepareMessageContext(device, offlineDevice, deviceMessage);
     }
 
     public abstract EndDeviceType getTypeMeter();
@@ -210,6 +227,14 @@ public abstract class Acud extends AbstractDlmsProtocol {
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+    }
+
+    public Converter getConverter() {
+        return converter;
+    }
+
+    public DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
     }
 
     public NlsService getNlsService() {
