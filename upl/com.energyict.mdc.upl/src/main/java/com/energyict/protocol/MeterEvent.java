@@ -750,6 +750,11 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int VALVE_CLOSE_FOR_EXCEEDED_BATTERY_REMOVAL_TIME = 350;
     public static final int VALVE_CONFIGURATION_PGV_BIT8_CHANGED = 351;
 
+    public static final int TOO_HIGH_CONSUMPTION_OR_PRODUCTION = 352;
+
+    public static final int INDEX_VALUE_DECREASE_OR_RESET = 353;
+
+    public static final int MISMATCH_BETWEEN_TOTAL_AND_TARIFF_REGISTERS = 354;
 
     /**
      * Start of Beacon3100 custom codes
@@ -1308,6 +1313,12 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Dlms authentication failure.");
             case DLMS_CIPHERING_ERROR:
                 return ("Dlms ciphering error.");
+            case  TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
+                return ("Too high consumption or production of energy.");
+            case INDEX_VALUE_DECREASE_OR_RESET:
+                return ("Decreasing index values or reset of index values.");
+            case MISMATCH_BETWEEN_TOTAL_AND_TARIFF_REGISTERS:
+                return ("Mismatch between total registers and tariff registers.");
             case LOG_RESET:
                 return ("Log reset");
             case LOCAL_COMM_START:
