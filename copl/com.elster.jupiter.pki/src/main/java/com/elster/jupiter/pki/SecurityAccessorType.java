@@ -31,8 +31,7 @@ import java.util.Set;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @XmlAccessorType(XmlAccessType.NONE)
-public interface
-SecurityAccessorType extends HasId, HasName  {
+public interface SecurityAccessorType extends HasId, HasName {
 
 
     /**
@@ -80,6 +79,7 @@ SecurityAccessorType extends HasId, HasName  {
      * If a KeyAccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
      * TrustStore needs to be linked to the KeyAccessorType. This allows the users of the certificate contained in
      * the value of this KeyAccessorType to be validated against a specific TrustStore.
+     *
      * @return TrustStore in case the KeyType of this accessorType represents a certificate
      */
     Optional<TrustStore> getTrustStore();
@@ -101,7 +101,6 @@ SecurityAccessorType extends HasId, HasName  {
     KeyPurpose getKeyPurpose();
 
     /**
-     *
      * @return import capability (only for HSM key type) or null
      */
     HsmKeyType getHsmKeyType();
@@ -109,7 +108,6 @@ SecurityAccessorType extends HasId, HasName  {
     boolean keyTypeIsHSM();
 
     /**
-     *
      * @return if underlying key is used to wrap other keys (master key)
      */
     boolean isWrapper();
@@ -131,6 +129,7 @@ SecurityAccessorType extends HasId, HasName  {
          * KeyEncryptionMethod describes how the Key will be encrypted/stored.
          * Only applies to keys (both symmetric and asymmetric)
          * Valid KeyEncryptionMethods are provided by wrapper factories whom register on the PkiService whiteboard
+         *
          * @param keyEncryptionMethod @see PkiService::getKeyEncryptionMethods()
          */
         Builder keyEncryptionMethod(String keyEncryptionMethod);
@@ -139,6 +138,7 @@ SecurityAccessorType extends HasId, HasName  {
          * If a KeyAccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
          * TrustStore needs to be linked to the KeyAccessorType. This allows the users of the certificate contained in
          * the value of this KeyAccessorType to be validated against a specific TrustStore.
+         *
          * @param trustStore The trust by which a chain of trust for certificates for this KeyAccessor will be validated
          */
         Builder trustStore(TrustStore trustStore);
