@@ -56,6 +56,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.POST;
@@ -81,7 +82,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @DeviceStagesRestricted(
@@ -220,6 +220,27 @@ public class ChannelResource {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
         return customPropertySetInfo;
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{channelId}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response removeChannelCustomPropertyVersion(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, Instant.ofEpochMilli(timeStamp));
+        resourceHelper.lockLoadProfileTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
+        if (customPropertySetInfo.id != cpsId) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
+        if (customPropertySetInfo.removable) {
+            resourceHelper.deleteCustomPropertySetVersion(channel, customPropertySetInfo);
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, customPropertySetInfo.name, Instant.ofEpochMilli(timeStamp));
+        }
+        return Response.ok().build();
     }
 
     @GET

@@ -87,6 +87,7 @@ public class KeyAccessorTypeInfoFactory extends SelectableFieldFactory<KeyAccess
         map.put("id", ((keyAccessorTypeInfo, keyAccessorType, uriInfo) -> keyAccessorTypeInfo.id = keyAccessorType.getId()));
         map.put("name", ((keyAccessorTypeInfo, keyAccessorType, uriInfo) -> keyAccessorTypeInfo.name = keyAccessorType.getName()));
         map.put("description", ((keyAccessorTypeInfo, keyAccessorType, uriInfo) -> keyAccessorTypeInfo.description = keyAccessorType.getDescription()));
+        map.put("keyPurposeId", ((keyAccessorTypeInfo, keyAccessorType, uriInfo) -> keyAccessorTypeInfo.keyPurposeId = keyAccessorType.getKeyPurpose().getId()));
         return map;
     }
 }

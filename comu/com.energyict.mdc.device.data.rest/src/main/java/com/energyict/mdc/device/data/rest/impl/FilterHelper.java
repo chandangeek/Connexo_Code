@@ -11,13 +11,16 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class FilterHelper {
+public final class FilterHelper {
+
+    private FilterHelper() {
+    }
 
     public static Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter) {
         if (filter.hasProperty(name)) {
             Pattern pattern = getFilterPattern(filter.getString(name));
             if (pattern != null) {
-                return s -> pattern.matcher(s).matches();
+                return s -> pattern.matcher(s == null ? "" : s).matches();
             }
         }
         return s -> true;

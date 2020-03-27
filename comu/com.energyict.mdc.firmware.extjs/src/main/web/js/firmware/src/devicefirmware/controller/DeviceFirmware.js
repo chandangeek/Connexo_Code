@@ -267,8 +267,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         record.retry(encodeURIComponent(router.arguments.deviceId), {
             isNotEdit: true,
             jsonData: _.pick(container.device.getData(), 'version'),
-            success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upload retried'));
+            success: function (response) {
+                me.getApplication().fireEvent('acknowledge', response.responseText);
                 router.getRoute().forward();
             },
             callback: function () {
