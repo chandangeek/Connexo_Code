@@ -22,6 +22,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -134,7 +135,7 @@ public class SyntheticLoadProfileCsvImporterTest {
         importer.process(importOccurrence);
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(Matchers.anyString());
+        verify(logger, times(1)).log(Matchers.eq(Level.SEVERE), Matchers.anyString(), any(Exception.class));
     }
 
     @Test

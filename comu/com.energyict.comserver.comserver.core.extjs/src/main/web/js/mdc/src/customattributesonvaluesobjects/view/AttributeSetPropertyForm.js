@@ -30,11 +30,11 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.AttributeSetPropertyForm', 
         {
             xtype: 'property-form',
             isEdit: false,
+            width: 400,
 
             defaults: {
                 resetButtonHidden: true,
-                labelWidth: 250,
-                width: 600
+                labelWidth: 250
             }
         }
     ],
@@ -47,10 +47,16 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.AttributeSetPropertyForm', 
         me.callParent(arguments);
         versionsContainer = me.down('#time-sliced-versions-container');
         if (me.record.get('timesliced')) {
-            Mdc.customattributesonvaluesobjects.service.VersionsManager.addVersion(me.record, versionsContainer, me.router, me.attributeSetType, me.down('property-form'));
+            var propertiesForm = me.down('property-form');
+            Mdc.customattributesonvaluesobjects.service.VersionsManager.addVersion(me.record, versionsContainer, me.router, me.attributeSetType, propertiesForm);
             versionsContainer.show();
+            var textFields = propertiesForm.query('displayfield');
+            Ext.Array.each(textFields, function(textfield){
+                textfield.setFieldStyle({'word-break' : 'break-all', 'line-height': '28px', 'margin-top':'0px' })
+            })
         } else {
             me.down('property-form').loadRecord(me.record);
+
         }
         if (me.actionMenuXtype && me.record.get('editable')) {
             Mdc.customattributesonvaluesobjects.service.ActionMenuManager.addAction(me.actionMenuXtype, me.record, me.router, me.attributeSetType);

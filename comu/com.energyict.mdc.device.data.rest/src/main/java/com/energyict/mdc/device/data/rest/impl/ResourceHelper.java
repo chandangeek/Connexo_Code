@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -134,6 +135,7 @@ public class ResourceHelper {
     private final MeteringService meteringService;
     private final SearchService searchService;
     private final MeteringTranslationService meteringTranslationService;
+    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
 
     @Inject
     public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
@@ -144,7 +146,8 @@ public class ResourceHelper {
                           MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
                           TopologyService topologyService, NlsService nlsService,
                           MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, SearchService searchService,
-                          MeteringTranslationService meteringTranslationService) {
+                          MeteringTranslationService meteringTranslationService,
+                          CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -173,6 +176,7 @@ public class ResourceHelper {
                 .join(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST));
         this.searchService = searchService;
         this.meteringTranslationService = meteringTranslationService;
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
 
     public Long getCurrentDeviceConfigurationVersion(long id) {
@@ -670,7 +674,7 @@ public class ResourceHelper {
                             registeredCustomPropertySet.getCustomPropertySet(),
                             device,
                             this.clock.instant());
-            return new CustomPropertySetInfo(
+            CustomPropertySetInfo cpsInfo = new CustomPropertySetInfo(
                     registeredCustomPropertySet,
                     mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
                             registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
@@ -681,6 +685,8 @@ public class ResourceHelper {
                     device.getDeviceType().getId(),
                     device.getDeviceType().getVersion(),
                     customPropertySetValues.getEffectiveRange());
+            setLastItemRemovable(registeredCustomPropertySet, device, cpsInfo);
+            return cpsInfo;
         }
     }
 
@@ -700,7 +706,7 @@ public class ResourceHelper {
                         registeredCustomPropertySet.getCustomPropertySet(),
                         device,
                         instant);
-        return new CustomPropertySetInfo(
+        CustomPropertySetInfo cpsInfo = new CustomPropertySetInfo(
                 registeredCustomPropertySet,
                 mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
                         registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
@@ -710,6 +716,8 @@ public class ResourceHelper {
                 device.getDeviceType().getId(),
                 device.getDeviceType().getVersion(),
                 customPropertySetValues.getEffectiveRange());
+        setLastItemRemovable(registeredCustomPropertySet, device, cpsInfo);
+        return cpsInfo;
     }
 
     @SuppressWarnings("unchecked")
@@ -758,12 +766,26 @@ public class ResourceHelper {
     }
 
     public <D> List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, Optional<Object> object, long objectTypeId, long objectTypeVersion) {
-        return Stream.of(registeredCustomPropertySet)
+        List<CustomPropertySetInfo> cpsList = Stream.of(registeredCustomPropertySet)
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .filter(cps -> cps.getCustomPropertySet().isVersioned())
                 .filter(cps -> cps.getId() == cpsId)
                 .flatMap(cps -> getHistoryInfo(cps, businessObject, businessObjectId, businessObjectVersion, object, objectTypeId, objectTypeVersion))
                 .collect(Collectors.toList());
+        setLastItemRemovable(cpsList);
+        return cpsList;
+    }
+
+    private void setLastItemRemovable(List<CustomPropertySetInfo> cpsList) {
+        if (!cpsList.isEmpty()) {
+            cpsList.get(cpsList.size() - 1).removable = true;
+        }
+    }
+
+    private void setLastItemRemovable(RegisteredCustomPropertySet registeredCps, Object object, CustomPropertySetInfo cpsInfo, Object... id) {
+        if (cpsInfo.timesliced && customPropertySetInfoFactory.isLastItem(registeredCps, cpsInfo.endTime, object, id)) {
+            cpsInfo.removable = true;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -982,7 +1004,7 @@ public class ResourceHelper {
                                 register.getRegisterSpec(),
                                 effectiveTimestamp,
                                 register.getDevice().getId());
-                return new CustomPropertySetInfo(
+                CustomPropertySetInfo cpsInfo = new CustomPropertySetInfo(
                         registeredCustomPropertySet.get(),
                         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
                                 registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
@@ -992,6 +1014,8 @@ public class ResourceHelper {
                         register.getRegisterSpec().getRegisterType().getId(),
                         register.getRegisterSpec().getRegisterType().getVersion(),
                         customPropertySetValues.getEffectiveRange());
+                setLastItemRemovable(registeredCustomPropertySet.get(), register.getRegisterSpec(), cpsInfo, register.getDevice().getId());
+                return cpsInfo;
             }
         } else {
             return null;
@@ -1032,7 +1056,7 @@ public class ResourceHelper {
                 .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isViewableByCurrentUser()) {
             if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
-                return new CustomPropertySetInfo(
+                return new  CustomPropertySetInfo(
                         registeredCustomPropertySet.get(),
                         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
                                 registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
@@ -1051,7 +1075,7 @@ public class ResourceHelper {
                                 channel.getChannelSpec(),
                                 effectiveTimestamp,
                                 channel.getDevice().getId());
-                return new CustomPropertySetInfo(
+                CustomPropertySetInfo cpsInfo = new CustomPropertySetInfo(
                         registeredCustomPropertySet.get(),
                         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
                                 registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
@@ -1061,6 +1085,8 @@ public class ResourceHelper {
                         channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType().getId(),
                         channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType().getVersion(),
                         customPropertySetValues.getEffectiveRange());
+                setLastItemRemovable(registeredCustomPropertySet.get(), channel.getChannelSpec(), cpsInfo, channel.getDevice().getId());
+                return cpsInfo;
             }
         } else {
             return null;
@@ -1335,7 +1361,8 @@ public class ResourceHelper {
                 .filter(f -> f.getCustomPropertySetId().equals(CHANNEL_SAP_ID));
         if (cps.isPresent()) {
             List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
-            return values.stream().anyMatch(value -> (value.getProperty("logicalRegisterNumber") == null || logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber"))) && (value.getProperty("profileId") == null || profileId.test((String)value.getProperty("profileId"))));
+            return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")))
+                    && values.stream().anyMatch(value -> profileId.test((String)value.getProperty("profileId")));
         }
         return false;
     }
@@ -1346,8 +1373,54 @@ public class ResourceHelper {
                     .filter(f -> f.getCustomPropertySetId().equals(REGISTER_SAP_ID));
             if (cps.isPresent()) {
                 List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(cps.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());
-                return values.stream().anyMatch(value -> value.getProperty("logicalRegisterNumber") != null && logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
+                return values.stream().anyMatch(value -> logicalRegisterNumber.test((String)value.getProperty("logicalRegisterNumber")));
             }
             return false;
+    }
+
+    public void deleteCustomPropertySetVersion(Register register, CustomPropertySetInfo customPropertySetInfo) {
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = getRegisteredCustomPropertySet(register);
+        if (registeredCustomPropertySet.isPresent()) {
+            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());
+            customPropertySetService.removeValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), register.getDevice().getId());
+            for (CustomPropertySetValues version : allVersions) {
+                long versionId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli() : 0;
+                if (versionId != customPropertySetInfo.versionId) {
+                    customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), version, version.getEffectiveRange(), register.getDevice().getId());
+                }
+            }
+        }
+    }
+
+    public void deleteCustomPropertySetVersion(Channel channel, CustomPropertySetInfo customPropertySetInfo) {
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = channel.getDevice()
+                .getDeviceType()
+                .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
+        if (registeredCustomPropertySet.isPresent()) {
+            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
+            customPropertySetService.removeValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), channel.getDevice().getId());
+            for (CustomPropertySetValues version : allVersions) {
+                long versionId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli() : 0;
+                if (versionId != customPropertySetInfo.versionId) {
+                    customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), version, version.getEffectiveRange(), channel.getDevice().getId());
+                }
+            }
+        }
+    }
+
+    public void deleteCustomPropertySetVersion(Device device, CustomPropertySetInfo customPropertySetInfo) {
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = device.getDeviceType().getCustomPropertySets().stream()
+                .filter(cps -> cps.getCustomPropertySetId().equals(customPropertySetInfo.customPropertySetId) && cps.isEditableByCurrentUser())
+                .findFirst();
+        if (registeredCustomPropertySet.isPresent()) {
+            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), device);
+            customPropertySetService.removeValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), device);
+            for (CustomPropertySetValues version : allVersions) {
+                long versionId = version.getEffectiveRange().hasLowerBound() ? version.getEffectiveRange().lowerEndpoint().toEpochMilli() : 0;
+                if (versionId != customPropertySetInfo.versionId) {
+                    customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.get().getCustomPropertySet(), device, version, version.getEffectiveRange());
+                }
+            }
+        }
     }
 }

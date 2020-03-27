@@ -15,6 +15,7 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetVersionOnObjec
         {name: 'name', type: 'string'},
         {name: 'isActive', type: 'boolean'},
         {name: 'isEditable', type: 'boolean'},
+        {name: 'removable', type: 'boolean'},
         {name: 'isVersioned', type: 'boolean'},
         {name: 'startTime', type: 'timestamp'},
         {name: 'endTime', type: 'timestamp'},
