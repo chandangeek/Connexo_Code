@@ -75,7 +75,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private LoggerHolder loggerHolder;
     private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
-    private BlockingQueue excutableOutBoundComTaskPool = new LinkedBlockingQueue();
+    private BlockingQueue<ComTaskExecution> excutableOutBoundComTaskPool = new LinkedBlockingQueue();
 
     ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(runningComServer, comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
@@ -300,7 +300,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private List<ComJob> getJobsToSchedule() {
         int nrOfTaskToProcess = getComPort().getNumberOfSimultaneousConnections();
         List<ComTaskExecution> tasks = new ArrayList<>(nrOfTaskToProcess);
-        excutableOutBoundComTaskPool.drainTo(tasks, nrOfTaskToProcess);
+        Optional.ofNullable(excutableOutBoundComTaskPool.peek()).map(ComTaskExecution::getNextExecutionTimestamp)
+                .map(Instant::toEpochMilli).filter(timestamp -> timestamp <= Instant.now().toEpochMilli())
+                .ifPresent(t -> excutableOutBoundComTaskPool.drainTo(tasks, nrOfTaskToProcess));
         List<ComJob> jobs;
         if (tasks.size() > 0) {
             LOGGER.info("Prefetch: Fetch data from pool counted as:" + tasks.size());
