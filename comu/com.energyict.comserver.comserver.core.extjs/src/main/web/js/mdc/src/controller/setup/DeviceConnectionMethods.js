@@ -771,19 +771,38 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
-        if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
-            connectionMethod.set('nextExecutionSpecs', null);
+
+        var connectionStatus = connectionMethod.get('status'),
+            connectionStrategy = connectionMethod.get('connectionStrategy'),
+            connectionDirecion = connectionMethod.get('direction'),
+            previousConnectionData = Object.assign({}, connectionMethod.data);
+
+        if (connectionStatus === 'connectionTaskStatusIncomplete' || connectionStatus === 'connectionTaskStatusInActive') {
+            connectionStatus = 'connectionTaskStatusActive';
+        } else {
+            connectionStatus = 'connectionTaskStatusInActive';
         }
+        connectionMethod.data.status = connectionStatus;
+
+        if (connectionStrategy === 'AS_SOON_AS_POSSIBLE' || connectionDirecion === 'Inbound') {
+            connectionMethod.data.nextExecutionSpecs = null;
+        }
+
         connectionMethod.getProxy().setExtraParam('deviceId', me.deviceId);
+
         connectionMethod.save({
             isNotEdit: true,
             success: function (record) {
-                if (record.get("status") === 'connectionTaskStatusActive') {
+                connectionMethod = changedConnectionMethod;
+                if (connectionMethod.get('status') === 'connectionTaskStatusActive') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.activated', 'MDC', 'Connection method activated'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.deactivated', 'MDC', 'Connection method deactivated'));
                 }
                 router.getRoute().forward();
+            },
+            failure: function(){
+                connectionMethod.data = previousConnectionData;
             }
         });
     }
