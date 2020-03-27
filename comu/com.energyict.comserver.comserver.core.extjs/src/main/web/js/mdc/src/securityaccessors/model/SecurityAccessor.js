@@ -26,6 +26,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'description', type: 'string'},
         {name: 'keyType', type: 'auto'},
         {name: 'purpose', type: 'auto'},
+        {name: 'keyPurpose', type: 'auto'},
         {name: 'storageMethod', type: 'auto'},
         {name: 'trustStoreId', type: 'int'},
         {name: 'duration', type: 'auto', useNull: true},

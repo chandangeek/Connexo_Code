@@ -33,6 +33,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -52,6 +53,7 @@ import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.pki.KeyPurpose;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -84,7 +86,6 @@ import com.energyict.mdc.common.device.data.InboundConnectionTask;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.protocol.ConnectionType;
@@ -901,6 +902,17 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         when(securityAccessorType.getName()).thenReturn(configurationSecurityPropertyName);
         when(securityAccessorType.getId()).thenReturn(keyAccessorTypeId);
+        when(securityAccessorType.getKeyPurpose()).thenReturn(new KeyPurpose() {
+            @Override
+            public String getId() {
+                return "KEY";
+            }
+
+            @Override
+            public String getName() {
+                return "name";
+            }
+        });
         when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(mock.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(configurationSecurityProperty));
 
