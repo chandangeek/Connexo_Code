@@ -150,24 +150,21 @@ public class ConnectionMethodResource {
         List<PropertyInfo> props = connectionMethodInfo.properties;
 
         //for Outbound TLS only
-        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.name.equals("ServerTLSCertificate")).noneMatch(this::validatePropertyValue)) {
+        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.name.equals("ServerTLSCertificate")).noneMatch(this::hasValue)) {
             return false;
         }
         // TCP/IP
         if (isOutBoundTcpIp(task.getPluggableClass())) {
             return !StringUtils.isEmpty(connectionMethodInfo.comPortPool) &&
-                    props.stream().anyMatch(prop -> prop.name.equals("host") && validatePropertyValue(prop))
-                    && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && validatePropertyValue(prop));
+                    props.stream().anyMatch(prop -> prop.name.equals("host") && hasValue(prop))
+                    && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && hasValue(prop));
         }
         //Serial Optical
         return !StringUtils.isEmpty(connectionMethodInfo.comPortPool);
     }
 
-    private boolean validatePropertyValue(PropertyInfo prop) {
-        if (prop.propertyValueInfo == null) {
-            return false;
-        }
-        return prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value);
+    private boolean hasValue(PropertyInfo prop) {
+        return prop.propertyValueInfo != null && prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value);
     }
 
     private boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
