@@ -98,7 +98,7 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("name") String name, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        pauseOrResumeTaskIfNeeded(connectionMethodInfo, partialConnectionTask);
+        validateTask(connectionMethodInfo, partialConnectionTask);
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
@@ -108,12 +108,12 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
-    private void pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+    private void validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
         if (connectionMethodInfo.status == ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE && !hasAllRequiredProps(connectionMethodInfo, task)) {
             if (isOutboundTLS(task.getPluggableClass())) {
-                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED_TLS);
+                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
             } else {
-                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED);
+                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
             }
         }
     }
@@ -123,9 +123,9 @@ public class ConnectionMethodResource {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
                     if (isOutboundTLS(task.getPluggableClass())) {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED_TLS);
+                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
                     } else {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED);
+                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
                     }
                 } else if (!task.isActive()) {
                     task.activate();
@@ -150,15 +150,24 @@ public class ConnectionMethodResource {
         List<PropertyInfo> props = connectionMethodInfo.properties;
 
         //for Outbound TLS only
-        if (isOutboundTLS(task.getPluggableClass()) && props.stream().noneMatch(prop -> prop.name.equals("ServerTLSCertificate"))) {
+        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.name.equals("ServerTLSCertificate")).noneMatch(this::validatePropertyValue)) {
             return false;
         }
         // TCP/IP
         if (isOutBoundTcpIp(task.getPluggableClass())) {
             return !StringUtils.isEmpty(connectionMethodInfo.comPortPool) &&
-                    props.stream().anyMatch(prop -> prop.name.equals("host")) && props.stream().anyMatch(prop -> prop.name.equals("portNumber"));
+                    props.stream().anyMatch(prop -> prop.name.equals("host") && validatePropertyValue(prop))
+                    && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && validatePropertyValue(prop));
         }
+        //Serial Optical
         return !StringUtils.isEmpty(connectionMethodInfo.comPortPool);
+    }
+
+    private boolean validatePropertyValue(PropertyInfo prop) {
+        if (prop.propertyValueInfo == null) {
+            return false;
+        }
+        return prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value);
     }
 
     private boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
