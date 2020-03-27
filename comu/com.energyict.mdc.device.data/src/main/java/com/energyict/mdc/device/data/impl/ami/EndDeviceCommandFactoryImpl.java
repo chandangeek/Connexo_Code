@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
@@ -196,18 +197,21 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     }
 
     @Override
-    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, List<SecurityAccessorType> securityAccessortypes) {
+    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, List<SecurityAccessorType> securityAccessorTypes) {
         Device deviceForEndDevice = findDeviceForEndDevice(endDevice);
-        List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes = new ArrayList<>();
-        securityAccessortypes.stream().forEach(securityAccessorType ->
-        securityAccessorTypeOnDeviceTypes.add(deviceForEndDevice.getDeviceConfiguration()
+        final Set<String> securityAccessorTypesNames = securityAccessorTypes.stream().map(s -> s.getName()).collect(Collectors.toSet());
+        List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes = deviceForEndDevice.getDeviceConfiguration()
                 .getDeviceType()
                 .getSecurityAccessors()
                 .stream()
-                .filter(sec -> sec.getSecurityAccessorType().getName().equals(securityAccessorType.getName()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME)
-                        .format(securityAccessorType.getName())))));
+                .filter(sec -> securityAccessorTypesNames.contains(sec.getSecurityAccessorType().getName())).collect(Collectors.toList());
+
+        if (securityAccessorTypesNames.size() != securityAccessorTypeOnDeviceTypes.size()) {
+            Set<String> securityAccessorTypeOnDeviceTypesNames = securityAccessorTypeOnDeviceTypes.stream().map(s -> s.getSecurityAccessorType().getName()).collect(Collectors.toSet());
+            String missingSecurityAccessorsNames = String.join(", ", securityAccessorTypesNames.stream().filter(sA -> !securityAccessorTypeOnDeviceTypesNames.contains(sA)).collect(Collectors.toList()));
+            throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSORS_ON_DEVICE_TYPE_FOR_NAMES)
+                    .format(missingSecurityAccessorsNames));
+        }
         KeyRenewalCommand command = (KeyRenewalCommand) this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
         command.setSecurityAccessorOnDeviceTypes(securityAccessorTypeOnDeviceTypes);
 
