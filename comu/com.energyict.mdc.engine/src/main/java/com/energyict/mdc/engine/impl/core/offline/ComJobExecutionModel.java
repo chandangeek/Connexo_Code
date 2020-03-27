@@ -26,8 +26,15 @@ import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionGroup;
 import com.energyict.mdc.engine.impl.core.offline.adapters.MapDeviceIdentifierMeterReadingAdapter;
-import com.energyict.mdc.engine.impl.core.offline.identifiers.*;
-import com.energyict.mdc.engine.impl.core.remote.*;
+import com.energyict.mdc.engine.impl.core.offline.identifiers.MobileDeviceFactory;
+import com.energyict.mdc.engine.impl.core.offline.identifiers.MobileDeviceMessageFactory;
+import com.energyict.mdc.engine.impl.core.offline.identifiers.MobileLoadProfileFactory;
+import com.energyict.mdc.engine.impl.core.offline.identifiers.MobileLogBookFactory;
+import com.energyict.mdc.engine.impl.core.offline.identifiers.MobileRegisterFactory;
+import com.energyict.mdc.engine.impl.core.remote.ComSessionBuilderXmlWrapper;
+import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
+import com.energyict.mdc.engine.impl.core.remote.MapXmlMarshallAdapter;
+import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ManualMeterReadingsTask;
@@ -39,18 +46,32 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.upl.meterdata.RegisterGroup;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The execution model, which contains all necessary info required during execution of a ComJob.
@@ -215,7 +236,6 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
 //        }
 //        return null;
 //    }
-
     private void initializeAllSecuritySetProperties(RemoteComServerDAOImpl remoteComServerDAO, DeviceIdentifier deviceIdentifierOfMaster) {
         for (SecurityPropertySet securityPropertySet : securityPropertySets) {
             getSecuritySetPropertiesMap().put(securityPropertySet, remoteComServerDAO.getPropertiesFromSecurityPropertySet(deviceIdentifierOfMaster, securityPropertySet.getId()));
@@ -418,7 +438,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return false;
     }
 
-    public String getDescriptionTitle () {
+    public String getDescriptionTitle() {
         return MMR_TITLE;
     }
 
@@ -761,7 +781,8 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
 
     private void checkDeviceIdentifierIsDeviceIdentifierById(DeviceIdentifier deviceIdentifier) {
         if (!(deviceIdentifier instanceof DeviceIdentifierById)) {
-            throw new UnsupportedOperationException("Unsupported identifier '" + deviceIdentifier.toString() + "' of type '" + deviceIdentifier.getXmlType() + "', expecting type '" + DeviceIdentifierById.class.getCanonicalName() + "'.");
+            throw new UnsupportedOperationException("Unsupported identifier '" + deviceIdentifier.toString() + "' of type '" + deviceIdentifier.getXmlType() + "', expecting type '" + DeviceIdentifierById.class
+                    .getCanonicalName() + "'.");
         }
     }
 
@@ -841,7 +862,9 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         if (!hasMMRTask(comTaskExecution) || mmr) {
             if (!getSuccessFullComTaskExecutions().contains(comTaskExecution)) {
                 getSuccessFullComTaskExecutions().add(comTaskExecution);
-                ((ComTaskExecutionImpl) comTaskExecution).setStatus(TaskStatus.Waiting);
+                if (comTaskExecution instanceof ComTaskExecutionImpl) {
+                    ((ComTaskExecutionImpl) comTaskExecution).setStatus(TaskStatus.Waiting);
+                }
             }
             if (getFailedComTaskExecutions().contains(comTaskExecution)) {
                 getFailedComTaskExecutions().remove(comTaskExecution);      //Remove comtask from failed tasks, it was reset and executed again.
@@ -936,8 +959,9 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
     public List<Map<LogBookIdentifier, Instant>> getLogBookUpdates() {
-        if (logBookUpdates == null)
+        if (logBookUpdates == null) {
             logBookUpdates = new ArrayList<>();
+        }
         return logBookUpdates;
     }
 
@@ -948,8 +972,9 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
     public List<Map<LoadProfileIdentifier, Instant>> getLoadProfileUpdates() {
-        if (loadProfileUpdates == null)
+        if (loadProfileUpdates == null) {
             loadProfileUpdates = new ArrayList<>();
+        }
         return loadProfileUpdates;
     }
 
