@@ -88,8 +88,8 @@ class Installer implements FullInstaller, PrivilegesProvider {
         );
         userService.addModulePrivileges(this);
         doTry(
-                "Create service call type",
-                dataExportServiceCallType::findOrCreate,
+                "Create service call types",
+                this::createServiceCallTypes,
                 logger
         );
     }
@@ -113,6 +113,10 @@ class Installer implements FullInstaller, PrivilegesProvider {
         return resources;
     }
 
+    private void createServiceCallTypes() {
+        dataExportServiceCallType.findOrCreateParentType();
+        dataExportServiceCallType.findOrCreateChildType();
+    }
 
     private void createRelativePeriodCategory() {
         timeService.createRelativePeriodCategory(RELATIVE_PERIOD_CATEGORY);

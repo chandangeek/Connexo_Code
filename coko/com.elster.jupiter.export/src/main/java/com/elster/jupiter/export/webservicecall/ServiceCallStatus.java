@@ -18,6 +18,8 @@ public interface ServiceCallStatus {
 
     boolean isSuccessful();
 
+    boolean isPartiallySuccessful();
+
     boolean isFailed();
 
     boolean isOpen();

@@ -24,15 +24,16 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.SET_MULTIPLIER,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.SET_MULTIPLIER
+                    );
         }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
                     MicroAction.START_COMMUNICATION,
                     MicroAction.START_RECURRING_COMMUNICATION,
-                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
+                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
+                    MicroAction.SET_LAST_READING);
         }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
@@ -44,12 +45,12 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.SET_LAST_READING);
         }
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
@@ -65,12 +66,12 @@ public enum TransitionType {
                     MicroAction.DISABLE_COMMUNICATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.SET_LAST_READING);
         }
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
@@ -83,13 +84,13 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.SET_LAST_READING);
         }
 
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
@@ -105,12 +106,12 @@ public enum TransitionType {
                     MicroAction.DISABLE_COMMUNICATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.SET_LAST_READING);
         }
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
@@ -123,13 +124,13 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
-                    MicroAction.LINK_TO_USAGE_POINT);
+                    MicroAction.LINK_TO_USAGE_POINT,
+                    MicroAction.SET_LAST_READING);
         }
 
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },

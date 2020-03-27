@@ -43,7 +43,11 @@ public enum EndDeviceDomain  implements CimMnemonicProvider {
     KYZPULSECOUNTER(38,"KYZPulseCounter"),
     ASSOCIATEDDEVICE(39,"AssociatedDevice"),
     VOLUME(40,"Volume"),
-    RECODER(41,"Recoder");
+    RECODER(41,"Recoder"),
+    ELSTER_DEFINED_SCHEDULER1(51, "Scheduler1"),
+    ELSTER_DEFINED_SCHEDULER2(52, "Scheduler2"),
+    ELSTER_DEFINED_SCHEDULER3(53, "Scheduler3"),
+    ELSTER_DEFINED_SCHEDULER4(54, "Scheduler4");
 
     private int value;
     private String mnemonic;

@@ -346,6 +346,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps.rest</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>

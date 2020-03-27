@@ -105,20 +105,20 @@ public class TransitionTypeTest {
 
     @Test
     public void testMandatoryPreTransitionActionsActivate() {
-        assertThat(TransitionType.ACTIVATE.requiredActions()).hasSize(2);
-        assertThat(TransitionType.ACTIVATE.requiredActions()).contains(MicroAction.SET_LAST_READING);
+        assertThat(TransitionType.ACTIVATE.requiredActions()).hasSize(1);
         assertThat(TransitionType.ACTIVATE.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
 
     @Test
     public void testOptionalPreTransitionActionsActivate() {
-        assertThat(TransitionType.ACTIVATE.optionalActions()).hasSize(6);
+        assertThat(TransitionType.ACTIVATE.optionalActions()).hasSize(7);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.ENABLE_ESTIMATION);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.ENABLE_VALIDATION);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.SET_MULTIPLIER);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.LINK_TO_USAGE_POINT);
+        assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.SET_LAST_READING);
     }
 
     @Test
@@ -179,50 +179,49 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsInstallAndActivate() {
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).hasSize(6);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).hasSize(7);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.ENABLE_ESTIMATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.ENABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.SET_MULTIPLIER);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.LINK_TO_USAGE_POINT);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.SET_LAST_READING);
     }
 
     @Test
     public void testMandatoryPreTransitionActionsInstallAndActivate() {
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).hasSize(2);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).hasSize(1);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).contains(MicroAction.SET_LAST_READING);
     }
 
     @Test
     public void testMandatoryPreTransitionActionsInstallAndActivateWithoutCommissioning() {
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).hasSize(2);
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.SET_LAST_READING);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).hasSize(1);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
 
     @Test
     public void testOptionalPreTransitionActionsInstallAndActivateWithoutCommissioning() {
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(6);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(7);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ENABLE_ESTIMATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ENABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.SET_MULTIPLIER);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.LINK_TO_USAGE_POINT);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.SET_LAST_READING);
     }
 
     @Test
     public void testMandatoryPreTransitionActionsInstallInactive() {
-        assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).hasSize(2);
-        assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).contains(MicroAction.SET_LAST_READING);
+        assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).hasSize(1);
         assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
 
     @Test
     public void testOptionalPreTransitionActionsInstallInactive() {
-        assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).hasSize(9);
+        assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).hasSize(10);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.DISABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.DISABLE_ESTIMATION);
@@ -232,18 +231,18 @@ public class TransitionTypeTest {
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.ENABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.SET_MULTIPLIER);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.LINK_TO_USAGE_POINT);
+        assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.SET_LAST_READING);
     }
 
     @Test
     public void testMandatoryPreTransitionActionsInstallInactiveFromInStock() {
-        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).hasSize(2);
-        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.SET_LAST_READING);
+        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).hasSize(1);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
 
     @Test
     public void testOptionalPreTransitionActionsInstallInactiveFromInStock() {
-        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(9);
+        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(10);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.DISABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.DISABLE_ESTIMATION);
@@ -253,6 +252,7 @@ public class TransitionTypeTest {
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ENABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.SET_MULTIPLIER);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.LINK_TO_USAGE_POINT);
+        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.SET_LAST_READING);
     }
 
     @Test
@@ -281,17 +281,17 @@ public class TransitionTypeTest {
 
     @Test
     public void testMandatoryPreTransitionActionsCommission() {
-        assertThat(TransitionType.COMMISSION.requiredActions()).hasSize(2);
-        assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.SET_LAST_READING);
+        assertThat(TransitionType.COMMISSION.requiredActions()).hasSize(1);
         assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.SET_MULTIPLIER);
     }
 
     @Test
     public void testOptionalPreTransitionActionsCommission() {
-        assertThat(TransitionType.COMMISSION.optionalActions()).hasSize(3);
+        assertThat(TransitionType.COMMISSION.optionalActions()).hasSize(4);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
+        assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.SET_LAST_READING);
     }
 
     private void testStandardTransition(DefaultState defaultFrom, DefaultState defaultTo, TransitionType expectedTransitionType) {

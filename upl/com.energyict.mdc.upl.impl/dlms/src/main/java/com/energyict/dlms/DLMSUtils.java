@@ -153,8 +153,10 @@ public final class DLMSUtils {
                 return (long) byteBuffer[iOffset + 1] & 0xff;
 
             case DOUBLE_LONG:
-            case DOUBLE_LONG_UNSIGNED:
                 return ProtocolUtils.getInt(byteBuffer, iOffset + 1);
+
+            case DOUBLE_LONG_UNSIGNED:
+                return ProtocolUtils.getLong(byteBuffer, iOffset + 1, 4);
 
             case UNSIGNED:
             case INTEGER:
@@ -348,8 +350,10 @@ public final class DLMSUtils {
                 return String.valueOf((long) byteBuffer[iOffset + 1] & 0xff);
 
             case DOUBLE_LONG:
-            case DOUBLE_LONG_UNSIGNED:
                 return String.valueOf((long) ProtocolUtils.getInt(byteBuffer, iOffset + 1));
+
+            case DOUBLE_LONG_UNSIGNED:
+                return String.valueOf((long) ProtocolUtils.getLong(byteBuffer, iOffset + 1, 4));
 
             case UNSIGNED:
             case INTEGER:

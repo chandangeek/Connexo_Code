@@ -131,9 +131,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 //                throw new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
 //            }
 //        } else
-            if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-            serviceCall.requestTransition(DefaultState.CANCELLED);
-        }
+        serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
         return serviceCallService.getServiceCall(serviceCall.getId()).get();
     }
 

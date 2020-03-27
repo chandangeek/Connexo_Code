@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyPurpose;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -465,7 +466,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(securityManagementService).getAliasesByFilter(captor.capture());
         assertThat(captor.getValue().alias).isEqualTo("my*");
         assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
-        JsonModel jsonModel = JsonModel.create((InputStream)response1.getEntity());
+        JsonModel jsonModel = JsonModel.create((InputStream) response1.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.aliases[0].alias")).isEqualTo("myAlias1");
     }
@@ -1034,7 +1035,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         List<String> aliases = model.<JSONArray>get("aliases").stream()
-                .map(o -> (String)(((JSONObject) o).get("alias")))
+                .map(o -> (String) (((JSONObject) o).get("alias")))
                 .sorted()
                 .collect(Collectors.toList());
 
@@ -1107,6 +1108,17 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("SSM");
         when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
         when(securityAccessorType.getKeyType()).thenReturn(keyType);
+        when(securityAccessorType.getKeyPurpose()).thenReturn(new KeyPurpose() {
+            @Override
+            public String getId() {
+                return "KEY";
+            }
+
+            @Override
+            public String getName() {
+                return "NAME";
+            }
+        });
         TimeDuration validityPeriod = TimeDuration.months(2);
         when(securityAccessorType.getDuration()).thenReturn(Optional.of(validityPeriod));
         return securityAccessorType;
@@ -1124,6 +1136,17 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityAccessorType.getKeyType()).thenReturn(certificateType);
         when(securityAccessorType.getDuration()).thenReturn(Optional.empty());
         when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
+        when(securityAccessorType.getKeyPurpose()).thenReturn(new KeyPurpose() {
+            @Override
+            public String getId() {
+                return "KEY";
+            }
+
+            @Override
+            public String getName() {
+                return "NAME";
+            }
+        });
         return securityAccessorType;
     }
 

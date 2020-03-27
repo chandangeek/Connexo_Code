@@ -104,7 +104,7 @@ public class NetworkTopologyBuilder {
 
     private Device createNode() {
         String name = createSerial(++this.nodeNbr);
-        Device child = deviceService.findDeviceByName(name).orElseGet(() ->  deviceService.newDevice(randomConfiguration(), name, clock.instant()));
+        Device child = deviceService.findDeviceByName(name).orElseGet(() ->  deviceService.newDevice(randomConfiguration(), "sn" + name, name, clock.instant()));
         topologyService.clearPhysicalGateway(child); // reset parent
         topologyService.setPhysicalGateway(child, gateway);
         System.out.println(String.format("created slave %s (%d)", child.getName(), child.getId()));

@@ -103,7 +103,7 @@ public class SecureDeviceShipmentImporterTest {
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.empty());
         Device newDevice = mock(Device.class);
         when(newDevice.getDeviceType()).thenReturn(deviceType);
-        when(deviceService.newDevice(eq(deviceConfig), anyString(), any(Instant.class))).thenReturn(newDevice);
+        when(deviceService.newDevice(eq(deviceConfig) ,anyString(), anyString(), any(Instant.class))).thenReturn(newDevice);
         when(deviceService.newDevice(eq(deviceConfig), anyString(), anyString(), any(Instant.class))).thenReturn(newDevice);
         SecurityAccessor keyAccessor = mock(SecurityAccessor.class);
         when(keyAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());

@@ -7,11 +7,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilsTmeSersERPMsmtTskAssgmtChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -20,6 +26,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.time.Clock;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.sap.measurementtaskassignment.confirmation.outbound.provider",
         service = {MeasurementTaskAssignmentChangeConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -71,9 +78,22 @@ public class MeasurementTaskAssignmentChangeConfirmationProvider extends Abstrac
 
     @Override
     public void call(MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage) {
-        UtilsTmeSersERPMsmtTskAssgmtChgConfMsg message = confirmationMessage.getConfirmationMessage();
+        SetMultimap<String, String> values = HashMultimap.create();
+        UtilsTmeSersERPMsmtTskAssgmtChgConfMsg message = confirmationMessage.getConfirmationMessage()
+                .orElseThrow(() -> new IllegalStateException("Confirmation message is empty."));
+
+        getUtilitiesTimeSeriesId(message).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(), value));
+
         using("utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut")
+                .withRelatedAttributes(values)
                 .send(message);
+    }
+
+    private static Optional<String> getUtilitiesTimeSeriesId(UtilsTmeSersERPMsmtTskAssgmtChgConfMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(UtilsTmeSersERPMsmtTskAssgmtChgConfMsg::getUtilitiesTimeSeries)
+                .map(UtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue);
     }
 
     @Override

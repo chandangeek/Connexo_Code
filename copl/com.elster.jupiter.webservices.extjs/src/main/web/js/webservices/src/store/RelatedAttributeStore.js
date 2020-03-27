@@ -4,5 +4,6 @@
 Ext.define('Wss.store.RelatedAttributeStore', {
     extend: 'Ext.data.Store',
     model: 'Wss.model.RelatedAttributeModel',
-    autoLoad: false
+    autoLoad: false,
+    pageSize: 50
 });

@@ -11,6 +11,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentResult;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MtrRdngDocERPRsltCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MtrRdngDocERPRsltCrteReqMtrRdngDoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MtrRdngDocERPRsltCrteReqUtilsDvce;
@@ -71,11 +72,15 @@ public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOut
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
         SetMultimap<String, String> values = HashMultimap.create();
-        getTaskId(resultMessage.getResultMessage()).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
-        getDeviceId(resultMessage.getResultMessage()).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+        MtrRdngDocERPRsltCrteReqMsg message = resultMessage.getResultMessage()
+                .orElseThrow(() -> new IllegalStateException("Unable to get result message"));
+        getTaskId(message).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+        getDeviceId(message).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+        getMeterReadingDocumentId(message).ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
+
         using("meterReadingDocumentERPResultCreateRequestCOut")
                 .withRelatedAttributes(values)
-                .send(resultMessage.getResultMessage());
+                .send(message);
     }
 
     private static Optional<String> getTaskId(MtrRdngDocERPRsltCrteReqMsg msg) {
@@ -93,6 +98,13 @@ public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOut
                 .map(MtrRdngDocERPRsltCrteReqUtilsMsmtTsk::getUtiltiesDevice)
                 .map(MtrRdngDocERPRsltCrteReqUtilsDvce::getUtilitiesDeviceID)
                 .map(UtilitiesDeviceID::getValue);
+    }
+
+    private static Optional<String> getMeterReadingDocumentId(MtrRdngDocERPRsltCrteReqMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(MtrRdngDocERPRsltCrteReqMsg::getMeterReadingDocument)
+                .map(MtrRdngDocERPRsltCrteReqMtrRdngDoc::getID)
+                .map(MeterReadingDocumentID::getValue);
     }
 
     @Override

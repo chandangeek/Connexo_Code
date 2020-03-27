@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
 import com.elster.jupiter.rest.whiteboard.SpecificReferenceResolver;
 import com.energyict.mdc.common.device.data.Device;
@@ -18,6 +19,8 @@ public class DeviceReferenceResolver implements SpecificReferenceResolver {
     public Optional<ReferenceInfo> resolve(Object object) {
         if (object instanceof Device) {
             return Optional.of(new ReferenceInfo("com.energyict.mdc.device.Device", ((Device) object).getName()));
+        } else if (object instanceof Meter) {
+            return Optional.of(new ReferenceInfo("com.energyict.mdc.device.Device", ((Meter) object).getName()));
         }
         return Optional.empty();
     }
