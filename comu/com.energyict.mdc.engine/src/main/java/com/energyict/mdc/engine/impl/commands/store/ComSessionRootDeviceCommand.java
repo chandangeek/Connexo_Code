@@ -81,7 +81,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     public void execute (final ComServerDAO comServerDAO) {
         this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
-        LOGGER.warning("CXO-11731: Execute all commands"+super.getChildren());
+        LOGGER.info("CXO-11731: Execute all commands"+super.getChildren());
         executeAll(comServerDAO);
     }
 

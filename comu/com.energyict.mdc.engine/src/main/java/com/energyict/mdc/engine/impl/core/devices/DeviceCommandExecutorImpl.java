@@ -243,7 +243,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     private synchronized Future<Boolean> doExecute(DeviceCommand command, DeviceCommandExecutionToken token) {
         this.workQueue.execute(command, token);
-        LOGGER.warning("CXO-11731: Submit command"+command);
+        LOGGER.info("CXO-11731: Submit command"+command);
         return this.executorService.submit(new Worker(command, this.comServerDAO));
     }
 
@@ -506,7 +506,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                     if (duringShutdown) {
                         this.command.executeDuringShutdown(this.comServerDAO);
                     } else {
-                        LOGGER.warning("CXO-11731: Execute command"+this.command);
+                        LOGGER.info("CXO-11731: Execute command"+this.command);
                         this.command.execute(this.comServerDAO);
                     }
                     return Boolean.TRUE;
