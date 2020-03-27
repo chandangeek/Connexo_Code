@@ -299,7 +299,7 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
 
     private Condition getDeviceGroupSearchCondition(Collection<EndDeviceGroup> endDeviceGroups) {
         return endDeviceGroups.stream()
-                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
+                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("AMRID"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
                 .map(Condition.class::cast)
                 .reduce(Condition.FALSE, Condition::or);
     }
