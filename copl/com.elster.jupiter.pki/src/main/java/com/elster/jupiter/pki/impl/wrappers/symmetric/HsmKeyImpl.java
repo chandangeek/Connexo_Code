@@ -160,8 +160,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     }
 
     public void setSmartMeterKey(byte[] smartMeterKey) {
-        this.smartMeterKey = Base64.getEncoder().encodeToString(smartMeterKey);
-        this.save();
+        setSmartMeterKey(Base64.getEncoder().encodeToString(smartMeterKey));
     }
 
     @Override
