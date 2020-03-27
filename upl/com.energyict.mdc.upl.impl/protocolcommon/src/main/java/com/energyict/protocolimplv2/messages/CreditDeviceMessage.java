@@ -30,6 +30,37 @@ public enum CreditDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.creditAmount, DeviceMessageConstants.creditAmountDefaultTranslation)
             );
         }
+    },
+    UPDATE_MONEY_CREDIT_THRESHOLD(40011, "Update money credit threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.currency, DeviceMessageConstants.currencyDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remainingCreditFirst, DeviceMessageConstants.remainingCreditFirstDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remainingCreditSecond, DeviceMessageConstants.remainingCreditSecondDefaultTranslation)
+            );
+        }
+    },
+    UPDATE_CONSUMPTION_CREDIT_THRESHOLD(40012, "Update consumption credit threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumedCreditFirst, DeviceMessageConstants.consumedCreditFirstDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumedCreditSecond, DeviceMessageConstants.consumedCreditSecondDefaultTranslation)
+            );
+        }
+    },
+    UPDATE_TIME_CREDIT_THRESHOLD(40013, "Update time credit threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remainingTimeFirst, DeviceMessageConstants.remainingTimeFirstDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remainingTimeSecond, DeviceMessageConstants.remainingTimeSecondDefaultTranslation)
+            );
+        }
     }
    ;
     private final long id;

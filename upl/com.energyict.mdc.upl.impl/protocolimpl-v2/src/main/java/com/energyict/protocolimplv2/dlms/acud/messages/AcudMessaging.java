@@ -45,6 +45,9 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
                 CreditDeviceMessage.UPDATE_CREDIT_AMOUNT.get(this.propertySpecService, this.nlsService, this.converter),
+                CreditDeviceMessage.UPDATE_MONEY_CREDIT_THRESHOLD.get(this.propertySpecService, this.nlsService, this.converter),
+                CreditDeviceMessage.UPDATE_CONSUMPTION_CREDIT_THRESHOLD.get(this.propertySpecService, this.nlsService, this.converter),
+                CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.ACTIVATE_PASSIVE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter),
