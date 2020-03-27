@@ -109,31 +109,30 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
     protected void checkFrameCounterEvents(List<MeterEvent> eventList) {
         SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
 
-        generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, eventList);
+        generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, MeterEvent.SEND_FRAME_COUNTER_ABOVE_THRESHOLD, eventList);
 
         if (securityContext.getResponseFrameCounter() != 0) {
-            generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, eventList);
+            generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, MeterEvent.RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD, eventList);
         } else {
             getProtocol().journal("Response frame counter not initialized.");
         }
-
     }
 
-    protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, List<MeterEvent> eventList) {
+    protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, int eiCode, List<MeterEvent> eventList) {
         try {
             long frameCounterLimit = this.getProtocol().getDlmsSessionProperties().getFrameCounterLimit();
 
-            if (frameCounterLimit==0){
-                getProtocol().journal("Frame counter threshold not configured. FYI the current "+name+" is "+frameCounter);
-            } else if ( frameCounter > frameCounterLimit ) {
-                getProtocol().journal(name+": " + frameCounter + " is above the threshold ("+frameCounterLimit+") - will create an event");
-                MeterEvent frameCounterEvent = new MeterEvent(new Date(), 0, eventId, name+" above threshold: " + frameCounter);
+            if (frameCounterLimit == 0){
+                getProtocol().journal("Frame counter threshold not configured. FYI the current " + name + " is " + frameCounter);
+            } else if (frameCounter > frameCounterLimit) {
+                getProtocol().journal(name+": " + frameCounter + " is above the threshold (" + frameCounterLimit + ") - will create an event");
+                MeterEvent frameCounterEvent = new MeterEvent(new Date(), eiCode, eventId, name+" above threshold: " + frameCounter);
                 eventList.add(frameCounterEvent);
             } else {
-                getProtocol().journal(name + " below configured threshold: "+frameCounter+" < "+frameCounterLimit);
+                getProtocol().journal(name + " below configured threshold: " + frameCounter + " < "+frameCounterLimit);
             }
         } catch (Exception e) {
-            getProtocol().journal(Level.WARNING, "Error getting  "+name+e.getMessage(), e);
+            getProtocol().journal(Level.WARNING, "Error getting  " + name + e.getMessage(), e);
         }
     }
 
