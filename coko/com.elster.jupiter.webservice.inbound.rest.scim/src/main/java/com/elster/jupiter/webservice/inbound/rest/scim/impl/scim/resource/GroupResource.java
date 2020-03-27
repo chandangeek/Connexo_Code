@@ -1,5 +1,6 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.resource;
 
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.SCIMService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.GroupSchema;
 
@@ -31,6 +32,7 @@ public class GroupResource {
     @POST
     @Consumes("application/scim+json")
     @Produces("application/scim+json")
+    @Transactional
     public GroupSchema createGroup(GroupSchema groupSchema) {
         return scimService.createGroup(groupSchema);
     }
@@ -39,12 +41,14 @@ public class GroupResource {
     @Path("{id}")
     @Consumes("application/scim+json")
     @Produces("application/scim+json")
+    @Transactional
     public GroupSchema updateGroup(@NotNull @PathParam("id") String id, GroupSchema groupSchema) {
         return scimService.updateGroup(groupSchema);
     }
 
     @DELETE
     @Path("{id}")
+    @Transactional
     public Response deleteGroup(@NotNull @PathParam("id") String id) {
         scimService.deleteGroup(id);
         return Response.ok().build();

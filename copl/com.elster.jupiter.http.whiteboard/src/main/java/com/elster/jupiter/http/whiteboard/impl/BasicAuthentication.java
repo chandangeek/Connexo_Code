@@ -13,7 +13,11 @@ import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
 import com.elster.jupiter.http.whiteboard.TokenValidation;
 import com.elster.jupiter.http.whiteboard.UserJWT;
+import com.elster.jupiter.http.whiteboard.impl.token.DatabaseBasedTokenService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -46,6 +50,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.MessageInterpolator;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -123,6 +128,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile SamlRequestService samlRequestService;
     private volatile TokenService<UserJWT> tokenService;
     private volatile BlackListTokenService blackListTokenService;
+    private volatile Thesaurus thesaurus;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -139,7 +145,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     @Inject
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
-                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService) throws
+                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService, TokenService tokenService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -148,6 +154,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
         setBlackListdTokenService(blackListTokenService);
+        setTokenService(tokenService);
         activate(context);
     }
 
@@ -163,9 +170,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(WhiteBoardImpl.COMPONENTNAME, "HTTP Whiteboard");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
+        TableSpecs.HTW_KEYSTORE.addTo(dataModel);
     }
 
     @Reference
@@ -213,6 +218,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.tokenService = tokenService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.SERVICE);
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -227,6 +237,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(BlackListTokenService.class).toInstance(blackListTokenService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
                 bind(TokenService.class).toInstance(tokenService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
         timeout = getIntParameter(TIMEOUT, context, 300);
@@ -541,12 +553,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
             UserJWT userJWT = null;
             try {
-                userJWT = tokenService.createUserJWT(usr, createCustomClaimsForUser(usr, 0));
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    userJWT = tokenService.createUserJWT(usr, createCustomClaimsForUser(usr, 0));
+                    transactionContext.commit();
+                }
             } catch (JOSEException e) {
                 e.printStackTrace();
             }
 //            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
-            String token = Objects.requireNonNull(userJWT).getSignedJWT().serialize();
+            String token = Objects.requireNonNull(userJWT).getToken();
             response.addCookie(createTokenCookie(token, "/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);

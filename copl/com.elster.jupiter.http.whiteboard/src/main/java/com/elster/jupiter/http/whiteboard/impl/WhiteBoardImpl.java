@@ -65,7 +65,7 @@ import java.util.stream.Stream;
         immediate = true)
 public final class WhiteBoardImpl extends Application implements BinderProvider, TranslationKeyProvider {
 
-    static String COMPONENTNAME = "HTW";
+    public static String COMPONENTNAME = "HTW";
 
     public static final Map<WhiteBoardProperties, String> WHITE_BOARD_PROPERTIES = new HashMap<>();
 

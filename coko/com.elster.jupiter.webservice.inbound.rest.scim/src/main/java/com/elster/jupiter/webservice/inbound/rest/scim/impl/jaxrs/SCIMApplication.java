@@ -1,6 +1,8 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs;
 
 import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.OAuthExceptionMapper;
@@ -62,6 +64,8 @@ public class SCIMApplication extends Application implements ApplicationSpecific 
             bind(SCIMServiceImpl.class).to(SCIMService.class);
             bind(userService).to(UserService.class);
             bind(tokenService).to(TokenService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 

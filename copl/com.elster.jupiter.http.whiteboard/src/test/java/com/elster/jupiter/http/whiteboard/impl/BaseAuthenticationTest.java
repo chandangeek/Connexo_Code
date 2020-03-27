@@ -4,6 +4,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -53,6 +54,8 @@ public class BaseAuthenticationTest {
     protected SamlRequestService samlRequestService;
     @Mock
     protected BlackListTokenService blackListdTokenService;
+    @Mock
+    protected TokenService tokenService;
 
     protected HttpAuthenticationService getHttpAuthentication() throws InvalidKeySpecException, NoSuchAlgorithmException {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
@@ -65,7 +68,7 @@ public class BaseAuthenticationTest {
 
         when(dataModel.mapper(KeyStoreImpl.class)).thenReturn(keyStoreDataMapper);
         BasicAuthentication basicAuthentication = new BasicAuthentication(userService, ormService, dataVaultService,
-                upgradeService, bpmService, context,blackListdTokenService);
+                upgradeService, bpmService, context, blackListdTokenService, tokenService);
         basicAuthentication.setSamlRequestService(samlRequestService);
         return basicAuthentication;
     }

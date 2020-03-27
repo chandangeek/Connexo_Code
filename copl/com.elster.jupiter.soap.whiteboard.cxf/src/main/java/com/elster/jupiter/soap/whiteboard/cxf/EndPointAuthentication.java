@@ -13,7 +13,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum EndPointAuthentication implements TranslationKey {
     NONE("None"),
     BASIC_AUTHENTICATION("Basic"),
-    OAUTH2_FRAMEWORK("OAuth 2.0");
+    OAUTH2_FRAMEWORK("OAuth 2.0 Framework");
 
     private String name;
 

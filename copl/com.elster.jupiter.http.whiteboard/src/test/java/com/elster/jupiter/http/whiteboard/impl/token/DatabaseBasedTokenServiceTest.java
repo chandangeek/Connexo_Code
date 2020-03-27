@@ -1,12 +1,15 @@
 package com.elster.jupiter.http.whiteboard.impl.token;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.http.whiteboard.TokenValidation;
 import com.elster.jupiter.http.whiteboard.UserJWT;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -29,26 +32,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InMemoryCacheBasedTokenServiceTest {
+public class DatabaseBasedTokenServiceTest extends TokenServicePersistence {
 
-    private static final Logger LOG = Logger.getLogger(InMemoryCacheBasedTokenServiceTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(DatabaseBasedTokenServiceTest.class.getName());
 
     @Mock
     private User userMock;
 
-    @Mock
-    private UserService userService;
+    private final UserService userService = inMemoryPersistence.getUserService();
 
-    @Mock
-    private BlackListTokenService blackListTokenService;
-
-    private static volatile InMemoryCacheBasedTokenService inMemoryCacheBasedTokenService;
+    private static volatile DatabaseBasedTokenService databaseBasedTokenService;
 
     private static String KEY_ALGORITHM = "RSA";
     private static int KEY_SIZE = 1024;
@@ -59,17 +56,11 @@ public class InMemoryCacheBasedTokenServiceTest {
     private static long TOKEN_REFRESH_MAX_COUNT = 10;
     private static long TIMEOUT = 300;
 
-
     @Before
     public void setUp() throws NoSuchAlgorithmException {
         generetaSelfSignedCert();
-        inMemoryCacheBasedTokenService = new InMemoryCacheBasedTokenService();
-        inMemoryCacheBasedTokenService.activate();
-        inMemoryCacheBasedTokenService.setUserService(userService);
-        inMemoryCacheBasedTokenService.setBlackListTokenService(blackListTokenService);
-        inMemoryCacheBasedTokenService.initialize(PUBLIC_KEY, PRIVATE_KEY, TOKEN_EXPIRATION_TIME, TOKEN_REFRESH_MAX_COUNT, TIMEOUT);
-
-        when(blackListTokenService.findToken(anyLong(), anyString())).thenReturn(Optional.empty());
+        databaseBasedTokenService = (DatabaseBasedTokenService) inMemoryPersistence.getTokenService();
+        databaseBasedTokenService.initialize(PUBLIC_KEY, PRIVATE_KEY, TOKEN_EXPIRATION_TIME, TOKEN_REFRESH_MAX_COUNT, TIMEOUT);
     }
 
     private static void generetaSelfSignedCert() throws NoSuchAlgorithmException {
@@ -81,58 +72,55 @@ public class InMemoryCacheBasedTokenServiceTest {
     }
 
     @Test
+    @Transactional
     public void shouldCreateUserJWT() throws JOSEException {
         when(userMock.getId()).thenReturn(new SecureRandom().nextLong());
         when(userMock.getGroups()).thenReturn(new ArrayList<>());
         when(userMock.getName()).thenReturn("TEST_USER_NAME");
 
-        final UserJWT userJWT = inMemoryCacheBasedTokenService.createUserJWT(userMock, inMemoryCacheBasedTokenService.createCustomClaimsForUser(userMock, 0));
+        final UserJWT userJWT = databaseBasedTokenService.createUserJWT(userMock, databaseBasedTokenService.createUserSpecificClaims(userMock, 0));
 
         assertThat(userJWT).isNotNull();
-        assertThat(userJWT.getUser()).isEqualToComparingFieldByField(userMock);
+        assertThat(userJWT.getUserId().longValue()).isEqualTo(userMock.getId());
 
         // Truncate to seconds, 'cause there will be the difference between expiration dates due to expenses during token calculation
-        assertThat(userJWT.getExpirationDate().truncatedTo(ChronoUnit.SECONDS))
-                .isEqualTo(Instant.ofEpochMilli(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME * 1000).truncatedTo(ChronoUnit.SECONDS));
+        assertThat(userJWT.getExpirationDate().truncatedTo(ChronoUnit.MINUTES))
+                .isEqualTo(Instant.ofEpochMilli(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME * 1000).truncatedTo(ChronoUnit.MINUTES));
 
-        verify(userMock).getId();
         verify(userMock).getGroups();
         verify(userMock).getName();
     }
 
     @Test
+    @Transactional
     public void shouldCreateValidateInvalidateUserJWT() throws JOSEException, ParseException {
-        when(userMock.getId()).thenReturn(new SecureRandom().nextLong());
-        when(userMock.getGroups()).thenReturn(new ArrayList<>());
-        when(userMock.getName()).thenReturn("TEST_USER_NAME");
+        final User scimUser = userService.createSCIMUser("TEST_USER_NAME", "TEST_USER", UUID.randomUUID().toString());
 
-        final UserJWT userJWT = inMemoryCacheBasedTokenService.createUserJWT(userMock, inMemoryCacheBasedTokenService.createCustomClaimsForUser(userMock, 0));
+        final UserJWT userJWT = databaseBasedTokenService.createUserJWT(scimUser, databaseBasedTokenService.createUserSpecificClaims(userMock, 0));
         assertThat(userJWT).isNotNull();
 
-        final UserJWT validUserJWTshouldNotBeNull = inMemoryCacheBasedTokenService.getUserJWT(extractJwtIdfromUserJWT(userJWT));
-        assertThat(validUserJWTshouldNotBeNull).isNotNull();
+        final Optional<UserJWT> validUserJWTshouldNotBeNull = databaseBasedTokenService.getUserJWT(extractJwtIdfromUserJWT(userJWT));
+        assertThat(validUserJWTshouldNotBeNull).isPresent();
 
-        when(userService.getLoggedInUser(anyLong())).thenAnswer(invocationOnMock -> Optional.of(userMock));
-        final TokenValidation tokenValidation = inMemoryCacheBasedTokenService.validateSignedJWT(userJWT.getSignedJWT());
+        final TokenValidation tokenValidation = databaseBasedTokenService.validateSignedJWT(SignedJWT.parse(userJWT.getToken()));
         assertThat(tokenValidation.isValid()).isTrue();
 
-        inMemoryCacheBasedTokenService.invalidateUserJWT(extractJwtIdfromUserJWT(userJWT));
+        databaseBasedTokenService.invalidateUserJWT(extractJwtIdfromUserJWT(userJWT));
 
-        final UserJWT invalidatedUserJWTshouldBeNull = inMemoryCacheBasedTokenService.getUserJWT(extractJwtIdfromUserJWT(userJWT));
-        assertThat(invalidatedUserJWTshouldBeNull).isNull();
-
-        verify(userMock).getId();
-        verify(userMock).getGroups();
-        verify(userMock).getName();
+        final Optional<UserJWT> invalidatedUserJWTshouldBeNull = databaseBasedTokenService.getUserJWT(extractJwtIdfromUserJWT(userJWT));
+        assertThat(invalidatedUserJWTshouldBeNull).isEmpty();
     }
 
     @Test
+    @Transactional
+    @Ignore
     public void shouldCreate100_000UserJWTs() {
         final long executionTime = createTokensForUsers(createListOfUserMocks(100000));
         LOG.info(String.format("TOKEN_SERVICE_TEST: 100 000 user tokens were generated in %f seconds.", executionTime / 1000D));
     }
 
     @Test
+    @Ignore
     public void shouldInvalidate100_000UserJWTs() {
         final List<User> listOfUserMocks = createListOfUserMocks(100000);
         createTokensForUsers(listOfUserMocks);
@@ -141,6 +129,8 @@ public class InMemoryCacheBasedTokenServiceTest {
     }
 
     @Test
+    @Transactional
+    @Ignore
     public void shouldValidate100UserJWTs() {
         final List<User> listOfUserMocks = createListOfUserMocks(100);
         final CopyOnWriteArrayList<UserJWT> userJWTS = new CopyOnWriteArrayList<>();
@@ -173,20 +163,23 @@ public class InMemoryCacheBasedTokenServiceTest {
 
     private long createTokensForUsers(final List<User> userList, final List<UserJWT> output) {
         long startTime = System.currentTimeMillis();
-        userList.parallelStream()
-                .forEach(user -> {
-                    try {
-                        output.add(inMemoryCacheBasedTokenService.createUserJWT(user, inMemoryCacheBasedTokenService.createCustomClaimsForUser(user, 0)));
-                    } catch (JOSEException e) {
-                        e.printStackTrace();
-                    }
-                });
+        try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
+            userList.parallelStream()
+                    .forEach(user -> {
+                        try {
+                            output.add(databaseBasedTokenService.createUserJWT(user, databaseBasedTokenService.createUserSpecificClaims(user, 0)));
+                        } catch (JOSEException e) {
+                            e.printStackTrace();
+                        }
+                    });
+            context.commit();
+        }
         return System.currentTimeMillis() - startTime;
     }
 
     private long invalidateTokensForUsers(final List<User> userList) {
         long startTime = System.currentTimeMillis();
-        userList.parallelStream().forEach(inMemoryCacheBasedTokenService::invalidateAllUserJWTsForUser);
+        userList.parallelStream().forEach(databaseBasedTokenService::invalidateAllUserJWTsForUser);
         return System.currentTimeMillis() - startTime;
     }
 
@@ -194,7 +187,7 @@ public class InMemoryCacheBasedTokenServiceTest {
         long startTime = System.currentTimeMillis();
         userJWTS.parallelStream().forEach(userJWT -> {
             try {
-                inMemoryCacheBasedTokenService.validateSignedJWT(userJWT.getSignedJWT());
+                databaseBasedTokenService.validateSignedJWT(SignedJWT.parse(userJWT.getToken()));
             } catch (JOSEException | ParseException e) {
                 e.printStackTrace();
             }
@@ -203,7 +196,6 @@ public class InMemoryCacheBasedTokenServiceTest {
     }
 
     private UUID extractJwtIdfromUserJWT(final UserJWT userJWT) throws ParseException {
-        return UUID.fromString(userJWT.getSignedJWT().getJWTClaimsSet().getJWTID());
+        return UUID.fromString(SignedJWT.parse(userJWT.getToken()).getJWTClaimsSet().getJWTID());
     }
-
 }

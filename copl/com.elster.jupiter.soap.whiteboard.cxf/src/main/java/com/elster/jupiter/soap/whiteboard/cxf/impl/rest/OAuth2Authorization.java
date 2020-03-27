@@ -51,11 +51,10 @@ public class OAuth2Authorization implements HttpContext {
             final byte[] clientCredentials = Base64.getDecoder().decode(authorizationHeader.substring(6).getBytes());
             return validateClientCredentials(clientCredentials);
         } else if (authorizationHeader.startsWith("Bearer ")) {
-            final byte[] jwtToken = authorizationHeader.substring(6).getBytes();
 
             TokenValidation tokenValidation = null;
             try {
-                tokenValidation = tokenService.validateSignedJWT(SignedJWT.parse(Arrays.toString(jwtToken)));
+                tokenValidation = tokenService.validateServiceSignedJWT(SignedJWT.parse(authorizationHeader.substring(7)));
             } catch (JOSEException | ParseException e) {
                 e.printStackTrace();
             }

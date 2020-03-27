@@ -4,12 +4,25 @@ import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.TokenValidation;
 import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.http.whiteboard.impl.RoleClaimInfo;
+import com.elster.jupiter.http.whiteboard.impl.TableSpecs;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.elster.jupiter.users.blacklist.impl.BlackListTokenServiceImpl;
+import com.elster.jupiter.util.conditions.Operator;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -24,7 +37,10 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import javax.xml.bind.DatatypeConverter;
+import java.math.BigDecimal;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
@@ -40,31 +56,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 @Component(
         name = "com.elster.jupiter.http.whiteboard.token.InMemoryCacheBasedTokenService",
         property = {
-                "name=" + InMemoryCacheBasedTokenService.SERVICE_NAME
+                "name=" + DatabaseBasedTokenService.SERVICE_NAME
         },
         immediate = true,
         service = {
                 TokenService.class
         }
 )
-public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
+public class DatabaseBasedTokenService implements TokenService<UserJWT> {
 
     public static final String SERVICE_NAME = "TNS";
 
     private static final String ISSUER_NAME = "Elster Connexo";
 
     private volatile UserService userService;
+
     private volatile BlackListTokenService blackListTokenService;
 
-    private volatile Cache<UUID, UserJWT> CASHE;
+    private volatile TransactionService transactionService;
+
+    private volatile UpgradeService upgradeService;
+
+    private volatile Thesaurus thesaurus;
+
+    private volatile NlsService nlsService;
+
+    private volatile DataModel dataModel;
+
+    private Timer expiredTokensCleaningTimer = new Timer("Token Expiry");
 
     private KeyFactory keyFactory;
 
@@ -74,10 +102,59 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
     private long TIMEOUT;
     private long TOKEN_REFRESH_MAX_COUNT;
     private long TOKEN_EXPIRATION_TIME;
+    private long EXPIRED_TOKEN_TASK_EXECUTION_PERIOD = 2 * 60 * 1000; // 2 minutes
+
+    public DatabaseBasedTokenService() {
+    }
+
+    @Inject
+    public DatabaseBasedTokenService(UserService userService,
+                                     BlackListTokenService blackListTokenService,
+                                     TransactionService transactionService,
+                                     UpgradeService upgradeService,
+                                     OrmService ormService,
+                                     NlsService nlsService) {
+        setUserService(userService);
+        setBlackListTokenService(blackListTokenService);
+        setTransactionService(transactionService);
+        setUpgradeService(upgradeService);
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        activate();
+    }
 
     @Activate
-    public void activate() throws NoSuchAlgorithmException {
-        keyFactory = KeyFactory.getInstance("RSA");
+    public void activate() {
+        TableSpecs.HTW_JWTSTORE.addTo(dataModel);
+
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(NlsService.class).toInstance(nlsService);
+                bind(UserService.class).toInstance(userService);
+                bind(BlackListTokenService.class).toInstance(blackListTokenService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(TransactionService.class).toInstance(transactionService);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(TokenService.class).to(DatabaseBasedTokenService.class).in(Scopes.SINGLETON);
+            }
+        });
+
+        this.upgradeService.register(
+                InstallIdentifier.identifier("Pulse", DatabaseBasedTokenService.SERVICE_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of()
+        );
+
+        try {
+            this.keyFactory = KeyFactory.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        this.expiredTokensCleaningTimer.scheduleAtFixedRate(new ExpiredTokensCleaningTaks(), 0, EXPIRED_TOKEN_TASK_EXECUTION_PERIOD);
     }
 
     @Override
@@ -87,11 +164,6 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         this.TOKEN_EXPIRATION_TIME = tokenExpirationTime;
         this.TOKEN_REFRESH_MAX_COUNT = tokenRefreshThershold;
         this.TIMEOUT = timeout;
-
-        CASHE = CacheBuilder.newBuilder()
-                .expireAfterWrite(TOKEN_EXPIRATION_TIME * 1000, TimeUnit.MILLISECONDS)
-                .maximumSize(100000)
-                .build();
     }
 
     private RSAPublicKey extractPublicKey(final byte[] publicKey) {
@@ -127,19 +199,18 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         claimsSet.setExpirationTime(new Date(tokenExpirationTime));
         claimsSet.setCustomClaims(customClaims);
 
-        final UserJWT userJWT = new UserJWT(
-                user,
-                createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet),
-                Instant.ofEpochMilli(tokenExpirationTime)
-        );
+        final SignedJWT signedJWT = createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
-        CASHE.put(jwtId, userJWT);
+        final UserJWT userJWT = dataModel.getInstance(UserJWT.class)
+                .init(jwtId.toString(), BigDecimal.valueOf(user.getId()), signedJWT.serialize(), Instant.ofEpochMilli(tokenExpirationTime));
+
+        userJWT.save();
 
         return userJWT;
     }
 
     @Override
-    public SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException {
+    public SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException {
         final UUID jwtId = UUID.randomUUID();
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();
@@ -150,15 +221,17 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         claimsSet.setExpirationTime(new Date(expiresIn));
         claimsSet.setCustomClaims(customClaims);
 
-        final UserJWT userJWT = new UserJWT(
-                null,
-                createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet),
-                Instant.ofEpochMilli(expiresIn)
-        );
+        final SignedJWT signedJWT = createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
-        CASHE.put(jwtId, userJWT);
+        final UserJWT userJWT = dataModel.getInstance(UserJWT.class)
+                .init(jwtId.toString(), null, signedJWT.serialize(), Instant.ofEpochMilli(expiresIn));
 
-        return userJWT.getSignedJWT();
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            userJWT.save();
+            transactionContext.commit();
+        }
+
+        return SignedJWT.parse(userJWT.getToken());
     }
 
     private SignedJWT createAndSignSignedJWT(final JWSHeader jwsHeader, final JWTClaimsSet jwtClaimsSet) throws JOSEException {
@@ -170,8 +243,11 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
 
 
     @Override
-    public UserJWT getUserJWT(final UUID jwtId) {
-        return CASHE.getIfPresent(jwtId);
+    public Optional<UserJWT> getUserJWT(final UUID jwtId) {
+        return dataModel.query(UserJWT.class)
+                .select(Operator.EQUAL.compare("jwtId", jwtId.toString()))
+                .stream()
+                .findFirst();
     }
 
     @Override
@@ -181,7 +257,7 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         final User user = getAssociatedUser(Long.parseLong(jwtClaimsSet.getSubject()));
 
         final boolean result = Objects.nonNull(user)
-                && verifyIfUserHasUserJWTInCache(user, UUID.fromString(jwtClaimsSet.getJWTID()))
+                && verifyIfUserHasUserJWTInStorage(user, UUID.fromString(jwtClaimsSet.getJWTID()))
                 && verifyJWTSignature(signedJWT)
                 && verifyJWTIssuer(jwtClaimsSet.getIssuer())
                 && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime())
@@ -204,16 +280,9 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         return !blackListTokenService.findToken(Long.parseLong(userId), token).isPresent();
     }
 
-    private boolean verifyIfUserHasUserJWTInCache(final User user, final UUID jwtId) {
-        final UserJWT userJWT = getUserJWT(jwtId);
-
-        if (userJWT == null) {
-            return false;
-        }
-
-        final User userJWTUser = userJWT.getUser();
-
-        return user.equals(userJWTUser);
+    private boolean verifyIfUserHasUserJWTInStorage(final User user, final UUID jwtId) {
+        final Optional<UserJWT> userJWT = getUserJWT(jwtId);
+        return userJWT.filter(jwt -> user.getId() == jwt.getUserId().longValue()).isPresent();
     }
 
     private User getAssociatedUser(final long userId) {
@@ -235,25 +304,25 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
 
     @Override
     public void invalidateUserJWT(final UUID jwtId) {
-        CASHE.invalidate(jwtId);
+        dataModel.query(UserJWT.class)
+                .select(Operator.EQUAL.compare("jwtId", jwtId.toString()))
+                .forEach(UserJWT::delete);
     }
 
     @Override
     public void invalidateAllUserJWTsForUser(final User user) {
-        final List<UUID> userJWTS = CASHE.asMap().entrySet().stream()
-                .filter(uuidUserJWTEntry -> Objects.nonNull(uuidUserJWTEntry.getValue().getUser()))
-                .filter(uuidUserJWTEntry -> filterUserJWTEntryByUser(uuidUserJWTEntry, user))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        CASHE.invalidateAll(userJWTS);
+        dataModel.query(UserJWT.class)
+                .select(Operator.EQUAL.compare("userId", user.getId()))
+                .forEach(UserJWT::delete);
     }
 
-    private boolean filterUserJWTEntryByUser(final Map.Entry<UUID, UserJWT> userJWTEntry, final User user) {
-        return userJWTEntry.getValue().getUser().equals(user);
+    private void deleteExpiredUserJWTs() {
+        dataModel.query(UserJWT.class)
+                .select(Operator.LESSTHAN.compare("expirationDate", Instant.now()))
+                .forEach(UserJWT::delete);
     }
 
-    public Map<String, Object> createCustomClaimsForUser(final User user, long count) {
+    public Map<String, Object> createUserSpecificClaims(final User user, long count) {
         List<Group> userGroups = user.getGroups();
         List<RoleClaimInfo> roles = new ArrayList<>();
         List<String> privileges = new ArrayList<>();
@@ -279,6 +348,16 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
         return result;
     }
 
+    private class ExpiredTokensCleaningTaks extends TimerTask {
+        @Override
+        public void run() {
+            try (TransactionContext context = transactionService.getContext()) {
+                deleteExpiredUserJWTs();
+                context.commit(); ;
+            }
+        }
+    }
+
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -287,5 +366,26 @@ public class InMemoryCacheBasedTokenService implements TokenService<UserJWT> {
     @Reference
     public void setBlackListTokenService(BlackListTokenService blackListTokenService) {
         this.blackListTokenService = blackListTokenService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.dataModel = ormService.newDataModel(DatabaseBasedTokenService.SERVICE_NAME, "Token Service responsible for token managment operations");
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(DatabaseBasedTokenService.SERVICE_NAME, Layer.SERVICE);
     }
 }

@@ -4,7 +4,9 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -12,6 +14,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.util.Optional;
 
@@ -21,7 +24,11 @@ import java.util.Optional;
 public final class InboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements InboundEndPointConfiguration {
 
     private Reference<Group> group = Reference.empty();
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String clientId;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String clientSecret;
 
     @Inject

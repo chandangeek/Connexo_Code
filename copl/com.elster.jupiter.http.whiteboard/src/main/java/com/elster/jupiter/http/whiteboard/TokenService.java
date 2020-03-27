@@ -7,6 +7,7 @@ import com.nimbusds.jwt.SignedJWT;
 
 import java.text.ParseException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -39,12 +40,12 @@ public interface TokenService<T> {
      * Creates a signed JWT (JSON Web Token) for third party services that authorize
      * using OAuth 2.0 protocol
      */
-    SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException;
+    SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException;
 
     /**
      *
      */
-    T getUserJWT(UUID jwtId);
+    Optional<T> getUserJWT(UUID jwtId);
 
     /**
      * Validates a signed JWT (JSON Web Token)
