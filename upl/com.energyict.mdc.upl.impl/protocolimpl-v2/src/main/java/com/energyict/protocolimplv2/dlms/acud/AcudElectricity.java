@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimplv2.dlms.acud.messages.AcudElectricMessaging;
+import com.energyict.protocolimplv2.dlms.acud.messages.AcudMessaging;
 
 public class AcudElectricity extends Acud {
 
@@ -15,6 +17,10 @@ public class AcudElectricity extends Acud {
 
     public AcudElectricity(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor);
+    }
+
+    protected AcudMessaging createProtocolMessaging() {
+        return  new AcudElectricMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
     }
 
     public EndDeviceType getTypeMeter() {

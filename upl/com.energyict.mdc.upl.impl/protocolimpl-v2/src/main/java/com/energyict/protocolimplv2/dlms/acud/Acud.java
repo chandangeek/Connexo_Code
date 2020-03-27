@@ -179,9 +179,13 @@ public abstract class Acud extends AbstractDlmsProtocol {
 
     protected AcudMessaging getProtocolMessaging() {
         if (messaging == null) {
-            messaging = new AcudMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
+            messaging = createProtocolMessaging();
         }
         return messaging;
+    }
+
+    protected AcudMessaging createProtocolMessaging() {
+        return new AcudMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
     }
 
     @Override
