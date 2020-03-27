@@ -20,6 +20,8 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
@@ -153,7 +155,9 @@ public class ServiceCallTypeIT {
                     new BasicPropertiesModule(),
                     new ServiceCallModule(),
                     new AuditServiceModule(),
-                    new WebServicesModule()
+                    new WebServicesModule(),
+                    new TokenModule(),
+                    new BlackListModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -23,6 +23,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -55,6 +57,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -213,7 +216,9 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new TopologyModule(),
                 new PkiModule(),
                 new MeteringZoneModule(),
-                new TimeOfUseCampaignModule());
+                new TimeOfUseCampaignModule(),
+                new TokenModule(),
+                new BlackListModule());
         initializeTopModuleInATransaction();
     }
 

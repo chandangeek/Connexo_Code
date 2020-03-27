@@ -18,6 +18,8 @@ import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -153,6 +155,9 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new UsagePointLifeCycleConfigurationModule());
         modules.add(new WebServicesModule());
         modules.add(new AuditServiceModule());
+        modules.add(new TokenModule());
+        modules.add(new BlackListModule());
+
         if (this.customPropertySetService == null) {
             modules.add(new CustomPropertySetsModule());
         }

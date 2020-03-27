@@ -14,7 +14,7 @@ import com.elster.jupiter.http.whiteboard.SamlResponseService;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
-import com.elster.jupiter.http.whiteboard.impl.saml.sso.AcsResource;
+import com.elster.jupiter.http.whiteboard.impl.saml.sso.AssertionConsumerServiceResource;
 import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
@@ -220,7 +220,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, AcsResource.class, SLOResource.class, ForbiddenExceptionMapper.class);
+        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, AssertionConsumerServiceResource.class, SLOResource.class, ForbiddenExceptionMapper.class);
     }
 
     List<HttpResource> getResources() {

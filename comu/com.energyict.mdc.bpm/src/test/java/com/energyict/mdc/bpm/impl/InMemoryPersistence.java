@@ -23,6 +23,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.task.TaskIssueService;
@@ -62,6 +64,7 @@ import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -216,7 +219,9 @@ public class InMemoryPersistence {
                 new FileImportModule(),
                 new MeteringZoneModule(),
                 new TaskIssueModule(),
-                new TimeOfUseCampaignModule()
+                new TimeOfUseCampaignModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
     }
 

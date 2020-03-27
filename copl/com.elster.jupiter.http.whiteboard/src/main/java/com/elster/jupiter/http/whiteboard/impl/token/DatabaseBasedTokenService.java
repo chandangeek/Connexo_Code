@@ -92,7 +92,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
 
     private volatile DataModel dataModel;
 
-    private Timer expiredTokensCleaningTimer = new Timer("Token Expiry");
+    private Timer expiredTokensCleaningTimer = new Timer("JWT Token Expiry");
 
     private KeyFactory keyFactory;
 

@@ -23,7 +23,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -195,7 +197,9 @@ public class InMemoryIntegrationPersistence {
                 new CalendarModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
         if (this.metrologyConfigurationService == null) {
             modules.add(new MetrologyConfigurationModule());

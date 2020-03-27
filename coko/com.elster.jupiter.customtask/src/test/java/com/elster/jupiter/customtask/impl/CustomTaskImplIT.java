@@ -19,6 +19,8 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -172,7 +174,9 @@ public class CustomTaskImplIT {
                     new DomainUtilModule(),
                     new UserModule(),
                     new DataVaultModule(),
-                    new UtilModule(clock)
+                    new UtilModule(clock),
+                    new TokenModule(),
+                    new BlackListModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

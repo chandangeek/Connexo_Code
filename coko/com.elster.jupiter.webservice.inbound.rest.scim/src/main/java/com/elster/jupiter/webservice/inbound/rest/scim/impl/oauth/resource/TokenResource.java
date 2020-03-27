@@ -41,7 +41,7 @@ public class TokenResource {
 
         final long expiresIn = getExpirationDate().toEpochMilli();
 
-        final SignedJWT serviceSignetJWT = tokenService.createServiceSignedJWT(expiresIn, "enexis", "connexo", new HashMap<>());
+        final SignedJWT serviceSignetJWT = tokenService.createServiceSignedJWT(expiresIn, "client", "connexo", new HashMap<>());
 
         return TokenResponse.TokenResponseBuilder.aTokenResponse()
                 .withAccessToken(serviceSignetJWT.serialize())

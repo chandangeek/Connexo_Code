@@ -128,7 +128,7 @@ public enum TableSpecs {
             table.setJournalTableName("USR_GROUPJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
-            table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 7, 2));
+            table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 8));
             table.column("DESCRIPTION").varChar().map("description").add();
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_GROUP").on(idColumn).add();
@@ -181,7 +181,7 @@ public enum TableSpecs {
             table.setJournalTableName("USR_USERJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
-            table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 7, 2));
+            table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 8));
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("HA1").varChar().map("ha1").add();
             table.column("SALT").number().conversion(NUMBER2INT).map("salt").add();

@@ -21,6 +21,8 @@ import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
@@ -146,7 +148,9 @@ public class AppServerIT {
                     new TaskModule(),
                     new EventsModule(),
                     new DataVaultModule(),
-                    new UserModule()
+                    new UserModule(),
+                    new TokenModule(),
+                    new BlackListModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

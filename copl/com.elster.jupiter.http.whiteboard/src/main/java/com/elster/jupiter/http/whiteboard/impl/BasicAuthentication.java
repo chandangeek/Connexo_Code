@@ -143,6 +143,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> x509Certificate;
     private Optional<String> ssoAdminUser;
 
+    private static final SAMLUtilities samlUtilities = SAMLUtilities.getInstance();
+
     @Inject
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
                         BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService, TokenService tokenService) throws
@@ -268,14 +270,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Thread thread = Thread.currentThread();
         ClassLoader loader = thread.getContextClassLoader();
         thread.setContextClassLoader(InitializationService.class.getClassLoader());
-        try {
-            SAMLUtilities.initializeOpenSAML();
-        } catch (InitializationException e) {
-            throw new RuntimeException(e);
-        } finally {
-            thread.setContextClassLoader(loader);
-        }
-
         Optional<KeyStoreImpl> keyStore = getKeyPair();
         keyStore.ifPresent(store -> tokenService.initialize(dataVaultService.decrypt(store.getPublicKey()), dataVaultService.decrypt(store.getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeout));
     }

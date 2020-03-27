@@ -47,6 +47,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.hsm.HsmEncryptionService;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -456,7 +458,9 @@ public class DemoTest {
                 new MeteringZoneModule(),
                 new IssueDeviceLifecycleModule(),
                 new TaskIssueModule(),
-                new TimeOfUseCampaignModule()
+                new TimeOfUseCampaignModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
 
         doPreparations();

@@ -30,7 +30,7 @@ public class SCIMServiceImpl implements SCIMService {
 
     @Override
     public UserSchema createUser(UserSchema userSchema) {
-        final User user = userService.createSCIMUser(userSchema.getUserName(), "A user provisioned by enexis provisioning tool", userSchema.getExternalId());
+        final User user = userService.createSCIMUser(userSchema.getUserName(), "A user provisioned by client provisioning tool", userSchema.getExternalId());
         user.setLocale(Locale.forLanguageTag(userSchema.getLocale()));
         user.update();
         return createUserSchemaFromUser(user);
@@ -86,7 +86,7 @@ public class SCIMServiceImpl implements SCIMService {
 
     @Override
     public GroupSchema createGroup(GroupSchema groupSchema) {
-        final Group group = userService.createSCIMGroup(groupSchema.getDisplayName(), "A group provisioned by enexis provisioning tool", groupSchema.getExternalId());
+        final Group group = userService.createSCIMGroup(groupSchema.getDisplayName(), "A group provisioned by client provisioning tool", groupSchema.getExternalId());
         final List<User> newGroupMembers = findUsersForMembers(groupSchema.getMembers());
         newGroupMembers.forEach(user -> user.join(group));
         group.update();

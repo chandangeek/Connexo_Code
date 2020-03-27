@@ -54,7 +54,7 @@ public final class SAMLUtilities {
 
     public synchronized static SAMLUtilities getInstance() {
         if (INSTANCE == null) {
-            return new SAMLUtilities();
+            INSTANCE = new SAMLUtilities();
         }
         return INSTANCE;
     }

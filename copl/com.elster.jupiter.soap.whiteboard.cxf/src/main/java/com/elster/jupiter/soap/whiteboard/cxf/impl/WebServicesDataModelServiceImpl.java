@@ -107,7 +107,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                                            UserService userService, TransactionService transactionService,
                                            HttpService httpService, BundleContext bundleContext, UpgradeService upgradeService,
                                            SoapProviderSupportFactory soapProviderSupportFactory, ThreadPrincipalService threadPrincipalService,
-                                           Clock clock) {
+                                           Clock clock, TokenService tokenService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
@@ -118,6 +118,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setThreadPrincipalService(threadPrincipalService);
         setClock(clock);
+        setTokenService(tokenService);
         activate(bundleContext);
     }
 

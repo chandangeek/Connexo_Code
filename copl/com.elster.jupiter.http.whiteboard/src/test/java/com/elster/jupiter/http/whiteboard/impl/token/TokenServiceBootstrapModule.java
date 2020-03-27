@@ -5,6 +5,8 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
@@ -14,7 +16,6 @@ import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -59,34 +60,6 @@ public class TokenServiceBootstrapModule {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-//            bind(BlackListTokenService.class).toInstance(blackListTokenService);
-        }
-    }
-
-    private class TokenModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            requireBinding(UserService.class);
-            requireBinding(UpgradeService.class);
-            requireBinding(BlackListTokenService.class);
-            requireBinding(ThreadPrincipalService.class);
-            requireBinding(OrmService.class);
-
-            bind(TokenService.class).to(DatabaseBasedTokenService.class).in(Scopes.SINGLETON);
-        }
-    }
-
-    private class BlackListModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            requireBinding(Clock.class);
-            requireBinding(QueryService.class);
-            requireBinding(NlsService.class);
-            requireBinding(UpgradeService.class);
-            requireBinding(ThreadPrincipalService.class);
-            requireBinding(OrmService.class);
-
-            bind(BlackListTokenService.class).to(BlackListTokenServiceImpl.class).in(Scopes.SINGLETON);
         }
     }
 

@@ -25,6 +25,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -209,7 +211,9 @@ public class FavoritesServiceImplTest {
                 new WebServicesModule(),
                 new AuditServiceModule(),
                 new FileImportModule(),
-                new MeteringZoneModule()
+                new MeteringZoneModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
         try (TransactionContext ctx = getTransactionService().getContext()) {
             userService = injector.getInstance(UserService.class);

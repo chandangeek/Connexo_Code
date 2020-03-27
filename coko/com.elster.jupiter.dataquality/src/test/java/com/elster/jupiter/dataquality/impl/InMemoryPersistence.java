@@ -18,6 +18,8 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -44,6 +46,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
+import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
@@ -101,7 +104,9 @@ public class InMemoryPersistence {
                 new UserModule(),
                 new BpmModule(),
                 new DataQualityKpiModule(),
-                new ServiceCallModule()
+                new ServiceCallModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(MeteringGroupsService.class);

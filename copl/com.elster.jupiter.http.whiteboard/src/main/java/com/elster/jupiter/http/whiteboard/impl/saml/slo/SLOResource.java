@@ -2,6 +2,7 @@ package com.elster.jupiter.http.whiteboard.impl.saml.slo;
 
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
+import com.elster.jupiter.rest.util.Transactional;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;
@@ -35,6 +36,7 @@ public class SLOResource {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_FORM_URLENCODED})
     @Path("logout")
+    @Transactional
     public Response logout(@FormParam("SAMLRequest") String base64EncodedAndDeflatedSLORequest,
                            @FormParam("RelayState") String relayState) throws XMLParserException, UnmarshallingException, DataFormatException, TransformerException, MarshallingException {
         final LogoutRequest logoutRequest = SAMLUtilities.createLogoutRequest(base64EncodedAndDeflatedSLORequest);

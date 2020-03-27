@@ -19,6 +19,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -112,7 +114,9 @@ public class PersistenceTest {
                 new TaskModule(),// TaskService from c.e.j.tasks
                 new CustomPropertySetsModule(),
                 new AuditServiceModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
