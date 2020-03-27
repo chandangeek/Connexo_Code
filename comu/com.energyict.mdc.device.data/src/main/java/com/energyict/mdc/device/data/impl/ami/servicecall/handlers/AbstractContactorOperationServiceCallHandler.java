@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.text.MessageFormat;
@@ -36,6 +37,7 @@ import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReaso
 public abstract class AbstractContactorOperationServiceCallHandler extends AbstractOperationServiceCallHandler {
 
     private volatile DeviceService deviceService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     public static final String APPLICATION = "MDC";
 
@@ -44,6 +46,10 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
 
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
@@ -59,13 +65,18 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         serviceCall.update(domainExtension);
 
         ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device, serviceCall);
-        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
+        Optional<ComTaskExecution> optionalExistingComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
-        if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
+        if (optionalExistingComTaskExecution.isPresent() && optionalExistingComTaskExecution.get().isOnHold()) {
             throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK_EXECUTION).format());
         }
-        existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).scheduleNow();
+        ComTaskExecution existingComTaskExecution = optionalExistingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
+
+        getLockedComTaskExecution(existingComTaskExecution.getId(), existingComTaskExecution.getVersion())
+                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())))
+                .scheduleNow();
+
     }
 
     private ComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
@@ -124,4 +135,9 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
     }
 
     protected abstract BreakerStatus getDesiredBreakerStatus();
+
+    private Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
+        return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
+                .filter(candidate -> !candidate.isObsolete());
+    }
 }

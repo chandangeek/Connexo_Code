@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesImportLogger;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesParser;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipFile;
 
@@ -106,7 +107,7 @@ public class DeviceDataZipImporterTest {
         verify(importOccurrence).getPath();
         verify(importOccurrence).markFailure(anyString());
         verify(spyParser).init(Matchers.any(ZipFile.class));
-        verify(logger).severe(Matchers.startsWith("The device serial number couldn't be extracted"));
+        verify(logger).log(Matchers.eq(Level.SEVERE), Matchers.startsWith("The device serial number couldn't be extracted"), any(Exception.class));
     }
 
     @Test
@@ -124,7 +125,7 @@ public class DeviceDataZipImporterTest {
         verify(importOccurrence).getPath();
         verify(importOccurrence).markFailure(anyString());
         verify(spyParser, never()).init(Matchers.any(ZipFile.class));
-        verify(logger).severe("error in opening zip file");
+        verify(logger).log(Matchers.eq(Level.SEVERE),Matchers.eq("error in opening zip file"), any(Exception.class));
     }
 
     private void setFileName(String fileName) {

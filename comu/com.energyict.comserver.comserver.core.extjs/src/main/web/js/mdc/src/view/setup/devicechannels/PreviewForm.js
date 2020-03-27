@@ -152,6 +152,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                             actionMenuXtype: 'deviceLoadProfileChannelsActionMenu',
                             attributeSetType: 'channel',
                             router: me.router,
+                            width: '100%',
                             padding: '0 0 0 5'
                         }
                     ]

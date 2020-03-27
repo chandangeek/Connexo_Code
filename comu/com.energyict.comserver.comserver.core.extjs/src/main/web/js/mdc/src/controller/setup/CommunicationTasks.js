@@ -415,7 +415,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             }
                         }
 
-                        var title = Uni.I18n.translate("communicationtasks.activation.failure.title", 'MDC', 'Couldn\'t perform your action'),
+                        var title = Uni.I18n.translate("general.failedToMakeActionTitle", 'MDC', 'Couldn\'t perform your action'),
                             msgKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
                             msgValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
 
@@ -508,7 +508,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 errorCode = json.errorCode;
                             }
                         }
-                        var title = Uni.I18n.translate("communicationtasks.edit.failure.title", 'MDC', 'Couldn\'t perform your action'),
+                        var title = Uni.I18n.translate("general.failedToMakeActionTitle", 'MDC', 'Couldn\'t perform your action'),
                             msgKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'general.edit.operation.failed'),
                             msgValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
 

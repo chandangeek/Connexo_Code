@@ -14,6 +14,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetVersionOnObjec
         {name: 'objectTypeVersion', type: 'integer'},
         {name: 'name', type: 'string'},
         {name: 'editable', type: 'boolean'},
+        {name: 'removable', type: 'boolean'},
         {name: 'timesliced', type: 'boolean'},
         {name: 'startTime', type: 'timestamp'},
         {name: 'endTime', type: 'timestamp'},

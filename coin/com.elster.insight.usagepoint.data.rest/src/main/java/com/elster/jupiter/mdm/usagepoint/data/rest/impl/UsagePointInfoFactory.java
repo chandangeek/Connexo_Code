@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -90,6 +91,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile TransactionService transactionService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     public UsagePointInfoFactory() {
     }
@@ -109,7 +111,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  UsagePointLifeCycleStateInfoFactory stateInfoFactory,
                                  UsagePointLifeCycleInfoFactory lifeCycleInfoFactory,
                                  UsagePointLifeCycleService usagePointLifeCycleService,
-                                 TransactionService transactionService) {
+                                 TransactionService transactionService,
+                                 CustomPropertySetService customPropertySetService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -126,12 +129,13 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.lifeCycleInfoFactory = lifeCycleInfoFactory;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.transactionService = transactionService;
+        setCustomPropertySetService(customPropertySetService);
         activate();
     }
 
     @Activate
     public void activate() {
-        customPropertySetInfoFactory = new CustomPropertySetInfoFactory(thesaurus, clock, propertyValueInfoService);
+        customPropertySetInfoFactory = new CustomPropertySetInfoFactory(thesaurus, clock, propertyValueInfoService, customPropertySetService);
     }
 
     @Reference
@@ -185,6 +189,12 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     /**
      * for search only - so only populate fields that will be used/shown (see {@link #modelStructure()}) !!!
      */
@@ -329,7 +339,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
         info.customPropertySets = customPropertySetExtension.getAllPropertySets()
                 .stream()
-                .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
+                .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, usagePoint, rcps.getValues()))
                 .collect(Collectors.toList());
         info.customPropertySets.sort((cas1, cas2) -> cas1.name.compareTo(cas2.name));
     }

@@ -137,9 +137,10 @@ public class MetrologyConfigurationResource {
                 .collect(Collectors.toList());
         List<CustomPropertySetInfo> infos = new ArrayList<>();
         for (RegisteredCustomPropertySet rcps:mCCustomAttributeSet){
-            CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(), meteringService.findUsagePointByName(upName).get(), Instant.now());
+            Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(upName);
+            CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(), usagePoint.get(), Instant.now());
             if (!values.isEmpty()){
-                infos.add(customPropertySetInfoFactory.getFullInfo(rcps,values));
+                infos.add(customPropertySetInfoFactory.getFullInfo(rcps, usagePoint.get(), values));
             }
         }
         return PagedInfoList.fromCompleteList("customPropertySets",infos,queryParameters);

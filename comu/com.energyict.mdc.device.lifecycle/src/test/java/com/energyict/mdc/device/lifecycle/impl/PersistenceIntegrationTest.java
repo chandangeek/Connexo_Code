@@ -98,7 +98,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Device createSimpleDeviceWithName(String name, Instant when) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, when);
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "sn" + name, name, when);
     }
 
     private static class BareMinimumDeviceProtocolService implements DeviceProtocolService {

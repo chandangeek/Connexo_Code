@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ImportException;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.upl.issue.Warning;
 
@@ -56,8 +55,10 @@ public abstract class FileImportZipLoggerImpl implements FileImportZipLogger {
         String message = exception.getLocalizedMessage();
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+            fileImportOccurrence.getLogger().severe(message);
+        } else {
+            fileImportOccurrence.getLogger().log(Level.SEVERE, message, exception);
         }
-        fileImportOccurrence.getLogger().severe(message);
         summarizeFailedImport();
     }
 
