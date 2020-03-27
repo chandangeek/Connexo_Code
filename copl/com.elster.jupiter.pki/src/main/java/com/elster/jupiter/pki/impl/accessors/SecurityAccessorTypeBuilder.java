@@ -9,6 +9,7 @@ import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.impl.KeyPurposeImpl;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.util.EnumSet;
@@ -62,6 +63,12 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
     @Override
     public SecurityAccessorType.Builder purpose(SecurityAccessorType.Purpose purpose) {
         underConstruction.setPurpose(purpose);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder keyPurpose(KeyPurpose keyPurpose) {
+        underConstruction.setKeyPurpose(KeyPurposeImpl.from(keyPurpose.getId()));
         return this;
     }
 

@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -59,6 +58,7 @@ import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_4;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_8;
 import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -140,6 +140,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(EventService.class).toInstance(eventService);
+                bind(IssueDataCollectionService.class).toInstance(IssueDataCollectionServiceImpl.this);
             }
         });
         upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
@@ -271,35 +272,34 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     }
 
     @Override
-    public void logDataCollectionEventDescription(final Device device, final String topic, final Long timestamp) {
-        final Optional<EventType> eventType = eventService.getEventType(topic);
-        if (eventType.isPresent()) {
-            final Instant creationTime = Instant.ofEpochMilli(timestamp);
-            final DataCollectionEventMetadataImpl dataCollectionEventDescription = new DataCollectionEventMetadataImpl(dataModel);
-            dataCollectionEventDescription.init(eventType.get(), device, null, creationTime).save();
-        }
+    public void logDataCollectionEventDescription(final Device device, final String eventType, final Long timestamp) {
+        final Instant creationTime = Instant.ofEpochMilli(timestamp);
+        final DataCollectionEventMetadataImpl dataCollectionEventDescription = new DataCollectionEventMetadataImpl(dataModel);
+        dataCollectionEventDescription.init(eventType, device, null, creationTime).save();
     }
 
     @Override
     public List<DataCollectionEventMetadata> getDataCollectionEvents() {
         return dataModel
-                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .query(DataCollectionEventMetadata.class, Device.class)
                 .select(Condition.TRUE);
     }
 
     @Override
     public List<DataCollectionEventMetadata> getDataCollectionEventsForDevice(final Device device) {
         return dataModel
-                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .query(DataCollectionEventMetadata.class, Device.class)
                 .select(Operator.EQUAL.compare("DEVICE", device.getId()));
     }
 
     @Override
     public List<DataCollectionEventMetadata> getDataCollectionEventsForDeviceWithinTimePeriod(final Device device, final Range<ZonedDateTime> range) {
         return dataModel
-                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .query(DataCollectionEventMetadata.class, Device.class)
                 .select(Operator.EQUAL.compare("DEVICE", device.getId())
-                        .and(Operator.BETWEEN.compare("createDateTime", range.lowerEndpoint().toInstant().toEpochMilli(), range.upperEndpoint().toInstant().toEpochMilli())), Order.descending("createDateTime"));
+                        .and(Operator.BETWEEN.compare("createDateTime", range.lowerEndpoint().toInstant().toEpochMilli(), range.upperEndpoint()
+                                .toInstant()
+                                .toEpochMilli())), Order.descending("createDateTime"));
     }
 
     private List<Class<?>> determineMainApiClass(IssueDataCollectionFilter filter) {

@@ -44,7 +44,8 @@ public class RegisterLastReadingSearchableProperty extends AbstractDateSearchabl
         builder.append("select MTR_METERACTIVATION.METERID " +
                 "from IDS_VAULT_MTR_2 " +
                 "join MTR_CHANNEL on MTR_CHANNEL.TIMESERIESID = IDS_VAULT_MTR_2.TIMESERIESID " +
-                "join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL.METERACTIVATIONID " +
+                "join MTR_CHANNEL_CONTAINER on MTR_CHANNEL_CONTAINER.ID = MTR_CHANNEL.CHANNEL_CONTAINER " +
+                "join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL_CONTAINER.METER_ACTIVATION " +
                 "group by MTR_METERACTIVATION.METERID, MTR_CHANNEL.MAINREADINGTYPEMRID " +
                 "having ");
         builder.add(toSqlFragment("MAX(IDS_VAULT_MTR_2.RECORDTIME)", condition, now));

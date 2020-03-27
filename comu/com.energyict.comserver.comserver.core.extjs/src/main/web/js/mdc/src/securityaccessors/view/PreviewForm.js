@@ -23,7 +23,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
         items: []
     },
 
-    doLoadRecord: function(record, defaultKeyValue, deviceTypeId) {
+    doLoadRecord: function (record, defaultKeyValue, deviceTypeId) {
         var me = this,
             leftItems = {
                 defaults: {
@@ -59,6 +59,14 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                             ? Uni.I18n.translate('general.keyType', 'MDC', 'Key type')
                             : Uni.I18n.translate('general.certificateType', 'MDC', 'Certificate type'),
                         name: 'keyType',
+                        renderer: function (value) {
+                            return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.keyPurpose', 'MDC', 'Key purpose'),
+                        name: 'keyPurpose',
+                        hidden: record.get('isKey') ? false : true,
                         renderer: function (value) {
                             return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
                         }
@@ -141,7 +149,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                             }
                             var trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores'),
                                 storeIndex = trustStoresStore.findExact('id', val);
-                            return storeIndex > -1 ?trustStoresStore.getAt(storeIndex).get('name') : '-';
+                            return storeIndex > -1 ? trustStoresStore.getAt(storeIndex).get('name') : '-';
                         }
                     },
                     {
