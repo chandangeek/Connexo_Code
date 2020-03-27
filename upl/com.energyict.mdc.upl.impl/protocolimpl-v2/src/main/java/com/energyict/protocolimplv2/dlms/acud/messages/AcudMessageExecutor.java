@@ -2,7 +2,9 @@ package com.energyict.protocolimplv2.dlms.acud.messages;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ChargeSetup;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -98,8 +100,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private ObisCode getChargeTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        int schedulerNumber = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeTypeAttributeName));
-        switch(schedulerNumber){
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeTypeAttributeName);
+        int chargeNo = ChargeDeviceMessage.ChargeType.entryForDescription(description).getId();
+        switch(chargeNo){
             case 0: return CHARGE_CONSUMPTION_TAX;
             case 1: return CHARGE_TOU_IMPORT;
             default: return CHARGE_MONTHLY_TAX;
