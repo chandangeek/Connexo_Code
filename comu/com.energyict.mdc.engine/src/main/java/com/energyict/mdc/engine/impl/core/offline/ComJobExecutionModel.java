@@ -15,6 +15,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.impl.SecurityPropertySetImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
@@ -840,6 +841,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         if (!hasMMRTask(comTaskExecution) || mmr) {
             if (!getSuccessFullComTaskExecutions().contains(comTaskExecution)) {
                 getSuccessFullComTaskExecutions().add(comTaskExecution);
+                ((ComTaskExecutionImpl) comTaskExecution).setStatus(TaskStatus.Waiting);
             }
             if (getFailedComTaskExecutions().contains(comTaskExecution)) {
                 getFailedComTaskExecutions().remove(comTaskExecution);      //Remove comtask from failed tasks, it was reset and executed again.
@@ -858,6 +860,9 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     public void addFailedComTaskExecution(ComTaskExecution comTaskExecution, boolean mmr) {
         if (!hasMMRTask(comTaskExecution) || mmr) {
             if (!getFailedComTaskExecutions().contains(comTaskExecution)) {
+                if (comTaskExecution instanceof ComTaskExecutionImpl) {
+                    ((ComTaskExecutionImpl) comTaskExecution).setStatus(TaskStatus.Failed);
+                }
                 getFailedComTaskExecutions().add(comTaskExecution);
             }
             if (getSuccessFullComTaskExecutions().contains(comTaskExecution)) {
