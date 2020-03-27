@@ -31,6 +31,7 @@ public interface OrmService {
 
     public static final String EXISTING_TABLES_DATA_MODEL = "ORA";
 
+    public static final String SPC_NAME = "SPC";
     /*
      * creates a new Data Model with the given name and description
      * name should be an unique three letter acronym

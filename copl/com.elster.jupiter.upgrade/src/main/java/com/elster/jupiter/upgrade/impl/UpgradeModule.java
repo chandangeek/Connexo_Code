@@ -45,6 +45,7 @@ public class UpgradeModule extends AbstractModule {
             installer.install(new DataModelUpgrader() {
                 @Override
                 public void upgrade(DataModel dataModel, Version version) {
+                    System.out.println("UPGRADE!!!!!!!!!!!!!!!!!!!");
                     dataModel.install(true, false);
                 }
 

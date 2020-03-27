@@ -30,6 +30,12 @@ public interface Table<T> {
     int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
     int UUID_LENGTH = 36; // Any UUID is 36 characters long
 
+    public static enum CacheType {
+        NO_CACH,
+        TUPLE_CACHE,
+        WHOLE_TABLE_CACHE
+    }
+
     // datamodel construction api
     Column.Builder column(String name);
 
@@ -268,4 +274,11 @@ public interface Table<T> {
         void during(Range<Version>... ranges);
     }
 
+    void changeEvictionTime(Long cacheTtl);
+
+    void disableCache();
+
+    void enableCache();
+
+    public CacheType getCacheType();
 }

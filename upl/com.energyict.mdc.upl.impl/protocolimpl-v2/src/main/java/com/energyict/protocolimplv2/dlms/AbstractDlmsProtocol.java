@@ -392,7 +392,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         logOff();
     }
 
-    @Override
+    @Override/*XROMVYU*/
     public List<PropertySpec> getUPLPropertySpecs() {
         return getDlmsConfigurationSupport().getUPLPropertySpecs();
     }

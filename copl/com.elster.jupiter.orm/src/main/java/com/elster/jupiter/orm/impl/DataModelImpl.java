@@ -410,13 +410,20 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public void register(Module... modules) {
+        System.out.println("REGISTER!!!!!!!!!!!!!!!");
         checkNotRegistered();
         Module[] allModules = new Module[modules.length + 1];
         System.arraycopy(modules, 0, allModules, 0, modules.length);
         allModules[modules.length] = getModule();
         injector = Guice.createInjector(allModules);
+        System.out.println("PREPARE SYSTEM PROPERTIES!!!!!!!!!!!!!!!");
+        //ormService.prepareSysProperties();
         for (TableImpl<?> each : getTables(getVersion())) {
-            each.prepare();
+            /*XROMVYU Here we add evition time and cahce enablement*/
+            System.out.println("PREPARE!!!!!"+each.getName());
+            System.out.println("GET EVICTION TIME = "+ormService.getEvictionTime());
+            System.out.println("CAHCE ENABLE  = "+ormService.getEnableCache());
+            each.prepare(ormService.getEvictionTime(), ormService.getEnableCache());
         }
         this.ormService.register(this);
         registered = true;
