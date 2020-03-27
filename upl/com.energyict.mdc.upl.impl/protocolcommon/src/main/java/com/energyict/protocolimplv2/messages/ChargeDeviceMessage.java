@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  */
 public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
 
-    ACTIVATE_PASSIVE_UNIT_CHARGE(39001, "Activate passive unit charge") {
+    ACTIVATE_PASSIVE_UNIT_CHARGE(41001, "Activate passive unit charge") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -30,7 +30,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION(39002, "Change unit charge passive with(out) activation") {
+    CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION(41002, "Change unit charge passive with(out) activation") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -62,7 +62,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     );
         }
     },
-    CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION_DATE(39003, "Change unit charge passive with activation date") {
+    CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION_DATE(41003, "Change unit charge passive with activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -93,7 +93,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     );
         }
     },
-    UPDATE_UNIT_CHARGE(39004, "Update unit charge") {
+    UPDATE_UNIT_CHARGE(41004, "Update unit charge") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -101,7 +101,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_CHARGE_PERIOD(39005, "Change charge period") {
+    CHANGE_CHARGE_PERIOD(41005, "Change charge period") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -110,7 +110,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_CHARGE_PROPORTION(39006, "Change charge proportion") {
+    CHANGE_CHARGE_PROPORTION(41006, "Change charge proportion") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(

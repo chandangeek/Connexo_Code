@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
+import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
@@ -43,6 +44,7 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
+                CreditDeviceMessage.UPDATE_CREDIT_AMOUNT.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.ACTIVATE_PASSIVE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter),

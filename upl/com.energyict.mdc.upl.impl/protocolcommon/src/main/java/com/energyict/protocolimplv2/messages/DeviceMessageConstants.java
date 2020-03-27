@@ -1859,7 +1859,11 @@ public final class DeviceMessageConstants {
 
     public static final String chargeTypeAttributeName = "chargeType";
     public static final String chargeTypeAttributeNameDefaultTranslation = "Charge Type";
+    public static final String creditTypeAttributeName = "creditType";
+    public static final String creditTypeAttributeNameDefaultTranslation = "Credit Type";
 
+    public static final String creditAmount = "creditAmount";
+    public static final String creditAmountDefaultTranslation = "Credit Amount";
 
     public static final String passiveImmediateActivation = "passiveImmediateActivation";
     public static final String passiveImmediateActivationDefaultTranslation = "Immediate Activation";

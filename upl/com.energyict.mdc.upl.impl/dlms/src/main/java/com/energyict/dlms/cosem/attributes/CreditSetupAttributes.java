@@ -7,29 +7,26 @@ import com.energyict.obis.ObisCode;
 /**
  * Created by H245796 on 18.12.2017.
  */
-public enum ChargeSetupAttributes implements DLMSClassAttributes {
+public enum CreditSetupAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    TOTAL_AMOUNT_PAID(2, 0x08),
-    CHARGE_TYPE(3, 0x10),
+    CURRENT_CREDIT_AMOUNT(2, 0x08),
+    CREDIT_TYPE(3, 0x10),
     PRIORITY(4, 0x18),
 
-    UNIT_CHARGE_ACTIVE(5, 0x20),
-    UNIT_CHARGE_PASSIVE(6, 0x28),
-    UNIT_CHARGE_ACTIVATION_TIME(7, 0x30),
-    PERIOD(8, 0x38),
+    WARNING_THRESHOLD(5, 0x20),
+    LIMIT(6, 0x28),
+    CREDIT_CONFIGURATION(7, 0x30),
+    CREDIT_STATUS(8, 0x38),
 
-    CHARGE_CONFIGURATION(9, 0x38),
-    LAST_COLLECTION_TIME(10, 0x40),
-    LAST_COLLECTION_AMOUNT(11, 0x48),
-    TOTAL_AMOUNT_REMAINING(12, 0x50),
-    PROPORTION(13, 0x58);
-
+    PRESET_CREDIT_AMOUNT(9, 0x38),
+    CREDIT_AVAILABLE_THRESHOLD(10, 0x40),
+    PERIOD(11, 0x48);
 
     private final int attributeNumber;
     private final int shortName;
 
-    private ChargeSetupAttributes(int attrNr, int sn) {
+    private CreditSetupAttributes(int attrNr, int sn) {
         this.attributeNumber = attrNr;
         this.shortName = sn;
     }
@@ -53,7 +50,7 @@ public enum ChargeSetupAttributes implements DLMSClassAttributes {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.CHARGE_SETUP;
+        return DLMSClassId.CREDIT_SETUP;
     }
 
     public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {

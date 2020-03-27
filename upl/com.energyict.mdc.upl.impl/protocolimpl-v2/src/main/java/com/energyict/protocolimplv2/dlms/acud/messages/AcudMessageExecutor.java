@@ -3,10 +3,12 @@ package com.energyict.protocolimplv2.dlms.acud.messages;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ChargeSetup;
+import com.energyict.dlms.cosem.CreditSetup;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
+import com.energyict.dlms.cosem.methods.CreditSetupMethods;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -19,10 +21,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareImageType;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
@@ -35,9 +34,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmw
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
 
-    private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
+
     private static final ObisCode CHARGE_TOU_IMPORT = ObisCode.fromString("0.0.19.20.0.255");
+    private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
     private static final ObisCode CHARGE_MONTHLY_TAX = ObisCode.fromString("0.0.19.20.2.255");
+
+    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
+    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
 
     private static final int COMMODITY_OBIS_CLASS_ID = 3;
     private static final ObisCode COMMODITY_OBIS_CODE = ObisCode.fromString("7.0.3.1.0.255");
@@ -79,6 +82,8 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION)) {
             upgradeFirmware(pendingMessage);
             // clock
+        } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_AMOUNT)) {
+            updateCreditAmount(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.ACTIVATE_PASSIVE_UNIT_CHARGE)) {
             activatePassiveUnitCharge(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION)) {
@@ -99,14 +104,30 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         return collectedMessage;
     }
 
+    private ObisCode getCreditTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeTypeAttributeName);
+        int chargeNo = CreditDeviceMessage.CreditType.entryForDescription(description).getId();
+        switch(chargeNo){
+            case 1: return EMERGENCY_CREDIT;
+            default: return IMPORT_CREDIT;
+        }
+    }
+
     private ObisCode getChargeTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
         String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeTypeAttributeName);
         int chargeNo = ChargeDeviceMessage.ChargeType.entryForDescription(description).getId();
         switch(chargeNo){
-            case 0: return CHARGE_CONSUMPTION_TAX;
             case 1: return CHARGE_TOU_IMPORT;
-            default: return CHARGE_MONTHLY_TAX;
+            case 2: return CHARGE_MONTHLY_TAX;
+            default: return CHARGE_CONSUMPTION_TAX;
         }
+    }
+
+    private void updateCreditAmount(OfflineDeviceMessage pendingMessage) throws IOException {
+        ObisCode chargeObisCode = getCreditTypeObiscode(pendingMessage);
+        CreditSetup chargeSetup = getCosemObjectFactory().getCreditSetup(chargeObisCode);
+        Integer creditAmount = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditAmount));
+        chargeSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Unsigned16(creditAmount));
     }
 
     private void activatePassiveUnitCharge(OfflineDeviceMessage pendingMessage) throws IOException {
