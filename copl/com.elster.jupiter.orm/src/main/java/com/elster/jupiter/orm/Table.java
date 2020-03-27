@@ -33,6 +33,12 @@ public interface Table<T> {
     int MAX_STRING_LENGTH = 4000;
     int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
 
+    public static enum CacheType {
+        NO_CACH,
+        TUPLE_CACHE,
+        WHOLE_TABLE_CACHE
+    }
+
     // datamodel construction api
     Column.Builder column(String name);
     PrimaryKeyConstraint.Builder primaryKey(String name);
@@ -250,4 +256,11 @@ public interface Table<T> {
         void during(Range<Version>... ranges);
     }
 
+    void changeEvictionTime(Long cacheTtl);
+
+    void disableCache();
+
+    void enableCache();
+
+    public CacheType getCacheType();
 }

@@ -29,7 +29,6 @@ import com.google.common.collect.TreeRangeMap;
 import com.google.common.collect.TreeRangeSet;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -111,6 +110,9 @@ public class TableImpl<T> implements Table<T> {
 
     private List<TableAudit> tableAuditList = new ArrayList<>();
     private boolean hasAudit = false;
+
+    public CacheType cacheType = CacheType.NO_CACH;
+
 
     private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
@@ -215,6 +217,7 @@ public class TableImpl<T> implements Table<T> {
         this.cacheMaximumSize = maximumSize;
         this.cacheRecordStat = recordStat;
         this.cacheWholeTable = false;
+        setCacheType(CacheType.TUPLE_CACHE);
     }
 
     @Override
@@ -228,6 +231,7 @@ public class TableImpl<T> implements Table<T> {
         this.cacheWholeTable = true;
         this.cacheRecordStat = recordStat;
         this.cacheTtl = cacheTtl;
+        setCacheType(CacheType.WHOLE_TABLE_CACHE);
     }
 
     @Override
@@ -830,7 +834,8 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
-    void prepare() {
+    void prepare(long evictionTime, boolean enableCache) {
+        System.out.println("PREPARE EVICTION TIME="+evictionTime+ " enableCache="+enableCache);
         checkActiveBuilder();
         checkMapperTypeIsSet();
         getMapperType().validate();
@@ -846,11 +851,58 @@ public class TableImpl<T> implements Table<T> {
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
         if (isWholeTableCached()) {
+            System.out.println("WHOLE TABLE CACHE");
+            cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
+        } else {
+            System.out.println("NOT WHOLE TABLE CACHE");
+            cache = isCached() ? new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        }
+        System.out.println("TABLE WAS PREPARED!!!!!!!!!");
+    }
+
+    public void changeEvictionTime(Long cacheTtl){
+        if (isWholeTableCached()) {
             cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
         } else {
             cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
         }
     }
+
+    public synchronized void disableCache(){
+        if (cacheType == CacheType.WHOLE_TABLE_CACHE) {
+            cached = false;
+            cacheWholeTable = false;
+            cache = new TableCache.NoCache<>();
+        }
+        if (cacheType == CacheType.TUPLE_CACHE){
+            cached = false;
+            cacheWholeTable = false;
+            cache = new TableCache.NoCache<>();
+        }
+    }
+
+    public synchronized void enableCache(){
+        if (cacheType == CacheType.WHOLE_TABLE_CACHE) {
+            cached = true;
+            cacheWholeTable = true;
+            cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
+        }
+        if (cacheType == CacheType.TUPLE_CACHE){
+            cached = true;
+            cacheWholeTable = false;
+            cache = new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
+        }
+    }
+
+    public synchronized void recreateCache(Long evictionTime){
+        if (cacheType == CacheType.WHOLE_TABLE_CACHE && cached && cacheWholeTable) {
+            cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
+        }
+        if (cacheType == CacheType.TUPLE_CACHE && cached){
+            cache = new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat);
+        }
+    }
+
 
     private void checkMapped(Column column) {
         if (column.getFieldName() == null) {
@@ -960,7 +1012,7 @@ public class TableImpl<T> implements Table<T> {
         return false;
     }
 
-    TableCache<T> getCache() {
+    synchronized TableCache<T> getCache() {
         return cache;
     }
 
@@ -1307,6 +1359,13 @@ public class TableImpl<T> implements Table<T> {
 
     }
 
+    public CacheType getCacheType(){
+        return cacheType;
+    }
+
+    public void setCacheType(CacheType cacheType){
+        this.cacheType = cacheType;
+    }
 }
 
 

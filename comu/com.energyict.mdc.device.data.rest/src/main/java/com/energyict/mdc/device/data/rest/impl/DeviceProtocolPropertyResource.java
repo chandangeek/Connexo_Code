@@ -63,7 +63,7 @@ public class DeviceProtocolPropertyResource {
             List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties, device);
             info.id = deviceProtocolPluggableClass.getId();
             info.name = deviceProtocolPluggableClass.getName();
-            info.properties = propertyInfos;
+            info.properties = propertyInfos; /*XROMVYU EXAMPLE !!!!!!*/
             info.version = deviceProtocolPluggableClass.getEntityVersion();
             info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         });

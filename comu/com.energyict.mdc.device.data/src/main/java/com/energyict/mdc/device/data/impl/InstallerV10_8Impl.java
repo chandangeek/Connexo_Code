@@ -23,6 +23,7 @@ public class InstallerV10_8Impl implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        /*XROMVYU*/
         execute(dataModel, getConnectionTasksBreakDownStatement());
         execute(dataModel, getCommunicationTasksBreakDownStatement());
         execute(dataModel, getComTaskDTHeatMapStatement());

@@ -150,6 +150,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(WebServicesService.COMPONENT_NAME, "Web services");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
+            /*XROMVYU*/
             tableSpecs.addTo(this.dataModel);
         }
     }
