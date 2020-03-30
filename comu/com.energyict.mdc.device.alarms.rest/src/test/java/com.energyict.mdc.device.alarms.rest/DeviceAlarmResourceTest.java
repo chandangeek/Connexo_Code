@@ -8,6 +8,7 @@ package com.energyict.mdc.device.alarms.rest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.IssueGroupInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -32,9 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest {
 
@@ -85,28 +85,14 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest {
 
     @Test
     public void testGroupedList() {
-        IssueGroup entity = mock(IssueGroup.class);
-        when(entity.getGroupKey()).thenReturn(1L);
-        when(entity.getGroupName()).thenReturn("Reason 1");
-        when(entity.getCount()).thenReturn(5L);
+        Finder<? extends DeviceAlarm> alarmFinder = mock(Finder.class);
+        doReturn(alarmFinder).when(deviceAlarmService).findAlarms(any(DeviceAlarmFilter.class), anyVararg());
+        List<? extends DeviceAlarm> alarms = Collections.singletonList(getDefaultAlarm());
+        doReturn(alarms).when(alarmFinder).find();
 
-        List<IssueGroup> groupedList = Arrays.asList(entity);
-        IssueGroupFilter issueGroupFilter = mock(IssueGroupFilter.class);
-        when(issueGroupFilter.using(Matchers.<Class>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.onlyGroupWithKey(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.withIssueTypes(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.withStatuses(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.withMeterName(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.withClearedStatuses(anyCollection())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.groupBy(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.withId(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.setAscOrder(false)).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.from(1L)).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.to(2L)).thenReturn(issueGroupFilter);
-        when(issueService.newIssueGroupFilter()).thenReturn(issueGroupFilter);
-        doReturn(groupedList).when(issueService).getIssueGroupList(issueGroupFilter);
-        TransactionContext context = mock(TransactionContext.class);
-        when(transactionService.getContext()).thenReturn(context);
+        IssueGroupInfo issueGroupInfo = new IssueGroupInfo(1L, "Reason 1", 5L);
+
+        when(issueResourceUtility.getIssueGroupList(any(List.class), any(String.class))).thenReturn(Arrays.asList(issueGroupInfo));
 
         String filter = URLEncoder.encode("[{\"property\":\"id\",\"value\":\"1\"},{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
         Query<IssueType> query = mock(Query.class);
