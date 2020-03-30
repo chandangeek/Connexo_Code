@@ -937,7 +937,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         markSuccessfullyCompleted();
         Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
         doReschedule(rescheduleDate);
-        LOGGER.warning("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
+        LOGGER.info("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
         updateForScheduling(true);
         getBehavior().comTaskCompleted();
         this.postEvent(EventType.COMTASKEXECUTION_COMPLETION);
@@ -947,7 +947,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void executionRescheduled(Instant rescheduleDate) {
         currentRetryCount++;    // increment the current number of retries
         if (currentRetryCount < getMaxNumberOfTries()) {
-            LOGGER.warning("[comtaskexec] executionRescheduled for " + getDevice().getName() +
+            LOGGER.info("[comtaskexec] executionRescheduled for " + getDevice().getName() +
                     "; currentRetryCount=" + currentRetryCount + "; reschedule for " + rescheduleDate);
             doReschedule(rescheduleDate);
         } else {
@@ -987,7 +987,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     protected void doExecutionAttemptFailed() {
         this.lastExecutionFailed = true;
         Instant rescheduleDate = calculateNextExecutionTimestampAfterFailure();
-        LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+        LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
         this.doReschedule(rescheduleDate);
     }
 
@@ -1047,11 +1047,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.lastExecutionFailed = true;
         this.resetCurrentRetryCount();
         if (isAdHoc()) {
-            LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
             this.doReschedule(null, null);
         } else {
             Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
-            LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
             this.doReschedule(rescheduleDate);
         }
         getBehavior().comTaskFailed();
