@@ -58,7 +58,6 @@ public class ProfileLimiterTest {
     }
 
     @Test
-    @Ignore
     public void testRoundCalendarToMidnight() throws Exception {
         Calendar calRoundDown = ProfileLimiter.roundCalendarToMidnight(Calendar.getInstance(), false);
         Calendar calRoundUp = ProfileLimiter.roundCalendarToMidnight(Calendar.getInstance(), true);
