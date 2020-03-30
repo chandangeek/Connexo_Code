@@ -861,10 +861,10 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     public void addSuccessfulComTaskExecution(ComTaskExecution comTaskExecution, boolean mmr) {
         if (!hasMMRTask(comTaskExecution) || mmr) {
             if (!getSuccessFullComTaskExecutions().contains(comTaskExecution)) {
-                getSuccessFullComTaskExecutions().add(comTaskExecution);
                 if (comTaskExecution instanceof ComTaskExecutionImpl) {
                     ((ComTaskExecutionImpl) comTaskExecution).setStatus(TaskStatus.Waiting);
                 }
+                getSuccessFullComTaskExecutions().add(comTaskExecution);
             }
             if (getFailedComTaskExecutions().contains(comTaskExecution)) {
                 getFailedComTaskExecutions().remove(comTaskExecution);      //Remove comtask from failed tasks, it was reset and executed again.
