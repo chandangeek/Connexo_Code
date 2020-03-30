@@ -5,7 +5,9 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -25,6 +27,21 @@ public class UpgraderV10_8 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        removeAllCRL();
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
+        updateCRLTable();
+        addAutoIncrementPartitions();
+    }
+
+    private void removeAllCRL() {
+        dataModel.mapper(CrlRequestTaskProperty.class).find().forEach(CrlRequestTaskProperty::delete);
+    }
+
+    private void updateCRLTable() {
+        execute(dataModel, "ALTER TABLE " + TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name() + " DROP COLUMN SECURITY_ACCESSOR");
+    }
+
+    private void addAutoIncrementPartitions() {
         //append partition for next month and enable auto increment partition interval
         if (dataModel.getSqlDialect().hasPartitioning()) {
             Arrays.asList("DDC_COMSESSION", "DDC_COMTASKEXECSESSION").forEach(tableName ->
