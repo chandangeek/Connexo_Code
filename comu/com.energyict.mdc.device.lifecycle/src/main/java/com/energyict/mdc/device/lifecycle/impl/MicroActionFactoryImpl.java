@@ -29,11 +29,13 @@ import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableEstimation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.ForceValidationAndEstimation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.LinkToUsagePoint;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateAllRecurringCommunications;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDevice;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDeviceFromStaticGroups;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveLocation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetMultiplier;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateAllCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartRecurringCommunication;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -195,6 +197,12 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case LINK_TO_USAGE_POINT: {
                 return new LinkToUsagePoint(thesaurus, metrologyConfigurationService);
+            }
+            case ACTIVATE_ALL_COMMUNICATION:{
+                return new ActivateAllCommunication(thesaurus,deviceService);
+            }
+            case ACTIVATE_ALL_RECURRING_COMMUNICATION:{
+                return new ActivateAllRecurringCommunications(thesaurus,deviceService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());

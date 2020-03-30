@@ -6,4 +6,5 @@ Ext.define('Isu.store.DeviceGroups', {
     extend: 'Ext.data.Store',
     model: 'Isu.model.DeviceGroup',
     autoLoad: false,
+    pageSize: 50,
 });
