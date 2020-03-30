@@ -31,6 +31,14 @@ Ext.define('Idv.view.DetailForm', {
                         name: 'issueId'
                     },
                     {
+                        itemId: 'data-validation-issue-detail-reason',
+                        fieldLabel: Uni.I18n.translate('general.title.reason', 'IDV', 'Reason'),
+                        name: 'reason',
+                        renderer: function (value) {
+                            return value.name ? Ext.String.htmlEncode(value.name) : '';
+                        }
+                    },
+                    {
                         itemId: 'data-validation-issue-detail-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IDV', 'Usage point'),
                         name: 'usage_point'
