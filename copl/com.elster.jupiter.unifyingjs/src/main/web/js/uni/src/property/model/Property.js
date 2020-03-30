@@ -64,7 +64,10 @@ Ext.define('Uni.property.model.Property', {
             var propertyValue = me.getPropertyValue() || null;
 
             if (null !== propertyValue) {
-                value = propertyValue.get('value');
+                if(me.data.key === 'minThreshold')
+                    value = propertyValue.raw;
+                else
+                    value = propertyValue.get('value');
                 isInheritedValue = false;
                 if (!propertyValue.get('propertyHasValue')) {
                     if (_.isEqual(value, propertyValue.get('defaultValue'))) {
