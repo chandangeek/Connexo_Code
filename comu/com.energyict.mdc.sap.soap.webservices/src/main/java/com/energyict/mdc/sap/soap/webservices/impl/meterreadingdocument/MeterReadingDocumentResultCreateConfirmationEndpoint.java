@@ -8,6 +8,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentERPResultCreateConfirmationCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMtrRdngDoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfUtilsDvce;
@@ -36,6 +37,8 @@ public class MeterReadingDocumentResultCreateConfirmationEndpoint extends Abstra
                         SetMultimap<String, String> values = HashMultimap.create();
                         getDeviceId(requestMessage.getMeterReadingDocument())
                                 .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        getMeterReadingDocumentId(requestMessage.getMeterReadingDocument())
+                                .ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
                         saveRelatedAttributes(values);
                         serviceCallCommands
                                 .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
@@ -54,6 +57,12 @@ public class MeterReadingDocumentResultCreateConfirmationEndpoint extends Abstra
                 .map(MtrRdngDocERPRsltCrteConfUtilsMsmtTsk::getUtiltiesDevice)
                 .map(MtrRdngDocERPRsltCrteConfUtilsDvce::getUtilitiesDeviceID)
                 .map(UtilitiesDeviceID::getValue);
+    }
+
+    private static Optional<String> getMeterReadingDocumentId(MtrRdngDocERPRsltCrteConfMtrRdngDoc doc) {
+        return Optional.ofNullable(doc)
+                .map(MtrRdngDocERPRsltCrteConfMtrRdngDoc::getID)
+                .map(MeterReadingDocumentID::getValue);
     }
 
     @Override

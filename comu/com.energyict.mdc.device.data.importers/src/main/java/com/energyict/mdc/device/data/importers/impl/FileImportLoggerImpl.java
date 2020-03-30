@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.importers.impl.attributes.PropertySpecAware
 import com.energyict.mdc.upl.issue.Warning;
 
 import javax.validation.ConstraintViolation;
+import java.util.logging.Level;
 
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
 
@@ -49,6 +50,7 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
         String message = "";
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+            fileImportOccurrence.getLogger().warning(message);
         } else if (exception instanceof VerboseConstraintViolationException) {
             VerboseConstraintViolationException constraintViolationException = (VerboseConstraintViolationException) exception;
             for (ConstraintViolation<?> constraintViolation : constraintViolationException.getConstraintViolations()) {
@@ -56,22 +58,23 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
                         .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
                         .format(data.getLineNumber(), data.getDeviceIdentifier(), constraintViolation.getMessage());
             }
+            fileImportOccurrence.getLogger().warning(message);
         } else {
             // Always specify line number and device identifier
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
                     .format(data.getLineNumber(), data.getDeviceIdentifier(), exception.getLocalizedMessage());
+            fileImportOccurrence.getLogger().log(Level.WARNING, message, exception);
         }
-        fileImportOccurrence.getLogger().warning(message);
     }
 
     @Override
-    public void importLineFailed(long lineNumber, Exception exception){
+    public void importLineFailed(long lineNumber, Exception exception) {
         String message;
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
             fileImportOccurrence.getLogger().warning(message);
-        } else if(exception instanceof PropertySpecAwareConstraintViolationException) {
+        } else if (exception instanceof PropertySpecAwareConstraintViolationException) {
             PropertySpecAwareConstraintViolationException constraintViolationException = (PropertySpecAwareConstraintViolationException) exception;
             for (ConstraintViolation<?> constraintViolation : constraintViolationException.getConstraintViolationException().getConstraintViolations()) {
                 if (Checks.is(constraintViolation.getPropertyPath().toString()).emptyOrOnlyWhiteSpace()) {
@@ -90,7 +93,7 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
                     .format(lineNumber, exception.getLocalizedMessage());
-            fileImportOccurrence.getLogger().warning(message);
+            fileImportOccurrence.getLogger().log(Level.WARNING, message, exception);
         }
     }
 
@@ -104,8 +107,10 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
         String message = exception.getLocalizedMessage();
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+            fileImportOccurrence.getLogger().severe(message);
+        } else {
+            fileImportOccurrence.getLogger().log(Level.SEVERE, message, exception);
         }
-        fileImportOccurrence.getLogger().severe(message);
         summarizeFailedImport();
     }
 

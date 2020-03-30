@@ -18,7 +18,8 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetOnObject', {
         {name: 'isActive', type: 'boolean'},
         {name: 'startTime', type: 'auto', defaultValue: null},
         {name: 'endTime', type: 'auto', defaultValue: null},
-        {name: 'versionId', type: 'integer'}
+        {name: 'versionId', type: 'integer'},
+        {name: 'removable', type: 'boolean'}
     ],
 
     associations: [

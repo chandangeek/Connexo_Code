@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     private static final String DEVICE_NAME = "MyUniqueName";
+    private static final String SERIAL_NUMBER = "MyUniqueSerialNumber";
     private static final String CERT_0_ALIAS = "Cert0";
     private static final String CERT_1_ALIAS = "Cert1";
     private static final String CERT_2_ALIAS = "Cert2";
@@ -56,7 +57,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, Instant start) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, start);
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, name, start);
     }
 
     @BeforeClass

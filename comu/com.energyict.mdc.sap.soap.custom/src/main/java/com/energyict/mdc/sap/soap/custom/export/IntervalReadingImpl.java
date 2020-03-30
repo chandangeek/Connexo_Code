@@ -68,4 +68,8 @@ public class IntervalReadingImpl implements IntervalReading {
     public List<? extends ReadingQuality> getReadingQualities() {
         return decorated.getReadingQualities();
     }
+
+    public IntervalReadingRecord getIntervalReadingRecord() {
+        return decorated;
+    }
 }

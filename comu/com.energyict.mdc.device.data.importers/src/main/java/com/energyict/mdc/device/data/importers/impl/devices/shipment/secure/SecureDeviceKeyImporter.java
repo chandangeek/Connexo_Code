@@ -55,13 +55,16 @@ public class SecureDeviceKeyImporter  extends SecureDeviceImporterAbstract imple
     private DeviceCreator getDeviceCreator(Shipment shipment) {
         DeviceCreator deviceCreator = null;
         if (Checks.is(shipment.getHeader().getBatchID()).emptyOrOnlyWhiteSpace()) {
-            deviceCreator = (deviceConfiguration, name) -> deviceService.newDevice(
+            deviceCreator = (deviceConfiguration, serialNumber, name) -> deviceService.newDevice(
                     deviceConfiguration,
+                    serialNumber,
                     name,
                     shipment.getHeader().getBatchID(),
                     shipment.getHeader().getDeliveryDate().toGregorianCalendar().toInstant());
         } else {
-            deviceCreator = (deviceConfiguration, name) -> deviceService.newDevice(deviceConfiguration,
+            deviceCreator = (deviceConfiguration, serialNumber, name) ->
+                    deviceService.newDevice(deviceConfiguration,
+                    serialNumber,
                     name,
                     shipment.getHeader().getDeliveryDate().toGregorianCalendar().toInstant());
         }
@@ -210,7 +213,7 @@ public class SecureDeviceKeyImporter  extends SecureDeviceImporterAbstract imple
     }
 
     private interface DeviceCreator {
-        Device createDevice(DeviceConfiguration deviceConfiguration, String name);
+        Device createDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name);
     }
 
 }

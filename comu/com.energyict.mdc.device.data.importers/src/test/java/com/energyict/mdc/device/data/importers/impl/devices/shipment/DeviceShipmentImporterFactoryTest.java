@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -42,6 +43,7 @@ import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterPro
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -113,7 +115,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 
@@ -122,7 +124,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
+        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
         verify(device).setSerialNumber("0001");
         verify(device).setManufacturer("ELSTER");
         verify(device).setModelNumber("AS200");
@@ -145,7 +147,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 
@@ -154,7 +156,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class));
+        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class));
         verify(device).setManufacturer("ELSTER");
         verify(device).setModelNumber("AS200");
         verify(device).setModelVersion("V2");
@@ -176,7 +178,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 
@@ -185,7 +187,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class));
+        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class));
         verify(device).setManufacturer("ELSTER");
         verify(device).setModelNumber("AS200");
         verify(device).setModelVersion("V2");
@@ -207,7 +209,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 
@@ -216,7 +218,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class));
+        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class));
         verify(device).setManufacturer("ELSTER");
         verify(device).setModelNumber("AS200");
         verify(device, never()).setModelVersion(any());
@@ -238,7 +240,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 
@@ -247,7 +249,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class));
+        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class));
         verify(device).setManufacturer("ELSTER");
         verify(device, never()).setModelNumber(any());
         verify(device).setModelVersion("V2");
@@ -269,7 +271,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 
@@ -278,7 +280,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), any(Instant.class));
+        verify(deviceService).newDevice(Matchers.eq(deviceConfiguration), anyString(), Matchers.eq("VPB0001"), any(Instant.class));
         verify(device, never()).setManufacturer(any());
         verify(device).setModelNumber("AS200");
         verify(device).setModelVersion("V2");
@@ -398,12 +400,12 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         doThrow(new RuntimeException("Error!")).when(deviceService)
-                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
+                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(thesaurus.getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE).format(2, "VPB0001", "Error!"));
+        verify(logger, times(1)).log(Matchers.eq(Level.WARNING), Matchers.eq(thesaurus.getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE).format(2, "VPB0001", "Error!")), any(Exception.class));
         verify(logger, never()).severe(Matchers.anyString());
     }
 

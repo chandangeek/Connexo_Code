@@ -12,7 +12,7 @@ import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -49,6 +49,6 @@ public interface DataExportWebService extends EndPointProp {
 
     @ProviderType
     interface ExportContext {
-        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources);
+        ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data);
     }
 }

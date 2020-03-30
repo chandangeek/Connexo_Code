@@ -7,6 +7,8 @@ package com.elster.jupiter.issue.impl.module;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.impl.service.PropertyFactoriesProviderImpl;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
+import com.elster.jupiter.issue.share.IssueResourceUtilityImpl;
 import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
@@ -44,5 +46,6 @@ public class IssueModule extends AbstractModule {
 
         bind(PropertyFactoriesProvider.class).to(PropertyFactoriesProviderImpl.class).in(Scopes.SINGLETON);
         bind(IssueService.class).to(IssueServiceImpl.class).in(Scopes.SINGLETON);
+        bind(IssueResourceUtility.class).to(IssueResourceUtilityImpl.class);
     }
 }

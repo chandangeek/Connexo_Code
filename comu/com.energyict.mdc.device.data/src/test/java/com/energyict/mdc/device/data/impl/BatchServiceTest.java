@@ -23,7 +23,7 @@ public class BatchServiceTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", property = "batch")
     public void testBatchNameEmptyCheck() {
-        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device1", "", Instant.now());
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "serialNumber1", "Device1", "", Instant.now());
     }
 
     @Test
@@ -31,7 +31,7 @@ public class BatchServiceTest extends PersistenceIntegrationTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "batch")
     public void testBatchNameTooLong() {
         inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "Device1", "111111111111111111111111111111111111111111111111111111111111111111111111111111111", Instant
+                .newDevice(deviceConfiguration, "", "Device1", "111111111111111111111111111111111111111111111111111111111111111111111111111111111", Instant
                         .now());
     }
 
@@ -55,9 +55,9 @@ public class BatchServiceTest extends PersistenceIntegrationTest {
         BatchService batchService = inMemoryPersistence.getBatchService();
         DeviceService deviceService = inMemoryPersistence.getDeviceService();
 
-        Device device1 = deviceService.newDevice(deviceConfiguration, "Device1", "batch", Instant.now());
-        Device device2 = deviceService.newDevice(deviceConfiguration, "Device2", "batch", Instant.now());
-        Device device3 = deviceService.newDevice(deviceConfiguration, "Device3", "batch", Instant.now());
+        Device device1 = deviceService.newDevice(deviceConfiguration, "serialNumber1","Device1", "batch", Instant.now());
+        Device device2 = deviceService.newDevice(deviceConfiguration, "serialNumber2","Device2", "batch", Instant.now());
+        Device device3 = deviceService.newDevice(deviceConfiguration, "serialNumber3","Device3", "batch", Instant.now());
 
         Batch batch = batchService.findOrCreateBatch("batch");
         batch.addDevice(device1);

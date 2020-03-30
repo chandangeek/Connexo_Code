@@ -68,7 +68,7 @@ public class AuditDeviceBase extends PersistenceIntegrationTest {
 
     protected void createDeviceWithName(String name) {
         try (TransactionContext context = getTransactionService().getContext()) {
-            Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, inMemoryPersistence.getClock().instant());
+            Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "serialNumber", name, inMemoryPersistence.getClock().instant());
             device.save();
             context.commit();
         }

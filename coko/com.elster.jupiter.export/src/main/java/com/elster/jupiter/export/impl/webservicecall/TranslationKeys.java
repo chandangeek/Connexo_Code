@@ -21,7 +21,8 @@ public enum TranslationKeys implements TranslationKey {
     READING_TYPE_MRID("readingTypeMRID", "Reading type MRID"),
     DATA_SOURCE_ID("dataSourceId", "Data source id"),
     SECONDS("seconds", "second(s)"),
-    MINUTES("minutes", "minute(s)")
+    MINUTES("minutes", "minute(s)"),
+    CUSTOM_INFO("customInfo", "Custom information")
     ;
 
     private String key;

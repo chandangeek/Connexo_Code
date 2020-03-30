@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.esmr50.common;
 
+
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -111,7 +112,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "ESMR 5.0 - 2019-12-05";
+        return "ESMR 5.0 - 2020-03-18";
     }
 
     @Override

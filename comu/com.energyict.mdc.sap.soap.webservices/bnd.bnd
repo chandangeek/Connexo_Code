@@ -2,4 +2,4 @@
 -dsannotations: *
 
 Private-Package: com.energyict.mdc.sap.soap.webservices.impl.*
-Export-Package: com.energyict.mdc.sap.soap.webservices
+Export-Package: com.energyict.mdc.sap.soap.webservices, com.energyict.mdc.sap.soap.webservices.security
