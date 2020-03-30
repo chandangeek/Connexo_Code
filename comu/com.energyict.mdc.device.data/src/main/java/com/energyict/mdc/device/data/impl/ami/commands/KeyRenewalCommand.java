@@ -51,8 +51,13 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
         return deviceMessages;
     }
 
+//<<<<<<< HEAD
     private DeviceMessage buildDeviceCommand(ServiceCall serviceCall, Instant releaseDate, DeviceMessageId deviceMessageId, List<PropertySpec> propertySpecs) {
         Device multiSenseDevice = findDeviceForEndDevice(getEndDevice());
+/*=======
+    private List<DeviceMessage> buildDeviceCommand(ServiceCall serviceCall, Instant releaseDate, DeviceMessageId deviceMessageId, List<PropertySpec> propertySpecs) {
+        Device multiSenseDevice = findLockedDeviceForEndDevice(getEndDevice());
+>>>>>>> bugfix/10.8/Connexo-RU-W13*/
         Device.DeviceMessageBuilder deviceMessageBuilder = multiSenseDevice.newDeviceMessage(deviceMessageId, TrackingCategory.serviceCall)
                 .setTrackingId(Long.toString(serviceCall.getId()))
                 .setReleaseDate(releaseDate);

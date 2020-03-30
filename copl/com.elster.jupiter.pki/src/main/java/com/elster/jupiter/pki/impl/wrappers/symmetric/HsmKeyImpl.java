@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.hsm.model.FUAKPassiveGenerationNotSupportedException;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
@@ -112,6 +113,8 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
             this.save();
         } catch (HsmBaseException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ENCRYPTED_KEY_INVALID, e);
+        } catch (FUAKPassiveGenerationNotSupportedException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.FUAK_RENEW_NOT_SUPPORTED, new HsmBaseException(MessageSeeds.FUAK_RENEW_NOT_SUPPORTED.getKey()));
         }
     }
 

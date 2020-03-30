@@ -15,6 +15,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.ConfigPropertiesService;
@@ -76,6 +77,8 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
     MeteringZoneService meteringZoneService;
     @Mock
     ConfigPropertiesService configPropertiesService;
+    @Mock
+    CustomPropertySetService customPropertySetService;
 
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -116,6 +119,7 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
         app.setThreadPrincipalService(threadPrincipalService);
         app.setMeteringZoneService(meteringZoneService);
         app.setConfigPropertiesService(configPropertiesService);
+        app.setCustomPropertySetService(customPropertySetService);
         return app;
     }
 

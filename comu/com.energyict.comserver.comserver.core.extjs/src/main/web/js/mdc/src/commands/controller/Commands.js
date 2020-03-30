@@ -505,7 +505,7 @@ Ext.define('Mdc.commands.controller.Commands', {
                 var message = response.responseText || response.statusText,
                     decoded = Ext.decode(message, true);
                 if (decoded && decoded.message){
-                    var title = Uni.I18n.translate('general.failedToAddBulkCommandTitle', 'MDC', 'Couldn\'t perform your action');
+                    var title = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action');
                     me.getApplication().getController('Uni.controller.Error').showError(title, decoded.message, decoded.errorCode);
                 }
             },

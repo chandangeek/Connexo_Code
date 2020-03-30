@@ -50,6 +50,11 @@ Ext.define('Isu.controller.StartProcess', {
             issueModel = 'Iws.model.Issue';
             issueType = 'webserviceissue';
         }
+        else if (router.queryParams.issueType === "datavalidation")
+        {
+            issueModel = 'Idv.model.Issue';
+            issueType = 'datavalidationissue';
+        }
 
         Ext.ModelManager.getModel(issueModel).load(issueId, {
             success: function (issue) {

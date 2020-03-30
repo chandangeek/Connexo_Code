@@ -18,8 +18,8 @@ import java.util.Set;
 public class WebServiceDataExportChildCustomPropertySet implements CustomPropertySet<ServiceCall, WebServiceDataExportChildDomainExtension> {
     public static final String CUSTOM_PROPERTY_SET_CHILD_ID = "com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildCustomPropertySet";
 
-    private final Thesaurus thesaurus;
-    private final PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
 
     @Inject
     public WebServiceDataExportChildCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -92,8 +92,12 @@ public class WebServiceDataExportChildCustomPropertySet implements CustomPropert
                         .named(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName(), TranslationKeys.DATA_SOURCE_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(WebServiceDataExportChildDomainExtension.FieldNames.CUSTOM_INFO.javaName(), TranslationKeys.CUSTOM_INFO)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
-
 }

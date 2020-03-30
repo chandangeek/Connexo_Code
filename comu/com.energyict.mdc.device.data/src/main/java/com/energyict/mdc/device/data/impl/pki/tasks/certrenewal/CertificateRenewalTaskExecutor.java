@@ -45,6 +45,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.bpm.BpmService.ACTIVE_STATUS;
+import static com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_PROCESS_NAME;
+
 public class CertificateRenewalTaskExecutor implements TaskExecutor {
 
     private volatile OrmService ormService;
@@ -57,9 +60,7 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
     private Integer certRenewalBpmProcessCount;
     private final Logger logger;
 
-    private static final String CERTIFICATE_RENEWAL_PROCESS_NAME = "Certificate renewal";
     private static final Integer CERTIFICATE_RENEWAL_EXPIRATION_DAYS = Integer.MAX_VALUE;
-    private static final String ACTIVE_STATUS = "1";
 
     CertificateRenewalTaskExecutor(OrmService ormService,
                                    BpmService bpmService,
@@ -109,18 +110,19 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
                 .select(expiredCertificateCondition)
                 .stream()
                 .collect(Collectors.toList());
-        logger.log(Level.INFO, "Number of security accessors to process:  " + securityAccessors.size());
+        logger.log(Level.INFO, "Number of expired security accessors:  " + securityAccessors.size());
         printSecurityAccessors(securityAccessors, logger);
 
-        List<SecurityAccessor> resultList = securityAccessors
+        Optional<SecurityAccessor> securityAccessor = securityAccessors
                 .stream()
                 .filter(this::checkSecuritySets)
                 .filter(SecurityAccessor::isEditable)
-                .collect(Collectors.toList());
+                .findFirst();
 
-        logger.log(Level.INFO, "Number of security accessors to trigger bpm:  " + resultList.size());
-        printSecurityAccessors(resultList, logger);
-        resultList.forEach(securityAccessor -> triggerBpmProcess(securityAccessor, occurrence, logger));
+        securityAccessor.ifPresent(sA -> {
+            logger.log(Level.INFO, "Security accessor to trigger bpm:  " + sA);
+            triggerBpmProcess(sA, occurrence, logger);
+        });
     }
 
     @Override

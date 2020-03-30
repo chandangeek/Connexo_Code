@@ -15,6 +15,8 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.search.*;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.jayway.jsonpath.JsonModel;
@@ -44,6 +46,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
     private SearchBuilder searchBuilder;
     private Finder finder;
     private SearchCriteriaBuilder searchCriteriaBuilder;
+    private static final String PRIVILEGE = "PRIVILEGE";
 
     @Override
     @Before
@@ -250,7 +253,62 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
     }
 
     @Test
+    public void testPostSearchWithOutPrivileges() throws Exception {
+        User user = mock(User.class);
+        Set<Privilege> privileges = new HashSet<>();
+
+        when(user.getPrivileges()).thenReturn(privileges);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+
+        Form input = new Form();
+        input.param("page", "1");
+        input.param("start", "0");
+        input.param("limit", "100");
+        input.param("filter", "[{\"property\":\"name\",\"value\":[{\"operator\":\"IN\",\"criteria\":[\"SPE01000001\",\"SPE01000002\",\"SPE01000003\"],\"filter\":\"\"}]}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+
+        JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(0,100);
+
+        List<SearchDeviceObject> resultList = new ArrayList<>();
+
+        SearchDeviceObject  device1 = new SearchDeviceObject(1,"SPE01000001");
+        resultList.add(device1);
+
+        InfoFactory infoFactory = mock(InfoFactory.class);
+        when(infoFactory.from(any())).thenReturn(resultList);
+
+        when(infoFactoryService.getInfoFactoryFor(any())).thenReturn(infoFactory);
+
+        finder = mock(Finder.class);
+        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(resultList);
+
+        searchBuilder = mock(SearchBuilder.class);
+        when(searchBuilder.toFinder()).thenReturn(finder);
+
+        when(searchService.search(any(SearchDomain.class))).thenReturn(searchBuilder);
+
+        Response response = target("/search/com.devices").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(0);
+    }
+    @Test
     public void testPostSearch() throws Exception {
+
+        User user = mock(User.class);
+        Privilege privilege1 = mock(Privilege.class);
+        when(privilege1.getName()).thenReturn("privilege.administrate.deviceData");
+        Privilege privilege2 = mock(Privilege.class);
+        when(privilege2.getName()).thenReturn("privilege.view.device");
+
+        Set<Privilege> privileges = new HashSet<>();
+        privileges.add(privilege1);
+        privileges.add(privilege2);
+        when(user.getPrivileges()).thenReturn(privileges);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+
         Form input = new Form();
         input.param("page", "1");
         input.param("start", "0");

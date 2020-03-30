@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.processes.keyrenewal.api.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.hsm.HsmEnergyService;
@@ -11,6 +13,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
@@ -27,8 +30,11 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.beans.BeanService;
@@ -36,10 +42,17 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
+import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 
 import java.text.MessageFormat;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +61,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -59,7 +71,9 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -133,6 +147,8 @@ public class HeadEndControllerTest {
     ComTaskExecution comTaskExecution;
     @Mock
     HsmEnergyService hsmEnergyService;
+    @Mock
+    CommunicationTaskService communicationTaskService;
 
     ExceptionFactory exceptionFactory;
 
@@ -229,14 +245,14 @@ public class HeadEndControllerTest {
         verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
-    @Ignore
+
     @Test
     @Expected(value = LocalizedException.class, message = "Could not find destination spec with name " + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)
     public void testDestinationSpecNotFound() throws Exception {
         DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
         deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
         deviceCommandInfo.activationDate = Instant.now();
-
+        deviceCommandInfo.command = Command.RENEW_KEY;
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
         when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.empty());
@@ -267,5 +283,44 @@ public class HeadEndControllerTest {
         // Asserts
         verify(multiSenseHeadEndInterface).runCommunicationTask(device, comtasks, deviceCommandInfo.activationDate, serviceCall);
         verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
+    }
+
+    @Test
+    public void testCommunicationTestOperationWithoutComTasks() throws Exception {
+        DeviceConfigurationService deviceConfigurationService = mock(DeviceConfigurationService.class);
+        DeviceService deviceService = mock(DeviceService.class);
+        MeteringService meteringService = mock(MeteringService.class);
+        CustomPropertySetService customPropertySetService = mock(CustomPropertySetService.class);
+        EndDeviceCommandFactory endDeviceCommandFactory = mock(EndDeviceCommandFactory.class);
+        ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
+        Clock clock = mock(Clock.class);
+        ServiceCallType serviceCallType = mock(ServiceCallType.class);
+        ServiceCall serviceCall2 = mock(ServiceCall.class);
+        CompletionOptionsServiceCallDomainExtension completionOptionsServiceCallDomainExtension = mock(CompletionOptionsServiceCallDomainExtension.class);
+        when(serviceCall2.getExtensionFor(any())).thenReturn(Optional.ofNullable(completionOptionsServiceCallDomainExtension));
+        when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.ofNullable(serviceCallType));
+        ServiceCallBuilder serviceCallBuilder = FakeBuilder.initBuilderStub(serviceCall2, ServiceCallBuilder.class);
+        when(serviceCallType.newServiceCall()).thenReturn(serviceCallBuilder);
+        when(serviceCall.newChildCall(serviceCallType)).thenReturn(serviceCallBuilder);
+        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
+        deviceCommandInfo.activationDate = Instant.now();
+
+        List<ComTaskExecution> comtasks = new ArrayList<>();
+
+        MultiSenseHeadEndInterface multiSenseHeadEndInterface2 = new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService,
+                meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory,
+                threadPrincipalService, clock, communicationTaskService);
+        when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(multiSenseHeadEndInterface2));
+
+        Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
+        Mockito.doReturn(comtasks).when(headEndController).getComTaskExecutions(device, securityAccessorType);
+
+
+        // Business method
+        headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
+
+        // asserts
+        verify(serviceCall2).update(completionOptionsServiceCallDomainExtension);
     }
 }

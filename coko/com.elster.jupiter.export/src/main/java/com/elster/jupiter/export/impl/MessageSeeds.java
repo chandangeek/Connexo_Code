@@ -33,6 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}."),
     MISSING_INTERVAL(1020, "dataexport.item.missinginterval", "The interval(s) starting from {0} till {1} with missing data are not exported for item {2}", Level.INFO),
     MISSING_WINDOW(1021, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for item {2}", Level.INFO),
+    FIELD_TOO_LONG(1022, Keys.FIELD_TOO_LONG, "Field mustn''t exceed {max} characters."),
 
     SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported for item {2}", Level.INFO),
     SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO),
@@ -57,13 +58,13 @@ public enum MessageSeeds implements MessageSeed {
     NO_CPS_FOUND(1040, "service.call.cps.not.found", "No active custom attribute set is found with id ''{0}''."),
     NO_CPS_VALUES_FOUND(1041, "service.call.cps.values.not.found", "No properties are kept for web service call {0}."),
     WEB_SERVICE_EXPORT_FAILURE(1042, "webservice.export.failure", "Failure while exporting data via web service: {0}"),
-    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed for service call {0}: {1}"),
+    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed for service call {0}. {1}"),
     WEB_SERVICE_EXPORT_NO_CONFIRMATION(1044, "webservice.export.no.confirmation", "No data export confirmation has been received in the configured timeout."),
     WEB_SERVICE_EXPORT_UNEXPECTED_STATE(1045, "webservice.export.unexpected.state", "Unexpected state of the service call: {0}."),
     WEB_SERVICE_EXPORT_WAITING_FAILURE(1046, "webservice.export.waiting.failure", "Failure while waiting for data export confirmation: {0}"),
     WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE(1047, "webservice.export.no.error.message", "Received error code, but no error has been provided."),
 
-    NULL_FORMATTER_WITH_FILE_DESTINATIONS(1048, Keys.NULL_FORMATTER_WITH_FILE_DESTINATIONS, "Null formatter is supported only by web service destination."),
+    NULL_FORMATTER_WITH_FILE_DESTINATIONS(1048, Keys.NULL_FORMATTER_WITH_FILE_DESTINATIONS, "Not applicable(for 'Web service' destination) formatter is supported only by web service destination."),
     NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA(1049, Keys.NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA,
             "Web service endpoint for updated data should be specified on web service destinations if updated data is exported."),
     ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task."),
@@ -144,6 +145,7 @@ public enum MessageSeeds implements MessageSeed {
         String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
         String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
         String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
+        String FIELD_TOO_LONG = "FieldTooLong";
     }
 }
 

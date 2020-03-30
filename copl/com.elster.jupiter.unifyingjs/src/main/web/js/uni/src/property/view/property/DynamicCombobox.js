@@ -39,7 +39,7 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
             name: this.getName(),
             minChars: 0,
             displayField: 'name',
-            valueField: 'name',
+            valueField: 'value',
             width: me.width,
             readOnly: me.isReadOnly,
             blankText: me.blankText,

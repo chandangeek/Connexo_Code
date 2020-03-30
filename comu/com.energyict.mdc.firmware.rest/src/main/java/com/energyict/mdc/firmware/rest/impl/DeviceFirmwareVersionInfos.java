@@ -23,7 +23,7 @@ public class DeviceFirmwareVersionInfos {
     public String deviceName;
     public long version;
 
-    public DeviceFirmwareVersionInfos(){
+    public DeviceFirmwareVersionInfos() {
     }
 
     public DeviceFirmwareVersionInfos(Thesaurus thesaurus, Set<FirmwareType> supportedFirmwareTypes) {
@@ -45,9 +45,10 @@ public class DeviceFirmwareVersionInfos {
                 .filter(firmware -> firmware.firmwareType.id.equals(activatedFirmwareVersion.getFirmwareVersion().getFirmwareType()))
                 .forEach(firmware -> {
                     DeviceFirmwareVersionInfo.ActiveVersion activeVersion = new DeviceFirmwareVersionInfo.ActiveVersion();
-                    activeVersion.firmwareVersion = activatedFirmwareVersion.getFirmwareVersion().getFirmwareVersion();
-                    activeVersion.imageIdentifier = activatedFirmwareVersion.getFirmwareVersion().getImageIdentifier();
-                    activeVersion.firmwareVersionStatus = new FirmwareStatusInfo(activatedFirmwareVersion.getFirmwareVersion().getFirmwareStatus(), this.thesaurus);
+                    FirmwareVersion firmwareVersion = activatedFirmwareVersion.getFirmwareVersion();
+                    activeVersion.firmwareVersion = firmwareVersion.getFirmwareVersion();
+                    activeVersion.imageIdentifier = firmwareVersion.getImageIdentifier();
+                    activeVersion.firmwareVersionStatus = new FirmwareStatusInfo(firmwareVersion.getFirmwareStatus(), firmwareVersion.getLocalizedStatus());
                     activeVersion.lastCheckedDate = activatedFirmwareVersion.getLastChecked() != null ? activatedFirmwareVersion.getLastChecked().toEpochMilli() : null;
                     firmware.activeVersion = activeVersion;
                 });

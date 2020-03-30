@@ -16,14 +16,16 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_6_1SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -33,7 +35,6 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.engine.config.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
@@ -47,6 +48,7 @@ import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
 import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
 import com.energyict.mdc.engine.config.security.Privileges;
@@ -201,12 +203,15 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         dataModel.register(getModule());
-        upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class,
-                version(10, 3), V10_3SimpleUpgrader.class,
-                version(10, 4, 3), V10_4_3SimpleUpgrader.class,
-                version(10, 6, 1), V10_6_1SimpleUpgrader.class,
-                version(10, 7, 1), V10_7_1SimpleUpgrader.class));
+        upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class,
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 3), V10_3SimpleUpgrader.class)
+                        .put(version(10, 4, 3), V10_4_3SimpleUpgrader.class)
+                        .put(version(10, 4, 9), V10_4_9SimpleUpgrader.class)
+                        .put(version(10, 6, 1), V10_6_1SimpleUpgrader.class)
+                        .put(version(10, 7, 1), V10_7_1SimpleUpgrader.class).build());
+
     }
 
     public DataModel getDataModel() {
@@ -559,10 +564,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
         for (ComPort comPort : comPortPool.getComPorts()) {
             long numberOfPortPoolsUsedByThePort = getNumberOfPortPoolsUsedByThePort(comPort);
-            if(numberOfPortPoolsUsedByThePort != 0)
-                tempMaxPriorityConnections += (float)comPort.getNumberOfSimultaneousConnections()/numberOfPortPoolsUsedByThePort;
+            if (numberOfPortPoolsUsedByThePort != 0) {
+                tempMaxPriorityConnections += (float) comPort.getNumberOfSimultaneousConnections() / numberOfPortPoolsUsedByThePort;
+            }
         }
-        return (long)Math.ceil(tempMaxPriorityConnections * ((float)pctHighPrioTasks/100));
+        return (long) Math.ceil(tempMaxPriorityConnections * ((float) pctHighPrioTasks / 100));
     }
 
     private long getNumberOfPortPoolsUsedByThePort(ComPort comPort) {

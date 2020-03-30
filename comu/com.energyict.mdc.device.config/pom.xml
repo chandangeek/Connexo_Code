@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
 
     </parent>
 
@@ -246,6 +246,11 @@
             <artifactId>mdc.issues</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>rest.util</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.easytesting</groupId>
@@ -284,11 +289,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ejbca</groupId>
-            <artifactId>ejbca-elster-bundle</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

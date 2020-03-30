@@ -35,6 +35,7 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+
 import com.google.common.collect.Range;
 import com.google.inject.Injector;
 
@@ -260,9 +261,9 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
 
         int counter = 0;
         for (DataCollectionEventMetadata event : dataCollectionEvents) {
-            if (event.getEventType().getTopic().equals(this.getIssueResolvingEvent().getTopic())) {
+            if (event.getEventType().equals(this.getIssueResolvingEvent().getName())) {
                 return false;
-            } else if (event.getEventType().getTopic().equals(this.getIssueCausingEvent().getTopic())) {
+            } else if (event.getEventType().equals(this.getIssueCausingEvent().getName())) {
                 if (closedInterval.contains(event.getCreateDateTime().atZone(clock.getZone()))) {
                     counter++;
                 }

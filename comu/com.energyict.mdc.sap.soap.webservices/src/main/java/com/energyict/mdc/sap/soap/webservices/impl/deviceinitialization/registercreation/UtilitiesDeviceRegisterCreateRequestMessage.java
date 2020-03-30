@@ -50,7 +50,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
         private Builder() {
         }
 
-        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage) {
+        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage, Integer lrnEndInterval) {
             bulk = false;
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
@@ -60,12 +60,12 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
 
             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                     .builder()
-                    .from(requestMessage)
+                    .from(requestMessage, lrnEndInterval)
                     .build(thesaurus));
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg requestMessage) {
+        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg requestMessage, Integer lrnEndInterval) {
             bulk = true;
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
@@ -77,7 +77,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
                     .forEach(message ->
                             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                                     .builder()
-                                    .from(message)
+                                    .from(message, lrnEndInterval)
                                     .build(thesaurus)));
             return this;
         }
@@ -86,6 +86,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage extends AbstractSapMess
             if (requestID == null && uuid == null) {
                 addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
             }
+            utilitiesDeviceRegisterCreateMessages.forEach(utilitiesDeviceRegisterCreateMessage -> addMissingFields(utilitiesDeviceRegisterCreateMessage.getMissingFieldsSet()));
             return UtilitiesDeviceRegisterCreateRequestMessage.this;
         }
 

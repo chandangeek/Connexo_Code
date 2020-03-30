@@ -118,19 +118,19 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    allowNoValue: true,
-                                    value: null
+                                  //  allowNoValue: true,
+                                  //  value: null
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    allowNoValue: true,
-                                    value: null
+                                   // allowNoValue: true,
+                                   // value: null
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    allowNoValue: true,
-                                    value: null
+                                   // allowNoValue: true,
+                                   // value: null
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false
@@ -160,19 +160,19 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    allowNoValue: true,
-                                    value: null
+                                   // allowNoValue: true,
+                                   // value: null
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    allowNoValue: true,
-                                    value: null
+                                  //  allowNoValue: true,
+                                 //   value: null
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    allowNoValue: true,
-                                    value: null
+                                  //  allowNoValue: true,
+                                   // value: null
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false
@@ -208,19 +208,19 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    allowNoValue: true,
-                                    value: null
+                                   // allowNoValue: true,
+                                   // value: null
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    allowNoValue: true,
-                                    value: null
+                                 //   allowNoValue: true,
+                                 //   value: null
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    allowNoValue: true,
-                                    value: null
+                                  //  allowNoValue: true,
+                                  //  value: null
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false
@@ -251,19 +251,19 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    allowNoValue: true,
-                                    value: null
+                                  //  allowNoValue: true,
+                                  //  value: null
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    allowNoValue: true,
-                                    value: null
+                                //    allowNoValue: true,
+                                 //   value: null
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    allowNoValue: true,
-                                    value: null
+                                  //  allowNoValue: true,
+                                  //  value: null
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false

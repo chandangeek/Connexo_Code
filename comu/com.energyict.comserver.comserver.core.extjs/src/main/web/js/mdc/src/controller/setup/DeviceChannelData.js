@@ -633,7 +633,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             menu.down('#edit-estimation-comment').setVisible(canEditingComment);
         }
         if (menu.down('#remove-reading')) {
-            menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
+            menu.down('#remove-reading').setVisible(!Ext.isEmpty(menu.record.get('value')) || !Ext.isEmpty(menu.record.get('collectedValue')));
         }
         if (menu.down('#correct-value')) {
             menu.down('#correct-value').setVisible(!Ext.isEmpty(menu.record.get('value')))

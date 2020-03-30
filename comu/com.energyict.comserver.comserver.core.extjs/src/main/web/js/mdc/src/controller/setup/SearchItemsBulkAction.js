@@ -1380,7 +1380,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
                     break;
                 case 'addToZone' : {
-                    title = Uni.I18n.translate('searchItems.bulk.addToZone', 'MDC', 'Add to zone')
+                    title = Uni.I18n.translate('searchItems.bulk.linkToZone', 'MDC', 'Link to zone')
                 }
                     break;
                 case 'removeFromZone' : {

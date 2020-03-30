@@ -4,10 +4,9 @@
 
 package com.elster.jupiter.bpm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import java.util.Optional;
 
 @ProviderType
 public interface BpmService {
+    String ACTIVE_STATUS = "1";
     String COMPONENTNAME = "BPM";
 
     @Deprecated
@@ -69,4 +69,6 @@ public interface BpmService {
     ProcessInstanceInfos getRunningProcesses(String authorization, String filter);
 
     ProcessInstanceInfos getRunningProcesses(String authorization, String filter, String appKey);
+
+    void addSingletonInstanceProcess(String processName, String businessObjectId);
 }

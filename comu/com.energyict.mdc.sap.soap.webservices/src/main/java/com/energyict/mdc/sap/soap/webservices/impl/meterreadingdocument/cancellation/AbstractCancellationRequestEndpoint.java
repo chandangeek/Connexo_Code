@@ -10,12 +10,16 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -66,6 +70,14 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
     }
 
     void handleMessage(MeterReadingDocumentCancellationRequestMessage message) {
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        message.getMeterReadingDocumentIds().forEach(meterReadingDocumentId -> {
+            values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), meterReadingDocumentId);
+        });
+
+        saveRelatedAttributes(values);
+
         if (message.isValid()) {
             List<CancelledMeterReadingDocument> documents = cancelMeterReadings(message);
 

@@ -7,8 +7,9 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,7 +25,7 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
-    private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile ServiceCallService serviceCallService;
 
 
     @Override
@@ -33,7 +34,7 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
         switch (newState) {
             case PENDING:
                 serviceCall.findChildren().stream().forEach(child -> {
-                    if(child.canTransitionTo(DefaultState.PENDING)) {
+                    if (child.canTransitionTo(DefaultState.PENDING)) {
                         child.requestTransition(DefaultState.PENDING);
                     }
                 });
@@ -60,14 +61,20 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
             case CANCELLED:
             case FAILED:
             case SUCCESSFUL:
-                if (isLastChild(findChildren(parentServiceCall))) {
-                    if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
-                    } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
-                        parentServiceCall.requestTransition(DefaultState.PENDING);
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
+                resultTransition(parentServiceCall);
+                break;
+            case PAUSED:
+                parentServiceCall = lock(parentServiceCall);
+                List<ServiceCall> children = findChildren(parentServiceCall);
+                if (ServiceCallHelper.isLastPausedChild(children)) {
+                    if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
+                        if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
+                            parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        }
+                        parentServiceCall.requestTransition(DefaultState.PAUSED);
                     }
                 }
+                break;
             default:
                 // No specific action required for these states
                 break;
@@ -75,12 +82,15 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
     }
 
     private void resultTransition(ServiceCall parent) {
+        parent = lock(parent);
         List<ServiceCall> children = findChildren(parent);
         if (isLastChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
             } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.CANCELLED) && parent.canTransitionTo(DefaultState.CANCELLED)) {
+                parent.requestTransition(DefaultState.CANCELLED);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 parent.requestTransition(DefaultState.FAILED);
             }
@@ -99,8 +109,13 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
     @Reference
-    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
-        this.sapCustomPropertySets = sapCustomPropertySets;
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 }

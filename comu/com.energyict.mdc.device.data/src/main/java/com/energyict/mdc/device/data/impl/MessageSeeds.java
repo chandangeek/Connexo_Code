@@ -223,6 +223,7 @@ public enum MessageSeeds implements MessageSeed {
     FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\, !, *, '', (, ), :, @, &, =, $, ,, [, ]."),
     NO_COMTASK_EXECUTION(2197, Keys.NO_COMTASK_EXECUTION, "A communication task execution for the device messages can''t be located or it is inactive."),
     NO_STATUS_INFORMATION_COMTASK_EXECUTION(2198, Keys.NO_STATUS_INFORMATION_COMTASK_EXECUTION, "A communication task execution to read out the status information can''t be located or it is inactive."),
+    NO_SUCH_COM_TASK_EXECUTION(2199, "NoSuchComTaskExecution", "The device has no communication task with id ''{0}''"),
     ;
 
     private final int number;

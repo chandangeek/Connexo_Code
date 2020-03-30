@@ -10,8 +10,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
@@ -26,18 +26,23 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchange
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmBulkChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmChgConfUtilsTmeSers;
+
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.NO_SEVERITY_CODE_AND_ERROR_MESSAGE;
+import static com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds.SEVERITY_CODE_AND_ERROR_MESSAGE;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
@@ -45,18 +50,20 @@ import java.util.stream.Stream;
         property = {"name=" + UtilitiesTimeSeriesBulkChangeConfirmationReceiver.NAME})
 public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationCIn, ApplicationSpecific {
     static final String NAME = "SAP TimeSeriesBulkChangeConfirmation";
-    private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
+    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesTimeSeriesBulkChangeConfirmationReceiver() {
         // for OSGi purposes
     }
 
     @Inject
-    public UtilitiesTimeSeriesBulkChangeConfirmationReceiver(DataExportService dataExportService, Thesaurus thesaurus) {
+    public UtilitiesTimeSeriesBulkChangeConfirmationReceiver(DataExportService dataExportService, Thesaurus thesaurus,
+                                                             WebServiceActivator webServiceActivator) {
         setDataExportService(dataExportService);
+        setWebServiceActivator(webServiceActivator);
         this.thesaurus = thesaurus;
     }
 
@@ -68,6 +75,11 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
     @Reference
     public void setTranslationsProvider(WebServiceActivator translationsProvider) {
         this.thesaurus = translationsProvider.getThesaurus();
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -87,13 +99,62 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
             Optional<String> uuid = findReferenceUuid(confirmation);
             ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
                     .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
-            if (isConfirmed(confirmation)) {
-                dataExportServiceCallType.tryPassingServiceCall(serviceCall);
-            } else {
-                dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+            switch (getResultCode(confirmation)) {
+                case SUCCESSFUL:
+                    dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+                    break;
+                case PARTIALLY_SUCCESSFUL:
+                case FAILED:// since some error codes should be processed as successful, use tryPartiallyPassingServiceCall for failed case
+                    List<String> successfulProfileIds = getSuccessfulProfileIds(confirmation);
+                    List<ServiceCall> successfulChildren = new ArrayList<>();
+                    serviceCall.findChildren().stream().forEach(child -> {
+                        List<String> extensionProfileIds = Arrays.asList(dataExportServiceCallType.getCustomInfoFromChildServiceCall(child).split(","));
+                        if (successfulProfileIds.containsAll(extensionProfileIds)) {
+                            successfulChildren.add(child);
+                        }
+                        successfulProfileIds.removeAll(extensionProfileIds);
+                    });
+                    dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, successfulChildren, getErrorMessage(confirmation).orElse(null));
+                    break;
             }
             return null;
         });
+    }
+
+    private List<String> getSuccessfulProfileIds(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+        return Optional.ofNullable(confirmation)
+                .map(UtilsTmeSersERPItmBulkChgConfMsg::getUtilitiesTimeSeriesERPItemChangeConfirmationMessage)
+                .map(List::stream)
+                .orElseGet(Stream::empty)
+                .filter(this::isChildConfirmed)
+                .map(UtilsTmeSersERPItmChgConfMsg::getUtilitiesTimeSeries)
+                .map(UtilsTmeSersERPItmChgConfUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue)
+                .collect(Collectors.toList());
+    }
+
+    private boolean isChildConfirmed(UtilsTmeSersERPItmChgConfMsg item) {
+        boolean isSuccessful = false;
+        Optional<Log> log = Optional.ofNullable(item)
+                .map(UtilsTmeSersERPItmChgConfMsg::getLog);
+        if (log.isPresent()) {
+            isSuccessful = log
+                    .map(Log::getBusinessDocumentProcessingResultCode)
+                    .filter(code -> code.equals(ProcessingResultCode.SUCCESSFUL.getCode()))
+                    .isPresent();
+
+            if (!isSuccessful) {
+                List<LogItem> logItems = log.get().getItem();
+                if (!logItems.isEmpty()) {
+                    isSuccessful = logItems
+                            .stream()
+                            .map(LogItem::getTypeID)
+                            .allMatch(typeId -> webServiceActivator.getUudSuccessfulErrorCodes().stream().anyMatch(typeId::startsWith));
+                }
+            }
+        }
+
+        return isSuccessful;
     }
 
     private static List<UtilsTmeSersERPItmChgConfMsg> getChangeConfirmationMessages(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
@@ -119,46 +180,35 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
         return Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue);
     }
 
-    private static boolean isConfirmed(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+    private static ProcessingResultCode getResultCode(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getLog)
                 .map(Log::getBusinessDocumentProcessingResultCode)
-                .filter(Predicates.not(FAILURE_CODES::contains))
-                .isPresent();
+                .flatMap(ProcessingResultCode::fromCode)
+                .orElse(ProcessingResultCode.FAILED);
     }
 
-    private static Optional<String> getSeverestError(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
-        return Optional.ofNullable(confirmation)
+    private Optional<String> getErrorMessage(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+        List<LogItem> list = Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkChgConfMsg::getLog)
                 .map(Log::getItem)
                 .map(List::stream)
                 .orElseGet(Stream::empty)
-                .reduce(UtilitiesTimeSeriesBulkChangeConfirmationReceiver::findMaximumSeverityOrNotNullOrWhatever)
-                .map(LogItem::getNote);
-    }
+                .filter(log -> log.getNote() != null && !Checks.is(log.getNote()).emptyOrOnlyWhiteSpace())
+                .collect(Collectors.toList());
 
-    private static LogItem findMaximumSeverityOrNotNullOrWhatever(LogItem item1, LogItem item2) {
-        String s1 = item1.getSeverityCode();
-        String s2 = item2.getSeverityCode();
-        if (s2 == null) {
-            return item1;
-        } else if (s1 == null) {
-            return item2;
+        if (list.isEmpty()) {
+            return Optional.empty();
         } else {
-            s1 = s1.trim();
-            s2 = s2.trim();
-            int i1, i2;
-            try {
-                i2 = Integer.parseInt(s2);
-            } catch (NumberFormatException e) {
-                return item1;
-            }
-            try {
-                i1 = Integer.parseInt(s1);
-            } catch (NumberFormatException e) {
-                return item2;
-            }
-            return i1 < i2 ? item2 : i2 < i1 ? item1 : item1.getNote() == null ? item2 : item1;
+            return Optional.of(list.stream()
+                    .map(log -> {
+                        if (log.getSeverityCode() != null && !Checks.is(log.getSeverityCode()).emptyOrOnlyWhiteSpace()) {
+                            return thesaurus.getSimpleFormat(SEVERITY_CODE_AND_ERROR_MESSAGE).format(log.getSeverityCode(), log.getNote());
+                        } else {
+                            return thesaurus.getSimpleFormat(NO_SEVERITY_CODE_AND_ERROR_MESSAGE).format(log.getNote());
+                        }
+                    })
+                    .collect(Collectors.joining(" ")));
         }
     }
 

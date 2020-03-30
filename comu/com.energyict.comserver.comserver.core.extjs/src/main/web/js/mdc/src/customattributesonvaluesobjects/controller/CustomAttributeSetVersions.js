@@ -20,7 +20,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         this.control({
             '#time-sliced-custom-attribute-set-action-menu-id': {
                 moveToEditPage: this.moveToEditPage,
-                moveToClonePage: this.moveToClonePage
+                moveToClonePage: this.moveToClonePage,
+                removeVersion: this.removeVersion
             },
             '#custom-attribute-set-versions-setup-id button[action=moveToAddVersionPage]': {
                 click: this.moveToAddPage
@@ -113,6 +114,58 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
     moveToClonePage: function (type, versionId) {
         var route = Mdc.customattributesonvaluesobjects.service.RouteMap.getRoute(type, true, 'clone');
         this.navigateToRoute(route, type, versionId, false);
+    },
+
+    removeVersion: function (type, versionId, versionPeriod) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            router = me.getController('Uni.controller.history.Router'),
+            routeArguments = router.arguments,
+            routeQueryParams = router.queryParams,
+            cpsId = routeArguments.customAttributeSetId || routeQueryParams.customAttributeSetId,
+            url = "";
+
+        switch(type){
+            case "device":
+                var deviceName = routeArguments.deviceId;
+                url = '/api/ddr/devices/' + deviceName;
+            break;
+            case "channel":
+                var deviceName = routeArguments.deviceId;
+                var channelId = routeArguments.channelId;
+                url = '/api/ddr/devices/' + deviceName + '/channels/' + channelId;
+            break;
+            case "register":
+                var deviceName = routeArguments.deviceId;
+                var registerId = routeArguments.registerId;
+                url = '/api/ddr/devices/' + deviceName + '/registers/' + registerId;
+            break;
+            default:
+            break;
+        }
+        if (url){
+            url += '/customproperties/' + cpsId + '/versions/' + versionId;
+        }
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('sapattribute.removeVersionMsg', 'MDC', 'This version will no longer be available.'),
+                title: Uni.I18n.translate('sapattribute.removeVersionTitle', 'MDC', 'Remove {0} version?', versionPeriod),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        Ext.Ajax.request({
+                            url: url,
+                            method: 'DELETE',
+                            success: function (response) {
+                                var messageText = versionPeriod + Uni.I18n.translate('sapattribute.version.succesfullyRemoved', 'MDC', ' version removed.')
+                                me.getApplication().fireEvent('acknowledge', messageText);
+                            },
+                            callback: function(){
+                                router.getRoute().forward(routeArguments, routeQueryParams);
+                            }
+                        });
+                    }
+                }
+            });
     },
 
     moveToAddPage: function (button) {

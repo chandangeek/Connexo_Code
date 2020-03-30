@@ -233,7 +233,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         }
         if (file.size > max_file_size) {
             me.getApplication().getController('Uni.controller.Error').showError(
-                Uni.I18n.translate('general.failed.to.upload.fileTitle', 'MDC', 'Couldn\'t perform your action'),
+                Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                 Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file') + '. ' + Uni.I18n.translate('filemanagement.fileSizShouldBeLessThan', 'MDC', 'File size should be less than 2 MB.'),
                 'DTC1006' // Corresponds with the ordinal of enum com.energyict.mdc.device.config.impl.MessageSeeds.MAX_FILE_SIZE_EXCEEDED
             );
@@ -260,7 +260,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                                 code = responseObject.errorCode;
                             }
                             me.getApplication().getController('Uni.controller.Error').showError(
-                                Uni.I18n.translate('general.failed.to.upload.fileTitle', 'MDC', 'Couldn\'t perform your action'),
+                                Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                                 Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file') + '. ' + responseObject.message, code);
                         }
                     }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datacollection;
 
 import aQute.bnd.annotation.ProviderType;
+
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 
 /**

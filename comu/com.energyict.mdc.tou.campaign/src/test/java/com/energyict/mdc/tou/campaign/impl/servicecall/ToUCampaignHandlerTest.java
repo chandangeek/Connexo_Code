@@ -120,7 +120,7 @@ public class ToUCampaignHandlerTest {
         when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
         timeOfUseCampaignHandler.onEvent(event);
-        verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
+        verify(serviceCall).transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class ToUCampaignHandlerTest {
         when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
         timeOfUseCampaignHandler.onEvent(event);
-        verify(serviceCall).requestTransition(DefaultState.FAILED);
+        verify(serviceCall).transitionWithLockIfPossible(DefaultState.FAILED);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class ToUCampaignHandlerTest {
         when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
         when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         timeOfUseCampaignHandler.onEvent(event);
-        verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
+        verify(serviceCall).transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class ToUCampaignHandlerTest {
         when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
         when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
         timeOfUseCampaignHandler.onEvent(event);
-        verify(serviceCall).requestTransition(DefaultState.FAILED);
+        verify(serviceCall).transitionWithLockIfPossible(DefaultState.FAILED);
     }
 
     @Test
