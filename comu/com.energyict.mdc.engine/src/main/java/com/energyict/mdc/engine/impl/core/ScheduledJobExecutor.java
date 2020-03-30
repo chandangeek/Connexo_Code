@@ -40,13 +40,14 @@ abstract class ScheduledJobExecutor {
     // The minimum log level that needs to be set before the stacktrace of a error is logged to System.err
     private static final ComServer.LogLevel REQUIRED_DEBUG_LEVEL = ComServer.LogLevel.DEBUG;
 
+    private static long totalJobs = 0;
+    private static long clashingJobs = 0;
+    private static Instant timerStart = Instant.now();
+
     private final TransactionService transactionService;
     private final ComServer.LogLevel logLevel;
     private final DeviceCommandExecutor deviceCommandExecutor;
     private ScheduledJob currentJob;
-    private long totalClashingJobs = 0;
-    private long lastHourClashingJobs = 0;
-    private Instant lastHourStart = Instant.now();
 
     ScheduledJobExecutor(TransactionService transactionService, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
         this.transactionService = transactionService;
@@ -191,6 +192,10 @@ abstract class ScheduledJobExecutor {
 
         @Override
         public synchronized ValidationReturnStatus perform() {
+            if (totalJobs == Long.MAX_VALUE) {
+                resetClashingData();
+            }
+            ++totalJobs;
             if (!this.job.isStillPending()) {
                 updateClashingJobs();
                 return ValidationReturnStatus.NOT_PENDING_ANYMORE;
@@ -209,13 +214,24 @@ abstract class ScheduledJobExecutor {
         }
 
         private void updateClashingJobs() {
-            totalClashingJobs = totalClashingJobs < Long.MAX_VALUE ? ++totalClashingJobs : 0;
-            lastHourClashingJobs = lastHourClashingJobs < Long.MAX_VALUE ? ++lastHourClashingJobs : 0;
-            LOGGER.warning("perf - total clashing jobs: " + totalClashingJobs + " since " + lastHourStart + ": " + lastHourClashingJobs);
-            if (Instant.now().minusSeconds(3600).isAfter(lastHourStart)) {
-                lastHourStart = Instant.now();
-                lastHourClashingJobs = 0;
+            if (clashingJobs == Long.MAX_VALUE) {
+                resetClashingData();
             }
+            ++clashingJobs;
+            if (isTimeToLog()) {
+                LOGGER.warning("perf - clashing jobs: " + clashingJobs + " out of " + totalJobs + " (" + clashingJobs*100/totalJobs + "%)");
+                timerStart = Instant.now();
+            }
+        }
+
+        private boolean isTimeToLog() {
+            return Instant.now().minusSeconds(600).isAfter(timerStart);
+        }
+
+        private void resetClashingData() {
+            totalJobs = 0;
+            clashingJobs = 0;
+            timerStart = Instant.now();
         }
     }
 
