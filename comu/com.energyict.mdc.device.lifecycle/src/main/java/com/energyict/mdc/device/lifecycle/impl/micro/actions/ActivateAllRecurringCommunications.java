@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will activate all recurring communication with the device.
  *
- * @see {@link MicroAction#ACTIVATE_ALL_RECURRING_COMMUNICATIONS}
+ * @see {@link MicroAction#ACTIVATE_ALL_RECURRING_COMMUNICATION}
  * @since 2020-03-26 (16:58)
  */
 public class ActivateAllRecurringCommunications extends TranslatableServerMicroAction {
@@ -61,7 +61,7 @@ public class ActivateAllRecurringCommunications extends TranslatableServerMicroA
 
     @Override
     protected MicroAction getMicroAction() {
-        return MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATIONS;
+        return MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION;
     }
 
     private ComTaskExecutionBuilder createManuallyScheduledComTaskExecutionWithoutFrequency(Device device, ComTaskEnablement comTaskEnablement) {

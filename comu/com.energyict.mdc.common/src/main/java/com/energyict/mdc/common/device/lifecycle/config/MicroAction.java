@@ -35,20 +35,16 @@ public enum MicroAction {
 
     /**
      * Activates all communication tasks on the device.
-     *
      */
     ACTIVATE_ALL_COMMUNICATION(MicroCategory.COMMUNICATION),
 
     /**
      * Activates all recurring communication tasks on the device.
-     *
      */
-
-    ACTIVATE_ALL_RECURRING_COMMUNICATIONS(MicroCategory.COMMUNICATION),
+    ACTIVATE_ALL_RECURRING_COMMUNICATION(MicroCategory.COMMUNICATION),
 
     /**
      * Activates all connection tasks on the device.
-     *
      */
 
     ACTIVATE_CONNECTION_TASKS_IN_USE(MicroCategory.COMMUNICATION),
@@ -67,8 +63,6 @@ public enum MicroAction {
      * by putting all connection and communication tasks on hold.
      */
     DISABLE_COMMUNICATION(MicroCategory.COMMUNICATION),
-
-
 
     /**
      * Closes the current meter activation on the device.

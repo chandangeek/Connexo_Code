@@ -201,7 +201,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             case ACTIVATE_ALL_COMMUNICATION:{
                 return new ActivateAllCommunication(thesaurus,deviceService);
             }
-            case ACTIVATE_ALL_RECURRING_COMMUNICATIONS:{
+            case ACTIVATE_ALL_RECURRING_COMMUNICATION:{
                 return new ActivateAllRecurringCommunications(thesaurus,deviceService);
             }
             default: {
