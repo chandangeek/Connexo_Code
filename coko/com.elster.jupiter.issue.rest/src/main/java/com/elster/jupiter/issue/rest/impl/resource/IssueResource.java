@@ -23,7 +23,7 @@ import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
-import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.share.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
@@ -36,13 +36,7 @@ import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.UnassignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.*;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueGroup;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.IssueTypes;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
@@ -56,6 +50,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -100,10 +95,11 @@ public class IssueResource extends BaseResource {
     private final TransactionService transactionService;
     private final LocationService locationService;
     private final Clock clock;
+    private final IssueResourceUtility issueResourceUtility;
 
     @Inject
     public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService,
-                         TransactionService transactionService, LocationService locationService, Clock clock) {
+                         TransactionService transactionService, LocationService locationService, Clock clock, IssueResourceUtility issueResourceUtility) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
@@ -111,6 +107,7 @@ public class IssueResource extends BaseResource {
         this.transactionService = transactionService;
         this.locationService = locationService;
         this.clock = clock;
+        this.issueResourceUtility = issueResourceUtility;
     }
 
     @GET
@@ -345,66 +342,11 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters,
                                         @BeanParam JsonQueryFilter filter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
-        IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
-        String id = null;
-        List<IssueType> issueTypes = getIssueService().query(IssueType.class)
-                .select(Condition.TRUE)
-                .stream()
-                .filter(issueType -> !issueType.getPrefix().equals("ALM"))
-                .filter(issueType -> (appKey.compareToIgnoreCase("INS") == 0 && issueType.getPrefix().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION.getPrefix())) ||
-                        (appKey.compareToIgnoreCase("MDC") == 0 && !issueType.getPrefix().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION.getPrefix())))
-                .collect(Collectors.toList());
-        List<String> issueTypesKeys = issueTypes.stream()
-                .map(IssueType::getKey)
-                .collect(Collectors.toList());
-        if (filter.getString(IssueRestModuleConst.ID) != null) {
-            String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
-            if (issueIdPart.length == 2) {
-                if (isNumericValue(issueIdPart[1])) {
-                    if (issueTypes.stream()
-                            .anyMatch(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))) {
-                        issueTypesKeys = issueTypes.stream()
-                                .filter(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))
-                                .map(IssueType::getKey)
-                                .collect(Collectors.toList());
-                        id = issueIdPart[1];
-                    } else {
-                        id = "-1";
-                    }
-                } else {
-                    id = "-1";
-                }
-            } else {
-                id = "-1";
-            }
-        }
-        groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
-                .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
-                .withId(id)
-                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)
-                        .isEmpty() ? issueTypesKeys : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
-                .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
-                .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
-                .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
-                .setAscOrder(false) // Sorting (descending direction)
-                .from(params.getFrom()).to(params.getTo()); // Pagination
-        filter.getLongList(IssueRestModuleConst.ASSIGNEE)
-                .stream()
-                .filter(el -> el != null)
-                .forEach(groupFilter::withUserAssignee);
-        filter.getLongList(IssueRestModuleConst.WORKGROUP)
-                .stream()
-                .filter(el -> el != null)
-                .forEach(groupFilter::withWorkGroupAssignee);
-        filter.getStringList(IssueRestModuleConst.LOCATION)
-                .stream()
-                .filter(el -> el != null)
-                .forEach(lId -> locationService.findLocationById(Long.valueOf(lId)).ifPresent(loc -> getMeteringService().findMetersByLocation(loc).forEach(m -> groupFilter.withMeter(m.getId()))));
-        issueResourceHelper.getDueDates(filter)
-                .stream()
-                .forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
-        List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
-        List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
+
+        Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
+        List<? extends Issue> issues = finder.find();
+        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length()-1);
+        List<IssueGroupInfo> infos = issueResourceUtility.getIssueGroupList(issues, value);
 
         if(filter.getString(IssueRestModuleConst.FIELD).equals(IssueRestModuleConst.LOCATION)) {
             // replace location id with location name for group name

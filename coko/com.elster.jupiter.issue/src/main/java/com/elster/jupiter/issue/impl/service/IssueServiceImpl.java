@@ -32,14 +32,7 @@ import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.IssueActionFactory;
-import com.elster.jupiter.issue.share.IssueCreationValidator;
-import com.elster.jupiter.issue.share.IssueDeviceFilter;
-import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -174,6 +167,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TimeService timeService;
     private volatile Clock clock;
+    private volatile IssueResourceUtility issueResourceUtility;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
     private volatile Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
@@ -200,6 +194,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
+                            IssueResourceUtility issueResourceUtility,
                             UpgradeService upgradeService, MeteringGroupsService meteringGroupsService, Clock clock, TimeService timeService, EventService eventService, BundleContext bundleContext) {
         setOrmService(ormService);
         setQueryService(queryService);
@@ -219,6 +214,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
         setTimeService(timeService);
+        setIssueResourceUtility(issueResourceUtility);
         activate(bundleContext);
     }
 
@@ -251,6 +247,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(TimeService.class).toInstance(timeService);
+                bind(IssueResourceUtility.class).toInstance(issueResourceUtility);
             }
         });
         setBundleContext(bundleContext);
@@ -278,6 +275,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Reference
+    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility){
+        this.issueResourceUtility = issueResourceUtility;
     }
 
     @Reference

@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -121,6 +122,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     static SecurityContext securityContext;
     @Mock
     static Clock clock;
+    @Mock
+    IssueResourceUtility issueResourceUtility;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -165,6 +168,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);
         deviceAlarmApplication.setTimeService(timeService);
         deviceAlarmApplication.setClock(clock);
+        deviceAlarmApplication.setIssueResourceUtility(issueResourceUtility);
         return deviceAlarmApplication;
     }
 
