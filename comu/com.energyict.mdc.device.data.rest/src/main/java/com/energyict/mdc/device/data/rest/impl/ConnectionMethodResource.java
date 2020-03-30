@@ -5,13 +5,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.common.tasks.ConnectionTask;
@@ -23,6 +26,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -72,8 +77,9 @@ public class ConnectionMethodResource {
         this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnectionMethods(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -85,12 +91,14 @@ public class ConnectionMethodResource {
         return Response.ok(PagedInfoList.fromPagedList("connectionMethods", connectionMethodInfos, queryParameters)).build();
     }
 
-    @POST @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response createConnectionMethod(@PathParam("name") String name, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
+        validateTask(connectionMethodInfo, partialConnectionTask);
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
@@ -100,28 +108,66 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
+    private void validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+        if (connectionMethodInfo.status == ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE && !hasAllRequiredProps(connectionMethodInfo, task)) {
+            if (isOutboundTLS(task.getPluggableClass())) {
+                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
+            } else {
+                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+            }
+        }
+    }
+
     private void pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
-                    if (isOutboundTLS(task)) {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED_TLS);
+                    if (isOutboundTLS(task.getPluggableClass())) {
+                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
                     } else {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED);
+                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
                     }
-                } else if(!task.isActive()){
+                } else if (!task.isActive()) {
                     task.activate();
-            }
+                }
                 break;
             case INACTIVE:
                 if (task.isActive()) {
                     task.deactivate();
                 }
                 break;
+            case INCOMPLETE:
+                task.invalidateStatus();
+                break;
         }
-    };
+    }
 
-    private boolean hasAllRequiredProps(ConnectionTask<?,?> task) {
+    private boolean hasAllRequiredProps(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+        //if the connection is inbound don't check the props: host name and portPool
+        if (PartialInboundConnectionTask.class.isAssignableFrom(task.getClass())) {
+            return true;
+        }
+        List<PropertyInfo> props = connectionMethodInfo.properties;
+
+        //for Outbound TLS only
+        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.name.equals("ServerTLSCertificate")).noneMatch(this::hasValue)) {
+            return false;
+        }
+        // TCP/IP
+        if (isOutBoundTcpIp(task.getPluggableClass())) {
+            return !StringUtils.isEmpty(connectionMethodInfo.comPortPool) &&
+                    props.stream().anyMatch(prop -> prop.name.equals("host") && hasValue(prop))
+                    && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && hasValue(prop));
+        }
+        //Serial Optical
+        return !StringUtils.isEmpty(connectionMethodInfo.comPortPool);
+    }
+
+    private boolean hasValue(PropertyInfo prop) {
+        return prop.propertyValueInfo != null && prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value);
+    }
+
+    private boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
         //if the connection is inbound don't check the props: host name and portPool
         if (InboundConnectionTask.class.isAssignableFrom(task.getClass())) {
             return true;
@@ -129,35 +175,36 @@ public class ConnectionMethodResource {
         List<ConnectionTaskProperty> props = task.getProperties();
 
         //for Outbound TLS only
-        if(isOutboundTLS(task) && !getConnnectionTaskProperty(props, "ServerTLSCertificate").isPresent()) {
+        if (isOutboundTLS(task.getPluggableClass()) && !getConnnectionTaskProperty(props, "ServerTLSCertificate").isPresent()) {
             return false;
         }
 
         // TCP/IP
-        if(isOutBoundTcpIp(task)){
-            return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+        if (isOutBoundTcpIp(task.getPluggableClass())) {
+            return Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent();
         }
 
         //Serial Optical
-        return (Objects.nonNull(task.getComPortPool()));
+        return Objects.nonNull(task.getComPortPool());
     }
 
-    private boolean isOutBoundTcpIp(ConnectionTask<?,?> task) {
+    private boolean isOutBoundTcpIp(PluggableClass pluggableClass) {
         //todo: use com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys.OutboundTcpIpConnectionType
-        return task.getPluggableClass().getName().equals("Outbound TCP/IP");
+        return pluggableClass.getName().equals("Outbound TCP/IP");
     }
 
-    private boolean isOutboundTLS(ConnectionTask<?,?> task) {
-        return task.getPluggableClass().getName().equals("Outbound TLS");
+    private boolean isOutboundTLS(PluggableClass pluggableClass) {
+        return pluggableClass.getName().equals("Outbound TLS");
     }
 
     private Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {
         return properties.stream().filter(prop -> prop.getName().equals(name)).findFirst();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnectionMethod(@PathParam("name") String name, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -165,9 +212,10 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(connectionTask, uriInfo)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateConnectionMethod(@PathParam("name") String name, @PathParam("id") long connectionMethodId,
                                            @Context UriInfo uriInfo,
@@ -177,14 +225,14 @@ public class ConnectionMethodResource {
         Device device = task.getDevice();
         boolean wasConnectionTaskDefault = task.isDefault();
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, info.name);
-        if (info.protocolDialect != null && !info.protocolDialect.isEmpty()){
+        if (info.protocolDialect != null && !info.protocolDialect.isEmpty()) {
             List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = task.getDevice().getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
             Optional<ProtocolDialectConfigurationProperties> dialectConfigurationProperties = protocolDialectConfigurationPropertiesList.stream()
                     .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties
                             .getDeviceProtocolDialectName()
                             .equals(info.protocolDialect))
                     .findFirst();
-            if (!dialectConfigurationProperties.isPresent()){
+            if (!dialectConfigurationProperties.isPresent()) {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PROTOCOL_PROPERTIES, info.protocolDialect);
             }
             connectionTaskService.updateProtocolDialectConfigurationProperties(task, dialectConfigurationProperties.get());
@@ -211,10 +259,11 @@ public class ConnectionMethodResource {
     }
 
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response deleteConnectionMethod(@PathParam("name") String name, @PathParam("id") long connectionMethodId, ConnectionMethodInfo<ConnectionTask<?, ?>> info) {
         ConnectionTask connectionTask = resourceHelper.lockConnectionTaskOrThrowException(info);
         connectionTask.getDevice().removeConnectionTask(connectionTask);
