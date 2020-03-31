@@ -23,10 +23,12 @@ import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 public class ComTaskExecFetcher implements Runnable, ServerProcess {
     private static final Logger LOGGER = Logger.getLogger(ComTaskExecFetcher.class.getName());
+    private static final Predicate<List> NOT_EMPTY_LIST = list -> list != null && !list.isEmpty();
     private final Map<Long, ScheduledComPort> scheduledComPorts;
     private final Map<Long, List<? extends ComPort>> comPortsComPortPoolBelongsTo;
     private final ThreadFactory threadFactory;
