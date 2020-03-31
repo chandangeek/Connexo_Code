@@ -346,7 +346,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
                 Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
                 if (comTaskExecutionOptional.isPresent()) {
-                    if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+                    if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
                         if (!comTaskExecutionOptional.get().getComSchedule().isPresent()) {
                             syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null, device.getName()));
                         }
@@ -406,7 +406,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
                 }
         );
-        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+        if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
             filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
         }
         if (!noComTaskExecutionLoadProfileList.isEmpty()) {
@@ -429,7 +429,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
                 }
         );
-        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+        if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
             filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
         }
         if (!noComTaskExecutionRegisterGroupList.isEmpty()) {
@@ -460,7 +460,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
             }
         }
-        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+        if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
             filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
         }
         if (!noComTaskExecutionReadingTypeList.isEmpty()) {

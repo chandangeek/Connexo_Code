@@ -97,6 +97,7 @@ public interface SecurityManagementService {
      */
     Finder<KeyType> findAllKeyTypes();
 
+    List<KeyPurpose> getAllKeyPurposes();
     /**
      * Creates a new KeyType describing a symmetric key.
      * Required parameters are algorithm and depending on the algorithm: key size
@@ -178,6 +179,15 @@ public interface SecurityManagementService {
      */
 //    List<PropertySpec> getGenerationPropertySpecs(KeyAccessorType keyAccessorType);
 
+    /**
+     * Get an existing KeyPurpose by key.
+     *
+     * @param key The KeyPurpose key.
+     * @return The {@link KeyPurpose}.
+     */
+    KeyPurpose getKeyPurpose(String key);
+
+    /**
     /**
      * Get an existing KeyType by name.
      * Returns Optional.empty() if not found

@@ -7,14 +7,17 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.FrameCounterCache;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -27,6 +30,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -359,93 +363,120 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
         }
 
         return results;
-    }
+    }*/
 
-    *//**
+    /**
      * Writing of the global keys (AK and EK) must be combined.
-     * Returns the results {@link CollectedMessage}s for the messages.
-     *//*
-    public List<CollectedMessage> changeGlobalKeysUsingServiceKeys(List<OfflineDeviceMessage> globalKeyMessages) {
+     * To be used in conjunction with the Service Key Injection process.
+     * @param globalKeyMessages the list of {@link OfflineDeviceMessage} to be processed
+     * @param needHLS           flag indicating if the HLS secret is expected
+     * @return Returns the results {@link CollectedMessage}s for the messages.
+     */
+    public List<CollectedMessage> changeGlobalKeysUsingServiceKeys(List<OfflineDeviceMessage> globalKeyMessages, boolean needHLS) {
 
         List<CollectedMessage> results = new ArrayList<>();
 
-        //Create a {@link CollectedMessage} for every message
+        // Create a {@link CollectedMessage} for every message
         for (OfflineDeviceMessage globalKeyMessage : globalKeyMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(globalKeyMessage);
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);  // Optimistic
             results.add(collectedMessage);
         }
 
-        //Set the message(s) to failed if it's not an AK and EK message
-        if (globalKeyMessages.size() != 2 || !containsAKAndEKMessage(globalKeyMessages)) {
-            for (int i = 0; i < globalKeyMessages.size(); i++) {
-                OfflineDeviceMessage globalKeyMessage = globalKeyMessages.get(i);
-                CollectedMessage collectedMessage = results.get(i);
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                String msg = "Service keys can only be injected if it's exactly 1 AK and 1 EK, in the same communication session";
-                collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(globalKeyMessage, msg));
-                collectedMessage.setDeviceProtocolInformation(msg);
+        if (needHLS) {
+            // Set the messages to failed if it's not an AK, EK and HLS message
+            if (globalKeyMessages.size() != 3 || !containsAKAndEKMessage(globalKeyMessages) && !containsHLSMessage(globalKeyMessages)) {
+                for (int i = 0; i < globalKeyMessages.size(); i++) {
+                    OfflineDeviceMessage globalKeyMessage = globalKeyMessages.get(i);
+                    CollectedMessage collectedMessage = results.get(i);
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    String msg = "Service keys can only be injected if it's exactly 1 AK, 1 EK and 1 HLS, in the same communication session";
+                    collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(globalKeyMessage, msg));
+                    collectedMessage.setDeviceProtocolInformation(msg);
+                }
+                return results;
             }
-            return results;
+        } else {
+            // Set the messages to failed if it's not an AK and EK message
+            if (globalKeyMessages.size() != 2 || !containsAKAndEKMessage(globalKeyMessages)) {
+                for (int i = 0; i < globalKeyMessages.size(); i++) {
+                    OfflineDeviceMessage globalKeyMessage = globalKeyMessages.get(i);
+                    CollectedMessage collectedMessage = results.get(i);
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    String msg = "Service keys can only be injected if it's exactly 1 AK and 1 EK, in the same communication session";
+                    collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(globalKeyMessage, msg));
+                    collectedMessage.setDeviceProtocolInformation(msg);
+                }
+                return results;
+            }
         }
 
-        //If the messages are OK, write the new AK and EK in a single request
+        // If the messages are OK, write the new AK and EK in a single request
         try {
+            // Change the HLS before AK and EK
+            if (needHLS) {
+                final Optional<OfflineDeviceMessage> hlsMessage = globalKeyMessages.stream().filter(
+                        m -> m.getSpecification() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS).findFirst();
+
+                if (hlsMessage.isPresent()) {
+                    getProtocol().journal("Writing service HLS secret");
+                    byte[] wrappedServiceKey = getWrappedServiceKey(getDeviceMessageAttributeValue(hlsMessage.get(), DeviceMessageConstants.newPasswordAttributeName));
+                    getProtocol().getDlmsSession().getCosemObjectFactory().getAssociationLN().changeHLSSecret(wrappedServiceKey);
+                }
+            }
+
             Array globalKeyArray = new Array();
             byte[] newAK = null;
             byte[] newEK = null;
+            byte[] newKey = null;
 
-            for (int i = 0; i < globalKeyMessages.size(); i++) {
-                OfflineDeviceMessage globalKeyMessage = globalKeyMessages.get(i);
-                ServiceKeyResponse wrappedServiceKey = getWrappedServiceKey(globalKeyMessage);
-
-                String warning = wrappedServiceKey.getWarning();
-                if (warning != null) {
-                    results.get(i).setDeviceProtocolInformation("Warning from the HSM because of time difference between prepare and inject: " + warning);
-                }
-
+            for (OfflineDeviceMessage globalKeyMessage : globalKeyMessages) {
                 Integer keyType = null;
-                if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY) {
-                    keyType = 2;        //global authentication key
-                    String newAKString = getDeviceMessageAttributeValue(globalKeyMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName);
-                    newAK = ProtocolTools.getBytesFromHexString(newAKString, "");
+                if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS) {
+                    keyType = 2;        // global authentication key
+                    String newAKString = getDeviceMessageAttributeValue(globalKeyMessage, newAuthenticationKeyAttributeName);
+                    newAK = getWrappedServiceKey(newAKString);
                     if (newAK.length != 16) {
                         throw new ProtocolException("The new authentication key should be 32 hex characters");
                     }
-                } else if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY) {
-                    keyType = 0;        //global unicast encryption key
-                    String newEKString = getDeviceMessageAttributeValue(globalKeyMessage, DeviceMessageConstants.newEncryptionKeyAttributeName);
-                    newEK = ProtocolTools.getBytesFromHexString(newEKString, "");
+                    newKey = newAK;
+                } else if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS) {
+                    keyType = 0;        // global unicast encryption key
+                    String newEKString = getDeviceMessageAttributeValue(globalKeyMessage, newEncryptionKeyAttributeName);
+                    newEK = getWrappedServiceKey(newEKString);
                     if (newEK.length != 16) {
                         throw new ProtocolException("The new encryption key should be 32 hex characters");
                     }
+                    newKey = newEK;
                 }
 
                 if (keyType != null) {
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(keyType));
-                    keyData.addDataType(OctetString.fromByteArray(wrappedServiceKey.getServiceKey()));
+                    keyData.addDataType(OctetString.fromByteArray( newKey ));
                     globalKeyArray.addDataType(keyData);
                 }
             }
 
-            //Now send both the AK and EK to the meter
+            // Now send both the AK and EK to the meter
+            getProtocol().journal("Writing service authentication and encryption key");
             SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
             ss.transferGlobalKey(globalKeyArray);
 
-            if (newAK != null) {
-                //Update the key in the security provider, it is used instantly
+            // TODO updating the key in the security provider does not make sense because we have a crypto session which does not work with plain keys
+            /*if (newAK != null) {
+                // Update the key in the security provider, it is used instantly
                 getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newAK);
-            }
+            }*/
             if (newEK != null) {
-                //Update the key in the security provider, it is used instantly
-                getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newEK);
+                // Update the key in the security provider, it is used instantly
+                //getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newEK);
 
-                //Also reset the FC
+                // Also reset the FC
                 resetFC();
             }
         } catch (IOException e) {
-            //In case of troubles, set all global key messages to failed
+            // In case of troubles, set all global key messages to failed
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                 for (int i = 0; i < results.size(); i++) {
                     CollectedMessage collectedMessage = results.get(i);
@@ -455,7 +486,7 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
                 }
             }   //Else: throw communication exception
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            //In case of troubles, set all global key messages to failed
+            // In case of troubles, set all global key messages to failed
             for (int i = 0; i < results.size(); i++) {
                 CollectedMessage collectedMessage = results.get(i);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -467,7 +498,21 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
         return results;
     }
 
-    public ServiceKeyResponse getWrappedServiceKey(OfflineDeviceMessage pendingMessage) throws ProtocolException {
+    /**
+     * Extracts the smartMeterKey from the String formatted HSM key
+     * @param hsmKeyAttribute String formatted HSM key
+     * @return smartMeterKey bytes
+     */
+    private byte[] getWrappedServiceKey(String hsmKeyAttribute) {
+        String[] hsmKeyAndLabelAndSmartMeterKey = hsmKeyAttribute.split(SEPARATOR);
+        if (hsmKeyAndLabelAndSmartMeterKey.length != 2) {
+            throw DeviceConfigurationException.unexpectedHsmKeyFormat();
+        }
+        String newWrappedKey = hsmKeyAndLabelAndSmartMeterKey[1];
+        return ProtocolTools.getBytesFromHexString(newWrappedKey, "");
+    }
+
+    /*public ServiceKeyResponse getWrappedServiceKey(OfflineDeviceMessage pendingMessage) throws ProtocolException {
         byte[] preparedData = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, preparedDataAttributeName), "");
         byte[] signature = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, signatureAttributeName), "");
         String verifyKey = getDeviceMessageAttributeValue(pendingMessage, verificationKeyAttributeName);
@@ -488,6 +533,7 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
         return serviceKeyResponse;
     }
 */
+
     /**
      * Return true if the provided list of global key messages contains a message to change the AK, and a message to change the EK.
      */
@@ -501,16 +547,31 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
         return containsAKMessage && containsEKMessage;
     }
 
+    private boolean containsHLSMessage(List<OfflineDeviceMessage> globalKeyMessages) {
+        for (OfflineDeviceMessage globalKeyMessage : globalKeyMessages) {
+            if (isHLSMessage(globalKeyMessage)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean isEKMessage(OfflineDeviceMessage globalKeyMessage) {
         return globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY ||
                 globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT;
+                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT ||
+                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS;
     }
 
     private boolean isAKMessage(OfflineDeviceMessage globalKeyMessage) {
         return globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY ||
                 globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT;
+                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT ||
+                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS;
+    }
+
+    private boolean isHLSMessage(OfflineDeviceMessage globalKeyMessage) {
+        return globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS;
     }
 
     @Override
