@@ -891,7 +891,7 @@ sub activate_sso {
                 print $FH "   RedirectMatch /rest(.*)\$ https://\${HOSTNAME}/rest\$1 [P]\n";
                 print $FH "   RedirectMatch /flow(.*)\$ https://\${HOSTNAME}/flow\$1/\n";
                 print $FH "   RedirectMatch /facts(.*)\$ https://\${HOSTNAME}/facts\$1/\n";
-                print $FH "   RedirectMatch /apps(.+)\$ https://\${HOSTNAME}/apps\$1\n"";
+                print $FH "   RedirectMatch /apps(.+)\$ https://\${HOSTNAME}/apps\$1\n";
                 print $FH "\n";
                 print $FH "   ProxyPassReverse / http://\${HOSTNAME}:80/\n";
                 print $FH "   ProxyPassReverse / http://\${HOSTNAME}:443/\n";
@@ -899,7 +899,7 @@ sub activate_sso {
                 print $FH "\n";
                 print $FH "</VirtualHost>\n";
                 print $FH "\n\n";
-                print $FH "<VirtualHost ${HOSTNAME}:443>\n";
+                print $FH "<VirtualHost \${HOSTNAME}:443>\n";
                 print $FH "   ServerName \${HOSTNAME}\n";
                 print $FH "\n";
                 print $FH "   SSLEngine on\n";
@@ -947,7 +947,7 @@ sub activate_sso {
                 print $FH "   RewriteRule ^/facts(.+)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts\$1 [P]\n";
                 print $FH "\n";
                 print $FH "# Redirect index to login page\n";
-                print $FH "   RewriteRule ^$ /apps/login/index.html [L]\n";
+                print $FH "   RewriteRule ^\$ /apps/login/index.html [L]\n";
                 print $FH "</VirtualHost>\n";
                 close $FH;
             }
