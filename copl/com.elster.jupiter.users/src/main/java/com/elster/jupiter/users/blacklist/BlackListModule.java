@@ -1,11 +1,10 @@
-package com.elster.jupiter.http.whiteboard;
+package com.elster.jupiter.users.blacklist;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.elster.jupiter.users.blacklist.impl.BlackListTokenServiceImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

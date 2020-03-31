@@ -18,7 +18,6 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
-import com.elster.jupiter.users.blacklist.impl.BlackListTokenServiceImpl;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
