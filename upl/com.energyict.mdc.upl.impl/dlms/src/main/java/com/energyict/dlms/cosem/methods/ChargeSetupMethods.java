@@ -10,9 +10,8 @@ import com.energyict.dlms.cosem.DLMSClassId;
  */
 public enum ChargeSetupMethods implements DLMSClassMethods {
 
-    UPDATE_UNIT_CHARGE(1, 0x01),
-
-    ACTIVATE_PASSIVE_UNIT_CHARGE(2, 0x02);
+    UPDATE_UNIT_CHARGE(1, 0x00),
+    ACTIVATE_PASSIVE_UNIT_CHARGE(2, 0x08);
 
 
     /** The method number. */

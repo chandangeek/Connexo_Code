@@ -10,9 +10,8 @@ import com.energyict.dlms.cosem.DLMSClassId;
  */
 public enum CreditSetupMethods implements DLMSClassMethods {
 
-    UPDATE_AMOUNT(1, 0x01),
-
-    SET_AMOUNT_TO_VALUE(2, 0x02);
+    UPDATE_AMOUNT(1, 0x00),
+    SET_AMOUNT_TO_VALUE(2, 0x08);
 
 
     /** The method number. */

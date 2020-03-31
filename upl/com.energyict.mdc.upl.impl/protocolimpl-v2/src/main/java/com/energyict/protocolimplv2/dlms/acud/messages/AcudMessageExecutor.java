@@ -102,9 +102,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private ObisCode getCreditTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeTypeAttributeName);
-        int chargeNo = CreditDeviceMessage.CreditType.entryForDescription(description).getId();
-        switch (chargeNo) {
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditTypeAttributeName);
+        int creditNo = CreditDeviceMessage.CreditType.entryForDescription(description).getId();
+        switch (creditNo) {
             case 1:
                 return EMERGENCY_CREDIT;
             default:
@@ -129,7 +129,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         ObisCode chargeObisCode = getCreditTypeObiscode(pendingMessage);
         CreditSetup chargeSetup = getCosemObjectFactory().getCreditSetup(chargeObisCode);
         Integer creditAmount = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditAmount));
-        chargeSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Unsigned16(creditAmount));
+        chargeSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Integer32(creditAmount));
     }
 
     private void activatePassiveUnitCharge(OfflineDeviceMessage pendingMessage) throws IOException {
