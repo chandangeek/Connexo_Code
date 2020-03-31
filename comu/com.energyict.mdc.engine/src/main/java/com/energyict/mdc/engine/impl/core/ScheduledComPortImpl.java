@@ -31,7 +31,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -301,11 +300,12 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
     }
 
-    private List<ComTaskExecution> getFetchedTasks() {
-        int nrOfTaskToProcess = getComPort().getNumberOfSimultaneousConnections();
-        List<ComTaskExecution> tasks = new ArrayList<>(nrOfTaskToProcess);
+    private List<ComJob> getJobsForFetchedTasks() {
+        ComJobFactory comJobFactory = getComJobFactoryFor(getComPort());
         fetchedProcessed.clear();
-        for (int i = 0; i < nrOfTaskToProcess; i++) {
+        boolean consumed = false;
+        LOGGER.info("Prefetch: fetchedNotProcessed:" + fetchedNotProcessed);
+        do {
             ComTaskExecution comTaskExecution = excutableOutBoundComTaskPool.peek();
             if (comTaskExecution == null) {
                 break;
@@ -314,25 +314,25 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             if (Optional.of(comTaskExecution).map(ComTaskExecution::getNextExecutionTimestamp)
                     .map(Instant::toEpochMilli)
                     .filter(timestamp -> timestamp <= Instant.now().toEpochMilli()).isPresent()) {
-                tasks.add(excutableOutBoundComTaskPool.poll());
-                fetchedProcessed.add(tasks.get(tasks.size() - 1).getId());
+                consumed = comJobFactory.consume(comTaskExecution);
+                if (consumed) {
+                    excutableOutBoundComTaskPool.poll();
+                    fetchedProcessed.add(comTaskExecution.getId());
+                }
             }
-        }
-        return tasks;
+        } while (consumed);
+        LOGGER.info("Prefetch: fetchedProcessed:" + fetchedProcessed);
+        return comJobFactory.getJobs();
     }
 
     private List<ComJob> getJobsToSchedule() {
-        int nrOfTaskToProcess = getComPort().getNumberOfSimultaneousConnections();
-        List<ComTaskExecution> tasks = getFetchedTasks();
-        List<ComJob> jobs;
-        if (tasks.size() > 0) {
-            LOGGER.info("Prefetch: Fetch data from pool counted as:" + tasks.size());
+        List<ComJob> jobs = getJobsForFetchedTasks();
+        if (jobs.size() > 0) {
+            LOGGER.info("Prefetch: Fetch data from pool. Returned jobs:" + jobs.size());
             LOGGER.info("Prefetch: " + getComPort().getName() + "- PoolSize after fetch:" + excutableOutBoundComTaskPool.size());
-            ComJobFactory comJobFactory = getComJobFactoryFor(getComPort());
-            jobs = comJobFactory.consume(tasks.iterator());
         } else {
-            LOGGER.info("Prefetch: Fetch data from DB");
             jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
+            LOGGER.info("Prefetch: Fetch data from DB. Returned jobs:" + jobs.size());
         }
         return jobs;
     }

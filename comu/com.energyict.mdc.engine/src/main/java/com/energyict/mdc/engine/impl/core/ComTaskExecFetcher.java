@@ -87,7 +87,7 @@ public class ComTaskExecFetcher implements Runnable, ServerProcess {
             continueFetching = false;
             comTaskExecutions = getComTaskExecutions(skip, limitNrOfEntriesToReturn);
             if (comTaskExecutions != null && !comTaskExecutions.isEmpty()) {
-                continueFetching = true;
+                continueFetching = limitNrOfEntriesToReturn > 0;
                 Iterator<ComTaskExecution> itr = comTaskExecutions.iterator();
                 while (itr.hasNext()) {
                     publishTask(itr.next());
