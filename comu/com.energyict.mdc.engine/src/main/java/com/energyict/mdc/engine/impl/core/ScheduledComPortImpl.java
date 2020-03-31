@@ -36,7 +36,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -76,6 +78,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
     private BlockingQueue<ComTaskExecution> excutableOutBoundComTaskPool = new LinkedBlockingQueue();
+    private Set<Long> fetchedNotProcessed = ConcurrentHashMap.newKeySet();
+    private Set<Long> fetchedProcessed = ConcurrentHashMap.newKeySet();
 
     ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(runningComServer, comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
@@ -283,7 +287,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     @Override
     public void addTaskToExecute(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution != null) {
+        if (comTaskExecution != null && fetchedNotProcessed.add(comTaskExecution.getId())) {
             excutableOutBoundComTaskPool.offer(comTaskExecution);
         }
     }
@@ -297,12 +301,29 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
     }
 
-    private List<ComJob> getJobsToSchedule() {
+    private List<ComTaskExecution> getFetchedTasks() {
         int nrOfTaskToProcess = getComPort().getNumberOfSimultaneousConnections();
         List<ComTaskExecution> tasks = new ArrayList<>(nrOfTaskToProcess);
-        Optional.ofNullable(excutableOutBoundComTaskPool.peek()).map(ComTaskExecution::getNextExecutionTimestamp)
-                .map(Instant::toEpochMilli).filter(timestamp -> timestamp <= Instant.now().toEpochMilli())
-                .ifPresent(t -> excutableOutBoundComTaskPool.drainTo(tasks, nrOfTaskToProcess));
+        fetchedProcessed.clear();
+        for (int i = 0; i < nrOfTaskToProcess; i++) {
+            ComTaskExecution comTaskExecution = excutableOutBoundComTaskPool.peek();
+            if (comTaskExecution == null) {
+                break;
+            }
+
+            if (Optional.of(comTaskExecution).map(ComTaskExecution::getNextExecutionTimestamp)
+                    .map(Instant::toEpochMilli)
+                    .filter(timestamp -> timestamp <= Instant.now().toEpochMilli()).isPresent()) {
+                tasks.add(excutableOutBoundComTaskPool.poll());
+                fetchedProcessed.add(tasks.get(tasks.size() - 1).getId());
+            }
+        }
+        return tasks;
+    }
+
+    private List<ComJob> getJobsToSchedule() {
+        int nrOfTaskToProcess = getComPort().getNumberOfSimultaneousConnections();
+        List<ComTaskExecution> tasks = getFetchedTasks();
         List<ComJob> jobs;
         if (tasks.size() > 0) {
             LOGGER.info("Prefetch: Fetch data from pool counted as:" + tasks.size());
@@ -325,6 +346,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             List<ComJob> jobs = getJobsToSchedule();
             queriedForTasks();
             scheduleAll(jobs, start);
+            fetchedNotProcessed.removeAll(fetchedProcessed);
         } else {
             getLogger().storeTaskQueueIsFull(storeTaskQueueLoadPercentage);
             try {
