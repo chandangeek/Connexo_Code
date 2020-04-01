@@ -14,6 +14,10 @@
         <version>1.0.0-Hermes-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
+
     <artifactId>webservice.inbound.rest.scim</artifactId>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.webservice.inbound.rest.scim</name>
