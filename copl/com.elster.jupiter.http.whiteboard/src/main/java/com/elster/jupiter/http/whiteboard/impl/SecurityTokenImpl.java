@@ -5,6 +5,7 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
@@ -12,8 +13,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -28,6 +27,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -35,9 +35,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,6 +86,10 @@ public class SecurityTokenImpl {
 
     public String createToken(User user, long count, String ipAddr) {
         return createToken(user, count, ipAddr, new Date(System.currentTimeMillis() + tokenExpiration * 1000));
+    }
+
+    public String generateSessionId(){
+        return base64Encode(UUID.randomUUID().toString());
     }
 
     private String createToken(User user, long count, String ipAddr, Date tokenExpiration) {

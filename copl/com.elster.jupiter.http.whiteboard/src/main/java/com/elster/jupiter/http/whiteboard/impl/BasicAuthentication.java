@@ -7,6 +7,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
@@ -17,7 +18,6 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
 
 import com.google.common.collect.ImmutableMap;
@@ -27,7 +27,6 @@ import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -97,6 +96,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public static final String LOGIN_URL = "/apps/login/";
 
     private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
+    private final String USER_SESSIONID = "X-SESSIONID";
+
 
     private volatile UserService userService;
     private volatile DataVaultService dataVaultService;
@@ -108,6 +109,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile SamlRequestService samlRequestService;
+    private volatile CSRFFilterService csrfFilterService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -124,8 +126,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile BlackListTokenService blackListTokenService;
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
-                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, 
+					UpgradeService upgradeService, BpmService bpmService, BundleContext context,
+                        BlackListTokenService blackListTokenService, CSRFFilterService csrfFilterService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -134,6 +137,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
         setBlackListdTokenService(blackListTokenService);
+		setCSRFFilterService(csrfFilterService);
         activate(context);
     }
 
@@ -189,6 +193,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.samlRequestService = samlRequestService;
     }
 
+	@Reference
+    public void setCSRFFilterService(CSRFFilterService csrfFilterService){
+        this.csrfFilterService = csrfFilterService;
+    }
+
     @Reference
     public void setBlackListdTokenService(BlackListTokenService blackListdTokenService) {
         this.blackListTokenService = blackListdTokenService;
@@ -206,6 +215,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(BlackListTokenService.class).toInstance(blackListTokenService);
+				bind(CSRFFilterService.class).toInstance(csrfFilterService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
             }
         });
@@ -423,6 +433,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Object logoutParameter = request.getUserPrincipal();
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
             invalidateSession(request);
         }
         if (logoutParameter instanceof User) {
@@ -459,6 +470,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         cookie.setMaxAge(securityToken.getCookieMaxAge());
         cookie.setHttpOnly(true);
         return cookie;
+    }
+
+   public Cookie createSessionCookie(String sessionId, String cookiePath){
+       Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
+       sessionCookie.setPath(cookiePath);
+       sessionCookie.setMaxAge(securityToken.getCookieMaxAge());
+       sessionCookie.setHttpOnly(true);
+       csrfFilterService.createCSRFToken(sessionId);
+       return sessionCookie;
     }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
@@ -505,6 +525,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
             String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
+            response.addCookie(createSessionCookie(securityToken.generateSessionId(),"/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
@@ -563,9 +584,18 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
         }
         invalidateSession(request);
         return false;
+    }
+
+    private void invalidateSessionCookie(HttpServletRequest request, HttpServletResponse response) {
+        Optional<Cookie> sessionCookie = getSessionCookie(request);
+        if(sessionCookie.isPresent()) {
+            csrfFilterService.removeUserSession(sessionCookie.get().getValue());
+            removeCookie(response, sessionCookie.get().getName());
+        }
     }
 
     private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
@@ -573,6 +603,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
         }
         invalidateSession(request);
         return false;
@@ -616,6 +647,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (request.getCookies() != null) {
             return Arrays.stream(request.getCookies())
                     .filter(cookie -> TOKEN_COOKIE_NAME.equals(cookie.getName()))
+                    .findFirst();
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Cookie> getSessionCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(cookie -> USER_SESSIONID.equals(cookie.getName()))
                     .findFirst();
         }
         return Optional.empty();
