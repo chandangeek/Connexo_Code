@@ -13,6 +13,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfoFactory;
@@ -40,6 +41,7 @@ public class UsersApplication extends Application implements MessageSeedProvider
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile CSRFService csrfService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -54,7 +56,8 @@ public class UsersApplication extends Application implements MessageSeedProvider
                 FindGroupResource.class,
                 FindUserResource.class,
                 WorkGroupResource.class,
-                UserSecuritySettingsResource.class);
+                UserSecuritySettingsResource.class,
+                CSRFContollerService.class);
     }
     
     @Reference
@@ -87,6 +90,11 @@ public class UsersApplication extends Application implements MessageSeedProvider
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setCSRFService(CSRFService csrfService){
+        this.csrfService = csrfService;
     }
 
     @Override
@@ -122,6 +130,9 @@ public class UsersApplication extends Application implements MessageSeedProvider
             bind(GroupInfoFactory.class).to(GroupInfoFactory.class);
             bind(UserInfoFactoryImpl.class).to(UserInfoFactory.class);
             bind(UserDirectoryInfoFactory.class).to(UserDirectoryInfoFactory.class);
+            bind(CSRFContollerService.class).to(CSRFContollerService.class);
+            bind(csrfService).to(CSRFService.class);
+
         }
     }
 }
