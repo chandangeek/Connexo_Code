@@ -51,6 +51,7 @@ import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConfl
 
 import java.util.List;
 
+import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -256,6 +257,7 @@ public enum TableSpecs {
                     .map(DeviceConfigurationImpl.Fields.IS_DEFAULT.fieldName())
                     .since(version(10,4, 2))
                     .add();
+            Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(DeviceConfigurationImpl.Fields.OBSOLETE_DATE.fieldName()).since(version(10, 8)).add();
             table.setJournalTableName("DTC_DEVICECONFIGJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
@@ -266,7 +268,8 @@ public enum TableSpecs {
                     .reverseMap("deviceConfigurations")
                     .composition()
                     .add();
-            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).add();
+            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).upTo(Version.version(10,8)).add();
+            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn, obsoleteDate).since(Version.version(10,8)).add();
         }
     },
 
@@ -416,6 +419,7 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
+            Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map("obsoleteDate").since(version(10, 8)).add();
             table.setJournalTableName("DTC_DIALECT_CONFIG_PROPSJRNL").since(version(10, 2));
             table.addAuditColumns();
             table
@@ -427,7 +431,8 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
-            table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).add();
+            table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).upTo(version(10, 8)).add();
+            table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn, obsoleteDate).upTo(version(10, 8)).add();
         }
     },
 

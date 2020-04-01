@@ -18,7 +18,7 @@ use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20200326";
+my $INSTALL_VERSION="v20200401";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
