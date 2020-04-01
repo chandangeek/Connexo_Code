@@ -4,6 +4,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
@@ -21,19 +22,24 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AcudRegisterFactory implements DeviceRegisterSupport {
+
+    private final static ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
+    private final static ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
+    private final static ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
+
+
     private final Acud protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-
-
-    public AcudRegisterFactory(Acud protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory){
+    public AcudRegisterFactory(Acud protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.protocol = protocol;
@@ -64,7 +70,9 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
                 final Data register = protocol.getDlmsSession().getCosemObjectFactory().getData(obisCode);
                 AbstractDataType attribute = register.getValueAttr();
-                if (attribute.isOctetString() && attribute.getOctetString() != null) {
+                if (attribute.isStructure()) {
+                    registerValue = readStructure(obisCode, (Structure) attribute);
+                } else if (attribute.isOctetString() && attribute.getOctetString() != null) {
                     registerValue = new RegisterValue(obisCode, attribute.getOctetString().stringValue());
                 } else if (attribute.isBitString() && attribute.getBitString() != null) {
                     registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit
@@ -97,13 +105,38 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             }
             return createCollectedRegister(registerValue, offlineRegister);
 
-        }catch (IOException e){
+        } catch (IOException e) {
             if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
         }
+    }
+
+    private RegisterValue readStructure(ObisCode obisCode, Structure structure) throws IOException {
+        String highThreshold;
+        String lowThreshold;
+        String description = structure.toString();
+        if (obisCode.equals(MONEY_CREDIT_THRESHOLD)) {
+            highThreshold = Integer.toString(structure.getDataType(0).getUnsigned8().getValue());
+            lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned8().getValue());
+            description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingCreditHighDefaultTranslation, DeviceMessageConstants.remainingCreditLowDefaultTranslation);
+        } else if (obisCode.equals(CONSUMPTION_CREDIT_THRESHOLD)) {
+            highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
+            lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
+            description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.consumedCreditHighDefaultTranslation, DeviceMessageConstants.consumedCreditLowDefaultTranslation);
+        } else if (obisCode.equals(TIME_CREDIT_THRESHOLD)) {
+            highThreshold = Long.toString(structure.getDataType(0).getUnsigned32().getValue());
+            lowThreshold = Long.toString(structure.getDataType(1).getUnsigned32().getValue());
+            description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingTimeHighDefaultTranslation, DeviceMessageConstants.remainingTimeLowDefaultTranslation);
+        } else
+            throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
+        return new RegisterValue(obisCode, description);
+    }
+
+    private String formatDescr(String highThreshold, String lowThreshold, String highDefaultTranslation, String lowDefaultTranslation) {
+        return highDefaultTranslation + "=" + highThreshold + ",\n" + lowDefaultTranslation + "=" + lowThreshold + ".";
     }
 
     @SuppressWarnings("unchecked")

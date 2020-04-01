@@ -1864,19 +1864,19 @@ public final class DeviceMessageConstants {
 
     public static final String creditAmount = "creditAmount";
     public static final String creditAmountDefaultTranslation = "Credit Amount";
-    public static final String remainingCreditFirst = "remainingCreditFirst";
-    public static final String remainingCreditFirstDefaultTranslation = "Remaining Credit First Threshold";
-    public static final String consumedCreditFirst = "consumedCreditFirst";
-    public static final String consumedCreditFirstDefaultTranslation = "Consumed Credit First Threshold";
-    public static final String remainingTimeFirst = "remainingTimeFirst";
-    public static final String remainingTimeFirstDefaultTranslation = "Remaining Time First Threshold (hours)";
+    public static final String remainingCreditHigh = "remainingCreditHigh";
+    public static final String remainingCreditHighDefaultTranslation = "Remaining Credit High Threshold";
+    public static final String consumedCreditHigh = "consumedCreditHigh";
+    public static final String consumedCreditHighDefaultTranslation = "Consumed Credit High Threshold";
+    public static final String remainingTimeHigh = "remainingTimeHigh";
+    public static final String remainingTimeHighDefaultTranslation = "Remaining Time High Threshold (hours)";
 
-    public static final String remainingCreditSecond = "remainingCreditSecond";
-    public static final String remainingCreditSecondDefaultTranslation = "Remaining Credit Second Threshold";
-    public static final String consumedCreditSecond = "consumedCreditSecond";
-    public static final String consumedCreditSecondDefaultTranslation = "Consumed Credit Second Threshold";
-    public static final String remainingTimeSecond = "remainingTimeSecond";
-    public static final String remainingTimeSecondDefaultTranslation = "Remaining Time Second Threshold (hours)";
+    public static final String remainingCreditLow = "remainingCreditLow";
+    public static final String remainingCreditLowDefaultTranslation = "Remaining Credit Low Threshold";
+    public static final String consumedCreditLow = "consumedCreditLow";
+    public static final String consumedCreditLowDefaultTranslation = "Consumed Credit Low Threshold";
+    public static final String remainingTimeLow = "remainingTimeLow";
+    public static final String remainingTimeLowDefaultTranslation = "Remaining Time Low Threshold (hours)";
 
     public static final String passiveImmediateActivation = "passiveImmediateActivation";
     public static final String passiveImmediateActivationDefaultTranslation = "Immediate Activation";
