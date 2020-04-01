@@ -1,9 +1,11 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard.impl.saml.sso;
 
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.http.whiteboard.MessageSeeds;
+import com.elster.jupiter.http.whiteboard.SamlResponseService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -31,9 +33,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("security")
-public class AcsResource {
+public class AssertionConsumerServiceResource {
 
-    private static final Logger LOGGER = Logger.getLogger(AcsResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AssertionConsumerServiceResource.class.getName());
 
     @Inject
     private HttpAuthenticationService authenticationService;
@@ -49,6 +51,7 @@ public class AcsResource {
 
     @POST
     @Path("acs")
+    @Transactional
     public void handleSAMLResponse(@Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) throws IOException, ServletException {
 
         String token = null;

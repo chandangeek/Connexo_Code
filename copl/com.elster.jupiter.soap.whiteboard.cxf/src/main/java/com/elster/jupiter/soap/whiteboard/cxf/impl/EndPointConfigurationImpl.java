@@ -120,6 +120,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         ACTIVE("active"),
         USERNAME("username"),
         PASSWD("password"),
+        CLIENT_ID("clientId"),
+        CLIENT_SECRET("clientSecret"),
         GROUP("group");
 
         private final String javaFieldName;

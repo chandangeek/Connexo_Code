@@ -9,22 +9,36 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
+import com.elster.jupiter.http.whiteboard.TokenValidation;
+import com.elster.jupiter.http.whiteboard.UserJWT;
+import com.elster.jupiter.http.whiteboard.impl.token.DatabaseBasedTokenService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -37,6 +51,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.MessageInterpolator;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -46,9 +61,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -72,7 +91,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             "/apps/sky/",
             "/apps/uni/",
             "/apps/ext/",
-            "/api/apps/security/acs"
+            "/api/apps/security/acs",
+            "/api/apps/saml/v2/logout"
     };
 
     // No caching for index.html files, so that authentication will be verified first;
@@ -109,6 +129,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile SamlRequestService samlRequestService;
+    private volatile TokenService<UserJWT> tokenService;
+    private volatile BlackListTokenService blackListTokenService;
+    private volatile Thesaurus thesaurus;
     private volatile CSRFFilterService csrfFilterService;
 
     private int timeout;
@@ -123,12 +146,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> acsEndpoint;
     private Optional<String> x509Certificate;
     private Optional<String> ssoAdminUser;
-    private volatile BlackListTokenService blackListTokenService;
+
+    private static final SAMLUtilities samlUtilities = SAMLUtilities.getInstance();
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, 
-					UpgradeService upgradeService, BpmService bpmService, BundleContext context,
-                        BlackListTokenService blackListTokenService, CSRFFilterService csrfFilterService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
+                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService, TokenService tokenService, CSRFFilterService csrfFilterService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -137,6 +160,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
         setBlackListdTokenService(blackListTokenService);
+        setTokenService(tokenService);
 		setCSRFFilterService(csrfFilterService);
         activate(context);
     }
@@ -153,9 +177,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(WhiteBoardImpl.COMPONENTNAME, "HTTP Whiteboard");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
+        TableSpecs.HTW_KEYSTORE.addTo(dataModel);
     }
 
     @Reference
@@ -203,6 +225,16 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.blackListTokenService = blackListdTokenService;
     }
 
+    @Reference
+    public void setTokenService(TokenService<UserJWT> tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.SERVICE);
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -217,6 +249,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(BlackListTokenService.class).toInstance(blackListTokenService);
 				bind(CSRFFilterService.class).toInstance(csrfFilterService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
+                bind(TokenService.class).toInstance(tokenService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
         timeout = getIntParameter(TIMEOUT, context, 300);
@@ -246,13 +281,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Thread thread = Thread.currentThread();
         ClassLoader loader = thread.getContextClassLoader();
         thread.setContextClassLoader(InitializationService.class.getClassLoader());
-        try {
-            SamlUtils.initializeOpenSAML();
-        } catch (InitializationException e) {
-            throw new RuntimeException(e);
-        } finally {
-            thread.setContextClassLoader(loader);
-        }
+        Optional<KeyStoreImpl> keyStore = getKeyPair();
+        keyStore.ifPresent(store -> tokenService.initialize(dataVaultService.decrypt(store.getPublicKey()), dataVaultService.decrypt(store.getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeout));
     }
 
     public void createNewTokenKey(String... args) {
@@ -297,9 +327,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (keyStore.isPresent()) {
 
             try {
-                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()),
-                        dataVaultService.decrypt(keyStore.get().getPrivateKey()),
-                        tokenExpTime, tokenRefreshMaxCount, timeout);
+                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()), dataVaultService.decrypt(keyStore.get().getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeout);
                 securityToken.setEventService(eventService);
                 securityToken.preventEventGeneration(false);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -347,11 +375,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return installDir;
     }
 
-    public Optional<String> getSsoAdminUser(){
+    public Optional<String> getSsoAdminUser() {
         return ssoAdminUser;
     }
 
-    public boolean isSsoEnabled(){
+    public boolean isSsoEnabled() {
         return ssoEnabled;
     }
 
@@ -382,7 +410,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (ssoEnabled) {
-                if(isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
+                if (isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
                 ssoAuthentication(request, response);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
@@ -472,7 +500,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return cookie;
     }
 
-   public Cookie createSessionCookie(String sessionId, String cookiePath){
+    public Cookie createSessionCookie(String sessionId, String cookiePath){
        Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
        sessionCookie.setPath(cookiePath);
        sessionCookie.setMaxAge(securityToken.getCookieMaxAge());
@@ -482,12 +510,16 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
-        SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
-                .getRemoteAddr(), blackListTokenService);
-        return handleTokenValidation(validation, tokenCookie.getValue(), request, response);
+        TokenValidation validation = null;
+        try {
+            validation = tokenService.validateSignedJWT(SignedJWT.parse(tokenCookie.getValue()));
+        } catch (JOSEException | ParseException e) {
+            e.printStackTrace();
+        }
+        return handleTokenValidation(Objects.requireNonNull(validation), tokenCookie.getValue(), request, response);
     }
 
-    private boolean handleTokenValidation(SecurityTokenImpl.TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
+    private boolean handleTokenValidation(TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
         if (validation.isValid() && isAuthenticated(validation.getUser())) {
             if (!originalToken.equals(validation.getToken())) {
                 response.addCookie(createTokenCookie(validation.getToken(), "/"));
@@ -511,19 +543,35 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
-        SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr(), blackListTokenService);
-        return handleTokenValidation(tokenValidation, token, request, response);
+//        TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
+        TokenValidation tokenValidation = null;
+        try {
+            tokenValidation = tokenService.validateSignedJWT(SignedJWT.parse(token));
+        } catch (JOSEException | ParseException e) {
+            e.printStackTrace();
+        }
+        return handleTokenValidation(Objects.requireNonNull(tokenValidation), token, request, response);
     }
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
-        if(isUserLocked(user)){
+        if (isUserLocked(user)) {
             return denyAccountLocked(request, response);
         } else if (isAuthenticated(user)) {
             User returnedUserByAuthentication = user.get();
             //required because user returned by auth has not yet lastSuccessfulLogin set.... This is a vamp. the login mechanism should be changed.
             User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
-            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
+            UserJWT userJWT = null;
+            try {
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    userJWT = tokenService.createUserJWT(usr, createCustomClaimsForUser(usr, 0));
+                    transactionContext.commit();
+                }
+            } catch (JOSEException e) {
+                e.printStackTrace();
+            }
+//            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
+            String token = Objects.requireNonNull(userJWT).getToken();
             response.addCookie(createTokenCookie(token, "/"));
             response.addCookie(createSessionCookie(securityToken.generateSessionId(),"/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
@@ -625,7 +673,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean unsecureAllowed(String uri) {
-        if(!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
+        if (!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
         return Stream.of(RESOURCES_NOT_SECURED)
                 .filter(uri::startsWith)
                 .findAny().isPresent();
@@ -677,6 +725,32 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         stringBuilder.append(URLEncoder.encode(requestUrl, "UTF-8").trim());
 
         return stringBuilder.toString();
+    }
+
+    public Map<String, Object> createCustomClaimsForUser(final User user, long count) {
+        List<Group> userGroups = user.getGroups();
+        List<RoleClaimInfo> roles = new ArrayList<>();
+        List<String> privileges = new ArrayList<>();
+        for (Group group : userGroups) {
+
+            group.getPrivileges().forEach((key, value) -> {
+                if (key.equals("BPM") || key.equals("YFN"))
+                    value.forEach(p -> privileges.add(p.getName()));
+            });
+
+            privileges.add("privilege.public.api.rest");
+            privileges.add("privilege.pulse.public.api.rest");
+            privileges.add("privilege.view.userAndRole");
+
+            roles.add(new RoleClaimInfo(group.getId(), group.getName()));
+        }
+
+        final HashMap<String, Object> result = new HashMap<>();
+        result.put("username", user.getName());
+        result.put("roles", roles);
+        result.put("privileges", privileges);
+        result.put("cnt", count);
+        return result;
     }
 
 }

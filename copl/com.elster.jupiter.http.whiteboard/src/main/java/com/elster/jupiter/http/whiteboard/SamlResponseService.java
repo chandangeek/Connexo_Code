@@ -1,4 +1,4 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard;
 
 import com.elster.jupiter.users.User;
 import com.nimbusds.jose.JOSEException;

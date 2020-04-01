@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Calendar;
