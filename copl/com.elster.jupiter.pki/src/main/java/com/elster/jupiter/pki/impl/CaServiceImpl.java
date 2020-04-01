@@ -63,6 +63,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
@@ -72,13 +73,14 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 
 @Component(name = "CaService", service = {CaService.class}, property = "name=" + CaService.COMPONENTNAME, immediate = true)
 public class CaServiceImpl implements CaService {
@@ -237,14 +239,15 @@ public class CaServiceImpl implements CaService {
             certificateResponse = ejbcaWS.certificateRequest(userData, csrEncoded, CERT_REQ_TYPE_PKCS10, null, RESPONSETYPE_CERTIFICATE);
 
             LOGGER.info("Response received, parsing as X.509 certificate");
-            InputStream byteArrayInputStream = new ByteArrayInputStream(certificateResponse.getData());
-            CertificateFactory certificateFactory = CertificateFactory.getInstance(X509);
+            InputStream byteArrayInputStream = new ByteArrayInputStream(org.bouncycastle.util.encoders.Base64.decode(certificateResponse.getData()));
+            CertificateFactory certificateFactory = CertificateFactory.getInstance(X509, PROVIDER_NAME);
             x509Cert = (X509Certificate) certificateFactory.generateCertificate(byteArrayInputStream);
 
             String certEncoded = new String(Base64.getEncoder().encode(x509Cert.getEncoded()));
             LOGGER.info("Received certificate\n" + BEGIN_CERTIFICATE + certEncoded + END_CERTIFICATE);
 
-        } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception | UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
+        } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception |
+                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException | NoSuchProviderException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
