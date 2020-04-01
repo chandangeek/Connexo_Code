@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -113,6 +114,8 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     public NlsService nlsService;
     @Mock
     public TransactionContext transactionContext;
+    @Mock
+    public HttpServletRequest httpServletRequest;
 
     public void setupMocks() {
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
@@ -126,6 +129,9 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         when(thesaurus.interpolate(any(String.class), any(MessageInterpolator.Context.class))).thenAnswer(invocation -> getTranslationByKey(((String) invocation.getArguments()[0]).substring(1, ((String) invocation.getArguments()[0]).length()-1), "xxx"));
         when(thesaurus.join(any())).thenReturn(thesaurus);
         when(transactionService.getContext()).thenReturn(transactionContext);
+        javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie("X-SESSIONID", "SessionIdForCSRFToken");
+        javax.servlet.http.Cookie cookies[] =new javax.servlet.http.Cookie[]{cookie};
+        when(httpServletRequest.getCookies()).thenReturn(cookies);
 
     }
 
@@ -193,6 +199,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
                 bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
                 bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
                 bind(transactionService).to(TransactionService.class);
+                bind(httpServletRequest).to(HttpServletRequest.class);
                 bindFactory(getConstraintViolationInfo()).to(ConstraintViolationInfo.class);
             }
         });
