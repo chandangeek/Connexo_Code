@@ -372,6 +372,8 @@ public enum EndDeviceEventTypeMapping {
     TOO_HIGH_CONSUMPTION_OR_PRODUCTION      (352, EndDeviceEventTypeFactory.getHighConsumptionOrProductionEnergy()),
     INDEX_VALUE_DECREASE_OR_RESET           (353, EndDeviceEventTypeFactory.getIndexValuesDecreaseOrReset()),
     MISMATCH_BETWEEN_TOTAL_AND_TARIFF_REGISTERS(354, EndDeviceEventTypeFactory.getMismatchBetweenTotalAndTariffRegisters()),
+    SEND_FRAME_COUNTER_ABOVE_THRESHOLD(359, EndDeviceEventTypeFactory.getSendFrameCounterAboveThreshold()),
+    RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD(360, EndDeviceEventTypeFactory.getReceiveFrameCounterAboveThreshold()),
 
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),
