@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 
@@ -27,16 +28,22 @@ public class UpgraderV10_8 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        boolean upgradeCRLneeded = dataModel.doesColumnExist(TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name(), TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name());
+        boolean upgradeCRLneeded = dataModel.doesColumnExist(TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name(), "SECURITY_ACCESSOR");
         if (upgradeCRLneeded) {
             updateCRLTable();
         }
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
+        if (upgradeCRLneeded) {
+            removeAllCRL();
+        }
         addAutoIncrementPartitions();
     }
 
+    private void removeAllCRL() {
+        dataModel.mapper(CrlRequestTaskProperty.class).find().stream().map(CrlRequestTaskProperty::getRecurrentTask).forEach(RecurrentTask::delete);
+    }
+
     private void updateCRLTable() {
-        dataModel.mapper(CrlRequestTaskProperty.class).find().forEach(CrlRequestTaskProperty::delete);
         execute(dataModel, "ALTER TABLE " + TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name() + " DROP COLUMN SECURITY_ACCESSOR");
     }
 
