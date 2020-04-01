@@ -571,7 +571,7 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
     }
 
     private boolean isHLSMessage(OfflineDeviceMessage globalKeyMessage) {
-        return globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS;
+        return globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS.id();
     }
 
     @Override
