@@ -97,7 +97,6 @@ public final class ESMR50LogBookFactory extends AbstractNtaLogBookFactory<ESMR50
         return getProtocol().getPhysicalAddressCorrectedObisCode(obisCode, meterSerialNumber);
     }
 
-    //TODO: put some CIM codes here
     protected void checkFrameCounterEvents(List<MeterEvent> eventList) {
         SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
 

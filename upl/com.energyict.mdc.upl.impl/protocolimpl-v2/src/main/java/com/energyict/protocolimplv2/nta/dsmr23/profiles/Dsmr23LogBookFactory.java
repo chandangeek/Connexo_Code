@@ -105,7 +105,6 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
         }
     }
 
-    //TODO: put some CIM codes here
     protected void checkFrameCounterEvents(List<MeterEvent> eventList) {
         SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
 
