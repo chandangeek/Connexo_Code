@@ -40,7 +40,8 @@ public class UpgraderV10_8 implements Upgrader {
     }
 
     private void removeAllCRL() {
-        dataModel.mapper(CrlRequestTaskProperty.class).find().stream().peek(CrlRequestTaskProperty::delete).map(CrlRequestTaskProperty::getRecurrentTask).forEach(RecurrentTask::delete);
+        dataModel.stream(CrlRequestTaskProperty.class).join(RecurrentTask.class)
+                .peek(CrlRequestTaskProperty::delete).map(CrlRequestTaskProperty::getRecurrentTask).forEach(RecurrentTask::delete);
     }
 
     private void updateCRLTable() {
