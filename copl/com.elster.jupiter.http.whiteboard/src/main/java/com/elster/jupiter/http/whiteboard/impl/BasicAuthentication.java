@@ -500,7 +500,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return cookie;
     }
 
-   public Cookie createSessionCookie(String sessionId, String cookiePath){
+    public Cookie createSessionCookie(String sessionId, String cookiePath){
        Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
        sessionCookie.setPath(cookiePath);
        sessionCookie.setMaxAge(securityToken.getCookieMaxAge());

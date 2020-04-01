@@ -31,6 +31,4 @@ public interface HttpAuthenticationService {
     String getSsoX509Certificate();
 
     Cookie createTokenCookie(String cookieValue, String cookiePath);
-
-    LogoutResponse singleLogout(NameID nameID);
 }
