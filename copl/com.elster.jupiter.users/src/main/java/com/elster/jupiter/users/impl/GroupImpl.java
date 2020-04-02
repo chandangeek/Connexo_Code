@@ -20,7 +20,6 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserService;
-
 import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.google.common.collect.ImmutableList;
 
@@ -39,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.UUID_LENGHT;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -47,26 +47,35 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
         message = "{" + MessageSeeds.Keys.DUPLICATE_GROUP_NAME + "}")
 final class GroupImpl implements Group {
 
-	//persistent fields
+    //persistent fields
     @SuppressWarnings("unused")
     private long id;
+
+    @Size(max = UUID_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
+    private String externalId;
+
     @Size(max = NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String name;
+
     @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
+
     @SuppressWarnings("unused")
-	private long version;
+    private long version;
+
     @SuppressWarnings("unused")
-	private Instant createTime;
+    private Instant createTime;
+
     @SuppressWarnings("unused")
-	private Instant modTime;
+    private Instant modTime;
+
     @SuppressWarnings("unused")
-	private String userName;
+    private String userName;
 
     //transient fields
     @SuppressWarnings("unused") // Injected by ORM framework
-	private List<PrivilegeInGroup> privilegeInGroups = new ArrayList<>();
+    private List<PrivilegeInGroup> privilegeInGroups = new ArrayList<>();
     private final QueryService queryService;
     private final DataModel dataModel;
     private final UserServiceImpl userService;
@@ -84,43 +93,53 @@ final class GroupImpl implements Group {
         this.userService = (UserServiceImpl) userService;
     }
 
-	GroupImpl init(String name, String description) {
+    GroupImpl init(String name, String description, String externalId) {
         this.name = name;
         this.description = description;
+        this.externalId = externalId;
         return this;
-	}
+    }
 
     static GroupImpl from(DataModel dataModel, String name, String description) {
-        return dataModel.getInstance(GroupImpl.class).init(name, description);
+        return dataModel.getInstance(GroupImpl.class).init(name, description, null);
+    }
+
+    static GroupImpl from(DataModel dataModel, String name, String description, String externalId) {
+        return dataModel.getInstance(GroupImpl.class).init(name, description, externalId);
     }
 
     @Override
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getExternalId() {
+        return externalId;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     public void setName(String _name) {
         name = _name;
     }   // CONM-324
 
-	@Override
-	public boolean hasPrivilege(String applicationName, String privilegeCode) {
+    @Override
+    public boolean hasPrivilege(String applicationName, String privilegeCode) {
         return getPrivileges(applicationName).stream().anyMatch(privilege -> privilege.getName().equals(privilegeCode));
-	}
+    }
 
     @Override
-	public List<Privilege> getPrivileges(String applicationName) {
-    	List<PrivilegeInGroup> privilegeInGroups = getPrivilegeInGroups(applicationName);
-    	ImmutableList.Builder<Privilege> builder = new ImmutableList.Builder<>();
-    	for (PrivilegeInGroup each : privilegeInGroups) {
-    		builder.add(each.getPrivilege());
-    	}
-    	return builder.build();
+    public List<Privilege> getPrivileges(String applicationName) {
+        List<PrivilegeInGroup> privilegeInGroups = getPrivilegeInGroups(applicationName);
+        ImmutableList.Builder<Privilege> builder = new ImmutableList.Builder<>();
+        for (PrivilegeInGroup each : privilegeInGroups) {
+            builder.add(each.getPrivilege());
+        }
+        return builder.build();
     }
 
     @Override
@@ -149,18 +168,18 @@ final class GroupImpl implements Group {
         return getPrivileges(applicationName).contains(privilege);
     }
 
-	@Override
+    @Override
     public boolean grant(String applicationName, Privilege privilege) {
         checkGranting(privilege);
         if (hasPrivilege(applicationName, privilege)) {
             return false;
         }
-		PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, applicationName, privilege);
-		privilegeInGroup.persist();
-		getPrivilegeInGroups(applicationName).add(privilegeInGroup);
+        PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, applicationName, privilege);
+        privilegeInGroup.persist();
+        getPrivilegeInGroups(applicationName).add(privilegeInGroup);
         publisher.publish(this, privilege);
         return false;
-	}
+    }
 
     private void checkGranting(Privilege privilege) {
         Principal principal = threadPrincipalService.getPrincipal();
@@ -182,10 +201,10 @@ final class GroupImpl implements Group {
     @Override
     public boolean revoke(String applicationName, Privilege privilege) {
         checkGranting(privilege);
-    	Iterator<PrivilegeInGroup> it = getPrivilegeInGroups(applicationName).iterator();
-    	while (it.hasNext()) {
-    		PrivilegeInGroup each = it.next();
-    		if (each.getPrivilege().equals(privilege)) {
+        Iterator<PrivilegeInGroup> it = getPrivilegeInGroups(applicationName).iterator();
+        while (it.hasNext()) {
+            PrivilegeInGroup each = it.next();
+            if (each.getPrivilege().equals(privilege)) {
                 each.delete();
                 it.remove();
                 return true;
@@ -220,23 +239,23 @@ final class GroupImpl implements Group {
     }
 
     public long getVersion() {
-		return version;
-	}
+        return version;
+    }
 
-	@Override
-	public String toString() {
-		return "Group: " + getName();
-	}
+    @Override
+    public String toString() {
+        return "Group: " + getName();
+    }
 
-	@Override
-	public void grant(String applicationName, String privilegeCode) {
+    @Override
+    public void grant(String applicationName, String privilegeCode) {
         Privilege privilege = dataModel.mapper(Privilege.class).getExisting(privilegeCode);
-		grant(applicationName, privilege);
-	}
+        grant(applicationName, privilege);
+    }
 
-	public void update() {
+    public void update() {
         Save.action(this.id).save(this.dataModel, this);
-	}
+    }
 
     @Override
     public void delete() {

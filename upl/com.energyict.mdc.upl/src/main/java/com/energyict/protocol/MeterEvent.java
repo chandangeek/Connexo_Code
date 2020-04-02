@@ -763,6 +763,11 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int PERMANENT_LOG_FILLED_UP_90_PERSENT = 357;
 
     public static final int DEVICE_ABOUT_HIBERNATION_MODE = 358;
+
+    public static final int SEND_FRAME_COUNTER_ABOVE_THRESHOLD = 359;
+
+    public static final int RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD = 360;
+
     /**
      * Start of Beacon3100 custom codes
      * Range from 100000 to 100129
@@ -1328,6 +1333,10 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Permanent Log filled up to 90%");
             case DEVICE_ABOUT_HIBERNATION_MODE:
                 return ("Device is about to enter hibernation mode");
+            case SEND_FRAME_COUNTER_ABOVE_THRESHOLD:
+                return ("Send Frame Counter above threshold");
+            case RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD:
+                return ("Receive Fame Counter above threshold");
             case  TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
                 return ("Too high consumption or production of energy.");
             case INDEX_VALUE_DECREASE_OR_RESET:

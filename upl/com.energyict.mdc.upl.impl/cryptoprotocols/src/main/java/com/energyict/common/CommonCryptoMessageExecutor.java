@@ -416,7 +416,7 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             // Change the HLS before AK and EK
             if (needHLS) {
                 final Optional<OfflineDeviceMessage> hlsMessage = globalKeyMessages.stream().filter(
-                        m -> m.getSpecification() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS).findFirst();
+                        m -> m.getSpecification().getId() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS.id()).findFirst();
 
                 if (hlsMessage.isPresent()) {
                     getProtocol().journal("Writing service HLS secret");
@@ -432,7 +432,7 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
 
             for (OfflineDeviceMessage globalKeyMessage : globalKeyMessages) {
                 Integer keyType = null;
-                if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS) {
+                if (globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS.id()) {
                     keyType = 2;        // global authentication key
                     String newAKString = getDeviceMessageAttributeValue(globalKeyMessage, newAuthenticationKeyAttributeName);
                     newAK = getWrappedServiceKey(newAKString);
@@ -440,7 +440,7 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
                         throw new ProtocolException("The new authentication key should be 32 hex characters");
                     }
                     newKey = newAK;
-                } else if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS) {
+                } else if (globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS.id()) {
                     keyType = 0;        // global unicast encryption key
                     String newEKString = getDeviceMessageAttributeValue(globalKeyMessage, newEncryptionKeyAttributeName);
                     newEK = getWrappedServiceKey(newEKString);
@@ -557,21 +557,21 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
     }
 
     private boolean isEKMessage(OfflineDeviceMessage globalKeyMessage) {
-        return globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS;
+        return globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY.id() ||
+                globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT.id() ||
+                globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT.id() ||
+                globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS.id();
     }
 
     private boolean isAKMessage(OfflineDeviceMessage globalKeyMessage) {
-        return globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT ||
-                globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS;
+        return globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY.id() ||
+                globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT.id() ||
+                globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT.id() ||
+                globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS.id();
     }
 
     private boolean isHLSMessage(OfflineDeviceMessage globalKeyMessage) {
-        return globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS;
+        return globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS.id();
     }
 
     @Override

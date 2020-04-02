@@ -283,7 +283,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
 
-        if(user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())){
+        if (user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())) {
             logMessage(ACCOUNT_LOCKED, userName, domain, ipAddr);
         } else if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
             logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
@@ -299,6 +299,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     public User createUser(String name, String description) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) findUserDirectory(getRealm()).orElse(null);
         UserImpl result = directory.newUser(name, description, false, true);
+        result.update();
+        return result;
+    }
+
+    @Override
+    public User createSCIMUser(String name, String description, String externalId) {
+        threadPrincipalService.set(() -> "Provisioning tool");
+        InternalDirectoryImpl directory = (InternalDirectoryImpl) findUserDirectory(getRealm()).orElse(null);
+        UserImpl result = directory.newUser(name, description, false, true, externalId);
         result.update();
         return result;
     }
@@ -324,6 +333,14 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public Group createGroup(String name, String description) {
         GroupImpl result = GroupImpl.from(dataModel, name, description);
+        result.update();
+        return result;
+    }
+
+    @Override
+    public Group createSCIMGroup(String name, String description, String externalId) {
+        threadPrincipalService.set(() -> "Provisioning tool");
+        GroupImpl result = GroupImpl.from(dataModel, name, description, externalId);
         result.update();
         return result;
     }
@@ -360,6 +377,19 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public Optional<Group> findGroupByExternalId(String externalId) {
+        Condition groupCondition = Operator.EQUALIGNORECASE.compare("externalId", externalId);
+        final List<Group> possibleGroups = dataModel.query(Group.class).select(groupCondition);
+
+        if (possibleGroups.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(possibleGroups.get(0));
+
+    }
+
+    @Override
     public Optional<Resource> findResource(String name) {
         Condition condition = Operator.EQUALIGNORECASE.compare("name", name);
         List<Resource> resources = dataModel.query(Resource.class).select(condition);
@@ -392,6 +422,18 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findUserByExternalId(String externalId) {
+        Condition userCondition = Operator.EQUALIGNORECASE.compare("externalId", externalId);
+        final List<User> possibleUsers = dataModel.query(User.class).select(userCondition);
+
+        if (possibleUsers.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(possibleUsers.get(0));
     }
 
     @Override
@@ -889,8 +931,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public UserSecuritySettings findOrCreateUserSecuritySettings(boolean activate, int numberOfAttempts, int numberOfMinutes) {
-        if(getLockingAccountSettings().isPresent())
-            return  getLockingAccountSettings().get();
+        if (getLockingAccountSettings().isPresent())
+            return getLockingAccountSettings().get();
         else
             return createUserSecuritySettings(activate, numberOfAttempts, numberOfMinutes);
     }

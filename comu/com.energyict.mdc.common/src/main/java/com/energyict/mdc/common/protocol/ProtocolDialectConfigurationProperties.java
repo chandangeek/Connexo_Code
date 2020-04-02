@@ -4,19 +4,22 @@
 
 package com.energyict.mdc.common.protocol;
 
-import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.upl.TypedProperties;
+
+import aQute.bnd.annotation.ConsumerType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 //import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 
@@ -93,4 +96,10 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
     public void setXmlType(String ignore);
 
     public void setDeviceProtocolDialectName(String ignore);
+
+    boolean isObsolete();
+
+    Optional<Instant> getObsoleteDate();
+
+    void makeObsolete();
 }
