@@ -16,4 +16,12 @@ public interface InboundEndPointConfiguration extends EndPointConfiguration {
     Optional<Group> getGroup();
 
     void setGroup(Group group);
+
+    String getClientId();
+
+    void setClientId(String clientId);
+
+    String getClientSecret();
+
+    void setClientSecret(String clientSecret);
 }

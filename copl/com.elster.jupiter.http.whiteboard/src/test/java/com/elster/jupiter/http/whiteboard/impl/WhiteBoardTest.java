@@ -40,7 +40,7 @@ public class WhiteBoardTest {
     @Test
     public void testAddResource() {
         TranslationKeyProvider translationKeyProvider = new WhiteBoardImpl(bundleContext, transactionService,
-                queryService, httpAuthenticationService, blackListTokenService);
+                queryService, httpAuthenticationService);
         List<TranslationKey> translationKeysList = translationKeyProvider.getKeys();
         assertThat(translationKeysList.size()).isEqualTo(3);
         verify(bundleContext, times(1)).getProperty(WhiteBoardProperties.SYSTEM_IDENTIFIER.getKey());

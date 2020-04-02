@@ -1407,6 +1407,15 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getMismatchBetweenTotalAndTariffRegisters() {
         return new EndDeviceEventType("3.20.140.159");
     }
+
+    public static EndDeviceEventType getSendFrameCounterAboveThreshold() {
+            return new EndDeviceEventType("3.12.261.81");
+    }
+
+    public static EndDeviceEventType getReceiveFrameCounterAboveThreshold() {
+        return new EndDeviceEventType("3.12.261.80");
+    }
+
     /// https://jira.eict.vpdc/secure/attachment/92046/CIM%20Codes%20A2_EI6_7_v1.xlsx
     /// Standard Event Logbook
     public static EndDeviceEventType getLogReset() { return new EndDeviceEventType("4.14.0.214"); }

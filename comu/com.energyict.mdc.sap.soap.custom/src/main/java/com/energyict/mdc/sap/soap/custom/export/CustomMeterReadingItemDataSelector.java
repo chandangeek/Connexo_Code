@@ -365,15 +365,17 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                         updateCount++;
                         return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
                     }
+                    item.postponeExportForChangedData();
                 }
             }
-
-            try (TransactionContext context = transactionService.getContext()) {
-                MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
-                context.commit();
-            }
+        } else {
+            item.postponeExportForChangedData();
         }
-        item.postponeExportForChangedData();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
+            context.commit();
+        }
         return Optional.empty();
     }
 

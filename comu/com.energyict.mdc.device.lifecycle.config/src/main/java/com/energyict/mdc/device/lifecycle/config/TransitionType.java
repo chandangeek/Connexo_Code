@@ -33,7 +33,9 @@ public enum TransitionType {
                     MicroAction.START_COMMUNICATION,
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
         }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
@@ -46,7 +48,9 @@ public enum TransitionType {
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
                     MicroAction.LINK_TO_USAGE_POINT,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -67,7 +71,10 @@ public enum TransitionType {
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
                     MicroAction.LINK_TO_USAGE_POINT,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION
+                    );
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -85,7 +92,9 @@ public enum TransitionType {
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
                     MicroAction.LINK_TO_USAGE_POINT,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
         }
 
         @Override
@@ -107,7 +116,9 @@ public enum TransitionType {
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
                     MicroAction.LINK_TO_USAGE_POINT,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -125,7 +136,9 @@ public enum TransitionType {
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.ENABLE_VALIDATION,
                     MicroAction.LINK_TO_USAGE_POINT,
-                    MicroAction.SET_LAST_READING);
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
         }
 
         @Override
@@ -143,7 +156,9 @@ public enum TransitionType {
                     MicroAction.DISABLE_VALIDATION,
                     MicroAction.DISABLE_ESTIMATION,
                     MicroAction.START_RECURRING_COMMUNICATION,
-                    MicroAction.DISABLE_COMMUNICATION
+                    MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION
             );
         }
     },
@@ -152,7 +167,9 @@ public enum TransitionType {
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
                     MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
-                    MicroAction.CANCEL_ALL_SERVICE_CALLS);
+                    MicroAction.CANCEL_ALL_SERVICE_CALLS,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -171,7 +188,9 @@ public enum TransitionType {
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
                     MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
-                    MicroAction.CANCEL_ALL_SERVICE_CALLS);
+                    MicroAction.CANCEL_ALL_SERVICE_CALLS,
+                    MicroAction.ACTIVATE_ALL_COMMUNICATION,
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
         }
         @Override
         public Set<MicroAction> requiredActions() {
