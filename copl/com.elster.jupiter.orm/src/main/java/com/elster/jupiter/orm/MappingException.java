@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.exception.PersistenceException;
 
 /**
  * Thrown when ORM mapping of persistent Objects fails.

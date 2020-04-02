@@ -20,19 +20,41 @@ public interface MessageService {
     String COMPONENTNAME = "MSG";
     String PRIORITIZED_RAW_QUEUE_TABLE = "MSG_PRIO_RAWQUEUETABLE";
 
-    default QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
-    	return createQueueTableSpec(name, payloadType, multiConsumer, false);
+    default QueueTableSpec createQueueTableSpec(String name, String payloadType, String storageClause, boolean multiConsumer) {
+        return createQueueTableSpec(name, payloadType, storageClause, multiConsumer, false);
     }
 
     /**
      * Creates a new persisted and activated QueueTableSpec
+     *
      * @param name
      * @param payloadType
      * @param multiConsumer
      * @param isPrioritized
      * @return
      */
-    QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized);
+    QueueTableSpec createQueueTableSpec(String name, String payloadType, String storageClause, boolean multiConsumer, boolean isPrioritized);
+
+    enum QueueTable {
+        JUPITEREVENTS_RAW_QUEUE_TABLE("QTAB_JUPITEREVENTS", "PCTFREE 20 PCTUSED 40 INITRANS 4 MAXTRANS 255 STORAGE(INITIAL 8 NEXT 81 MINEXTENTS 1 MAXEXTENTS 2147483645 " +
+                "PCTINCREASE 0 FREELISTS 4 FREELIST GROUPS 1)");
+
+        private String queueTableName;
+        private String storageClause;
+
+        QueueTable(String queueTableName, String storageClause) {
+            this.queueTableName = queueTableName;
+            this.storageClause = storageClause;
+        }
+
+        public String getQueueTableName() {
+            return queueTableName;
+        }
+
+        public String getStorageClause() {
+            return storageClause;
+        }
+    }
 
     /**
      * @param name
@@ -54,7 +76,6 @@ public interface MessageService {
     Optional<DestinationSpec> lockDestinationSpec(String name, long version);
 
     /**
-     *
      * @param destinationSpecName
      * @param name
      * @return the SubscriberSpec with the given name for the Destination with the given name, optional, as it may not exist

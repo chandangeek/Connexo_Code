@@ -191,7 +191,7 @@ public class CustomTaskImplIT {
         });
 
         transactionService.execute(() -> {
-            queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", true);
+            queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", null, true);
             destination = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 0);
             destination.activate();
             subscriberSpec = destination.subscribe(new SimpleTranslationKey(DESTINATION_NAME, DESTINATION_NAME), "TST", Layer.DOMAIN);
@@ -214,6 +214,7 @@ public class CustomTaskImplIT {
 
         return customTaskFactory;
     }
+
     @After
     public void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();

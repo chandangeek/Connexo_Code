@@ -60,7 +60,7 @@ public class MessageServiceImplTest {
 
     @Test
     public void testCreateQueueTableSpec() {
-        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QTS, RAW, MULTI_CONSUMER);
+        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QTS, RAW, null, MULTI_CONSUMER);
 
         assertThat(queueTableSpec).isNotNull();
         assertThat(queueTableSpec.getName()).isEqualTo(QTS);
@@ -70,7 +70,7 @@ public class MessageServiceImplTest {
 
     @Test
     public void testGetQueueTableSpec() {
-        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
+        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", null, true);
 
         assertThat(messageService.getQueueTableSpec(QTS).get()).isEqualTo(queueTableSpec);
     }
@@ -82,7 +82,7 @@ public class MessageServiceImplTest {
 
     @Test
     public void testGetDestinationSpec() {
-        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
+        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", null, true);
         destination = queueTableSpec.createDestinationSpec(DESTINATION, 0);
 
         assertThat(messageService.getDestinationSpec(DESTINATION).get()).isEqualTo(destination);
@@ -90,14 +90,14 @@ public class MessageServiceImplTest {
 
     @Test
     public void testGetDestinationSpecNotExists() {
-        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
+        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", null, true);
 
         assertThat(messageService.getDestinationSpec(DESTINATION).isPresent()).isFalse();
     }
 
     @Test
     public void testGetSubscriberSpec() {
-        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
+        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", null, true);
         destination = queueTableSpec.createDestinationSpec(DESTINATION, 0);
         destination.activate();
         subscriberSpec = destination.subscribe(new SimpleTranslationKey(SUBSCRIBER, SUBSCRIBER), "TST", Layer.DOMAIN);
@@ -107,7 +107,7 @@ public class MessageServiceImplTest {
 
     @Test
     public void testGetSubscriberSpecNotExists() {
-        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
+        queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", null, true);
         destination = queueTableSpec.createDestinationSpec(DESTINATION, 0);
 
         assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).isPresent()).isFalse();

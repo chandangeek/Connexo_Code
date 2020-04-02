@@ -39,7 +39,7 @@ public class SLOResource {
     @Transactional
     public Response logout(@FormParam("SAMLRequest") String base64EncodedAndDeflatedSLORequest,
                            @FormParam("RelayState") String relayState) throws XMLParserException, UnmarshallingException, DataFormatException, TransformerException, MarshallingException {
-        final LogoutRequest logoutRequest = SAMLUtilities.createLogoutRequest(base64EncodedAndDeflatedSLORequest);
+        final LogoutRequest logoutRequest = samlUtilities.createLogoutRequest(base64EncodedAndDeflatedSLORequest);
         final LogoutResponse logoutResponse = samlSingleLogoutService.initializeSingleLogout(logoutRequest);
         return Response.ok()
                 .entity(buildSLOResponseForm(logoutResponse, relayState))
@@ -49,7 +49,7 @@ public class SLOResource {
 
     private Form buildSLOResponseForm(final LogoutResponse logoutResponse, final String relayState) throws TransformerException, MarshallingException {
         final Form form = new Form();
-        form.param("SAMLResponse", SAMLUtilities.marshallLogoutResponse(logoutResponse));
+        form.param("SAMLResponse", samlUtilities.marshallLogoutResponse(logoutResponse));
         form.param("RelayState", relayState);
         return form;
     }

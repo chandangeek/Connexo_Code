@@ -1,18 +1,8 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
+package com.elster.jupiter.util.exception;
 
-package com.elster.jupiter.orm;
-
-import com.elster.jupiter.util.exception.BaseException;
-import com.elster.jupiter.util.exception.MessageSeed;
-
-/**
- * Abstract super class for all Persistence related Exceptions
- */
 public abstract class PersistenceException extends BaseException {
-	
-	private static final long serialVersionUID = 1;
+
+    private static final long serialVersionUID = 1;
 
     protected PersistenceException(MessageSeed messageSeed) {
         super(messageSeed);

@@ -38,12 +38,9 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     @Override
     protected final void doExecute(ComServerDAO comServerDAO) {
         try {
-            for (Map.Entry<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
-                comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
-            }
+            meterReadings.values().forEach(deviceIdAndReading -> comServerDAO.storeMeterReadings(deviceIdAndReading.getFirst(), deviceIdAndReading.getLast()));
             comServerDAO.updateLastDataSourceReadingsFor(lastReadings, lastLogBooks);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             handleUnexpectedExecutionException(e);
         }
     }
@@ -109,20 +106,20 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
         }
     }
 
-    public Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> getMeterReadings(){
+    public Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> getMeterReadings() {
         return this.meterReadings;
     }
 
-    public Map<LoadProfileIdentifier, Instant> getLastReadings(){
-        return  this.lastReadings;
+    public Map<LoadProfileIdentifier, Instant> getLastReadings() {
+        return this.lastReadings;
     }
 
-    public Map<LogBookIdentifier, Instant> getLastLogBooks(){
+    public Map<LogBookIdentifier, Instant> getLastLogBooks() {
         return this.lastLogBooks;
     }
 
     protected Optional<MeterDataStorageEvent> newEvent(List<Issue> issues) {
-        MeterDataStorageEvent event  =  new MeterDataStorageEvent(new ComServerEventServiceProvider(), this);
+        MeterDataStorageEvent event = new MeterDataStorageEvent(new ComServerEventServiceProvider(), this);
         event.addIssues(issues);
         return Optional.of(event);
     }

@@ -145,14 +145,14 @@ public class UsagePointOutputsHistoryHelper {
     private void setReadingQualitiesForChannels(List<? extends ReadingType> readingTypes, List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal, Map<Instant,
             List<JournaledReadingRecord>> historicalReadings, List<? extends ReadingQualityRecord> readingQualities) {
         final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
-        historicalReadings.entrySet().forEach(value -> {
+        historicalReadings.forEach((timestamp, records) -> {
             List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
-                    .filter(readingQuality -> value.getKey().equals(readingQuality.getReadingTimestamp()))
+                    .filter(readingQuality -> timestamp.equals(readingQuality.getReadingTimestamp()))
                     .filter(readingQuality -> readingTypes.contains(readingQuality.getReadingType()))
                     .collect(Collectors.toList());
             List<? extends ReadingQualityRecord> journaledReadingQualities = finalReadingQualitiesJournal.stream()
                     .map(JournalEntry::get)
-                    .filter(journaledReadingQuality -> value.getKey()
+                    .filter(journaledReadingQuality -> timestamp
                             .equals(journaledReadingQuality.getReadingTimestamp()))
                     .filter(journaledReadingQuality -> readingTypes.contains(journaledReadingQuality.getReadingType()))
                     .collect(Collectors.toList());
@@ -160,8 +160,6 @@ public class UsagePointOutputsHistoryHelper {
             List<ReadingQualityRecord> mergedReadingQualities = new ArrayList<>();
             mergedReadingQualities.addAll(readingQualityList);
             mergedReadingQualities.addAll(journaledReadingQualities);
-
-            List<? extends JournaledReadingRecord> records = value.getValue();
 
             mergedReadingQualities.forEach(mergedReadingQuality -> {
                 Optional<? extends BaseReadingRecord> journaledReadingRecord;
@@ -215,13 +213,13 @@ public class UsagePointOutputsHistoryHelper {
                 .stream()
                 .filter(journalEntry -> journalEntry.get().getReadingType().equals(readingType))
                 .collect(Collectors.toList());
-        historicalReadings.entrySet().forEach(value -> {
+        historicalReadings.forEach((timestamp, records) -> {
             List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
-                    .filter(readingQuality -> value.getKey().equals(readingQuality.getReadingTimestamp()))
+                    .filter(readingQuality -> timestamp.equals(readingQuality.getReadingTimestamp()))
                     .filter(readingQuality -> readingType.equals(readingQuality.getReadingType()))
                     .collect(Collectors.toList());
             List<? extends ReadingQualityRecord> journaledQualities = journaledReadingQualities.stream()
-                    .filter(journaledReadingQuality -> value.getKey()
+                    .filter(journaledReadingQuality -> timestamp
                             .equals(journaledReadingQuality.get().getReadingTimestamp()))
                     .filter(journaledReadingQuality -> readingType.equals(journaledReadingQuality.get()
                             .getReadingType()))
@@ -232,7 +230,6 @@ public class UsagePointOutputsHistoryHelper {
             mergedReadingQualities.addAll(readingQualityList);
             mergedReadingQualities.addAll(journaledQualities);
 
-            List<JournaledReadingRecord> records = value.getValue();
             mergedReadingQualities.forEach(mergedReadingQuality -> {
                 Optional<? extends JournaledReadingRecord> journalReadingOptional;
                 journalReadingOptional = ((mergedReadingQuality.getTypeCode().equals("3.5.258")) || ((mergedReadingQuality.getTypeCode()

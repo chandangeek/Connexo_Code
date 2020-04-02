@@ -102,7 +102,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     QueueTableSpec createDefaultQueueTableSpecIfNotExist() {
         return messageService.getQueueTableSpec(QUEUE_TABLE_NAME)
-                .orElseGet(()-> messageService.createQueueTableSpec(QUEUE_TABLE_NAME, "RAW", false, true));
+                .orElseGet(() -> messageService.createQueueTableSpec(QUEUE_TABLE_NAME, "RAW", null, false, true));
     }
 
     void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String subscriberName, String destinationName, TranslationKey subscriberKey, String componentName, Logger logger) {
@@ -130,7 +130,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                     .noneMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
             if (notSubscribedYet) {
                 doTry(
-                        "Create subsriber " + subscriberName+ " on " + destinationName,
+                        "Create subsriber " + subscriberName + " on " + destinationName,
                         () -> {
                             queue.activate();
                             queue.subscribe(subscriberKey, componentName, Layer.DOMAIN);

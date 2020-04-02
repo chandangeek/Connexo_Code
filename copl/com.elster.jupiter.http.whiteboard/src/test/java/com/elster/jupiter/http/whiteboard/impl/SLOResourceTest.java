@@ -37,7 +37,7 @@ public class SLOResourceTest extends SLOBaseTest {
         assertThat(samlRespose).isNotEmpty();
         assertThat(relayState).isEqualTo(SLO_VALUE_RELAY_STATE);
 
-        final LogoutResponse logoutResponse = SAMLUtilities.unmarshallLogoutResponse(samlRespose);
+        final LogoutResponse logoutResponse = samlUtilities.unmarshallLogoutResponse(samlRespose);
 
         assertThat(logoutResponse.getStatus().getStatusCode().getValue()).isEqualTo("urn:oasis:names:tc:SAML:2.0:status:Success");
 
@@ -62,7 +62,7 @@ public class SLOResourceTest extends SLOBaseTest {
         assertThat(samlRespose).isNotEmpty();
         assertThat(relayState).isEqualTo(SLO_VALUE_RELAY_STATE);
 
-        final LogoutResponse logoutResponse = SAMLUtilities.unmarshallLogoutResponse(samlRespose);
+        final LogoutResponse logoutResponse = samlUtilities.unmarshallLogoutResponse(samlRespose);
 
         assertThat(logoutResponse.getStatus().getStatusCode().getValue()).isEqualTo("urn:oasis:names:tc:SAML:2.0:status:RequestDenied");
 

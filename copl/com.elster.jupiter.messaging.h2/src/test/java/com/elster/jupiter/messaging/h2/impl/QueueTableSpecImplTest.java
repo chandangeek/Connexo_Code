@@ -7,16 +7,18 @@ package com.elster.jupiter.messaging.h2.impl;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
+
 import oracle.AQ.AQException;
+
+import javax.jms.JMSException;
+import java.sql.SQLException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.jms.JMSException;
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +37,7 @@ public class QueueTableSpecImplTest {
 
     @Before
     public void setUp() throws SQLException, JMSException {
-        queueTableSpec = TransientQueueTableSpec.createQueue(thesaurus, NAME, PAYLOAD_TYPE);
+        queueTableSpec = TransientQueueTableSpec.createQueue(thesaurus, NAME, PAYLOAD_TYPE, null);
     }
 
     @After

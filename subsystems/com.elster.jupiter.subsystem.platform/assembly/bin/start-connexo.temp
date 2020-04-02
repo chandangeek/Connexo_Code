@@ -11,7 +11,13 @@ VMFILE=""
 while read LINE
 do
     CLEANED=${LINE//[$'\t\r\n']} && CLEANED=${CLEANED%%*( )}
-    VMFILE="${VMFILE} ${CLEANED}"
+
+    if [[ $CLEANED == *"Windows XP"* ]]; then
+        echo "[-] Ignoring property since we don't need it on Linux: ${CLEANED}"
+    else
+        VMFILE="${VMFILE} ${CLEANED}"
+    fi
+
 done < $VMOPTIONSFILE
 
 

@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -47,20 +46,12 @@ public class ChannelDataTransferor {
         Channel slaveChannel = channelUsage.getSlaveChannel();
 
         if (dataloggerChannel.hasData()) {
-            ReadingType dataLoggerCollectedReadingType;
-            ReadingType slaveCollectedReadingType;
-            Optional<? extends ReadingType> bulkQuantityReadingType = dataloggerChannel.getBulkQuantityReadingType();
-            if (bulkQuantityReadingType.isPresent()) {
-                dataLoggerCollectedReadingType = bulkQuantityReadingType.get();
-            } else {
-                dataLoggerCollectedReadingType = dataloggerChannel.getMainReadingType();
-            }
-            Optional<? extends ReadingType> slaveBulkQuantityReadingType = slaveChannel.getBulkQuantityReadingType();
-            if (slaveBulkQuantityReadingType.isPresent()) {
-                slaveCollectedReadingType = slaveBulkQuantityReadingType.get();
-            } else {
-                slaveCollectedReadingType = slaveChannel.getMainReadingType();
-            }
+            ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType()
+                    .map(ReadingType.class::cast)
+                    .orElseGet(dataloggerChannel::getMainReadingType);
+            ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType()
+                    .map(ReadingType.class::cast)
+                    .orElseGet(slaveChannel::getMainReadingType);
             FilteredMeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(channelUsage.getPhysicalGatewayReference().getInterval().toOpenClosedRange()),
                     block -> block.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
                     reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
@@ -82,21 +73,12 @@ public class ChannelDataTransferor {
         Channel slaveChannel = channelUsage.getSlaveChannel();
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         if (slaveChannel.hasData()) {
-            ReadingType dataLoggerCollectedReadingType;
-            ReadingType slaveCollectedReadingType;
-
-            Optional<? extends ReadingType> bulkQuantityReadingType = dataloggerChannel.getBulkQuantityReadingType();
-            if (bulkQuantityReadingType.isPresent()) {
-                dataLoggerCollectedReadingType = bulkQuantityReadingType.get();
-            } else {
-                dataLoggerCollectedReadingType = dataloggerChannel.getMainReadingType();
-            }
-            Optional<? extends ReadingType> slaveBulkQuantityReadingType = slaveChannel.getBulkQuantityReadingType();
-            if (slaveBulkQuantityReadingType.isPresent()) {
-                slaveCollectedReadingType = slaveBulkQuantityReadingType.get();
-            } else {
-                slaveCollectedReadingType = slaveChannel.getMainReadingType();
-            }
+            ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType()
+                    .map(ReadingType.class::cast)
+                    .orElseGet(dataloggerChannel::getMainReadingType);
+            ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType()
+                    .map(ReadingType.class::cast)
+                    .orElseGet(slaveChannel::getMainReadingType);
             FilteredMeterReading meterReading = new FilteredMeterReading(slaveChannel.deleteReadings(Range.atLeast(start)),
                     block -> block.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
                     reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
@@ -121,9 +103,7 @@ public class ChannelDataTransferor {
 
     private void updateLastReadingIfApplicable(DataLoggerChannelUsage channelUsage, Channel channel) {
         LoadProfile toUpdate = getChannel(channelUsage.getPhysicalGatewayReference().getOrigin(), channel).map(com.energyict.mdc.common.device.data.Channel::getLoadProfile).get();
-        if (toUpdate.getLastReading() == null || Instant.ofEpochSecond(toUpdate.getLastReading().getTime()).isBefore(channel.getLastDateTime())) {
-            channelUsage.getPhysicalGatewayReference().getOrigin().getLoadProfileUpdaterFor(toUpdate).setLastReading(channel.getLastDateTime()).update();
-        }
+        channelUsage.getPhysicalGatewayReference().getOrigin().getLoadProfileUpdaterFor(toUpdate).setLastReadingIfLater(channel.getLastDateTime()).update();
     }
 
     private Optional<com.energyict.mdc.common.device.data.Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel) {
@@ -138,13 +118,13 @@ public class ChannelDataTransferor {
         private final Predicate<ReadingQuality> readingQualityPredicate;
         private final Map<String, String> readingTypeMap;
 
-        public FilteredMeterReading(MeterReading decorated, Predicate<IntervalBlock> intervalBlockFilter, Predicate<Reading> readingFilter, Predicate<ReadingQuality> readingQualityPredicate, Map<ReadingType, ReadingType> readingTypeReplacement) {
+        FilteredMeterReading(MeterReading decorated, Predicate<IntervalBlock> intervalBlockFilter, Predicate<Reading> readingFilter, Predicate<ReadingQuality> readingQualityPredicate, Map<ReadingType, ReadingType> readingTypeReplacement) {
             this.decorated = decorated;
             this.intervalBlockFilter = intervalBlockFilter;
             this.readingFilter = readingFilter;
             this.readingQualityPredicate = readingQualityPredicate;
             this.readingTypeMap = new HashMap<>();
-            readingTypeReplacement.entrySet().forEach(entry -> readingTypeMap.put(entry.getKey().getMRID(), entry.getValue().getMRID()));
+            readingTypeReplacement.forEach((key, value) -> readingTypeMap.put(key.getMRID(), value.getMRID()));
         }
 
         public boolean isEmpty() {
@@ -154,7 +134,7 @@ public class ChannelDataTransferor {
         }
 
         private boolean noIntervals() {
-            return !getIntervalBlocks().stream().filter(not(block -> block.getIntervals().isEmpty())).findAny().isPresent();
+            return getIntervalBlocks().stream().allMatch(block -> block.getIntervals().isEmpty());
         }
 
         @Override
@@ -188,7 +168,7 @@ public class ChannelDataTransferor {
         private final Predicate<ReadingQuality> readingQualityPredicate;
         private final String readingTypeReplacement;
 
-        public FilteredIntervalBlock(IntervalBlock decorated, Predicate<ReadingQuality> readingQualityPredicate, String readingTypeReplacement) {
+        FilteredIntervalBlock(IntervalBlock decorated, Predicate<ReadingQuality> readingQualityPredicate, String readingTypeReplacement) {
             this.decorated = decorated;
             this.readingQualityPredicate = readingQualityPredicate;
             this.readingTypeReplacement = readingTypeReplacement;
@@ -209,7 +189,7 @@ public class ChannelDataTransferor {
         private final IntervalReading decorated;
         private final Predicate<ReadingQuality> readingQualityFilter;
 
-        public FilteredIntervalReading(IntervalReading decorated, Predicate<ReadingQuality> readingQualityFilter) {
+        FilteredIntervalReading(IntervalReading decorated, Predicate<ReadingQuality> readingQualityFilter) {
             this.decorated = decorated;
             this.readingQualityFilter = readingQualityFilter;
         }
@@ -256,7 +236,7 @@ public class ChannelDataTransferor {
         private final Predicate<ReadingQuality> readingQualityFilter;
         private final String readingType;
 
-        public FilteredReading(Reading decoratedReading, Predicate<ReadingQuality> readingQualityFilter, String replacementReadingType) {
+        FilteredReading(Reading decoratedReading, Predicate<ReadingQuality> readingQualityFilter, String replacementReadingType) {
             this.decoratedReading = decoratedReading;
             this.readingQualityFilter = readingQualityFilter;
             this.readingType = replacementReadingType;

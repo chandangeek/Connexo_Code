@@ -25,6 +25,7 @@ public enum TableSpecs {
             table.cache();
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
             table.column("PAYLOADTYPE").varChar(30).notNull().map("payloadType").add();
+            table.column("STORAGECLAUSE").varChar(200).map("storageClause").since(version(10, 8)).add();
             table.column("MULTICONSUMER").bool().map("multiConsumer").add();
             table.column("ACTIVE").bool().map("active").add();
             table.addAuditColumns();
