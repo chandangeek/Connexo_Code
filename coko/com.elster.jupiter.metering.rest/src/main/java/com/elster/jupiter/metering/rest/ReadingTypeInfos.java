@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -19,8 +18,8 @@ public class ReadingTypeInfos {
     public ReadingTypeInfos() {
     }
 
-    public ReadingTypeInfos(ReadingType usagePoint) {
-        add(usagePoint);
+    public ReadingTypeInfos(ReadingType readingType) {
+        add(readingType);
     }
 
     public ReadingTypeInfos(Iterable<? extends ReadingType> readingTypes) {

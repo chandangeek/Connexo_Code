@@ -1083,7 +1083,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                 Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
                 Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
                 DeviceIdentifier deviceIdentifier = getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
-                ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().stream().forEach(each -> {
+                ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().forEach(each -> {
                     if (!each.getIntervalBlocks().isEmpty()) {
                         // Add interval readings
                         Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier);
@@ -1106,19 +1106,15 @@ public class ComServerDAOImpl implements ComServerDAO {
                 }
                 Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
                 // do update the loadprofile
-                lastReadings.entrySet().stream().forEach(entrySet -> {
-                    List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-                    if (functionList == null) {
-                        functionList = new ArrayList<>();
-                        updateMap.put(deviceIdentifier, functionList);
-                    }
-                    functionList.add(updateLoadProfile(findLoadProfileOrThrowException(entrySet.getKey()), entrySet.getValue()));
+                lastReadings.forEach((loadProfileId, timestamp) -> {
+                    List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
+                    functionList.add(updateLoadProfile(findLoadProfileOrThrowException(loadProfileId), timestamp));
                 });
                 // then do your thing
-                updateMap.entrySet().stream().forEach(entrySet -> {
-                    Device oldDevice = findDevice(entrySet.getKey());
+                updateMap.forEach((deviceId, functions) -> {
+                    Device oldDevice = findDevice(deviceId);
                     Device device = serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
-                    entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+                    functions.forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
                 });
             }
         }
@@ -1791,32 +1787,22 @@ public class ComServerDAOImpl implements ComServerDAO {
         Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
 
         // first do the loadprofiles
-        loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
-            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
-            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if (functionList == null) {
-                functionList = new ArrayList<>();
-                updateMap.put(deviceIdentifier, functionList);
-            }
-
-            functionList.add(updateLoadProfile(findLoadProfileOrThrowException(entrySet.getKey()), entrySet.getValue()));
+        loadProfileUpdate.forEach((loadProfileId, timestamp) -> {
+            DeviceIdentifier deviceIdentifier = loadProfileId.getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
+            functionList.add(updateLoadProfile(findLoadProfileOrThrowException(loadProfileId), timestamp));
         });
         // then do the logbooks
-        logBookUpdate.entrySet().stream().forEach(entrySet -> {
-            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
-            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if (functionList == null) {
-                functionList = new ArrayList<>();
-                updateMap.put(deviceIdentifier, functionList);
-            }
-            functionList.add(updateLogBook(findLogBookOrThrowException(entrySet.getKey()), entrySet.getValue()));
+        logBookUpdate.forEach((logBookId, timestamp) -> {
+            DeviceIdentifier deviceIdentifier = logBookId.getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
+            functionList.add(updateLogBook(findLogBookOrThrowException(logBookId), timestamp));
         });
-
         // then do your thing
-        updateMap.entrySet().stream().forEach(entrySet -> {
-            Device oldDevice = findDevice(entrySet.getKey());
+        updateMap.forEach((deviceId, functions) -> {
+            Device oldDevice = findDevice(deviceId);
             Device device = serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
-            entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+            functions.forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
         });
     }
 

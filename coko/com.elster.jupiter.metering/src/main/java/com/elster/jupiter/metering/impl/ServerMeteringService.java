@@ -62,5 +62,10 @@ public interface ServerMeteringService extends MeteringService {
 
     boolean isCalendarEffectiveForAnyUsagePoint(Calendar calendar);
 
+    /**
+     * @param id "id" of a reading type.
+     * @return Reading type by its id. Pls note that reading types are cached by id until restart of Connexo,
+     * due to this all editable properties of the reading type may be obsolete (for now it's only {@link ReadingType#isActive()} flag).
+     */
     Optional<ReadingType> getReadingTypeById(long id);
 }
