@@ -189,7 +189,7 @@ public class DestinationSpecResource {
 
         SubscriberSpec defaultSubscriber = getSubscriber4(bean.getQueueTypeName());
         boolean prioritized = isPrioritized(bean.getQueueTypeName());
-        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + bean.getName(), "RAW", false, prioritized);
+        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + bean.getName(), "RAW", null, false, prioritized);
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(bean.getName(), DEFAULT_RETRY_DELAY_IN_SECONDS, DEFAULT_RETRIES, IS_DEFAULT, bean.getQueueTypeName(), ENABLE_EXTRA_QUEUE_CREATION, prioritized);
         destinationSpec.activate();
         destinationSpec.subscribe(SubscriberName.from(bean.getName()), defaultSubscriber.getNlsComponent(), defaultSubscriber.getNlsLayer(), defaultSubscriber.getFilterCondition());
