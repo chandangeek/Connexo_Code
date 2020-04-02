@@ -9,15 +9,10 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.metering.DefaultState;
-import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.Optional;
 
 /**
@@ -32,6 +27,10 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
 
     private static final String DEVICE_STATE_ALIAS_NAME = "enddevices";
 
+    private CommunicationTaskBreakdownSqlExecutor(DataModel dataModel, Optional<EndDeviceGroup> deviceGroup, Optional<AmrSystem> amrSystem) {
+        super(dataModel, deviceGroup, amrSystem);
+    }
+
     static CommunicationTaskBreakdownSqlExecutor systemWide(DataModel dataModel) {
         return new CommunicationTaskBreakdownSqlExecutor(dataModel, Optional.empty(), Optional.empty());
     }
@@ -40,49 +39,13 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         return new CommunicationTaskBreakdownSqlExecutor(dataModel, Optional.of(deviceGroup), Optional.of(mdcAmrSystem));
     }
 
-    private CommunicationTaskBreakdownSqlExecutor(DataModel dataModel, Optional<EndDeviceGroup> deviceGroup, Optional<AmrSystem> amrSystem) {
-        super(dataModel, deviceGroup, amrSystem);
-    }
-
     @Override
     protected SqlBuilder beforeDeviceGroupSql(Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder("with ");
-        DeviceStateSqlBuilder
-                .forExcludeStates(DEVICE_STATE_ALIAS_NAME, EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED))
-                .appendRestrictedStatesWithClause(sqlBuilder, now);
-        sqlBuilder.append(", alldata AS (");
-        sqlBuilder.append("  SELECT cte.id,");
-        sqlBuilder.append("         cte.nextexecutiontimestamp,");
-        sqlBuilder.append("         cte.lastexecutiontimestamp,");
-        sqlBuilder.append("         cte.plannednextexecutiontimestamp,");
-        sqlBuilder.append("         cte.discriminator,");
-        sqlBuilder.append("         cte.nextexecutionspecs,");
-        sqlBuilder.append("         cte.comport,");
-        sqlBuilder.append("         cte.onhold,");
-        sqlBuilder.append("         cte.currentretrycount,");
-        sqlBuilder.append("         cte.lastsuccessfulcompletion,");
-        sqlBuilder.append("         cte.lastexecutionfailed,");
-        sqlBuilder.append("         cte.comtask,");
-        sqlBuilder.append("         cte.comschedule,");
-        sqlBuilder.append("         dev.devicetype,");
-        sqlBuilder.append("         CASE WHEN ct.id IS NULL");
-        sqlBuilder.append("              THEN 0");
-        sqlBuilder.append("              ELSE 1");
-        sqlBuilder.append("         END as thereisabusytask,");
-
-        sqlBuilder.append("         CASE WHEN hp.comtaskexecution  = cte.id");
-        sqlBuilder.append("              THEN 1");
-        sqlBuilder.append("              ELSE 0");
-        sqlBuilder.append("         END as isapriotask");
-
-        sqlBuilder.append("    FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte");
-        sqlBuilder.append("    JOIN " + TableSpecs.DDC_DEVICE.name() + " dev ON cte.device = dev.id");
-        sqlBuilder.append("    JOIN enddevices kd ON dev.meterid = kd.id");
-        sqlBuilder.append("    LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct ON cte.connectiontask = ct.id");
-        sqlBuilder.append("                                                                   AND ct." + ConnectionTaskFields.COM_PORT.fieldName()+ " is not null");
-        sqlBuilder.append("                                                                   AND ct.lastCommunicationStart > cte.nextExecutionTimestamp");
-        sqlBuilder.append("    LEFT JOIN DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id");
-        sqlBuilder.append("   WHERE cte.obsolete_date is null");
+        sqlBuilder.append(" alldata AS ( ");
+        sqlBuilder.append(" select * from MV_COMTASKBREAKDOWN ");
+        sqlBuilder.append(this.deviceContainerAliasName());
+        sqlBuilder.append(" where 1=1 ");
         return sqlBuilder;
     }
 

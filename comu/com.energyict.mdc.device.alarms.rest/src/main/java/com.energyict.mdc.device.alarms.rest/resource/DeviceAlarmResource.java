@@ -19,23 +19,10 @@ import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
-import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
-import com.elster.jupiter.issue.share.IssueAction;
-import com.elster.jupiter.issue.share.IssueActionResult;
-import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.DeviceGroupNotFoundException;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueGroup;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.*;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -46,6 +33,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
@@ -113,14 +101,16 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     private final BpmService bpmService;
     private final TransactionService transactionService;
     private final Clock clock;
+    private final IssueResourceUtility issueResourceUtility;
 
     @Inject
-    public DeviceAlarmResource(Clock clock, DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService, TransactionService transactionService) {
+    public DeviceAlarmResource(Clock clock, DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService, TransactionService transactionService, IssueResourceUtility issueResourceUtility) {
         this.conflictFactory = conflictFactory;
         this.deviceAlarmInfoFactory = deviceAlarmInfoFactory;
         this.bpmService = bpmService;
         this.transactionService = transactionService;
         this.clock = clock;
+        this.issueResourceUtility = issueResourceUtility;
     }
 
     @GET
@@ -322,52 +312,13 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
-        String id = null;
-        List<IssueType> issueTypes = getIssueService().query(IssueType.class)
-                .select(Condition.TRUE)
-                .stream()
-                .filter(issueType -> issueType.getPrefix().equals("ALM"))
-                .collect(Collectors.toList());
-        List<String> issueTypesKeys = issueTypes.stream()
-                .map(IssueType::getKey)
-                .collect(Collectors.toList());
-        if(filter.getString(IssueRestModuleConst.ID) != null) {
-            String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
-            if (issueIdPart.length == 2) {
-                if (isNumericValue(issueIdPart[1])) {
-                    if (issueTypes.stream()
-                            .anyMatch(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))) {
-                        issueTypesKeys = issueTypes.stream()
-                                .filter(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))
-                                .map(IssueType::getKey)
-                                .collect(Collectors.toList());
-                        id = issueIdPart[1];
-                    } else{
-                        id = "-1";
-                    }
-                } else{
-                    id = "-1";
-                }
-            } else{
-                id = "-1";
-            }
-        }
-        groupFilter.using(getQueryApiClass(filter))
-                .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))
-                .withId(id)
-                .withIssueTypes(issueTypesKeys)
-                .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS))
-                .withClearedStatuses(filter.getStringList("cleared"))
-                .withMeterName(filter.getString(IssueRestModuleConst.METER))
-                .groupBy(filter.getString(IssueRestModuleConst.FIELD))
-                .setAscOrder(false)
-                .from(params.getFrom()).to(params.getTo());
-        filter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().filter(el -> el != null).forEach(groupFilter::withUserAssignee);
-        filter.getLongList(IssueRestModuleConst.WORKGROUP).stream().filter(el -> el != null).forEach(groupFilter::withWorkGroupAssignee);
-        getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
-        List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
-        List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
+        DeviceAlarmFilter alarmFilter = buildFilterFromQueryParameters(filter);
+        Finder<? extends DeviceAlarm> finder = getDeviceAlarmService().findAlarms(alarmFilter);
+        List<? extends DeviceAlarm> issues = finder.find();
+        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length()-1);
+        List<IssueGroupInfo> infos = issueResourceUtility.getIssueGroupList(issues, value);
+
+
         return PagedInfoList.fromPagedList("alarmGroups", infos, queryParameters);
     }
 
@@ -762,5 +713,4 @@ public class DeviceAlarmResource extends BaseAlarmResource{
             }
         }).collect(Collectors.toList());
     }
-
 }

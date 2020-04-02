@@ -81,14 +81,13 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         this.nlsService = nlsService;
     }
 
+    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String nameKey, String component, Layer layer, String filter, boolean systemManaged) {
+        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, nameKey, component, layer, systemManaged, filter);
+    }
+
     SubscriberSpecImpl init(DestinationSpec destination, String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
-        this.destination.set(destination);
-        this.name = nameKey;
-        this.nlsComponent = component;
-        this.nlsLayer = layer;
-        this.systemManaged = systemManaged;
-        this.filter = toString(filter);
         this.filterCondition = filter;
+        init(destination, nameKey, component, layer, systemManaged, toString(filter));
         return this;
     }
 
@@ -107,6 +106,16 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
         return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, nameKey, component, layer, systemManaged, filter);
+    }
+
+    SubscriberSpecImpl init(DestinationSpec destination, String nameKey, String component, Layer layer, boolean systemManaged, String filter) {
+        this.destination.set(destination);
+        this.name = nameKey;
+        this.nlsComponent = component;
+        this.nlsLayer = layer;
+        this.systemManaged = systemManaged;
+        this.filter = filter;
+        return this;
     }
 
     @Override
@@ -318,5 +327,9 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         return filterCondition;
     }
 
+    @Override
+    public String getFilter() {
+        return filter;
+    }
 }
 

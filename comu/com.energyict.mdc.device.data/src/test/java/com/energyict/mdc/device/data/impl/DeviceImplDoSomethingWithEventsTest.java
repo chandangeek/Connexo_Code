@@ -32,6 +32,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -361,7 +363,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new CalendarModule(),
                     new WebServicesModule(),
                     new AuditServiceModule(),
-                    new FileImportModule());
+                    new FileImportModule(),
+                    new TokenModule(),
+                    new BlackListModule());
             this.transactionService = injector.getInstance(TransactionService.class);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);

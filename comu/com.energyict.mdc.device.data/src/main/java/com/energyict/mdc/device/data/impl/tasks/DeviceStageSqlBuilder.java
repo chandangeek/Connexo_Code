@@ -22,6 +22,13 @@ public class DeviceStageSqlBuilder {
     private final Set<EndDeviceStage> stages;
     private final SetStrategy setStrategy;
 
+    private DeviceStageSqlBuilder(String alias, SetStrategy setStrategy, Set<EndDeviceStage> stages) {
+        super();
+        this.alias = alias;
+        this.stages = stages;
+        this.setStrategy = setStrategy;
+    }
+
     public static DeviceStageSqlBuilder forDefaultExcludedStages(String alias) {
         return forExcludeStages(alias, EnumSet.of(EndDeviceStage.POST_OPERATIONAL, EndDeviceStage.PRE_OPERATIONAL));
     }
@@ -35,13 +42,6 @@ public class DeviceStageSqlBuilder {
             setStrategy = SetStrategy.EXCLUDE_MULTIPLE;
         }
         return new DeviceStageSqlBuilder(alias, setStrategy, stages);
-    }
-
-    private DeviceStageSqlBuilder(String alias, SetStrategy setStrategy, Set<EndDeviceStage> stages) {
-        super();
-        this.alias = alias;
-        this.stages = stages;
-        this.setStrategy = setStrategy;
     }
 
     public void appendRestrictedStagesWithClause(SqlBuilder sqlBuilder, Instant now) {
@@ -60,6 +60,11 @@ public class DeviceStageSqlBuilder {
         sqlBuilder.append("   and ES.ENDTIME >");
         sqlBuilder.addLong(now.toEpochMilli());
         sqlBuilder.append("   and ES.STATE = FS.ID)");
+    }
+
+    public void appendRestrictedStages(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(" STAGE ");
+        this.setStrategy.append(sqlBuilder, this.stages);
     }
 
     private enum SetStrategy {

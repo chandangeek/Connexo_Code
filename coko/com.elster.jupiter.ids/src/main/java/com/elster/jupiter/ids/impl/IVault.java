@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.ids.Vault;
@@ -32,4 +33,7 @@ public interface IVault extends Vault {
 
     List<TimeSeriesJournalEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval);
 
+    Optional<TimeSeriesEntry> getJournaledEntry(TimeSeriesImpl timeSeries, Instant when, Instant at);
+
+    List<TimeSeriesEntry> getEntries(List<Pair<TimeSeries, Instant>> scope);
 }

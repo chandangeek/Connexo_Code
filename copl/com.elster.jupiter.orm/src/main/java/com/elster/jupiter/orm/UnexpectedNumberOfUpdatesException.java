@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.util.exception.PersistenceException;
+
 /**
  * An insert, update or delete statment did not result in the expected number of updates.
  */

@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.util.exception.PersistenceException;
+
 import java.io.IOException;
 
 /**

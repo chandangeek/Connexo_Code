@@ -5,15 +5,16 @@ import aQute.bnd.annotation.ConsumerType;
 @ConsumerType
 public interface ApplicationSpecific {
 
-    enum WebServiceApplicationName{
+    enum WebServiceApplicationName {
         MULTISENSE("MultiSense"),
         INSIGHT("Insight"),
         MULTISENSE_INSIGHT("MultiSense, Insight"),
+        SCIM_PROVISIONING_TOOL("SCIM"),
         UNDEFINED("Application name hasn't been specified");
 
         private String name;
 
-        public String getName(){
+        public String getName() {
             return name;
         }
 

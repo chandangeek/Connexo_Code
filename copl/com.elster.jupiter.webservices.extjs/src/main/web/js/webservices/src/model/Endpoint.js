@@ -28,6 +28,8 @@ Ext.define('Wss.model.Endpoint', {
         {name: 'authenticationMethod'},
         {name: 'username', type: 'string'},
         {name: 'password', type: 'string'},
+        {name: 'clientId', type: 'string'},
+        {name: 'clientSecret', type: 'string'},
         {name: 'type', type: 'string'},
         {name: 'direction', type: 'auto'},
         {name: 'group', type: 'auto'}

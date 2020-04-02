@@ -41,13 +41,13 @@ public class EndDeviceEventType {
 
     public EndDeviceEventType(EndDeviceType type, EndDeviceDomain domain, EndDeviceSubdomain subdomain, EndDeviceEventOrAction eventOrAction) {
         this.type = type;
-        this.typeId=type.getValue();
+        this.typeId = type.getValue();
         this.domain = domain;
-        this.domainId=domain.getValue();
+        this.domainId = domain.getValue();
         this.subdomain = subdomain;
-        this.subDomainId=subdomain.getValue();
+        this.subDomainId = subdomain.getValue();
         this.eventOrAction = eventOrAction;
-        this.eventOrActionId= eventOrAction.getValue();
+        this.eventOrActionId = eventOrAction.getValue();
         this.code = type.getValue() + "." + domain.getValue() + "." + subdomain.getValue() + "." + eventOrAction.getValue();
     }
 

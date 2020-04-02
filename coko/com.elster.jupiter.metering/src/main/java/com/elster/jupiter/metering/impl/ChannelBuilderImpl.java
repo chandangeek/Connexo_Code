@@ -85,23 +85,26 @@ public class ChannelBuilderImpl implements ChannelBuilder {
                 .filter(multiplier -> multiplier.getCalculated().isPresent())
                 .filter(multiplier -> readingTypes.contains(multiplier.getMeasured()))
                 .map(multiplier -> Pair.of(multiplier.getMeasured(), multiplier.getCalculated().get()));
-        Map<ReadingType, List<Pair<ReadingType, ReadingType>>> multipliers = Stream.concat(meterMultipliers, usagePointMultipliers)
+        Map<ReadingType, List<Pair<ReadingType, ReadingType>>> multipliers = Stream.of(meterMultipliers, usagePointMultipliers)
+                .flatMap(Function.identity())
                 .collect(Collectors.groupingBy(Pair::getFirst));
 
         List<Pair<ReadingType, ReadingType>> toAdd = decorate(readingTypes.stream())
                 .map(readingType -> Optional.ofNullable(multipliers.get(readingType)).orElseGet(() -> singletonList(Pair.of(readingType, readingType))))
-                .flatMap(List::stream)
+                .map(List::stream)
+                .flatMap(Function.identity())
                 .map(this::possiblyDelta)
-                .filter(pair -> !readingTypes.contains(pair.getLast())) // we don't want the ones we already had to start
+                .filter(not(readingTypes::contains)) // we don't want the ones we already had to start
                 .collect(Collectors.toList());
 
         return decorate(
-                Stream.concat(
+                Stream.of(
                         toAdd.stream()
                                 .map(pair -> Stream.of(pair.getLast(), pair.getFirst()))
                                 .flatMap(Function.identity()),
                         readingTypes.stream()
                 ))
+                .flatMap(Function.identity())
                 .filterSubType(IReadingType.class)
                 .distinct()
                 .collect(Collectors.toList());

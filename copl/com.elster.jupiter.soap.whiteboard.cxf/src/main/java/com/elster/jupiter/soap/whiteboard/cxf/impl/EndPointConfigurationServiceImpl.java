@@ -181,6 +181,18 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         }
 
         @Override
+        public InboundEndPointConfigBuilder clientId(String clientId) {
+            instance.setClientId(clientId);
+            return this;
+        }
+
+        @Override
+        public InboundEndPointConfigBuilder clientSecret(String clientSecret) {
+            instance.setClientSecret(clientSecret);
+            return this;
+        }
+
+        @Override
         public InboundEndPointConfigBuilder withProperties(Map<String, Object> properties) {
             instance.setProperties(properties);
             return this;

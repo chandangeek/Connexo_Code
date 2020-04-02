@@ -224,13 +224,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.deviceMessageFiles.clear();
         this.allowedCalendars.clear();
         this.removeCustomProperties();
-        Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        Iterator<ServerDeviceConfiguration> iterator = this.getNonObsoleteConfigurations().iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
             ServerDeviceConfiguration deviceConfiguration = iterator.next();
             deviceConfiguration.notifyDelete();
             deviceConfiguration.prepareDelete();
-            iterator.remove();
+            deviceConfiguration.makeObsolete();
+            //iterator.remove();
         }
         this.deleteTimeOfUseManagementOption();
 
@@ -679,7 +680,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public List<RegisterSpec> getRegisterSpecs() {
         List<RegisterSpec> registerSpecs = new ArrayList<>();
-        for (DeviceConfiguration deviceConfiguration : this.deviceConfigurations) {
+        for (DeviceConfiguration deviceConfiguration : this.getNonObsoleteConfigurations()) {
             registerSpecs.addAll(deviceConfiguration.getRegisterSpecs());
         }
         return registerSpecs;
@@ -993,7 +994,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<DeviceConfiguration> getConfigurations() {
-        return ImmutableList.copyOf(this.deviceConfigurations);
+        return ImmutableList.copyOf(getNonObsoleteConfigurations());
+    }
+
+    private List<ServerDeviceConfiguration> getNonObsoleteConfigurations(){
+        return this.deviceConfigurations
+                .stream()
+                .filter(dc -> !dc.isObsolete())
+                .collect(Collectors.toList());
     }
 
     private void addConfiguration(ServerDeviceConfiguration deviceConfiguration) {
@@ -1002,13 +1010,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete) {
-        Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        Iterator<ServerDeviceConfiguration> iterator = this.getNonObsoleteConfigurations().iterator();
         while (iterator.hasNext()) {
             ServerDeviceConfiguration configuration = iterator.next();
             if (configuration.getId() == deviceConfigurationToDelete.getId()) {
                 configuration.notifyDelete();
                 configuration.prepareDelete();
-                iterator.remove();
+                configuration.makeObsolete();
+                //iterator.remove();
                 getDataModel().touch(this);
                 break;
             }
@@ -1063,7 +1072,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 this.getEventService().postEvent(EventType.DEVICE_MESSAGE_FILE_OBSOLETE.topic(), deviceMessageFile);
             });
         this.touch();
-        this.deviceConfigurations.forEach(ServerDeviceConfiguration::fileManagementDisabled);
+        this.getNonObsoleteConfigurations().forEach(ServerDeviceConfiguration::fileManagementDisabled);
     }
 
     @Override
