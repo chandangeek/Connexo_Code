@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.common.device.data.Device;
@@ -153,16 +154,12 @@ public class ConnectionMethodResource {
         }
         // TCP/IP
         if (isOutBoundTcpIp(task.getPluggableClass())) {
-            return !StringIsEmpty(connectionMethodInfo.comPortPool) &&
+            return !Checks.is(connectionMethodInfo.comPortPool).empty() &&
                     props.stream().anyMatch(prop -> prop.name.equals("host") && hasValue(prop))
                     && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && hasValue(prop));
         }
         //Serial Optical
-        return !StringIsEmpty(connectionMethodInfo.comPortPool);
-    }
-
-    private boolean StringIsEmpty(String str) {
-        return str == null || str.length() == 0;
+        return !Checks.is(connectionMethodInfo.comPortPool).empty();
     }
 
     private boolean hasValue(PropertyInfo prop) {

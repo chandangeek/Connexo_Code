@@ -861,9 +861,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     public void addSuccessfulComTaskExecution(ComTaskExecution comTaskExecution, boolean mmr) {
         if (!hasMMRTask(comTaskExecution) || mmr) {
             if (!getSuccessFullComTaskExecutions().contains(comTaskExecution)) {
-                if (comTaskExecution instanceof ComTaskExecutionImpl) {
-                    ((ComTaskExecutionImpl) comTaskExecution).setStatus(TaskStatus.Waiting);
-                }
+                comTaskExecution.setStatus(TaskStatus.Waiting);
                 getSuccessFullComTaskExecutions().add(comTaskExecution);
             }
             if (getFailedComTaskExecutions().contains(comTaskExecution)) {
@@ -883,9 +881,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     public void addFailedComTaskExecution(ComTaskExecution comTaskExecution, boolean mmr) {
         if (!hasMMRTask(comTaskExecution) || mmr) {
             if (!getFailedComTaskExecutions().contains(comTaskExecution)) {
-                if (comTaskExecution instanceof ComTaskExecutionImpl) {
-                    ((ComTaskExecutionImpl) comTaskExecution).setStatus(TaskStatus.Failed);
-                }
+                comTaskExecution.setStatus(TaskStatus.Failed);
                 getFailedComTaskExecutions().add(comTaskExecution);
             }
             if (getSuccessFullComTaskExecutions().contains(comTaskExecution)) {
