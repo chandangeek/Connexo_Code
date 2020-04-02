@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleExclGroupInfoFacto
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -73,6 +74,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile Clock clock;
+    private volatile IssueResourceUtility issueResourceUtility;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -105,6 +107,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility){
+        this.issueResourceUtility = issueResourceUtility;
     }
 
     @Reference
@@ -214,6 +221,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
             bind(clock).to(Clock.class);
+            bind(issueResourceUtility).to(IssueResourceUtility.class);
         }
     }
 

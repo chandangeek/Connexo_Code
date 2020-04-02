@@ -182,7 +182,6 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         decorate(records.stream()).filterSubType(ReadingQualityRecordImpl.class).forEach(ReadingQualityRecordImpl::notifyDeleted);
     }
 
-
     @Override
     public Instant getReadingTimestamp() {
         return readingTimestamp;

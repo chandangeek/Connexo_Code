@@ -19,6 +19,8 @@ import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -116,7 +118,9 @@ public class MetrologyInMemoryBootstrapModule {
                 new CustomPropertySetsModule(),
                 new SearchModule(),
                 new AuditServiceModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);

@@ -154,7 +154,7 @@ public class HeadEndControllerTest {
 
     private HeadEndController headEndController;
     private PropertySpecService propertySpecService;
-
+    private List<SecurityAccessorType> securityAccessorTypes = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -175,6 +175,7 @@ public class HeadEndControllerTest {
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
 
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
+        securityAccessorTypes.add(securityAccessorType);
     }
 
     private void setUpThesaurus() {
@@ -226,7 +227,7 @@ public class HeadEndControllerTest {
 
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
-        when(commandFactory.createKeyRenewalCommand(endDevice, securityAccessorType)).thenReturn(endDeviceCommand);
+        when(commandFactory.createKeyRenewalCommand(endDevice, securityAccessorTypes)).thenReturn(endDeviceCommand);
         PropertySpec keyAccessorTypeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
                 .named(KEY_ACCESSORTYPE_ATTRIBUTE_TRANSLATION_KEY)
@@ -239,7 +240,7 @@ public class HeadEndControllerTest {
         headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
 
         // Asserts
-        verify(commandFactory).createKeyRenewalCommand(endDevice, securityAccessorType);
+        verify(commandFactory).createKeyRenewalCommand(endDevice, securityAccessorTypes);
         verify(headEndInterface).sendCommand(endDeviceCommand, deviceCommandInfo.activationDate, serviceCall);
         verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }

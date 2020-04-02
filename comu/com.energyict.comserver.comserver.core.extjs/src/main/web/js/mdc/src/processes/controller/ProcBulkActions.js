@@ -541,75 +541,78 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                     var decodedRsponse =  Ext.decode(response.responseText);
                     var msgText;
 
-                    if (decodedRsponse.processHistories.length > 0)
-                    {
-                        var validatedProcesses = decodedRsponse.processHistories;
-                        var tmpObjId;
-                        var tmpObjType;
-                        switch (validatedProcesses[0].variableId) {
-                            case 'deviceId':
-                                tmpObjId = 'deviceId';
-                                tmpObjType = 'device';
-                            break;
-                            case 'alarmId':
-                                tmpObjId = 'alarmId';
-                                tmpObjType = 'alarm';
-                            break;
-                            case 'issueId':
-                                tmpObjId = 'issueId';
-                                tmpObjType = 'issue';
-                            break;
-                            }
+                    if (success){
+                        if (decodedRsponse.processHistories && decodedRsponse.processHistories.length > 0)
+                        {
+                            var validatedProcesses = decodedRsponse.processHistories;
+                            var tmpObjId;
+                            var tmpObjType;
+                            switch (validatedProcesses[0].variableId) {
+                                case 'deviceId':
+                                    tmpObjId = 'deviceId';
+                                    tmpObjType = 'device';
+                                break;
+                                case 'alarmId':
+                                    tmpObjId = 'alarmId';
+                                    tmpObjType = 'alarm';
+                                break;
+                                case 'issueId':
+                                    tmpObjId = 'issueId';
+                                    tmpObjType = 'issue';
+                                break;
+                                }
 
-                            var array =  validatedProcesses.map(function (value){
-                                return {
-                                    id: tmpObjId,
-                                    type: tmpObjType,
-                                    value: value.value
-                                    }
-                                });
-                        record.set('objectsToStartProcess',array);
+                                var array =  validatedProcesses.map(function (value){
+                                    return {
+                                        id: tmpObjId,
+                                        type: tmpObjType,
+                                        value: value.value
+                                        }
+                                    });
+                            record.set('objectsToStartProcess',array);
 
-                        msgText = Uni.I18n.translate('processes.processesToRetry.validateOkTitle', 'MDC', '<h3>Retry selected process instances?</h3><br>') +
-                                  Uni.I18n.translatePlural('processes.processesToRetry.validateOkMsg', decodedRsponse.processHistories.length, 'MDC', '-', '{0} process instances will be restarted', '{0} process instances will be restarted');
-
-
-                        widget = Ext.widget('container', {
-                                    style: 'margin: 20px 0',
-                                    html: msgText
-                                });
-                                Ext.suspendLayouts();
-                                step4Panel.removeAll(true);
-                                Ext.resumeLayouts();
-                                step4Panel.add(widget);
+                            msgText = Uni.I18n.translate('processes.processesToRetry.validateOkTitle', 'MDC', '<h3>Retry selected process instances?</h3><br>') +
+                                      Uni.I18n.translatePlural('processes.processesToRetry.validateOkMsg', decodedRsponse.processHistories.length, 'MDC', '-', '{0} process instances will be restarted', '{0} process instances will be restarted');
 
 
+                            widget = Ext.widget('container', {
+                                        style: 'margin: 20px 0',
+                                        html: msgText
+                                    });
+                                    Ext.suspendLayouts();
+                                    step4Panel.removeAll(true);
+                                    Ext.resumeLayouts();
+                                    step4Panel.add(widget);
 
 
-                        me.getBulkNavigation().moveNextStep();
-                        me.setBulkActionListActiveItem(wizard);
-                        wizard.getLayout().setActiveItem(++wizard.activeItemId);
-                        wizard.fireEvent('wizardpagechange', wizard);
-
-                    }else{
-
-                        msgText = Uni.I18n.translate('processes.processesToRetry.validateNotOkMsg', 'MDC', 'No process instances can be retried');
-
-                        widget = Ext.widget('container', {
-                            style: 'margin: 20px 0',
-                            html: msgText
-                        });
-                        Ext.suspendLayouts();
-                        step4Panel.removeAll(true);
-                        Ext.resumeLayouts();
-                        step4Panel.add(widget);
 
 
-                        me.getBulkNavigation().moveNextStep();
-                        me.setBulkActionListActiveItem(wizard);
-                        wizard.getLayout().setActiveItem(++wizard.activeItemId);
-                        wizard.fireEvent('wizardpagechange', wizard);
-                        wizard.down('#finish').disable();
+                            me.getBulkNavigation().moveNextStep();
+                            me.setBulkActionListActiveItem(wizard);
+                            wizard.getLayout().setActiveItem(++wizard.activeItemId);
+                            wizard.fireEvent('wizardpagechange', wizard);
+
+                        }else{
+
+                            msgText = Uni.I18n.translate('processes.processesToRetry.validateNotOkMsg', 'MDC', 'No process instances can be retried');
+
+                            widget = Ext.widget('container', {
+                                style: 'margin: 20px 0',
+                                html: msgText
+                            });
+                            Ext.suspendLayouts();
+                            step4Panel.removeAll(true);
+                            Ext.resumeLayouts();
+                            step4Panel.add(widget);
+
+
+                            me.getBulkNavigation().moveNextStep();
+                            me.setBulkActionListActiveItem(wizard);
+                            wizard.getLayout().setActiveItem(++wizard.activeItemId);
+                            wizard.fireEvent('wizardpagechange', wizard);
+                            wizard.down('#finish').disable();
+                        }
+
                     }
 
                     wizard.setLoading(false);

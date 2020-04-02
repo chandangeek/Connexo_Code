@@ -11,10 +11,18 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTableProperty;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsSession;
+
+import javax.jms.JMSException;
+import javax.jms.QueueConnection;
+import javax.jms.Session;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,16 +33,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jms.JMSException;
-import javax.jms.QueueConnection;
-import javax.jms.Session;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueueTableSpecImplTest {
@@ -69,7 +78,7 @@ public class QueueTableSpecImplTest {
         when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, aqFacade, thesaurus));
         when(dataModel.getConnection(false)).thenReturn(connection);
         when(dataModel.mapper(QueueTableSpec.class)).thenReturn(queueTableSpecFactory);
-        queueTableSpec = QueueTableSpecImpl.from(dataModel, NAME, PAYLOAD_TYPE, MULTI_CONSUMER);
+        queueTableSpec = QueueTableSpecImpl.from(dataModel, NAME, PAYLOAD_TYPE, null, MULTI_CONSUMER);
         when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
         when(queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE)).thenReturn(aqJmsSession);
         when(connection.unwrap(any())).thenReturn(connection);

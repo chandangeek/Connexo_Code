@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.pubsub.Publisher;
@@ -22,7 +23,10 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.MacExceptionInfo;
 import com.elster.jupiter.rest.util.MacExceptionMapper;
 import com.elster.jupiter.rest.util.OptimisticLockExceptionMapper;
+import com.elster.jupiter.rest.util.PersistenceExceptionMapper;
 import com.elster.jupiter.rest.util.RestExceptionMapper;
+import com.elster.jupiter.rest.util.SensitiveExceptionInfo;
+import com.elster.jupiter.rest.util.SqlExceptionMapper;
 import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -51,6 +55,7 @@ import org.osgi.service.http.HttpService;
 
 import javax.servlet.http.HttpServlet;
 import javax.ws.rs.core.Application;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,6 +79,7 @@ public class WhiteBoard {
     private volatile WhiteBoardConfiguration configuration;
     private volatile HttpAuthenticationService authenticationService;
     private volatile JsonService jsonService;
+    private volatile CSRFFilterService csrfFilterService;
 
     private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
@@ -126,6 +132,11 @@ public class WhiteBoard {
         this.authenticationService = authenticationService;
     }
 
+    @Reference
+    public void setCSRFFilterService(CSRFFilterService csrfFilterService) {
+        this.csrfFilterService = csrfFilterService;
+    }
+
     Publisher getPublisher() {
         return publisher;
     }
@@ -142,7 +153,7 @@ public class WhiteBoard {
     @Reference(name = "YServiceLocator")
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
         this.configuration = provider.getConfiguration();
-        this.httpContext = new HttpContextImpl(authenticationService);
+        this.httpContext = new HttpContextImpl(authenticationService, csrfFilterService);
     }
 
 	void fire(RestCallExecutedEvent event) {
@@ -180,6 +191,8 @@ public class WhiteBoard {
         secureConfig.register(TransactionWrapper.class);
         secureConfig.register(ConcurrentModificationExceptionMapper.class);
         secureConfig.register(MacExceptionMapper.class);
+        secureConfig.register(PersistenceExceptionMapper.class);
+        secureConfig.register(SqlExceptionMapper.class);
         secureConfig.register(GenericExceptionMapper.class);
         secureConfig.register(urlRewriteFilter);
         secureConfig.register(new AbstractBinder() {
@@ -188,6 +201,7 @@ public class WhiteBoard {
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
                 bind(GenericExceptionInfo.class).to(GenericExceptionInfo.class);
+                bind(SensitiveExceptionInfo.class).to(SensitiveExceptionInfo.class);
                 bind(MacExceptionInfo.class).to(MacExceptionInfo.class);
                 bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
                 bind(jsonService).to(JsonService.class);

@@ -1667,7 +1667,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                 g3NeighborBuilder.nodeAddress(topologyNeighbour.getNodeAddress());
                 g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
                 g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
-                g3NeighborBuilder.lastPathRequest(topologyNeighbour.getLastPathRequest().toInstant());
+                java.util.Date last_path_request = topologyNeighbour.getLastPathRequest();
+                if( last_path_request != null )
+                    g3NeighborBuilder.lastPathRequest(last_path_request.toInstant());
                 g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                 g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
             } else {
@@ -1710,7 +1712,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                             g3NeighborBuilder.nodeAddress(macAddress);
                             g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
                             g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
-                            g3NeighborBuilder.lastPathRequest(topologyNeighbour.getLastPathRequest().toInstant());
+                            java.util.Date last_path_request = topologyNeighbour.getLastPathRequest();
+                            if( last_path_request != null )
+                                g3NeighborBuilder.lastPathRequest(last_path_request.toInstant());
                             g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                             g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
                         }

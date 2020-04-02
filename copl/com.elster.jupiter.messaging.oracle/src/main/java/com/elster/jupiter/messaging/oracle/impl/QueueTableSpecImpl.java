@@ -5,10 +5,15 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageSeeds;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.UnderlyingAqException;
+import com.elster.jupiter.messaging.UnderlyingJmsException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTable;
 import oracle.AQ.AQQueueTableProperty;
@@ -35,6 +40,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     private boolean multiConsumer;
     private boolean active;
     private boolean isPrioritized;
+    private String storageClause;
 
     @SuppressWarnings("unused")
     private long version;
@@ -57,21 +63,22 @@ public class QueueTableSpecImpl implements QueueTableSpec {
         this.thesaurus = thesaurus;
     }
 
-    QueueTableSpecImpl init(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
+    static QueueTableSpecImpl from(DataModel dataModel, String name, String payloadType, String storageClause, boolean multiConsumer) {
+        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, storageClause, multiConsumer, false);
+    }
+
+    static QueueTableSpecImpl from(DataModel dataModel, String name, String payloadType, String storageClause, boolean multiConsumer, boolean isPrioritized) {
+        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, storageClause, multiConsumer, isPrioritized);
+    }
+
+    QueueTableSpecImpl init(String name, String payloadType, String storageClause, boolean multiConsumer, boolean isPrioritized) {
         this.name = name;
         this.payloadType = payloadType;
+        this.storageClause = storageClause;
         this.multiConsumer = multiConsumer;
         this.isPrioritized = isPrioritized;
         this.fromDB = false;
         return this;
-    }
-
-    static QueueTableSpecImpl from(DataModel dataModel, String name, String payloadType, boolean multiConsumer) {
-        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, multiConsumer, false);
-    }
-
-    static QueueTableSpecImpl from(DataModel dataModel, String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
-        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, multiConsumer, isPrioritized);
     }
 
     @Override
@@ -127,6 +134,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
             AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
             AQQueueTableProperty properties = new AQQueueTableProperty(payloadType);
             properties.setMultiConsumer(multiConsumer);
+            properties.setStorageClause(storageClause);
             session.createQueueTable("kore", name, properties);
         } finally {
             queueConnection.close();
@@ -198,6 +206,11 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     @Override
+    public String getStorageClause() {
+        return storageClause;
+    }
+
+    @Override
     public boolean isActive() {
         return active;
     }
@@ -215,7 +228,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     @Override
     public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName, isExtraQueueCreationEnabled,false);
+        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName, isExtraQueueCreationEnabled, false);
     }
 
     @Override
@@ -226,7 +239,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     public AQQueueTable getAqQueueTable(AQjmsSession session) throws JMSException {
         return session.getQueueTable("kore", name);
     }
-    
+
     @Override
     public void save() {
         if (fromDB) {

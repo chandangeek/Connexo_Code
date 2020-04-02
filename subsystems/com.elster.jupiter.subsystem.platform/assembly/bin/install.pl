@@ -18,12 +18,12 @@ use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20200326";
+my $INSTALL_VERSION="v20200401";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
 my $SCRIPT_DIR=dirname(abs_path($0));
-my $CONNEXO_DIR="$SCRIPT_DIR/..";
+my $CONNEXO_DIR=dirname($SCRIPT_DIR);
 
 my $parameter_file=0;
 my $install=1;
@@ -125,6 +125,7 @@ sub check_root {
 sub check_java8 {
     if ("$JAVA_HOME" eq "") {
         $JAVA_HOME=$ENV{"JAVA_HOME"};
+        print "Detected JAVA_HOME from environment: $JAVA_HOME\n";
     }
     if (-d "$JAVA_HOME") {
         $ENV{"JAVA_HOME"}=$JAVA_HOME;
@@ -139,6 +140,7 @@ sub check_java8 {
     } else {
         my $JAVA_VERSION=`"$JAVA_HOME/bin/java" -fullversion 2>&1`;
         $JAVA_VERSION=~s/(.*)"(\d).(\d).(.*)/$2.$3/;
+        print "Detected Java version: $JAVA_VERSION\n";
         chomp($JAVA_VERSION);
         if ( "$JAVA_VERSION" ne "1.8" ) {
             print "Please install Java 8\n";
@@ -256,7 +258,8 @@ sub read_config {
         chomp($SYSTEM_IDENTIFIER=<STDIN>);
         print "Please enter the system identifier color: ";
         chomp($SYSTEM_IDENTIFIER_COLOR=<STDIN>);
-        print "Please enter the hostname (leave empty to use the system variable): ";
+        $HOST_NAME=hostname;
+        print "Please enter the hostname (leave empty to use the system variable: $HOST_NAME): ";
         chomp($HOST_NAME=<STDIN>);
         while (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
             print "Please enter the admin password (different from \"admin\"): ";
@@ -454,8 +457,8 @@ sub install_connexo {
 			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             update_properties_file_with_encrypted_password();
 
-			replace_in_file("$CONNEXO_DIR/Connexo.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
-			replace_in_file("$CONNEXO_DIR/ConnexoService.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+			replace_in_file("$CONNEXO_DIR/bin/Connexo.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+			replace_in_file("$CONNEXO_DIR/bin/ConnexoService.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 
             if ("$ACTIVATE_SSO" eq "yes") {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
@@ -897,7 +900,7 @@ sub activate_sso {
                 print $FH "   RedirectMatch /rest(.*)\$ https://\${HOSTNAME}/rest\$1 [P]\n";
                 print $FH "   RedirectMatch /flow(.*)\$ https://\${HOSTNAME}/flow\$1/\n";
                 print $FH "   RedirectMatch /facts(.*)\$ https://\${HOSTNAME}/facts\$1/\n";
-                print $FH "   RedirectMatch /apps(.+)\$ https://\${HOSTNAME}/apps\$1\n"";
+                print $FH "   RedirectMatch /apps(.+)\$ https://\${HOSTNAME}/apps\$1\n";
                 print $FH "\n";
                 print $FH "   ProxyPassReverse / http://\${HOSTNAME}:80/\n";
                 print $FH "   ProxyPassReverse / http://\${HOSTNAME}:443/\n";
@@ -905,7 +908,7 @@ sub activate_sso {
                 print $FH "\n";
                 print $FH "</VirtualHost>\n";
                 print $FH "\n\n";
-                print $FH "<VirtualHost ${HOSTNAME}:443>\n";
+                print $FH "<VirtualHost \${HOSTNAME}:443>\n";
                 print $FH "   ServerName \${HOSTNAME}\n";
                 print $FH "\n";
                 print $FH "   SSLEngine on\n";
@@ -953,7 +956,7 @@ sub activate_sso {
                 print $FH "   RewriteRule ^/facts(.+)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts\$1 [P]\n";
                 print $FH "\n";
                 print $FH "# Redirect index to login page\n";
-                print $FH "   RewriteRule ^$ /apps/login/index.html [L]\n";
+                print $FH "   RewriteRule ^\$ /apps/login/index.html [L]\n";
                 print $FH "</VirtualHost>\n";
                 close $FH;
             }
@@ -1778,6 +1781,7 @@ print "| Installation script started at ".localtime(time)." |\n";
 print "'---------------------------------------------------------'\n";
 check_root();
 check_create_users();
+print "Detected installation folder: $CONNEXO_DIR\n";
 if ("$OS" eq "linux" ){
     system(chmod "-R 755 $CONNEXO_DIR");
     print "Setting the needed folder rights. Done!\n";

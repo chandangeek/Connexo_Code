@@ -50,7 +50,7 @@ public class DestinationSpecResourceTest extends MessagingApplicationTest {
 
         when(messageService.getSubscribers()).thenReturn(Arrays.asList(subscriberSpec));
         when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
-        when(messageService.createQueueTableSpec(anyString(), eq("RAW"), eq(false), eq(false))).thenReturn(queueTableSpec);
+        when(messageService.createQueueTableSpec(anyString(), eq("RAW"), anyString(), eq(false), eq(false))).thenReturn(queueTableSpec);
     }
 
     private void whenClientCallsPost(String uriPath, DestinationSpecInfo info) {

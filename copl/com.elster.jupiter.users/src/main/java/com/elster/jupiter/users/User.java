@@ -4,10 +4,9 @@
 
 package com.elster.jupiter.users;
 
-import com.elster.jupiter.util.HasName;
-
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.HasExternalId;
+import com.elster.jupiter.util.HasName;
 
 import java.security.Principal;
 import java.time.Instant;
@@ -18,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @ProviderType
-public interface User extends Principal, HasName {
+public interface User extends Principal, HasName, HasExternalId {
 
     long getId();
 

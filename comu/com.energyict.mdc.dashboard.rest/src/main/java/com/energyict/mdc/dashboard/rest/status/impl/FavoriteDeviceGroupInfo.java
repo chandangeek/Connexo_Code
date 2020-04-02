@@ -15,7 +15,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FavoriteDeviceGroupInfo {
     
-    public static Comparator<FavoriteDeviceGroupInfo> byNameComparator = (info1, info2) -> info1.name.compareTo(info2.name);
+    public static Comparator<FavoriteDeviceGroupInfo> byNameComparator = (info1, info2) -> info1.name.compareToIgnoreCase(info2.name);
     
     public long id;
     public String mRID;
