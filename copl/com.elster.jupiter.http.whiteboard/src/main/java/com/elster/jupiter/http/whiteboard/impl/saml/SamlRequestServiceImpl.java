@@ -37,6 +37,8 @@ public class SamlRequestServiceImpl implements SamlRequestService {
 
     private static final Logger LOGGER = Logger.getLogger(SamlRequestServiceImpl.class.getName());
 
+    private static final SAMLUtilities samlUtilities = SAMLUtilities.getInstance();
+
     @Override
     public AuthnRequest createAuthnRequest(String assertionConsumerServiceUrl, String requestId, DateTime issueInstant, String issuerName) {
         XMLObjectBuilderFactory builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory();
@@ -95,8 +97,7 @@ public class SamlRequestServiceImpl implements SamlRequestService {
         try {
             AuthnRequest authnRequest = this.createAuthnRequest(acsEndpoint, UUID.randomUUID().toString(), DateTime.now(), request.getRequestURL().toString());
             String convertedAuthnRequest = this.convertXmlObjectToString(authnRequest);
-            return Optional.of(Base64.encodeBase64String(CompressionUtils.deflate(SAMLUtilities.getBytesWithCatch(convertedAuthnRequest, SAMLUtilities.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64))));
-
+            return Optional.of(Base64.encodeBase64String(CompressionUtils.deflate(samlUtilities.getBytesWithCatch(convertedAuthnRequest, samlUtilities.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64))));
         } catch (SAMLException e) {
             LOGGER.log(Level.SEVERE, "Error while trying to create SAML Request", e);
         }

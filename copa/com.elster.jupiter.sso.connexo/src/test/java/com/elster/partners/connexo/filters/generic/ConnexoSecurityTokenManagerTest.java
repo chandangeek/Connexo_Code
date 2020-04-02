@@ -68,7 +68,7 @@ public class ConnexoSecurityTokenManagerTest {
         ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
         System.setProperty("com.elster.jupiter.token.refresh.maxcount", "100");
         System.setProperty("com.elster.jupiter.timeout", "300");
-        System.setProperty("com.elster.jupiter.token.expirationtime", "300");
+        System.setProperty("com.elster.jupiter.token.expirationtime", "1800");
         System.setProperty("com.elster.jupiter.sso.public.key", "test-key");
 
         // When
