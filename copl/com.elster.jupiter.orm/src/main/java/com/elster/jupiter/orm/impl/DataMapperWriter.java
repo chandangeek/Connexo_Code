@@ -274,7 +274,7 @@ public class DataMapperWriter<T> {
                     if (versionCountColumns.length == 0) {
                         throw new UnexpectedNumberOfUpdatesException(1, result, UnexpectedNumberOfUpdatesException.Operation.UPDATE);
                     } else {
-                        throw new OptimisticLockException();
+                        throw new OptimisticLockException(getTable().getName());
                     }
                 }
             } finally {
