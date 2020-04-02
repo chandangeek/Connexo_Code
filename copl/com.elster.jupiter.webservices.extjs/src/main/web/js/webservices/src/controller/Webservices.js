@@ -257,6 +257,10 @@ Ext.define('Wss.controller.Webservices', {
             record.set('username',null);
             record.set('password',null);
         }
+        if(authenticationMethod.data.id === 'OAUTH2_FRAMEWORK'){
+            record.set('clientId', form.down('#clientIdField').getValue());
+            record.set('clientSecret', form.down('#clientSecretField').getValue());
+        }
         if(form.down('#userRoleField')) {
             var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
             if(userGroup && userGroup.get('id')==='all'){

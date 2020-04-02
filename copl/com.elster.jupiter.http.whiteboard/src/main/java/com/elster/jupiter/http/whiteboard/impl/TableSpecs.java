@@ -4,13 +4,16 @@
 
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
+
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 
 public enum TableSpecs {
     HTW_KEYSTORE(KeyStoreImpl.class) {
-
         @Override
         void describeTable(Table table) {
             table.map(KeyStoreImpl.class);
@@ -22,6 +25,22 @@ public enum TableSpecs {
             table.primaryKey("HTW_PK_KEYSTORE").on(idColumn).add();
             table.unique("HTW_U_PUBKEY").on(publicKeyColumn).add();
             table.unique("HTW_U_PRVKEY").on(privateKeyColumn).add();
+        }
+    },
+    HTW_JWTSTORE(UserJWT.class) {
+        @Override
+        void describeTable(Table table) {
+            table.since(Version.version(10, 8));
+            table.map(UserJWT.class);
+
+            Column jwtIdColumn = table.column("JWT_ID").varChar().notNull().map("jwtId").add();
+            Column userIdColumn = table.column("USER_ID").number().map("userId").add();
+            Column tokenColumn = table.column("TOKEN").varChar().notNull().map("token").add();
+            Column expirationDateColumn = table.column("EXPIRATION_DATE").number().conversion(NUMBER2INSTANT).map("expirationDate").add();
+
+            table.addCreateTimeColumn("CREATION_DATE", "creationDate");
+
+            table.primaryKey("JWT_PK_JWTSTORE").on(jwtIdColumn).add();
         }
     };
 

@@ -15,6 +15,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -119,6 +121,8 @@ public class InMemoryIntegrationPersistence {
         modules.add(new ServiceCallModule());
         modules.add(new WebServicesModule());
         modules.add(new AuditServiceModule());
+        modules.add(new TokenModule());
+        modules.add(new BlackListModule());
         modules.add(bootstrapModule);
 
         injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));

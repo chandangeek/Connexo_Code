@@ -86,9 +86,10 @@ public class EndPointConfigurationInfoFactory {
             } else {
                 info.previewUrl = null;
             }
-
             ((InboundEndPointConfiguration) endPointConfiguration).getGroup()
                     .ifPresent(g -> info.group = new LongIdWithNameInfo(g.getId(), g.getName()));
+            info.clientId = ((InboundEndPointConfiguration) endPointConfiguration).getClientId();
+            info.clientSecret = ((InboundEndPointConfiguration) endPointConfiguration).getClientSecret();
         } else {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
@@ -124,6 +125,10 @@ public class EndPointConfigurationInfoFactory {
                         .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_GROUP));
                 builder.group(group);
             }
+        }
+        if (EndPointAuthentication.OAUTH2_FRAMEWORK.equals(info.authenticationMethod.id)){
+            builder.clientId(info.clientId);
+            builder.clientSecret(info.clientSecret);
         }
         builder.traceFile(info.traceFile);
         if (info.properties != null) {
@@ -188,6 +193,9 @@ public class EndPointConfigurationInfoFactory {
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GROUP));
                 endPointConfiguration.setGroup(group);
             }
+        } else if(EndPointAuthentication.OAUTH2_FRAMEWORK.equals(info.authenticationMethod.id)){
+           endPointConfiguration.setClientId(info.clientId);
+           endPointConfiguration.setClientSecret(info.clientSecret);
         }
         return endPointConfiguration;
     }

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.pubsub.Publisher;
@@ -74,6 +75,7 @@ public class WhiteBoard {
     private volatile WhiteBoardConfiguration configuration;
     private volatile HttpAuthenticationService authenticationService;
     private volatile JsonService jsonService;
+    private volatile CSRFFilterService csrfFilterService;
 
     private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
@@ -126,6 +128,11 @@ public class WhiteBoard {
         this.authenticationService = authenticationService;
     }
 
+    @Reference
+    public void setCSRFFilterService(CSRFFilterService csrfFilterService) {
+        this.csrfFilterService = csrfFilterService;
+    }
+
     Publisher getPublisher() {
         return publisher;
     }
@@ -142,7 +149,7 @@ public class WhiteBoard {
     @Reference(name = "YServiceLocator")
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
         this.configuration = provider.getConfiguration();
-        this.httpContext = new HttpContextImpl(authenticationService);
+        this.httpContext = new HttpContextImpl(authenticationService, csrfFilterService);
     }
 
 	void fire(RestCallExecutedEvent event) {

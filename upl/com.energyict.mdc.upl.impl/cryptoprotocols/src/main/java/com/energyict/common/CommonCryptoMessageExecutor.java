@@ -436,16 +436,16 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
                     keyType = 2;        // global authentication key
                     String newAKString = getDeviceMessageAttributeValue(globalKeyMessage, newAuthenticationKeyAttributeName);
                     newAK = getWrappedServiceKey(newAKString);
-                    if (newAK.length != 16) {
-                        throw new ProtocolException("The new authentication key should be 32 hex characters");
+                    if (newAK.length != 24) {
+                        throw new ProtocolException("The new wrapped authentication key should be 48 hex characters");
                     }
                     newKey = newAK;
                 } else if (globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS.id()) {
                     keyType = 0;        // global unicast encryption key
                     String newEKString = getDeviceMessageAttributeValue(globalKeyMessage, newEncryptionKeyAttributeName);
                     newEK = getWrappedServiceKey(newEKString);
-                    if (newEK.length != 16) {
-                        throw new ProtocolException("The new encryption key should be 32 hex characters");
+                    if (newEK.length != 24) {
+                        throw new ProtocolException("The new wrapped encryption key should be 48 hex characters");
                     }
                     newKey = newEK;
                 }
