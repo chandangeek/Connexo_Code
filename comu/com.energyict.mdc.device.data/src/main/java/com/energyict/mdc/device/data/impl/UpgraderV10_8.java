@@ -33,6 +33,7 @@ public class UpgraderV10_8 implements Upgrader {
             removeAllCRL();
         }
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
+        installerV10_8.install(dataModelUpgrader, Logger.getAnonymousLogger());
         if (upgradeCRLneeded) {
             updateCRLTable();
         }
