@@ -12,7 +12,7 @@ enum MessageSeeds implements MessageSeed {
     DOES_NOT_EXIST(1001, "Entity with identification {0} does not exist."),
     NOT_UNIQUE(1002, "Not Unique by identification {0}"),
     SQL(1003, "Underlying SQL failed"),
-    OPTIMISTIC_LOCK(1004, "Optimistic lock failed."),
+    OPTIMISTIC_LOCK(1004, "Optimistic lock for table (0) failed."),
     TRANSACTION_REQUIRED(1005, "Transaction required for this operation."),
     MAPPING_INTROSPECTION_FAILED(1006, "Mapping introspection failed."),
     MAPPING_MISMATCH(1007, "Mapping mismatch"),
