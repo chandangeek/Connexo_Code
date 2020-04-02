@@ -64,7 +64,7 @@ com.elster.jupiter.energyaxis.url=
 #com.elster.jupiter.bpm.password=password
 com.elster.jupiter.timeout=1800
 com.elster.jupiter.token.refresh.maxcount=100
-com.elster.jupiter.token.expirationtime=1800
+com.elster.jupiter.token.expirationtime=100000
 
 #com.elster.jupiter.yellowfin.user=username
 #com.elster.jupiter.yellowfin.password=password
