@@ -27,8 +27,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
-import org.apache.commons.lang.StringUtils;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -155,12 +153,16 @@ public class ConnectionMethodResource {
         }
         // TCP/IP
         if (isOutBoundTcpIp(task.getPluggableClass())) {
-            return !StringUtils.isEmpty(connectionMethodInfo.comPortPool) &&
+            return !StringIsEmpty(connectionMethodInfo.comPortPool) &&
                     props.stream().anyMatch(prop -> prop.name.equals("host") && hasValue(prop))
                     && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && hasValue(prop));
         }
         //Serial Optical
-        return !StringUtils.isEmpty(connectionMethodInfo.comPortPool);
+        return !StringIsEmpty(connectionMethodInfo.comPortPool);
+    }
+
+    private boolean StringIsEmpty(String str) {
+        return str == null || str.length() == 0;
     }
 
     private boolean hasValue(PropertyInfo prop) {
