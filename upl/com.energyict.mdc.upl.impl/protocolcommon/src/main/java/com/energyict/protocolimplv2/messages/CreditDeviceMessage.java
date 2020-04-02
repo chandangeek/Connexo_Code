@@ -36,7 +36,6 @@ public enum CreditDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.currency, DeviceMessageConstants.currencyDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.remainingCreditHigh, DeviceMessageConstants.remainingCreditHighDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.remainingCreditLow, DeviceMessageConstants.remainingCreditLowDefaultTranslation)
             );
