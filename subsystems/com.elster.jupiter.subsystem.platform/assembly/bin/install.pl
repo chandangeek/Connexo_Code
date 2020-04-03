@@ -457,11 +457,14 @@ sub install_connexo {
 			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             update_properties_file_with_encrypted_password();
 
+            add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.host=$HOST_NAME");
+            add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=https");
+
 			replace_in_file("$CONNEXO_DIR/bin/Connexo.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 			replace_in_file("$CONNEXO_DIR/bin/ConnexoService.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 
             if ("$ACTIVATE_SSO" eq "yes") {
-                replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
+                replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=https://$HOST_NAME/apps/multisense/index.html");
             } else {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT/apps/multisense/index.html");
             }
