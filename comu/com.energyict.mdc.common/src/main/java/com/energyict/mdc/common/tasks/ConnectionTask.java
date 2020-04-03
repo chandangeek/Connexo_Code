@@ -339,6 +339,12 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      */
     void activate();
 
+    /**
+     * Pauses this connectionTask, i.e. temporarily disables its execution.
+     * Edition of connection task is not complete
+     */
+    void invalidateStatus();
+
     void save();
 
     long getVersion();

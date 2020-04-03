@@ -55,7 +55,7 @@ public class FirmwareMessageInfoFactory {
                 FirmwareType firmwareType = null;
                 if (strFirmwareType != null) {
                     try {
-                        FirmwareTypeFieldAdapter.INSTANCE.unmarshal(strFirmwareType);
+                        firmwareType = FirmwareTypeFieldAdapter.INSTANCE.unmarshal(strFirmwareType);
                     } catch (Exception ex) {
                         throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "firmwareType");
                     }
