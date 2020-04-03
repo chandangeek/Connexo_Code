@@ -13,8 +13,8 @@ public class OptimisticLockException extends PersistenceException {
 	
 	private static final long serialVersionUID = 1;
 	
-	public OptimisticLockException() {
-		super(MessageSeeds.OPTIMISTIC_LOCK);
+	public OptimisticLockException(String tableName) {
+		super(MessageSeeds.OPTIMISTIC_LOCK, tableName);
 	}
 	
 }

@@ -27,8 +27,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -132,7 +130,7 @@ class KeyStoreDataVault implements DataVault {
     }
 
     private Cipher getEncryptionCipherForKey(int keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException {
-        Cipher cipher = cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.encrypt.asInt(), createKeySpecForKey(keyAlias));
         return cipher;
     }
@@ -144,7 +142,7 @@ class KeyStoreDataVault implements DataVault {
             NoSuchPaddingException,
             InvalidKeyException,
             InvalidAlgorithmParameterException {
-        Cipher cipher = cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
         return cipher;
     }

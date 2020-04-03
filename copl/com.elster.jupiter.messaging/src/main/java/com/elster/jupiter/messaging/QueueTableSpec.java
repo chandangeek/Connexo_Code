@@ -4,8 +4,9 @@
 
 package com.elster.jupiter.messaging;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Abstraction for the space in which queues and topics exist.
@@ -24,6 +25,8 @@ public interface QueueTableSpec extends HasName {
     void deactivate();
 
     String getPayloadType();
+
+    String getStorageClause();
 
     boolean isMultiConsumer();
 

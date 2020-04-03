@@ -50,7 +50,7 @@ public final class SAMLUtilities {
     public static final int BACKLASH_FOR_MESSAGE_IN_SECONDS = 300;
     public static final String ERROR_PROBLEM_DECODE_RESPONSE_FROM_BASE64 = "Problem while decode response from Base64";
 
-    private static SAMLUtilities INSTANCE;
+    private static volatile SAMLUtilities INSTANCE;
 
     public synchronized static SAMLUtilities getInstance() {
         if (INSTANCE == null) {
@@ -60,10 +60,15 @@ public final class SAMLUtilities {
     }
 
     private SAMLUtilities() {
+        Thread thread = Thread.currentThread();
+        ClassLoader loader = thread.getContextClassLoader();
+        thread.setContextClassLoader(InitializationService.class.getClassLoader());
         try {
             initializeOpenSAML();
         } catch (InitializationException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            thread.setContextClassLoader(loader);
         }
     }
 

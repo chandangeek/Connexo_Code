@@ -9,6 +9,7 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.RecordSpecBuilder;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -18,6 +19,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -34,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
@@ -114,6 +117,17 @@ public class IdsServiceImpl implements IdsService, MessageSeedProvider {
         getVaults().stream()
                 .filter(Vault::isActive)
                 .forEach(vault -> vault.extendTo(instant, logger));
+    }
+
+    @Override
+    public List<TimeSeriesEntry> getEntries(List<Pair<TimeSeries, Instant>> scope) {
+        return scope.stream()
+                .collect(Collectors.groupingBy(timeSeriesAndInstant -> timeSeriesAndInstant.getFirst().getVault()))
+                .entrySet()
+                .stream()
+                .map(vaultWithTimeSeriesAndInstants -> ((IVault) vaultWithTimeSeriesAndInstants.getKey()).getEntries(vaultWithTimeSeriesAndInstants.getValue()))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     List<VaultImpl> getVaults() {

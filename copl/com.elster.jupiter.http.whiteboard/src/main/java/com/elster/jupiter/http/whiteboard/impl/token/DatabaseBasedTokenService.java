@@ -225,10 +225,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         final UserJWT userJWT = dataModel.getInstance(UserJWT.class)
                 .init(jwtId.toString(), null, signedJWT.serialize(), Instant.ofEpochMilli(expiresIn));
 
-        try (TransactionContext transactionContext = transactionService.getContext()) {
-            userJWT.save();
-            transactionContext.commit();
-        }
+        userJWT.save();
 
         return SignedJWT.parse(userJWT.getToken());
     }

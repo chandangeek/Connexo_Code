@@ -106,7 +106,7 @@ public class DestinationSpecImplIT {
             @Override
             protected void doPerform() {
                 MessageService messageService = injector.getInstance(MessageService.class);
-                QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("name", "SYS.AQ$_JMS_RAW", false);
+                QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("name", "SYS.AQ$_JMS_RAW", null, false);
                 queueTableSpec.save();
 
                 DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("name", 50);

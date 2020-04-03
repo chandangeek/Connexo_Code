@@ -90,7 +90,8 @@ public class MessageServiceImpl implements MessageService {
         upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class,
                 Version.version(10, 5), UpgraderV10_5.class,
-                Version.version(10, 7), UpgraderV10_7.class
+                Version.version(10, 7), UpgraderV10_7.class,
+                Version.version(10, 8), UpgraderV10_8.class
         ));
     }
 
@@ -99,8 +100,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
-        QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer, isPrioritized);
+    public QueueTableSpec createQueueTableSpec(String name, String payloadType, String storageClause, boolean multiConsumer, boolean isPrioritized) {
+        QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, storageClause, multiConsumer, isPrioritized);
         result.save();
         result.activate();
         return result;

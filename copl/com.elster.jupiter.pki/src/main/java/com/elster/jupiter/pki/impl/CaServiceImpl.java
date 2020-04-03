@@ -17,8 +17,11 @@ import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
+
 import org.apache.commons.lang3.StringUtils;
+
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -60,6 +63,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
@@ -69,13 +73,14 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 
 @Component(name = "CaService", service = {CaService.class}, property = "name=" + CaService.COMPONENTNAME, immediate = true)
 public class CaServiceImpl implements CaService {
@@ -173,7 +178,7 @@ public class CaServiceImpl implements CaService {
         pkiPort = StringUtils.isNotBlank(port) ? Integer.parseInt(port) : null;
         pkiTrustStore = bundleContext.getProperty(PKI_CXO_TRUSTSTORE_PROPERTY);
         pkiSuperAdminClientAlias = bundleContext.getProperty(PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY);
-        pkiManagementClientAlias= bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
+        pkiManagementClientAlias = bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
         pkiCaName = bundleContext.getProperty(PKI_CA_NAME_PROPERTY);
         pkiCertificateProfileName = bundleContext.getProperty(PKI_CERTIFICATE_PROFILE_NAME_PROPERTY);
         pkiEndEntityProfileName = bundleContext.getProperty(PKI_END_ENTITY_PROFILE_NAME_PROPERTY);
@@ -205,15 +210,15 @@ public class CaServiceImpl implements CaService {
         CertificateResponse certificateResponse;
         UserDataVOWS userData = new UserDataVOWS();
 
-        String caName = (certificateUserData.isPresent())? certificateUserData.get().getCaName(): pkiCaName;
+        String caName = (certificateUserData.isPresent()) ? certificateUserData.get().getCaName() : pkiCaName;
         LOGGER.info("- CA name: " + caName);
         userData.setCaName(caName);
 
-        String endEntity = (certificateUserData.isPresent())? certificateUserData.get().getEndEntityName(): pkiEndEntityProfileName;
+        String endEntity = (certificateUserData.isPresent()) ? certificateUserData.get().getEndEntityName() : pkiEndEntityProfileName;
         LOGGER.info("- EndEntity: " + endEntity);
         userData.setEndEntityProfileName(endEntity);
 
-        String certificateProfile = (certificateUserData.isPresent())? certificateUserData.get().getCertificateProfileName(): pkiCertificateProfileName;
+        String certificateProfile = (certificateUserData.isPresent()) ? certificateUserData.get().getCertificateProfileName() : pkiCertificateProfileName;
         LOGGER.info("- CertificateProfile: " + certificateProfile);
         userData.setCertificateProfileName(certificateProfile);
 
@@ -229,19 +234,20 @@ public class CaServiceImpl implements CaService {
         try {
             String csrEncoded = new String(Base64.getEncoder().encode(pkcs10.getEncoded()));
 
-            LOGGER.info("Sending CSR to EJBCA WebService:\n"+ BEGIN_CERTIFICATE_REQUEST +csrEncoded+ END_CERTIFICATE_REQUEST);
+            LOGGER.info("Sending CSR to EJBCA WebService:\n" + BEGIN_CERTIFICATE_REQUEST + csrEncoded + END_CERTIFICATE_REQUEST);
 
-            certificateResponse = ejbcaWS.certificateRequest(userData, csrEncoded, CERT_REQ_TYPE_PKCS10, null,RESPONSETYPE_CERTIFICATE);
+            certificateResponse = ejbcaWS.certificateRequest(userData, csrEncoded, CERT_REQ_TYPE_PKCS10, null, RESPONSETYPE_CERTIFICATE);
 
             LOGGER.info("Response received, parsing as X.509 certificate");
-            InputStream byteArrayInputStream = new ByteArrayInputStream(certificateResponse.getData());
-            CertificateFactory certificateFactory = CertificateFactory.getInstance(X509);
+            InputStream byteArrayInputStream = new ByteArrayInputStream(org.bouncycastle.util.encoders.Base64.decode(certificateResponse.getData()));
+            CertificateFactory certificateFactory = CertificateFactory.getInstance(X509, PROVIDER_NAME);
             x509Cert = (X509Certificate) certificateFactory.generateCertificate(byteArrayInputStream);
 
-            String certEncoded  = new String(Base64.getEncoder().encode(x509Cert.getEncoded()));
-            LOGGER.info("Received certificate\n"+ BEGIN_CERTIFICATE +certEncoded+ END_CERTIFICATE);
+            String certEncoded = new String(Base64.getEncoder().encode(x509Cert.getEncoded()));
+            LOGGER.info("Received certificate\n" + BEGIN_CERTIFICATE + certEncoded + END_CERTIFICATE);
 
-        } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception | UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
+        } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception |
+                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException | NoSuchProviderException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
@@ -305,23 +311,21 @@ public class CaServiceImpl implements CaService {
     }
 
     @Override
-    public List<IdWithNameInfo> getCaName(int endEntityId){
+    public List<IdWithNameInfo> getCaName(int endEntityId) {
         try {
-             ejbcaWS.getAvailableCAsInProfile(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+            return ejbcaWS.getAvailableCAsInProfile(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
-        return new ArrayList<>();
     }
 
     @Override
-    public List<IdWithNameInfo> getCertificateProfile(int endEntityId){
+    public List<IdWithNameInfo> getCertificateProfile(int endEntityId) {
         try {
-            ejbcaWS.getAvailableCertificateProfiles(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+            return ejbcaWS.getAvailableCertificateProfiles(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
-        return new ArrayList<>();
     }
 
     @Override

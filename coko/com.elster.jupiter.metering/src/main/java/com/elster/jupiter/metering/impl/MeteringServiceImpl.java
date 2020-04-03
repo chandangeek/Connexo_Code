@@ -81,6 +81,8 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
@@ -110,6 +112,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class MeteringServiceImpl implements ServerMeteringService {
     private static final String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static final String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
+    private static final int MAXIMUM_READING_TYPE_CACHE_SIZE = 10000;
 
     private final IdsService idsService;
     private final QueryService queryService;
@@ -125,6 +128,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     private volatile LocationTemplate locationTemplate;
     private static ImmutableList<TemplateField> locationTemplateMembers;
 
+    private Cache<Long, ReadingType> readingTypeCache;
+
     public MeteringServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus, Clock clock, IdsService idsService,
                                EventService eventService, QueryService queryService, MessageService messageService, JsonService jsonService,
                                UpgradeService upgradeService) {
@@ -138,6 +143,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
         this.messageService = messageService;
         this.jsonService = jsonService;
         this.upgradeService = upgradeService;
+
+        readingTypeCache = CacheBuilder.newBuilder().maximumSize(MAXIMUM_READING_TYPE_CACHE_SIZE).build();
     }
 
     @Override
@@ -174,7 +181,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Optional<ReadingType> getReadingTypeById(long id) {
-        return dataModel.stream(ReadingType.class).filter(where("id").isEqualTo(id)).findAny();
+        return Optional.ofNullable(readingTypeCache.asMap().computeIfAbsent(id,
+                key -> dataModel.stream(ReadingType.class).filter(where("id").isEqualTo(id)).findAny().orElse(null)));
     }
 
     @Override

@@ -6,7 +6,14 @@ package com.elster.jupiter.offline.services.messaging.impl;
 
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
+import com.elster.jupiter.messaging.InactiveDestinationException;
+import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageSeeds;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -14,6 +21,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Condition;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -159,8 +167,13 @@ class OfflineDestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
-    public SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer, Condition filter) {
-        return subscribe(nameKey.getKey(), component, layer, false, filter);
+    public SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer, Condition filterCodition) {
+        return subscribe(nameKey.getKey(), component, layer, false, filterCodition, null);
+    }
+
+    @Override
+    public SubscriberSpec subscribe(SubscriberSpec subscriberSpec) {
+        return subscribe(subscriberSpec.getName(), subscriberSpec.getNlsComponent(), subscriberSpec.getNlsLayer(), false, subscriberSpec.getFilterCondition(), subscriberSpec.getFilter());
     }
 
     @Override
@@ -286,10 +299,10 @@ class OfflineDestinationSpecImpl implements DestinationSpec {
     }
 
     private SubscriberSpec subscribe(String nameKey, String component, Layer layer, boolean systemManaged) {
-        return subscribe(nameKey, component, layer, systemManaged, null);
+        return subscribe(nameKey, component, layer, systemManaged, null, null);
     }
 
-    private SubscriberSpec subscribe(String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
+    private SubscriberSpec subscribe(String nameKey, String component, Layer layer, boolean systemManaged, Condition filterCondition, String filter) {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, nameKey);
         }
@@ -302,7 +315,12 @@ class OfflineDestinationSpecImpl implements DestinationSpec {
         if (isQueue() && !currentConsumers.isEmpty()) {
             throw new AlreadyASubscriberForQueueException(thesaurus, this);
         }
-        SubscriberSpec result = OfflineSubscriberSpecImpl.from(dataModel, this, nameKey, component, layer, systemManaged, filter);
+        SubscriberSpec result;
+        if (filterCondition != null) {
+            result = OfflineSubscriberSpecImpl.from(dataModel, this, nameKey, component, layer, systemManaged, filterCondition);
+        } else {
+            result = OfflineSubscriberSpecImpl.from(dataModel, this, nameKey, component, layer, filter, systemManaged);
+        }
 //        result.subscribe();
         subscribers.add(result);
         dataModel.mapper(DestinationSpec.class).update(this);

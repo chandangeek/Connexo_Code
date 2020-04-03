@@ -19,82 +19,75 @@ import java.util.List;
 import java.util.Objects;
 
 public final class RecordSpecImpl implements RecordSpec {
-	// persistent fields
-	private String componentName;
-	private long id;
-	private String name;
-	@SuppressWarnings("unused")
-	private long version;
-	@SuppressWarnings("unused")
-	private Instant createTime;
-	@SuppressWarnings("unused")
-	private Instant modTime;
-	@SuppressWarnings("unused")
-	private String userName;
+    // persistent fields
+    private String componentName;
+    private long id;
+    private String name;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
-	// associations
-	private List<FieldSpec> fieldSpecs = new ArrayList<>();
+    // associations
+    private List<FieldSpec> fieldSpecs = new ArrayList<>();
 
-	private final DataModel dataModel;
-	private final Provider<FieldSpecImpl> fieldSpecProvider;
+    private final DataModel dataModel;
+    private final Provider<FieldSpecImpl> fieldSpecProvider;
 
-	@Inject
-	RecordSpecImpl(DataModel dataModel,Provider<FieldSpecImpl> fieldSpecProvider) {
-		this.dataModel = dataModel;
-		this.fieldSpecProvider = fieldSpecProvider;
-	}
+    @Inject
+    RecordSpecImpl(DataModel dataModel, Provider<FieldSpecImpl> fieldSpecProvider) {
+        this.dataModel = dataModel;
+        this.fieldSpecProvider = fieldSpecProvider;
+    }
 
-	RecordSpecImpl init(String componentName , long id , String name) {
-		this.componentName = Objects.requireNonNull(componentName);
-		this.id = id;
-		this.name = Objects.requireNonNull(name);
-		return this;
-	}
+    RecordSpecImpl init(String componentName, long id, String name) {
+        this.componentName = Objects.requireNonNull(componentName);
+        this.id = id;
+        this.name = Objects.requireNonNull(name);
+        return this;
+    }
 
-	@Override
-	public String getComponentName() {
-		return componentName;
-	}
+    @Override
+    public String getComponentName() {
+        return componentName;
+    }
 
-	@Override
-	public long getId() {
-		return id;
-	}
+    @Override
+    public long getId() {
+        return id;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public List<FieldSpec> getFieldSpecs() {
-		return ImmutableList.copyOf(fieldSpecs);
-	}
+    @Override
+    public List<FieldSpec> getFieldSpecs() {
+        return ImmutableList.copyOf(fieldSpecs);
+    }
 
 
-	FieldSpecImpl addFieldSpec(String name, FieldType fieldType) {
-		FieldSpecImpl fieldSpec = fieldSpecProvider.get().init(this,name, fieldType);
-		fieldSpecs.add(fieldSpec);
-		return fieldSpec;
-	}
+    FieldSpecImpl addFieldSpec(String name, FieldType fieldType) {
+        FieldSpecImpl fieldSpec = fieldSpecProvider.get().init(this, name, fieldType);
+        fieldSpecs.add(fieldSpec);
+        return fieldSpec;
+    }
 
-	void persist() {
-		dataModel.persist(this);
-	}
+    void persist() {
+        dataModel.persist(this);
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        RecordSpecImpl that = (RecordSpecImpl) o;
-
-        return id == that.id && componentName.equals(that.componentName);
-
+        return this == o
+                || o instanceof RecordSpecImpl
+                && id == ((RecordSpecImpl) o).id
+                && componentName.equals(((RecordSpecImpl) o).componentName);
     }
 
     @Override
@@ -103,34 +96,34 @@ public final class RecordSpecImpl implements RecordSpec {
     }
 
     List<String> columnNames() {
-    	int textSlotCount = 0;
-    	int slotCount = 0;
-    	List<String> result = new ArrayList<>(fieldSpecs.size());
-    	for (FieldSpec spec : fieldSpecs) {
-    		if (spec.getType().equals(FieldType.TEXT)) {
-    			result.add("TEXTSLOT" + textSlotCount++);
-    		} else {
-    			result.add("SLOT" + slotCount++);
-    		}
-    	}
-    	return result;
+        int textSlotCount = 0;
+        int slotCount = 0;
+        List<String> result = new ArrayList<>(fieldSpecs.size());
+        for (FieldSpec spec : fieldSpecs) {
+            if (spec.getType().equals(FieldType.TEXT)) {
+                result.add("TEXTSLOT" + textSlotCount++);
+            } else {
+                result.add("SLOT" + slotCount++);
+            }
+        }
+        return result;
     }
 
-	String columnName(FieldSpec fieldSpec) {
-		int textSlotCount = 0;
-		int slotCount = 0;
-		for (FieldSpec spec : fieldSpecs) {
-			String name;
-			if (spec.getType().equals(FieldType.TEXT)) {
-				name = "TEXTSLOT" + textSlotCount++;
-			} else {
-				name = "SLOT" + slotCount++;
-			}
-			if (spec.equals(fieldSpec)) {
-				return name;
-			}
-		}
-		throw new IllegalArgumentException("No such FieldSpec: " + fieldSpec.getName());
-	}
+    String columnName(FieldSpec fieldSpec) {
+        int textSlotCount = 0;
+        int slotCount = 0;
+        for (FieldSpec spec : fieldSpecs) {
+            String name;
+            if (spec.getType().equals(FieldType.TEXT)) {
+                name = "TEXTSLOT" + textSlotCount++;
+            } else {
+                name = "SLOT" + slotCount++;
+            }
+            if (spec.equals(fieldSpec)) {
+                return name;
+            }
+        }
+        throw new IllegalArgumentException("No such FieldSpec: " + fieldSpec.getName());
+    }
 
 }

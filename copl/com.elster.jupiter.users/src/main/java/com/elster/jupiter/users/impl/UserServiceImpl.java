@@ -18,12 +18,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.GrantPrivilege;
@@ -177,13 +180,19 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
-            upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class,
-                    version(10, 3), UpgraderV10_3.class,
-                    version(10, 4), UpgraderV10_4.class,
-                    version(10, 4, 8), UpgraderV10_4_8.class,
-                    version(10, 4, 9), V10_4_9SimpleUpgrader.class
-            ));
+            upgradeService.register(
+                    identifier("Pulse", COMPONENTNAME),
+                    dataModel,
+                    InstallerImpl.class,
+                    ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                            .put(version(10, 2), UpgraderV10_2.class)
+                            .put(version(10, 3), UpgraderV10_3.class)
+                            .put(version(10, 4), UpgraderV10_4.class)
+                            .put(version(10, 4, 8), UpgraderV10_4_8.class)
+                            .put(version(10, 4, 9), V10_4_9SimpleUpgrader.class)
+                            .put(version(10, 8), UpgraderV10_8.class)
+                            .build()
+            );
         }
     }
 
