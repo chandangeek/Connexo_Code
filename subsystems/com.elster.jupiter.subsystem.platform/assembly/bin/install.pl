@@ -642,10 +642,10 @@ sub install_tomcat {
         add_to_file($catalina, "org.jboss.logging.provider=slf4j");
         add_to_file($catalina, "org.uberfire.nio.git.ssh.algorithm=RSA");
         add_to_file($catalina, "javax.net.ssl.trustStoreType=pkcs12");
-        add_to_file($catalina, "javax.net.ssl.trustStore=$replaceHOME/ssl/connexo-truststore.p12");
+        add_to_file($catalina, "javax.net.ssl.trustStore=$CONNEXO_DIR/ssl/connexo-truststore.p12");
         add_to_file($catalina, "javax.net.ssl.trustStorePassword=jupiter");
         add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
-        add_to_file($catalina, "javax.net.ssl.keyStore=$replaceHOME/ssl/connexo-keystore.p12");
+        add_to_file($catalina, "javax.net.ssl.keyStore=$CONNEXO_DIR/ssl/connexo-keystore.p12");
         add_to_file($catalina, "javax.net.ssl.keyStorePassword=zorro2020");
 
         if ("$ACTIVATE_SSO" ne "yes") {
@@ -754,7 +754,7 @@ sub install_facts {
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
 		if ("$ACTIVATE_SSO" eq "yes") {
-            add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=http://$HOST_NAME/facts/");
+            add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=https://$HOST_NAME/facts/");
         }
 	} else {
 		print "\n\nSkip installation of Connexo Facts\n";
@@ -847,7 +847,7 @@ sub install_flow {
 		if ("$ACTIVATE_SSO" eq "yes") {
             replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
             replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
-            add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME/flow/");
+            add_to_file_if($config_file,"com.elster.jupiter.bpm.url=https://$HOST_NAME/flow/");
         } else {
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
@@ -887,20 +887,20 @@ sub activate_sso {
                 print $FH "<VirtualHost *:80>\n";
                 print $FH "ServerName \${HOSTNAME}\n";
                 print $FH "\n";
-                print $FH "RewriteEngine On\n";
+                print $FH "   RewriteEngine On\n";
                 print $FH "   ProxyPreserveHost on\n";
                 print $FH "\n";
-                print $FH "AllowEncodedSlashes On\n";
+                print $FH "   AllowEncodedSlashes On\n";
                 print $FH "\n";
                 print $FH "   RedirectMatch ^/\$ http://\${HOSTNAME}/apps/login/index.html\n";
                 print $FH "\n";
-                print $FH "   RedirectMatch /api(.+)\$ https://\${HOSTNAME}/api\$1 [P]\n";
-                print $FH "   RedirectMatch /public/api(.+)\$ https://\${HOSTNAME}/public/api\$1 [P]\n";
-                print $FH "   RedirectMatch /soap(.*)\$ https://\${HOSTNAME}/soap\$1 [P]\n";
-                print $FH "   RedirectMatch /rest(.*)\$ https://\${HOSTNAME}/rest\$1 [P]\n";
+                print $FH "   RedirectMatch /api(.*)\$ https://\${HOSTNAME}/api\$1\n";
+                print $FH "   RedirectMatch /public/api(.*)\$ https://\${HOSTNAME}/public/api\$1\n";
+                print $FH "   RedirectMatch /soap(.*)\$ https://\${HOSTNAME}/soap\$1\n";
+                print $FH "   RedirectMatch /rest(.*)\$ https://\${HOSTNAME}/rest\$1\n";
                 print $FH "   RedirectMatch /flow(.*)\$ https://\${HOSTNAME}/flow\$1/\n";
                 print $FH "   RedirectMatch /facts(.*)\$ https://\${HOSTNAME}/facts\$1/\n";
-                print $FH "   RedirectMatch /apps(.+)\$ https://\${HOSTNAME}/apps\$1\n";
+                print $FH "   RedirectMatch /apps\$ https://\${HOSTNAME}/apps\$1\n";
                 print $FH "\n";
                 print $FH "   ProxyPassReverse / http://\${HOSTNAME}:80/\n";
                 print $FH "   ProxyPassReverse / http://\${HOSTNAME}:443/\n";
@@ -923,9 +923,11 @@ sub activate_sso {
                 print $FH "   SSLCertificateFile $CONNEXO_DIR/ssl/connexo-web-server.cert.pem\n";
                 print $FH "   SSLCertificateKeyFile $CONNEXO_DIR/ssl/private/connexo-web-server.key.pem\n";
                 print $FH "   SSLCACertificateFile $CONNEXO_DIR/ssl/connexo-trustchain.pem\n";
-                print $FH "   SSLCertificateChainFile $CONNEXO_DIR/connexo-trustchain.pem\n";
+                print $FH "   SSLCertificateChainFile $CONNEXO_DIR/ssl/connexo-trustchain.pem\n";
                 print $FH "\n";
+                print $FH "<ifModule mod_headers.c>\n";
                 print $FH "   RequestHeader set x-request-scheme https\n";
+                print $FH "</ifModule>\n";
                 print $FH "\n";
                 print $FH "RewriteEngine On\n";
                 print $FH "   ProxyPreserveHost on\n";
@@ -947,13 +949,13 @@ sub activate_sso {
                 print $FH "\n";
                 print $FH "   DirectoryIndex index.html\n";
                 print $FH "\n";
-                print $FH "   RewriteRule ^/apps/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
+                print $FH "   RewriteRule ^/apps/(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
                 print $FH "   RewriteRule ^/soap(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/soap\$1 [P]\n";
                 print $FH "   RewriteRule ^/rest(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/rest\$1 [P]\n";
-                print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P]\n";
-                print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
-                print $FH "   RewriteRule ^/flow(.+)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow\$1 [P]\n";
-                print $FH "   RewriteRule ^/facts(.+)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts\$1 [P]\n";
+                print $FH "   RewriteRule ^/api(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api\$1 [P]\n";
+                print $FH "   RewriteRule ^/public/api/(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
+                print $FH "   RewriteRule ^/flow(.*)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow\$1 [P]\n";
+                print $FH "   RewriteRule ^/facts(.*)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts\$1 [P]\n";
                 print $FH "\n";
                 print $FH "# Redirect index to login page\n";
                 print $FH "   RewriteRule ^\$ /apps/login/index.html [L]\n";
@@ -992,7 +994,7 @@ sub activate_sso {
 
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
-            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
+            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=https://$HOST_NAME");
             add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
 
 			add_to_file($config_file,"$PUBLIC_KEY_PROPERTIES");
@@ -1564,7 +1566,8 @@ sub perform_upgrade {
                 if ("$ACTIVATE_SSO" eq "yes") {
                     replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
                     replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
-                    add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME/flow/");
+                    add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow/");
+                    add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow/");
                 } else {
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
