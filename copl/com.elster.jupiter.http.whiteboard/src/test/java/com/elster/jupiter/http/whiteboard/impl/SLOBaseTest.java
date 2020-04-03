@@ -2,6 +2,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SAMLSingleLogoutServiceImpl;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
 import com.elster.jupiter.http.whiteboard.UserJWT;
@@ -24,6 +25,8 @@ import java.util.Set;
 import static org.mockito.Matchers.any;
 
 public class SLOBaseTest extends JerseyTest {
+
+    protected static final SAMLUtilities samlUtilities = SAMLUtilities.getInstance();
 
     protected final static String SLO_ENDPOINT_PATH = "saml/v2/logout";
 

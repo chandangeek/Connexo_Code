@@ -14,6 +14,8 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.messaging.MessageService.QueueTable.JUPITEREVENTS_RAW_QUEUE_TABLE;
+
 public class InstallerImpl implements FullInstaller {
 
     private final DataModel dataModel;
@@ -31,12 +33,14 @@ public class InstallerImpl implements FullInstaller {
     }
 
     private void createQueueTables(Logger logger) {
-        messageService.createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
+        messageService.createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", null, false);
         logger.log(Level.INFO, "Created QueueTable MSG_RAWQUEUETABLE");
-        messageService.createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
+        messageService.createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", null, true);
         logger.log(Level.INFO, "Created QueueTable MSG_RAWQUEUETABLE");
-        messageService.createQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE, "RAW", false, true);
+        messageService.createQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE, "RAW", null, false, true);
         logger.log(Level.INFO, "Created QueueTable " + MessageService.PRIORITIZED_RAW_QUEUE_TABLE);
+        messageService.createQueueTableSpec(JUPITEREVENTS_RAW_QUEUE_TABLE.getQueueTableName(), "RAW", JUPITEREVENTS_RAW_QUEUE_TABLE.getStorageClause(), true);
+        logger.log(Level.INFO, "Created QueueTable " + JUPITEREVENTS_RAW_QUEUE_TABLE.getQueueTableName());
     }
 
 }

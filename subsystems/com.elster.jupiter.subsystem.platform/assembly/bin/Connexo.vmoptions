@@ -1,5 +1,5 @@
 -Djava.util.logging.config.file=.\conf\logging.properties
--Dos.name="Windows XP"
+-Dos.name=Windows XP
 -Xms512m
 -Xmx2g
 -Djavax.net.ssl.trustStoreType=pkcs12

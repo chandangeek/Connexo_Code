@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,22 +152,22 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     private Map<ReadingRecord, List<ReadingQualityRecord>> getHistoryReadingQualities(Range<Instant> interval, List<? extends ReadingRecord> readings, Register<?, ?> register) {
         Map<ReadingRecord, List<ReadingQualityRecord>> mapReadingQualityRecord = new HashMap<>();
-        readings.stream().forEach(readingRecord -> mapReadingQualityRecord.put(readingRecord, new ArrayList<>()));
+        readings.forEach(readingRecord -> mapReadingQualityRecord.put(readingRecord, new ArrayList<>()));
 
         List<? extends ReadingQualityRecord> readingQualities = this.device.getMeterReference().get().getReadingQualities(interval);
         List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = this.device.getMeterReference().get().getReadingQualitiesJournal(interval,
                 Collections.singletonList(register.getRegisterSpec().getRegisterType().getReadingType()),
                 readings.stream().map(r -> ((JournaledRegisterReadingRecord) r).getChannel()).distinct().collect(Collectors.toList()));
         List<ReadingQualityRecord> allReadingQuality = readingQualities.stream()
-                .filter(r -> r.getReadingType() == register.getRegisterSpec().getRegisterType().getReadingType())
+                .filter(r -> r.getReadingType().equals(register.getRegisterSpec().getRegisterType().getReadingType()))
                 .collect(Collectors.toList());
         allReadingQuality.addAll(readingQualitiesJournal.stream().map(JournalEntry::get).collect(Collectors.toList()));
 
-        allReadingQuality.stream().forEach(rqj -> {
-            Optional<? extends ReadingRecord> journalReadingOptional = Optional.empty();
+        allReadingQuality.forEach(rqj -> {
+            Optional<? extends ReadingRecord> journalReadingOptional;
             journalReadingOptional = ((rqj.getTypeCode().compareTo("2.5.258") == 0) || ((rqj.getTypeCode().compareTo("2.5.259") == 0))) ?
-                    readings.stream().sorted((a, b) -> b.getReportedDateTime().compareTo(a.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) <= 0).findFirst() :
-                    readings.stream().sorted((a, b) -> a.getReportedDateTime().compareTo(b.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) >= 0).findFirst();
+                    readings.stream().sorted(Comparator.comparing(BaseReading::getReportedDateTime).reversed()).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) <= 0).findFirst() :
+                    readings.stream().sorted(Comparator.comparing(BaseReading::getReportedDateTime)).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) >= 0).findFirst();
 
 
             journalReadingOptional.ifPresent(journalReading -> {

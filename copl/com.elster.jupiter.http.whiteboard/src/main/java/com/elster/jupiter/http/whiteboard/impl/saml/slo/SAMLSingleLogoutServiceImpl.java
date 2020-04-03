@@ -18,8 +18,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities.createLogoutResponse;
-
 @Component(
         name = "com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService",
         property = {
@@ -52,26 +50,26 @@ public class SAMLSingleLogoutServiceImpl implements SAMLSingleLogoutService {
     public LogoutResponse initializeSingleLogout(LogoutRequest logoutRequest) {
         final NameID nameID = logoutRequest.getNameID();
         if (Objects.isNull(nameID)) {
-            return createLogoutResponse(StatusCode.INVALID_ATTR_NAME_OR_VALUE);
+            return samlUtilities.createLogoutResponse(StatusCode.INVALID_ATTR_NAME_OR_VALUE);
         }
 
         final SAMLSignatureProfileValidator samlSignatureProfileValidator = new SAMLSignatureProfileValidator();
         try {
             samlSignatureProfileValidator.validate(Objects.requireNonNull(logoutRequest.getSignature()));
         } catch (SignatureException e) {
-            return createLogoutResponse(StatusCode.REQUEST_DENIED);
+            return samlUtilities.createLogoutResponse(StatusCode.REQUEST_DENIED);
         }
 
         final Optional<User> userByExternalId = userService.findUserByExternalId(nameID.getValue());
         if (!userByExternalId.isPresent()) {
-            return createLogoutResponse(StatusCode.REQUEST_DENIED);
+            return samlUtilities.createLogoutResponse(StatusCode.REQUEST_DENIED);
         }
 
         final User user = userByExternalId.get();
 
         tokenService.invalidateAllUserJWTsForUser(user);
 
-        return createLogoutResponse(StatusCode.SUCCESS);
+        return samlUtilities.createLogoutResponse(StatusCode.SUCCESS);
     }
 
     @Reference

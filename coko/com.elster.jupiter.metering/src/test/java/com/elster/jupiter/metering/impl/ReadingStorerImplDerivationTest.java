@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
@@ -90,7 +91,6 @@ public class ReadingStorerImplDerivationTest {
 
     @Before
     public void setUp() {
-
         when(cimChannel.getChannel()).thenReturn(channel);
         when(cimChannel.getReadingType()).thenReturn(secondaryBulkReadingType);
         when(channel.getRecordSpecDefinition()).thenReturn(RecordSpecs.BULKQUANTITYINTERVAL);
@@ -138,8 +138,6 @@ public class ReadingStorerImplDerivationTest {
 
     @Test
     public void testAddReadingNoneInDb() {
-        when(channel.getReading(BASE_TIME.minusMinutes(15).toInstant())).thenReturn(Optional.empty());
-
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(314, 2)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 2)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(30).toInstant(), BigDecimal.valueOf(1000, 2)));
@@ -154,10 +152,11 @@ public class ReadingStorerImplDerivationTest {
     @Test
     public void testAddReadingOneInDb() {
         TimeSeriesEntry timeSeriesEntry = mock(TimeSeriesEntry.class);
+        when(timeSeriesEntry.getTimeSeries()).thenReturn(timeSeries);
         when(timeSeriesEntry.getBigDecimal(2)).thenReturn(null);
         when(timeSeriesEntry.getBigDecimal(3)).thenReturn(BigDecimal.valueOf(100, 2));
-        IntervalReadingRecordImpl readingRecord = new IntervalReadingRecordImpl(channel, timeSeriesEntry);
-        when(channel.getReading(BASE_TIME.minusMinutes(15).toInstant())).thenReturn(Optional.of(readingRecord));
+        when(timeSeriesEntry.getTimeStamp()).thenReturn(BASE_TIME.minusMinutes(15).toInstant());
+        when(idsService.getEntries(Collections.singletonList(Pair.of(timeSeries, BASE_TIME.minusMinutes(15).toInstant())))).thenReturn(Collections.singletonList(timeSeriesEntry));
 
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(314, 2)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 2)));
@@ -185,7 +184,6 @@ public class ReadingStorerImplDerivationTest {
         when(readingTypeConfiguration.getMultiplierType()).thenReturn(multiplierType);
         when(channelsContainer.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.valueOf(5, 0)));
 //        when(channelsContainer.getMultiplierUsages(any())).thenReturn(Collections.singletonList(readingTypeConfiguration));
-        when(channel.getReading(any())).thenReturn(Optional.empty());
 
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(314, 2)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 2)));
@@ -213,7 +211,6 @@ public class ReadingStorerImplDerivationTest {
         when(readingTypeConfiguration.getMultiplierType()).thenReturn(multiplierType);
         when(channelsContainer.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.valueOf(5, 0)));
 //        when(channelsContainer.getMultiplierUsages(any())).thenReturn(Collections.singletonList(readingTypeConfiguration));
-        when(channel.getReading(any())).thenReturn(Optional.empty());
 
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(314, 0)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 0)));

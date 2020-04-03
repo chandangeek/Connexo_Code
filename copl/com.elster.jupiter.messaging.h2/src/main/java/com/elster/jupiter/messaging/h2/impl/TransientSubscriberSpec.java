@@ -104,4 +104,8 @@ class TransientSubscriberSpec implements SubscriberSpec {
         return null;
     }
 
+    @Override
+    public String getFilter() {
+        return null;
+    }
 }
