@@ -850,7 +850,7 @@ sub install_flow {
 		if ("$ACTIVATE_SSO" eq "yes") {
             replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
             replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
-            add_to_file_if($config_file,"com.elster.jupiter.bpm.url=https://$HOST_NAME/flow/");
+            add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
         } else {
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
@@ -1569,10 +1569,11 @@ sub perform_upgrade {
                 if ("$ACTIVATE_SSO" eq "yes") {
                     replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
                     replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
-                    add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow/");
-                    add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow/");
+                    add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
+                    add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
                 } else {
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
+                    add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$TOMCAT_ADMIN_PASSWORD");
                 }
