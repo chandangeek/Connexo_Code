@@ -55,14 +55,14 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(" inner join ");
         builder.append("(select * from ");
         builder.append("(select x.*, ROWNUM rnum from ");
-        builder.append("(with busy as (select TSK.ID as \"TSKID\", sign(nvl(OCC.STATUS, 1)) AS \"TSKSTATUS\", OCC.STARTDATE   from ( ");
+        builder.append("(with busy as (select TSK.ID as \"TSKID\", sign(nvl(OCC.STATUS,1)) AS \"TSKSTATUS\", OCC.STARTDATE   from ( ");
         builder.append("(select * from TSK_RECURRENT_TASK WHERE NEXTEXECUTION IS NOT NULL) TSK ");
         builder.append("LEFT JOIN ");
         builder.append("(select * from TSK_TASK_OCCURRENCE where TSK_TASK_OCCURRENCE.ID in ");
         builder.append("(select max(OCC.ID) \"OCCID\" from TSK_TASK_OCCURRENCE OCC group by OCC.RECURRENTTASKID)) OCC ");
         builder.append("on TSK.ID=OCC.RECURRENTTASKID ");
         builder.append(") where OCC.STATUS=0), ");
-        builder.append("notbusy as (select TSK.ID as \"TSKID\", sign(nvl(OCC.STATUS, 1)) AS \"TSKSTATUS\", TSK.NEXTEXECUTION  from ( ");
+        builder.append("notbusy as (select TSK.ID as \"TSKID\", sign(nvl(OCC.STATUS,1)) AS \"TSKSTATUS\", TSK.NEXTEXECUTION  from ( ");
         builder.append("(select * from TSK_RECURRENT_TASK) TSK ");
         builder.append("LEFT JOIN");
         builder.append("(select * from TSK_TASK_OCCURRENCE where TSK_TASK_OCCURRENCE.ID in ");
