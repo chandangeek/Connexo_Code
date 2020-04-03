@@ -13,17 +13,20 @@ import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 public class UpgraderV10_8 implements Upgrader {
 
     private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final DataModel dataModel;
     private final Clock clock;
+    private final InstallerV10_8Impl installerV10_8;
 
     @Inject
-    UpgraderV10_8(DataModel dataModel, Clock clock) {
+    UpgraderV10_8(DataModel dataModel, Clock clock, InstallerV10_8Impl installerV10_8) {
         this.dataModel = dataModel;
         this.clock = clock;
+        this.installerV10_8 = installerV10_8;
     }
 
     @Override
