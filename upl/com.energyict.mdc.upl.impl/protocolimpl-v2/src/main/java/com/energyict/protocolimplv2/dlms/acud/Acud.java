@@ -235,15 +235,16 @@ public abstract class Acud extends AbstractDlmsProtocol {
         return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
-    public Converter getConverter() {
-        return converter;
-    }
-
     public DeviceMessageFileExtractor getMessageFileExtractor() {
         return messageFileExtractor;
     }
 
-    public NlsService getNlsService() {
+    protected NlsService getNlsService() {
         return nlsService;
     }
+
+    protected Converter getConverter() {
+        return converter;
+    }
+
 }
