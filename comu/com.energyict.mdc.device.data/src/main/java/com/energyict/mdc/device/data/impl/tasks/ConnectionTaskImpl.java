@@ -827,6 +827,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    public void invalidateStatus() {
+        this.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        this.update();
+    }
+
+    @Override
     public boolean isActive() {
         return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
     }

@@ -68,11 +68,11 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                                     var cell = Ext.get(el),
                                         inner = cell.down('.' + Ext.baseCSSPrefix + 'grid-cell-inner');
                                     if (inner) {
-                                        var text = Uni.util.String.stripTags(inner.getHTML()),
+                                        var text = Ext.String.htmlEncode(Uni.util.String.stripTags(inner.getHTML())),
                                             tooltip = cell.getAttribute('data-qtip');
 
                                         if (text && (width < tm.getSize(text).width)) {
-                                            cell.set({'data-qtip': tooltip || Ext.String.htmlEncode(text)});
+                                            cell.set({'data-qtip': tooltip || text});
                                         } else {
                                             cell.set({'data-qtip': (tooltip !== Ext.String.htmlEncode(text) ? tooltip : null) || undefined});
                                         }

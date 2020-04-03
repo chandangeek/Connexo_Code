@@ -159,6 +159,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     TaskStatus getStatus();
 
+    void setStatus(TaskStatus status);
+
     String getStatusDisplayName();
 
     /**
