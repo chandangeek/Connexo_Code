@@ -7,7 +7,6 @@ package com.elster.jupiter.bpm.impl;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,8 +17,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BpmServerImpl implements BpmServer {
 
@@ -38,6 +40,8 @@ public class BpmServerImpl implements BpmServer {
     private String staticTokenAuth;
 
     private volatile ThreadPrincipalService threadPrincipalService;
+
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     BpmServerImpl(BundleContext context, ThreadPrincipalService threadPrincipalService, String staticTokenAuth) {
         this.threadPrincipalService = threadPrincipalService;
@@ -118,7 +122,7 @@ public class BpmServerImpl implements BpmServer {
         HttpURLConnection httpConnection = null;
         authorization = (basicAuthString != null) ? basicAuthString : authorization != null ? authorization : staticTokenAuth;
         try {
-            URL targetUrl = new URL(url + targetURL);
+            URL targetUrl = buildTargetUrl(targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setConnectTimeout(60000);
             httpConnection.setDoOutput(true);
@@ -166,6 +170,35 @@ public class BpmServerImpl implements BpmServer {
         }
     }
 
+    /**
+     * Normalizes a final URL in order to avoid configuration mistakes around ending slash
+     *  Ex:     http://localhost/flow  /rest/call
+     *          http://localhost/flow/  /rest/call
+     *          http://localhost/flow  rest/call
+     *          http://localhost/flow/  rest/call
+     * will all result in:
+     *          http://localhost/flow/rest/call
+     *
+     * @param relativePath  path to append to main BPM url
+     * @return              normalized url: bpmURL + / + relativePath while removing/adding slashes as necessary
+     */
+    public URL buildTargetUrl(String relativePath) throws MalformedURLException {
+        String basePath = getUrl();
+        String finalPath;
+
+        if (basePath.charAt(basePath.length() - 1) == '/'){
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
+        if (relativePath.startsWith("/")) {
+            finalPath = basePath + relativePath;
+        } else {
+            finalPath = basePath + '/' + relativePath;
+        }
+
+        return new URL(finalPath);
+    }
+
     @Override
     public String doGet(String targetURL) {
         return doGet(targetURL, basicAuthString);
@@ -177,6 +210,7 @@ public class BpmServerImpl implements BpmServer {
         String authorizationHeader = (basicAuthString != null) ? basicAuthString : authorization != null ? authorization : staticTokenAuth;
         try {
             URL targetUrl = new URL(url + targetURL);
+            getLogger().info("BpmServer: GET: "+targetUrl.toString());
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setConnectTimeout(60000);
             httpConnection.setDoOutput(true);
@@ -185,6 +219,7 @@ public class BpmServerImpl implements BpmServer {
             httpConnection.setRequestProperty("Accept", "application/json");
 
             int responseCode = httpConnection.getResponseCode();
+            getLogger().info("BpmServer: GET: "+targetUrl.toString()+" - Response: "+responseCode);
             if (responseCode != 200 && responseCode != 204) {
                 throw new RuntimeException(Integer.toString(responseCode));
             }
@@ -199,12 +234,17 @@ public class BpmServerImpl implements BpmServer {
             return jsonContent.toString();
 
         } catch (IOException e) {
+            getLogger().log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
         }
+    }
+
+    private Logger getLogger() {
+        return logger;
     }
 
     @Override
@@ -223,7 +263,7 @@ public class BpmServerImpl implements BpmServer {
             }
 
         } catch (JSONException | RuntimeException e) {
-            //throw new ;
+            getLogger().log(Level.SEVERE, e.getMessage(), e);
         }
 
         return new ProcessInstanceInfos(processes, (threadPrincipalService.getPrincipal() != null) ? threadPrincipalService
