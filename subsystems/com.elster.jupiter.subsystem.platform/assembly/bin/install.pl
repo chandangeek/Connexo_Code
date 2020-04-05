@@ -18,7 +18,7 @@ use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20200401";
+my $INSTALL_VERSION="v20200405";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -460,8 +460,8 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.host=$HOST_NAME");
             add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=https");
 
-			replace_in_file("$CONNEXO_DIR/bin/Connexo.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
-			replace_in_file("$CONNEXO_DIR/bin/ConnexoService.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+			replace_in_file("$CONNEXO_DIR/bin/Connexo.vmoptions",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
+			replace_in_file("$CONNEXO_DIR/bin/ConnexoService.vmoptions",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
 
             if ("$ACTIVATE_SSO" eq "yes") {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=https://$HOST_NAME/apps/multisense/index.html");
@@ -485,12 +485,12 @@ sub install_connexo {
 			if ("$CONNEXO_SERVICE" eq "yes") {
 				copy("$CONNEXO_DIR/bin/connexo","/etc/init.d/Connexo$SERVICE_VERSION") or die "File cannot be copied: $!";
 				chmod 0755,"/etc/init.d/Connexo$SERVICE_VERSION";
-				replace_in_file("/etc/init.d/Connexo$SERVICE_VERSION",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+				replace_in_file("/etc/init.d/Connexo$SERVICE_VERSION",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
 				copy("$CONNEXO_DIR/bin/start-connexo.temp","$CONNEXO_DIR/bin/start-connexo.sh") or die "File cannot be copied: $!";
 				chmod 0755,"$CONNEXO_DIR/bin/start-connexo.sh";
-				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
-				replace_in_file("$CONNEXO_DIR/bin/start-connexoInteractive.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
-				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${JAVA_HOME}',"$JAVA_HOME");
+				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
+				replace_in_file("$CONNEXO_DIR/bin/start-connexoInteractive.sh",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
+				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\$\{JAVA_HOME}',"$JAVA_HOME");
 				chmod 0755,"$CONNEXO_DIR/bin/stop-connexo.sh";
 			}
 		}
@@ -571,7 +571,7 @@ sub install_tomcat {
 
 		chdir "$TOMCAT_BASE";
 		print "Extracting $TOMCAT_ZIP.zip\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf $TOMCAT_ZIP.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $TOMCAT_ZIP.zip failed: $?";
+		system("\"$JAVA_HOME/bin/jar\" -vxf $TOMCAT_ZIP.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $TOMCAT_ZIP.zip failed: $?";
 		if (-d "$TOMCAT_DIR") { rmtree("$TOMCAT_DIR"); }
 		sleep 10;
 		rename("apache-$TOMCAT_ZIP","$TOMCAT_DIR");
@@ -737,7 +737,7 @@ sub install_facts {
 		copy("$FACTS_BASE/facts.war","$FACTS_DIR/facts.war") or die "File cannot be copied: $!";
 		chdir "$FACTS_DIR";
 		print "Extracting facts.war\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf facts.war") == 0 or die "$JAVA_HOME/bin/jar -xvf facts.war failed: $?";
+		system("\"$JAVA_HOME/bin/jar\" -vxf facts.war") == 0 or die "$JAVA_HOME/bin/jar -xvf facts.war failed: $?";
 		unlink("$FACTS_DIR/facts.war");
 		unlink("$FACTS_BASE/facts.war");
 		if (-d "$FACTS_BASE/appserver") { rmtree("$FACTS_BASE/appserver"); }
@@ -817,7 +817,8 @@ sub install_flow {
 		copy("$CONNEXO_DIR/partners/flow/flow.war","$FLOW_DIR/flow.war");
 		chdir "$FLOW_DIR";
 		print "Extracting flow.war\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf flow.war") == 0 or die "$JAVA_HOME/bin/jar -xvf flow.war failed: $?";
+        # TODO: unnecessary step, TomCat will deploy it automatically - to investigate best method
+		system("\"$JAVA_HOME/bin/jar\" -vxf flow.war") == 0 or die "$JAVA_HOME/bin/jar -xvf flow.war failed: $?";
 		unlink("$FLOW_DIR/flow.war");
 
 		copy("$CONNEXO_DIR/partners/flow/resources.properties","$CATALINA_HOME/conf/resources.properties");
@@ -845,7 +846,8 @@ sub install_flow {
             print "    $CONNEXO_DIR/partners/flow/flow.filter.jar -> $FLOW_DIR/WEB-INF/lib/flow.filter.jar\n";
 		    copy("$CONNEXO_DIR/partners/flow/flow.filter.jar","$FLOW_DIR/WEB-INF/lib/flow.filter.jar");
         }
-		print "Connexo Flow successfully installed\n";
+		print "Connexo Flow successfully deployed\n";
+        print "Preparing URLs in $config_file\n";
 
 		if ("$ACTIVATE_SSO" eq "yes") {
             replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
@@ -861,7 +863,36 @@ sub install_flow {
 	}
 }
 
-sub activate_sso {
+sub activate_sso_filters{
+    if ("$ACTIVATE_SSO" eq "yes") {
+        if ("$INSTALL_FLOW" eq "yes") {
+            print "Activating FLOW SSO filter in $CATALINA_BASE/webapps/flow/WEB-INF/web.xml";
+
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->", "<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!--filter>", "<filter>");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "</filter-mapping-->", "</filter-mapping>");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->", "<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1 ends here -->", "< Section 1 ends here -->");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO -->", "<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO >");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2 ends here -->", "< Section 2 ends here -->");
+
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml", "<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>", "<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml", "<!--class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class-->", "<class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class>");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml", "<!--class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class-->", "<class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class>");
+        }
+
+        if ("$INSTALL_FACTS" eq "yes") {
+            print "Activating FACTS SSO filter in $CATALINA_BASE/webapps/facts/WEB-INF/web.xml";
+
+            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", qq(<!ENTITY jsps SYSTEM "web-jsps.xml">), qq(<!ENTITY jsps SYSTEM "file:///$CATALINA_BASE/webapps/facts/WEB-INF/web-jsps.xml">));
+            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", "<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->", "<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->");
+            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", "<!--filter>", "<filter>");
+            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", "</filter-mapping-->", "</filter-mapping>");
+        }
+    }
+}
+
+sub prepare_sso {
     if ("$ACTIVATE_SSO" eq "yes") {
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             #install apache 2.2 or 2.4???
@@ -880,10 +911,19 @@ sub activate_sso {
             #    #install Linux daemon
             #}
             if("$UPGRADE" ne "yes") {
+                if (! -d "$APACHE_PATH/conf/extra/") {
+                    mkdir "$APACHE_PATH/conf/extra/";
+                }
                 add_to_file_if("$APACHE_PATH/conf/httpd.conf","Include conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf");
+
+                print "Installing Apache HTTPD mod_ssl\n";
+                system("yum install -y mod_ssl");
+                print "Configuring HTTPD in $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf\n";
+                # obsolete, now the configs are split in several files in /etc/httpd/conf.modules.d/00-...
                 replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule proxy_module modules/mod_proxy.so","LoadModule proxy_module modules/mod_proxy.so");
                 replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule proxy_http_module modules/mod_proxy_http.so","LoadModule proxy_http_module modules/mod_proxy_http.so");
                 replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule rewrite_module modules/mod_rewrite.so","LoadModule rewrite_module modules/mod_rewrite.so");
+
                 open(my $FH,"> $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf") or die "Could not open $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf: $!";
                 print $FH "Define HOSTNAME $HOST_NAME\n";
                 print $FH "\n";
@@ -966,30 +1006,15 @@ sub activate_sso {
                 close $FH;
             }
 
+            print "Preparing Flow/Facts properties: $CATALINA_BASE/conf/connexo.properties";
+
             if ("$INSTALL_FLOW" eq "yes") {
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!--filter>","<filter>");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1 ends here -->","< Section 1 ends here -->");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO -->","<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO >");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 2 ends here -->","< Section 2 ends here -->");
-
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>","<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class-->","<class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class>");
-                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class-->","<class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class>");
-
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","");
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.password=$CONNEXO_ADMIN_PASSWORD");
             }
 
             if ("$INSTALL_FACTS" eq "yes") {
-                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml",qq(<!ENTITY jsps SYSTEM "web-jsps.xml">),qq(<!ENTITY jsps SYSTEM "file:///$CATALINA_BASE/webapps/facts/WEB-INF/web-jsps.xml">));
-                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->");
-                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
-                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
-
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","");
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.usr=$CONNEXO_ADMIN_ACCOUNT");
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.pwd=$CONNEXO_ADMIN_PASSWORD");
@@ -1055,6 +1080,7 @@ sub start_tomcat_service {
         }
         else {
             if (!-e "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc") {
+                print "Compiling common-daemon-native\n";
                 chdir "$CATALINA_HOME/bin";
                 system("tar xfz commons-daemon-native.tar.gz");
                 chdir "$CATALINA_HOME/bin/commons-daemon-1.1.0-native-src/unix";
@@ -1069,8 +1095,22 @@ sub start_tomcat_service {
             system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
             system("/sbin/chkconfig --add ConnexoTomcat$SERVICE_VERSION");
             system("/sbin/chkconfig ConnexoTomcat$SERVICE_VERSION on");
+
+            print "\n\nStarting TomCat service using: $TOMCAT_BASE/$TOMCAT_DIR/bin/startup.sh \n";
+            system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/startup.sh\" ");
+            print "... waiting for TomCat to start ...";
+            sleep(10);
+            print " continuing.\n";
         }
     }
+}
+
+sub postCall {
+    my ($command, $msg)=@_;
+
+    print "Calling:\t$command\n";
+    system($command) == 0 or die "$msg: $?";
+    print "\t - command finished.\n"
 }
 
 sub start_tomcat {
@@ -1100,9 +1140,9 @@ sub start_tomcat {
 
 			chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
-                system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
             } else {
-                 system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
             }
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
@@ -1120,15 +1160,11 @@ sub start_tomcat {
             }
 
             chdir "$CONNEXO_DIR";
-			if ("$ACTIVATE_SSO" eq "yes") {
-			    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
-                sleep 5;
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
-            } else {
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
-                sleep 5;
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
-            }
+            print "Changing directory to $CONNEXO_DIR\n";
+            # using TomCat password here because the filters should not be active yet if SSO is used
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
+            sleep 5;
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
 
             print "\nDeploy MDC processes...\n";
             mkdir "$TOMCAT_BASE/$TOMCAT_DIR/repositories";
@@ -1141,11 +1177,8 @@ sub start_tomcat {
                 {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
-                    if ("$ACTIVATE_SSO" eq "yes") {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
-                    } else {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
-                    }
+                    print "Deploying: $name\n";
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);
@@ -1161,11 +1194,8 @@ sub start_tomcat {
                 {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
-                    if ("$ACTIVATE_SSO" eq "yes") {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
-                    } else {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
-                    }
+                    print "Deploying: $name\n";
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);
@@ -1656,7 +1686,7 @@ sub perform_upgrade {
         #dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/.niogit","$CONNEXO_DIR/partners/tomcat/.niogit");
         #dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/repositories/kie", "$CONNEXO_DIR/partners/tomcat/repositories/kie");
 
-        activate_sso();
+        prepare_sso();
         change_owner();
 
         print "Removing felix-cache\n";
@@ -1665,6 +1695,7 @@ sub perform_upgrade {
         print "Starting Connexo...";
         start_connexo();
         start_tomcat_service(); #no upgrade Flow processes & Facts reports
+        activate_sso_filters();
 
         rmtree("$UPGRADE_PATH/temp");
 
@@ -1810,10 +1841,11 @@ if ($help) {
         install_tomcat();
         install_facts();
         install_flow();
-        activate_sso();
+        prepare_sso();
         change_owner();
         start_connexo();
         start_tomcat();
+        activate_sso_filters();
         final_steps();
     }
 } else {
