@@ -19,6 +19,7 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.data.Device;
@@ -269,7 +270,7 @@ public class ProcessResource {
     @GET
     @Path("/usagepointobjects")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({ Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM })
+    @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public Response getUsagePointObjects(@BeanParam StandardParametersBean params) {
         String searchText = params.getFirst("like");
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
@@ -375,7 +376,7 @@ public class ProcessResource {
                 .filter(objectsWithoutRunningProcess(auth, errors))
                 .collect(Collectors.toList());
 
-        return Response.ok(new ProcessHistoryGenInfos(appropriateInstances, errors.getErrors())).build();
+        return Response.ok(new ProcessHistoryGenInfos(appropriateInstances, request.processHistories.size(), errors.getErrorsInfo())).build();
     }
 
     private static Predicate<ProcessHistoryGenInfo> compatibleObjects(ProcessObjectType type, Errors errors) {
@@ -395,7 +396,7 @@ public class ProcessResource {
                 return info -> {
                     Optional<? extends DeviceAlarm> alarmOptional = deviceAlarmService.findAlarm(Long.parseLong(info.getValue()));
                     if (!alarmOptional.isPresent()) {
-                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, Checks.is(info.getObjectName()).empty() ? info.getValue() : info.getObjectName());
                         return false;
                     }
                     String alarmReason = alarmOptional.get().getReason().getKey();
@@ -410,7 +411,7 @@ public class ProcessResource {
                 return info -> {
                     Optional<Device> deviceOptional = deviceService.findDeviceByMrid(info.getValue());
                     if (!deviceOptional.isPresent()) {
-                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, Checks.is(info.getObjectName()).empty() ? info.getValue() : info.getObjectName());
                         return false;
                     }
                     String stateId = Long.toString(deviceOptional.get().getState().getId());
@@ -425,7 +426,7 @@ public class ProcessResource {
                 return info -> {
                     Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue()));
                     if (!issueOptional.isPresent()) {
-                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, Checks.is(info.getObjectName()).empty() ? info.getValue() : info.getObjectName());
                         return false;
                     }
                     String issueReason = issueOptional.get().getReason().getKey();
@@ -438,9 +439,9 @@ public class ProcessResource {
             case ISSUE_TYPE_NAME:
                 Set<String> allowedLifecycleIssueReasons = getSetOfValueIds(definition, DeviceResource.PROCESS_LIFECYCLE_ISSUE_STATES);
                 return info -> {
-                    Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue())); //CXO-9377
+                    Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue()));
                     if (!issueOptional.isPresent()) {
-                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, Checks.is(info.getObjectName()).empty() ? info.getValue() : info.getObjectName());
                         return false;
                     }
                     String issueReason = issueOptional.get().getReason().getKey();
@@ -455,7 +456,7 @@ public class ProcessResource {
                 return info -> {
                     Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue()));
                     if (!issueOptional.isPresent()) {
-                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, Checks.is(info.getObjectName()).empty() ? info.getValue() : info.getObjectName());
                         return false;
                     }
                     String issueReason = issueOptional.get().getReason().getKey();
@@ -520,12 +521,12 @@ public class ProcessResource {
             errorsMap.computeIfAbsent(messageSeed, message -> new HashSet<>()).add(objectName);
         }
 
-        private List<String> getErrors() {
+        private List<ErrorInfo> getErrorsInfo() {
             return errorsMap.entrySet().stream()
                     .map(messageAndObjectNames -> {
                         String objectNames = messageAndObjectNames.getValue().stream()
                                 .collect(Collectors.joining(", "));
-                        return thesaurus.getSimpleFormat(messageAndObjectNames.getKey()).format(objectNames);
+                        return new ErrorInfo(thesaurus.getSimpleFormat(messageAndObjectNames.getKey()).format(messageAndObjectNames.getValue().size()), objectNames);
                     })
                     .collect(Collectors.toList());
         }
