@@ -851,6 +851,12 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>systemproperties</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks.rest</artifactId>
@@ -1204,7 +1210,7 @@
             <artifactId>domain.util</artifactId>
             <scope>compile</scope>
         </dependency>
-    </dependencies>
+	</dependencies>
 
 
     <properties>
@@ -1283,6 +1289,7 @@
         <module>com.elster.jupiter.system</module>
         <!-- todo rename to license -->
         <module>com.elster.jupiter.systemadmin</module>
+		<module>com.elster.jupiter.systemproperties</module>
         <module>com.elster.jupiter.tasks</module>
         <module>com.elster.jupiter.tasks.rest</module>
         <module>com.elster.jupiter.theme.skyline</module>
