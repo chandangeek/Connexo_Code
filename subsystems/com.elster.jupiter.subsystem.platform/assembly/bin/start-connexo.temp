@@ -1,6 +1,6 @@
 #!/bin/bash
-JAVA_HOME=${JAVA_HOME}
 
+JAVA_HOME=${JAVA_HOME}
 CXO=${CONNEXO_DIR}
 
 VMOPTIONSFILE=$CXO/bin/Connexo.vmoptions
