@@ -105,7 +105,7 @@ public class SapResourceTest extends SapApplicationJerseyTest {
         when(endPointConfigurationService.getEndPointConfiguration(info.id))
                 .thenReturn(Optional.empty());
 
-        Response response = target("/devices/testDevice/sendregisterednotification/10").request().post(entity);
+        Response response = target("/devices/testDevice/sendregisterednotification").request().post(entity);
         assertBadRequest(response, "No registered notification end point is found by id '10'.", "NoRegisteredNotificationEndPoint");
 
         //no such device
