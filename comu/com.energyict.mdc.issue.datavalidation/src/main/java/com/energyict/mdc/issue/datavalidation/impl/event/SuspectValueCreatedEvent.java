@@ -21,6 +21,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -96,6 +98,10 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
+        if (validationRules.isEmpty()) {
+            return false;
+        }
+
         final List<Map<com.energyict.mdc.common.device.data.Channel, DataValidationStatus>> validationStates = getLoadProfiles().stream()
                 .map(loadProfile -> loadProfile.getChannelData(timeRange))
                 .flatMap(Collection::stream)
@@ -113,11 +119,16 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
         }
 
         final List<ValidationRule> offendedValidationRules = validationStatesFilteredByReading.stream()
-                .map(channelDataValidationStatusEntry -> channelDataValidationStatusEntry.getValue().getOffendedRules())
+                .map(channelDataValidationStatusEntry -> {
+                    ImmutableList.Builder<ValidationRule> allOffended = ImmutableList.builder();
+                    allOffended.addAll(channelDataValidationStatusEntry.getValue().getOffendedRules());
+                    allOffended.addAll(channelDataValidationStatusEntry.getValue().getBulkOffendedRules());
+                    return allOffended.build();
+                })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        if (validationRules.isEmpty()) {
+        if (offendedValidationRules.isEmpty()) {
             return false;
         }
 
@@ -192,5 +203,4 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
     private int sortSuspectsByDateAscOrder(final ReadingQualityRecord first, final ReadingQualityRecord second) {
         return first.getReadingTimestamp().compareTo(second.getReadingTimestamp());
     }
-
 }

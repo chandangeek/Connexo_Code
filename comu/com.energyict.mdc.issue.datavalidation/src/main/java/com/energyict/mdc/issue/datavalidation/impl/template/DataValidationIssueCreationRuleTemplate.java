@@ -35,9 +35,9 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -51,9 +51,6 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 
-@Component(name = "com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate",
-        property = {"name=" + DataValidationIssueCreationRuleTemplate.NAME},
-        service = CreationRuleTemplate.class, immediate = true)
 public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemplate {
 
     public static final String NAME = "DataValidationIssueCreationRuleTemplate";
@@ -114,6 +111,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                 "\tevent : CannotEstimateDataEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "\n" +
@@ -122,6 +120,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                 "\tevent: SuspectDeletedEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end\n";
     }
@@ -230,7 +229,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     {
         for (CreationRule creationRule : getExistingCreationRules()) {
             Object lifecycleStates = creationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES);
-            if((lifecycleStates instanceof List) && ((List)lifecycleStates).stream()
+            if ((lifecycleStates instanceof List) && ((List) lifecycleStates).stream()
                     .anyMatch(propertySpec -> (propertySpec instanceof DeviceLifeCycleInDeviceTypeInfo) &&
                             ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceTypeId() == deviceTypeId))
                 return Optional.of(creationRule);

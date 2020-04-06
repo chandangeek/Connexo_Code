@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.*;
@@ -18,27 +19,40 @@ import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Version;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datavalidation.*;
 import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+import com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate;
+import com.energyict.mdc.issue.datavalidation.impl.template.SuspectCreatedIssueCreationRuleTemplate;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -57,18 +71,31 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
+    private volatile PropertySpecService propertySpecService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
+    private volatile TimeService timeService;
+    private volatile ValidationService validationService;
+    private volatile NlsService nlsService;
     /* for dependency - startup/installation order */
     private volatile MeteringService meteringService;
     private volatile EstimationService estimationService;
 
     private volatile DataModel dataModel;
 
+    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+
     //for OSGI
     public IssueDataValidationServiceImpl() {
     }
 
     @Inject
-    public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService) {
+    public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService,
+                                          MessageService messageService, UpgradeService upgradeService, BundleContext bundleContext,
+                                          PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService,
+                                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MeteringTranslationService meteringTranslationService,
+                                          TimeService timeService, ValidationService validationService) {
         this();
         setOrmService(ormService);
         setIssueService(issueService);
@@ -76,11 +103,19 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         setEventService(eventService);
         setMessageService(messageService);
         setUpgradeService(upgradeService);
-        activate();
+        setPropertySpecService(propertySpecService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setMeteringTranslationService(meteringTranslationService);
+        setTimeService(timeService);
+        setValidationService(validationService);
+        activate(bundleContext);
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
+        registerCreationRuleTemplateServices(bundleContext);
+
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -99,8 +134,14 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 Installer.class,
                 ImmutableMap.of(
                         Version.version(10, 2), UpgraderV10_2.class,
-                        Version.version(10, 7, 2), UpgraderV10_7_2.class
+                        Version.version(10, 7, 2), UpgraderV10_7_2.class,
+                        Version.version(10, 8), UpgraderV10_8.class
                 ));
+    }
+
+    @Deactivate
+    public void stop() {
+        this.serviceRegistrations.forEach(ServiceRegistration::unregister);
     }
 
     @Override
@@ -186,6 +227,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
@@ -212,6 +254,36 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setPropertySpecService(final PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(final DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(final MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
+    public void setTimeService(final TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @Reference
+    public void setValidationService(final ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Override
@@ -267,7 +339,25 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".status").in(filter.getStatuses()));
         }
+        //filter by rules
+        if (!filter.getRules().isEmpty()) {
+            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".rule").in(filter.getRules()));
+        }
         return condition;
+    }
+
+    private void registerCreationRuleTemplateServices(BundleContext bundleContext) {
+        CreationRuleTemplate suspectCreatedIssueCreationRuleTemplate =
+                new SuspectCreatedIssueCreationRuleTemplate(propertySpecService, this, issueService,
+                        nlsService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService,
+                        timeService, validationService);
+
+        CreationRuleTemplate dataValidationIssueCreationRuleTemplate =
+                new DataValidationIssueCreationRuleTemplate(this, issueService,
+                        nlsService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService);
+
+        serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, suspectCreatedIssueCreationRuleTemplate, null));
+        serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, dataValidationIssueCreationRuleTemplate, null));
     }
 
     public Thesaurus thesaurus() {

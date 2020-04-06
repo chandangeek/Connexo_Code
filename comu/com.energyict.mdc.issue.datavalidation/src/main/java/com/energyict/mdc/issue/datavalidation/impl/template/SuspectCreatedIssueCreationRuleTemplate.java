@@ -21,6 +21,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
@@ -28,9 +29,9 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
 import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import net.minidev.json.JSONObject;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -51,18 +52,9 @@ import java.util.logging.Logger;
  * @author edragutan
  */
 
-@Component(
-        name = "com.energyict.mdc.issue.datavalidation.impl.creationrule.SuspectCreationRuleTemplate",
-        property = {"name=" + SuspectCreatedIssueCreationRuleTemplate.NAME},
-        service = CreationRuleTemplate.class,
-        immediate = true
-)
 public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemplate {
 
-    private static final Logger LOG = Logger.getLogger(SuspectCreatedIssueCreationRuleTemplate.class.getName());
-
     public static final String NAME = "SuspectCreationRuleTemplate";
-    public static final String EVENT_TYPE = NAME + ".eventType";
 
     public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
     public static final String VALIDATION_RULES = NAME + ".validationRules";
@@ -80,7 +72,6 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile TimeService timeService;
     private volatile ValidationService validationService;
-    private volatile Clock clock;
 
     public SuspectCreatedIssueCreationRuleTemplate() {
         // No Operation, OSGi framework requires a default contructor in order to create this bean and set the references
@@ -95,8 +86,7 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
                                                    final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                                    final MeteringTranslationService meteringTranslationService,
                                                    final TimeService timeService,
-                                                   final ValidationService validationService,
-                                                   final Clock clock) {
+                                                   final ValidationService validationService) {
         this();
         setPropertySpecService(propertySpecService);
         setIssueDataValidationService(issueDataValidationService);
@@ -107,7 +97,6 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
         setMeteringTranslationService(meteringTranslationService);
         setTimeService(timeService);
         setValidationService(validationService);
-        setClock(clock);
     }
 
     @Override
@@ -148,6 +137,7 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
                 "\teval( event.checkOccurrenceConditions(\"@{" + THRESHOLD + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create suspect created issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n";
     }
@@ -277,11 +267,6 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
     @Reference
     public void setValidationService(final ValidationService validationService) {
         this.validationService = validationService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
