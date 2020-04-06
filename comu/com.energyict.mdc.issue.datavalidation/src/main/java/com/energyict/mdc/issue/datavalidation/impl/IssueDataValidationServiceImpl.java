@@ -54,6 +54,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 
@@ -356,8 +357,10 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 new DataValidationIssueCreationRuleTemplate(this, issueService,
                         nlsService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService);
 
-        serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, suspectCreatedIssueCreationRuleTemplate, null));
-        serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, dataValidationIssueCreationRuleTemplate, null));
+        serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, suspectCreatedIssueCreationRuleTemplate,
+                new Hashtable<>(ImmutableMap.of("name", SuspectCreatedIssueCreationRuleTemplate.NAME))));
+        serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, dataValidationIssueCreationRuleTemplate,
+                new Hashtable<>(ImmutableMap.of("name", DataValidationIssueCreationRuleTemplate.NAME))));
     }
 
     public Thesaurus thesaurus() {

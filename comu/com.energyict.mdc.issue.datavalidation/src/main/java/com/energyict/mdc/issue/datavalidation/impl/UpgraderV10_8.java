@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -41,14 +40,15 @@ public class UpgraderV10_8 implements Upgrader {
     }
 
     private void updateValidationCreationRules() {
-        IssueType validationType = issueService.findIssueType("datavalidation").orElse(null);
-        List<IssueReason> dataValidationReasons = new ArrayList<>(issueService.query(IssueReason.class)
-                .select(where("issueType").isEqualTo(validationType)));
+        issueService.findIssueType("datavalidation").ifPresent(validationType -> {
+            List<IssueReason> dataValidationReasons = new ArrayList<>(issueService.query(IssueReason.class)
+                    .select(where("issueType").isEqualTo(validationType)));
 
-        Query<CreationRule> query = issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
-        Condition conditionIssue = where("reason").in(dataValidationReasons);
-        List<CreationRule> creationRules = query.select(conditionIssue, Order.ascending("name"));
-        creationRules.forEach(this::updateContent);
+            Query<CreationRule> query = issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
+            Condition conditionIssue = where("reason").in(dataValidationReasons);
+            List<CreationRule> creationRules = query.select(conditionIssue);
+            creationRules.forEach(this::updateContent);
+        });
     }
 
     private void updateContent(final CreationRule creationRule) {

@@ -90,6 +90,10 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
     }
 
     public boolean checkValidationRule(final String relativePeriodWithCount, final String validationRules) {
+        if (validationRules.isEmpty()) {
+            return false;
+        }
+
         final Range<Instant> timeRange = getTimeRange(relativePeriodWithCount)
                 .getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now()));
 
@@ -97,10 +101,6 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
                 .map(String::trim)
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-
-        if (validationRules.isEmpty()) {
-            return false;
-        }
 
         final List<Map<com.energyict.mdc.common.device.data.Channel, DataValidationStatus>> validationStates = getLoadProfiles().stream()
                 .map(loadProfile -> loadProfile.getChannelData(timeRange))
