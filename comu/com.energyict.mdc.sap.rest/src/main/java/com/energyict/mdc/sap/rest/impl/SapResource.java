@@ -118,7 +118,7 @@ public class SapResource {
 
     @POST
     @Transactional
-    @Path("/devices/{deviceName}/sendregisterednotification/{endpointId}") //TODO: remove "endpointId" query parameter on BE/FE
+    @Path("/devices/{deviceName}/sendregisterednotification/")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST})
