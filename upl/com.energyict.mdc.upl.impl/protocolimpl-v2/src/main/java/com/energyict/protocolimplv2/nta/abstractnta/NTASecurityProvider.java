@@ -182,7 +182,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public long initializeFrameCounter() {
         SecureRandom generator = new SecureRandom();
-        return generator.nextLong();
+        return generator.nextInt(13806485); // Boltzmann constant
     }
 
     /**
