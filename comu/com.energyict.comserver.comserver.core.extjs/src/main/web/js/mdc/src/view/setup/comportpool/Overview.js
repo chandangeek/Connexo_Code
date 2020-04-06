@@ -95,7 +95,16 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                         {
                             fieldLabel: Uni.I18n.translate('comPortPool.form.maxPriorityConnections', 'MDC', 'Max priority connections'),
                             name: 'maxPriorityConnections',
-                        }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('comportpool.taskExecutionTimeout', 'MDC', 'Task Execution Timeout'),
+                            name: 'taskExecutionTimeout',
+                            renderer: function (val) {
+                                val ? val = val.count + ' ' + val.timeUnit : null;
+                                return val;
+                            }
+                        },
+
                     ]
                 },
                 {

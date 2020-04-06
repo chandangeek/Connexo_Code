@@ -41,7 +41,14 @@ Ext.define('Mdc.model.ComPortPool', {
         }
     ],
     associations: [
-        {name: 'taskExecutionTimeout',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'taskExecutionTimeout'},
+        {
+            name: 'taskExecutionTimeout',
+            type: 'hasOne',
+            model:'Mdc.model.field.TimeInfo',
+            associationKey: 'taskExecutionTimeout',
+            associatedName: 'taskExecutionTimeout',
+            setterName: 'setTaskExecutionTimeout'
+        },
         {name: 'inboundComPorts',type: 'hasMany',model: 'Mdc.model.InboundComPort',associationKey: 'inboundComPorts',
             getTypeDiscriminator:function(node){
                 return 'Mdc.model.InboundComPort';
