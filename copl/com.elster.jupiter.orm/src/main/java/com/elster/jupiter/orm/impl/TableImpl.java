@@ -879,6 +879,7 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
+        cacheTtl = evictionTime;
         if (isWholeTableCached()) {
             System.out.println("WHOLE TABLE CACHE");
             cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
@@ -890,10 +891,13 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public void changeEvictionTime(Long cacheTtl){
+        this.cacheTtl = cacheTtl;
         if (isWholeTableCached()) {
+            System.out.println("NEW TABLE CACHE!!!");
             cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
-        } else {
-            cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        } else if(isCached()){
+            System.out.println("NEW TUPLE CACHE!!!");
+            cache =  new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
         }
     }
 
