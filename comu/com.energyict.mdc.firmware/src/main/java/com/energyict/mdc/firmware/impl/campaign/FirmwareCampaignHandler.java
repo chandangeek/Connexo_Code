@@ -44,6 +44,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
     private final static String FIRMWARE_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/COMPLETED";
     private final static String FIRMWARE_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/FAILED";
     private final static String FIRMWARE_CAMPAIGN_EDITED = "com/energyict/mdc/firmware/firmwarecampaign/EDITED";
+    private final static String DEVICE_BEFORE_DELETE = "com/energyict/mdc/device/data/device/BEFORE_DELETE";
     private FirmwareCampaignServiceImpl firmwareCampaignService;
     private Clock clock;
     private ServiceCallService serviceCallService;
@@ -85,6 +86,11 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                     threadPrincipalService.set(principal);
                     transactionService.run(() -> firmwareCampaignService.handleCampaignUpdate((FirmwareCampaign) event.getSource()));
                 }, Executors.newSingleThreadExecutor());
+                break;
+            case DEVICE_BEFORE_DELETE:
+                Device device = (Device) event.getSource();
+                firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(item -> item.cancel(true));
+                firmwareCampaignService.findFirmwareCampaignItems(device).forEach(DeviceInFirmwareCampaign::delete);
                 break;
             default:
                 break;

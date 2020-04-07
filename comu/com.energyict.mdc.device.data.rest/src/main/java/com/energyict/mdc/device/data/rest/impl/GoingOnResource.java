@@ -46,6 +46,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -118,14 +119,14 @@ public class GoingOnResource {
                 issueFinder = issueFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
             }
             issues = issueFinder
-                    .sorted("urgency + impact", true)
+                    .sorted("urgency+impact", true)
                     .sorted("due_date", false)
                     .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }
 
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
-        serviceCallFilter.targetObject = device;
+        serviceCallFilter.targetObjects = Arrays.asList(device, device.getMeter());
         serviceCallFilter.states = serviceCallService.nonFinalStates().stream().map(Enum::name).collect(Collectors.toList());
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
         if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
@@ -140,7 +141,7 @@ public class GoingOnResource {
                 alarmFinder = alarmFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
             }
             alarms = alarmFinder
-                    .sorted("urgency + impact", true)
+                    .sorted("urgency+impact", true)
                     .sorted("due_date", false)
                     .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());

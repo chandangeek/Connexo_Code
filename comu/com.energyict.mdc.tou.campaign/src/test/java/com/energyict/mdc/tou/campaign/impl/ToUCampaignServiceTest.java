@@ -153,6 +153,7 @@ public class ToUCampaignServiceTest {
         when(serviceCall.getExtension(TimeOfUseItemDomainExtension.class)).thenReturn(Optional.of(timeOfUseItem));
         when(serviceCall.canTransitionTo(DefaultState.CANCELLED)).thenReturn(true);
         when(serviceCall.getState()).thenReturn(DefaultState.PENDING);
+        when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
         customPropertySetValues.setProperty("device", device);
         customPropertySetValues.setProperty("parentServiceCallId", 11L);
@@ -165,7 +166,7 @@ public class ToUCampaignServiceTest {
         EndDeviceGroup group = mock(EndDeviceGroup.class);
         when(group.getMembers((Instant) any())).thenReturn(Collections.singletonList(endDevice));
         timeOfUseItem.cancel(false);
-        verify(serviceCall).requestTransition(DefaultState.CANCELLED);
+        verify(serviceCall).transitionWithLockIfPossible(DefaultState.CANCELLED);
     }
 
     @Test

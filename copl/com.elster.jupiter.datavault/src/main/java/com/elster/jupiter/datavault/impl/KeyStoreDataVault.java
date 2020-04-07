@@ -27,8 +27,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -56,8 +54,6 @@ class KeyStoreDataVault implements DataVault {
 
     // we use same password for both store and keys within
     private final char[] password = {'1', '#', 'g', 'W', 'X', 'i', 'A', 'E', 'y', '9', 'R', 'n', 'b', '6', 'M', '%', 'C', 'o', 'j', 'E'};
-
-    private Map<Integer, Cipher> cipherCache = new HashMap<>();
 
     @Inject
     KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
@@ -134,23 +130,20 @@ class KeyStoreDataVault implements DataVault {
     }
 
     private Cipher getEncryptionCipherForKey(int keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException {
-        Cipher cipher = getCipher(keyAlias);
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.encrypt.asInt(), createKeySpecForKey(keyAlias));
         return cipher;
     }
 
-    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        Cipher cipher = getCipher(keyAlias);
+    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws
+            NoSuchAlgorithmException,
+            KeyStoreException,
+            UnrecoverableKeyException,
+            NoSuchPaddingException,
+            InvalidKeyException,
+            InvalidAlgorithmParameterException {
+        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
-        return cipher;
-    }
-
-    private Cipher getCipher(int keyAlias) throws NoSuchPaddingException, NoSuchAlgorithmException {
-        Cipher cipher = cipherCache.get(keyAlias);
-        if (cipher == null) {
-            cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
-            cipherCache.put(keyAlias, cipher);
-        }
         return cipher;
     }
 

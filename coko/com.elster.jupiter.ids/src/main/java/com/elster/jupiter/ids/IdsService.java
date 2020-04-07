@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.ids;
 
+import com.elster.jupiter.util.Pair;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -34,5 +37,6 @@ public interface IdsService {
     void purge(Logger logger);
 
     void extendTo(Instant instant, Logger logger);
+
+    List<TimeSeriesEntry> getEntries(List<Pair<TimeSeries, Instant>> scope);
 }
- 

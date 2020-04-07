@@ -27,7 +27,7 @@ public class UpgraderV10_8 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         //append partition for next month and enable auto increment partition interval
         if (dataModel.getSqlDialect().hasPartitioning()) {
-            Arrays.asList("ISU_ISSUE_HISTORY", "ISU_ISSUE_OPEN", "ISU_ISSUE_ALL").forEach(tableName ->
+            Arrays.asList("ISU_ISSUE_HISTORY", "ISU_ISSUE_OPEN").forEach(tableName ->
                     execute(dataModel, "LOCK TABLE " + tableName + " PARTITION FOR (" + clock.instant().plusMillis(PARTITIONSIZE).toEpochMilli() + ") IN SHARE MODE",
                             "ALTER TABLE " + tableName + " SET INTERVAL (" + PARTITIONSIZE + ")")
             );

@@ -93,17 +93,29 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             loadProfilesStore = me.getStore('Mdc.store.LoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
+            hasSapAttributes,
             showPage = function () {
                 deviceModel.load(deviceId, {
                     success: function (record) {
                         if (record.get('hasLoadProfiles')) {
                             me.getApplication().fireEvent('loadDevice', record);
-                            widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                                router: router,
-                                device: record
+                            Ext.Ajax.request({
+                                url: "/api/sap/devices/" + deviceId + "/channels/havesapcas",
+                                method: 'GET',
+                                success: function (response) {
+                                    var sapData = Ext.JSON.decode(response.responseText);
+                                    hasSapAttributes = sapData && sapData.value;
+                                },
+                                callback: function(){
+                                    widget = Ext.widget('deviceLoadProfileChannelsSetup', {
+                                        router: router,
+                                        device: record,
+                                        hasSapAttributes: hasSapAttributes
+                                    });
+                                    me.getApplication().fireEvent('changecontentevent', widget);
+                                    channelsOfLoadProfilesOfDeviceStore.load();
+                                }
                             });
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                            channelsOfLoadProfilesOfDeviceStore.load();
                         } else {
                             window.location.replace(router.getRoute('notfound').buildUrl());
                         }
@@ -162,7 +174,15 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         customAttributesStore.getProxy().setParams(me.deviceId, record.get('id'));
         customAttributesStore.load(function() {
             if (preview.rendered) {
-                preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                var casForm = preview.down('#custom-attribute-sets-placeholder-form-id');
+                casForm.loadStore(customAttributesStore);
+                Ext.Array.each(Ext.ComponentQuery.query('property-form'), function(propertiesForm){
+                    propertiesForm.setWidth(400);
+                    var textFields = propertiesForm.query('displayfield');
+                    Ext.Array.each(textFields, function (textfield) {
+                        textfield.setFieldStyle({'word-break': 'break-all', 'line-height': '28px', 'margin-top': '0px'})
+                    })
+                })
                 preview.setLoading(false);
             }
         });
@@ -228,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     if (res && res.errorCode) {
                         code = res.errorCode;
                     }
-                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                    var title = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                         message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', "Failed to validate data of channel '{0}'", record.get('readingType').fullAliasName)
                             + '. ' + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel.'),
                         config = {

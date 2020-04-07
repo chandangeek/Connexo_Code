@@ -5,19 +5,36 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.http.whiteboard.*;
+import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.http.whiteboard.MessageSeeds;
+import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
+import com.elster.jupiter.http.whiteboard.SamlResponseService;
+import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
+import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
+import com.elster.jupiter.http.whiteboard.impl.saml.sso.AssertionConsumerServiceResource;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -25,7 +42,14 @@ import org.osgi.service.http.NamespaceException;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Application;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -41,7 +65,7 @@ import java.util.stream.Stream;
         immediate = true)
 public final class WhiteBoardImpl extends Application implements BinderProvider, TranslationKeyProvider {
 
-    static String COMPONENTNAME = "HTW";
+    public static String COMPONENTNAME = "HTW";
 
     public static final Map<WhiteBoardProperties, String> WHITE_BOARD_PROPERTIES = new HashMap<>();
 
@@ -55,7 +79,9 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile Thesaurus thesaurus;
     private volatile BundleContext bundleContext;
     private volatile SamlResponseService samlResponseService;
-    private volatile BlackListTokenService blackListTokenService;
+    private volatile TokenService<UserJWT> tokenService;
+    private volatile SAMLSingleLogoutService samlSingleLogoutService;
+
     private final Object registrationLock = new Object();
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
@@ -71,12 +97,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Inject
     WhiteBoardImpl(BundleContext bundleContext, TransactionService transactionService, QueryService queryService,
-                   HttpAuthenticationService httpAuthenticationService, BlackListTokenService blackListTokenService) {
+                   HttpAuthenticationService httpAuthenticationService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
         setHttpAuthenticationService(httpAuthenticationService);
-        setBlackListTokenService(blackListTokenService);
         activate(bundleContext, null);
     }
 
@@ -131,8 +156,13 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     }
 
     @Reference
-    public void setBlackListTokenService(BlackListTokenService blackListTokenService){
-        this.blackListTokenService = blackListTokenService;
+    public void setTokenService(TokenService<UserJWT> tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @Reference
+    public void setSamlSingleLogoutService(SAMLSingleLogoutService samlSingleLogoutService) {
+        this.samlSingleLogoutService = samlSingleLogoutService;
     }
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -190,7 +220,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, AcsResource.class, ForbiddenExceptionMapper.class);
+        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, AssertionConsumerServiceResource.class, SLOResource.class, ForbiddenExceptionMapper.class);
     }
 
     List<HttpResource> getResources() {
@@ -218,7 +248,8 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 this.bind(samlResponseService).to(SamlResponseService.class);
                 this.bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
                 this.bind(thesaurus).to(Thesaurus.class);
-                this.bind(blackListTokenService).to(BlackListTokenService.class);
+                this.bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);
+                this.bind(tokenService).to(TokenService.class);
             }
         };
     }

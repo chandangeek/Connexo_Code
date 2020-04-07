@@ -36,7 +36,8 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_WORKGROUP_NAME(1020, Keys.DUPLICATE_WORKGROUP_NAME, "Duplicate name"),
     INSUFFICIENT_PRIVILEGES(1021, "InsufficientPrivileges", "The user does not have the needed privileges to perform the requested action."),
     CANNOT_REMOVE_ALL_USER_ADMINISTRATORS(1022, "cannot.remove.all.user.administrators", "At least one user account with the \'User administrator\' role is required."),
-    USER_NOT_ACTIVE(1023, "userX.not.active", "User {0} not active");
+    USER_NOT_ACTIVE(1023, "userX.not.active", "User {0} not active"),
+    FIELD_SIZE_BETWEEN_1_AND_36(1024, Keys.FIELD_SIZE_BETWEEN_1_AND_36, "Field text length should be between 1 and 10 symbols");
 
     private final int number;
     private final String key;
@@ -96,6 +97,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_SIZE_BETWEEN_1_AND_3 = "FieldSizeBetween1and3";
         public static final String FIELD_SIZE_BETWEEN_1_AND_4 = "FieldSizeBetween1and4";
         public static final String FIELD_SIZE_BETWEEN_1_AND_10 = "FieldSizeBetween1and10";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_36 = "FieldSizeBetween1and36";
         public static final String FIELD_SIZE_BETWEEN_1_AND_64 = "FieldSizeBetween1and64";
         public static final String FIELD_SIZE_BETWEEN_1_AND_65 = "FieldSizeBetween1and65";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";

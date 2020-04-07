@@ -10,6 +10,7 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.ConfigPropertiesService;
@@ -79,6 +80,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringZoneService meteringZoneService;
     private volatile ConfigPropertiesService configPropertiesService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -155,6 +157,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     @Reference
     public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService) {
         this.configPropertiesService = configPropertiesService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Activate
@@ -239,6 +246,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(thesaurus).to(MessageInterpolator.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(serviceCallService).to(ServiceCallService.class);

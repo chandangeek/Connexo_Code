@@ -206,7 +206,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
             LockService lockService, DataVaultService dataVaultService,
             SecurityManagementService securityManagementService, MeteringZoneService meteringZoneService,
-            CalendarService calendarService,MeteringTranslationService meteringTranslationService,
+            CalendarService calendarService, MeteringTranslationService meteringTranslationService,
             ConfigPropertiesService configPropertiesService) {
         this();
         setOrmService(ormService);
@@ -272,6 +272,146 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         return dataModel;
     }
 
+    @Override
+    public Thesaurus thesaurus() {
+        return thesaurus;
+    }
+
+    @Override
+    public Clock clock() {
+        return clock;
+    }
+
+    @Override
+    public SchedulingService schedulingService() {
+        return this.schedulingService;
+    }
+
+    @Override
+    public EngineConfigurationService engineConfigurationService() {
+        return this.engineConfigurationService;
+    }
+
+    @Override
+    public KpiService kpiService() {
+        return kpiService;
+    }
+
+    @Override
+    public com.elster.jupiter.tasks.TaskService taskService() {
+        return jupiterTaskService;
+    }
+
+    @Override
+    public ProtocolPluggableService protocolPluggableService() {
+        return protocolPluggableService;
+    }
+
+    @Override
+    public DeviceConfigurationService deviceConfigurationService() {
+        return deviceConfigurationService;
+    }
+
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Override
+    public ServerConnectionTaskService connectionTaskService() {
+        return this.connectionTaskService;
+    }
+
+    @Override
+    public ConnectionTaskReportService connectionTaskReportService() {
+        return this.connectionTaskReportService;
+    }
+
+    @Override
+    public ServerCommunicationTaskService communicationTaskService() {
+        return this.communicationTaskService;
+    }
+
+    @Override
+    public PriorityComTaskService priorityComTaskService() {
+        return priorityComTaskService;
+    }
+
+    @Override
+    public CommunicationTaskReportService communicationTaskReportService() {
+        return communicationTaskReportService;
+    }
+
+    @Override
+    public ServerDeviceService deviceService() {
+        return this.deviceService;
+    }
+
+    @Override
+    public DataCollectionKpiService dataCollectionKpiService() {
+        return this.dataCollectionKpiService;
+    }
+
+    @Override
+    public BatchService batchService() {
+        return this.batchService;
+    }
+
+    @Override
+    public MessageService messageService() {
+        return this.messagingService;
+    }
+
+    @Override
+    public EventService eventService() {
+        return this.eventService;
+    }
+
+    @Override
+    public DeviceMessageSpecificationService deviceMessageSpecificationService() {
+        return this.deviceMessageSpecificationService;
+    }
+
+    @Override
+    public ValidationService validationService() {
+        return this.validationService;
+    }
+
+    @Override
+    public MeteringZoneService meteringZoneService() {
+        return this.meteringZoneService;
+    }
+
+    @Override
+    public JsonService jsonService() {
+        return jsonService;
+    }
+
+    @Override
+    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder) {
+        Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = builder.prepare(connection)) {
+            this.fetchTaskStatusBreakdown(statement, counters);
+        } catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+        return counters;
+    }
+
+    @Override
+    public Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters) {
+        for (TaskStatus missing : this.taskStatusComplement(counters.keySet())) {
+            counters.put(missing, 0L);
+        }
+        return counters;
+    }
+
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
@@ -303,11 +443,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN)
                 .join(meteringThesaurus)
                 .join(nlsService.getThesaurus(Constants.COMPONENT_NAME, Layer.DOMAIN));
-    }
-
-    @Override
-    public Thesaurus thesaurus() {
-        return thesaurus;
     }
 
     @Reference
@@ -346,7 +481,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService){
+    public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService) {
         this.configPropertiesService = configPropertiesService;
     }
 
@@ -385,19 +520,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         // PATCH; required for proper startup; do not delete
     }
 
-    @Override
-    public Clock clock() {
-        return clock;
-    }
-
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
-    }
-
-    @Override
-    public ProtocolPluggableService protocolPluggableService() {
-        return protocolPluggableService;
     }
 
     @Reference
@@ -405,24 +530,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.protocolPluggableService = protocolPluggableService;
     }
 
-    @Override
-    public DeviceConfigurationService deviceConfigurationService() {
-        return deviceConfigurationService;
-    }
-
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Override
-    public SchedulingService schedulingService() {
-        return this.schedulingService;
-    }
-
-    @Override
-    public EngineConfigurationService engineConfigurationService() {
-        return this.engineConfigurationService;
     }
 
     @Reference
@@ -441,98 +551,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
-    }
-
-    @Override
-    public ServerConnectionTaskService connectionTaskService() {
-        return this.connectionTaskService;
-    }
-
-    @Override
-    public ConnectionTaskReportService connectionTaskReportService() {
-        return this.connectionTaskReportService;
-    }
-
-    @Override
-    public ServerCommunicationTaskService communicationTaskService() {
-        return this.communicationTaskService;
-    }
-
-    @Override
-    public PriorityComTaskService priorityComTaskService() {
-        return priorityComTaskService;
-    }
-
-    @Override
-    public CommunicationTaskReportService communicationTaskReportService() {
-        return communicationTaskReportService;
-    }
-
-    @Override
-    public DataCollectionKpiService dataCollectionKpiService() {
-        return this.dataCollectionKpiService;
-    }
-
-    @Override
-    public ServerDeviceService deviceService() {
-        return this.deviceService;
-    }
-
-    @Override
-    public BatchService batchService() {
-        return this.batchService;
-    }
-
-    @Override
-    public MessageService messageService() {
-        return this.messagingService;
-    }
-
-    @Override
-    public EventService eventService() {
-        return this.eventService;
-    }
-
-    @Override
-    public DeviceMessageSpecificationService deviceMessageSpecificationService() {
-        return this.deviceMessageSpecificationService;
-    }
-
-    @Override
-    public ValidationService validationService() {
-        return this.validationService;
-    }
-
-    @Override
-    public MeteringZoneService meteringZoneService() {
-        return this.meteringZoneService;
     }
 
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
-    }
-
-    @Override
-    public JsonService jsonService() {
-        return jsonService;
-    }
-
-    @Override
-    public KpiService kpiService() {
-        return kpiService;
     }
 
     @Reference
@@ -543,11 +568,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
-    }
-
-    @Override
-    public com.elster.jupiter.tasks.TaskService taskService() {
-        return jupiterTaskService;
     }
 
     @Reference
@@ -576,7 +596,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setLockService(LockService lockService){
+    public void setLockService(LockService lockService) {
         this.lockService = lockService;
     }
 
@@ -586,7 +606,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setMeteringZoneService(MeteringZoneService meteringZoneService) { this.meteringZoneService = meteringZoneService; }
+    public void setMeteringZoneService(MeteringZoneService meteringZoneService) {
+        this.meteringZoneService = meteringZoneService;
+    }
 
     private Module getModule() {
         return new AbstractModule() {
@@ -674,7 +696,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 2), UpgraderV10_4_2.class)
                         .put(version(10, 4, 3), UpgraderV10_4_3.class)
                         .put(version(10, 4, 5), UpgraderV10_4_5.class)
-                        .put(version(10,4,9), UpgraderV10_4_9.class)
+                        .put(version(10, 4, 7), UpgraderV10_4_7.class)
+                        .put(version(10, 4, 9), UpgraderV10_4_9.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 6, 1), UpgraderV10_6_1.class)
                         .put(version(10, 7), UpgraderV10_7.class)
@@ -844,18 +867,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         }
     }
 
-    @Override
-    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder) {
-        Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
-        try (Connection connection = this.dataModel.getConnection(true);
-             PreparedStatement statement = builder.prepare(connection)) {
-            this.fetchTaskStatusBreakdown(statement, counters);
-        } catch (SQLException ex) {
-            throw new UnderlyingSQLFailedException(ex);
-        }
-        return counters;
-    }
-
     private void fetchTaskStatusBreakdown(PreparedStatement statement, Map<Long, Map<TaskStatus, Long>> breakdown) throws SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -871,14 +882,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 counters.put(TaskStatus.valueOf(taskStatusName), counter);
             }
         }
-    }
-
-    @Override
-    public Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters) {
-        for (TaskStatus missing : this.taskStatusComplement(counters.keySet())) {
-            counters.put(missing, 0L);
-        }
-        return counters;
     }
 
     private EnumSet<TaskStatus> taskStatusComplement(Set<TaskStatus> taskStatuses) {

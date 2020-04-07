@@ -497,7 +497,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
         collectFirmwareVersionMeterCore(result);
 
-        collectFirmwareVersionCommunicationModule(result);
+        if (supportsCommunicationFirmwareVersion()) {
+            collectFirmwareVersionCommunicationModule(result);
+        }
 
         if (supportsAuxiliaryFirmwareVersion()) {
             collectFirmwareVersionAuxiliary(result);

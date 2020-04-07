@@ -50,6 +50,7 @@ Ext.define('Mdc.privileges.Device', {
         'execute.device.message.level3',
         'execute.device.message.level4'
     ],
+    sendSapRegisteredNotification: 'privilege.send.webservice.request',
 
     all: function() {
         return Ext.Array.merge(Mdc.privileges.Device.viewDevice,

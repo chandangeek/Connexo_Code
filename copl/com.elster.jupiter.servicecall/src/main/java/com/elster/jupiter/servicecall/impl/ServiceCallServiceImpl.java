@@ -361,14 +361,14 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
         return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
-                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ",0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
 
     @Override
     public Finder<ServiceCall> getServiceCallFinder() {
         return DefaultFinder.of(ServiceCall.class, dataModel)
-                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ",0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
 
@@ -412,7 +412,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.targetObject = targetObject;
+        filter.targetObjects.add(targetObject);
         filter.states = inState.stream().map(Enum::name).collect(Collectors.toList());
 
         return getServiceCallFinder(filter)
@@ -481,8 +481,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         if (filter.parent != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(filter.parent));
         }
-        if (filter.targetObject != null) {
-            condition = condition.and(where(ServiceCallImpl.Fields.targetObject.fieldName()).isEqualTo(dataModel.asRefAny(filter.targetObject)));
+        if (filter.targetObjects != null && !filter.targetObjects.isEmpty()) {
+            condition = condition.and(where(ServiceCallImpl.Fields.targetObject.fieldName()).in(filter.targetObjects.stream().map(dataModel::asRefAny).collect(Collectors.toList())));
         }
         if (filter.appKey != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.appKey.fieldName()).isNull().or(

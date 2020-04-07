@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl.loadprofilenextreading;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
+import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
@@ -15,21 +16,25 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Optional;
 
-public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceLoadProfileNextReadingRecord>{
+public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceLoadProfileNextReadingRecord> {
 
     private Device device;
-    public DeviceLoadProfileNextReadingImportProcessor(DeviceDataImporterContext context) { super(context);}
+
+    public DeviceLoadProfileNextReadingImportProcessor(DeviceDataImporterContext context) {
+        super(context);
+    }
 
     @Override
-    public void process(DeviceLoadProfileNextReadingRecord data, FileImportLogger logger) throws ProcessorException{
-        setDevice(data,logger);
+    public void process(DeviceLoadProfileNextReadingRecord data, FileImportLogger logger) throws ProcessorException {
+        setDevice(data, logger);
         //validateDeviceState(data, device);
         Optional<LoadProfile> validLoadProfile = getLoadProfileByOBIS(device, data.getLoadProfilesOBIS());
-        if ( validLoadProfile.isPresent())
+        if (validLoadProfile.isPresent()) {
             addNextBlockDateToLoadProfile(device, validLoadProfile.get(), Optional.ofNullable(data.getLoadProfileNextReadingBlockDateTime()));
-        else
+        } else {
             throw new ProcessorException(MessageSeeds.INVALID_DEVICE_LOADPROFILE_OBIS_CODE,
-                    data.getLineNumber(),data.getLoadProfilesOBIS(),device.getName());
+                    data.getLineNumber(), data.getLoadProfilesOBIS(), device.getName());
+        }
     }
 
     @Override
@@ -59,33 +64,28 @@ public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceD
 // at this part of Connexo development devices in stock has to import next reading block, even if there cannot be added any data !!!
 
     // initial were private
-    public Optional<LoadProfile> getLoadProfileByOBIS(Device device, String loadProfileOBISCode){
-
-        Optional<LoadProfile> loadProfileWithValidOBISCode = device.getLoadProfiles()
-                            .stream()
-                            .filter(x->x.getDeviceObisCode().equals(ObisCode.fromString(loadProfileOBISCode)))
-                            .findFirst();
-       return loadProfileWithValidOBISCode;
+    public Optional<LoadProfile> getLoadProfileByOBIS(Device device, String loadProfileOBISCode) {
+        return device.getLoadProfiles()
+                .stream()
+                .filter(x -> x.getDeviceObisCode().equals(ObisCode.fromString(loadProfileOBISCode)))
+                .findFirst();
     }
 
     // initial were private
-     public void addNextBlockDateToLoadProfile(Device device, LoadProfile loadProfile, Optional<ZonedDateTime> nextReadingBlockDateTime){
-
-        if (nextReadingBlockDateTime.isPresent()){
+    public void addNextBlockDateToLoadProfile(Device device, LoadProfile loadProfile, Optional<ZonedDateTime> nextReadingBlockDateTime) {
+        if (nextReadingBlockDateTime.isPresent()) {
             // date is present in import file, add it to loadProfile
             LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
             Instant newLastReading = nextReadingBlockDateTime.get().toInstant();
             loadProfileUpdater.setLastReading(newLastReading);
             loadProfileUpdater.update();
-        }
-        else
-        {
+        } else {
             // date is absent from import file, synchronize with DateUntil
             LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
 
             Optional<Instant> dataUntil = loadProfile.getChannels()
                     .stream()
-                    .map(c->c.getLastDateTime())
+                    .map(Channel::getLastDateTime)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .max(Comparator.comparing(Instant::toEpochMilli));

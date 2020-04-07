@@ -20,8 +20,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
@@ -38,7 +36,7 @@ import java.util.Optional;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
-public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
+public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
     private final Thesaurus thesaurus;
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
@@ -78,12 +76,12 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
 
         saveRelatedAttributes(values);
 
-        if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
-            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                    UtilitiesDeviceCreateConfirmation.NAME);
-        }
+        validateConfiguredEndpoints();
+
         createServiceCallAndTransition(requestMessage);
     }
+
+    abstract void validateConfiguredEndpoints();
 
     private void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
         if (message.isValid()) {
@@ -99,7 +97,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         }
     }
 
-    private boolean isAnyActiveEndpoint(String name) {
+    boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()

@@ -227,7 +227,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         code = json.errorCode;
                     }
                     if (json && json.message) {
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('comtasks.removeErrorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                             Uni.I18n.translate('comtasks.removeErrorMsg', 'MDC', 'Error during removal of communication task') + "." +
                             json.message, code
                         );

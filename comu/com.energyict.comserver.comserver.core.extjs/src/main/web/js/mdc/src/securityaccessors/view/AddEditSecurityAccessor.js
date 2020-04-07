@@ -124,6 +124,22 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
                 },
                 {
+                    xtype: 'combo-returned-record-data',
+                    name: 'keyPurpose',
+                    itemId: 'mdc-security-accessor-key-purpose-combobox',
+                    fieldLabel: Uni.I18n.translate('general.keyPurpose', 'MDC', 'Key purpose'),
+                    store: 'Mdc.securityaccessors.store.KeyPurposes',
+                    queryMode: 'local',
+                    displayField: 'name',
+                    valueField: 'key',
+                    required: true,
+                    allowBlank: false,
+                    editable: false,
+                    valueIsRecordData: true,
+                    forceSelection: true,
+                    emptyText: Uni.I18n.translate('securityaccessors.selectKeyPurpose','MDC', 'Select a key purpose...')
+                },
+                {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('general.trustStore', 'MDC', 'Trust store'),
                     hidden: true,
@@ -375,6 +391,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             errorMsgPnl = form.down('#mdc-security-accessor-error-message'),
             key = radioBtn.itemId === 'mdc-security-accessor-key',
             typeCombo = form.down('#mdc-security-accessor-key-type-combobox'),
+            keyPurposeCombo = form.down('#mdc-security-accessor-key-purpose-combobox'),
             purposesRadio = form.down('#mdc-security-accessor-purpose-radio'),
             storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
             trustStoreCombo = form.down('#mdc-security-accessor-trust-store-combobox'),
@@ -382,7 +399,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
             noTrustStoreMsg = form.down('#mdc-security-accessor-no-trust-store-msg'),
             accessorTypeIsKey = ( (radioBtn.itemId === 'mdc-security-accessor-key' && newValue) ||
-                                  (radioBtn.itemId === 'mdc-security-accessor-certificate' && !newValue) );
+                (radioBtn.itemId === 'mdc-security-accessor-certificate' && !newValue) );
 
         storageMethodCombo.setValue(null);
         if (accessorTypeIsKey) {
@@ -405,6 +422,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             proxy.pageParam = undefined;
 
             trustStoreCombo.allowBlank = key;
+            keyPurposeCombo.allowBlank = !key;
             typeCombo.setFieldLabel(key
                 ? Uni.I18n.translate('general.keyType', 'MDC', 'Key type')
                 : Uni.I18n.translate('general.certificateType', 'MDC', 'Certificate type')
@@ -425,6 +443,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                 typeCombo.setValue(typeCombo.getStore().getAt(0).get('id'));
             }
             typeCombo.clearInvalid();
+            key ? keyPurposeCombo.show() : keyPurposeCombo.hide();
             noTrustStoreMsg.hide();
             trustStoreCombo.show();
             if (trustStoreCombo.getStore().getCount()===0) {

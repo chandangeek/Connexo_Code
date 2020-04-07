@@ -8,6 +8,7 @@ Ext.define('Dxp.view.log.Preview', {
     alias: 'widget.dxp-log-preview',
     itemId: 'des-log-preview',
     router: null,
+    logLevelsStore : Ext.data.StoreManager.lookup('LogLevelsStore'),
     initComponent: function () {
         var me = this;
         me.items = {
@@ -38,6 +39,20 @@ Ext.define('Dxp.view.log.Preview', {
                 {
                     fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
                     name: 'status'
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
+                    name: 'logLevel',
+                    renderer: function (value) {
+                        var displayValue = value;
+                        if (value) {
+                            var record = me.logLevelsStore.findRecord("id", value);
+                            if(record != null) {
+                                displayValue = record && record.get("displayValue");
+                            }
+                        }
+                        return displayValue;
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),

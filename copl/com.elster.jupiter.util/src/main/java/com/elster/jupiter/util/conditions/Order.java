@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.util.conditions;
 
+import com.elster.jupiter.util.MessageSeeds;
+import com.elster.jupiter.util.exception.SqlInjectionException;
+
 import java.util.Objects;
 
 public final class Order {
@@ -25,6 +28,12 @@ public final class Order {
 	}
 
 	public String getName()  {
+		// this should be extended, via proper validators. More strict rules about what a column name can contain. For example ' character is not allowed
+		// for now this is ok for us considering the tables we have
+		String trimmedColumnName = this.name.trim();
+		if (trimmedColumnName.contains(" ") || trimmedColumnName.contains("'")||trimmedColumnName.contains(";")) {
+			throw new SqlInjectionException(MessageSeeds.POSSIBLE_SQL_INJECTION_ORDER_FIELD, name);
+		}
 		return name;
 	}
 

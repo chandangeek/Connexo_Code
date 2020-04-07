@@ -59,11 +59,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
                         name: 'reason',
                         renderer: function (value) {
-                            if (value && me.getRecord()) {
-                                me.down('#issue-preview-reason').setVisible(me.getRecord().get('issueType').uid != 'datavalidation');
-                                return Ext.String.htmlEncode(value.name);
-                            }
-                            return '-';
+                            return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
                         }
                     },
                     {

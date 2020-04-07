@@ -14,13 +14,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
@@ -73,14 +71,13 @@ public class OfflineSubscriberSpecImpl implements SubscriberSpec {
         this.nlsService = nlsService;
     }
 
+    static OfflineSubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String nameKey, String component, Layer layer, String filter, boolean systemManaged) {
+        return dataModel.getInstance(OfflineSubscriberSpecImpl.class).init(destinationSpec, nameKey, component, layer, systemManaged, filter);
+    }
+
     OfflineSubscriberSpecImpl init(DestinationSpec destination, String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
-        this.destination.set(destination);
-        this.name = nameKey;
-        this.nlsComponent = component;
-        this.nlsLayer = layer;
-        this.systemManaged = systemManaged;
-        this.filter = toString(filter);
         this.filterCondition = filter;
+        init(destination, nameKey, component, layer, systemManaged, toString(filter));
         return this;
     }
 
@@ -99,6 +96,16 @@ public class OfflineSubscriberSpecImpl implements SubscriberSpec {
 
     static OfflineSubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
         return dataModel.getInstance(OfflineSubscriberSpecImpl.class).init(destinationSpec, nameKey, component, layer, systemManaged, filter);
+    }
+
+    OfflineSubscriberSpecImpl init(DestinationSpec destination, String nameKey, String component, Layer layer, boolean systemManaged, String filter) {
+        this.destination.set(destination);
+        this.name = nameKey;
+        this.nlsComponent = component;
+        this.nlsLayer = layer;
+        this.systemManaged = systemManaged;
+        this.filter = filter;
+        return this;
     }
 
     @Override
@@ -187,5 +194,9 @@ public class OfflineSubscriberSpecImpl implements SubscriberSpec {
         return filterCondition;
     }
 
+    @Override
+    public String getFilter() {
+        return filter;
+    }
 }
 

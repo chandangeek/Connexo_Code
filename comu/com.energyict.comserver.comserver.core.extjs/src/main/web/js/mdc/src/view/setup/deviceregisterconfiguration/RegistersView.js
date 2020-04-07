@@ -26,6 +26,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersView', {
                     {
                         dock: 'top',
                         xtype: 'mdc-registers-overview-topfilter',
+                        hasSapAttributes: me.hasSapAttributes,
                         deviceId: me.device.get('name')
                     }
                 ]

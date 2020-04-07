@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleExclGroupInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
 import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
@@ -66,6 +67,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile BpmService bpmService;
     private volatile TimeService timeService;
     private volatile Clock clock;
+    private volatile IssueResourceUtility issueResourceUtility;
 
 
     public DeviceAlarmApplication() {
@@ -186,6 +188,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         this.clock = clock;
     }
 
+    @Reference
+    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility){
+        this.issueResourceUtility = issueResourceUtility;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -207,6 +214,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(bpmService).to(BpmService.class);
             bind(timeService).to(TimeService.class);
             bind(clock).to(Clock.class);
+            bind(issueResourceUtility).to(IssueResourceUtility.class);
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
