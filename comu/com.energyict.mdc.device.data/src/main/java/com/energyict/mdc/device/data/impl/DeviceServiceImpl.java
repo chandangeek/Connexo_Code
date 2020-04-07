@@ -37,6 +37,8 @@ import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.common.device.data.Channel;
@@ -89,6 +91,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -521,6 +524,30 @@ class DeviceServiceImpl implements ServerDeviceService {
             deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
         return modifiedDevice;
+    }
+
+    @Override
+    public void addInboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device){
+        List<PartialInboundConnectionTask> devPartialInboundConnectionTasks = new ArrayList<>();
+        device.getConnectionTasks().forEach(connectionTask -> devPartialInboundConnectionTasks.add((PartialInboundConnectionTask)connectionTask.getPartialConnectionTask()));
+
+        deviceConfiguration.getPartialInboundConnectionTasks().stream()
+                .filter(partialInboundConnectionTask -> !devPartialInboundConnectionTasks.contains(partialInboundConnectionTask))
+                .forEach(partialInboundConnectionTask ->
+                        deviceDataModelService.getTransactionService().execute(() -> device.getInboundConnectionTaskBuilder(partialInboundConnectionTask).add())
+                );
+    }
+
+    @Override
+    public void addOutboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device){
+        List<PartialScheduledConnectionTask> devPartialScheduledConnectionTasks = new ArrayList<>();
+        device.getConnectionTasks().forEach(connectionTask -> devPartialScheduledConnectionTasks.add((PartialScheduledConnectionTask)connectionTask.getPartialConnectionTask()));
+
+        deviceConfiguration.getPartialOutboundConnectionTasks().stream()
+                .filter(partialScheduledConnectionTask -> !devPartialScheduledConnectionTasks.contains(partialScheduledConnectionTask))
+                .forEach(partialScheduledConnectionTask ->
+                        deviceDataModelService.getTransactionService().execute(() -> device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add())
+                );
     }
 
     @Override
