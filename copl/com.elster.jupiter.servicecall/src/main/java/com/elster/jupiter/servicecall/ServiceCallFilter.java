@@ -20,6 +20,6 @@ public class ServiceCallFilter {
     public Instant modificationDateFrom;
     public Instant modificationDateTo;
     public ServiceCall parent;
-    public Object targetObject;
+    public List<Object> targetObjects = new ArrayList<>();
     public String appKey;
 }

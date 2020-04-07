@@ -33,6 +33,12 @@ public interface HsmKey extends SymmetricKeyWrapper{
     String getLabel();
 
     /**
+     *
+     * @param value Base64 encoded ket value
+     */
+    void setSmartMeterKey(String value);
+
+    /**
      * HSM requires previous key values, in order to generate a new key
      * @param masterKey previous key
      */

@@ -31,7 +31,9 @@ public class EndPointConfigurationInfo {
     public IdWithLocalizedValueInfo<EndPointAuthentication> authenticationMethod;
     public LongIdWithNameInfo group;
     public String username;
-    public String password;
+    public String password; // TODO: Create a better way for storing sensetive data
+    public String clientId;
+    public String clientSecret; // TODO: Create a better way for storing sensetive data
     public IdWithLocalizedValueInfo<WebServiceDirection> direction;
     public String type;
     public List<PropertyInfo> properties;

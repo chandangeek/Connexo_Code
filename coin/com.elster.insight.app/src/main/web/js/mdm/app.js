@@ -70,9 +70,30 @@ Ext.onReady(function () {
 
     loader.initPackages(packages);
     // </debug>
-    Ext.Ajax.on("beforerequest", function(conn){
+    Ext.Ajax.on("beforerequest", function(conn, options){
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
+        delete conn.defaultHeaders['X-CSRF-TOKEN'];
+
+        if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {
+            Ext.Ajax.request({
+                url: '../../api/usr/csrf/token',
+                async: false,
+                method: 'GET',
+                success: function (data) {
+                    conn.token = data.responseText;
+                }
+            });
+            if(options.headers && options.headers['Content-type'] === 'multipart/form-data'
+            && options.url
+            ){
+
+                options.url = options.url.indexOf('X-CSRF-TOKEN') > 0 ? options.url :
+                     options.url + '?X-CSRF-TOKEN=' + conn.token;
+            }
+            conn.defaultHeaders['X-CSRF-TOKEN'] = unescape(conn.token);
+        }
         conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
+
 
     });
     Ext.Ajax.on("requestcomplete", function(conn, response){

@@ -152,7 +152,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.processes.controller.ProcBulkActions',
         'Cfg.audit.controller.Audit',
         'Mdc.controller.setup.AutoclosureExclusions',
-        'Cfg.properties.controller.ConfigProperties'
+        'Cfg.properties.controller.ConfigProperties',
+        'Mdc.controller.setup.SendRegisteredSapNotification'
     ],
 
     stores: [

@@ -7,7 +7,7 @@ package com.elster.jupiter.demo.impl.lifecycle.device.microchecks;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum CustomMicroCheck implements TranslationKey {
-    SKP_NOT_RUNNING("demo.lifecycle.device.microchecks.skpProcessNotRunning", "Custom Connexo Flow process isn''t running"),
+    SKP_NOT_RUNNING("demo.lifecycle.device.microchecks.skpProcessNotRunning", "Service key provisioning process isn''t running"),
     SKP_NOT_RUNNING_DESCRIPTION("demo.lifecycle.device.microchecks.skpProcessNotRunning.description", "Check if the custom BPM process ''{0}'' isn''t running.");
 
     private final String key;

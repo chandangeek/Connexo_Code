@@ -6,6 +6,7 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.QueueTableSpec;
 
+import com.google.common.base.Strings;
 import oracle.jdbc.aq.AQFactory;
 import oracle.jdbc.aq.AQMessage;
 import oracle.jdbc.aq.AQMessageProperties;
@@ -42,6 +43,9 @@ public class DefaultAQFacade implements AQFacade {
         try (PreparedStatement statement = connection.prepareStatement(createSql(queueTableSpec))) {
             statement.setString(1, queueTableSpec.getName());
             statement.setString(2, queueTableSpec.getPayloadType());
+            if (!Strings.isNullOrEmpty(queueTableSpec.getStorageClause())) {
+                statement.setString(3, queueTableSpec.getStorageClause());
+            }
             statement.execute();
         }
     }
@@ -49,6 +53,10 @@ public class DefaultAQFacade implements AQFacade {
     private String createSql(QueueTableSpec queueTableSpec) {
         String statement = "begin dbms_aqadm.create_queue_table(queue_table => ?, queue_payload_type => ? , multiple_consumers => " +
                 (queueTableSpec.isMultiConsumer() ? "TRUE" : "FALSE");
+
+        if (!Strings.isNullOrEmpty(queueTableSpec.getStorageClause())) {
+            statement = statement + ", storage_clause  => ?";
+        }
 
         if (queueTableSpec.isPrioritized()) {
             statement = statement + ", sort_list => \'PRIORITY, ENQ_TIME\'";

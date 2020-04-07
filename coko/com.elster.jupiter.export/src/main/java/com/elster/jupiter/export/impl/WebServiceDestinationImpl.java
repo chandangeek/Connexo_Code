@@ -4,13 +4,13 @@
 
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.WebServiceDestination;
-import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportServiceCallHandler;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.nls.Thesaurus;
@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
@@ -30,10 +31,10 @@ import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -62,8 +63,15 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
     }
 
+    enum Data {
+        CREATED,
+        CHANGED,
+        CREATED_AND_CHANGED
+    }
+
     private final ThreadPrincipalService threadPrincipalService;
     private final DataExportServiceCallType dataExportServiceCallType;
+    static final int CHECK_PAUSE_IN_SECONDS = 10;
 
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<EndPointConfiguration> createEndPoint = Reference.empty();
@@ -98,7 +106,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         List<CompletableFuture<Void>> serviceCalls = new ArrayList<>();
         List<ExportData> createList = new ArrayList<>();
         List<ExportData> changeList = new ArrayList<>();
-        if (getChangeWebServiceEndpoint().isPresent()) {
+        boolean isCreateAndChange = false;
+        if (getChangeWebServiceEndpoint().filter(Predicates.not(createEndPoint::equals)).isPresent()) {
             EndPointConfiguration changeEndPoint = getChangeWebServiceEndpoint().get();
             DataExportWebService changeService = getExportWebService(changeEndPoint);
             TimeDuration changeTimeout = getTimeout(changeEndPoint);
@@ -116,16 +125,19 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 timeout = changeTimeout;
             }
         } else {
+            if (getChangeWebServiceEndpoint().isPresent()) {
+                isCreateAndChange = true;
+            }
             createList = data;
             serviceCalls.add(callServiceAsync(createService, createEndPoint, createList, createDataResult, !timeout.isEmpty()));
         }
         execute(serviceCalls, timeout);
         DataSendingStatus.Builder dataSendingStatusBuilder = DataSendingStatus.builder();
         if (!createList.isEmpty()) {
-            processErrors(createDataResult, createList, dataSendingStatusBuilder, logger, false);
+            processErrors(createDataResult, createList, dataSendingStatusBuilder, logger, isCreateAndChange ? Data.CREATED_AND_CHANGED : Data.CREATED);
         }
         if (!changeList.isEmpty()) {
-            processErrors(changeDataResult, changeList, dataSendingStatusBuilder, logger, true);
+            processErrors(changeDataResult, changeList, dataSendingStatusBuilder, logger, Data.CHANGED);
         }
         return dataSendingStatusBuilder.build();
     }
@@ -155,11 +167,11 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .orElseThrow(() -> new DestinationFailedException(getThesaurus(), MessageSeeds.NO_WEBSERVICE_FOUND, endPoint.getName()));
     }
 
-    private void processErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, boolean changedData) {
-        getTransactionService().run(() -> doProcessErrors(dataSendingResult, data, statusBuilder, logger, changedData));
+    private void processErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, Data operation) {
+        getTransactionService().run(() -> doProcessErrors(dataSendingResult, data, statusBuilder, logger, operation));
     }
 
-    private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, boolean changedData) {
+    private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, Data operation) {
         List<ServiceCallStatus> states = dataSendingResult.getFinalStatuses();
         Set<ServiceCall> unsuccessfulServiceCalls = states.stream()
                 .filter(Predicates.not(ServiceCallStatus::isSuccessful))
@@ -167,6 +179,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                     String error;
                     switch (status.getState()) {
                         case FAILED:
+                        case PARTIAL_SUCCESS:
                             error = status.getErrorMessage()
                                     .orElseGet(() -> getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE).format());
                             break;
@@ -174,6 +187,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                         case PENDING:
                         case ONGOING:
                             error = getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_CONFIRMATION).format();
+                            dataExportServiceCallType.tryFailingServiceCall(status.getServiceCall(), error);
                             break;
                         default:
                             // this case should not happen actually
@@ -185,29 +199,30 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                     logger.severe(error);
                 })
                 .map(ServiceCallStatus::getServiceCall)
+                .map(ServiceCall::findChildren)
+                .flatMap(Finder::stream)
+                .filter(s -> s.getState().equals(DefaultState.FAILED) ||
+                        s.getState().equals(DefaultState.CANCELLED) ||
+                        s.getState().equals(DefaultState.REJECTED))
                 .collect(Collectors.toSet());
+
         Set<ReadingTypeDataExportItem> failedDataSources = Collections.emptySet();
         if (!unsuccessfulServiceCalls.isEmpty()) {
             failedDataSources = dataExportServiceCallType.getDataSources(unsuccessfulServiceCalls);
             if (failedDataSources.isEmpty()) { // service calls keep no track of data sources; need to fail them all
-                if (changedData) {
-                    statusBuilder.withAllDataSourcesFailedForChangedData();
-                } else {
-                    statusBuilder.withAllDataSourcesFailedForNewData();
-                }
+                updateStatusBuilder(statusBuilder, operation);
             } else {
-                if (changedData) {
-                    statusBuilder.withFailedDataSourcesForChangedData(failedDataSources);
-                } else {
-                    statusBuilder.withFailedDataSourcesForNewData(failedDataSources);
-                }
+                updateStatusBuilder(statusBuilder, operation, failedDataSources);
             }
         }
         if (!dataSendingResult.sent) {
             // some service calls are possibly not created yet
             Set<ServiceCall> successfulServiceCalls = states.stream()
-                    .filter(ServiceCallStatus::isSuccessful)
+                    .filter(state -> state.isSuccessful() || state.isPartiallySuccessful())
                     .map(ServiceCallStatus::getServiceCall)
+                    .map(ServiceCall::findChildren)
+                    .flatMap(Finder::stream)
+                    .filter(s -> s.getState().equals(DefaultState.SUCCESSFUL))
                     .collect(Collectors.toSet());
             Set<ReadingTypeDataExportItem> trackedDataSources = dataExportServiceCallType.getDataSources(successfulServiceCalls);
             trackedDataSources.addAll(failedDataSources);
@@ -220,19 +235,40 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                         logger.severe(getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_SERVICE_CALL).format(dataSource.getDescription()));
                     }
                 } else {
-                    if (changedData) { // no data sources in context; need to fail all the data
-                        statusBuilder.withAllDataSourcesFailedForChangedData();
-                    } else {
-                        statusBuilder.withAllDataSourcesFailedForNewData();
-                    }
+                    // no data sources in context; need to fail all the data
+                    updateStatusBuilder(statusBuilder, operation);
                     break; // no need to go on, status is completely failed
                 }
             }
-            if (changedData) {
-                statusBuilder.withFailedDataSourcesForChangedData(untrackedDataSources);
-            } else {
-                statusBuilder.withFailedDataSourcesForNewData(untrackedDataSources);
-            }
+            updateStatusBuilder(statusBuilder, operation, untrackedDataSources);
+        }
+    }
+
+    private void updateStatusBuilder(DataSendingStatus.Builder statusBuilder, Data operation) {
+        switch (operation) {
+            case CREATED:
+                statusBuilder.withAllDataSourcesFailedForNewData();
+                break;
+            case CHANGED:
+                statusBuilder.withAllDataSourcesFailedForChangedData();
+                break;
+            case CREATED_AND_CHANGED:
+                statusBuilder.withAllDataSourcesFailed();
+                break;
+        }
+    }
+
+    private void updateStatusBuilder(DataSendingStatus.Builder statusBuilder, Data operation, Set<ReadingTypeDataExportItem> dataSources) {
+        switch (operation) {
+            case CREATED:
+                statusBuilder.withFailedDataSourcesForNewData(dataSources);
+                break;
+            case CHANGED:
+                statusBuilder.withFailedDataSourcesForChangedData(dataSources);
+                break;
+            case CREATED_AND_CHANGED:
+                statusBuilder.withFailedDataSources(dataSources);
+                break;
         }
     }
 
@@ -268,7 +304,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         if (waitForServiceCalls && !result.openServiceCalls.isEmpty()) {
             while (result.hasOpenServiceCalls()) {
                 try {
-                    Thread.sleep(1000L * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS);
+                    Thread.sleep(1000L * CHECK_PAUSE_IN_SECONDS);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -310,8 +346,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
 
         @Override
-        public ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources) {
-            ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, dataSources);
+        public ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Map<ReadingTypeDataExportItem, String> data) {
+            ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, data);
             openServiceCalls.add(serviceCall);
             return serviceCall;
         }

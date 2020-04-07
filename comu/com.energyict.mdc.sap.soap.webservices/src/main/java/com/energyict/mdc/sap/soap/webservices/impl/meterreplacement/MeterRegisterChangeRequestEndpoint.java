@@ -23,7 +23,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
+import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
@@ -78,7 +78,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                         MeterRegisterChangeMessage message = MeterRegisterChangeMessageBuilder
-                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
+                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.LRN_END_INTERVAL))
                                 .from(requestMessage)
                                 .build(thesaurus);
                         SetMultimap<String, String> values = HashMultimap.create();
@@ -212,7 +212,6 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setEndDate(message.getEndDate());
-        childDomainExtension.setCreateEndDate(message.getCreateEndDate());
         childDomainExtension.setTimeZone(message.getTimeZone());
         childDomainExtension.setObis(message.getObis());
         childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());

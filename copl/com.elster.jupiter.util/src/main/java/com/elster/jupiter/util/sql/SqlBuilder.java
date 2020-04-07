@@ -73,7 +73,7 @@ public final class SqlBuilder implements SqlFragment {
 
     @Deprecated
     public void addTimestamp(java.util.Date date) {
-    	addTimestamp(date == null ? null : date.toInstant());
+        addTimestamp(date == null ? null : date.toInstant());
     }
 
     public void addDate(Instant date) {
@@ -82,7 +82,7 @@ public final class SqlBuilder implements SqlFragment {
 
     @Deprecated
     public void addDate(java.util.Date date) {
-    	addDate(date == null ? null : date.toInstant());
+        addDate(date == null ? null : date.toInstant());
     }
 
     public void addInClauseForIdList(List<? extends HasId> idsList) {
@@ -109,7 +109,7 @@ public final class SqlBuilder implements SqlFragment {
 
     private void addInClauseForShortIdList(List<? extends HasId> idsList) {
         append(" IN (");
-        for (Iterator<? extends HasId> it = idsList.iterator(); it.hasNext();) {
+        for (Iterator<? extends HasId> it = idsList.iterator(); it.hasNext(); ) {
             HasId value = it.next();
             builder.append(value.getId());
             if (it.hasNext()) {
@@ -176,7 +176,6 @@ public final class SqlBuilder implements SqlFragment {
         builder.append(")");
     }
 
-
     @Override
     public String toString() {
         return builder.toString();
@@ -228,7 +227,7 @@ public final class SqlBuilder implements SqlFragment {
     }
 
     public SqlBuilder asTop(int n) {
-    	SqlBuilder result = new SqlBuilder("select * from (");
+        SqlBuilder result = new SqlBuilder("select * from (");
         result.add(this);
         result.append(") where ROWNUM <= ");
         result.addInt(n);
@@ -288,7 +287,6 @@ public final class SqlBuilder implements SqlFragment {
             return position + 1;
 
         }
-
     }
 
     private static class IntFragment extends SimpleFragment {
@@ -298,13 +296,11 @@ public final class SqlBuilder implements SqlFragment {
             this.value = value;
         }
 
-
         @Override
         public int bind(PreparedStatement statement, int position) throws SQLException {
             statement.setInt(position, value);
             return position + 1;
         }
-
     }
 
     private static class LongFragment extends SimpleFragment {

@@ -26,6 +26,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
             {
                 xtype: 'form',
                 itemId: 'deviceRegisterConfigurationDetailForm',
+                width: 600,
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -33,6 +34,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                 items: [
                     {
                         xtype: 'container',
+                        width: 600,
                         layout: {
                             type: 'hbox'
                         },
@@ -133,7 +135,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                 actionMenuXtype: 'deviceRegisterConfigurationActionMenu',
                                 attributeSetType: 'register',
                                 router: me.router,
-                                margin: '0 20 0 200'
+                                margin: '35 20 0 50'
                             },
                             {
                                 xtype: 'uni-button-action',

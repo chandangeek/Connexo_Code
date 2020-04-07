@@ -415,7 +415,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice(String mRID) {
-        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, mRID, Instant.now());
+        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "serialNumber", mRID, Instant.now());
         simpleDevice.save();
         return simpleDevice;
     }

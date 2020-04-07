@@ -86,7 +86,7 @@ public class ConsoleCommandsImpl {
     public void aqcreatetable(String in) {
         output.println("About to create Queue table " + in);
         try {
-            messageService.createQueueTableSpec(in, "RAW", false);
+            messageService.createQueueTableSpec(in, "RAW", null, false);
         } catch (RuntimeException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
         }

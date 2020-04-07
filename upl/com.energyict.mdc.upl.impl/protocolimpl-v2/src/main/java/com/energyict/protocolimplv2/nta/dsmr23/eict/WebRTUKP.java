@@ -259,7 +259,9 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
         collectFirmwareVersionMeterCore(result);
 
-        collectFirmwareVersionCommunicationModule(result);
+        if (supportsCommunicationFirmwareVersion()) {
+            collectFirmwareVersionCommunicationModule(result);
+        }
 
         if (supportsAuxiliaryFirmwareVersion()) {
             collectFirmwareVersionAuxiliary(result);
@@ -302,7 +304,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-12-06$";
+        return "$Date: 2020-04-06$";
     }
 
     @Override

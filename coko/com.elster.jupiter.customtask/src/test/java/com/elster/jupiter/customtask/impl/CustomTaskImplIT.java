@@ -19,6 +19,8 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -172,7 +174,9 @@ public class CustomTaskImplIT {
                     new DomainUtilModule(),
                     new UserModule(),
                     new DataVaultModule(),
-                    new UtilModule(clock)
+                    new UtilModule(clock),
+                    new TokenModule(),
+                    new BlackListModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -187,7 +191,7 @@ public class CustomTaskImplIT {
         });
 
         transactionService.execute(() -> {
-            queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", true);
+            queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", null, true);
             destination = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 0);
             destination.activate();
             subscriberSpec = destination.subscribe(new SimpleTranslationKey(DESTINATION_NAME, DESTINATION_NAME), "TST", Layer.DOMAIN);
@@ -210,6 +214,7 @@ public class CustomTaskImplIT {
 
         return customTaskFactory;
     }
+
     @After
     public void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();

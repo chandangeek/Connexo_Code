@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,6 +129,7 @@ class UsagePointConfigFactory {
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(registeredCustomPropertySet -> convertToCustomAttributeSet(registeredCustomPropertySet, usagePoint))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
     }
@@ -140,6 +142,9 @@ class UsagePointConfigFactory {
             values = customPropertySetService.getUniqueValuesFor(propertySet, usagePoint);
         } else {
             values = customPropertySetService.getUniqueValuesFor(propertySet, usagePoint, clock.instant());
+            if (values.isEmpty()) {
+                return null;
+            }
         }
         List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
         customAttributeSet.setId(propertySet.getId());

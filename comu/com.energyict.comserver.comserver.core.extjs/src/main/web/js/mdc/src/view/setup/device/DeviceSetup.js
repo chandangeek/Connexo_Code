@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     router: undefined,
     actionsStore: undefined,
     itemId: 'deviceSetup',
+    hasSapCas: undefined,
 
     requires: [
         'Isu.privileges.Issue',
@@ -223,6 +224,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         menu: {
                             xtype: 'device-action-menu',
                             itemId: 'deviceActionMenu',
+                            hasSapCas: me.hasSapCas,
                             router: me.router,
                             disableChangeConfigSinceSlave: me.device.get('isDataLoggerSlave') || me.device.get('isMultiElementSlave'),
                             deviceName: me.device.get('name'),

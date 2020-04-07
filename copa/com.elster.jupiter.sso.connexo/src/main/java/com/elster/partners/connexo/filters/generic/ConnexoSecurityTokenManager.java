@@ -44,7 +44,7 @@ public class ConnexoSecurityTokenManager {
         TIMEOUT = (timeout != null) ? Integer.parseInt(timeout) : 300;
 
         String tokenExpTime = System.getProperty("com.elster.jupiter.token.expirationtime");
-        TOKEN_EXPTIME = (tokenExpTime != null) ? Integer.parseInt(tokenExpTime) : 300;
+        TOKEN_EXPTIME = (tokenExpTime != null) ? Integer.parseInt(tokenExpTime) : 1800;
 
         String publicKey = System.getProperty("com.elster.jupiter.sso.public.key");
         PUBLIC_KEY = (publicKey != null) ? publicKey : "";

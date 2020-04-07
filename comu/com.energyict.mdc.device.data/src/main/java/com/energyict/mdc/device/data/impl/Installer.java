@@ -50,8 +50,8 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 public class Installer implements FullInstaller {
 
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHED_RECALCULATOR";
-    static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
+    static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
     static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
     static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
@@ -62,6 +62,7 @@ public class Installer implements FullInstaller {
     private final InstallerV10_2Impl installerV10_2;
     private final InstallerV10_7_1Impl installerV10_7_1;
     private final InstallerV10_7_2Impl installerV10_7_2;
+    private final InstallerV10_8Impl installerV10_8;
     private final PrivilegesProviderV10_3 privilegesProviderV10_3;
     private final PrivilegesProviderV10_4_1 privilegesProviderV10_4_1;
     private final PrivilegesProviderV10_6 privilegesProviderV10_6;
@@ -72,7 +73,7 @@ public class Installer implements FullInstaller {
     public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, TaskService taskService,
                      InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3, PrivilegesProviderV10_4_1 privilegesProviderV10_4_1,
                      PrivilegesProviderV10_6 privilegesProviderV10_6, PrivilegesProviderV10_6_1 privilegesProviderV10_6_1, InstallerV10_7_1Impl installerV10_7_1,
-                     InstallerV10_7_2Impl installerV10_7_2) {
+                     InstallerV10_7_2Impl installerV10_7_2, InstallerV10_8Impl installerV10_8) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
@@ -86,6 +87,7 @@ public class Installer implements FullInstaller {
         this.privilegesProviderV10_6_1 = privilegesProviderV10_6_1;
         this.installerV10_7_1 = installerV10_7_1;
         this.installerV10_7_2 = installerV10_7_2;
+        this.installerV10_8 = installerV10_8;
     }
 
     @Override
@@ -135,6 +137,7 @@ public class Installer implements FullInstaller {
         userService.addModulePrivileges(privilegesProviderV10_6_1);
         installerV10_7_1.install(dataModelUpgrader, logger);
         installerV10_7_2.install(dataModelUpgrader, logger);
+        installerV10_8.install(dataModelUpgrader, logger);
     }
 
     private void addJupiterEventSubscribers() {

@@ -137,7 +137,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CRL_REQUEST_TASK_PROPERTIES(320, "NoCrlRequestTaskProps", "No CRL request task properties exist"),
     NO_SUCH_CRL_REQUEST_TASK(321, "NoCrlRequestTask", "No CRL request task exist"),
     CRL_REQUEST_TASK_CA_NAME_UNIQUE(322, "CrlRequestTaskCaNameUnique", "The CA name must be unique."),
-    NOT_ALL_PROPS_ARE_DEFINDED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!"),
+    NOT_ALL_PROPS_ARE_DEFINED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!"),
     ZONE_SAVING_FAIL(324, "zone.savingFail", "Failed saving zone."),
     NO_SUCH_ZONE(325, "noSuchZone", "Zone not found"),
     NO_SUCH_END_DEVICE_ZONE(326, "noSuchDeviceZone", "Zone not assigned to device"),
@@ -146,14 +146,15 @@ public enum MessageSeeds implements MessageSeed {
     CANT_RERUN_SEVERAL_PROCESSES(329, "cantRerunSeveralProcesses", "Can''t run bulk action ''Retry process'' for a set of different processes."),
     PROCESS_IS_NOT_ACTIVE(330, "processIsNotActive", "Process ''{0}'' with version ''{1}'' isn''t activated."),
     PROCESS_OBJECT_TYPE_NOT_FOUND(331, "processObjectTypeNotFound", "Couldn''t find target object type for process ''{0}'' with version ''{1}''."),
-    OBJECTS_FILTERED_TYPE_NOT_COMPATIBLE(332, "objectsFilteredTypeNotCompatible", "The process can''t run on the following objects of incompatible type(s): {0}."),
-    OBJECTS_FILTERED_NOT_CONSISTENT(333, "objectsFilteredNotConsistent", "The process can''t run on the following objects as they don''t match the process requirements: {0}."),
-    OBJECTS_FILTERED_NOT_FOUND(334, "objectsFilteredNotFound", "The following objects aren''t found: {0}."),
-    OBJECTS_FILTERED_ALREADY_RUNNING(335, "objectsFilteredAlreadyRunning", "The process is already running on the following objects: {0}."),
-    OBJECTS_FILTERED_DUPLICATED(336, "objectsFilteredDuplicated", "The following objects are duplicated in the selected process history list: {0}; the process will be started once on each of them."),
-    NOT_ALL_PROPS_ARE_DEFINDED_TLS(337, "notAllPropsAreDefinedTLS", "One of the following property is not set, Communication port pool, hostname, port number or Server TLS certificate!"),
+    OBJECTS_FILTERED_TYPE_NOT_COMPATIBLE(332, "objectsFilteredTypeNotCompatible", "{0} process instance(s) can''t be run on related object(s) of incompatible type(s)."),
+    OBJECTS_FILTERED_NOT_CONSISTENT(333, "objectsFilteredNotConsistent", "{0} process instance(s) can''t be run on related object(s) as they don''t match the process requirements."),
+    OBJECTS_FILTERED_NOT_FOUND(334, "objectsFilteredNotFound", "{0} process instance(s) can''t be run because related object(s) aren''t found."),
+    OBJECTS_FILTERED_ALREADY_RUNNING(335, "objectsFilteredAlreadyRunning", "{0} process instance(s) is(are) already running on related object(s)."),
+    OBJECTS_FILTERED_DUPLICATED(336, "objectsFilteredDuplicated", "Some of {0} process instances relate to the same object(s). The process will be started once on each of the objects."),
+    NOT_ALL_PROPS_ARE_DEFINED_TLS(337, "notAllPropsAreDefinedTLS", "One of the following property is not set, Communication port pool, hostname, port number or Server TLS certificate!"),
     RUN_COMTASK_WITH_PRIO_IMPOSSIBLE(338, "runComTaskWithPrioImpossible", "Running the communication task with priority is not possible, since there are no priority connections allowed on its communication port pool."),
-    UNIDENTIFIED_CRL_SIGNER(339, "UnknownCRLSigner", "Found none or too many CRL signers")
+    UNIDENTIFIED_CRL_SIGNER(339, "UnknownCRLSigner", "Found none or too many CRL signers"),
+    CUSTOMPROPERTY_VERSION_NOT_DELETABLE(340, "CustomPropertyNotDeletable", "Version of custom property set {0} at {1} can''t be deleted. It is either not the last version or it has required attributes.")
     ;
 
     private final int number;

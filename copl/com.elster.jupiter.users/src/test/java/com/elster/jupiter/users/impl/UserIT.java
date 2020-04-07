@@ -17,7 +17,6 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
@@ -25,10 +24,15 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -36,13 +40,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -54,6 +52,7 @@ public class UserIT extends EqualsContractTest {
     //userName placeholder as equals will be tested against the PK id
     private static final String TEST_USER_NAME = "userName";
     private static final String TEST_USER_DESCRIPTION = "userDescription";
+    private static final String TEST_USER_EXTERNAL_ID = UUID.randomUUID().toString();
     private static final boolean ALLOW_PWD_CHANGE = true;
     private static final boolean STATUS_ACTIVE = true;
     private static final long ID = 0;
@@ -117,14 +116,14 @@ public class UserIT extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (user == null) {
-            user = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+            user = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE, TEST_USER_EXTERNAL_ID);
             setId(user, ID);
         }
         return user;
     }
 
     private Publisher getPublisher() {
-        if(injector != null) {
+        if (injector != null) {
             return injector.getInstance(Publisher.class);
         } else {
             return mock(Publisher.class);
@@ -133,14 +132,14 @@ public class UserIT extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        User userB = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        User userB = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE, TEST_USER_EXTERNAL_ID);
         setId(userB, ID);
         return userB;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        User userC = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        User userC = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE, TEST_USER_EXTERNAL_ID);
         setId(userC, OTHER_ID);
         return Collections.singletonList(userC);
     }
@@ -160,31 +159,112 @@ public class UserIT extends EqualsContractTest {
     }
 
     @Test
-    public void testCreateUser() {
-        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                UserService userService = injector.getInstance(UserService.class);
+    public void shouldCreateUsers() {
+        injector.getInstance(TransactionService.class).execute(() -> {
 
-                UserDirectory userDirectory = userService.findDefaultUserDirectory();
-                User user = userDirectory.newUser("authName", "description", false,true);
-                user.setLocale(Locale.CANADA_FRENCH);
-                user.setPassword("password");
-                user.update();
+            UserService userService = injector.getInstance(UserService.class);
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
 
-                User user2 = userDirectory.newUser("authName2", "description2", false,true);
-                user2.setLocale(Locale.CANADA_FRENCH);
-                user2.setPassword("password2");
-                user2.update();
-                //test get user using authenticatin name
-                Optional<User> found = userService.findUser("authName");
-                assertThat(found.get()).isEqualTo(user);
-                assertThat(found.get().getDescription()).isEqualTo("description");
-                assertThat(found.get().check("password")).isTrue();
-               assertThat(found.get().getLocale().get()).isEqualTo(Locale.CANADA_FRENCH);
-                Optional<User> found2 = userService.findUser("authName2");
-                assertThat(found2.get()).isNotEqualTo(user);
-            }
+            User expectedFirstTestUser = userDirectory.newUser("authName", "firstUser", false, true);
+            expectedFirstTestUser.setLocale(Locale.CANADA_FRENCH);
+            expectedFirstTestUser.setPassword("password");
+            expectedFirstTestUser.update();
+
+            User expectedSecondTestUser = userDirectory.newUser("authName2", "secondUser", false, true);
+            expectedSecondTestUser.setLocale(Locale.ENGLISH);
+            expectedSecondTestUser.setPassword("password2");
+            expectedSecondTestUser.update();
+
+            // Getting first user by authentication name "authName"
+            Optional<User> actualFirstTestUserOptional = userService.findUser("authName");
+
+            assertThat(actualFirstTestUserOptional.get()).isNotNull();
+
+            final User actualFirstTestUser = actualFirstTestUserOptional.get();
+            assertThat(actualFirstTestUser).isEqualToComparingOnlyGivenFields(expectedFirstTestUser,
+                    "id",
+                    "externalId",
+                    "description",
+                    "userName",
+                    "languageTag",
+                    "authenticationName",
+                    "status",
+                    "version",
+                    "createTime",
+                    "modTime");
+            assertThat(actualFirstTestUser.check("password")).isTrue();
+
+            // Getting second user by authentication name "authName2"
+            Optional<User> actualSecondTestUserOptional = userService.findUser("authName2");
+
+            assertThat(actualSecondTestUserOptional.get()).isNotNull();
+
+            final User actualSecondTestUser = actualSecondTestUserOptional.get();
+            assertThat(actualSecondTestUser).isEqualToComparingOnlyGivenFields(expectedSecondTestUser,
+                    "id",
+                    "externalId",
+                    "description",
+                    "userName",
+                    "languageTag",
+                    "authenticationName",
+                    "status",
+                    "version",
+                    "createTime",
+                    "modTime");
+            assertThat(actualSecondTestUser.check("password2")).isTrue();
+
+            return null;
+
+        });
+    }
+
+    @Test
+    public void shouldCreateSCIMUser() {
+        injector.getInstance(TransactionService.class).execute(() -> {
+            final UserService userService = injector.getInstance(UserService.class);
+
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            final User expectedSCIMUser = userDirectory.newUser(TEST_USER_NAME, TEST_USER_DESCRIPTION, false, true, TEST_USER_EXTERNAL_ID);
+            expectedSCIMUser.setLocale(Locale.ENGLISH);
+            expectedSCIMUser.setPassword("passwordjesus");
+            expectedSCIMUser.update();
+
+            final Optional<User> actualSCIMUserOptional = userService.findUser(TEST_USER_NAME);
+
+            assertThat(actualSCIMUserOptional.get()).isNotNull();
+
+            final User actualSCIMUser = actualSCIMUserOptional.get();
+            assertThat(actualSCIMUser).isEqualToComparingOnlyGivenFields(expectedSCIMUser,
+                    "id",
+                    "externalId",
+                    "description",
+                    "userName",
+                    "languageTag",
+                    "authenticationName",
+                    "status",
+                    "version",
+                    "createTime",
+                    "modTime");
+            assertThat(actualSCIMUser.check("passwordjesus")).isTrue();
+
+            return null;
+        });
+    }
+
+    @Test
+    public void shouldFindUserByExternalId() {
+        injector.getInstance(TransactionService.class).execute(() -> {
+            final UserService userService = injector.getInstance(UserService.class);
+
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            final User expectedSCIMUser = userDirectory.newUser(TEST_USER_NAME, TEST_USER_DESCRIPTION, false, true, TEST_USER_EXTERNAL_ID);
+            expectedSCIMUser.update();
+
+            final Optional<User> actualSCIMUserOptional = userService.findUserByExternalId(TEST_USER_EXTERNAL_ID);
+
+            assertThat(actualSCIMUserOptional.get()).isNotNull();
+
+            return null;
         });
     }
 
