@@ -20,7 +20,8 @@ public enum MessageSeeds implements MessageSeed {
     JSON_GENERATION_FAILED(1006, "Failed to generate json for {0}"),
     NO_SUCH_PROPERTY_ON_CLASS(1007, "Bean class ''{0}'' has no property named ''{1}''."),
     BEAN_EVALUATION_FAILED_ON_CLASS(1008, "Exception occurred while evaluating bean class {0}"),
-    POSSIBLE_SQL_INJECTION_ORDER_FIELD(1009, "Possible SQL injection detected on order field. Field: {0}");
+    POSSIBLE_SQL_INJECTION_ORDER_FIELD(1009, "Possible SQL injection detected on order field. Field: {0}"),
+    SQLPART_NOFIELD_SPECIFIED(1010, "No or empty field specified for command: {0}");
 
     private final int number;
     private final String defaultFormat;
