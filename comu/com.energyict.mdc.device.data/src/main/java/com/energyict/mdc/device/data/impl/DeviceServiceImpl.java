@@ -528,11 +528,11 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public void addInboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device){
-        List<PartialInboundConnectionTask> devPartialInboundConnectionTasks = new ArrayList<>();
-        device.getConnectionTasks().forEach(connectionTask -> devPartialInboundConnectionTasks.add((PartialInboundConnectionTask)connectionTask.getPartialConnectionTask()));
+        List<Long> devPartialInboundConnectionTasksIds = new ArrayList<>();
+        device.getConnectionTasks().forEach(connectionTask -> devPartialInboundConnectionTasksIds.add(connectionTask.getPartialConnectionTask().getId()));
 
         deviceConfiguration.getPartialInboundConnectionTasks().stream()
-                .filter(partialInboundConnectionTask -> !devPartialInboundConnectionTasks.contains(partialInboundConnectionTask))
+                .filter(partialInboundConnectionTask -> !devPartialInboundConnectionTasksIds.contains(partialInboundConnectionTask.getId()))
                 .forEach(partialInboundConnectionTask ->
                         deviceDataModelService.getTransactionService().execute(() -> device.getInboundConnectionTaskBuilder(partialInboundConnectionTask).add())
                 );
@@ -540,11 +540,11 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public void addOutboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device){
-        List<PartialScheduledConnectionTask> devPartialScheduledConnectionTasks = new ArrayList<>();
-        device.getConnectionTasks().forEach(connectionTask -> devPartialScheduledConnectionTasks.add((PartialScheduledConnectionTask)connectionTask.getPartialConnectionTask()));
+        List<Long> devPartialScheduledConnectionTasksIds = new ArrayList<>();
+        device.getConnectionTasks().forEach(connectionTask -> devPartialScheduledConnectionTasksIds.add(connectionTask.getPartialConnectionTask().getId()));
 
         deviceConfiguration.getPartialOutboundConnectionTasks().stream()
-                .filter(partialScheduledConnectionTask -> !devPartialScheduledConnectionTasks.contains(partialScheduledConnectionTask))
+                .filter(partialScheduledConnectionTask -> !devPartialScheduledConnectionTasksIds.contains(partialScheduledConnectionTask.getId()))
                 .forEach(partialScheduledConnectionTask ->
                         deviceDataModelService.getTransactionService().execute(() -> device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add())
                 );
