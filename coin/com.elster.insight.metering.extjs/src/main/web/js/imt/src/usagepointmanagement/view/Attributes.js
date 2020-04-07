@@ -90,7 +90,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                             {
                                 xtype: 'general-attributes-form',
                                 itemId: 'general-attributes-form',
-                                title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
+                                title: 'GENERAL INFO',//Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
                                 router: me.router,
                                 record: me.usagePoint,
                                 viewDefaults: me.viewDefaults,
@@ -100,7 +100,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                             {
                                 xtype: me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].form,
                                 itemId: 'technical-attributes-form',
-                                title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
+                                title: 'TECH INFO!!!',//Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
                                 record: Ext.create(me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].model, me.usagePoint.get('techInfo')),
                                 viewDefaults: me.viewDefaults,
                                 editDefaults: me.editDefaults,
@@ -160,7 +160,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 hasEditMode = me.canManageUsagePoint
                     && cps.get('isEditable')
                     && (!cps.get('isVersioned') || cps.get('isActive'));
-
+            console.log("NAME = ",name);
+            console.log("CPS = ",cps);
             forms.push({
                 xtype: 'custom-attribute-set-form',
                 itemId: itemId,
