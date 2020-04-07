@@ -95,25 +95,26 @@ public class ConnectionMethodResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response createConnectionMethod(@PathParam("name") String name, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
-        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        validateTask(connectionMethodInfo, partialConnectionTask);
-        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
-        if (connectionMethodInfo.isDefault) {
-            connectionTaskService.setDefaultConnectionTask(task);
-        } else if (task.getPartialConnectionTask().getConnectionFunction().isPresent()) {
-            connectionTaskService.setConnectionTaskHavingConnectionFunction(task, Optional.empty());
+        try {
+            Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+            PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
+            validateTask(connectionMethodInfo, partialConnectionTask);
+            ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
+            if (connectionMethodInfo.isDefault) {
+                connectionTaskService.setDefaultConnectionTask(task);
+            } else if (task.getPartialConnectionTask().getConnectionFunction().isPresent()) {
+                connectionTaskService.setConnectionTaskHavingConnectionFunction(task, Optional.empty());
+            }
+            return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
+        } catch (ExceptionFactory.RestException e) {
+            connectionMethodInfo.errorMessage = e.getLocalizedMessage();
+            return Response.status(Response.Status.OK).entity(connectionMethodInfo).build();
         }
-        return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
     private void validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
         if (connectionMethodInfo.status == ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE && !hasAllRequiredProps(connectionMethodInfo, task)) {
-            if (isOutboundTLS(task.getPluggableClass())) {
-                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
-            } else {
-                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
-            }
+            throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
         }
     }
 
@@ -121,11 +122,7 @@ public class ConnectionMethodResource {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
-                    if (isOutboundTLS(task.getPluggableClass())) {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
-                    } else {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
-                    }
+                    throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
                 } else if (!task.isActive()) {
                     task.activate();
                 }

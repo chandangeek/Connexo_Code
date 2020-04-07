@@ -10,12 +10,10 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.ConnectionTask;
-import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -69,16 +67,6 @@ public class ConnectionResource {
                 .sorted((i1, i2) -> i1.connectionMethod.name.compareTo(i2.connectionMethod.name))
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("connections", infos, queryParameters)).build();
-    }
-
-    @PUT
-    @Transactional
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response activateDeactivateConnection(@PathParam("name") String name, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo, ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> info) {
-        return connectionMethodResourceProvider.get().updateConnectionMethod(name, connectionMethodId, uriInfo, info);
     }
 
     @PUT

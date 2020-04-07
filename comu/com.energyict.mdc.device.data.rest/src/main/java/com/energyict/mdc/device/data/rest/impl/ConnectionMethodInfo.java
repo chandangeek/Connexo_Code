@@ -62,6 +62,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public DeviceConnectionTaskInfo.ConnectionStrategyInfo connectionStrategyInfo;
     public ConnectionFunctionInfo connectionFunctionInfo;
     private Thesaurus thesaurus;
+    public String errorMessage;
 
     public ConnectionMethodInfo() {
     }
