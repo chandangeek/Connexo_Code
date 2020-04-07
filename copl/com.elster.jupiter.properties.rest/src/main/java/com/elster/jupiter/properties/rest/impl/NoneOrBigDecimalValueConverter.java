@@ -46,9 +46,20 @@ public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
             if (domainValue instanceof NoneOrBigDecimal) {
-                return String.valueOf(domainValue);
+                NoneOrBigDecimal value = (NoneOrBigDecimal) domainValue;
+                return new NoneOrBigDecimalInfo(value.isNone(), value.toString());
             }
         }
         return null;
+    }
+
+    public static class NoneOrBigDecimalInfo {
+        public boolean isNone;
+        public String value;
+
+        public NoneOrBigDecimalInfo(boolean isNone, String value) {
+            this.isNone = isNone;
+            this.value = value;
+        }
     }
 }

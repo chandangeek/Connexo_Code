@@ -109,7 +109,7 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
         if (value.isNone) {
             return Uni.I18n.translate('value.none1', me.translationKey, 'None');
         } else{
-            return value;
+            return value.value;
         }
     },
     
