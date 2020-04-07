@@ -23,7 +23,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
         var me = this,
             viewForm,
             editForm;
-
         me.addEvents('save', 'edit', 'canceledit');
 
         if (Ext.isArray(me.viewForm)) {
@@ -184,7 +183,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
 
     switchDisplayMode: function (mode) {
         var me = this;
-
         if (me.hasEditMode && mode !== me.displayMode && (mode === 'view' || mode === 'edit')) {
             Ext.suspendLayouts();
             me.down('#view-edit-form-edit-button').setVisible(mode === 'view');
