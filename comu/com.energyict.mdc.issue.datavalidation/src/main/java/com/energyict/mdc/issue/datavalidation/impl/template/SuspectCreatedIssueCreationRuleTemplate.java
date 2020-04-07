@@ -21,6 +21,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
@@ -28,19 +29,16 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
 import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import net.minidev.json.JSONObject;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.time.Clock;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * SuspectCreationRuleTemplate is responsible for creating issues when a suspect value is found during the data validation process.
@@ -51,18 +49,9 @@ import java.util.logging.Logger;
  * @author edragutan
  */
 
-@Component(
-        name = "com.energyict.mdc.issue.datavalidation.impl.creationrule.SuspectCreationRuleTemplate",
-        property = {"name=" + SuspectCreatedIssueCreationRuleTemplate.NAME},
-        service = CreationRuleTemplate.class,
-        immediate = true
-)
 public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemplate {
 
-    private static final Logger LOG = Logger.getLogger(SuspectCreatedIssueCreationRuleTemplate.class.getName());
-
     public static final String NAME = "SuspectCreationRuleTemplate";
-    public static final String EVENT_TYPE = NAME + ".eventType";
 
     public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
     public static final String VALIDATION_RULES = NAME + ".validationRules";
@@ -71,20 +60,15 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
     private static final int DEFAULT_NUMERICAL_VALUE = 0;
     private static final String SEPARATOR = ":";
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile IssueDataValidationService issueDataValidationService;
-    private volatile IssueService issueService;
-    private volatile Thesaurus thesaurus;
-    private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    private volatile MeteringTranslationService meteringTranslationService;
-    private volatile TimeService timeService;
-    private volatile ValidationService validationService;
-    private volatile Clock clock;
-
-    public SuspectCreatedIssueCreationRuleTemplate() {
-        // No Operation, OSGi framework requires a default contructor in order to create this bean and set the references
-    }
+    private final PropertySpecService propertySpecService;
+    private final IssueDataValidationService issueDataValidationService;
+    private final IssueService issueService;
+    private final Thesaurus thesaurus;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
+    private final TimeService timeService;
+    private final ValidationService validationService;
 
     @Inject
     public SuspectCreatedIssueCreationRuleTemplate(final PropertySpecService propertySpecService,
@@ -95,19 +79,16 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
                                                    final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                                    final MeteringTranslationService meteringTranslationService,
                                                    final TimeService timeService,
-                                                   final ValidationService validationService,
-                                                   final Clock clock) {
-        this();
-        setPropertySpecService(propertySpecService);
-        setIssueDataValidationService(issueDataValidationService);
-        setIssueService(issueService);
-        setNlsService(nlsService);
-        setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        setMeteringTranslationService(meteringTranslationService);
-        setTimeService(timeService);
-        setValidationService(validationService);
-        setClock(clock);
+                                                   final ValidationService validationService) {
+        this.issueDataValidationService = issueDataValidationService;
+        this.issueService = issueService;
+        this.propertySpecService = propertySpecService;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
+        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.timeService = timeService;
+        this.validationService = validationService;
     }
 
     @Override
@@ -148,6 +129,7 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
                 "\teval( event.checkOccurrenceConditions(\"@{" + THRESHOLD + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create suspect created issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n";
     }
@@ -239,56 +221,6 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
                 .toArray(ValidationRuleInfo[]::new);
     }
 
-    @Reference
-    public void setPropertySpecService(final PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setIssueService(final IssueService issueService) {
-        this.issueService = issueService;
-    }
-
-    @Reference
-    public void setNlsService(final NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(final DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-    }
-
-    @Reference
-    public void setMeteringTranslationService(final MeteringTranslationService meteringTranslationService) {
-        this.meteringTranslationService = meteringTranslationService;
-    }
-
-    @Reference
-    public void setTimeService(final TimeService timeService) {
-        this.timeService = timeService;
-    }
-
-    @Reference
-    public void setValidationService(final ValidationService validationService) {
-        this.validationService = validationService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    @Reference
-    public void setIssueDataValidationService(final IssueDataValidationService issueDataValidationService) {
-        this.issueDataValidationService = issueDataValidationService;
-    }
-
     public class ValidationRuleInfoValueFactory implements ValueFactory<HasIdAndName>, ValidationRulePropertyFactory {
 
         @Override
@@ -356,9 +288,15 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
             ValidationRuleInfo that = (ValidationRuleInfo) o;
             return Objects.equals(validationRule.getId(), that.validationRule.getId());
         }
