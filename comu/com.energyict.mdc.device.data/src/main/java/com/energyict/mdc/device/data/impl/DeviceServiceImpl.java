@@ -501,11 +501,12 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
+        final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
+                .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
+                .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
+
         Pair<Device, DeviceConfigChangeRequestImpl> lockResult = deviceDataModelService.getTransactionService().execute(() -> {
             Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
-            final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
-                    .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
-                    .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
             final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel()
                     .getInstance(DeviceConfigChangeRequestImpl.class)
                     .init(deviceConfiguration);
@@ -523,31 +524,18 @@ class DeviceServiceImpl implements ServerDeviceService {
         } finally {
             deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
-        return modifiedDevice;
-    }
-
-    @Override
-    public void addInboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device){
-        List<Long> devPartialInboundConnectionTasksIds = new ArrayList<>();
-        device.getConnectionTasks().forEach(connectionTask -> devPartialInboundConnectionTasksIds.add(connectionTask.getPartialConnectionTask().getId()));
-
-        deviceConfiguration.getPartialInboundConnectionTasks().stream()
-                .filter(partialInboundConnectionTask -> !devPartialInboundConnectionTasksIds.contains(partialInboundConnectionTask.getId()))
-                .forEach(partialInboundConnectionTask ->
-                        deviceDataModelService.getTransactionService().execute(() -> device.getInboundConnectionTaskBuilder(partialInboundConnectionTask).add())
-                );
-    }
-
-    @Override
-    public void addOutboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device){
-        List<Long> devPartialScheduledConnectionTasksIds = new ArrayList<>();
-        device.getConnectionTasks().forEach(connectionTask -> devPartialScheduledConnectionTasksIds.add(connectionTask.getPartialConnectionTask().getId()));
-
-        deviceConfiguration.getPartialOutboundConnectionTasks().stream()
-                .filter(partialScheduledConnectionTask -> !devPartialScheduledConnectionTasksIds.contains(partialScheduledConnectionTask.getId()))
-                .forEach(partialScheduledConnectionTask ->
-                        deviceDataModelService.getTransactionService().execute(() -> device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add())
-                );
+        Device device = modifiedDevice;
+        Set<Long> devPartialConnectionTasksIds = device.getConnectionTasks().stream().map(connectionTask -> connectionTask.getPartialConnectionTask().getId()).collect(Collectors.toSet());
+        deviceConfiguration.getPartialConnectionTasks().stream()
+                .filter(partialConnectionTask -> !devPartialConnectionTasksIds.contains(partialConnectionTask.getId()))
+                .forEach(partialConnectionTask -> {
+                    if(partialConnectionTask instanceof PartialInboundConnectionTask) {
+                        deviceDataModelService.getTransactionService().execute(() -> device.getInboundConnectionTaskBuilder((PartialInboundConnectionTask)partialConnectionTask).add());
+                    } else if(partialConnectionTask instanceof PartialScheduledConnectionTask) {
+                        deviceDataModelService.getTransactionService().execute(() -> device.getScheduledConnectionTaskBuilder((PartialScheduledConnectionTask)partialConnectionTask).add());
+                    }
+                });
+        return device;
     }
 
     @Override

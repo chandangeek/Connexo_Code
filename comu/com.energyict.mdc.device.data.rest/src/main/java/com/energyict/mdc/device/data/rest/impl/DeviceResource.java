@@ -421,8 +421,6 @@ public class DeviceResource {
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
             try {
                 device = updateDeviceConfig(device, info.version, destinationConfiguration, destinationConfiguration.getVersion());
-                deviceService.addInboundConnectionTasksToDevice(destinationConfiguration, device);
-                deviceService.addOutboundConnectionTasksToDevice(destinationConfiguration, device);
             } catch (CannotChangeDeviceConfigStillUnresolvedConflicts e) {
                 final long deviceConfigurationId = device.getDeviceConfiguration().getId();
                 long conflictId = device.getDeviceType().getDeviceConfigConflictMappings().stream()

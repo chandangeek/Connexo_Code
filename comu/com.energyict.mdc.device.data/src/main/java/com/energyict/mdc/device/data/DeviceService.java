@@ -183,10 +183,6 @@ public interface DeviceService {
      */
     Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
 
-    void addInboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device);
-
-    void addOutboundConnectionTasksToDevice(DeviceConfiguration deviceConfiguration, Device device);
-
     /**
      * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
      * The action will be queued and the processing is asynchronously.
