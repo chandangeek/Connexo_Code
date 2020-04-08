@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.SecurityManagementService;
-
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -30,23 +29,25 @@ import org.ejbca.core.protocol.ws.RevokeStatus;
 import org.ejbca.core.protocol.ws.UserDataVOWS;
 import org.ejbca.core.protocol.ws.UserDoesntFullfillEndEntityProfile_Exception;
 import org.ejbca.core.protocol.ws.WaitingForApprovalException_Exception;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import org.osgi.framework.BundleContext;
 
 import javax.security.auth.x500.X500Principal;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,6 +103,8 @@ public class CaServiceImplTest {
     @Mock
     private CertificateResponse certificateResponse;
 
+    private X509Certificate x509Certificate;
+
     @Mock
     private CertificateAuthoritySearchFilter certificateAuthoritySearchFilter;
     @Mock
@@ -109,6 +112,10 @@ public class CaServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
+
+        x509Certificate = (X509Certificate) CertificateFactory.getInstance("X.509")
+                .generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(demoCertificate)));
+
         when(bundleContext.getProperty(PKI_HOST_PROPERTY)).thenReturn(PKI_HOST_PROPERTY_VALUE);
         when(bundleContext.getProperty(PKI_PORT_PROPERTY)).thenReturn(PKI_PORT_PROPERTY_VALUE);
         when(bundleContext.getProperty(CXO_TRUSTSTORE_PROPERTY)).thenReturn(CXO_TRUSTSTORE_PROPERTY_VALUE);
@@ -131,7 +138,8 @@ public class CaServiceImplTest {
         when(ejbcaWS.getAvailableCAsInProfile(nameAndId.getId())).thenReturn(nameAndIds);
         when(ejbcaWS.getAvailableCertificateProfiles(nameAndId.getId())).thenReturn(nameAndIds);
 
-        when(certificateResponse.getData()).thenReturn(demoCertificate.getBytes());
+        when(certificateResponse.getData()).thenReturn(Base64.getEncoder().encode(x509Certificate.getEncoded()));
+        when(certificateResponse.getResponseType()).thenReturn("CERTIFICATE");
         when(ejbcaWS
                 .certificateRequest(any(UserDataVOWS.class), any(String.class), any(Integer.class), any(String.class), any(String.class)))
                 .thenReturn(certificateResponse);

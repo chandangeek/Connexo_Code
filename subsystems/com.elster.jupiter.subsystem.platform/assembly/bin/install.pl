@@ -458,14 +458,15 @@ sub install_connexo {
             update_properties_file_with_encrypted_password();
 
             add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.host=$HOST_NAME");
-            add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=https");
 
 			replace_in_file("$CONNEXO_DIR/bin/Connexo.vmoptions",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
 			replace_in_file("$CONNEXO_DIR/bin/ConnexoService.vmoptions",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
 
             if ("$ACTIVATE_SSO" eq "yes") {
+                add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=https");
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=https://$HOST_NAME/apps/multisense/index.html");
             } else {
+                add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=http");
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT/apps/multisense/index.html");
             }
 			enable_sso();
@@ -853,10 +854,12 @@ sub install_flow {
             replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
             replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
+            add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
         } else {
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$TOMCAT_ADMIN_PASSWORD");
+            add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
         }
 	} else {
 		print "\n\nSkip installation of Connexo Flow\n";
@@ -916,8 +919,11 @@ sub prepare_sso {
                 }
                 add_to_file_if("$APACHE_PATH/conf/httpd.conf","Include conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf");
 
-                print "Installing Apache HTTPD mod_ssl\n";
-                system("yum install -y mod_ssl");
+                if ("$OS" eq "linux") {
+                    print "Installing Apache HTTPD mod_ssl\n";
+                    system("yum install -y mod_ssl");
+                }
+
                 print "Configuring HTTPD in $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf\n";
                 # obsolete, now the configs are split in several files in /etc/httpd/conf.modules.d/00-...
                 replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule proxy_module modules/mod_proxy.so","LoadModule proxy_module modules/mod_proxy.so");
@@ -1062,6 +1068,36 @@ sub start_connexo {
 	}
 }
 
+sub restart_tomcat_service {
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        print "Stopping service ConnexoTomcat$SERVICE_VERSION ...";
+        system("sc stop ConnexoTomcat$SERVICE_VERSION");
+        sleep 10;
+        while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*STOPPED/) eq "") {
+            print " ... still not stopped";
+            sleep 3;
+        }
+        print "\nConnexoTomcat$SERVICE_VERSION stopped!\n";
+
+        print "Starting service ConnexoTomcat$SERVICE_VERSION ...";
+        system("sc start ConnexoTomcat$SERVICE_VERSION");
+        sleep 10;
+        while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
+            print " ... still not started";
+            sleep 3;
+        }
+        print "\nConnexoTomcat$SERVICE_VERSION started!\n";
+    } else {
+        print "Stopping service ConnexoTomcat$SERVICE_VERSION\n";
+        system("/sbin/service ConnexoTomcat$SERVICE_VERSION stop");
+        sleep 15;
+        print "Starting service ConnexoTomcat$SERVICE_VERSION\n";
+        system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
+        sleep 10;
+    }
+}
+
+
 sub start_tomcat_service {
     if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
         print "\n\nStarting Apache Tomcat ...\n";
@@ -1072,11 +1108,14 @@ sub start_tomcat_service {
         if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             system("sc config \"ConnexoTomcat$SERVICE_VERSION\"  start= delayed-auto");
             system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
+            print "Starting service ConnexoTomcat$SERVICE_VERSION ...";
             system("sc start ConnexoTomcat$SERVICE_VERSION");
             sleep 10;
             while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
+                print " ... still not started";
                 sleep 3;
             }
+            print "\nConnexoTomcat$SERVICE_VERSION started!\n";
         }
         else {
             if (!-e "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc") {
@@ -1592,7 +1631,7 @@ sub perform_upgrade {
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
                 if ("$ACTIVATE_SSO" eq "yes") {
-                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=http://$HOST_NAME/facts/");
+                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=https://$HOST_NAME/facts/");
                 }
             }
             if ("$INSTALL_FLOW" eq "yes") {
@@ -1846,6 +1885,7 @@ if ($help) {
         start_connexo();
         start_tomcat();
         activate_sso_filters();
+        restart_tomcat_service();
         final_steps();
     }
 } else {
