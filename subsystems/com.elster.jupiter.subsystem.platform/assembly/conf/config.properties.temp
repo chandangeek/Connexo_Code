@@ -156,10 +156,6 @@ com.elster.jupiter.nls.config.directory=./language-packs
 #com.elster.jupiter.ca.certificate=
 #com.elster.jupiter.ca.clientcertificate=
 
-#com.elster.jupiter.ca.name=
-#com.elster.jupiter.ca.certprofilename=
-#com.elster.jupiter.ca.eeprofilename=
-
 #com.energyict.mdc.device.data.pki.certrenewal.bpmprocess=
 #com.energyict.mdc.device.data.pki.certrenewal.expirationdays=
 #com.energyict.mdc.device.data.pki.keyrenewal.bpmprocess=
