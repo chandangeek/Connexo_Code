@@ -15,8 +15,7 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
     ],
 
     stores: [
-        'Mdc.store.RegisteredNotificationEndpoints',
-        'Mdc.store.DeviceSendSapNotification'
+        'Mdc.store.RegisteredNotificationEndpoints'
     ],
 
     init: function () {
