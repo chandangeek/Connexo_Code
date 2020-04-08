@@ -524,7 +524,12 @@ class DeviceServiceImpl implements ServerDeviceService {
         } finally {
             deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
-        Device device = modifiedDevice;
+        addConnectionTasksToDevice(modifiedDevice,deviceConfiguration);
+
+        return modifiedDevice;
+    }
+
+    private void addConnectionTasksToDevice(Device device, DeviceConfiguration deviceConfiguration){
         Set<Long> devPartialConnectionTasksIds = device.getConnectionTasks().stream().map(connectionTask -> connectionTask.getPartialConnectionTask().getId()).collect(Collectors.toSet());
         deviceConfiguration.getPartialConnectionTasks().stream()
                 .filter(partialConnectionTask -> !devPartialConnectionTasksIds.contains(partialConnectionTask.getId()))
@@ -535,7 +540,6 @@ class DeviceServiceImpl implements ServerDeviceService {
                         deviceDataModelService.getTransactionService().execute(() -> device.getScheduledConnectionTaskBuilder((PartialScheduledConnectionTask)partialConnectionTask).add());
                     }
                 });
-        return device;
     }
 
     @Override
@@ -544,7 +548,10 @@ class DeviceServiceImpl implements ServerDeviceService {
                 .getInstance(DeviceConfigChangeRequestImpl.class)
                 .init(destinationDeviceConfiguration);
         deviceConfigChangeRequest.save();
-        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceIds), devicesForConfigChangeSearch, deviceConfigChangeRequest
+
+        List<Long> ids = Arrays.asList(deviceIds);
+        ids.forEach(id -> findDeviceById(id).ifPresent(device -> addConnectionTasksToDevice(device, destinationDeviceConfiguration)));
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), ids, devicesForConfigChangeSearch, deviceConfigChangeRequest
                 .getId());
 
         DestinationSpec destinationSpec = deviceDataModelService.messageService()
