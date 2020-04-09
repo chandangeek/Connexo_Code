@@ -4,33 +4,28 @@
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.orm.QueryStream;
-import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
-import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationInfo;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationResultInfo;
-import com.elster.jupiter.pki.rest.impl.CsrInfo;
-
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
@@ -41,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -54,16 +48,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
 import static com.elster.jupiter.pki.rest.impl.MessageSeeds.NO_CSR_PRESENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -145,7 +134,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<String>get("issuer")).contains("C=BE", "ST=Vlaanderen", "L=Kortrijk", "O=Honeywell", "OU=SmartEnergy", "CN=MyRootCA");
         assertThat(model.<String>get("subject")).contains("C=BE", "ST=Vlaanderen", "L=Kortrijk", "O=Honeywell", "OU=SmartEnergy", "CN=MyRootCA");
         assertThat(model.<Integer>get("certificateVersion")).isEqualTo(1);
-        assertThat(model.<String>get("serialNumber")).isEqualTo("12550491392904217459");
+        assertThat(model.<String>get("serialNumber")).isEqualTo("0xAE2C4D6D2EA74373");
         assertThat(model.<Instant>get("notBefore")).isNotNull();
         assertThat(model.<Instant>get("notAfter")).isNotNull();
         assertThat(model.<String>get("signatureAlgorithm")).isEqualToIgnoringCase("SHA256withECDSA");
@@ -171,7 +160,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         Response response = target("/certificates/12345").request().get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<String>get("serialNumber")).isEqualTo("6585389233728085118907455613768833682118990666695162997537978648");
+        assertThat(model.<String>get("serialNumber")).isEqualTo("0x100219083091830912830918230187891739817238917918273918");
     }
 
     @Test
