@@ -9,6 +9,10 @@ public class ErrorInfo {
     public String message;
     public String tooltip;
 
+    public ErrorInfo(String message) {
+        this.message = message;
+    }
+
     public ErrorInfo(String message, String tooltip) {
         this.message = message;
         this.tooltip = tooltip;

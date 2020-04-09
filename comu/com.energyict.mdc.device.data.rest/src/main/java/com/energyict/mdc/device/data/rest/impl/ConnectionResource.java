@@ -20,7 +20,6 @@ import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -44,15 +43,13 @@ public class ConnectionResource {
     private final ExceptionFactory exceptionFactory;
     private final DeviceConnectionTaskInfoFactory connectionTaskInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-    private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
 
     @Inject
-    public ConnectionResource(ResourceHelper resourceHelper, DeviceConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
+    public ConnectionResource(ResourceHelper resourceHelper, DeviceConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.resourceHelper = resourceHelper;
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
-        this.connectionMethodResourceProvider = connectionMethodResourceProvider;
     }
 
     @GET
@@ -67,6 +64,32 @@ public class ConnectionResource {
                 .sorted((i1, i2) -> i1.connectionMethod.name.compareTo(i2.connectionMethod.name))
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("connections", infos, queryParameters)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response activateDeactivateConnection(@PathParam("name") String name, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
+        connectionTaskInfo.id = connectionTaskId;
+        ConnectionTask<?, ?> task = resourceHelper.lockConnectionTaskOrThrowException(connectionTaskInfo);
+        switch (connectionTaskInfo.connectionMethod.status) {
+            case ACTIVE:
+                if (!ConnectionMethodResource.hasAllRequiredProps(task)) {
+                    throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+                } else if (!task.isActive()) {
+                    task.activate();
+                }
+                break;
+            case INACTIVE:
+                task.deactivate();
+                break;
+            default:
+                break;
+        }
+        return Response.status(Response.Status.OK).entity(connectionTaskInfoFactory.from(task, task.getLastComSession())).build();
     }
 
     @PUT

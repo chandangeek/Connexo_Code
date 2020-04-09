@@ -107,8 +107,7 @@ public class ConnectionMethodResource {
             }
             return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
         } catch (ExceptionFactory.RestException e) {
-            connectionMethodInfo.errorMessage = e.getLocalizedMessage();
-            return Response.status(Response.Status.OK).entity(connectionMethodInfo).build();
+            return Response.status(Response.Status.OK).entity(new ErrorInfo(e.getLocalizedMessage())).build();
         }
     }
 
@@ -163,7 +162,7 @@ public class ConnectionMethodResource {
         return prop.propertyValueInfo != null && prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value);
     }
 
-    private boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
+    static boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
         //if the connection is inbound don't check the props: host name and portPool
         if (InboundConnectionTask.class.isAssignableFrom(task.getClass())) {
             return true;
@@ -184,16 +183,16 @@ public class ConnectionMethodResource {
         return Objects.nonNull(task.getComPortPool());
     }
 
-    private boolean isOutBoundTcpIp(PluggableClass pluggableClass) {
+    static boolean isOutBoundTcpIp(PluggableClass pluggableClass) {
         //todo: use com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys.OutboundTcpIpConnectionType
         return pluggableClass.getName().equals("Outbound TCP/IP");
     }
 
-    private boolean isOutboundTLS(PluggableClass pluggableClass) {
+    static boolean isOutboundTLS(PluggableClass pluggableClass) {
         return pluggableClass.getName().equals("Outbound TLS");
     }
 
-    private Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {
+    static Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {
         return properties.stream().filter(prop -> prop.getName().equals(name)).findFirst();
     }
 
