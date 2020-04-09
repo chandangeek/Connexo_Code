@@ -28,6 +28,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.InboundSoapEndPointFacto
 import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.OutboundSoapEndPointFactoryImpl;
 import com.elster.jupiter.transaction.TransactionService;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,6 +49,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
+    private static final long OCCURENCES_EXPIRE_AFTER_MINS = 30;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -54,7 +59,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
-    private Map<Long, WebServiceCallOccurrence> occurrences = new ConcurrentHashMap<>();
+    private Cache<Long, WebServiceCallOccurrence> occurrences;
 
     @Inject
     WebServicesServiceImpl(DataModel dataModel,
@@ -67,6 +72,7 @@ public class WebServicesServiceImpl implements WebServicesService {
         this.transactionService = transactionService;
         this.clock = clock;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.occurrences = CacheBuilder.newBuilder().expireAfterWrite(OCCURENCES_EXPIRE_AFTER_MINS, TimeUnit.MINUTES).build();
     }
 
     @Override
@@ -333,7 +339,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public WebServiceCallOccurrence passOccurrence(long id) {
         WebServiceCallOccurrence tmp = getOngoingOccurrence(id);
-        occurrences.remove(tmp.getId());
+        occurrences.invalidate(tmp.getId());
         return transactionService.executeInIndependentTransaction(() -> {
             tmp.log(LogLevel.INFO, "Request completed successfully.");
             tmp.setEndTime(clock.instant());
@@ -357,7 +363,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception) {
         WebServiceCallOccurrence tmp = getOngoingOccurrence(id);
-        occurrences.remove(tmp.getId());
+        occurrences.invalidate(tmp.getId());
         return transactionService.executeInIndependentTransaction(() -> {
             if (exception == null) {
                 tmp.log(LogLevel.SEVERE, message);
@@ -384,7 +390,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence getOngoingOccurrence(long id) {
-        WebServiceCallOccurrence tmp = occurrences.get(id);
+        WebServiceCallOccurrence tmp = occurrences.getIfPresent(id);
         if (tmp == null) {
             throw new IllegalStateException("Web service call occurrence isn't present.");
         }
