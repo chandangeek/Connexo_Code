@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
@@ -62,7 +63,13 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))
             return String.valueOf(((Date) messageAttribute).getTime());
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName))
-            return this.messageFileExtractor.contents((DeviceMessageFile) messageAttribute);
+            //This is the path of the temp file representing the FirmwareVersion
+            return messageAttribute.toString();
+        if (propertySpec.getName().equals(DeviceMessageConstants.configUserFileAttributeName)) {
+            //Bytes of the userFile, as a hex string
+            DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
+            return ProtocolTools.getHexStringFromBytes(this.messageFileExtractor.binaryContents(userFile), "");
+        }
         return messageAttribute.toString();
     }
 
