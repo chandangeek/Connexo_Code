@@ -19,11 +19,12 @@ public class CryptoE350 extends com.energyict.protocolimplv2.nta.dsmr40.landisgy
 
     @Override
     public String getVersion() {
-        return  "2020-03-30";
+        return  "2020-04-09";
     }
 
     @Override
     public String getProtocolDescription() {
         return "LandisGyr E350 Crypto Protocol DLMS (NTA DSMR4.2) V2";
     }
+
 }
