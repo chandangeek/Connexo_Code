@@ -370,8 +370,8 @@ public class ProcessResource {
                 .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.PROCESS_OBJECT_TYPE_NOT_FOUND, name, version) {
                 });
         List<ProcessHistoryGenInfo> appropriateInstances = processes.get(nameAndVersion).stream()
-                .filter(consistentObjects(type, definition, errors))
                 .filter(compatibleObjects(type, errors))
+                .filter(consistentObjects(type, definition, errors))
                 .filter(uniqueObjects(errors))
                 .filter(objectsWithoutRunningProcess(auth, errors))
                 .collect(Collectors.toList());
