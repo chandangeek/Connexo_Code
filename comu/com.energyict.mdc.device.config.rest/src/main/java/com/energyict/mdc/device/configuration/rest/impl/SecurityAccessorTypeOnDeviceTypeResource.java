@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -150,7 +151,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .filter(sa -> sa.getSecurityAccessorType().getId() == securityAccessorId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
-        SecurityAccessorTypeInfo accessorTypeInfo =  keyFunctionTypeInfoFactory.withSecurityLevels(securityAccessorTypeOnDeviceType);
+        SecurityAccessorTypeInfo accessorTypeInfo = keyFunctionTypeInfoFactory.withSecurityLevels(securityAccessorTypeOnDeviceType);
         deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorTypeOnDeviceType.getSecurityAccessorType()).ifPresent(v -> accessorTypeInfo.defaultServiceKey = v);
         return accessorTypeInfo;
     }
@@ -166,7 +167,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .map(securityAccessorInfo -> resourceHelper.lockSecurityAccessorTypeOrThrowException(securityAccessorInfo.id, securityAccessorInfo.version, securityAccessorInfo.name))
                 .toArray(SecurityAccessorType[]::new);
 
-        for (SecurityAccessorType securityAccessorType: securityAccessorTypes) {
+        for (SecurityAccessorType securityAccessorType : securityAccessorTypes) {
             deviceType.addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
         }
         deviceType.update();
@@ -185,29 +186,35 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
 
         deviceType.setWrappingSecurityAccessor(securityAccessorOnDeviceType.getDeviceSecurityAccessorType(), getWrappingAccessor(keyRenewalInfo.wrapperAccessorId, deviceType));
 
-        if (keyRenewalInfo.keyRenewalCommandSpecification.id != null){
-            DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString());
-            SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageId);
-            DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
-
-            if (keyRenewalInfo.properties!=null) {
-                try {
-                    for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
-                        Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, keyRenewalInfo.properties);
-                        if (propertyValue != null) {
-                            keyRenewAlBuilder.addProperty(propertySpec.getName(), propertyValue);
-                        }
-                    }
-                } catch (LocalizedFieldValidationException e) {
-                    throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
-                }
+        if (keyRenewalInfo.keyRenewalCommandSpecification.id != null || keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null) {
+            long deviceMessageIdDbValue = keyRenewalInfo.keyRenewalCommandSpecification.id != null ? 0 : DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()).dbValue();
+            long serviceDeviceMessageIdDbValue = keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null ? 0 : DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()).dbValue();
+            SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageIdDbValue, serviceDeviceMessageIdDbValue);
+            if (deviceMessageIdDbValue != 0 && keyRenewalInfo.properties != null) {
+                addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties);
+            }
+            if (serviceDeviceMessageIdDbValue != 0 && keyRenewalInfo.serviceProperties != null) {
+                addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties);
             }
             keyRenewAlBuilder.add();
-        }
-        else {
-            securityAccessorOnDeviceType.resetKeyRenewal();
+        } else {
+            securityAccessorOnDeviceType.reset();
         }
         return Response.ok().build();
+    }
+
+    private void addProperties(SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder builder, long deviceMessageIdValue, List<PropertyInfo> properties) {
+        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageIdValue).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
+        try {
+            for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, properties);
+                if (propertyValue != null) {
+                    builder.addKeyProperty(propertySpec.getName(), propertyValue);
+                }
+            }
+        } catch (LocalizedFieldValidationException e) {
+            throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties." + e.getViolatingProperty());
+        }
     }
 
     private Optional<SecurityAccessorType> getWrappingAccessor(Long wrapperAccessorId, DeviceType deviceType) {
@@ -265,7 +272,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         List<DeviceMessageId> deviceMessageIds = deviceMessageService.findKeyRenewalMessages();
         return deviceMessageSpecs.stream()
                 .filter(deviceMessageSpec -> deviceMessageIds.contains(deviceMessageSpec.getId()))
-                .map(deviceMessageSpec ->  DeviceMessageSpecInfo.from(deviceMessageSpec, mdcPropertyUtils))
+                .map(deviceMessageSpec -> DeviceMessageSpecInfo.from(deviceMessageSpec, mdcPropertyUtils))
                 .collect(Collectors.toList());
     }
 
@@ -282,12 +289,13 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .collect(Collectors.toList());
     }
 
-    private SecurityAccessorTypeOnDeviceType findSecAccessorOnDeviceTypeOrThrowException(DeviceType deviceType, long securityAccessorId){
+    private SecurityAccessorTypeOnDeviceType findSecAccessorOnDeviceTypeOrThrowException(DeviceType deviceType, long securityAccessorId) {
         return deviceType.getSecurityAccessors().stream()
                 .filter(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == securityAccessorId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
     }
+
     /**
      * Sets the default key value for the device type for the given security accessor type.
      *

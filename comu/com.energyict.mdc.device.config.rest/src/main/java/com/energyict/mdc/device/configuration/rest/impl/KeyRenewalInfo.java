@@ -17,5 +17,7 @@ public class KeyRenewalInfo {
     public long version;
     public Long wrapperAccessorId;
     public IdWithNameInfo keyRenewalCommandSpecification;
+    public IdWithNameInfo serviceKeyRenewalCommandSpecification;
     public List<PropertyInfo> properties;
+    public List<PropertyInfo> serviceProperties;
 }

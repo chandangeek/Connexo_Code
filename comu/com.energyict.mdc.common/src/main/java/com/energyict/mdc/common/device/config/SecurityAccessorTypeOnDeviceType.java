@@ -20,16 +20,21 @@ public interface SecurityAccessorTypeOnDeviceType {
     void setWrappingSecurityAccessor(Optional<SecurityAccessorType> deviceSecurityAccessorType);
     SecurityAccessorType getSecurityAccessorType();
     Optional<DeviceMessageId> getKeyRenewalDeviceMessageId();
+    Optional<DeviceMessageId> getServiceKeyRenewalDeviceMessageId();
     Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification();
 
     List<? extends SecurityAccessorTypeKeyRenewal> getKeyRenewalAttributes();
+    List<? extends SecurityAccessorTypeKeyRenewal> getServiceKeyRenewalAttributes();
 
     void resetKeyRenewal();
-    KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId);
+    void resetServiceKeyRenewal();
+    void reset();
+    KeyRenewalBuilder newKeyRenewalBuilder(long deviceMessageIdDbValue, long serviceDeviceMessageIdDbValue);
 
     @ProviderType
     interface KeyRenewalBuilder {
-        KeyRenewalBuilder addProperty(String key, Object value);
+        KeyRenewalBuilder addKeyProperty(String key, Object value);
+        KeyRenewalBuilder addServiceKeyProperty(String key, Object value);
         SecurityAccessorTypeOnDeviceType add();
     }
 }
