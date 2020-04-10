@@ -1037,7 +1037,7 @@ public enum TableSpecs {
                    .since(Version.version(10, 6))
                    .add();
             table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.KEYRENEWALMESSAGEID.name()).number().conversion(NUMBER2LONG).map("keyRenewalMessageIdIdDbValue").since(version(10, 7)).add();
-            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SERVICEKEYRENEWALMSGID.name()).number().conversion(NUMBER2LONG).map("serviceKeyRenewalMessageIdIdDbValue").since(version(10, 9)).add();
+            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SERVICEKEYRENEWALMSGID.name()).number().conversion(NUMBER2LONG).map("serviceKeyRenewalMessageIdIdDbValue").add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
             table.addAuditColumns();
             table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
