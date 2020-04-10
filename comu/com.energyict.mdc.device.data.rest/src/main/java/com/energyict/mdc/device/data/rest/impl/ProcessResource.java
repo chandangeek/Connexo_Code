@@ -372,8 +372,8 @@ public class ProcessResource {
         List<ProcessHistoryGenInfo> appropriateInstances = processes.get(nameAndVersion).stream()
                 .filter(compatibleObjects(type, errors))
                 .filter(consistentObjects(type, definition, errors))
-                .filter(uniqueObjects(errors))
                 .filter(objectsWithoutRunningProcess(auth, errors))
+                .filter(uniqueObjects(errors))
                 .collect(Collectors.toList());
 
         return Response.ok(new ProcessHistoryGenInfos(appropriateInstances, request.processHistories.size(), errors.getErrorsInfo())).build();
@@ -520,7 +520,7 @@ public class ProcessResource {
         private void addError(MessageSeed messageSeed, String objectName) {
             errorsMap.computeIfAbsent(messageSeed, message -> {
                 ObjectsWithErrorCounter counter = new ObjectsWithErrorCounter();
-                if (MessageSeeds.OBJECTS_FILTERED_DUPLICATED == messageSeed && !Checks.is(objectName).empty()) {
+                if (MessageSeeds.OBJECTS_FILTERED_DUPLICATED == messageSeed) {
                     counter.add(objectName);
                 }
                 return counter;
