@@ -78,7 +78,7 @@ public class ConnectionResource {
         switch (connectionTaskInfo.connectionMethod.status) {
             case ACTIVE:
                 if (!ConnectionMethodResource.hasAllRequiredProps(task)) {
-                    throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+                    throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
                 } else if (!task.isActive()) {
                     task.activate();
                 }
