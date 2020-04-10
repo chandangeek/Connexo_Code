@@ -72,7 +72,7 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
 
         //set all required commands attributes, but exclude the ones not filled in.
         //On security accessor all other properties are filled in except the ones referring to security accessor
-        securityAccessorTypeOnDeviceType.getKeyRenewalAttributes()
+        (isServiceKey ? securityAccessorTypeOnDeviceType.getServiceKeyRenewalAttributes() : securityAccessorTypeOnDeviceType.getKeyRenewalAttributes())
                 .stream()
                 .filter(securityAccessorTypeKeyRenewal -> securityAccessorTypeKeyRenewal.getValue() != null)
                 .forEach(securityAccessorTypeKeyRenewal -> setPropertyValue(securityAccessorTypeKeyRenewal.getSpecification(), securityAccessorTypeKeyRenewal.getValue()));

@@ -191,10 +191,10 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         if (deviceMessageIdDbValue != 0 || serviceDeviceMessageIdDbValue != 0) {
             SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageIdDbValue, serviceDeviceMessageIdDbValue);
             if (deviceMessageIdDbValue != 0 && keyRenewalInfo.properties != null) {
-                addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties);
+                addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties, false);
             }
             if (serviceDeviceMessageIdDbValue != 0 && keyRenewalInfo.serviceProperties != null) {
-                addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties);
+                addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties, true);
             }
             keyRenewAlBuilder.add();
         } else {
@@ -203,13 +203,13 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         return Response.ok().build();
     }
 
-    private void addProperties(SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder builder, long deviceMessageIdValue, List<PropertyInfo> properties) {
+    private void addProperties(SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder builder, long deviceMessageIdValue, List<PropertyInfo> properties, boolean isServiceKey) {
         DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageIdValue).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
         try {
             for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, properties);
                 if (propertyValue != null) {
-                    builder.addKeyProperty(propertySpec.getName(), propertyValue);
+                    builder.addKeyProperty(propertySpec.getName(), propertyValue, isServiceKey);
                 }
             }
         } catch (LocalizedFieldValidationException e) {

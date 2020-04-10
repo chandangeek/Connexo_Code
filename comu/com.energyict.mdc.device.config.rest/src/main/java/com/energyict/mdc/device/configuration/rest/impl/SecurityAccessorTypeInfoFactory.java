@@ -113,6 +113,18 @@ public class SecurityAccessorTypeInfoFactory {
         if (propertySpecs.size() > 0) {
             info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, typedProperties);
         }
+        TypedProperties serviceTypedProperties = TypedProperties.empty();
+        propertySpecs.clear();
+        securityAccessorTypeOnDeviceType
+                .getServiceKeyRenewalAttributes()
+                .stream()
+                .forEach(attribute-> {
+                    serviceTypedProperties.setProperty(attribute.getName(), attribute.getValue());
+                    propertySpecs.add(attribute.getSpecification());
+                });
+        if (propertySpecs.size() > 0) {
+            info.serviceProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, serviceTypedProperties);
+        }
         return info;
     }
 
