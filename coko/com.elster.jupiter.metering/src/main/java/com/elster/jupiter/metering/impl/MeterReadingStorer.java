@@ -257,11 +257,11 @@ public class MeterReadingStorer {
         if (!readingType.isRegular()) {
             throw new IllegalArgumentException(readingTypeCode + " is not valid for interval readings ");
         }
-        Channel channel = findOrCreateChannel(reading, readingType);
-        if (channel != null) {
-            readingStorer.addReading(channel.getCimChannel(readingType).get(), reading);
-            addedReading(channel, reading);
-        }
+        findOrCreateChannel(reading, readingType).ifPresent(
+                channel -> {
+                    readingStorer.addReading(channel.getCimChannel(readingType).get(), reading);
+                    addedReading(channel, reading);
+                });
     }
 
     private void findOrCreateReadingType(String code) {
@@ -286,49 +286,39 @@ public class MeterReadingStorer {
 
     private Channel findOrCreateChannel(Reading reading, ChannelsContainer channelsContainer) {
         ReadingType readingType = Objects.requireNonNull(readingTypes.get(reading.getReadingTypeCode()));
-        for (Channel each : channelsContainer.getChannels()) {
-            if (each.getReadingTypes().contains(readingType)) {
-                return each;
-            }
-        }
-        return channelsContainer.createChannel(readingType);
+        return channelsContainer.getChannels().stream().filter(channel -> channel.getReadingTypes().contains(readingType))
+                .reduce((first, second) -> second)
+                .orElse(channelsContainer.createChannel(readingType));
     }
 
-    private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {
-        Channel channel = getChannel(reading, readingType);
-        if (channel == null) {
-            for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
-                if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                    return channelsContainer.createChannel(readingType);
-                }
-            }
-            PrivateMessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getName(), reading.getTimeStamp());
-            return null;
+    private Optional<Channel> findOrCreateChannel(IntervalReading reading, ReadingType readingType) {
+        Optional<Channel> channelOptional = getChannel(reading, readingType);
+        if (channelOptional.isPresent()) {
+            return channelOptional;
         } else {
-            return channel;
+            channelOptional = meter.getChannelsContainers().stream()
+                    .filter(channelsContainer -> channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp()))
+                    .findFirst()
+                    .map(channelsContainer -> channelsContainer.createChannel(readingType));
+            if (!channelOptional.isPresent()) {
+                PrivateMessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getName(), reading.getTimeStamp());
+            }
+            return channelOptional;
         }
     }
 
-    private Channel getChannel(IntervalReading reading, ReadingType readingType) {
+    private Optional<Channel> getChannel(IntervalReading reading, ReadingType readingType) {
         for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
             if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                for (Channel channel : channelsContainer.getChannels()) {
-                    if (channel.getReadingTypes().contains(readingType)) {
-                        return channel;
-                    }
-                }
-                return null;
+                return channelsContainer.getChannels().stream().filter(channel -> channel.getReadingTypes().contains(readingType))
+                        .reduce((first, second) -> second);
             }
         }
         for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
-            for (Channel channel : channelsContainer.getChannels()) {
-                if (channel.getReadingTypes().contains(readingType)) {
-                    return channel;
-                }
-            }
-            return null;
+            return channelsContainer.getChannels().stream().filter(channel -> channel.getReadingTypes().contains(readingType))
+                    .reduce((first, second) -> second);
         }
-        return null;
+        return Optional.empty();
     }
 
     private void addedReading(Channel channel, BaseReading reading) {
