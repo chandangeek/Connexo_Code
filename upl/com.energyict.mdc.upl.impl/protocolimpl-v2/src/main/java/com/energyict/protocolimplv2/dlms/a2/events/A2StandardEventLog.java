@@ -22,7 +22,7 @@ public class A2StandardEventLog extends AbstractEvent {
         Date eventTimeStamp;
         for (int i = 0; i <= (size - 1); i++) {
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(2) & 0xFF; // To prevent negative values
-            long unixTime = (long) dcEvents.getRoot().getStructure(i).getInteger(0);
+            long unixTime = (long) dcEvents.getRoot().getStructure(i).getLong(0);
             eventTimeStamp = new Date(unixTime * 1000);
             buildMeterEvent(meterEvents, eventTimeStamp, eventId);
         }

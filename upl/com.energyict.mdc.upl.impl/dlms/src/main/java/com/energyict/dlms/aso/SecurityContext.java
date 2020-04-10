@@ -1398,4 +1398,7 @@ public class SecurityContext {
         return new byte[]{};
     }
 
+    public boolean isIncrementFramecounterWhenReplyingToHLS() {
+        return incrementFramecounterWhenReplyingToHLS;
+    }
 }

@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr;
 
+import com.energyict.common.framework.CryptoDlmsSession;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -15,11 +19,6 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.common.framework.CryptoDlmsSession;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr40.common.CryptoDSMR40Properties;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.CryptoDSMR40MessageExecutor;
@@ -38,7 +37,7 @@ public class CryptoE350 extends E350 {
 
     @Override
     public String getVersion() {
-        return  "2019-02-27";
+        return  "2020-04-09";
     }
 
     @Override
@@ -110,5 +109,10 @@ public class CryptoE350 extends E350 {
                     this.getNumberLookupExtractor(), this.getLoadProfileExtractor(), this.getKeyAccessorTypeExtractor());
         }
         return this.cryptoMessaging;
+    }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return false;
     }
 }
