@@ -63,17 +63,11 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         itemId: 'reason-field',
                         name: 'reason',
                         hidden: true,
+                        width: me.maxWidth || 600,
                         renderer: function(value){
-                               return value.slice(0,170) + '... '
+                            return "<span data-qtip ='" + Ext.String.htmlEncode(value + "<spe>") + "'>" + Ext.String.htmlEncode(Ext.util.Format.ellipsis(value, 100)) + "</span>";
                         },
-                        listeners:{
-                               afterrender: function(component){
-                                   new Ext.ToolTip({
-                                       target: component.getEl(),
-                                       html: component.getValue()
-                                   });
-                               }
-                        }
+
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
