@@ -21,14 +21,12 @@ public interface SecurityAccessorTypeOnDeviceType {
     SecurityAccessorType getSecurityAccessorType();
     Optional<DeviceMessageId> getKeyRenewalDeviceMessageId();
     Optional<DeviceMessageId> getServiceKeyRenewalDeviceMessageId();
-    Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification();
+    Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification(boolean isService);
 
     List<? extends SecurityAccessorTypeKeyRenewal> getKeyRenewalAttributes();
     List<? extends SecurityAccessorTypeKeyRenewal> getServiceKeyRenewalAttributes();
 
     void resetKeyRenewal();
-    void resetServiceKeyRenewal();
-    void reset();
     KeyRenewalBuilder newKeyRenewalBuilder(long deviceMessageIdDbValue, long serviceDeviceMessageIdDbValue);
 
     @ProviderType

@@ -51,6 +51,7 @@ import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConfl
 
 import java.util.List;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -833,7 +834,7 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column originDeviceConfig = table.column("ORIGINDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column destinationDeviceConfig = table.column("DESTINATIONDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("SOLVED").type("char(1)").notNull().map(DeviceConfigConflictMappingImpl.Fields.SOLVED.fieldName()).conversion(ColumnConversion.CHAR2BOOLEAN).add();
+            table.column("SOLVED").type("char(1)").notNull().map(DeviceConfigConflictMappingImpl.Fields.SOLVED.fieldName()).conversion(CHAR2BOOLEAN).add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_CONFLMAP").on(id).add();
             table.foreignKey("FK_DTC_CONFLMAPDEVTYPE")
@@ -1072,6 +1073,14 @@ public enum TableSpecs {
             Column secAccType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.name()).number().notNull().add();
             Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
             table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
+            table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
+                    .type("char(1)")
+                    .notNull()
+                    .conversion(CHAR2BOOLEAN)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.fieldName())
+                    .since(version(10, 9))
+                    .installValue("'N'")
+                    .add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
             table.addAuditColumns();
             table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).add();

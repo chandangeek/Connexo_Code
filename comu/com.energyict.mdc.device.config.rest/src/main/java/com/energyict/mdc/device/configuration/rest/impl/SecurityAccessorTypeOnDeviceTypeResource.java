@@ -198,7 +198,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
             }
             keyRenewAlBuilder.add();
         } else {
-            securityAccessorOnDeviceType.reset();
+            securityAccessorOnDeviceType.resetKeyRenewal();
         }
         return Response.ok().build();
     }

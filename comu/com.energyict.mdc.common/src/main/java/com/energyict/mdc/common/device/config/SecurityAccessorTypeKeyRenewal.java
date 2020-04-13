@@ -13,6 +13,8 @@ public interface SecurityAccessorTypeKeyRenewal {
     PropertySpec getSpecification();
     Object getValue();
     String getName();
+    boolean isServiceKey();
     void setName(String name);
     void setValue(String value);
+    void setServiceKey(boolean serviceKey);
 }
