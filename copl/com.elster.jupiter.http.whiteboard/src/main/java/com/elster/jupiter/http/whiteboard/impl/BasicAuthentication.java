@@ -118,7 +118,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile Thesaurus thesaurus;
     private volatile CSRFFilterService csrfFilterService;
 
-    private int timeout;
+    private int timeoutFrameToRefreshToken;
     private int tokenRefreshMaxCount;
     private int tokenExpTime;
     private String installDir;
@@ -238,7 +238,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
-        timeout = getIntParameter(TIMEOUT, context, 300);
+        timeoutFrameToRefreshToken = getIntParameter(TIMEOUT, context, 300);
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
@@ -262,11 +262,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }).orElse(Optional.<Integer>empty());
         scheme = getOptionalStringProperty("com.elster.jupiter.url.rewrite.scheme", context);
 
-        Thread thread = Thread.currentThread();
-        ClassLoader loader = thread.getContextClassLoader();
-        thread.setContextClassLoader(InitializationService.class.getClassLoader());
         Optional<KeyStoreImpl> keyStore = getKeyPair();
-        keyStore.ifPresent(store -> tokenService.initialize(dataVaultService.decrypt(store.getPublicKey()), dataVaultService.decrypt(store.getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeout));
+        keyStore.ifPresent(store -> tokenService.initialize(dataVaultService.decrypt(store.getPublicKey()), dataVaultService.decrypt(store.getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeoutFrameToRefreshToken));
     }
 
     public void createNewTokenKey(String... args) {
@@ -284,10 +281,17 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private void tryCreateNewTokenKey(String fileName) throws NoSuchAlgorithmException, IOException {
-        getKeyPair().ifPresent(KeyStoreImpl::delete);
+        final Optional<KeyStoreImpl> keyStore = getKeyPair();
+        keyStore.ifPresent(KeyStoreImpl::delete);
         dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
 
         initSecurityTokenImpl();
+        keyStore.ifPresent(store -> tokenService.initialize(
+                dataVaultService.decrypt(store.getPublicKey()),
+                dataVaultService.decrypt(store.getPrivateKey()),
+                tokenExpTime, tokenRefreshMaxCount,
+                timeoutFrameToRefreshToken));
+
         saveKeyToFile(FileSystems.getDefault().getPath(fileName));
     }
 
@@ -311,7 +315,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (keyStore.isPresent()) {
 
             try {
-                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()), dataVaultService.decrypt(keyStore.get().getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeout);
+                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()), dataVaultService.decrypt(keyStore.get().getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeoutFrameToRefreshToken);
                 securityToken.setEventService(eventService);
                 securityToken.preventEventGeneration(false);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -479,7 +483,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public Cookie createTokenCookie(String cookieValue, String cookiePath) {
         Cookie cookie = new Cookie(TOKEN_COOKIE_NAME, cookieValue);
         cookie.setPath(cookiePath);
-        cookie.setMaxAge(securityToken.getCookieMaxAge());
+        cookie.setMaxAge(tokenExpTime + timeoutFrameToRefreshToken);
         cookie.setHttpOnly(true);
         return cookie;
     }
@@ -487,7 +491,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public Cookie createSessionCookie(String sessionId, String cookiePath) {
         Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
         sessionCookie.setPath(cookiePath);
-        sessionCookie.setMaxAge(securityToken.getCookieMaxAge());
+        sessionCookie.setMaxAge(tokenExpTime + timeoutFrameToRefreshToken);
         sessionCookie.setHttpOnly(true);
         csrfFilterService.createCSRFToken(sessionId);
         return sessionCookie;
@@ -496,7 +500,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
         TokenValidation validation = null;
         try {
-            validation = tokenService.validateSignedJWT(SignedJWT.parse(tokenCookie.getValue()));
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                validation = tokenService.validateSignedJWT(SignedJWT.parse(tokenCookie.getValue()));
+                transactionContext.commit();
+            }
         } catch (JOSEException | ParseException e) {
             e.printStackTrace();
         }
@@ -527,10 +534,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
-//        TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
         TokenValidation tokenValidation = null;
         try {
-            tokenValidation = tokenService.validateSignedJWT(SignedJWT.parse(token));
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                tokenValidation = tokenService.validateSignedJWT(SignedJWT.parse(token));
+                transactionContext.commit();
+            }
         } catch (JOSEException | ParseException e) {
             e.printStackTrace();
         }
@@ -554,10 +563,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             } catch (JOSEException e) {
                 e.printStackTrace();
             }
-//            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
             String token = Objects.requireNonNull(userJWT).getToken();
             response.addCookie(createTokenCookie(token, "/"));
-            response.addCookie(createSessionCookie(securityToken.generateSessionId(), "/"));
+            response.addCookie(createSessionCookie(Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes()),"/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
