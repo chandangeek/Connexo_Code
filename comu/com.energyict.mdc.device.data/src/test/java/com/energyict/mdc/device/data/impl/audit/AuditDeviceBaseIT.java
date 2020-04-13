@@ -32,7 +32,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AuditDeviceBase extends PersistenceIntegrationTest {
+public abstract class AuditDeviceBaseIT extends PersistenceIntegrationTest {
 
     @Before
     public void initializeMocks() {
