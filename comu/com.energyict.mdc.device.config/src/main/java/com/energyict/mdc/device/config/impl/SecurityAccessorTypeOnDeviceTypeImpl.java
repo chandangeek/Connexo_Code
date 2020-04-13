@@ -209,7 +209,6 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
             securityAccessorTypeKeyRenewal.setValue(value.toString());
             securityAccessorTypeKeyRenewal.setServiceKey(isServiceKey);
             securityAccessorTypeKeyRenewals.add(securityAccessorTypeKeyRenewal);
-
             return this;
         }
 

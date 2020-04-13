@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class KeyRenewalCommand extends EndDeviceCommandImpl {
 
-    private boolean isServiceKey = false;
+    private boolean isServiceKey;
     private List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes;
 
     public KeyRenewalCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
