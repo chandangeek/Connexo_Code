@@ -12,12 +12,15 @@ import java.math.BigInteger;
  */
 public class SerialNumberAdapter extends XmlAdapter<String, BigInteger> {
     @Override
-    public BigInteger unmarshal(String value) throws Exception {
-        return new BigInteger(value);
+    public BigInteger unmarshal(String value) {
+        if (value!=null && value.toUpperCase().startsWith("0X")){
+            value = value.substring(2);
+        }
+        return new BigInteger(value,16);
     }
 
     @Override
-    public String marshal(BigInteger bigInteger) throws Exception {
-        return bigInteger.toString();
+    public String marshal(BigInteger bigInteger) {
+        return "0x" + bigInteger.toString(16).toUpperCase();
     }
 }

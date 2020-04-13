@@ -20,6 +20,8 @@ import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 
+import java.util.Optional;
+
 /**
  * Implementation for a {@link StatusInformationCommand}<br/>
  * The collected data will be predefined status {@link com.energyict.mdc.upl.meterdata.Register}s.
@@ -55,7 +57,8 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        if(getOfflineDevice().firmwareVersionManagementAllowed()){
+        final String deviceSerialNumber = comTaskExecution.getDevice().getSerialNumber();
+        if (isFirmwareVersionManagementAllowed(getOfflineDevice(), deviceSerialNumber)) {
             CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions(comTaskExecution.getDevice().getSerialNumber());
             firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
             addCollectedDataItem(firmwareVersions);
@@ -70,6 +73,16 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
             calendar.setDataCollectionConfiguration(comTaskExecution);
             addCollectedDataItem(calendar);
         }
+    }
+
+    private boolean isFirmwareVersionManagementAllowed(OfflineDevice offlineDevice, String deviceSerialNumber) {
+        if (offlineDevice.getSerialNumber().equals( deviceSerialNumber )) {
+            return offlineDevice.firmwareVersionManagementAllowed();
+        }
+        // task was executed from slave device, check the slave
+        final Optional<? extends com.energyict.mdc.upl.offline.OfflineDevice> slave = offlineDevice.getAllSlaveDevices().stream()
+                .filter(d -> d.getSerialNumber().equals(deviceSerialNumber)).findFirst();
+        return slave.map(com.energyict.mdc.upl.offline.OfflineDevice::firmwareVersionManagementAllowed).orElse(false);
     }
 
 }
