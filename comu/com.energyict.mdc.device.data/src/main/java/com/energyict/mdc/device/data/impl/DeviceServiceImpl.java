@@ -501,11 +501,10 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
-        final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
-                .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
-                .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
-
         Pair<Device, DeviceConfigChangeRequestImpl> lockResult = deviceDataModelService.getTransactionService().execute(() -> {
+            final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
+                    .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
+                    .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
             Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
             final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel()
                     .getInstance(DeviceConfigChangeRequestImpl.class)
@@ -524,7 +523,8 @@ class DeviceServiceImpl implements ServerDeviceService {
         } finally {
             deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
-        addConnectionTasksToDevice(modifiedDevice,deviceConfiguration);
+
+        addConnectionTasksToDevice(modifiedDevice,modifiedDevice.getDeviceConfiguration());
 
         return modifiedDevice;
     }
