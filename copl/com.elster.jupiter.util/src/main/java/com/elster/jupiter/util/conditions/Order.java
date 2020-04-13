@@ -4,9 +4,17 @@
 
 package com.elster.jupiter.util.conditions;
 
+import com.elster.jupiter.util.MessageSeeds;
+import com.elster.jupiter.util.exception.NoFieldSpecifiedException;
+import com.elster.jupiter.util.exception.SqlInjectionException;
+
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public final class Order {
+
+	private static final Pattern SQL_I = Pattern.compile("\\s+|--|;");
+	private static final String COMMAND = "Order";
 
 	public static final Order[] NOORDER = new Order[0];
 
@@ -14,6 +22,8 @@ public final class Order {
 	private final boolean ascending;
 	private String function;
 	private NullStrategy nullStrategy = NullStrategy.NONE;
+
+
 
 	private Order(String name, boolean ascending) {
 		this.name = name;
@@ -25,6 +35,15 @@ public final class Order {
 	}
 
 	public String getName()  {
+		String trimmedColumnName = this.name.trim();
+		if (trimmedColumnName.isEmpty()) {
+			throw new NoFieldSpecifiedException(COMMAND);
+		}
+
+		if (SQL_I.matcher(trimmedColumnName).find()) {
+		//if (trimmedColumnName.contains(" ") || trimmedColumnName.contains("'")||trimmedColumnName.contains(";")) {
+			throw new SqlInjectionException(MessageSeeds.POSSIBLE_SQL_INJECTION_ORDER_FIELD, name);
+		}
 		return name;
 	}
 

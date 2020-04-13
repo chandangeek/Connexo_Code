@@ -33,6 +33,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private boolean actual;
 
     private transient ReadingQualityType type;
+    private transient ReadingType readingType;
     // null means not fetched; empty optional means no matching reading record
     private transient Optional<BaseReadingRecord> baseReadingRecord;
     private Reference<Channel> channel = ValueReference.absent();
@@ -59,27 +60,24 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         doMakeActual();
     }
 
-    ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
-        this.channel.set(cimChannel.getChannel());
-        readingTypeId = ((IReadingType) cimChannel.getReadingType()).getId();
-        if (baseReading instanceof BaseReadingRecord) {
-            this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
-        }
-        readingTimestamp = baseReading.getTimeStamp();
-        this.type = type;
-        this.typeCode = type.getCode();
-        return this;
-    }
-
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading, String comment) {
         init(type, cimChannel, baseReading);
         this.comment = comment;
         return this;
     }
 
+    ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
+        init(type, cimChannel, baseReading.getTimeStamp());
+        if (baseReading instanceof BaseReadingRecord) {
+            this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
+        }
+        return this;
+    }
+
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, Instant timestamp) {
         this.channel.set(cimChannel.getChannel());
-        readingTypeId = ((IReadingType) cimChannel.getReadingType()).getId();
+        readingType = cimChannel.getReadingType();
+        readingTypeId = ((IReadingType) readingType).getId();
         readingTimestamp = timestamp;
         this.type = type;
         this.typeCode = type.getCode();
@@ -105,7 +103,10 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public ReadingType getReadingType() {
-        return meteringService.getReadingTypeById(readingTypeId).get(); // reading type must exist, transitively referenced through channel
+        if (readingType == null) {
+            readingType = meteringService.getReadingTypeById(readingTypeId).get(); // reading type must exist, transitively referenced through channel
+        }
+        return readingType;
     }
 
     @Override
@@ -182,7 +183,6 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         decorate(records.stream()).filterSubType(ReadingQualityRecordImpl.class).forEach(ReadingQualityRecordImpl::notifyDeleted);
     }
 
-
     @Override
     public Instant getReadingTimestamp() {
         return readingTimestamp;
@@ -243,12 +243,12 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
                 && Objects.equals(getChannel(), ((ReadingQualityRecordImpl) o).getChannel())
                 && Objects.equals(getReadingTimestamp(), ((ReadingQualityRecordImpl) o).getReadingTimestamp())
                 && Objects.equals(getType(), ((ReadingQualityRecordImpl) o).getType())
-                && Objects.equals(getReadingType(), ((ReadingQualityRecordImpl) o).getReadingType());
+                && Objects.equals(readingTypeId, ((ReadingQualityRecordImpl) o).readingTypeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getChannel(), getReadingTimestamp(), getType(), getReadingType());
+        return Objects.hash(getChannel(), getReadingTimestamp(), getType(), readingTypeId);
     }
 
     void copy(ReadingQualityRecord source) {

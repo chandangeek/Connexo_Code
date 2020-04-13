@@ -138,7 +138,8 @@ public class CaServiceImplTest {
         when(ejbcaWS.getAvailableCAsInProfile(nameAndId.getId())).thenReturn(nameAndIds);
         when(ejbcaWS.getAvailableCertificateProfiles(nameAndId.getId())).thenReturn(nameAndIds);
 
-        when(certificateResponse.getData()).thenReturn(x509Certificate.getEncoded());
+        when(certificateResponse.getData()).thenReturn(Base64.getEncoder().encode(x509Certificate.getEncoded()));
+        when(certificateResponse.getResponseType()).thenReturn("CERTIFICATE");
         when(ejbcaWS
                 .certificateRequest(any(UserDataVOWS.class), any(String.class), any(Integer.class), any(String.class), any(String.class)))
                 .thenReturn(certificateResponse);
@@ -150,12 +151,12 @@ public class CaServiceImplTest {
     }
 
     @Test
-    public void testActivation_configured() throws Exception{
+    public void testActivation_configured() throws Exception {
         assertThat(caService.isConfigured()).isEqualTo(true);
     }
 
     @Test
-    public void testActivation_unConfigured() throws Exception{
+    public void testActivation_unConfigured() throws Exception {
         Mockito.reset(bundleContext);
         caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
 

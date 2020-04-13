@@ -77,11 +77,11 @@ public class HeadEndController {
     private void performKeyRenewalOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling key renewal.");
         EndDeviceCommand deviceCommand;
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
-        if (securityAccessorType == null) {
-            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
-        }
-        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorType);
+        List<SecurityAccessorType> securityAccessorTypes = Arrays.stream(deviceCommandInfo.keyAccessorType.split(","))
+                .map(sA -> getKeyAccessorType(sA, device))
+                .peek(aT -> {if (aT == null) throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);})
+                .collect(Collectors.toList());
+        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }

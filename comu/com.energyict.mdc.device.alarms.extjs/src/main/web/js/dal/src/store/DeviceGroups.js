@@ -6,4 +6,5 @@ Ext.define('Dal.store.DeviceGroups', {
     extend: 'Ext.data.Store',
     model: 'Dal.model.DeviceGroup',
     autoLoad: false,
+    pageSize: 50
 });

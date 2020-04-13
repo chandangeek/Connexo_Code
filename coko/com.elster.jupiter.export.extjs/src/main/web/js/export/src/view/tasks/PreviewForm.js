@@ -62,7 +62,18 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
                         itemId: 'reason-field',
                         name: 'reason',
-                        hidden: true
+                        hidden: true,
+                        renderer: function(value){
+                               return value.slice(0,170) + '... '
+                        },
+                        listeners:{
+                               afterrender: function(component){
+                                   new Ext.ToolTip({
+                                       target: component.getEl(),
+                                       html: component.getValue()
+                                   });
+                               }
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),

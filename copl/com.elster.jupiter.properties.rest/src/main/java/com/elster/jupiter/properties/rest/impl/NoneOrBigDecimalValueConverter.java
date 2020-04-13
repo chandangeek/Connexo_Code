@@ -34,10 +34,17 @@ public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
                 return NoneOrBigDecimal.none();
             } else {
                 Double value = null;
-                Object valueObj = ((Map) infoValue).get("value");
-                if (valueObj instanceof Integer) {
-                    value = ((Integer) valueObj).doubleValue();
-                } else if (valueObj instanceof Double) {
+                    Object valueObj = ((Map) infoValue).get("value");
+                    if (valueObj instanceof String) {
+                        try {
+                           valueObj =  Integer.parseInt((String) valueObj);
+                        } catch (NumberFormatException e) {
+                            valueObj = Double.parseDouble((String)valueObj);
+                        }
+                    }
+                    if (valueObj instanceof Integer) {
+                        value = ((Integer) valueObj).doubleValue();
+                    } else if (valueObj instanceof Double) {
                     value = (Double) valueObj;
                 }
                 if (value != null) {

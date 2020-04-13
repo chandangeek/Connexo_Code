@@ -19,7 +19,6 @@ import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserSecuritySettings;
 import com.elster.jupiter.users.WorkGroup;
-
 import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
 import com.elster.jupiter.users.privileges.PrivilegeImpl;
 import com.elster.jupiter.users.privileges.PrivilegeInGroup;
@@ -83,11 +82,11 @@ public enum TableSpecs {
                 .on(resourceColumn)
                 .add();
             table.foreignKey("USR_FK_PRIVILEGE_CATEGORY")
-                    .references(PrivilegeCategory.class)
-                    .map("category")
-                    .on(categoryColumn)
-                    .since(version(10, 3))
-                    .add();
+                .references(PrivilegeCategory.class)
+                .map("category")
+                .on(categoryColumn)
+                .since(version(10, 3))
+                .add();
         }
     },
     USR_GRANTABLE_CATEGORY {
@@ -129,6 +128,7 @@ public enum TableSpecs {
             table.setJournalTableName("USR_GROUPJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 8));
             table.column("DESCRIPTION").varChar().map("description").add();
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_GROUP").on(idColumn).add();
@@ -181,6 +181,7 @@ public enum TableSpecs {
             table.setJournalTableName("USR_USERJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
+            table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 8));
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("HA1").varChar().map("ha1").add();
             table.column("SALT").number().conversion(NUMBER2INT).map("salt").add();
@@ -234,7 +235,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UsersInWorkGroup> table = dataModel.addTable(name(), UsersInWorkGroup.class);
             table.map(UsersInWorkGroup.class);
-            table.since(version(10,3));
+            table.since(version(10, 3));
             Column workGroupIdColumn = table.column("WORKGROUPID").number().notNull().conversion(NUMBER2LONG).map("workGroupId").add();
             Column userIdColumn = table.column("USERID").number().notNull().conversion(NUMBER2LONG).map("userId").add();
             table.addAuditColumns();

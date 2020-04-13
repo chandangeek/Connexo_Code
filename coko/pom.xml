@@ -469,6 +469,7 @@
         <module>com.elster.jupiter.webservice.issue</module>
         <module>com.elster.jupiter.webservice.issue.rest</module>
         <module>com.elster.jupiter.issue.webservice.extjs</module>
+        <module>com.elster.jupiter.webservice.inbound.rest.scim</module>
         <!-- Test modules -->
         <module>com.elster.jupiter.gogo</module>
         <module>com.elster.jupiter.metering.cps</module>

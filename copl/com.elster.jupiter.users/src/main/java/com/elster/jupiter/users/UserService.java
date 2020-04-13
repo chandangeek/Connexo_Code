@@ -4,12 +4,11 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
-
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.DataModel;
 
 import java.security.KeyStore;
@@ -34,11 +33,15 @@ public interface UserService {
 
     User createUser(String name, String description);
 
-    User createApacheDirectoryUser(String name, String domain,boolean status);
+    User createSCIMUser(String name, String description, String externalId);
 
-    User createActiveDirectoryUser(String name, String domain,boolean status);
+    User createApacheDirectoryUser(String name, String domain, boolean status);
+
+    User createActiveDirectoryUser(String name, String domain, boolean status);
 
     Group createGroup(String name, String description);
+
+    Group createSCIMGroup(String name, String description, String externalId);
 
     void grantGroupWithPrivilege(String roleName, String applicationName, String[] privileges);
 
@@ -48,15 +51,20 @@ public interface UserService {
 
     Optional<User> findUser(String authenticationName, String userDirectoryName);
 
+    Optional<User> findUserByExternalId(String externalId);
+
     Optional<Resource> findResource(String name);
 
     Optional<Group> findGroup(String name);
+
+    Optional<Group> findGroupByExternalId(String externalId);
 
     Optional<Group> getGroup(long id);
 
     Optional<Group> findAndLockGroupByIdAndVersion(long id, long version);
 
     DataModel getDataModel();
+
     /**
      * @return the group with specified name
      */
@@ -124,7 +132,7 @@ public interface UserService {
 
     LdapUserDirectory createApacheDirectory(String domain);
 
-    User findOrCreateUser(String name, String domain, String directoryType,boolean status);
+    User findOrCreateUser(String name, String domain, String directoryType, boolean status);
 
     User findOrCreateUser(String name, String domain, String directoryType);
 
@@ -181,7 +189,7 @@ public interface UserService {
 
     Optional<KeyStore> getTrustedKeyStoreForUserDirectory(LdapUserDirectory userDirectory);
 
-    Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char [] password);
+    Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char[] password);
 
     String[] userAdminPrivileges();
 
