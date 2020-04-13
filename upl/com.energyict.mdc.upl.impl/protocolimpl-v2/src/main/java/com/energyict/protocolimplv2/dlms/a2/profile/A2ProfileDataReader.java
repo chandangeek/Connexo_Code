@@ -166,9 +166,9 @@ public class A2ProfileDataReader {
             int bufferSize = structure.getNrOfElements();
             Date timeStamp = null;
             //Timestamp should be at index 0
-            if (structure.isInteger(offset)) {
-                int unixTime = structure.getInteger(offset);
-                timeStamp = new Date(((long) unixTime) * 1000L);
+            if (structure.isLong(offset)) {
+                long unixTime = structure.getLong(offset);
+                timeStamp = new Date(unixTime * 1000L);
                 offset++;
             }
             if (hasStatusInformation(correctedLoadProfileObisCode)) {

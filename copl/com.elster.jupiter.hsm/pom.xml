@@ -193,7 +193,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>28.2-jre</version>
+            <version>27.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>

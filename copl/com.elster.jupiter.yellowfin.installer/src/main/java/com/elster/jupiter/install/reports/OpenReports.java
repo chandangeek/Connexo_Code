@@ -14,8 +14,9 @@ import com.hof.mi.web.service.ImportOption;
 import com.hof.mi.web.service.WebserviceException;
 import com.hof.util.Base64;
 import org.apache.axis.AxisFault;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 import javax.xml.rpc.ServiceException;
 import java.io.File;
@@ -33,7 +34,8 @@ import java.util.regex.Pattern;
 public class OpenReports {
 
     public static void main(String[] args) {
-        Logger.getRootLogger().setLevel(Level.OFF);//Remove log4j warnings
+        Logger rootLogger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+        rootLogger.setLevel(Level.OFF);//Remove log4j warnings
         if (args.length < 4) {
             System.out.println("Incorrect syntax. The following parameters are required:");
             System.out.println("path -- path to the reports xml file to import");
