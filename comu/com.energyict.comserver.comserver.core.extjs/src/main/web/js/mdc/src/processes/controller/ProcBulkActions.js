@@ -566,7 +566,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                         });
                         record.set('objectsToStartProcess', array);
                         msgText = Uni.I18n.translate('processes.processesToRetry.validateOkTitle', 'MDC', '<h3>Retry selected process instances?</h3><br>') +
-                            Uni.I18n.translatePlural('processes.processesToRetry.validateOkMsg', decodedResponse.processHistories.length, 'MDC', '-', '{0} process instances will be restarted', '{0} process instances will be restarted');
+                            Uni.I18n.translatePlural('processes.processesToRetry.validateOkMsg', decodedResponse.processHistories.length, 'MDC', '-', '{0} process instance will be restarted', '{0} process instances will be restarted');
 
                         widget = Ext.widget('container', {
                             style: 'margin: 20px 0',

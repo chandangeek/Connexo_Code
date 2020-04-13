@@ -533,7 +533,8 @@ public class ProcessResource {
                     .map(messageAndObjectNames -> {
                         String objectNames = messageAndObjectNames.getValue().stream()
                                 .collect(Collectors.joining(", "));
-                        return new ErrorInfo(thesaurus.getSimpleFormat(messageAndObjectNames.getKey()).format(messageAndObjectNames.getValue().size()), objectNames);
+                        return new ErrorInfo(thesaurus.getSimpleFormat(messageAndObjectNames.getKey()).format(messageAndObjectNames.getValue().size()),
+                                thesaurus.getFormat(TranslationKeys.OBJECTS).format(objectNames));
                     })
                     .collect(Collectors.toList());
         }
