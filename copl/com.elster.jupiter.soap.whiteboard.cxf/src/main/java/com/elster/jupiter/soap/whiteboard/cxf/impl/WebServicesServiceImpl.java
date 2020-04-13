@@ -19,6 +19,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -48,14 +49,15 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 4/29/16.
  */
 public class WebServicesServiceImpl implements WebServicesService {
-    private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
-    private static final long OCCURENCES_EXPIRE_AFTER_MINS = 30;
+    private static final Logger LOGGER = Logger.getLogger("WebServicesServiceImpl");
+    private static final long OCCURRENCES_EXPIRE_AFTER_MINUTES = 30;
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final TransactionService transactionService;
     private final Clock clock;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
@@ -66,13 +68,15 @@ public class WebServicesServiceImpl implements WebServicesService {
                            EventService eventService,
                            TransactionService transactionService,
                            Clock clock,
-                           EndPointConfigurationService endPointConfigurationService) {
+                           EndPointConfigurationService endPointConfigurationService,
+                           WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.transactionService = transactionService;
         this.clock = clock;
         this.endPointConfigurationService = endPointConfigurationService;
-        this.occurrences = CacheBuilder.newBuilder().expireAfterWrite(OCCURENCES_EXPIRE_AFTER_MINS, TimeUnit.MINUTES).build();
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
+        this.occurrences = CacheBuilder.newBuilder().expireAfterWrite(OCCURRENCES_EXPIRE_AFTER_MINUTES, TimeUnit.MINUTES).build();
     }
 
     @Override
@@ -131,11 +135,11 @@ public class WebServicesServiceImpl implements WebServicesService {
         endpoints.forEach((endPointConfiguration, managedEndpoint) -> {
             String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
                     .getName();
-            logger.info(msg);
+            LOGGER.info(msg);
             endPointConfiguration.log(LogLevel.FINE, msg);
             stopEndpoint(managedEndpoint);
             msg = "Endpoint was stopped";
-            logger.info(msg);
+            LOGGER.info(msg);
             endPointConfiguration.log(LogLevel.FINE, msg);
         });
         endpoints.clear();
@@ -198,16 +202,16 @@ public class WebServicesServiceImpl implements WebServicesService {
                 endpoints.put(endPointConfiguration, managedEndpoint);
                 if (managedEndpoint.isPublished()) {
                     String msg = "Endpoint was published";
-                    logger.info(msg);
+                    LOGGER.info(msg);
                     endPointConfiguration.log(LogLevel.FINE, msg);
                 }
             } catch (Exception e) {
                 String msg = "Failed to publish endpoint " + endPointConfiguration.getName();
-                logger.log(Level.SEVERE, msg, e);
+                LOGGER.log(Level.SEVERE, msg, e);
                 endPointConfiguration.log(msg, e);
             }
         } else {
-            logger.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration
+            LOGGER.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration
                     .getWebServiceName() + "' is not registered");
         }
     }
@@ -218,7 +222,7 @@ public class WebServicesServiceImpl implements WebServicesService {
         if (endpoint != null) {
             endpoint.stop();
             String msg = "Endpoint was stopped";
-            logger.info(msg);
+            LOGGER.info(msg);
             if (endPointConfigurationService.getEndPointConfiguration(endPointConfiguration.getId()).isPresent()) {
                 endPointConfiguration.log(LogLevel.FINE, msg);
             }
@@ -369,6 +373,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                 tmp.log(LogLevel.SEVERE, message);
             } else {
                 tmp.log(message, exception);
+                // TODO: CXO-12063 why do we log this here? What the crutch?
                 if ((exception.getCause() != null) && (exception.getCause().getLocalizedMessage() != null)) {
                     tmp.log(LogLevel.SEVERE, exception.getCause().getLocalizedMessage());
                 }
@@ -392,7 +397,8 @@ public class WebServicesServiceImpl implements WebServicesService {
     public WebServiceCallOccurrence getOngoingOccurrence(long id) {
         WebServiceCallOccurrence tmp = occurrences.getIfPresent(id);
         if (tmp == null) {
-            throw new IllegalStateException("Web service call occurrence isn't present.");
+            tmp = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id)
+                    .orElseThrow(() -> new IllegalStateException("Web service call occurrence isn't present."));
         }
         return tmp;
     }
