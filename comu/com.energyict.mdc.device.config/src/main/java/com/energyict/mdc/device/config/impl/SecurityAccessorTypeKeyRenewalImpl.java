@@ -124,7 +124,6 @@ public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeK
         this.serviceKey = serviceKey;
     }
 
-
     protected Thesaurus getThesaurus() {
         return thesaurus;
     }
