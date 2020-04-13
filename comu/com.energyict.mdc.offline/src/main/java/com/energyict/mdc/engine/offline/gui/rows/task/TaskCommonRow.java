@@ -150,7 +150,7 @@ public class TaskCommonRow extends AbstractRowData {
             if (offlineLoadProfiles != null) {
                 for (OfflineLoadProfile offlineLoadProfile : offlineLoadProfiles) {
                     Date aLastReading = offlineLoadProfile.getLastReading();
-                    if (lastReading != null) {
+                    if ((lastReading != null) && (aLastReading != null)) {
                         if (aLastReading.before(lastReading)) {
                             lastReading = aLastReading;
                         }
