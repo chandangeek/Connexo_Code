@@ -209,7 +209,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
             for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, properties);
                 if (propertyValue != null) {
-                    builder.addKeyProperty(propertySpec.getName(), propertyValue, isServiceKey);
+                    builder.addProperty(propertySpec.getName(), propertyValue, isServiceKey);
                 }
             }
         } catch (LocalizedFieldValidationException e) {
@@ -295,7 +295,6 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
     }
-
     /**
      * Sets the default key value for the device type for the given security accessor type.
      *

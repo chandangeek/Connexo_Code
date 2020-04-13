@@ -220,7 +220,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         }
 
         @Override
-        public InternalKeyRenewalBuilder addKeyProperty(String key, Object value, boolean isServiceKey) {
+        public InternalKeyRenewalBuilder addProperty(String key, Object value, boolean isServiceKey) {
             SecurityAccessorTypeKeyRenewalImpl securityAccessorTypeKeyRenewal = securityAccessorTypeOnDeviceType.getDataModel()
                     .getInstance(SecurityAccessorTypeKeyRenewalImpl.class)
                     .init(securityAccessorTypeOnDeviceType.getDeviceType(), securityAccessorTypeOnDeviceType.getSecurityAccessorType());

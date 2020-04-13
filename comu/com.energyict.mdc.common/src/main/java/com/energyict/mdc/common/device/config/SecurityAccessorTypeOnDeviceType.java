@@ -33,7 +33,7 @@ public interface SecurityAccessorTypeOnDeviceType {
 
     @ProviderType
     interface KeyRenewalBuilder {
-        KeyRenewalBuilder addKeyProperty(String key, Object value, boolean isServiceKey);
+        KeyRenewalBuilder addProperty(String key, Object value, boolean isServiceKey);
         SecurityAccessorTypeOnDeviceType add();
     }
 }
