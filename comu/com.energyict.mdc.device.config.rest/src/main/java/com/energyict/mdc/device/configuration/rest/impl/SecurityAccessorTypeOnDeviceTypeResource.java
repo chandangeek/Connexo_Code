@@ -188,18 +188,14 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
 
         long deviceMessageIdDbValue = (keyRenewalInfo.keyRenewalCommandSpecification != null && keyRenewalInfo.keyRenewalCommandSpecification.id != null) ? DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()).dbValue() : 0;
         long serviceDeviceMessageIdDbValue = (keyRenewalInfo.serviceKeyRenewalCommandSpecification != null && keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null) ? DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()).dbValue() : 0;
-        if (deviceMessageIdDbValue != 0 || serviceDeviceMessageIdDbValue != 0) {
-            SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageIdDbValue, serviceDeviceMessageIdDbValue);
-            if (deviceMessageIdDbValue != 0 && keyRenewalInfo.properties != null) {
-                addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties, false);
-            }
-            if (serviceDeviceMessageIdDbValue != 0 && keyRenewalInfo.serviceProperties != null) {
-                addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties, true);
-            }
-            keyRenewAlBuilder.add();
-        } else {
-            securityAccessorOnDeviceType.resetKeyRenewal();
+        SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageIdDbValue, serviceDeviceMessageIdDbValue);
+        if (deviceMessageIdDbValue != 0 && keyRenewalInfo.properties != null) {
+            addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties, false);
         }
+        if (serviceDeviceMessageIdDbValue != 0 && keyRenewalInfo.serviceProperties != null) {
+            addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties, true);
+        }
+        keyRenewAlBuilder.add();
         return Response.ok().build();
     }
 
@@ -295,6 +291,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
     }
+
     /**
      * Sets the default key value for the device type for the given security accessor type.
      *

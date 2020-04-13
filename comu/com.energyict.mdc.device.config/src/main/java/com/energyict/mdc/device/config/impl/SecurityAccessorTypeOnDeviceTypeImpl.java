@@ -152,14 +152,6 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         return securityAccessorTypeKeyRenewals.stream().filter(a -> a.isServiceKey()).collect(Collectors.toList());
     }
 
-    @Override
-    public void resetKeyRenewal() {
-        keyRenewalMessageIdIdDbValue = 0;
-        serviceKeyRenewalMessageIdIdDbValue = 0;
-        securityAccessorTypeKeyRenewals.clear();
-        save();
-    }
-
     private void setWrappingAccessor(DeviceSecurityAccessorType securityAccessorType) {
         if (securityAccessorType != null && securityAccessorType.getWrappingSecurityAccessor() != null && securityAccessorType.getWrappingSecurityAccessor().isPresent()) {
             this.wrappingSecurityAccessorType.set(securityAccessorType.getWrappingSecurityAccessor().get());

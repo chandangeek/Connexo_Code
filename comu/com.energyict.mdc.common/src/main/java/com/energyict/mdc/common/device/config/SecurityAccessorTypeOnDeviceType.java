@@ -26,7 +26,6 @@ public interface SecurityAccessorTypeOnDeviceType {
     List<? extends SecurityAccessorTypeKeyRenewal> getKeyRenewalAttributes();
     List<? extends SecurityAccessorTypeKeyRenewal> getServiceKeyRenewalAttributes();
 
-    void resetKeyRenewal();
     KeyRenewalBuilder newKeyRenewalBuilder(long deviceMessageIdDbValue, long serviceDeviceMessageIdDbValue);
 
     @ProviderType
