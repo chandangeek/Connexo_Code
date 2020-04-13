@@ -32,6 +32,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.User;
@@ -90,6 +91,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+    private volatile TimeService timeService;
 
     private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
@@ -110,7 +112,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                                           TopologyService topologyService,
                                           DeviceService deviceService,
                                           EventService eventService,
-                                          UpgradeService upgradeService
+                                          UpgradeService upgradeService,
+                                          TimeService timeService
     ) {
         this();
         setMessageService(messageService);
@@ -122,7 +125,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         setDeviceService(deviceService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
-
+        setTimeService(timeService);
         activate();
     }
 
@@ -140,6 +143,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(EventService.class).toInstance(eventService);
+                bind(TimeService.class).toInstance(timeService);
                 bind(IssueDataCollectionService.class).toInstance(IssueDataCollectionServiceImpl.this);
             }
         });
@@ -164,7 +168,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));;
     }
 
     @Reference
@@ -202,6 +207,11 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Override
