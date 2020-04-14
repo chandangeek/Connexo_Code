@@ -381,8 +381,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void update() {
-        LOGGER.info("UPDATE EXECUTION TASK = "+this.toString());
+        LOGGER.info("CXO-11731: UPDATE EXECUTION TASK = "+this.toString());
         Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
+        LOGGER.info("CXO-11731: Updated.");
         this.notifyUpdated();
     }
 
@@ -899,6 +900,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
+        LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = "+this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),

@@ -224,7 +224,7 @@ public class AppServerIT {
     public void testCreateActiveAppServerWithSubscriberExecutionSpecs() {
         SubscriberSpec subscriber = null;
         try (TransactionContext context = transactionService.getContext()) {
-            QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", false);
+            QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", null, false);
             queueTableSpec.activate();
             DestinationSpec destination = queueTableSpec.createDestinationSpec(DESTINATION, 60);
             destination.activate();
@@ -280,7 +280,7 @@ public class AppServerIT {
         SubscriberSpec subscriber = null;
         DestinationSpec destination = null;
         try (TransactionContext context = transactionService.getContext()) {
-            QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", false);
+            QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", null, false);
             queueTableSpec.activate();
             destination = queueTableSpec.createDestinationSpec(DESTINATION, 60);
             destination.activate();
@@ -355,7 +355,7 @@ public class AppServerIT {
         SubscriberSpec subscriber3 = null;
         DestinationSpec destination3 = null;
         try (TransactionContext context = transactionService.getContext()) {
-            QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", false);
+            QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", null, false);
             queueTableSpec.activate();
             destination1 = queueTableSpec.createDestinationSpec(DESTINATION + '1', 60);
             destination1.activate();
@@ -482,9 +482,9 @@ public class AppServerIT {
         assertThat(appServer.isActive()).isFalse();
         assertThat(appServer.getImportSchedulesOnAppServer()).hasSize(2);
         assertThat(appServer.getImportSchedulesOnAppServer().stream()
-                        .map(ImportScheduleOnAppServer::getImportSchedule)
-                        .flatMap(Functions.asStream())
-                        .collect(Collectors.toSet())
+                .map(ImportScheduleOnAppServer::getImportSchedule)
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toSet())
         ).isEqualTo(ImmutableSet.of(importSchedule2, importSchedule3));
         List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = new ArrayList<>(appServer.getSubscriberExecutionSpecs());
         subscriberExecutionSpecs.sort(Comparator.comparing(SubscriberExecutionSpec::getSubscriberSpec, Comparator.comparing(SubscriberSpec::getName)));

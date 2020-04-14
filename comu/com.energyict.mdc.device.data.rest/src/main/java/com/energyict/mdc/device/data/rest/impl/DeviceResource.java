@@ -98,6 +98,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -996,7 +997,7 @@ public class DeviceResource {
                 DefaultState.WAITING);
 
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.targetObject = device;
+        filter.targetObjects = Arrays.asList(device, device.getMeter());
         filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
 
         List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCallFinder(filter)
@@ -1033,7 +1034,7 @@ public class DeviceResource {
                 DefaultState.SUCCESSFUL,
                 DefaultState.PARTIAL_SUCCESS);
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter, appKey);
-        filter.targetObject = device;
+        filter.targetObjects = Arrays.asList(device, device.getMeter());
         if (filter.states.isEmpty()) {
             filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
         }

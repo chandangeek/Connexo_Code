@@ -540,7 +540,7 @@ public final class ChannelImpl implements SimpleChannelContract {
     }
 
     private BaseReadingRecord asDifferingReading(TimeSeriesEntry entry, ReadingType readingType, Instant since) {
-        BaseReadingRecord currentReading = toReadingFunction().apply(entry);
+        BaseReadingRecord currentReading = toReadingFunction().apply(entry).filter(readingType);
         Optional<TimeSeriesEntry> oldEntry = entry.getVersion(since);
         if (!oldEntry.isPresent()) {
             return currentReading;
@@ -748,13 +748,13 @@ public final class ChannelImpl implements SimpleChannelContract {
                 }
                 for (BaseReadingRecord baseReadingRecord : readings) {
                     IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) baseReadingRecord;
-                    intervalBlocks.entrySet().forEach(intervalBlock -> {
-                        IntervalReadingRecord filtered = intervalReadingRecord.filter(intervalBlock.getKey());
+                    intervalBlocks.forEach((readingType, intervalBlock) -> {
+                        IntervalReadingRecord filtered = intervalReadingRecord.filter(readingType);
                         IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered
                                 .getReadingQualities());
                         filtered.getTimePeriod().ifPresent(intervalReading::setTimePeriod);
-                        addQualityToBaseReading(qualities, intervalBlock.getKey(), intervalReading);
-                        intervalBlock.getValue().addIntervalReading(intervalReading);
+                        addQualityToBaseReading(qualities, readingType, intervalReading);
+                        intervalBlock.addIntervalReading(intervalReading);
                     });
                 }
                 intervalBlocks.values().forEach(meterReading::addIntervalBlock);
@@ -780,10 +780,10 @@ public final class ChannelImpl implements SimpleChannelContract {
         return meterReading;
     }
 
-    private void addQualityToBaseReading(Map<Instant, List<ReadingQualityRecord>> qualities, ReadingType readingType, BaseReadingImpl reading) {
-        if (qualities.containsKey(reading.getTimeStamp())) {
-            qualities.get(reading.getTimeStamp())
-                    .stream()
+    private void addQualityToBaseReading(Map<Instant, List<ReadingQualityRecord>> allQualities, ReadingType readingType, BaseReadingImpl reading) {
+        List<ReadingQualityRecord> qualities = allQualities.get(reading.getTimeStamp());
+        if (qualities != null) {
+            qualities.stream()
                     .filter(rqr -> rqr.getReadingType().equals(readingType))
                     .filter(not(readingQualityRecord -> reading.getReadingQualities().stream().anyMatch(rqr -> rqr.getType().equals(readingQualityRecord.getType()))))
                     .forEach(rqr -> reading.addQuality(rqr.getTypeCode(), rqr.getComment()));

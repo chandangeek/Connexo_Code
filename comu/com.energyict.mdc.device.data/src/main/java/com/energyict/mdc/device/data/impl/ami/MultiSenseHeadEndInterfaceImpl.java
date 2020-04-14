@@ -59,6 +59,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -102,6 +103,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile CommunicationTaskService communicationTaskService;
     private volatile Clock clock;
     private Optional<String> multiSenseUrl = Optional.empty();
 
@@ -112,7 +114,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Inject
     public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus,
                                           ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory,
-                                          ThreadPrincipalService threadPrincipalService, Clock clock) {
+                                          ThreadPrincipalService threadPrincipalService, Clock clock, CommunicationTaskService communicationTaskService) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -122,6 +124,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.endDeviceCommandFactory = endDeviceCommandFactory;
         this.threadPrincipalService = threadPrincipalService;
         this.clock = clock;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
@@ -168,6 +171,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Activate
@@ -326,8 +334,15 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {
-        comTaskExecution.addNewComTaskExecutionTrigger(instant);
-        comTaskExecution.updateNextExecutionTimestamp();
+        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
+        lockedComTaskExecution.addNewComTaskExecutionTrigger(instant);
+        lockedComTaskExecution.updateNextExecutionTimestamp();
+    }
+
+    private Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
+        return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
+                .filter(candidate -> !candidate.isObsolete());
     }
 
     private ServiceCall getOnDemandReadServiceCall(Device device, int estimatedTasks, Instant triggerDate, Optional<ServiceCall> parentServiceCall) {
@@ -385,8 +400,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.log(LogLevel.SEVERE, e.getLocalizedMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
             if (e instanceof LimitsExceededForCommandException) {
-                Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException)e).getDeviceMessage();
-                deviceMessage.ifPresent(msg -> ((ServerDeviceMessage)msg).revokeWithNoUpdateNotification());
+                Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException) e).getDeviceMessage();
+                deviceMessage.ifPresent(msg -> ((ServerDeviceMessage) msg).revokeWithNoUpdateNotification());
             }
             throw e;
         }
@@ -406,7 +421,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-                throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+            throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
         }
     }
 
@@ -439,11 +454,14 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
             }
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
+            ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
             deviceMessages.stream()
                     .map(DeviceMessage::getReleaseDate)
                     .distinct()
-                    .forEach(comTaskExecution::addNewComTaskExecutionTrigger);
-            comTaskExecution.updateNextExecutionTimestamp();
+                    .forEach(lockedComTaskExecution::addNewComTaskExecutionTrigger);
+
+            lockedComTaskExecution.updateNextExecutionTimestamp();
         });
     }
 

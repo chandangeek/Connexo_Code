@@ -31,6 +31,8 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
 
     init: function () {
+        this.timeUnitsStore = this.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
+        this.timeUnitsStore.load();
         this.control({
             'comPortPoolsGrid': {
                 select: this.showComPortPoolPreview
@@ -113,14 +115,33 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     },
 
+    modelToForm: function (model, form) {
+        var me = this,
+            basicForm = form.getForm(),
+            values = {},
+            taskExecutionTimeoutUnit = me.timeUnitsStore.findRecord('timeUnit', model.get('taskExecutionTimeout').timeUnit);
+        if (taskExecutionTimeoutUnit) {
+            taskExecutionTimeout = {count: model.get('taskExecutionTimeout').count, timeUnit: taskExecutionTimeoutUnit.get('localizedValue')},
+            model.beginEdit();
+            model.set('taskExecutionTimeout', taskExecutionTimeout);
+            model.endEdit();
+        }
+        Ext.Object.each(model.getData(), function (key, value) {
+                values[key] = value;
+        });
+        basicForm.setValues(values);
+    },
+
     showComPortPoolPreview: function (selectionModel, record) {
-        var itemPanel = this.getComPortPoolPreview(),
+        var me = this,
+            itemPanel = this.getComPortPoolPreview(),
             form = itemPanel.down('form'),
             model = this.getModel('Mdc.model.ComPortPool'),
             id = record.getId(),
             pctHighPrioTasks = form.down('[name=pctHighPrioTasks]'),
             maxPriorityConnections =  form.down('[name=maxPriorityConnections]'),
-            deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols');
+            deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols'),
+            taskExecutionTimeout = form.down('[name=taskExecutionTimeout]');
         itemPanel.setLoading(this.getModel('Mdc.model.ComPortPool'));
         model.load(id, {
             success: function (record) {
@@ -130,13 +151,16 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
                         pctHighPrioTasks.show();
                         maxPriorityConnections.show();
+                        taskExecutionTimeout.show();
                     }
                     else {
                         form.down('#discoveryProtocolPluggableClassId').show();
                         pctHighPrioTasks.hide();
                         maxPriorityConnections.hide();
+                        taskExecutionTimeout.hide();
                     }
                     form.loadRecord(record);
+                    me.modelToForm(record, form);
 
                     if (!deviceDiscoveryProtocolsStore.getCount()){
                         deviceDiscoveryProtocolsStore.load(function (records) {

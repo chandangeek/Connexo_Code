@@ -15,8 +15,11 @@ import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.ReadingType;
@@ -31,6 +34,7 @@ import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
@@ -324,8 +328,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceLifeCycle.getName()).thenReturn("Default");
         return deviceLifeCycle;
     }
-
-
 
 
     private DeviceConfiguration mockDeviceConfiguration(String name, long id) {
@@ -1570,6 +1572,12 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     @Test
     public void testUpdateDeviceLifeCycleForDeviceTypeSuccess() throws Exception {
+        IssueCreationService issueCreationService = mock(IssueCreationService.class);
+        Query<CreationRule> query = mock(Query.class);
+        List<CreationRule> creationRules = new ArrayList<>();
+        when(query.select(Condition.TRUE)).thenReturn(creationRules);
+        when(issueCreationService.getCreationRuleQuery()).thenReturn(query);
+        when(issueService.getIssueCreationService()).thenReturn(issueCreationService);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("Device Type 1");
@@ -1605,7 +1613,12 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     public void testUpdateDeviceLifeCycleForDeviceTypeFail() throws Exception {
         long initialDeviceLifeCycleId = 1L;
         long targetDeviceLifeCycleId = 2L;
-
+        IssueCreationService issueCreationService = mock(IssueCreationService.class);
+        Query<CreationRule> query = mock(Query.class);
+        List<CreationRule> creationRules = new ArrayList<>();
+        when(query.select(Condition.TRUE)).thenReturn(creationRules);
+        when(issueCreationService.getCreationRuleQuery()).thenReturn(query);
+        when(issueService.getIssueCreationService()).thenReturn(issueCreationService);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("Device Type 1");

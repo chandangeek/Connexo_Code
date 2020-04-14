@@ -326,7 +326,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
     public ComTaskExecution updateSharedScheduledComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, ComTaskExecution comTaskExecution) {
         ComTaskExecutionUpdater updater = comTaskExecution.getUpdater();
         updateCommonFields(comTaskExecutionInfo, updater);
-        LOGGER.info("Update comtask execution from updateSharedScheduledComtaskExecution.");
+        LOGGER.info("CXO-11731: Update comtask execution from updateSharedScheduledComtaskExecution.");
         return updater.update();
     }
 
@@ -338,7 +338,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         } else {
             updater.removeSchedule();
         }
-        LOGGER.info("Update comtask execution from updateManuallyScheduledComTaskExecution.");
+        LOGGER.info("CXO-11731: Update comtask execution from updateManuallyScheduledComTaskExecution.");
         return updater.update();
     }
 
@@ -350,7 +350,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         } else {
             updater.removeSchedule();
         }
-        LOGGER.info("Update comtask execution from updateAdHocComTaskExecution.");
+        LOGGER.info("CXO-11731: Update comtask execution from updateAdHocComTaskExecution.");
         return updater.update();
     }
 

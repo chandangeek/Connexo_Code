@@ -191,6 +191,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             Version.version(10, 2), V10_2SimpleUpgrader.class,
                 Version.version(10, 4), UpgraderV10_4.class,
                 Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class,
+                Version.version(10, 4, 8), UpgraderV10_4_8.class,
                 Version.version(10, 7), UpgraderV10_7.class
         ));
         this.registerRealServices(bundleContext);
@@ -240,7 +241,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
-            LOGGER.info("Update comtask execution from setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology");
+            LOGGER.info("CXO-11731: Update comtask execution from setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology");
             comTaskExecutionUpdater.update();
         }
     }
@@ -274,7 +275,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
                 comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask);
-                LOGGER.info("Update comtask execution from setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology");
+                LOGGER.info("CXO-11731: Update comtask execution from setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology");
                 comTaskExecutionUpdater.update();
             }
         }
@@ -292,7 +293,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             } else {
                 comTaskExecutionUpdater.setConnectionFunction(connectionFunction); // Set to use a ConnectionFunction not used on any ConnectionTask
             }
-            LOGGER.info("Update comtask execution from recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology");
+            LOGGER.info("CXO-11731: Update comtask execution from recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology");
             comTaskExecutionUpdater.update();
         }
     }
@@ -986,7 +987,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             } else {
                 comTaskExecutionUpdater.useDefaultConnectionTask(true);
             }
-            LOGGER.info("Update comtask execution from updateComTasksToUseNewDefaultConnectionTask");
+            LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNewDefaultConnectionTask");
             comTaskExecutionUpdater.update();
         }
     }
@@ -1001,7 +1002,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 } else {
                     comTaskExecutionUpdater.setConnectionFunction(connectionFunction);
                 }
-                LOGGER.info("Update comtask execution from updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction");
+                LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction");
                 comTaskExecutionUpdater.update();
             }
         });
@@ -1011,7 +1012,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(true);
-            LOGGER.info("Update comtask execution from updateComTasksToUseNonExistingDefaultConnectionTask");
+            LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNonExistingDefaultConnectionTask");
             comTaskExecutionUpdater.update();
         }
     }
@@ -1022,7 +1023,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         for (ComTaskExecution comTaskExecution : allComtaskExecutions) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.setConnectionFunction(comTaskExecution.getConnectionFunction().orElse(null));
-            LOGGER.info("Update comtask execution from updateComTasksToUseNonExistingConnectionTaskBasedOnConnectionFunction");
+            LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNonExistingConnectionTaskBasedOnConnectionFunction");
             comTaskExecutionUpdater.update();
         }
     }

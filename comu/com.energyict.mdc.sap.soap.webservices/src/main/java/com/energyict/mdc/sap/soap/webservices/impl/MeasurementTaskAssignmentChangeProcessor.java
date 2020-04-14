@@ -34,7 +34,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
@@ -102,9 +101,9 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MeteringService meteringService;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
-    private volatile TimeService timeService;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile DeviceSharedCommunicationScheduleRemover deviceSharedCommunicationScheduleRemover;
 
     public void process(MeasurementTaskAssignmentChangeRequestMessage message, String selectorName) {
         String profileId = message.getProfileId();
@@ -176,6 +175,11 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                     } else {
                         createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
                     }
+                    deviceIds.forEach(deviceId -> {
+                        if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
+                            deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
+                        }
+                    });
                 } else {
                     String exportName = WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME);
                     Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
@@ -504,11 +508,6 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     }
 
     @Reference
-    public void setTimeService(TimeService timeService) {
-        this.timeService = timeService;
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(getComponentName(), getLayer());
     }
@@ -516,5 +515,10 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setDeviceSharedCommunicationScheduleRemover(DeviceSharedCommunicationScheduleRemover deviceSharedCommunicationScheduleRemover) {
+        this.deviceSharedCommunicationScheduleRemover = deviceSharedCommunicationScheduleRemover;
     }
 }

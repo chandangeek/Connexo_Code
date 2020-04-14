@@ -262,9 +262,19 @@ public abstract class JobExecution implements ScheduledJob {
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions));
     }
 
+    protected CommandRoot prepareAll(CommandRoot commandRoot, final List<ComTaskExecution> comTaskExecutions) {
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, commandRoot, comTaskExecutions));
+    }
+
     protected CommandRoot prepareAll(final List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
         getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions, checkSecurity));
+    }
+
+    protected CommandRoot prepareAll(CommandRoot commandRoot, final List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, commandRoot, comTaskExecutions, checkSecurity));
     }
 
     public void connected(ComPortRelatedComChannel comChannel) {
@@ -524,6 +534,16 @@ public abstract class JobExecution implements ScheduledJob {
             this.jobExecution = jobExecution;
             this.comTaskExecutions = comTaskExecutions;
             this.checkSecurity = checkSecurity;
+        }
+
+        private PrepareAllTransaction(JobExecution jobExecution, CommandRoot commandRoot, List<ComTaskExecution> comTaskExecutions) {
+            this(jobExecution, comTaskExecutions);
+            JobExecution.this.commandRoot = commandRoot;
+        }
+
+        private PrepareAllTransaction(JobExecution jobExecution, CommandRoot commandRoot, List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+            this(jobExecution, comTaskExecutions, checkSecurity);
+            JobExecution.this.commandRoot = commandRoot;
         }
 
         @Override

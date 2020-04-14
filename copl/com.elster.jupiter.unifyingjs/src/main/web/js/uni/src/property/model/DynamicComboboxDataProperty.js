@@ -21,7 +21,7 @@ Ext.define('Uni.property.model.DynamicComboboxDataProperty', {
         {
             name: 'propertiesData',
             type: 'hasMany',
-            model: 'Uni.property.model.Property',
+            model: 'Uni.property.model.DynamicComboboxData',
             associationKey: 'propertiesData',
             foreignKey: 'propertiesData',
             getTypeDiscriminator: function (node) {

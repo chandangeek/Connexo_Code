@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 public class DeviceLifeCycleChangeEventSimpleImpl implements DeviceLifeCycleChangeEvent {
 
-    private final Long id = 0L;
+    private final Long id;
     private final Instant timeStamp;
     private final DeviceLifeCycle deviceLifeCycle;
     private final DeviceType deviceType;
@@ -32,7 +32,9 @@ public class DeviceLifeCycleChangeEventSimpleImpl implements DeviceLifeCycleChan
         this.deviceType = deviceType;
         this.deviceLifeCycle = deviceLifeCycle;
         this.user = user;
+        this.id = deviceType.getId();
     }
+
     public Long getId() {
         return id;
     }

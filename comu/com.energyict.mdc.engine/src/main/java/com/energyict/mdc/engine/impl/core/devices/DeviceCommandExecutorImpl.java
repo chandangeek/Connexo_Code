@@ -8,6 +8,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -74,6 +75,8 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private ComServerDAO comServerDAO;
     private String name;
     private CompositeDeviceCommandExecutorLogger logger;
+
+    private static final Logger LOGGER = Logger.getLogger(DeviceCommandExecutorImpl.class.getName());
 
     public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, Clock clock, ComServerDAO comServerDAO, EventPublisher eventPublisher, ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService) {
         super();
@@ -240,6 +243,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     private synchronized Future<Boolean> doExecute(DeviceCommand command, DeviceCommandExecutionToken token) {
         this.workQueue.execute(command, token);
+        LOGGER.info("CXO-11731: Submit command"+command);
         return this.executorService.submit(new Worker(command, this.comServerDAO));
     }
 
@@ -502,6 +506,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                     if (duringShutdown) {
                         this.command.executeDuringShutdown(this.comServerDAO);
                     } else {
+                        LOGGER.info("CXO-11731: Execute command"+this.command);
                         this.command.execute(this.comServerDAO);
                     }
                     return Boolean.TRUE;

@@ -24,7 +24,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
 
 import com.google.common.io.ByteStreams;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;

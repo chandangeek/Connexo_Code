@@ -22,11 +22,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT {
     @Test
     @Transactional
-    public void findWebCallServiceOccurrence() {
+    public void testFindWebServiceCallOccurrence() {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
                 .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
 
-        WebServiceCallOccurrence tmpOccurrence  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName", "MultiSense");
+        WebServiceCallOccurrence tmpOccurrence = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName", "MultiSense");
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(tmpOccurrence.getId());
 
@@ -46,13 +46,13 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
 
     @Test
     @Transactional
-    public void findWebCallServiceOccurrences() {
+    public void testFindWebServiceCallOccurrences() {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
                 .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
 
-        WebServiceCallOccurrence tmpOccurrence1  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName1", "MultiSense");
+        WebServiceCallOccurrence tmpOccurrence1 = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName1", "MultiSense");
 
-        WebServiceCallOccurrence tmpOccurrence2  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName2", "MultiSense");
+        WebServiceCallOccurrence tmpOccurrence2 = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName2", "MultiSense");
 
         List<WebServiceCallOccurrence> epOccList = webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder()
                 .withApplicationNames(Collections.singleton("MultiSense"))
@@ -96,21 +96,19 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
 
     @Test
     @Transactional
-    public void findWebCallServiceOccurrenceLogs() {
+    public void testFindWebServiceCallOccurrenceLogs() {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
                 .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
 
-        WebServiceCallOccurrence tmpOccurrence1  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName1", "MultiSense");
+        WebServiceCallOccurrence tmpOccurrence1 = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName1", "MultiSense");
 
-        WebServiceCallOccurrence tmpOccurrence2  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName2", "MultiSense");
-
+        WebServiceCallOccurrence tmpOccurrence2 = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName2", "MultiSense");
 
         tmpOccurrence1.log(LogLevel.SEVERE, "MESSAGE1");
         tmpOccurrence1.log(LogLevel.SEVERE, "MESSAGE2");
 
-        tmpOccurrence2.log(LogLevel.INFO, "MESSAGE1");//LogLevel is Severe. so shouldn't be logged.
+        tmpOccurrence2.log(LogLevel.WARNING, "MESSAGE1"); // LogLevel is Severe. so shouldn't be logged.
         tmpOccurrence2.log(LogLevel.SEVERE, "MESSAGE2");
-
 
         List<EndPointLog> logs = endPointConfiguration.getLogs().find();
         assertThat(logs.size()).isEqualTo(0);
@@ -121,8 +119,8 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
                 .paged(0, 10)
                 .find();
         assertThat(logs.size()).isEqualTo(2);
-        assertThat(logs.get(0).getMessage()).isEqualTo("MESSAGE1");
-        assertThat(logs.get(1).getMessage()).isEqualTo("MESSAGE2");
+        assertThat(logs.get(0).getMessage()).isEqualTo("MESSAGE2");
+        assertThat(logs.get(1).getMessage()).isEqualTo("MESSAGE1");
 
         logs = webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder()
                 .withOccurrence(tmpOccurrence2)

@@ -153,6 +153,8 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
 
     Optional<CertificateRequestData> getCertificateRequestData();
 
+    void setCertificateRequestData(Optional<CertificateRequestData> certificateRequestData);
+
     /**
      *
      * @return parent certificate wrapper. if issuer is different than subject it means we should find a matching parent certificate

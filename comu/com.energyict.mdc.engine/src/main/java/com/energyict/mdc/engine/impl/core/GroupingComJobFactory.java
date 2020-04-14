@@ -7,7 +7,12 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public abstract class GroupingComJobFactory implements ComJobFactory {
@@ -42,6 +47,20 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
         }
         jobs.addAll(groups.values());
         return jobs;
+    }
+
+    @Override
+    public boolean consume(ComTaskExecution comTaskExecution) {
+        if (comTaskExecution != null && continueFetching(comTaskExecution)) {
+            add(comTaskExecution);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<ComJob> getJobs() {
+        return new ArrayList<>(groups.values());
     }
 
     @Override

@@ -28,12 +28,14 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.HighPriorityComJob;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OutboundCapableComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -90,13 +92,13 @@ import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.commands.store.PreStoreLoadProfile;
 import com.energyict.mdc.engine.impl.commands.store.PreStoreLogBook;
+import com.energyict.mdc.engine.impl.core.AdaptiveQueryTuner;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.engine.impl.core.FixedQueryTuner;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
-import com.energyict.mdc.engine.impl.core.AdaptiveQueryTuner;
 import com.energyict.mdc.engine.impl.core.QueryTuner;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
@@ -148,6 +150,7 @@ import java.math.BigDecimal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -371,6 +374,18 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public List<ComTaskExecution> findExecutableOutboundComTasks(ComServer comServer, Duration delta, long limit, long skip) {
+        List<OutboundComPortPool> outboundComPortPools =
+                getEngineModelService().findContainingComPortPoolsForComServer(comServer)
+                        .stream().filter(ComPortPool::isActive)
+                        .filter(comPortPool -> !comPortPool.isInbound())
+                        .map(OutboundComPortPool.class::cast)
+                        .collect(Collectors.toList());
+        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(outboundComPortPools, delta, limit, skip);
+    }
+
+
+    @Override
     public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
         return findExecutableHighPriorityOutboundComTasks(comServer, currentHighPriorityLoadPerComPortPool, Instant.now());
     }
@@ -419,10 +434,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComTaskEnablement findComTaskEnablementByDeviceAndComTask(DeviceIdentifier deviceIdentifier, long comTaskId) {
         Device device = this.findDevice(deviceIdentifier);
-            for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
-                if (comTaskEnablement.getComTask().getId() == comTaskId)
-                    return comTaskEnablement;
+        for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
+            if (comTaskEnablement.getComTask().getId() == comTaskId) {
+                return comTaskEnablement;
             }
+        }
         return null;
     }
 
@@ -431,7 +447,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         Device device = this.findDevice(deviceIdentifier);
         List<SecurityPropertySet> allSecurityPropertySet = new ArrayList<SecurityPropertySet>();
         for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
-            allSecurityPropertySet.add( comTaskEnablement.getSecurityPropertySet());
+            allSecurityPropertySet.add(comTaskEnablement.getSecurityPropertySet());
         }
         return allSecurityPropertySet;
     }
@@ -448,8 +464,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                     String dialectName = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
                     //Use the master device, this one holds the actual dialect properties
                     Optional<ProtocolDialectProperties> protocolDialectProperties = masterDevice.getProtocolDialectProperties(dialectName);
-                    if (protocolDialectProperties.isPresent())
+                    if (protocolDialectProperties.isPresent()) {
                         return protocolDialectProperties.get().getTypedProperties();
+                    }
                 }
             }
         }
@@ -634,7 +651,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (propertyValue instanceof CollectedCertificateWrapper) {
             // If the property value is a CollectedCertificateWrapper then add the certificate in the trust store.
             this.addTrustedCertificates(Collections.singletonList((CollectedCertificateWrapper) propertyValue));
-            throw new UnsupportedOperationException("Not supported to automatically update the security accessor value models a certificate, but the certificate was saved in following trust store " + ((CollectedCertificateWrapper) propertyValue).getTrustStoreName());
+            throw new UnsupportedOperationException("Not supported to automatically update the security accessor value models a certificate, but the certificate was saved in following trust store " + ((CollectedCertificateWrapper) propertyValue)
+                    .getTrustStoreName());
         }
     }
 
@@ -722,7 +740,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     /**
      * This method should be used when we try to renew the actual security accessor value and we already have a passive key generated
-     *  @param deviceIdentifier
+     *
+     * @param deviceIdentifier
      * @param propertyName
      * @param comTaskExecution
      */
@@ -739,9 +758,11 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
                 Object actualValue = securityAccessor.getActualPassphraseWrapperReference().get();
                 if (actualValue instanceof PlaintextSymmetricKey) {
-                    if(((PlaintextSymmetricKey) actualValue).getKey().isPresent()) { //we need an actual key to be present in order to know what algorithm to choose for the the new key
+                    if (((PlaintextSymmetricKey) actualValue).getKey().isPresent()) { //we need an actual key to be present in order to know what algorithm to choose for the the new key
                         SymmetricKeyWrapper symmetricKeyWrapper = getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
-                        ((PlaintextSymmetricKey) symmetricKeyWrapper).setKey(new SecretKeySpec(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((PlaintextSymmetricKey) actualValue).getKey().get().getAlgorithm()));
+                        ((PlaintextSymmetricKey) symmetricKeyWrapper).setKey(new SecretKeySpec(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((PlaintextSymmetricKey) actualValue).getKey()
+                                .get()
+                                .getAlgorithm()));
                         updateSecurityAccessorActualKeyValue(securityAccessor, symmetricKeyWrapper);
 
                     }
@@ -772,7 +793,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private void swapTempAndActualKeys(SecurityAccessor securityAccessor) {
-        if(securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getTempValue().isPresent()) {
+        if (securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getTempValue().isPresent()) {
             securityAccessor.swapValues();
             securityAccessor.clearTempValue();
             securityAccessor.save();
@@ -787,7 +808,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Unable to find " + propertyName + " property"));
         SecurityAccessorType securityAccessorType = configurationSecurityProperty.getSecurityAccessorType();
-        return device.getSecurityAccessorByName(securityAccessorType.getName()).orElseThrow(() -> new NotFoundException("Unable to find security accessor with name: " + securityAccessorType.getName()));
+        return device.getSecurityAccessorByName(securityAccessorType.getName())
+                .orElseThrow(() -> new NotFoundException("Unable to find security accessor with name: " + securityAccessorType.getName()));
     }
 
     @Override
@@ -1083,7 +1105,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                 Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
                 Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
                 DeviceIdentifier deviceIdentifier = getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
-                ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().stream().forEach(each -> {
+                ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().forEach(each -> {
                     if (!each.getIntervalBlocks().isEmpty()) {
                         // Add interval readings
                         Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier);
@@ -1106,19 +1128,15 @@ public class ComServerDAOImpl implements ComServerDAO {
                 }
                 Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
                 // do update the loadprofile
-                lastReadings.entrySet().stream().forEach(entrySet -> {
-                    List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-                    if (functionList == null) {
-                        functionList = new ArrayList<>();
-                        updateMap.put(deviceIdentifier, functionList);
-                    }
-                    functionList.add(updateLoadProfile(findLoadProfileOrThrowException(entrySet.getKey()), entrySet.getValue()));
+                lastReadings.forEach((loadProfileId, timestamp) -> {
+                    List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
+                    functionList.add(updateLoadProfile(findLoadProfileOrThrowException(loadProfileId), timestamp));
                 });
                 // then do your thing
-                updateMap.entrySet().stream().forEach(entrySet -> {
-                    Device oldDevice = findDevice(entrySet.getKey());
+                updateMap.forEach((deviceId, functions) -> {
+                    Device oldDevice = findDevice(deviceId);
                     Device device = serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
-                    entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+                    functions.forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
                 });
             }
         }
@@ -1308,7 +1326,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public List<DeviceMasterDataExtractor.SecurityProperty> getPropertiesFromSecurityPropertySet(DeviceIdentifier deviceIdentifier, Long securityPropertySetId) {
         Device device = this.findDevice(deviceIdentifier);
-        Optional<SecurityPropertySet> securityPropertySet  = this.serviceProvider.deviceConfigurationService().findSecurityPropertySet(securityPropertySetId);
+        Optional<SecurityPropertySet> securityPropertySet = this.serviceProvider.deviceConfigurationService().findSecurityPropertySet(securityPropertySetId);
         if (securityPropertySet.isPresent()) {
             com.energyict.mdc.upl.properties.TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet.get());
             return securityProperties.propertyNames().stream()
@@ -1385,8 +1403,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     private ComTaskExecution getFirstComTaskExecution(InboundConnectionTask connectionTask, long id) {
         List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().findComTaskExecutionsByConnectionTask(connectionTask).find();
         if (!comTaskExecutions.isEmpty()) {
-            for(ComTaskExecution comTaskExecution: comTaskExecutions) {
-                if(comTaskExecution.getDevice().getId() == id) {
+            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                if (comTaskExecution.getDevice().getId() == id) {
                     return comTaskExecution;
                 }
             }
@@ -1434,7 +1452,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device The Device
+     * @param device         The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -1635,11 +1653,13 @@ public class ComServerDAOImpl implements ComServerDAO {
                         topologyPathSegment.getCost()
                 );
             }
-            if(source.isPresent())
+            if (source.isPresent()) {
                 serviceProvider.topologyService().clearOldCommunicationPathSegments(source.get(), Instant.now());
+            }
 
-            if(target.isPresent())
+            if (target.isPresent()) {
                 serviceProvider.topologyService().clearOldCommunicationPathSegments(target.get(), Instant.now());
+            }
         });
         g3CommunicationPathSegmentBuilder.complete();
     }
@@ -1787,32 +1807,22 @@ public class ComServerDAOImpl implements ComServerDAO {
         Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
 
         // first do the loadprofiles
-        loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
-            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
-            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if (functionList == null) {
-                functionList = new ArrayList<>();
-                updateMap.put(deviceIdentifier, functionList);
-            }
-
-            functionList.add(updateLoadProfile(findLoadProfileOrThrowException(entrySet.getKey()), entrySet.getValue()));
+        loadProfileUpdate.forEach((loadProfileId, timestamp) -> {
+            DeviceIdentifier deviceIdentifier = loadProfileId.getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
+            functionList.add(updateLoadProfile(findLoadProfileOrThrowException(loadProfileId), timestamp));
         });
         // then do the logbooks
-        logBookUpdate.entrySet().stream().forEach(entrySet -> {
-            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
-            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if (functionList == null) {
-                functionList = new ArrayList<>();
-                updateMap.put(deviceIdentifier, functionList);
-            }
-            functionList.add(updateLogBook(findLogBookOrThrowException(entrySet.getKey()), entrySet.getValue()));
+        logBookUpdate.forEach((logBookId, timestamp) -> {
+            DeviceIdentifier deviceIdentifier = logBookId.getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
+            functionList.add(updateLogBook(findLogBookOrThrowException(logBookId), timestamp));
         });
-
         // then do your thing
-        updateMap.entrySet().stream().forEach(entrySet -> {
-            Device oldDevice = findDevice(entrySet.getKey());
+        updateMap.forEach((deviceId, functions) -> {
+            Device oldDevice = findDevice(deviceId);
             Device device = serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
-            entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+            functions.forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
         });
     }
 

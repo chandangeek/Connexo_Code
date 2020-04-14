@@ -155,7 +155,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                     if (response.status === 400) {
                         var record = cfg.config.record,
                             result = Ext.decode(response.responseText, true),
-                            title = Uni.I18n.translate('general.failedToRemoveTitle', 'MDC', 'Couldn\'t perform your action'),
+                            title = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                             message = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]) + '.' + Uni.I18n.translate('general.serverError', 'MDC', 'Server error'),
                             code = '';
                         if (!Ext.isEmpty(response.statusText)) {

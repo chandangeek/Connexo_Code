@@ -93,4 +93,6 @@ public interface ScheduledComPort extends ComPortServerProcess {
 
     void reload(OutboundComPort comPort);
 
+    void addTaskToExecute(ComTaskExecution comTaskExecution);
+
 }

@@ -102,12 +102,10 @@ public class MeterReadingStorer {
     private void removeOldReadingQualities() {
         Optional<Range<Instant>> range = facade.getRange();
         if (range.isPresent()) {
-            DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
             List<ReadingQualityRecord> readingQualitiesForRemoval = meter.getReadingQualities(range.get())
                     .stream()
                     .filter(this::isRelevant)
                     .collect(Collectors.<ReadingQualityRecord>toList());
-            mapper.remove(readingQualitiesForRemoval);
             ReadingQualityRecordImpl.deleteAll(dataModel, readingQualitiesForRemoval);
         }
     }
@@ -321,6 +319,14 @@ public class MeterReadingStorer {
                 }
                 return null;
             }
+        }
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            for (Channel channel : channelsContainer.getChannels()) {
+                if (channel.getReadingTypes().contains(readingType)) {
+                    return channel;
+                }
+            }
+            return null;
         }
         return null;
     }

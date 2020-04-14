@@ -32,6 +32,7 @@ public interface OutboundComPortPool extends ComPortPool {
      * @return The amount of time
      */
     public TimeDuration getTaskExecutionTimeout ();
+    public void setTaskExecutionTimeout (TimeDuration duration);
 
     /**
     * Gets the list of {@link OutboundComPort} available through this pool.

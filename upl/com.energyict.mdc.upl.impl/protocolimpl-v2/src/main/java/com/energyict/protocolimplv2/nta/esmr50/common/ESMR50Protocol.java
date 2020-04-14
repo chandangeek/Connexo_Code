@@ -1,11 +1,6 @@
 package com.energyict.protocolimplv2.nta.esmr50.common;
 
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -41,6 +36,12 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -69,9 +70,9 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     public static final ObisCode EMETER_LP2_OBISCODE_SAME_AS_MBUS_LP2 = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode EMETER_LP3_OBISCODE_SAME_AS_MBUS_LP3 = ObisCode.fromString("1.0.98.1.0.255");
 
-    public static final ObisCode MBUS_LP1_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
-    public static final ObisCode MBUS_LP2_OBISCODE_SAME_AS_EMETER_LP2 = ObisCode.fromString("0.x.99.2.0.255");
-    public static final ObisCode MBUS_LP3_OBISCODE_SAME_AS_EMETER_LP3 = ObisCode.fromString("0.x.98.1.0.255");
+    public static final ObisCode MBUS_HOURLY_LP_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
+    public static final ObisCode MBUS_DAILY_LP_OBISCODE_SAME_AS_EMETER_LP2 = ObisCode.fromString("0.x.99.2.0.255");
+    public static final ObisCode MBUS_MONTHLY_LP_OBISCODE_SAME_AS_EMETER_LP3 = ObisCode.fromString("0.x.98.1.0.255");
 
     private final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
 
@@ -182,7 +183,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
                     validCachedFrameCounter = true;
                     setDlmsSession(dlmsSession);
                 }
-            } catch (CommunicationException ex) {
+            } catch (CommunicationException | com.energyict.protocol.exceptions.ConnectionCommunicationException ex) {
                 journal("Association using cached frame counter has failed.");
             } catch (Exception ex) {
                 journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());

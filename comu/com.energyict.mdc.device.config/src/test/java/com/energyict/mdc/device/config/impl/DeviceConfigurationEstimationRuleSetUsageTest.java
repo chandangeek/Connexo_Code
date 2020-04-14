@@ -114,7 +114,7 @@ public class DeviceConfigurationEstimationRuleSetUsageTest extends PersistenceTe
         assertThat(estimationRuleSets.stream().map(EstimationRuleSet::getName).collect(Collectors.toList())).containsExactly("RuleSet1", "RuleSet2", "RuleSet3");
 
         KPermutation kPermutation = KPermutation.of(new long[] { 1, 2, 3 }, new long[] { 3, 2, 1 });
-        deviceConfiguration.reorderEstimationRuleSets(kPermutation);
+        deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get().reorderEstimationRuleSets(kPermutation);
 
         estimationRuleSets = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get().getEstimationRuleSets();
 

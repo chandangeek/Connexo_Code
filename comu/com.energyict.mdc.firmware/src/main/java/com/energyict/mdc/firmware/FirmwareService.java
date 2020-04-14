@@ -128,4 +128,6 @@ public interface FirmwareService {
     Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign);
     void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware);
     List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign);
+
+    String getLocalizedFirmwareStatus(FirmwareStatus firmwareStatus);
 }

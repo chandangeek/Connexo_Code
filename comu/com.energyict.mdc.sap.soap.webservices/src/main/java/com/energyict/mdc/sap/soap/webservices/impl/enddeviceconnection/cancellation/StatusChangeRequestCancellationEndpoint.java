@@ -186,7 +186,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
         log(LogLevel.SEVERE, thesaurus.getSimpleFormat(messageSeed).format(messageSeedArgs));
-        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant()));
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs));
     }
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg) {
