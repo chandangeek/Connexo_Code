@@ -93,7 +93,6 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
         if (validationRules.isEmpty()) {
             return false;
         }
-        boolean isBulkReadingQualities = false;
 
         final Range<Instant> timeRange = getTimeRange(relativePeriodWithCount)
                 .getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now()));
@@ -104,19 +103,11 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
                 .collect(Collectors.toList());
 
         ReadingType readingType = findReadingType().get();
-        if (readingType.getCalculatedReadingType().isPresent()) {
-            isBulkReadingQualities = true;
-        }
-
+        Channel coreChannel = findChannel().get();
+        boolean needBulkReadingQualities = !coreChannel.getMainReadingType().equals(readingType);
 
         final List<Map<com.energyict.mdc.common.device.data.Channel, DataValidationStatus>> validationStates = getDevice().getChannels().stream()
-                .filter(channel -> {
-                    if (channel.getReadingType().equals(readingType)) {
-                        return true;
-                    } else {
-                        return channel.getReadingType().getCalculatedReadingType().isPresent() && channel.getReadingType().getCalculatedReadingType().get().equals(readingType);
-                    }
-                })
+                .filter(channel -> coreChannel.getReadingTypes().contains(channel.getReadingType()))
                 .map(channel -> channel.getChannelData(timeRange))
                 .flatMap(Collection::stream)
                 .map(LoadProfileReading::getChannelValidationStates)
@@ -133,10 +124,9 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
             return false;
         }
 
-        boolean finalIsBulkReadingQualities = isBulkReadingQualities;
         final List<ValidationRule> offendedValidationRules = validationStatesFilteredByReading.stream()
                 .map(channelDataValidationStatusEntry -> {
-                    if (finalIsBulkReadingQualities) {
+                    if (needBulkReadingQualities) {
                         return channelDataValidationStatusEntry.getValue().getBulkOffendedRules();
                     } else {
                         return channelDataValidationStatusEntry.getValue().getOffendedRules();
