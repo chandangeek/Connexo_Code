@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -62,10 +63,11 @@ public class ConnectionMethodResource {
     private final ConnectionTaskService connectionTaskService;
     private final TopologyService topologyService;
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
     private final Provider<ComSessionResource> comTaskExecutionResourceProvider;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, TopologyService topologyService, ExceptionFactory exceptionFactory, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, TopologyService topologyService, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.engineConfigurationService = engineConfigurationService;
@@ -73,6 +75,7 @@ public class ConnectionMethodResource {
         this.connectionTaskService = connectionTaskService;
         this.topologyService = topologyService;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
         this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
 
@@ -97,7 +100,10 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("name") String name, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        validateTask(connectionMethodInfo, partialConnectionTask);
+        Optional<Response> badResponse = validateTask(connectionMethodInfo, partialConnectionTask);
+        if (badResponse.isPresent()) {
+            return badResponse.get();
+        }
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
@@ -107,17 +113,18 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
-    private void validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+    private Optional<Response> validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
         if (connectionMethodInfo.status == ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE && !hasAllRequiredProps(connectionMethodInfo, task)) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+            return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED)).build());
         }
+        return Optional.empty();
     }
 
-    private void pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+    private Optional<Response> pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
-                    throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+                    return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED)).build());
                 } else if (!task.isActive()) {
                     task.activate();
                 }
@@ -131,6 +138,7 @@ public class ConnectionMethodResource {
                 task.invalidateStatus();
                 break;
         }
+        return Optional.empty();
     }
 
     private boolean hasAllRequiredProps(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
@@ -230,7 +238,10 @@ public class ConnectionMethodResource {
         }
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.saveAllProperties();
-        pauseOrResumeTaskIfNeeded(info, task);
+        Optional<Response> badResponse = pauseOrResumeTaskIfNeeded(info, task);
+        if (badResponse.isPresent()) {
+            return badResponse.get();
+        }
         task.save();
         if (info.isDefault && !wasConnectionTaskDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
