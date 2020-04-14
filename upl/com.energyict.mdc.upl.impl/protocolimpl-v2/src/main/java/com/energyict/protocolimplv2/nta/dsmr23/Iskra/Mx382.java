@@ -86,7 +86,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "Mx382 protocol integration version 25.01.2019";
+        return "$Date: 2020-04-06$";
     }
 
     @Override
@@ -208,5 +208,10 @@ public class Mx382 extends AbstractSmartNtaProtocol {
             dlmsConfigurationSupport = new Mx382ConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport;
+    }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return false;
     }
 }

@@ -176,11 +176,12 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             if (preview.rendered) {
                 var casForm = preview.down('#custom-attribute-sets-placeholder-form-id');
                 casForm.loadStore(customAttributesStore);
-                var propertiesForm = casForm.down('property-form');
-                propertiesForm.setWidth(400);
-                var textFields = propertiesForm.query('displayfield');
-                Ext.Array.each(textFields, function(textfield){
-                    textfield.setFieldStyle({'word-break' : 'break-all', 'line-height': '28px', 'margin-top':'0px' })
+                Ext.Array.each(Ext.ComponentQuery.query('property-form'), function(propertiesForm){
+                    propertiesForm.setWidth(400);
+                    var textFields = propertiesForm.query('displayfield');
+                    Ext.Array.each(textFields, function (textfield) {
+                        textfield.setFieldStyle({'word-break': 'break-all', 'line-height': '28px', 'margin-top': '0px'})
+                    })
                 })
                 preview.setLoading(false);
             }

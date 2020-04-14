@@ -5,6 +5,7 @@
 package com.energyict.mdc.issue.datavalidation.impl.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -14,19 +15,22 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+
 import com.google.inject.Inject;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public abstract class DataValidationEvent implements IssueEvent {
 
     protected Long channelId;
     protected String readingType;
     protected Long deviceConfigurationId;
+    private int ruleId;
 
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
@@ -65,12 +69,26 @@ public abstract class DataValidationEvent implements IssueEvent {
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        getEndDevice().ifPresent(filter::setDevice);
-        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        filter.addStatus(issueService.findStatus(IssueStatus.SNOOZED).get());
-        Optional<? extends IssueDataValidation> foundIssue = issueDataValidationService.findAllDataValidationIssues(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
-        return foundIssue.map(issueDataValidation -> (OpenIssue) issueDataValidation);
+        Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
+        if (rule.isPresent()) {
+            filter.addRule(rule.get());
+            Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS, IssueStatus.SNOOZED)
+                    .map(issueService::findStatus)
+                    .map(Optional::get)
+                    .forEach(filter::addStatus);
+            getEndDevice().ifPresent(filter::setDevice);
+            return issueDataValidationService.findAllDataValidationIssues(filter).paged(0, 0).stream()
+                    .findAny()
+                    .map(OpenIssueDataValidation.class::cast);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * used by issue creation rule
+     */
+    public void setCreationRule(int ruleId) {
+        this.ruleId = ruleId;
     }
 
     protected Optional<ChannelsContainer> findChannelsContainer() {

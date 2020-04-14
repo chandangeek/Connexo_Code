@@ -361,14 +361,14 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
         return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
-                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ",0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
 
     @Override
     public Finder<ServiceCall> getServiceCallFinder() {
         return DefaultFinder.of(ServiceCall.class, dataModel)
-                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ",0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
 

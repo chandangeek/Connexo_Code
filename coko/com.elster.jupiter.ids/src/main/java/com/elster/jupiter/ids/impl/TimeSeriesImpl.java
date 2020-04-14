@@ -343,13 +343,15 @@ public final class TimeSeriesImpl implements TimeSeries {
     void lock() {
         TimeSeriesImpl latest = dataModel.mapper(TimeSeriesImpl.class).lock(getId());
         if (latest.version != this.version) {
-            throw new OptimisticLockException();
+            throw new OptimisticLockException(TableSpecs.IDS_TIMESERIES.name());
         }
     }
 
     @Override
     public boolean equals(Object other) {
-        return this == other || other instanceof TimeSeriesImpl && this.id == ((TimeSeriesImpl) other).id;
+        return this == other
+                || other instanceof TimeSeriesImpl
+                && this.id == ((TimeSeriesImpl) other).id;
     }
 
     @Override
@@ -362,7 +364,7 @@ public final class TimeSeriesImpl implements TimeSeries {
             throw new UnsupportedOperationException("Unsupported operation on non-regular timeseries");
         }
         if (!isValid(instant)) {
-            throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid. Time zone used to convert it is "+timeZoneName);
+            throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid. Time zone used to convert it is " + timeZoneName);
         }
         if (intervalLengthUnit == MINUTE) {
             return instant.plusSeconds(numberOfEntries * intervalLength * 60);

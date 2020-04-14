@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +53,7 @@ public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedO
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
     private DataModel dataModel;
+    private Clock clock;
 
     private DeviceProtocolDialect protocolDialect;
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -62,6 +64,7 @@ public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedO
     private String protocolDialectName;
     @Valid
     private List<ProtocolDialectConfigurationPropertyImpl> propertyList = new ArrayList<>();
+    private Instant obsoleteDate;
     @SuppressWarnings("unused") //Used by the orm
     private String userName;
     @SuppressWarnings("unused") //Used by the orm
@@ -80,9 +83,10 @@ public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedO
     }
 
     @Inject
-    ProtocolDialectConfigurationPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    ProtocolDialectConfigurationPropertiesImpl(Clock clock, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ProtocolDialectConfigurationProperties.class, dataModel, eventService, thesaurus);
         this.dataModel = dataModel;
+        this.clock = clock;
     }
 
     @Override
@@ -146,6 +150,22 @@ public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedO
 
     public void setDeviceProtocolDialectName(String name) {
         // For xml unmarshalling purposes only
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return this.obsoleteDate != null;
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteDate() {
+        return Optional.ofNullable(this.obsoleteDate);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteDate = this.clock.instant();
+        this.getDataModel().update(this, "obsoleteDate");
     }
 
     @Override

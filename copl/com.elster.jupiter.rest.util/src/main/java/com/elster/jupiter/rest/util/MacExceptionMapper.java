@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public class MacExceptionMapper implements ExceptionMapper<MacException> {
 
-    private static final Logger LOGGER = Logger.getLogger(GenericExceptionMapper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MacExceptionMapper.class.getName());
     private final Provider<MacExceptionInfo> infoProvider;
 
     @Inject

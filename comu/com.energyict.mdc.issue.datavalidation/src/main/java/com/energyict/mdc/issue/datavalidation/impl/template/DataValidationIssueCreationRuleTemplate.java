@@ -35,10 +35,9 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -51,39 +50,31 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 
-@Component(name = "com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate",
-        property = {"name=" + DataValidationIssueCreationRuleTemplate.NAME},
-        service = CreationRuleTemplate.class, immediate = true)
 public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemplate {
 
     public static final String NAME = "DataValidationIssueCreationRuleTemplate";
 
     public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
 
-    private volatile IssueDataValidationService issueDataValidationService;
-    private volatile IssueService issueService;
-    private volatile PropertySpecService propertySpecService;
-    private volatile Thesaurus thesaurus;
-    private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    private volatile MeteringTranslationService meteringTranslationService;
-
-    //for OSGI
-    public DataValidationIssueCreationRuleTemplate() {
-    }
+    private final IssueDataValidationService issueDataValidationService;
+    private final IssueService issueService;
+    private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
     public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
                                                    NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                                    MeteringTranslationService meteringTranslationService) {
-        this();
-        setIssueDataValidationService(issueDataValidationIssueService);
-        setIssueService(issueService);
-        setNlsService(nlsService);
-        setPropertySpecService(propertySpecService);
-        setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        setMeteringTranslationService(meteringTranslationService);
+        this.issueDataValidationService = issueDataValidationIssueService;
+        this.issueService = issueService;
+        this.propertySpecService = propertySpecService;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
+        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override
@@ -114,6 +105,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                 "\tevent : CannotEstimateDataEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "\n" +
@@ -122,43 +114,9 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                 "\tevent: SuspectDeletedEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end\n";
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
-    }
-
-    @Reference
-    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
-        this.issueDataValidationService = issueDataValidationService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-    }
-
-    @Reference
-    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
-        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Override
@@ -226,14 +184,14 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     }
 
     @Override
-    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId)
-    {
+    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId) {
         for (CreationRule creationRule : getExistingCreationRules()) {
             Object lifecycleStates = creationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES);
-            if((lifecycleStates instanceof List) && ((List)lifecycleStates).stream()
+            if ((lifecycleStates instanceof List) && ((List) lifecycleStates).stream()
                     .anyMatch(propertySpec -> (propertySpec instanceof DeviceLifeCycleInDeviceTypeInfo) &&
-                            ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceTypeId() == deviceTypeId))
+                            ((DeviceLifeCycleInDeviceTypeInfo) propertySpec).getDeviceTypeId() == deviceTypeId)) {
                 return Optional.of(creationRule);
+            }
         }
         return Optional.empty();
     }

@@ -42,21 +42,21 @@ public class TransientMessageService implements MessageService {
 
     @Activate
     public void activate() {
-        createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
-        createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
+        createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", null, false);
+        createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", null, true);
     }
 
     @Override
-    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
+    public QueueTableSpec createQueueTableSpec(String name, String payloadType, String storageClause, boolean multiConsumer, boolean isPrioritized) {
         if (queueTableSpecs.containsKey(name)) {
             throw new IllegalArgumentException();
         }
         if (multiConsumer) {
-            TransientQueueTableSpec topic = TransientQueueTableSpec.createTopic(thesaurus, name, payloadType);
+            TransientQueueTableSpec topic = TransientQueueTableSpec.createTopic(thesaurus, name, payloadType, storageClause);
             queueTableSpecs.put(name, topic);
             return topic;
         }
-        TransientQueueTableSpec queue = TransientQueueTableSpec.createQueue(thesaurus, name, payloadType);
+        TransientQueueTableSpec queue = TransientQueueTableSpec.createQueue(thesaurus, name, payloadType, storageClause);
         queueTableSpecs.put(name, queue);
         return queue;
     }

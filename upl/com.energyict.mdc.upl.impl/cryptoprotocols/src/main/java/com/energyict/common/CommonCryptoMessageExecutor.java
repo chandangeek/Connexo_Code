@@ -416,7 +416,7 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             // Change the HLS before AK and EK
             if (needHLS) {
                 final Optional<OfflineDeviceMessage> hlsMessage = globalKeyMessages.stream().filter(
-                        m -> m.getSpecification() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS).findFirst();
+                        m -> m.getSpecification().getId() == SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS.id()).findFirst();
 
                 if (hlsMessage.isPresent()) {
                     getProtocol().journal("Writing service HLS secret");
@@ -432,20 +432,20 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
 
             for (OfflineDeviceMessage globalKeyMessage : globalKeyMessages) {
                 Integer keyType = null;
-                if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS) {
+                if (globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS.id()) {
                     keyType = 2;        // global authentication key
                     String newAKString = getDeviceMessageAttributeValue(globalKeyMessage, newAuthenticationKeyAttributeName);
                     newAK = getWrappedServiceKey(newAKString);
-                    if (newAK.length != 16) {
-                        throw new ProtocolException("The new authentication key should be 32 hex characters");
+                    if (newAK.length != 24) {
+                        throw new ProtocolException("The new wrapped authentication key should be 48 hex characters");
                     }
                     newKey = newAK;
-                } else if (globalKeyMessage.getSpecification() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS) {
+                } else if (globalKeyMessage.getSpecification().getId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS.id()) {
                     keyType = 0;        // global unicast encryption key
                     String newEKString = getDeviceMessageAttributeValue(globalKeyMessage, newEncryptionKeyAttributeName);
                     newEK = getWrappedServiceKey(newEKString);
-                    if (newEK.length != 16) {
-                        throw new ProtocolException("The new encryption key should be 32 hex characters");
+                    if (newEK.length != 24) {
+                        throw new ProtocolException("The new wrapped encryption key should be 48 hex characters");
                     }
                     newKey = newEK;
                 }

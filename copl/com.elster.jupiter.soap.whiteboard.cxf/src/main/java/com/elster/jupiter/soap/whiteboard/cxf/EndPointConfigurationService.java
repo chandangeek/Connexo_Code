@@ -4,11 +4,10 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.users.Group;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,9 @@ public interface EndPointConfigurationService {
     /**
      * Create a new configuration for inbound endpoints
      *
-     * @param name The name of the end point (unique)
+     * @param name           The name of the end point (unique)
      * @param webServiceName The web service that will be offered on the endpoint
-     * @param url The url on which to offer the service
+     * @param url            The url on which to offer the service
      * @return IncomingEndPointConfigBuilder
      */
     InboundEndPointConfigBuilder newInboundEndPointConfiguration(String name, String webServiceName, String url);
@@ -33,9 +32,9 @@ public interface EndPointConfigurationService {
     /**
      * Create a new configuration for outbound endpoints
      *
-     * @param name The name of the end point (unique)
+     * @param name           The name of the end point (unique)
      * @param webServiceName The web service that will be offered as a java service/interface
-     * @param url The url to which the java interface calls will be delegated as a SOAP request
+     * @param url            The url to which the java interface calls will be delegated as a SOAP request
      * @return OutgoingEndPointConfigBuilder
      */
     OutboundEndPointConfigBuilder newOutboundEndPointConfiguration(String name, String webServiceName, String url);
@@ -92,7 +91,7 @@ public interface EndPointConfigurationService {
     /**
      * Finds and locks a {@link EndPointConfiguration} which is uniquely identified by the given ID and with the given VERSION.
      *
-     * @param id the id of the EndPointConfiguration
+     * @param id      the id of the EndPointConfiguration
      * @param version the version of the EndPointConfiguration
      * @return the EndPointConfiguration or empty if the EndPointConfiguration does not exist
      * or the version of the EndPointConfiguration is not equal to the specified version
@@ -117,6 +116,10 @@ public interface EndPointConfigurationService {
         InboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication authenticationMethod);
 
         InboundEndPointConfigBuilder group(Group group);
+
+        InboundEndPointConfigBuilder clientId(String clientId);
+
+        InboundEndPointConfigBuilder clientSecret(String clientSecret);
 
         InboundEndPointConfigBuilder schemaValidation();
 

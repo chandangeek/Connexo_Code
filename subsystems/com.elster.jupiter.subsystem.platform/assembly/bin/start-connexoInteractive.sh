@@ -1,4 +1,3 @@
 #!/bin/sh
 
-${CONNEXO_DIR}/start-connexo.sh --interactive --debug
-
+${CONNEXO_DIR}/bin/start-connexo.sh --interactive --debug

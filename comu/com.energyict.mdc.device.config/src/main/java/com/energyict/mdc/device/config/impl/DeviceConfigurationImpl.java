@@ -90,6 +90,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.security.Principal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,7 +134,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         VALIDATE_ON_STORE("validateOnStore"),
         MULTI_ELEMENT_ENABLED("multiElementEnabled"),
         IS_DEFAULT("isDefault"),
-        DEVICETYPE("deviceType");
+        DEVICETYPE("deviceType"),
+        OBSOLETE_DATE("obsoleteDate");
 
         private final String javaFieldName;
 
@@ -180,6 +182,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+    private Instant obsoleteDate;
     private GatewayType gatewayType = GatewayType.NONE;
     @Valid
     private List<DeviceProtocolConfigurationProperty> protocolProperties = new ArrayList<>();
@@ -191,7 +194,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private Provider<ChannelSpecImpl> channelSpecProvider;
     private SchedulingService schedulingService;
     private ThreadPrincipalService threadPrincipalService;
-
+    private Clock clock;
     private List<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUsages = new ArrayList<>();
     private Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
 
@@ -210,6 +213,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Inject
     protected DeviceConfigurationImpl(
+            Clock clock,
             DataModel dataModel, EventService eventService, Thesaurus thesaurus,
             PropertySpecService propertySpecService,
             Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
@@ -232,6 +236,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.deviceConfigEstimationRuleSetUsageFactory = deviceConfEstimationRuleSetUsageFactory;
         this.schedulingService = schedulingService;
         this.threadPrincipalService = threadPrincipalService;
+        this.clock = clock;
     }
 
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name) {
@@ -398,8 +403,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.comTaskEnablements.clear();
         this.partialConnectionTasks.forEach(ServerPartialConnectionTask::prepareDelete);
         this.partialConnectionTasks.clear();
-        this.configurationPropertiesList.forEach(ProtocolDialectConfigurationPropertiesImpl::prepareDelete);
-        this.configurationPropertiesList.clear();
+        this.configurationPropertiesList.stream().filter(p -> !p.isObsolete()).forEach(ProtocolDialectConfigurationPropertiesImpl::prepareDelete);
+        this.configurationPropertiesList.stream().filter(p -> !p.isObsolete()).forEach(ProtocolDialectConfigurationPropertiesImpl::makeObsolete);
         this.deviceConfValidationRuleSetUsages.clear();
         this.deviceConfigurationEstimationRuleSetUsages.clear();
         this.deleteChannelSpecs();
@@ -407,6 +412,22 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.protocolProperties.clear();
         this.securityPropertySets.forEach(ServerSecurityPropertySet::prepareDelete);
         this.securityPropertySets.clear();
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return this.obsoleteDate != null;
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteDate() {
+        return Optional.ofNullable(this.obsoleteDate);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteDate = this.clock.instant();
+        this.getDataModel().update(this, Fields.OBSOLETE_DATE.fieldName());
     }
 
     private void deleteChannelSpecs() {
@@ -1149,7 +1170,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public ProtocolDialectConfigurationProperties findOrCreateProtocolDialectConfigurationProperties(DeviceProtocolDialect protocolDialect) {
-        for (ProtocolDialectConfigurationProperties candidate : configurationPropertiesList) {
+        for (ProtocolDialectConfigurationProperties candidate : getNonObsoleteConfigurations()) {
             if (candidate.getDeviceProtocolDialect()
                     .getDeviceProtocolDialectName()
                     .equals(protocolDialect.getDeviceProtocolDialectName())) {
@@ -1169,7 +1190,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationPropertiesList() {
-        return Collections.unmodifiableList(configurationPropertiesList);
+        return Collections.unmodifiableList(this.getNonObsoleteConfigurations());
+    }
+
+    private List<ProtocolDialectConfigurationProperties> getNonObsoleteConfigurations(){
+        return this.configurationPropertiesList
+                .stream()
+                .filter(p -> !p.isObsolete())
+                .collect(Collectors.toList());
     }
 
     @Override

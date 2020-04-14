@@ -24,7 +24,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
-import com.elster.jupiter.hsm.impl.HsmEncryptionServiceImpl;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiService;
@@ -266,7 +267,9 @@ public class DataCollectionKpiImplTest {
                 new MdcDynamicModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {

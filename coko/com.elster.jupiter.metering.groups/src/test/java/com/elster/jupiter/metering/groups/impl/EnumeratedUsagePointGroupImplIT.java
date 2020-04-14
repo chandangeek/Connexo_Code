@@ -18,6 +18,8 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -126,8 +128,9 @@ public class EnumeratedUsagePointGroupImplIT {
                     new TaskModule(),
                     new CustomPropertySetsModule(),
                     new WebServicesModule(),
-                    new AuditServiceModule()
-
+                    new AuditServiceModule(),
+                    new TokenModule(),
+                    new BlackListModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

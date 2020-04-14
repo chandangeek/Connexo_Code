@@ -38,6 +38,7 @@ import java.util.Objects;
  */
 public final class InboundRestEndPoint implements ManagedEndpoint {
     private final Provider<BasicAuthentication> basicAuthenticationProvider;
+    private final Provider<OAuth2Authorization> oAuth2AuthorizationProvider;
     private final String logDirectory;
     private final TransactionService transactionService;
     private final HttpService httpService;
@@ -56,12 +57,13 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     @Inject
     public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService,
                                HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider,
-                               Provider<AccessLogFeature> accessLogFeatureProvider, Provider<GZIPFeature> gzipFeatureProvider,
+                               Provider<OAuth2Authorization> oAuth2AuthorizationProvider, Provider<AccessLogFeature> accessLogFeatureProvider, Provider<GZIPFeature> gzipFeatureProvider,
                                Provider<TracingFeature> tracingFeatureProvider) {
         this.logDirectory = logDirectory;
         this.transactionService = transactionService;
         this.httpService = httpService;
         this.basicAuthenticationProvider = basicAuthenticationProvider;
+        this.oAuth2AuthorizationProvider = oAuth2AuthorizationProvider;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
         this.gzipFeatureProvider = gzipFeatureProvider;
         this.tracingFeatureProvider = tracingFeatureProvider;
@@ -93,9 +95,14 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
 
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
-            HttpContext httpContext = EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())
-                    ? basicAuthenticationProvider.get().init(endPointConfiguration)
-                    : new NoAuthentication();
+            HttpContext httpContext = null;
+            if(EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())){
+                httpContext = basicAuthenticationProvider.get().init(endPointConfiguration);
+            } else if(EndPointAuthentication.OAUTH2_FRAMEWORK.equals(endPointConfiguration.getAuthenticationMethod())){
+                httpContext = oAuth2AuthorizationProvider.get().init(endPointConfiguration);
+            } else {
+                httpContext = new NoAuthentication();
+            }
             httpService.registerServlet(alias, container, null, httpContext);
         } catch (Exception e) {
             endPointConfiguration.log("Error while registering " + alias + ": " + e.getMessage(), e);

@@ -54,6 +54,9 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                 && this.securityContext.getAuthenticationLevel() <= AuthenticationTypes.HLS6_SHA256.getLevel()) { //Need to check the digest in case of HLS3/4/5/6
 
             byte[] clientDigest = calculateDigest(this.acse.getRespondingAuthenticationValue(), this.securityContext.getInitializationVector(), false);
+            if (this.securityContext.isIncrementFramecounterWhenReplyingToHLS()) {
+                this.securityContext.incFrameCounter();
+            }
             byte[] response = replyToHLSAuthentication(clientDigest);
 
             byte[] iv = null;

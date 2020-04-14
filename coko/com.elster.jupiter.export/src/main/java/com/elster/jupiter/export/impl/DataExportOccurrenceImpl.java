@@ -69,9 +69,19 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         //TODO ZoneId !!
         Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
 
+        Optional<DataSelectorConfig> standardDataSelector = occurrence.getRetryTime().isPresent() ? task.getStandardDataSelectorConfig(occurrence.getRetryTime()
+                .get()) : task.getStandardDataSelectorConfig();
         if ((occurrence.getAdhocTime().isPresent()) && (task.getRunParameters(occurrence.getAdhocTime().get()).isPresent())) {
             DataExportRunParameters runParameters = task.getRunParameters(occurrence.getAdhocTime().get()).get();
-            Range<Instant> instantRange = Range.openClosed(runParameters.getExportPeriodStart(), runParameters.getExportPeriodEnd());
+            Range<Instant> instantRange;
+            if (standardDataSelector.isPresent() && standardDataSelector.get().isExportContinuousData()) {
+                instantRange = standardDataSelector.get().getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault()));
+                if (instantRange.hasUpperBound() && runParameters.getExportPeriodEnd().isAfter(instantRange.upperEndpoint())) {
+                    instantRange = Range.openClosed(instantRange.lowerEndpoint(), runParameters.getExportPeriodEnd());
+                }
+            } else {
+                instantRange = Range.openClosed(runParameters.getExportPeriodStart(), runParameters.getExportPeriodEnd());
+            }
             exportedDataInterval = Interval.of(instantRange);
             exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
         } else if ((occurrence.getRetryTime().isPresent()) && (task.getRunParameters(occurrence.getRetryTime().get()).isPresent())) {
@@ -80,8 +90,6 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
             exportedDataInterval = Interval.of(instantRange);
             exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
         } else {
-            Optional<DataSelectorConfig> standardDataSelector = occurrence.getRetryTime().isPresent() ? task.getStandardDataSelectorConfig(occurrence.getRetryTime()
-                    .get()) : task.getStandardDataSelectorConfig();
             standardDataSelector.map(selector -> selector.getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault())))
                     .ifPresent(instantRange -> {
                         exportedDataInterval = Interval.of(instantRange);

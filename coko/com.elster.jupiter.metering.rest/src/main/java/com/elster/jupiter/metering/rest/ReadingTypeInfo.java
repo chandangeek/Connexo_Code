@@ -73,12 +73,12 @@ public class ReadingTypeInfo {
         this.argumentNumerator = readingType.getArgument().getNumerator();
         this.argumentDenominator = readingType.getArgument().getDenominator();
         this.tou = readingType.getTou();
-    	this.cpp = readingType.getCpp();
-    	this.consumptionTier = readingType.getConsumptionTier();
-    	this.phases = readingType.getPhases().getBaseDescription();
-    	this.metricMultiplier = readingType.getMultiplier().getMultiplier();
-    	this.unit = readingType.getUnit().getSymbol();
-    	this.currency = readingType.getCurrency().getSymbol();
+        this.cpp = readingType.getCpp();
+        this.consumptionTier = readingType.getConsumptionTier();
+        this.phases = readingType.getPhases().getBaseDescription();
+        this.metricMultiplier = readingType.getMultiplier().getMultiplier();
+        this.unit = readingType.getUnit().getSymbol();
+        this.currency = readingType.getCurrency().getSymbol();
         this.version = readingType.getVersion();
         this.names = new ReadingTypeNames(readingType);
         this.fullAliasName = readingType.getFullAliasName();
@@ -98,22 +98,22 @@ public class ReadingTypeInfo {
 
     public static class ReadingTypeNames {
 
-    	public String timeOfUse;
-    	public String timeAttribute;
-    	public String unitOfMeasure;
+        public String timeOfUse;
+        public String timeAttribute;
+        public String unitOfMeasure;
         public String phase;
 
-     	ReadingTypeNames() {
-    	}
+        ReadingTypeNames() {
+        }
 
-    	ReadingTypeNames(ReadingType readingType) {
-    		this.timeOfUse = readingType.getTou() == 0 ? "" : "ToU " + readingType.getTou();
+        ReadingTypeNames(ReadingType readingType) {
+            this.timeOfUse = readingType.getTou() == 0 ? "" : "ToU " + readingType.getTou();
             if (!readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
                 this.timeAttribute = readingType.getMeasuringPeriod().getDescription();
             } else if (this.recurringMacroPeriods().contains(readingType.getMacroPeriod())) {
                 this.timeAttribute = readingType.getMacroPeriod().getDescription();
             }
-            if(!readingType.getUnit().equals(ReadingTypeUnit.NOTAPPLICABLE)) {
+            if (!readingType.getUnit().equals(ReadingTypeUnit.NOTAPPLICABLE)) {
                 this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
             } else {
                 if (readingType.getMultiplier() != null) {
@@ -125,14 +125,14 @@ public class ReadingTypeInfo {
             } else {
                 this.phase = "";
             }
-    	}
+        }
 
         private Set<MacroPeriod> recurringMacroPeriods() {
             return EnumSet.of(MacroPeriod.DAILY, MacroPeriod.MONTHLY, MacroPeriod.YEARLY);
         }
 
-        private String getDisplayableSymbol(int multiplier){
-            switch(multiplier) {
+        private String getDisplayableSymbol(int multiplier) {
+            switch (multiplier) {
                 case 0:
                     return "PU"; // per unit
                 case -2:

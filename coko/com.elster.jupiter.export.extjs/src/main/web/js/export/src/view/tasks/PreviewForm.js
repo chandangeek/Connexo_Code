@@ -62,7 +62,12 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
                         itemId: 'reason-field',
                         name: 'reason',
-                        hidden: true
+                        hidden: true,
+                        width: me.maxWidth || 600,
+                        renderer: function(value){
+                            return "<span data-qtip ='" + Ext.String.htmlEncode(value + "<spe>") + "'>" + Ext.String.htmlEncode(Ext.util.Format.ellipsis(value, 100)) + "</span>";
+                        },
+
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),

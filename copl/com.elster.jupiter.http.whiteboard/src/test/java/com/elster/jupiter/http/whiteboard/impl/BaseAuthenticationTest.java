@@ -4,6 +4,8 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -14,14 +16,10 @@ import com.elster.jupiter.users.blacklist.BlackListTokenService;
 
 import org.mockito.Answers;
 import org.mockito.Mock;
-
 import org.osgi.framework.BundleContext;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-
-import org.mockito.Answers;
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -55,9 +53,12 @@ public class BaseAuthenticationTest {
     protected BundleContext context;
     @Mock
     protected SamlRequestService samlRequestService;
-	    @Mock
+    @Mock
     protected BlackListTokenService blackListdTokenService;
+    @Mock
     protected CSRFFilterService csrfFilterService;
+    @Mock
+    protected TokenService tokenService;
 
     protected HttpAuthenticationService getHttpAuthentication() throws InvalidKeySpecException, NoSuchAlgorithmException {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
@@ -69,8 +70,8 @@ public class BaseAuthenticationTest {
         when(context.getProperty(INSTALL_DIR_PROPERTY)).thenReturn(anyString());
 
         when(dataModel.mapper(KeyStoreImpl.class)).thenReturn(keyStoreDataMapper);
-        BasicAuthentication basicAuthentication = new BasicAuthentication(userService, ormService, dataVaultService, 
-					upgradeService, bpmService, context,blackListdTokenService, csrfFilterService);
+        BasicAuthentication basicAuthentication = new BasicAuthentication(userService, ormService, dataVaultService,
+					upgradeService, bpmService, context,blackListdTokenService, tokenService, csrfFilterService);
         basicAuthentication.setSamlRequestService(samlRequestService);
         return basicAuthentication;
     }

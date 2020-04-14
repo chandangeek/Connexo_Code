@@ -549,7 +549,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType) {
-        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType), this.getDataModel())
+        return DefaultFinder.of(DeviceConfiguration.class,
+                where("deviceType").isEqualTo(deviceType).and(where("obsoleteDate").isNull()),
+                this.getDataModel())
                 .defaultSortColumn("lower(name)");
     }
 
@@ -915,6 +917,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType) {
         return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType)
+                .and(where("obsoleteDate").isNull())
                 .and(where("active").isEqualTo(true)), this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
@@ -1107,7 +1110,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<DeviceConfiguration> getDeviceConfigsByDeviceGroup(EndDeviceGroup endDeviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("SELECT distinct(DEVICECONFIGID) from DDC_DEVICE where id in ( ");
+        sqlBuilder.append("SELECT distinct(DEVICECONFIGID) from DDC_DEVICE where METERID in ( ");
         Membership contains = ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "id");
         sqlBuilder.add(contains.getSubquery().toFragment());
         sqlBuilder.append(" )");

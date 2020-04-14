@@ -4,17 +4,19 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
+import ch.iec.tc57._2011.getmeterreadings.Reading;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallBuilder;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.*;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
@@ -31,22 +33,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.SyncReplyIss
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsCustomPropertySet;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsCustomPropertySet;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsDomainExtension;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigDomainExtension;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterDomainExtension;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.*;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.*;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
@@ -58,29 +46,15 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
-
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
-import ch.iec.tc57._2011.getmeterreadings.Reading;
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
-import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
