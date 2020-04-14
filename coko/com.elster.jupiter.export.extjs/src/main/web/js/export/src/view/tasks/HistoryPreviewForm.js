@@ -55,7 +55,11 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
                         itemId: 'reason-field',
                         name: 'reason',
-                        hidden: true
+                        hidden: true,
+                        width: 800,
+                        renderer: function(value){
+                            return "<span data-qtip ='" + Ext.String.htmlEncode(value) + "'>" + Ext.String.htmlEncode(Ext.util.Format.ellipsis(value, 100)) + "</span>";
+                        },
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),

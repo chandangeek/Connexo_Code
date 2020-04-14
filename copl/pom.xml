@@ -1204,7 +1204,7 @@
             com.elster.jupiter.appserver.security:com.elster.jupiter.bpm.security:com.elster.jupiter.fileimport.security:com.elster.jupiter.license.security:com.elster.jupiter.servicecall.security:${line.separator}
             com.elster.jupiter.soap.whiteboard.cxf.security:com.elster.jupiter.system.security:com.elster.jupiter.tasks.security:com.elster.jupiter.users.security:com.elster.jupiter.yellowfin.security
         </javadoc.excluded.package.names>
-		<apache.cxf.version>3.2.12</apache.cxf.version>
+		<apache.cxf.version>3.2.13</apache.cxf.version>
         <bouncycastle.version>1.64</bouncycastle.version>
 		<opensaml.version>1.0.1</opensaml.version>
         <jackson.version>2.10.3</jackson.version>

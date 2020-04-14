@@ -88,9 +88,6 @@ public class CaServiceImpl implements CaService {
     private static final String PKI_CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
     private static final String PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate"; // this is the client authentication certificate (key-store entry)
     private static final String PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate"; // this is the trust-store entry, contains client's CA entry
-    private static final String PKI_CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
-    private static final String PKI_CERTIFICATE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
-    private static final String PKI_END_ENTITY_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
 
     // from Constants Required for EJBCA-WS
     public static final String RESPONSETYPE_CERTIFICATE = "CERTIFICATE";
@@ -113,9 +110,6 @@ public class CaServiceImpl implements CaService {
     private String pkiTrustStore;
     private String pkiSuperAdminClientAlias;
     private String pkiManagementClientAlias;
-    private String pkiCaName;
-    private String pkiCertificateProfileName;
-    private String pkiEndEntityProfileName;
 
     private volatile SecurityManagementService securityManagementService;
     private volatile Thesaurus thesaurus;
@@ -159,9 +153,6 @@ public class CaServiceImpl implements CaService {
         pkiTrustStore = null;
         pkiSuperAdminClientAlias = null;
         pkiManagementClientAlias = null;
-        pkiCaName = null;
-        pkiCertificateProfileName = null;
-        pkiEndEntityProfileName = null;
         ejbcaWS = null;
         configured = false;
     }
@@ -173,17 +164,11 @@ public class CaServiceImpl implements CaService {
         pkiTrustStore = bundleContext.getProperty(PKI_CXO_TRUSTSTORE_PROPERTY);
         pkiSuperAdminClientAlias = bundleContext.getProperty(PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY);
         pkiManagementClientAlias = bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
-        pkiCaName = bundleContext.getProperty(PKI_CA_NAME_PROPERTY);
-        pkiCertificateProfileName = bundleContext.getProperty(PKI_CERTIFICATE_PROFILE_NAME_PROPERTY);
-        pkiEndEntityProfileName = bundleContext.getProperty(PKI_END_ENTITY_PROFILE_NAME_PROPERTY);
 
         configured = pkiPort != null
                 && StringUtils.isNotBlank(pkiHost)
                 && StringUtils.isNotBlank(pkiTrustStore)
-                && StringUtils.isNotBlank(pkiSuperAdminClientAlias)
-                && StringUtils.isNotBlank(pkiCaName)
-                && StringUtils.isNotBlank(pkiCertificateProfileName)
-                && StringUtils.isNotBlank(pkiEndEntityProfileName);
+                && StringUtils.isNotBlank(pkiSuperAdminClientAlias);
 
         if (!configured) {
             LOGGER.info("CA service started in offline mode. Any service usages will be rejected until all properties are specified.");
@@ -204,15 +189,15 @@ public class CaServiceImpl implements CaService {
         CertificateResponse certificateResponse;
         UserDataVOWS userData = new UserDataVOWS();
 
-        String caName = (certificateUserData.isPresent()) ? certificateUserData.get().getCaName() : pkiCaName;
+        String caName = (certificateUserData.isPresent()) ? certificateUserData.get().getCaName() : "";
         LOGGER.info("- CA name: " + caName);
         userData.setCaName(caName);
 
-        String endEntity = (certificateUserData.isPresent()) ? certificateUserData.get().getEndEntityName() : pkiEndEntityProfileName;
+        String endEntity = (certificateUserData.isPresent()) ? certificateUserData.get().getEndEntityName() : "";
         LOGGER.info("- EndEntity: " + endEntity);
         userData.setEndEntityProfileName(endEntity);
 
-        String certificateProfile = (certificateUserData.isPresent()) ? certificateUserData.get().getCertificateProfileName() : pkiCertificateProfileName;
+        String certificateProfile = (certificateUserData.isPresent()) ? certificateUserData.get().getCertificateProfileName() : "";
         LOGGER.info("- CertificateProfile: " + certificateProfile);
         userData.setCertificateProfileName(certificateProfile);
 
