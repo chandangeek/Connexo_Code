@@ -256,7 +256,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         }
 
         expectedErrorRule.expect(DeviceConfigurationChangeException.class);
-        expectedErrorRule.expectMessage("You can not change the configuration of device DeviceName to the configuration it already has");
+        expectedErrorRule.expectMessage("You can not change the configuration of device DeviceMRID to the configuration it already has");
         inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
     }
 

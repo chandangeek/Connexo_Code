@@ -200,13 +200,14 @@ public interface CommunicationTaskService {
      * Finds all pending communication tasks with the given ComPortPools of the associated connection method.
      * The advantage over getPlannedComTaskExecutionsFor is that connectionTasks are fetched too, so no roundtrip needed for each of them
      *
+     * @param comServer
      * @param comPortPools
      * @param delta        - duration to add to current time
      * @param limit        - nr of entries to be returned.
      * @param skip         - nr of entries to skip.
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
-    List<ComTaskExecution> getPendingComTaskExecutionsListFor(List<OutboundComPortPool> comPortPools, Duration delta, long limit, long skip);
+    List<ComTaskExecution> getPendingComTaskExecutionsListFor(ComServer comServer, List<OutboundComPortPool> comPortPools, Duration delta, long limit, long skip);
 
     /**
      * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds

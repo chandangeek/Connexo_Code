@@ -381,7 +381,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                         .filter(comPortPool -> !comPortPool.isInbound())
                         .map(OutboundComPortPool.class::cast)
                         .collect(Collectors.toList());
-        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(outboundComPortPools, delta, limit, skip);
+        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(comServer, outboundComPortPools, delta, limit, skip);
     }
 
 

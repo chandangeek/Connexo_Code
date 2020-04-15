@@ -27,6 +27,7 @@ import com.elster.jupiter.upgrade.V10_6_1SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
@@ -367,7 +368,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<OutboundComPort> findAllOutboundComPorts() {
         Condition condition = where("class").isEqualTo(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(where("obsoleteDate").isNull());
-        return convertComportListToOutBoundComPorts(getComPortDataMapper().select(condition));
+        return convertComportListToOutBoundComPorts(getComPortDataMapper().select(condition, Order.ascending("id")));
     }
 
     public List<OutboundComPort> findAllOutboundComPortsByComServer(ComServer comServer) {

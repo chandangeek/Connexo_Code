@@ -233,7 +233,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(device).isNotNull();
         assertThat(device.getId()).isGreaterThan(0L);
         assertThat(device.getName()).isEqualTo(DEVICE_NAME);
-        assertThat(device.getSerialNumber()).isNullOrEmpty();
+        assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
     }
 
     @Test
@@ -251,7 +251,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice).isNotNull();
         assertThat(reloadedDevice.getName()).isEqualTo(DEVICE_NAME);
-        assertThat(reloadedDevice.getSerialNumber()).isNullOrEmpty();
+        assertThat(reloadedDevice.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
     }
 
     @Test
