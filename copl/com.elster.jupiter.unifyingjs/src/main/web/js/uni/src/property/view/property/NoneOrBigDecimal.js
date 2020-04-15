@@ -93,11 +93,14 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
     setValue: function (value) {
         var me =this;
         if(me.isEdit){
-            if(value.isNone){
-                me.getNoneRadioField().setValue(true);
-            } else {
-                me.getValueRadioField().setValue(true);
-                me.getValueNumberField().setValue(value.value);
+            me.getValueRadioField().setValue(true);
+            if (value && value.value) {
+                if (Ext.isObject(value.value) && value.value.value){//the same with Base property and for for compatibility
+                    value = value.value;
+                }
+                if (!value.isNone){
+                    me.getValueNumberField().setValue(value.value);
+                }
             }
         } else {
             this.callParent([me.getValueAsDisplayString(value)]);
