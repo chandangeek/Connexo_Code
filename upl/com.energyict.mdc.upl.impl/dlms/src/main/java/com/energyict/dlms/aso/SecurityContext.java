@@ -1264,7 +1264,7 @@ public class SecurityContext {
     /**
      * @return the responding frameCounter
      */
-    public long getResponseFrameCounter() {
+    public Long getResponseFrameCounter() {
         return this.responseFrameCounter;
     }
 

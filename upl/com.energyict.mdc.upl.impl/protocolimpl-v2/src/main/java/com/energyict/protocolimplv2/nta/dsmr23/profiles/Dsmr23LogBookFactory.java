@@ -110,7 +110,7 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
 
         generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, MeterEvent.SEND_FRAME_COUNTER_ABOVE_THRESHOLD, eventList);
 
-        if (securityContext.getResponseFrameCounter() != 0) {
+        if (securityContext.getResponseFrameCounter() != null) {
             generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, MeterEvent.RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD, eventList);
         } else {
             getProtocol().journal("Response frame counter not initialized.");
