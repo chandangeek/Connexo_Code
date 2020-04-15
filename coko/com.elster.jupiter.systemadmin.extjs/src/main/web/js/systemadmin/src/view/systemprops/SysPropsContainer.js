@@ -1,0 +1,96 @@
+Ext.define('Sam.view.systemprops.SysPropsContainer', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.system-props-container',
+    requires: [
+        'Sam.view.systemprops.SystemPropsView'
+    ],
+
+    router: null,
+    usagePoint: null,
+    propertyInfo: null,
+
+    viewDefaults: {
+        xtype: 'displayfield',
+        labelWidth: 150
+    },
+    editDefaults: {
+        labelWidth: 150,
+        anchor: '100%',
+        maxWidth: 421
+    },
+
+
+    refs: [
+            {
+                ref: 'cont',
+                selector: 'sys-prop-content'
+            }
+    ],
+
+    initComponent: function () {
+        var me = this,
+            dynamicElements;
+
+        me.content = [
+            {
+                itemId: 'sys-prop-content',
+                title: 'System properties',//Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
+                ui: 'large',
+                layout: 'hbox',
+                defaults: {
+                    flex: 1
+                },
+                tools: [
+                    {
+                        xtype: 'uni-button-action',
+                        itemId: 'sys-prop-attributes-actions-button',
+                        privileges: me.canManageUsagePoint,
+                        usagePoint: me.usagePoint,
+                        margin: '0 16 0 0',
+                        menu: {
+                            xtype: 'menu',
+                            itemId: 'sys-prop-attributes-actions-menu',
+                            plain: true,
+                            items: [
+                                {
+                                    text: 'EDIT PROPSERTIES',//Uni.I18n.translate('general.editGeneralInformation', 'IMT', "Edit 'General information'"),
+                                    itemId: 'edit-system-properties'
+                                }
+                            ]
+                        }
+                    }
+                ],
+                items: [
+                    {
+                        xtype: 'container',
+                        defaults: {
+                            ui: 'tile2'
+                        },
+                        items: [
+                            {
+                                xtype: 'system-props-view',
+                                itemId: 'sys-props-attributes-form',
+                                title: 'System props container',//Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
+                                router: me.router,
+                                //record: me.usagePoint,
+                                viewDefaults: me.viewDefaults,
+                                editDefaults: me.editDefaults,
+                                //hasEditMode: me.canManageUsagePoint
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
+    },
+
+
+    loadRecord: function (record) {
+            var me = this;
+            console.log("LOAD RECORD IN CONTAINER!!!!!!!!!");
+            me.propertyInfo = Ext.create('Sam.model.SystemPropsInfo', {properties: record.properties});
+            me.down('#sys-props-attributes-form').loadRecord(record);
+    }
+});
