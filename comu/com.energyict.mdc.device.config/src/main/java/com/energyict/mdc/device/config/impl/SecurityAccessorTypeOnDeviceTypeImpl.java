@@ -129,15 +129,17 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
-    public Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification(boolean isService) {
-        if (isService) {
-            return getServiceKeyRenewalDeviceMessageId()
-                    .map(deviceMessageId -> this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()))
-                    .orElseGet(Optional::empty);
-        }
+    public Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification() {
         return getKeyRenewalDeviceMessageId()
                 .map(deviceMessageId -> this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()))
                 .orElseGet(Optional::empty);
+    }
+
+    @Override
+    public Optional<DeviceMessageSpec> getServiceKeyRenewalDeviceMessageSpecification() {
+            return getServiceKeyRenewalDeviceMessageId()
+                    .map(deviceMessageId -> this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()))
+                    .orElseGet(Optional::empty);
     }
 
     @Override
