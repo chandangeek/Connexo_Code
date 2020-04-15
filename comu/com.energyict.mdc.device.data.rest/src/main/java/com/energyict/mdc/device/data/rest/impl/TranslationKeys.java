@@ -17,7 +17,8 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
 
-    ACTIVE("Active","Active");
+    ACTIVE("Active", "Active"),
+    OBJECTS("tooltip.objects.lost", "Objects: {0}");
 
     private final String key;
     private final String defaultFormat;
@@ -28,8 +29,12 @@ public enum TranslationKeys implements TranslationKey {
     }
 
     @Override
-    public String getKey() { return this.key;  }
+    public String getKey() {
+        return this.key;
+    }
 
     @Override
-    public String getDefaultFormat() { return this.defaultFormat;  }
+    public String getDefaultFormat() {
+        return this.defaultFormat;
+    }
 }
