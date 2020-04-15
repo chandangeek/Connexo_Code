@@ -56,6 +56,8 @@ public class SystemPropertyResource {
         for (SystemProperty sp : sysPropsList){
             System.out.println("SP name ="+sp.getName() + "SP value = "+sp.getValue());
             SystemPropertySpec spec = systemPropertyService.getPropertySpec(sp.getName()).get();
+            PropertyInfo info = spec.preparePropertyInfo(sp);
+            /*
             PropertyValueInfo propertyValueInfo = new PropertyValueInfo(sp.getValue(),
                     null,
                     spec.getDefaultValue(),
@@ -67,11 +69,14 @@ public class SystemPropertyResource {
                     spec.getDescription(),
                     propertyValueInfo,
                     propertyTypeInfo,
-                    true);
+                    true);*/
             propertyInfos.add(info);
         }
 
-        return Response.ok().entity(propertyInfos).build();
+        SystemPropertiesInfo propsInfos = new SystemPropertiesInfo();
+        propsInfos.properties = propertyInfos;
+
+        return Response.ok().entity(propsInfos).build();
     }
 
 
@@ -116,11 +121,11 @@ public class SystemPropertyResource {
     }
 
 
-    @PUT
+    /*@PUT
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response updateSystemProperties(PropertyInfo property){
+    public Response updateSystemProperty(PropertyInfo property){
 
         System.out.println("PROPERTY ="+property.key+" NAME ="+property.name+" value ="+property.getPropertyValueInfo().getValue());
 
@@ -136,6 +141,35 @@ public class SystemPropertyResource {
 
         spec.actionOnChange(sysprop);
 
+        return Response.ok().build();
+    }*/
+
+
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response updateSystemProperties(SystemPropertiesInfo propertiesInfo){
+
+        //System.out.println("PROPERTY ="+property.key+" NAME ="+property.name+" value ="+property.getPropertyValueInfo().getValue());
+        System.out.println("SAVE PROPERTIES!!!!!!!!!");
+        List<PropertyInfo> propertiesToUpdate = propertiesInfo.properties;
+
+        for (PropertyInfo property : propertiesToUpdate) {
+            SystemProperty sysprop = systemPropertyService.getSystemPropertiesByName(property.name).get();
+            SystemPropertySpec spec = systemPropertyService.getPropertySpec(property.name).get();
+
+            System.out.println("NAME =" + sysprop.getName() + "OLD VALUE = " + sysprop.getValue());
+
+            sysprop.setValue(spec.convertValueToString(property));
+
+            //sysprop.setValue(property.getPropertyValueInfo().getValue().toString());
+
+            sysprop.update();
+
+            spec.actionOnChange(sysprop);
+
+        }
         return Response.ok().build();
     }
 
