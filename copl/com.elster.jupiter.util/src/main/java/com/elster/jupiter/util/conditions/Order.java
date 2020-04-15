@@ -26,6 +26,15 @@ public final class Order {
 
 
 	private Order(String name, boolean ascending) {
+		String trimmedColumnName = name.trim();
+		if (trimmedColumnName.isEmpty()) {
+			throw new NoFieldSpecifiedException(COMMAND);
+		}
+
+		if (SQL_I.matcher(trimmedColumnName).find()) {
+			//if (trimmedColumnName.contains(" ") || trimmedColumnName.contains("'")||trimmedColumnName.contains(";")) {
+			throw new SqlInjectionException(MessageSeeds.POSSIBLE_SQL_INJECTION_ORDER_FIELD, name);
+		}
 		this.name = name;
 		this.ascending = ascending;
 	}
@@ -35,15 +44,6 @@ public final class Order {
 	}
 
 	public String getName()  {
-		String trimmedColumnName = this.name.trim();
-		if (trimmedColumnName.isEmpty()) {
-			throw new NoFieldSpecifiedException(COMMAND);
-		}
-
-		if (SQL_I.matcher(trimmedColumnName).find()) {
-		//if (trimmedColumnName.contains(" ") || trimmedColumnName.contains("'")||trimmedColumnName.contains(";")) {
-			throw new SqlInjectionException(MessageSeeds.POSSIBLE_SQL_INJECTION_ORDER_FIELD, name);
-		}
 		return name;
 	}
 
