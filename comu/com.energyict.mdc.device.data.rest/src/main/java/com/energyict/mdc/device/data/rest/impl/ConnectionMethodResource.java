@@ -115,7 +115,7 @@ public class ConnectionMethodResource {
 
     private Optional<Response> validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
         if (connectionMethodInfo.status == ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE && !hasAllRequiredProps(connectionMethodInfo, task)) {
-            return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format()).build());
+            return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format())).build());
         }
         return Optional.empty();
     }
@@ -124,7 +124,7 @@ public class ConnectionMethodResource {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
-                    return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format()).build());
+                    return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format())).build());
                 } else if (!task.isActive()) {
                     task.activate();
                 }
@@ -209,6 +209,33 @@ public class ConnectionMethodResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(connectionTask, uriInfo)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/activate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response activateConnectionMethod(@PathParam("name") String name, @PathParam("id") long connectionMethodId,
+                                             @Context UriInfo uriInfo,
+                                             ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> info) {
+        info.id = connectionMethodId;
+        ConnectionTask task = resourceHelper.lockConnectionTaskOrThrowException(info);
+        switch (info.status) {
+            case ACTIVE:
+                if (!ConnectionMethodResource.hasAllRequiredProps(task)) {
+                    throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+                } else if (!task.isActive()) {
+                    task.activate();
+                }
+                break;
+            case INACTIVE:
+                task.deactivate();
+                break;
+            default:
+                break;
+        }
+        return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
     @PUT
