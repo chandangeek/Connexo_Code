@@ -186,18 +186,15 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
 
         deviceType.setWrappingSecurityAccessor(securityAccessorOnDeviceType.getDeviceSecurityAccessorType(), getWrappingAccessor(keyRenewalInfo.wrapperAccessorId, deviceType));
 
-        long deviceMessageIdDbValue = (keyRenewalInfo.keyRenewalCommandSpecification != null && keyRenewalInfo.keyRenewalCommandSpecification.id != null) ? DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()).dbValue() : 0;
-        long serviceDeviceMessageIdDbValue = (keyRenewalInfo.serviceKeyRenewalCommandSpecification != null && keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null) ? DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()).dbValue() : 0;
-
         DeviceMessageId deviceMessageId = keyRenewalInfo.keyRenewalCommandSpecification != null ? DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()) : null;
         DeviceMessageId serviceDeviceMessageId = keyRenewalInfo.serviceKeyRenewalCommandSpecification != null ? DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()) : null;
         if (deviceMessageId != null || serviceDeviceMessageId != null) {
             SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageId, serviceDeviceMessageId);
             if (deviceMessageId != null && keyRenewalInfo.properties != null) {
-                addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties, false);
+                addProperties(keyRenewAlBuilder, deviceMessageId.dbValue(), keyRenewalInfo.properties, false);
             }
             if (serviceDeviceMessageId != null && keyRenewalInfo.serviceProperties != null) {
-                addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties, true);
+                addProperties(keyRenewAlBuilder, serviceDeviceMessageId.dbValue(), keyRenewalInfo.serviceProperties, true);
             }
             keyRenewAlBuilder.add();
         } else {
