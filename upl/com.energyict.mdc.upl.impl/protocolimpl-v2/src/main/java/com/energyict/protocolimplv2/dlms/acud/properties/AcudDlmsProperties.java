@@ -11,13 +11,4 @@ public class AcudDlmsProperties extends DlmsProperties {
         return null;
     }
 
-    @Override
-    public ConformanceBlock getConformanceBlock() {
-        ConformanceBlock conformanceBlock = super.getConformanceBlock();
-        conformanceBlock.setPriorityManagementSupported(false);
-        conformanceBlock.setAttribute0SupportedWithGet(false);
-        conformanceBlock.setEventNotification(false);
-        return conformanceBlock;
-    }
-
 }

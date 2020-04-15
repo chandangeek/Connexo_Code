@@ -51,7 +51,7 @@ public abstract class Acud extends AbstractDlmsProtocol {
     /**
      * Predefiened obis codes for the Acud meter
      */
-    private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("1.0.96.1.0.255");
+    private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
 
     private HHUSignOnV2 hhuSignOnV2;
     private AcudRegisterFactory registerFactory;
