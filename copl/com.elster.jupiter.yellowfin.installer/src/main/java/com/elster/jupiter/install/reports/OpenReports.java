@@ -49,7 +49,6 @@ public class OpenReports {
         File f = new File(args[0]);
         if (f.exists() && !f.isDirectory()) {
             System.out.println("Connecting at " + args[1]);
-            System.out.println("User: " + args[2] + "; Password: " + args[3]);
 
             Pattern pattern = Pattern.compile("(https?://)([^:^/]*):?([0-9]\\d*)?(.*)?");
             Matcher matcher = pattern.matcher(args[1]);
