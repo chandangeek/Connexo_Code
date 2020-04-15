@@ -23,9 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.MASTER;
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.SLAVE;
-
 public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmartNtaProtocol> implements DeviceLogBookSupport {
 
     public Dsmr23LogBookFactory(AbstractSmartNtaProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
@@ -71,7 +68,7 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
     }
 
     @Override
-    protected List<MeterEvent> parseCommunicationLogEventLog(DataContainer dataContainer) throws ProtocolException {
+    protected List<MeterEvent> parseCommunicationLogEventLog(DataContainer dataContainer) {
         return Collections.emptyList();
     }
 
@@ -91,7 +88,7 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
     }
 
     @Override
-    protected List<MeterEvent> parseVoltageQualityLog(DataContainer dataContainer) throws ProtocolException {
+    protected List<MeterEvent> parseVoltageQualityLog(DataContainer dataContainer) {
         return Collections.emptyList();
     }
 

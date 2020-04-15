@@ -43,7 +43,7 @@ public class CryptoWebRTUKP extends WebRTUKP {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2020-04-06";
+        return "Crypto version: 2020-04-15";
     }
 
     @Override
