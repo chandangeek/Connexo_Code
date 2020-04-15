@@ -371,9 +371,9 @@ public class ProcessResource {
                 });
         List<ProcessHistoryGenInfo> appropriateInstances = processes.get(nameAndVersion).stream()
                 .filter(compatibleObjects(type, errors))
-                .filter(uniqueObjects(errors))
                 .filter(consistentObjects(type, definition, errors))
                 .filter(objectsWithoutRunningProcess(auth, errors))
+                .filter(uniqueObjects(errors))
                 .collect(Collectors.toList());
 
         return Response.ok(new ProcessHistoryGenInfos(appropriateInstances, request.processHistories.size(), errors.getErrorsInfo())).build();
@@ -511,14 +511,21 @@ public class ProcessResource {
 
     private static class Errors {
         private final Thesaurus thesaurus;
-        private final Map<MessageSeed, Set<String>> errorsMap = new HashMap<>();
+        private final Map<MessageSeed, ObjectsWithErrorCounter> errorsMap = new HashMap<>();
 
         private Errors(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
         private void addError(MessageSeed messageSeed, String objectName) {
-            errorsMap.computeIfAbsent(messageSeed, message -> new HashSet<>()).add(objectName);
+            errorsMap.computeIfAbsent(messageSeed, message -> {
+                ObjectsWithErrorCounter counter = new ObjectsWithErrorCounter();
+                if (MessageSeeds.OBJECTS_FILTERED_DUPLICATED == messageSeed) {
+                    counter.add(objectName);
+                }
+                return counter;
+
+            }).add(objectName);
         }
 
         private List<ErrorInfo> getErrorsInfo() {
@@ -526,9 +533,26 @@ public class ProcessResource {
                     .map(messageAndObjectNames -> {
                         String objectNames = messageAndObjectNames.getValue().stream()
                                 .collect(Collectors.joining(", "));
-                        return new ErrorInfo(thesaurus.getSimpleFormat(messageAndObjectNames.getKey()).format(messageAndObjectNames.getValue().size()), objectNames);
+                        return new ErrorInfo(thesaurus.getSimpleFormat(messageAndObjectNames.getKey()).format(messageAndObjectNames.getValue().size()),
+                                thesaurus.getFormat(TranslationKeys.OBJECTS).format(objectNames));
                     })
                     .collect(Collectors.toList());
+        }
+    }
+
+    private static class ObjectsWithErrorCounter extends HashSet<String> {
+
+        private int total = 0;
+
+        @Override
+        public boolean add(String name) {
+            total++;
+            return super.add(name);
+        }
+
+        @Override
+        public int size() {
+            return total;
         }
     }
 

@@ -124,9 +124,15 @@ sub check_root {
 
 sub check_java8 {
     if ("$JAVA_HOME" eq "") {
-        $JAVA_HOME=$ENV{"JAVA_HOME"};
-        print "Detected JAVA_HOME from environment: $JAVA_HOME\n";
+        $JAVA_HOME="$CONNEXO_DIR/java";
+
+        if (-d "$JAVA_HOME" and -d "$JAVA_HOME") {
+            print "Using Java from path=$JAVA_HOME\n"
+        } else {
+            $JAVA_HOME=$ENV{"JAVA_HOME"};
+        }
     }
+
     if (-d "$JAVA_HOME") {
         $ENV{"JAVA_HOME"}=$JAVA_HOME;
     } else {
@@ -387,6 +393,7 @@ sub read_uninstall_config {
             if ( "$row" ne "") {
                 my @val=split('=',$row);
                 if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "JAVA_HOME" )         {$JAVA_HOME=$val[1];}
             }
         }
         close($FH);
@@ -458,14 +465,15 @@ sub install_connexo {
             update_properties_file_with_encrypted_password();
 
             add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.host=$HOST_NAME");
-            add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=https");
 
 			replace_in_file("$CONNEXO_DIR/bin/Connexo.vmoptions",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
 			replace_in_file("$CONNEXO_DIR/bin/ConnexoService.vmoptions",'\$\{CONNEXO_DIR}',"$CONNEXO_DIR");
 
             if ("$ACTIVATE_SSO" eq "yes") {
+                add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=https");
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=https://$HOST_NAME/apps/multisense/index.html");
             } else {
+                add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.scheme=http");
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT/apps/multisense/index.html");
             }
 			enable_sso();

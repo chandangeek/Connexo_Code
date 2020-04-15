@@ -7,14 +7,8 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.http.whiteboard.CSRFFilterService;
-import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
-import com.elster.jupiter.http.whiteboard.SamlRequestService;
-import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.*;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
-import com.elster.jupiter.http.whiteboard.TokenValidation;
-import com.elster.jupiter.http.whiteboard.UserJWT;
-import com.elster.jupiter.http.whiteboard.impl.token.DatabaseBasedTokenService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -29,16 +23,12 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
-import org.apache.commons.lang.StringUtils;
-import org.opensaml.core.config.InitializationException;
+import org.apache.commons.lang3.StringUtils;
 import org.opensaml.core.config.InitializationService;
-import org.opensaml.saml.saml2.core.LogoutResponse;
-import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -62,13 +52,7 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -161,7 +145,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setBpmService(bpmService);
         setBlackListdTokenService(blackListTokenService);
         setTokenService(tokenService);
-		setCSRFFilterService(csrfFilterService);
+        setCSRFFilterService(csrfFilterService);
         activate(context);
     }
 
@@ -215,8 +199,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.samlRequestService = samlRequestService;
     }
 
-	@Reference
-    public void setCSRFFilterService(CSRFFilterService csrfFilterService){
+    @Reference
+    public void setCSRFFilterService(CSRFFilterService csrfFilterService) {
         this.csrfFilterService = csrfFilterService;
     }
 
@@ -247,7 +231,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(BlackListTokenService.class).toInstance(blackListTokenService);
-				bind(CSRFFilterService.class).toInstance(csrfFilterService);
+                bind(CSRFFilterService.class).toInstance(csrfFilterService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
                 bind(TokenService.class).toInstance(tokenService);
                 bind(Thesaurus.class).toInstance(thesaurus);
@@ -426,7 +410,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }
     }
 
-    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request){
+    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request) {
         return request.getRequestURI().startsWith(LOGIN_URL) &&
                 (StringUtils.isEmpty(request.getParameter("page")) || request.getParameterMap().containsKey("logout"));
     }
@@ -435,9 +419,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
         if (ssoAuthenticationRequestOptional.isPresent()) {
             String redirectUrl;
-            if(StringUtils.isEmpty(request.getParameter("page"))){
+            if (StringUtils.isEmpty(request.getParameter("page"))) {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-            }else{
+            } else {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getParameter("page"));
             }
             response.sendRedirect(redirectUrl);
@@ -467,7 +451,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (logoutParameter instanceof User) {
             //the eventService is sent ONLY if the Object is an instance of User class,
             postWhiteboardEvent(WhiteboardEvent.LOGOUT.topic(), new LocalEventUserSource((User) logoutParameter));
-            blackListToken(((User) logoutParameter).getId(), tokenCookie.get().getValue());
+            tokenCookie.ifPresent(cookie -> blackListToken(((User) logoutParameter).getId(), cookie.getValue()));
         }
     }
 
@@ -500,13 +484,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return cookie;
     }
 
-    public Cookie createSessionCookie(String sessionId, String cookiePath){
-       Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
-       sessionCookie.setPath(cookiePath);
-       sessionCookie.setMaxAge(securityToken.getCookieMaxAge());
-       sessionCookie.setHttpOnly(true);
-       csrfFilterService.createCSRFToken(sessionId);
-       return sessionCookie;
+    public Cookie createSessionCookie(String sessionId, String cookiePath) {
+        Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
+        sessionCookie.setPath(cookiePath);
+        sessionCookie.setMaxAge(securityToken.getCookieMaxAge());
+        sessionCookie.setHttpOnly(true);
+        csrfFilterService.createCSRFToken(sessionId);
+        return sessionCookie;
     }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
@@ -573,7 +557,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 //            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
             String token = Objects.requireNonNull(userJWT).getToken();
             response.addCookie(createTokenCookie(token, "/"));
-            response.addCookie(createSessionCookie(securityToken.generateSessionId(),"/"));
+            response.addCookie(createSessionCookie(securityToken.generateSessionId(), "/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
@@ -611,7 +595,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return true;
     }
 
-    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response)   {
+    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         try {
             response.getWriter().write(ACCOUNT_LOCKED);
@@ -640,13 +624,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private void invalidateSessionCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> sessionCookie = getSessionCookie(request);
-        if(sessionCookie.isPresent()) {
+        if (sessionCookie.isPresent()) {
             csrfFilterService.removeUserSession(sessionCookie.get().getValue());
             removeCookie(response, sessionCookie.get().getName());
         }
     }
 
-    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
+    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {

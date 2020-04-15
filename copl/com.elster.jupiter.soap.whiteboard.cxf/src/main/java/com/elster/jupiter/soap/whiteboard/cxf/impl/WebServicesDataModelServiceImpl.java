@@ -68,8 +68,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
-
 /**
  * Created by bvn on 5/4/16.
  */
@@ -223,8 +221,6 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 provider.getAttributeTranslations());
     }
 
-    ;
-
     public void removeAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider) {
         webServiceCallOccurrenceService.removeRelatedObjectTypes(provider.getAttributeTranslations());
     }
@@ -246,6 +242,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(Clock.class).toInstance(clock);
+                bind(NlsService.class).toInstance(nlsService);
 
                 bind(WebServicesService.class).toInstance(webServicesService);
                 bind(WebServicesServiceImpl.class).toInstance(webServicesService);
@@ -268,8 +265,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
             logDirectory = logDirectory + File.separator;
         }
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
-        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, endPointConfigurationService);
-        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, endPointConfigurationService, nlsService);
+        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, nlsService);
+        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, endPointConfigurationService, webServiceCallOccurrenceService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),

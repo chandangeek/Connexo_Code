@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuditDeviceIT extends AuditDeviceBase {
+public class AuditDeviceIT extends AuditDeviceBaseIT {
 
     private static final String DEVICE_NAME = "DeviceName";
 

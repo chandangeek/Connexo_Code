@@ -797,7 +797,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         connectionMethod.save({
             isNotEdit: true,
             success: function (record) {
-                connectionMethod = changedConnectionMethod;
                 if (connectionMethod.get('status') === 'connectionTaskStatusActive') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.activated', 'MDC', 'Connection method activated'));
                 } else {

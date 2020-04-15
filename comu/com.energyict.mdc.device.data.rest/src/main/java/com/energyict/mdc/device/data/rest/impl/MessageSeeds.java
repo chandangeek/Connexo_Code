@@ -150,7 +150,7 @@ public enum MessageSeeds implements MessageSeed {
     OBJECTS_FILTERED_NOT_CONSISTENT(333, "objectsFilteredNotConsistent", "{0} process instance(s) can''t be run on related object(s) as they don''t match the process requirements."),
     OBJECTS_FILTERED_NOT_FOUND(334, "objectsFilteredNotFound", "{0} process instance(s) can''t be run because related object(s) aren''t found."),
     OBJECTS_FILTERED_ALREADY_RUNNING(335, "objectsFilteredAlreadyRunning", "{0} process instance(s) is(are) already running on related object(s)."),
-    OBJECTS_FILTERED_DUPLICATED(336, "objectsFilteredDuplicated", "Some of {0} process instances relate to the same object(s). The process will be started once on each of the objects."),
+    OBJECTS_FILTERED_DUPLICATED(336, "objectsFilteredDuplicated", "Some of process instances ({0}) relate to the same object(s). The process will be started once on each of the objects."),
     RUN_COMTASK_WITH_PRIO_IMPOSSIBLE(338, "runComTaskWithPrioImpossible", "Running the communication task with priority is not possible, since there are no priority connections allowed on its communication port pool."),
     UNIDENTIFIED_CRL_SIGNER(339, "UnknownCRLSigner", "Found none or too many CRL signers"),
     CUSTOMPROPERTY_VERSION_NOT_DELETABLE(340, "CustomPropertyNotDeletable", "Version of custom property set {0} at {1} can''t be deleted. It is either not the last version or it has required attributes.")

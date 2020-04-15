@@ -105,6 +105,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         return !endpoints.isEmpty();
     }
 
+    protected List<EndPointConfiguration> getEndPointConfigurationsForWebService() {
+        return endPointConfigurationService.getEndPointConfigurationsForWebService(getName());
+    }
+
     /**
      * Returns the {@link Class} representing considered endpoints (ports).
      *
@@ -130,10 +134,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         return properties == null ? null : (Long) properties.get(ENDPOINT_CONFIGURATION_ID_PROPERTY);
     }
 
-    protected List<EndPointConfiguration> getEndPointConfigurationsForWebService() {
-        return endPointConfigurationService.getEndPointConfigurationsForWebService(getName());
-    }
-
     private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
         private String payload;
@@ -144,7 +144,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         private RequestSenderImpl(String methodName) {
             this.methodName = methodName;
         }
-
 
         public RequestSenderImpl withRelatedAttributes(SetMultimap<String, String> values) {
             this.values = values;
