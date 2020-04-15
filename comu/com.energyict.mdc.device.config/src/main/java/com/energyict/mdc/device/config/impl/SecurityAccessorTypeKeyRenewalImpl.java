@@ -49,7 +49,7 @@ public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeK
     private Reference<SecurityAccessorType> securityAccessorType = Reference.empty();
 
     private Reference<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceType = Reference.empty();
-    private boolean serviceKey = false;
+    private boolean serviceKey;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_IS_REQUIRED + "}")
     private Reference<DeviceMessage> deviceMessage = ValueReference.absent();
@@ -109,7 +109,11 @@ public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeK
     @Override
     public  PropertySpec getSpecification() {
         if (this.propertySpec == null) {
-            this.propertySpec = securityAccessorTypeOnDeviceType.get().getKeyRenewalDeviceMessageSpecification(this.serviceKey).get().getPropertySpec(name).orElse(null);
+            if (this.serviceKey) {
+                this.propertySpec = securityAccessorTypeOnDeviceType.get().getServiceKeyRenewalDeviceMessageSpecification().get().getPropertySpec(name).orElse(null);
+            } else {
+                this.propertySpec = securityAccessorTypeOnDeviceType.get().getKeyRenewalDeviceMessageSpecification().get().getPropertySpec(name).orElse(null);
+            }
         }
         return propertySpec;
     }

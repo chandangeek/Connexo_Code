@@ -4,11 +4,10 @@
 
 package com.energyict.mdc.common.device.config;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.properties.PropertySpec;
 
-import aQute.bnd.annotation.ProviderType;
-
-@ProviderType
+@ConsumerType
 public interface SecurityAccessorTypeKeyRenewal {
     PropertySpec getSpecification();
     Object getValue();

@@ -1074,9 +1074,7 @@ public enum TableSpecs {
             Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
             table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
             table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
-                    .type("char(1)")
-                    .notNull()
-                    .conversion(CHAR2BOOLEAN)
+                    .bool()
                     .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.fieldName())
                     .since(version(10, 9))
                     .installValue("'N'")

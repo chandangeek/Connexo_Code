@@ -188,14 +188,21 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
 
         long deviceMessageIdDbValue = (keyRenewalInfo.keyRenewalCommandSpecification != null && keyRenewalInfo.keyRenewalCommandSpecification.id != null) ? DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()).dbValue() : 0;
         long serviceDeviceMessageIdDbValue = (keyRenewalInfo.serviceKeyRenewalCommandSpecification != null && keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null) ? DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()).dbValue() : 0;
-        SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageIdDbValue, serviceDeviceMessageIdDbValue);
-        if (deviceMessageIdDbValue != 0 && keyRenewalInfo.properties != null) {
-            addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties, false);
+
+        DeviceMessageId deviceMessageId = keyRenewalInfo.keyRenewalCommandSpecification != null ? DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()) : null;
+        DeviceMessageId serviceDeviceMessageId = keyRenewalInfo.serviceKeyRenewalCommandSpecification != null ? DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()) : null;
+        if (deviceMessageId != null || serviceDeviceMessageId != null) {
+            SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageId, serviceDeviceMessageId);
+            if (deviceMessageId != null && keyRenewalInfo.properties != null) {
+                addProperties(keyRenewAlBuilder, deviceMessageIdDbValue, keyRenewalInfo.properties, false);
+            }
+            if (serviceDeviceMessageId != null && keyRenewalInfo.serviceProperties != null) {
+                addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties, true);
+            }
+            keyRenewAlBuilder.add();
+        } else {
+            securityAccessorOnDeviceType.resetKeyRenewal();
         }
-        if (serviceDeviceMessageIdDbValue != 0 && keyRenewalInfo.serviceProperties != null) {
-            addProperties(keyRenewAlBuilder, serviceDeviceMessageIdDbValue, keyRenewalInfo.serviceProperties, true);
-        }
-        keyRenewAlBuilder.add();
         return Response.ok().build();
     }
 

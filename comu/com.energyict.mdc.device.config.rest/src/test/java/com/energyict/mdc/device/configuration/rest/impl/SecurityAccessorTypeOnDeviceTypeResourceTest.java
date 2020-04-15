@@ -385,7 +385,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = mock(SecurityAccessorTypeOnDeviceType.class);
         DeviceSecurityAccessorType deviceSecurityAccessorType = mock(DeviceSecurityAccessorType.class);
         when(securityAccessorTypeOnDeviceType.getSecurityAccessorType()).thenReturn(securityAccessorType);
-        when(securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageSpecification(true)).thenReturn(Optional.empty());
+        when(securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageSpecification()).thenReturn(Optional.empty());
         when(deviceSecurityAccessorType.getWrappingSecurityAccessor()).thenReturn(Optional.of(securityAccessorType));
         when(securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType()).thenReturn(deviceSecurityAccessorType);
         when(deviceSecurityAccessorType.getSecurityAccessor()).thenReturn(securityAccessorType);

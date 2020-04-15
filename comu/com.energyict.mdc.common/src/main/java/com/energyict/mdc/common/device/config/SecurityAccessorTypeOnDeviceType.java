@@ -4,16 +4,15 @@
 
 package com.energyict.mdc.common.device.config;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface SecurityAccessorTypeOnDeviceType {
     DeviceType getDeviceType();
     DeviceSecurityAccessorType getDeviceSecurityAccessorType();
@@ -21,14 +20,16 @@ public interface SecurityAccessorTypeOnDeviceType {
     SecurityAccessorType getSecurityAccessorType();
     Optional<DeviceMessageId> getKeyRenewalDeviceMessageId();
     Optional<DeviceMessageId> getServiceKeyRenewalDeviceMessageId();
-    Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification(boolean isService);
+    Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification();
+    Optional<DeviceMessageSpec> getServiceKeyRenewalDeviceMessageSpecification();
 
     List<? extends SecurityAccessorTypeKeyRenewal> getKeyRenewalAttributes();
     List<? extends SecurityAccessorTypeKeyRenewal> getServiceKeyRenewalAttributes();
 
-    KeyRenewalBuilder newKeyRenewalBuilder(long deviceMessageIdDbValue, long serviceDeviceMessageIdDbValue);
+    void resetKeyRenewal();
+    KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId, DeviceMessageId serviceDeviceMessageId);
 
-    @ProviderType
+    @ConsumerType
     interface KeyRenewalBuilder {
         KeyRenewalBuilder addProperty(String key, Object value, boolean isServiceKey);
         SecurityAccessorTypeOnDeviceType add();

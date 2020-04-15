@@ -36,7 +36,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         SECACCTYPE("securityAccessorType"),
         WRAPPINGSECACCTYPE("wrappingSecurityAccessorType"),
         KEYRENEWALMESSAGEID("keyRenewalMessageIdIdDbValue"),
-        SERVICEKEYRENEWALMSGID("serviceKeyRenewalMessageIdIdDbValue"),
+        SERVICEKEYRENEWALMSGID("serviceKeyRenewalMessageIdDbValue"),
         DEFAULTKEY("defaultKey");
 
         private final String javaFieldName;
@@ -62,7 +62,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     // associations
     private List<SecurityAccessorTypeKeyRenewal> securityAccessorTypeKeyRenewals = new ArrayList<>();
     private long keyRenewalMessageIdIdDbValue;
-    private long serviceKeyRenewalMessageIdIdDbValue;
+    private long serviceKeyRenewalMessageIdDbValue;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -125,9 +125,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
 
     @Override
     public Optional<DeviceMessageId> getServiceKeyRenewalDeviceMessageId() {
-        return Stream.of(DeviceMessageId.values())
-                .filter(deviceMessage -> deviceMessage.dbValue() == this.serviceKeyRenewalMessageIdIdDbValue)
-                .findFirst();
+        return DeviceMessageId.find(this.serviceKeyRenewalMessageIdDbValue);
     }
 
     @Override
@@ -148,6 +146,14 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
+    public void resetKeyRenewal() {
+        keyRenewalMessageIdIdDbValue = 0;
+        serviceKeyRenewalMessageIdDbValue = 0;
+        securityAccessorTypeKeyRenewals.clear();
+        save();
+    }
+
+    @Override
     public List<SecurityAccessorTypeKeyRenewal> getServiceKeyRenewalAttributes() {
         return securityAccessorTypeKeyRenewals.stream().filter(a -> a.isServiceKey()).collect(Collectors.toList());
     }
@@ -159,9 +165,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
-    public KeyRenewalBuilder newKeyRenewalBuilder(long deviceMessageIdDbValue, long serviceDeviceMessageIdDbValue) {
-        keyRenewalMessageIdIdDbValue = deviceMessageIdDbValue;
-        serviceKeyRenewalMessageIdIdDbValue = serviceDeviceMessageIdDbValue;
+    public KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId, DeviceMessageId serviceDeviceMessageId) {
+        keyRenewalMessageIdIdDbValue = deviceMessageId != null ? deviceMessageId.dbValue() : 0;
+        serviceKeyRenewalMessageIdDbValue = serviceDeviceMessageId != null ? serviceDeviceMessageId.dbValue() : 0;
         securityAccessorTypeKeyRenewals.clear();
         return new InternalKeyRenewalBuilder(this);
     }
