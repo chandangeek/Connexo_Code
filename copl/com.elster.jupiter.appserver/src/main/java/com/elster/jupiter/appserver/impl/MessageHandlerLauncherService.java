@@ -357,11 +357,9 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         CancellableTaskExecutorService executorService = pojo.getCancellableTaskExecutorService();
         cancelFutureTask(executorService);
         executorService.shutdownNow();
-        try {
-            executorService.awaitTermination(1, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        //awaitTermination was removed because we waited 1 minute while each message task completes execution after a shutdown request.
+        //This resulted in a very long service shutdown.
+        //Interrupted message tasks will be re-run after next startup.
     }
 
     private void cancelFutureTask(CancellableTaskExecutorService executorService) {
