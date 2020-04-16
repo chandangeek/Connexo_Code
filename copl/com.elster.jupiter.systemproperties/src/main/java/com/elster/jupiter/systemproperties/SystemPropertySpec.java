@@ -9,7 +9,6 @@ public interface SystemPropertySpec {
     String getDescription();
     PropertyType getPropertyType();
     void actionOnChange(SystemProperty property);
-    String getDefaultValue();
     PropertyInfo preparePropertyInfo(SystemProperty property);
     String convertValueToString(PropertyInfo propertyInfo);
 }

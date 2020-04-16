@@ -240,118 +240,48 @@ public final class OrmServiceImpl implements OrmService {
         createExistingTableDataModel();
         clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());
         this.bundleContext = context;
-
-
-        /*HERE TRY TO CREATE SYSTEM PROPERTIES TABLE*/
-        System.out.println("!");
         prepareSysProperties();
-        System.out.println("TIME TO CHECK IF TABLE FOR PROPERTIES WAS CREATED!!!!!!!!!!");
-
     }
 
 
     public void prepareSysProperties(){
-        //if (evictionTime != null) return;
 
-        DataModelImpl resultDataModel = newDataModel(OrmService.SPC_NAME, "System Property Name");
-        System.out.println("ADD TO SPECS!!!!!");
-        for (SystemPropsTableSpecs spec : SystemPropsTableSpecs.values()) {
-            System.out.println("ADD");
-            spec.addTo(resultDataModel);
-        }
-        System.out.println("REGISTER!!!!");
-        resultDataModel.register();
-
-/*CREATE TABLE customers
-( customer_id number(10) NOT NULL,
-  customer_name varchar2(50) NOT NULL,
-  city varchar2(50)
-);
-
-  PROP_NAME("propertyName"),
-        PROP_VALUE("propertyValue");
-*/
-        /*builder.add(addVersionCountColumn("VERSIONCOUNT", "number", "version"));
-        builder.add(addCreateTimeColumn("CREATETIME", "createTime"));
-        builder.add(addModTimeColumn(MODTIMECOLUMNAME, "modTime"));
-        builder.add(addUserNameColumn("USERNAME", "userName"));*/
         String createTableStatement = "CREATE TABLE SYS_PROP (propertyName varchar2(50), propertyValue varchar2(50))";
-        System.out.println("TRY TO CREATE TABLE!!!!!!!!!!!");
-        //resultDataModel.useConnectionRequiringTransaction(connection -> {
-        try (Connection connection = resultDataModel.getConnection(false)) {
+
+        try (Connection connection = getConnection(false)) {
             try (Statement statement = connection.createStatement()) {
-                System.out.println("CREATE TABLE!!!!!!!!!!!!!!!!");
                 statement.execute(createTableStatement);
-                //Arrays.stream(sql).forEach(command -> execute(statement, command));
             } catch (SQLException e) {
-                System.out.println("EXCEPTION = " + e);
+                //Catch exception ORA-00955: name is already used by an existing object.
             }
-        }catch (SQLException e) {
-            System.out.println("EXCEPTION = " + e);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
 
 
-        /*Optional<SystemProperty> property = resultDataModel.mapper(SystemProperty.class)
-                .getUnique("PROPERTYNAME", "evictiontime" );*/
+        String evictionTime = readSystemPropertyValue("evictiontime");
+        String enablecache = readSystemPropertyValue("enablecache");
 
-        /* READ EVICTION TIME */
-        String sql = "SELECT * FROM SYS_PROP WHERE PROPERTYNAME='evictiontime'";
-        String evictionTime;
-        long evictionTimeMs = 0;//Set to some default value
-        System.out.println("TRY TO READ PROPERTY!!!!!");
-        try (Connection connection = resultDataModel.getConnection(false);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-
-            resultSet.next();
-            evictionTime = resultSet.getString("PROPERTYVALUE");
-            System.out.println("EVICTION TIME = "+evictionTime);
-            evictionTimeMs = Long.valueOf(evictionTime);
-
-        }catch (SQLException e) {
-            System.out.println("EXCEPTION = " + e);
-        }
-
-        System.out.println("EVICTION TIME="+evictionTimeMs);
+        System.out.println("EVICTION_TIME = "+evictionTime);
+        System.out.println("CACHE_ENABLE = "+enablecache);
+        long evictionTimeMs = Long.valueOf(evictionTime);
         setEvictionTime(evictionTimeMs);
-
-        /*READ CACHE ENABLEMENT */
-        String sqltmp = "SELECT * FROM SYS_PROP WHERE PROPERTYNAME='enablecache'";
-        String enableCache;
-        boolean enableCacheBoolean = false;//Set to some default value
-        System.out.println("TRY TO READ PROPERTY!!!!!");
-        try (Connection connection = resultDataModel.getConnection(false);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sqltmp)) {
-
-            resultSet.next();
-            enableCache = resultSet.getString("PROPERTYVALUE");
-            System.out.println("ENABLE CACHE= "+enableCache);
-            enableCacheBoolean = Boolean.valueOf(enableCache);
-
-        }catch (SQLException e) {
-            System.out.println("EXCEPTION = " + e);
-        }
-
-        System.out.println("ENABLE CACHE="+enableCacheBoolean);
+        boolean enableCacheBoolean = Boolean.valueOf(enableCache);
         setEnableCache(enableCacheBoolean);
-
-        System.out.println("ANY CASE TABLE WAS CREATED. NOW TRY TO READ PROPERTIES FROM TABLE");
-        //});
     }
 
-    private void PrepareSystemProperties(){
-        System.out.println("TRY TO GET DATAMODEL!!!!!");
-        DataModelImpl result = newDataModel(OrmService.SPC_NAME, "System Property Name");
-        System.out.println("ADD TO SPECS!!!!!");
-        for (SystemPropsTableSpecs spec : SystemPropsTableSpecs.values()) {
-            System.out.println("ADD");
-            spec.addTo(result);
+    private String readSystemPropertyValue(String propertyName){
+        String getSystemPropertySql = "SELECT * FROM SYS_PROP WHERE PROPERTYNAME='"+propertyName+"'";
+        String systemPropertyValue = "";
+        try (Connection connection = getConnection(false);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(getSystemPropertySql)) {
+            resultSet.next();
+            systemPropertyValue = resultSet.getString("PROPERTYVALUE");
+        }catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
-        System.out.println("REGISTER!!!!");
-        result.register();
-
-        //return result;
+        return systemPropertyValue;
     }
 
     @Deactivate

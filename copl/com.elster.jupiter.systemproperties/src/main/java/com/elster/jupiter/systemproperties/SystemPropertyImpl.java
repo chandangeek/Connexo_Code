@@ -11,10 +11,10 @@ import java.time.Instant;
 public class SystemPropertyImpl implements SystemProperty{
     private long id;
 
-    @Size(max = Table.NAME_LENGTH, message = "{" + "TO-DO: NAME TOOOOOO LONG please make it correct" + "}")
+    @Size(max = Table.NAME_LENGTH, message = "Filed too long")
     private String propertyName;
 
-    @Size(max = Table.NAME_LENGTH, message = "{" + "TO-DO: NAME TOOOOOO LONG please make it correct" + "}")
+    @Size(max = Table.NAME_LENGTH, message = "Field too long")
     private String propertyValue;
 
     @SuppressWarnings("unused")
@@ -52,11 +52,6 @@ public class SystemPropertyImpl implements SystemProperty{
     }
 
 
-    /*@Override
-    public long getId(){
-        return  id;
-    };*/
-
     @Override
     public String getName(){
         return propertyName;
@@ -73,8 +68,6 @@ public class SystemPropertyImpl implements SystemProperty{
     };
 
     public void update(){
-        System.out.println("TRY YO SAVE UPDATED OBJECT !!!!!!!!!!");
         Save.UPDATE.save(this.dataModel, this);
-        System.out.println("UPDATE WAS PERFORMED!!!!!!!!!!");
     }
 }

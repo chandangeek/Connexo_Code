@@ -66,7 +66,7 @@ Ext.define('Sam.controller.history.Administration', {
                     action: 'showComponentsList'
                 },
                 systemprop: {
-                    title: 'System proppertis',//Uni.I18n.translate('general.componentsList', 'SAM', 'Components list'),
+                    title: Uni.I18n.translate('general.systemProperties', 'SAM', 'System properties'),
                     route: 'systemprop',
                     privileges: Sam.privileges.DeploymentInfo.view,
                     controller: 'Sam.controller.systemprops.SystemProps',

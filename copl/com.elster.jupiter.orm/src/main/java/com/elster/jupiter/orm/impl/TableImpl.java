@@ -850,7 +850,6 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public void prepare(long evictionTime, boolean enableCache) {
-        System.out.println("PREPARE EVICTION TIME="+evictionTime+ " enableCache="+enableCache);
         checkActiveBuilder();
         checkMapperTypeIsSet();
         getMapperType().validate();
@@ -882,14 +881,11 @@ public class TableImpl<T> implements Table<T> {
         cacheTtl = evictionTime;
 
         if (enableCache) {
-            System.out.println("CACHING ENABLED");
-            if (getCacheType().equals(CacheType.WHOLE_TABLE_CACHE)/*isWholeTableCached()*/) {
-                System.out.println("WHOLE TABLE CACHE");
+            if (getCacheType().equals(CacheType.WHOLE_TABLE_CACHE)) {
                 cached = true;
                 cacheWholeTable = true;
                 cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
             } else if (getCacheType().equals(CacheType.TUPLE_CACHE)) {
-                System.out.println("NOT WHOLE TABLE CACHE");
                 cached = true;
                 cacheWholeTable = false;
                 cache = new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat);
@@ -899,21 +895,17 @@ public class TableImpl<T> implements Table<T> {
                 cache = new TableCache.NoCache<>();
             }
         } else {
-            System.out.println("CACHING DISABLED");
             cached = false;
             cacheWholeTable = false;
             cache = new TableCache.NoCache<>();
         }
-        System.out.println("TABLE WAS PREPARED!!!!!!!!!");
     }
 
     public void changeEvictionTime(Long cacheTtl){
         this.cacheTtl = cacheTtl;
         if (isWholeTableCached()) {
-            System.out.println("NEW TABLE CACHE!!!");
             cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
         } else if(isCached()){
-            System.out.println("NEW TUPLE CACHE!!!");
             cache =  new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
         }
     }
@@ -932,17 +924,14 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public synchronized void enableCache(){
-        System.out.println("ENABLE CACHE!!!!!!!!!!!!!!");
         if (cacheType == CacheType.WHOLE_TABLE_CACHE) {
             cached = true;
             cacheWholeTable = true;
-            System.out.println("WHOLE TABLE CACHE!!!!!!!!!!!!!!");
             cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
         }
         if (cacheType == CacheType.TUPLE_CACHE){
             cached = true;
             cacheWholeTable = false;
-            System.out.println("TUPLE CACHE!!!!!!!!!!!!!!");
             cache = new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
         }
     }

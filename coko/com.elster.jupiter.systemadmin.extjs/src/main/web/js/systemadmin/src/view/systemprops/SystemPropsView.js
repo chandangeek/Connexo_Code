@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Sam.view.systemprops.SystemPropsView', {
-    //extend: 'Uni.view.container.ContentContainer',
     extend: 'Ext.panel.Panel',
     alias: 'widget.system-props-view',
 
@@ -41,7 +40,7 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                 itemId: 'sys-props-form-edit-button',
                 ui: 'plain',
                 iconCls: 'icon-pencil2',
-                tooltip: "EDIT",//Uni.I18n.translate('general.tooltip.edit', 'IMT', 'Edit'),
+                tooltip: Uni.I18n.translate('general.editSystemProperties', 'SAM', 'Edit'),
                 hidden: me.displayMode === 'edit',
                 style: {
                     fontSize: '16px',
@@ -73,17 +72,16 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                             items: [
                                 {
                                     itemId: 'edit-form-save-button',
-                                    text: "Save button",//Uni.I18n.translate('general.save', 'IMT', 'Save'),
+                                    text: Uni.I18n.translate('general.save', 'SAM', 'Save'),
                                     ui: 'action',
                                     action: 'save',
                                     handler: function () {
-                                        console.log("FIRE SAVE EVENT!!!!!!!!!!");
                                         me.fireEvent('save', me);
                                     }
                                 },
                                 me.editForm.xtype === 'property-form' ? {
                                     itemId: 'edit-form-restore-default-values-button',
-                                    text: 'Restore to defaults',//Uni.I18n.translate('general.restoreToDefault', 'IMT', 'Restore to default'),
+                                    text: Uni.I18n.translate('general.restoreToDefault', 'SAM', 'Restore to default'),
                                     iconCls: 'icon-rotate-ccw3',
                                     iconAlign: 'left',
                                     handler: function () {
@@ -92,7 +90,7 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                                 } : null,
                                 {
                                     itemId: 'edit-form-cancel-button',
-                                    text: 'Cancel button',//Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                                    text: Uni.I18n.translate('general.cancel', 'SAM', 'Cancel'),
                                     ui: 'link',
                                     action: 'cancel',
                                     handler: function () {
@@ -114,12 +112,10 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
     },
 
     getViewForm: function () {
-        console.log("GET VIEW FORM!!!!!!!!");
         return this.getComponent(0);
     },
 
     getEditForm: function () {
-        console.log("GET EDIT FORM!!!!!!!!");
         return this.getComponent(1);
     },
 
@@ -127,14 +123,12 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
         var me = this,
             editForm = me.getEditForm();
         editForm.updateRecord();
-        console.log("GET RECORD "+editForm.getRecord());
         return editForm.getRecord();
     },
 
 
     loadRecord: function (record) {
             var me = this;
-        console.log("LOAD RECORD IN VIEW!!!!!!!!!");
         me.getViewForm().loadRecord(record);
         me.getEditForm().loadRecord(record);
     },
@@ -142,16 +136,10 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
     switchDisplayMode: function (mode) {
             var me = this;
 
-            //if (me.hasEditMode && mode !== me.displayMode && (mode === 'view' || mode === 'edit')) {
             if (mode !== me.displayMode && (mode === 'view' || mode === 'edit')) {
                 Ext.suspendLayouts();
                 me.down('#sys-props-form-edit-button').setVisible(mode === 'view');
                 me.getLayout().setActiveItem(mode === 'view' ? 0 : 1);
-                /*if (mode === 'view') {
-                    me.clearInvalid();
-                    me.record.reject();
-                    me.getEditForm().loadRecord(me.record);
-                }*/
                 Ext.resumeLayouts(true);
                 me.displayMode = mode;
         }
