@@ -51,26 +51,21 @@ public class SystemPropertiesServiceImpl implements SystemPropertyService{
 
     @Activate
     public void activate() {
-        System.out.println("ACTIVATE SYSTEM PROPERTY SERVICE!!!!!");
         dataModel = ormService.newDataModel(COMPONENT_NAME, "System Property Name");
 
         for (
             SystemPropsTableSpecs spec : SystemPropsTableSpecs.values()) {
-            System.out.println("ADD");
             spec.addTo(dataModel);
         }
-        System.out.println("REGISTER!!!!");
         dataModel.register(getModule());
-        //dataModel.register();
         initSystemPropertySpecs();
         intitSystemProperties();
         startPropertyReading();
-        System.out.println("ACTIVATION IS DONE!!!!!!!!!!!!");
     }
 
     private void initSystemPropertySpecs(){
-        specs.put(CacheIsEnabledSystemPropertySpec.PROPERTY_NAME, new CacheIsEnabledSystemPropertySpec(ormService));
-        specs.put(EvictionTimeSystemPropertySpec.PROPERTY_NAME, new EvictionTimeSystemPropertySpec(ormService));
+        specs.put(CacheIsEnabledSystemPropertySpec.PROPERTY_KEY, new CacheIsEnabledSystemPropertySpec(ormService));
+        specs.put(EvictionTimeSystemPropertySpec.PROPERTY_KEY, new EvictionTimeSystemPropertySpec(ormService));
     }
 
     private void intitSystemProperties(){
@@ -112,11 +107,35 @@ public class SystemPropertiesServiceImpl implements SystemPropertyService{
     }
 
     private void startPropertyReading(){
-        System.out.println("START PROPERTY READING !!!!!!!!!!");
         Thread thread = new Thread(new ReadSystemPropertiesFromDB());
         thread.start();
     }
 
+
+
+    private synchronized void readAndCheckPropertiesByTimeout(){
+        List<SystemProperty> newprops = getAllSystemProperties();
+        for(SystemProperty prop : newprops){
+            if (!props.get(prop.getName()).equals(prop.getValue())){
+                specs.get(prop.getName()).actionOnChange(prop);
+                props.put(prop.getName() ,prop.getValue());//replace old value with new value
+            }
+        }
+
+    }
+
+    @Override
+    public synchronized void actionOnPropertyChange(SystemProperty systemProperty, SystemPropertySpec spec){
+        systemProperty.update();
+        props.put(systemProperty.getName(), systemProperty.getValue());
+        spec.actionOnChange(systemProperty);
+    }
+
+    /*Separate thread is used to read system properties from DB by timeout.
+    * This mechanism needed to synchronize different instances of connecxo.
+    * Message queue can be used only on instances that have configured Application Server.
+    * That is why such mechanism was added. But it should be improved. message queue independent from
+    * Application server should be introduced. */
     private class ReadSystemPropertiesFromDB implements Runnable{
 
         @Override
@@ -130,19 +149,6 @@ public class SystemPropertiesServiceImpl implements SystemPropertyService{
                 }
 
             }
-        }
-
-        private void readAndCheckPropertiesByTimeout(){
-            List<SystemProperty> newprops = getAllSystemProperties();
-            for(SystemProperty prop : newprops){
-                System.out.println("PROP NAME = "+prop.getName()+ " PROP VALUE ="+prop.getValue());
-                if (!props.get(prop.getName()).equals(prop.getValue())){
-                    System.out.println("PROPERTY WAS CHANGED");
-                    specs.get(prop.getName()).actionOnChange(prop);
-                    props.put(prop.getName() ,prop.getValue());//replace with new value
-                }
-            }
-
         }
     }
 

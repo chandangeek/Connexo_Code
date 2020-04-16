@@ -98,7 +98,7 @@ Ext.define('Sam.controller.Main', {
 
             if (Sam.privileges.DeploymentInfo.canView()) {
                 var deploymentInfoItem = Ext.create('Uni.model.PortalItem', {
-                    title: 'System',//Uni.I18n.translate('general.deploymentInfo', 'SAM', 'Deployment information'),
+                    title: Uni.I18n.translate('general.System', 'SAM', 'System'),
                     portal: 'administration',
                     items: [
                         {
@@ -110,7 +110,7 @@ Ext.define('Sam.controller.Main', {
                             href: router.getRoute('administration/systeminfo').buildUrl()
                         },
                         {
-                            text: 'System properties',//Uni.I18n.translate('general.systemInfo', 'SAM', 'System information'),
+                            text: Uni.I18n.translate('general.systemProperties', 'SAM', 'System properties'),
                             href: router.getRoute('administration/systemprop').buildUrl()
                         }
                     ]

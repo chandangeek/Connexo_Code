@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Sam.view.systemprops.SysPropsContainer', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.system-props-container',
@@ -34,7 +38,7 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
         me.content = [
             {
                 itemId: 'sys-prop-content',
-                title: 'System properties',//Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
+                title: Uni.I18n.translate('general.systemProperties', 'SAM', 'System properties'),
                 ui: 'large',
                 layout: 'hbox',
                 defaults: {
@@ -53,7 +57,7 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
                             plain: true,
                             items: [
                                 {
-                                    text: 'EDIT PROPSERTIES',//Uni.I18n.translate('general.editGeneralInformation', 'IMT', "Edit 'General information'"),
+                                    text: Uni.I18n.translate('general.editSystemProperties', 'SAM', 'Edit'),
                                     itemId: 'edit-system-properties'
                                 }
                             ]
@@ -70,12 +74,10 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
                             {
                                 xtype: 'system-props-view',
                                 itemId: 'sys-props-attributes-form',
-                                title: 'System props container',//Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
+                                title: Uni.I18n.translate('general.cacheParameters', 'SAM', 'Cache parameters'),
                                 router: me.router,
-                                //record: me.usagePoint,
                                 viewDefaults: me.viewDefaults,
-                                editDefaults: me.editDefaults,
-                                //hasEditMode: me.canManageUsagePoint
+                                editDefaults: me.editDefaults
                             }
                         ]
                     }
@@ -89,7 +91,6 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
 
     loadRecord: function (record) {
             var me = this;
-            console.log("LOAD RECORD IN CONTAINER!!!!!!!!!");
             me.propertyInfo = Ext.create('Sam.model.SystemPropsInfo', {properties: record.properties});
             me.down('#sys-props-attributes-form').loadRecord(record);
     }

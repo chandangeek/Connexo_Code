@@ -28,7 +28,6 @@ public class SystemPropertyApllication extends Application{
 
     @Override
     public Set<Class<?>> getClasses() {
-        System.out.println("getClasses!!!!!!!!!!!!!!");
         return ImmutableSet.of(
             SystemPropertyResource.class
         );
@@ -36,7 +35,6 @@ public class SystemPropertyApllication extends Application{
 
     @Reference
     public void setSystemPropertiesService(SystemPropertyService systemPropertiesService){
-        System.out.println("SET SYSTEM PROPERTY SERVICE!!!!!!!!!!!!!!!");
         this.systemPropertiesService = systemPropertiesService;
     }
 
