@@ -7,12 +7,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 
 import javax.inject.Inject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class UpgraderV10_8 implements Upgrader {
@@ -21,12 +25,14 @@ public class UpgraderV10_8 implements Upgrader {
     private final DataModel dataModel;
     private final Clock clock;
     private final InstallerV10_8Impl installerV10_8;
+    private final TaskService taskService;
 
     @Inject
-    UpgraderV10_8(DataModel dataModel, Clock clock, InstallerV10_8Impl installerV10_8) {
+    UpgraderV10_8(DataModel dataModel, Clock clock, InstallerV10_8Impl installerV10_8, TaskService taskService) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.installerV10_8 = installerV10_8;
+        this.taskService = taskService;
     }
 
     @Override
@@ -44,8 +50,17 @@ public class UpgraderV10_8 implements Upgrader {
     }
 
     private void removeAllCRL() {
-        dataModel.stream(CrlRequestTaskProperty.class).join(RecurrentTask.class)
-                .peek(CrlRequestTaskProperty::delete).map(CrlRequestTaskProperty::getRecurrentTask).forEach(RecurrentTask::delete);
+        List<RecurrentTask> relatedTasks = executeQuery(dataModel, "select TASK from " + TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name(), this::collectRecurrentTasks);
+        execute(dataModel, "TRUNCATE TABLE " + TableSpecs.DDC_CRL_REQUEST_TASK_PROPS.name()); //need to delete props first
+        relatedTasks.forEach(RecurrentTask::delete);
+    }
+
+    private List<RecurrentTask> collectRecurrentTasks(ResultSet resultSet) throws SQLException {
+        List<RecurrentTask> recurrentTaskList = new ArrayList<>();
+        while (resultSet.next()) {
+            taskService.getRecurrentTask(resultSet.getLong("TASK")).ifPresent(recurrentTaskList::add);
+        }
+        return recurrentTaskList;
     }
 
     private void updateCRLTable() {
