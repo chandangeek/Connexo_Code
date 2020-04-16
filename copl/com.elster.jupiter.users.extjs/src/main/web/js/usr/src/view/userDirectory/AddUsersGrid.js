@@ -17,7 +17,7 @@ Ext.define('Usr.view.userDirectory.AddUsersGrid', {
     columns: {
         items: [
             {
-                header: Uni.I18n.translate('general.userName', 'USR', 'User name'),
+                header: Uni.I18n.translate('general.username', 'USR', 'Username'),
                 dataIndex: 'name',
                 flex: 2
             },
