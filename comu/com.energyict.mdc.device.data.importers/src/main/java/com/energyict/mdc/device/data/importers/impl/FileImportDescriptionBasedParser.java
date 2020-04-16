@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
 
     private final FileImportDescription<T> descriptor;
-    private List<String> headers;
+    protected List<String> headers;
 
     public FileImportDescriptionBasedParser(FileImportDescription<T> descriptor) {
         this.descriptor = descriptor;

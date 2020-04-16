@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipm
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.topology.DeviceTopologyImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.loadprofilenextreading.DeviceLoadProfileNextReadingImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 
@@ -94,6 +95,20 @@ public enum TranslationKeys implements TranslationKey {
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (name: {1}) was overridden by new one (name: {2})"),
     NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point {1} is not found. New usage point was created based on Service Category value"),
 
+    DEVICE_TOPOLOGY_IMPORTER_DEVICE_IDENTIFIER("deviceIdentifier", "Device identifier"),
+    DEVICE_TOPOLOGY_IMPORTER_DEVICE_IDENTIFIER_DESCRIPTION("deviceIdentifierDescription", "Defines the device identifier that will be used when searching for slave/master devices"),
+    DEVICE_TOPOLOGY_IMPORTER_ALLOW_REASSIGNING("allowReassigning", "Allow reassigning"),
+    DEVICE_TOPOLOGY_IMPORTER_ALLOW_REASSIGNING_DESCRIPTION("allowReassigningDescription", "Allows to assign a slave device to a master device if it is currently linked to another master device"),
+
+    TOPOLOGY_IMPORT_RESULT_NO_REQUESTS_PROCESSED("TopologyImportResultNoRequestsProcessed", "Failed to complete, no link/unlink requests have been processed."),
+    TOPOLOGY_IMPORT_RESULT_INCORRECT_HEADER("TopologyImportResultIncorrectHeader", "Failed to complete. No lines have been processed due to incorrect header."),
+    TOPOLOGY_IMPORT_RESULT_INCOMPLETE_ALL_ERRORS("TopologyImportResultIncompleteAllErrors", "Not all lines have been processed due to an unexpected error. {0} link/unlink request(s) skipped due to errors."),
+    TOPOLOGY_IMPORT_RESULT_INCOMPLETE_SOME_ERRORS("TopologyImportResultIncompleteSomeErrors", "Not all lines have been processed due to an unexpected error. {0} link/unlink request(s) successfully completed, {1} request(s) skipped due to errors."),
+    TOPOLOGY_IMPORT_RESULT_INCOMPLETE("TopologyImportResultIncomplete", "Not all lines have been processed due to an unexpected error. {0} link/unlink request(s) successfully completed."),
+    TOPOLOGY_IMPORT_RESULT_FAIL("TopologyImportResultFail", "Failed to complete. {0} link/unlink request(s) skipped due to errors."),
+    TOPOLOGY_IMPORT_RESULT_SUCCESS("TopologyImportResultSuccess", "Finished successfully. {0} link/unlink request(s) successfully completed."),
+    TOPOLOGY_IMPORT_RESULT_SUCCESS_WITH_ERRORS("TopologyImportResultSuccessWithErrors", "Finished successfully with some failures. {0} link/unlink request(s) successfully completed, {1} request(s) skipped due to errors."),
+
     //Translations for importer names
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer [STD]"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Devices shipment importer [STD]"),
@@ -109,10 +124,11 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_CONNECTION_ATTRIBUTES_IMPORTER(ConnectionAttributesImportFactory.NAME, "Device connection attributes importer [STD]"),
     DEVICE_SECURITY_ATTRIBUTES_IMPORTER(SecurityAttributesImportFactory.NAME, "Device security attributes importer [STD]"),
     DEVICE_COUSTOM_ATTRIBUTES_IMPORTER(CustomAttributesImportFactory.NAME, "Device custom attributes importer [STD]"),
-    DEVICE_CERTIFICATES_IMPORTER(DeviceCertificatesImporterFactory.NAME, "Certifcate importer [STD]"),
+    DEVICE_CERTIFICATES_IMPORTER(DeviceCertificatesImporterFactory.NAME, "Certificate importer [STD]"),
     DEVICE_PROTOCOL_ATTRIBUTES_IMPORTER(ProtocolAttributesImportFactory.NAME, "Device protocol attributes importer [STD]"),
     DEVICE_PROTOCOL_DIALECT_ATTRIBUTES_IMPORTER(ProtocolDialectAttributesImportFactory.NAME, "Device protocol dialect attributes importer [STD]"),
     DEVICE_LOADPROFILE_NEXT_BLOCK_READINGS_IMPORTER(DeviceLoadProfileNextReadingImporterFactory.NAME, "Load profile next reading block importer [STD]"),  //lori
+    DEVICE_TOPOLOGY_IMPORTER(DeviceTopologyImporterFactory.NAME, "Device topology importer [STD]"),
 
     STRING_FORMAT("StringFormat", "string"),
     NUMBER_FORMAT("NumberFormat", "number"),
