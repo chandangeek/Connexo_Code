@@ -40,6 +40,7 @@ import com.energyict.protocolimpl.edmi.common.connection.CommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.ExtendedCommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.MiniECommandLineConnection;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation;
+import com.energyict.protocolimpl.utils.ComServerModeUtil;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocolimplv2.edmi.dialects.ModemDeviceProtocolDialect;
@@ -210,7 +211,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     @Override
     public CommandLineConnection getCommandLineConnection() {
         if (commandLineConnection == null) {
-            if (getProperties().getConnectionMode().equals(MK10ConfigurationSupport.ConnectionMode.MINI_E_COMMAND_LINE)) {
+            if (getConnectionMode().equals(MK10ConfigurationSupport.ConnectionMode.MINI_E_COMMAND_LINE)) {
                 commandLineConnection = new MiniECommandLineConnection(
                         new ComChannelInputStreamAdapter(getComChannel()),
                         new ComChannelOutputStreamAdapter(getComChannel()),
@@ -236,6 +237,13 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
             commandLineConnection.setHHUSignOn(hhuSignOn);
         }
         return commandLineConnection;
+    }
+
+    private MK10ConfigurationSupport.ConnectionMode getConnectionMode() {
+        if (ComServerModeUtil.isOnline())
+            return getProperties().getConnectionMode();
+        else
+            return getProperties().getOfflineConnectionMode();
     }
 
     @Override

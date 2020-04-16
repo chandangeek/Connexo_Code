@@ -110,6 +110,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
 
     V2_DLMS_CONNECTION_MODE("upl.property.dlms.connectionMode", "Connection mode"),
+    V2_DLMS_OFFLINE_CONNECTION_MODE("upl.property.dlms.offlineConnectionMode", "Offline connection mode"),
     V2_DLMS_VALIDATE_CACHED_FRAMECOUNTER("upl.property.v2.dlms.validateCachedFramecounter", "Validate cached framecounter"),
     V2_SKIP_FC_AUTH_TAG_VALIDATION("upl.property.v2.dlms.SKIP_FC_AUTH_TAG_VALIDATION", "Skip FC authentication tag validation"),
     V2_SKIP_SLAVE_DEVICES("upl.property.v2.dlms.SKIP_SLAVE_DEVICES", "Skip slave devices"),
