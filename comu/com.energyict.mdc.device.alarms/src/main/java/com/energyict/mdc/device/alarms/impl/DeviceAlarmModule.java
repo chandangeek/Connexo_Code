@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.alarms.impl;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -34,6 +35,7 @@ public class DeviceAlarmModule extends AbstractModule {
         requireBinding(DeviceService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(EndPointConfigurationService.class);
+        requireBinding(PasswordDecryptService.class);
 
         bind(DeviceAlarmService.class).to(DeviceAlarmServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceAlarmEventHandlerFactory.class).in(Scopes.SINGLETON);
