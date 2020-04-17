@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.impl.module;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.impl.service.PropertyFactoriesProviderImpl;
@@ -43,6 +44,7 @@ public class IssueModule extends AbstractModule {
         requireBinding(PropertySpecService.class);
         requireBinding(EndPointConfigurationService.class);
         requireBinding(MeteringGroupsService.class);
+        requireBinding(PasswordDecryptService.class);
 
         bind(PropertyFactoriesProvider.class).to(PropertyFactoriesProviderImpl.class).in(Scopes.SINGLETON);
         bind(IssueService.class).to(IssueServiceImpl.class).in(Scopes.SINGLETON);
