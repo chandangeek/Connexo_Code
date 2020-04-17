@@ -1230,7 +1230,7 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .add();
-            Column crlSigner = table.column(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.name())
+            Column crlSigner = table.column(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.name()).since(version(10, 8))
                     .number()
                     .notNull()
                     .add();
