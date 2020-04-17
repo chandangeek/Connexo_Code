@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.export.processor.impl;
@@ -17,20 +17,20 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.export.processor.StandardCsvEventDataFormatterFactory",
+@Component(name = "com.elster.jupiter.export.processor.WithDeviceCodesCsvEventDataFormatterFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_EVENT_DATA_TYPE},
         service = DataFormatterFactory.class, immediate = true)
-public class StandardCsvEventDataFormatterFactory extends AbstractCsvEventDataFormatterFactory implements DataFormatterFactory {
+public class WithDeviceCodesCsvEventDataFormatterFactory extends AbstractCsvEventDataFormatterFactory implements DataFormatterFactory {
 
-    static final String NAME = "standardCsvEventDataProcessorFactory";
+    static final String NAME = "withDeviceCodesCsvEventDataProcessorFactory";
 
     //OSGI
-    public StandardCsvEventDataFormatterFactory() {
+    public WithDeviceCodesCsvEventDataFormatterFactory() {
     }
 
     // Tests
     @Inject
-    public StandardCsvEventDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, NlsService nlsService) {
+    public WithDeviceCodesCsvEventDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, NlsService nlsService) {
         super(propertySpecService, dataExportService, nlsService);
     }
 
@@ -51,7 +51,7 @@ public class StandardCsvEventDataFormatterFactory extends AbstractCsvEventDataFo
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties));
+        return WithDeviceCodesCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties));
     }
 
     @Override
@@ -61,6 +61,6 @@ public class StandardCsvEventDataFormatterFactory extends AbstractCsvEventDataFo
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(Translations.Labels.CSV_EVENTS_FORMATTER).format();
+        return this.thesaurus.getFormat(Translations.Labels.CSV_EVENTS_WITH_DEVICE_CODES_FORMATTER).format();
     }
 }

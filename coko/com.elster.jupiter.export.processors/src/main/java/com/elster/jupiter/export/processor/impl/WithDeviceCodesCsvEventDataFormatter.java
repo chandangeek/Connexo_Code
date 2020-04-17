@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.export.processor.impl;
@@ -12,19 +12,19 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.StringJoiner;
 
-class StandardCsvEventDataFormatter extends AbstractCsvEventDataFormatter implements StandardFormatter {
+class WithDeviceCodesCsvEventDataFormatter extends AbstractCsvEventDataFormatter implements StandardFormatter {
 
-    StandardCsvEventDataFormatter(DataExportService dataExportService) {
+    WithDeviceCodesCsvEventDataFormatter(DataExportService dataExportService) {
         super(dataExportService);
     }
 
-    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
+    private WithDeviceCodesCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
         super.initialize(translatablePropertyValueInfo, tag);
         return this;
     }
 
-    static StandardCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
-        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag);
+    static WithDeviceCodesCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
+        return new WithDeviceCodesCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag);
     }
 
     @Override
@@ -32,7 +32,8 @@ class StandardCsvEventDataFormatter extends AbstractCsvEventDataFormatter implem
         ZonedDateTime eventTime = ZonedDateTime.ofInstant(endDeviceEvent.getCreatedDateTime(), ZoneId.systemDefault());
         StringJoiner joiner = new StringJoiner(separator, "", "\n")
                 .add(DEFAULT_DATE_TIME_FORMAT.format(eventTime))
-                .add(endDeviceEvent.getEventTypeCode());
+                .add(endDeviceEvent.getEventTypeCode())
+                .add(endDeviceEvent.getType());
         // adding list of device identifiers; see com.elster.jupiter.export.impl.EventSelector.buildStructureMarker
         structureMarker.getStructurePath().forEach(joiner::add);
         return joiner.toString();

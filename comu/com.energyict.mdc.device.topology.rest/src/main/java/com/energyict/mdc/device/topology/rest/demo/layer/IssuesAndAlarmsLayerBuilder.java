@@ -129,6 +129,7 @@ public class IssuesAndAlarmsLayerBuilder implements GraphLayerBuilder{
          endDeviceEvent.setAliasName(device.getSerialNumber());
          endDeviceEvent.setDescription("DEMO NETWORK TOPOLOGY");
          endDeviceEvent.setReason("DEMO PURPOSES");
+         endDeviceEvent.setType("DEMO CODE");
          meterReading.addEndDeviceEvent(endDeviceEvent);
          device.store(meterReading);
      };
