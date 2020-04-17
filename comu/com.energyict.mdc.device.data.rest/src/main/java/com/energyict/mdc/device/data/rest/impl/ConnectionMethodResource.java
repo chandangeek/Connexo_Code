@@ -46,6 +46,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -100,9 +101,9 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("name") String name, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        Optional<Response> badResponse = validateTask(connectionMethodInfo, partialConnectionTask);
-        if (badResponse.isPresent()) {
-            return badResponse.get();
+        Optional<ConfirmationInfo> confirmationInfoOptional = validateTask(connectionMethodInfo, partialConnectionTask);
+        if (confirmationInfoOptional.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(confirmationInfoOptional.get()).build();
         }
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
@@ -113,18 +114,21 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
-    private Optional<Response> validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+    private Optional<ConfirmationInfo> validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+        ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         if (connectionMethodInfo.status == ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE && !hasAllRequiredProps(connectionMethodInfo, task)) {
-            return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format())).build());
+            confirmationInfo.errors.add(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format()));
         }
-        return Optional.empty();
+        return Optional.of(confirmationInfo)
+                .filter(confirmation -> !confirmation.errors.isEmpty());
     }
 
-    private Optional<Response> pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+    private Optional<ConfirmationInfo> pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+        ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         switch (connectionMethodInfo.status) {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
-                    return Optional.of(Response.status(Response.Status.BAD_REQUEST).entity(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format())).build());
+                    confirmationInfo.errors.add(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format()));
                 } else if (!task.isActive()) {
                     task.activate();
                 }
@@ -138,7 +142,8 @@ public class ConnectionMethodResource {
                 task.invalidateStatus();
                 break;
         }
-        return Optional.empty();
+        return Optional.of(confirmationInfo)
+                .filter(confirmation -> !confirmation.errors.isEmpty());
     }
 
     private boolean hasAllRequiredProps(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
@@ -265,9 +270,9 @@ public class ConnectionMethodResource {
         }
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.saveAllProperties();
-        Optional<Response> badResponse = pauseOrResumeTaskIfNeeded(info, task);
-        if (badResponse.isPresent()) {
-            return badResponse.get();
+        Optional<ConfirmationInfo> confirmationInfoOptional = pauseOrResumeTaskIfNeeded(info, task);
+        if (confirmationInfoOptional.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(confirmationInfoOptional.get()).build();
         }
         task.save();
         if (info.isDefault && !wasConnectionTaskDefault) {
@@ -310,6 +315,21 @@ public class ConnectionMethodResource {
             return Optional.of(uriParams.getFirst(parameter));
         } else {
             return Optional.empty();
+        }
+    }
+
+    private static class ConfirmationInfo {
+        public final boolean confirmation = true;
+        public final boolean success = false;
+        public List<ErrorInfo> errors = new ArrayList<>();
+    }
+
+    private static class ErrorInfo {
+        public String id;
+        public String msg;
+
+        private ErrorInfo(String msg) {
+            this.msg = msg;
         }
     }
 }

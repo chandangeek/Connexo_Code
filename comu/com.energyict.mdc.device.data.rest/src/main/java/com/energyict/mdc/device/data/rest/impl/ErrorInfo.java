@@ -8,11 +8,6 @@ public class ErrorInfo {
 
     public String message;
     public String tooltip;
-    public boolean isError = true;
-
-    public ErrorInfo(String message) {
-        this.message = message;
-    }
 
     public ErrorInfo(String message, String tooltip) {
         this.message = message;
