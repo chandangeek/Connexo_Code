@@ -45,6 +45,11 @@ public class MK10Properties {
         return connectionModeName != null ? MK10ConfigurationSupport.ConnectionMode.fromName(connectionModeName) : MK10ConfigurationSupport.DEFAULT_CONNECTION_MODE;
     }
 
+    public MK10ConfigurationSupport.ConnectionMode getOfflineConnectionMode() {
+        String connectionModeName = (String) getProperties().getProperty(MK10ConfigurationSupport.OFFLINE_CONNECTION_MODE);
+        return connectionModeName != null ? MK10ConfigurationSupport.ConnectionMode.fromName(connectionModeName) : MK10ConfigurationSupport.DEFAULT_CONNECTION_MODE;
+    }
+
     public boolean preventCrossingIntervalBoundaryWhenReading() {
         return (Boolean) getProperties().getProperty(MK10ConfigurationSupport.PREVENT_CROSSING_INTERVAL_BOUNDARY_WHEN_READING_PROFILES, false);
     }

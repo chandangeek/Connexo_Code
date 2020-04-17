@@ -17,7 +17,7 @@
     <properties>
         <jss.version>9.8.0</jss.version>
         <!-- This version is smaller than JSS uses but it is incompatible with out bundle plugin since it is java 9 jar (the one used by JSS, 1.64)-->
-        <bouncycastle.version>1.64</bouncycastle.version>
+        <bouncycastle.jss.version>1.64</bouncycastle.jss.version>
         <spring.version>5.2.3.RELEASE</spring.version>
         <jackson.version>2.4.0</jackson.version>
         <antlr.version>4.8</antlr.version>
@@ -152,12 +152,14 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15to18</artifactId>
-            <version>${bouncycastle.version}</version>
+            <version>${bouncycastle.jss.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15to18</artifactId>
-            <version>${bouncycastle.version}</version>
+            <version>${bouncycastle.jss.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.checkerframework</groupId>

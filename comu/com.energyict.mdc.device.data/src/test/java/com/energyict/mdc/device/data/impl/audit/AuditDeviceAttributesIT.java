@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuditDeviceAttributesIT extends AuditDeviceBase {
+public class AuditDeviceAttributesIT extends AuditDeviceBaseIT {
 
     private static final String DEVICE_NAME = "DeviceName";
     private static final Map<DeviceAttribute, Object> deviceAttributesSet0 =  ImmutableMap.of(

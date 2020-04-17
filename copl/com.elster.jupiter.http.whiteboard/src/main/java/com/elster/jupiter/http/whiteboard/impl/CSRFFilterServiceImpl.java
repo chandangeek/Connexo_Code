@@ -42,6 +42,11 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     private static final String PUT = "PUT";
     private static final String DELETE = "DELETE";
 
+    private static final String[] RESOURCES_THAT_ARE_EXCLUDED_FROM_CSRF_FILTER = {
+            "/api/apps/security/acs",
+            "/api/apps/saml/v2/logout"
+    };
+
     private volatile CSRFService csrfService;
 
     public CSRFFilterServiceImpl(){
@@ -80,6 +85,9 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
     @Override
     public boolean handleCSRFSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if(Arrays.stream(RESOURCES_THAT_ARE_EXCLUDED_FROM_CSRF_FILTER).anyMatch(request.getRequestURI()::contains)){
+            return true;
+        }
         if (isFormSubmitRequest(request) && !validCSRFRequest(request)) {
             denyRequest(request, response);
             return false;
