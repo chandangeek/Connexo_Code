@@ -201,7 +201,6 @@ public class DeviceMessageInfoFactory {
         String name = thesaurus.getString(entry.getKey(), null);
         String key = entry.getKey();
         String decription = "Description for " + key;
-        /*XROMVYU EXAMPLE HOW TO FILL PROPERTY INFO*/
         PropertyValueInfo propertyValueInfo = new PropertyValueInfo(entry.getValue(), null, null, null);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
         propertyTypeInfo.simplePropertyType = SimplePropertyType.UNKNOWN;
