@@ -259,29 +259,42 @@ public final class OrmServiceImpl implements OrmService {
         }
 
 
-        String evictionTime = readSystemPropertyValue("evictiontime");
-        String enablecache = readSystemPropertyValue("enablecache");
+        String evictionTime = readSystemPropertyValue("evictiontime", "300");
+        String enablecache = readSystemPropertyValue("enablecache", "true");
 
-        System.out.println("EVICTION_TIME = "+evictionTime);
-        System.out.println("CACHE_ENABLE = "+enablecache);
         long evictionTimeMs = Long.valueOf(evictionTime);
         setEvictionTime(evictionTimeMs);
-        boolean enableCacheBoolean = Boolean.valueOf(enableCache);
+        boolean enableCacheBoolean = Boolean.valueOf(enablecache);
         setEnableCache(enableCacheBoolean);
     }
 
-    private String readSystemPropertyValue(String propertyName){
+    private String readSystemPropertyValue(String propertyName, String defaultValue){
         String getSystemPropertySql = "SELECT * FROM SYS_PROP WHERE PROPERTYNAME='"+propertyName+"'";
         String systemPropertyValue = "";
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(getSystemPropertySql)) {
-            resultSet.next();
-            systemPropertyValue = resultSet.getString("PROPERTYVALUE");
+            if (resultSet.next()) {
+                systemPropertyValue = resultSet.getString("PROPERTYVALUE");
+            }
         }catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+        if (systemPropertyValue.isEmpty()){
+            setSystemPropertyValue(propertyName, defaultValue);
+            systemPropertyValue = defaultValue;
+        }
         return systemPropertyValue;
+    }
+
+    private void setSystemPropertyValue(String propertyName, String defaultValue){
+        String insertSystemPropertySql = "INSERT INTO SYS_PROP (PROPERTYNAME, PROPERTYVALUE) VALUES('"+propertyName+"','"+defaultValue+"')";
+        try (Connection connection = getConnection(false);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(insertSystemPropertySql)) {
+        }catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     @Deactivate

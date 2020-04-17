@@ -288,7 +288,7 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
         }
     }
 
-    @Override/*XROMVYU GET PROPERY SPECS*/
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return new ArrayList<>(this.actual.getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::adaptTo).collect(Collectors.toList()));
     }
