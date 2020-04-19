@@ -257,7 +257,7 @@ sub read_config {
                 if ( "$val[0]" eq "SSO_ENABLED" )                   {$SSO_ENABLED=$val[1];}
 				if ( "$val[0]" eq "SMTP_PASSWORD" )                   {$SMTP_PASSWORD=$val[1];}
                 if ( "$val[0]" eq "SMTP_HOST" )                   {$SMTP_HOST=$val[1];}
-                if ( "$val[0]" eq "SMTP_PORT" )                   {$SMTP_PORT=$val[1];}testKPermutationOf
+                if ( "$val[0]" eq "SMTP_PORT" )                   {$SMTP_PORT=$val[1];}
                 if ( "$val[0]" eq "SMTP_USER" )                   {$SMTP_USER=$val[1];}
                 if ( "$val[0]" eq "SMTP_FROM" ) 				    {$SMTP_FROM=$val[1]}
             }
