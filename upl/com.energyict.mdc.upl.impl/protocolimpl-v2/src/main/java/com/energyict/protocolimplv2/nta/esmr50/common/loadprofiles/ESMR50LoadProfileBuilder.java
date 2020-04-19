@@ -226,6 +226,12 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
     }
 
     @Override
+    protected ObisCode fixObisCodeForSlaveLoadProfile( ObisCode obisCode )
+    {
+        return obisCode;
+    }
+
+    @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders){
         List<CollectedLoadProfileConfiguration> loadProfileConfigurationList = super.fetchLoadProfileConfiguration(loadProfileReaders);
 
