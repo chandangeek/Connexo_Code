@@ -76,9 +76,9 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         assertThat(model.<String>get("$.serviceCategoryCustomPropertySets[0].name")).isEqualTo(registeredCustomPropertySet.getCustomPropertySet().getName());
         assertThat(model.<Boolean>get("$.serviceCategoryCustomPropertySets[0].isRequired")).isEqualTo(registeredCustomPropertySet.getCustomPropertySet().isRequired());
         assertThat(model.<Boolean>get("$.serviceCategoryCustomPropertySets[0].isVersioned")).isEqualTo(registeredCustomPropertySet.getCustomPropertySet().isVersioned());
-        assertThat(model.<List>get("$.serviceCategoryCustomPropertySets[0].defaultViewPrivileges")).hasSize(1);
+        assertThat(model.<List>get("$.serviceCategoryCustomPropertySets[0].defaultViewPrivileges")).hasSize(4);
         assertThat(model.<String>get("$.serviceCategoryCustomPropertySets[0].defaultViewPrivileges[0]")).isEqualTo(registeredCustomPropertySet.getCustomPropertySet().defaultViewPrivileges().toArray()[0].toString());
-        assertThat(model.<List>get("$.serviceCategoryCustomPropertySets[0].defaultEditPrivileges")).hasSize(1);
+        assertThat(model.<List>get("$.serviceCategoryCustomPropertySets[0].defaultEditPrivileges")).hasSize(4);
         assertThat(model.<String>get("$.serviceCategoryCustomPropertySets[0].defaultEditPrivileges[0]")).isEqualTo(registeredCustomPropertySet.getCustomPropertySet().defaultEditPrivileges().toArray()[0].toString());
         assertThat(model.<List>get("$.serviceCategoryCustomPropertySets[0].viewPrivileges")).hasSize(1);
         assertThat(model.<String>get("$.serviceCategoryCustomPropertySets[0].viewPrivileges[0]")).isEqualTo(registeredCustomPropertySet.getViewPrivileges().toArray()[0].toString());
@@ -105,8 +105,8 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         when(customPropertySet.getName()).thenReturn("domainExtensionName");
         when(customPropertySet.isRequired()).thenReturn(true);
         when(customPropertySet.isVersioned()).thenReturn(false);
-        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
-        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
+        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
+        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_1));
         when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
         return customPropertySet;
     }
