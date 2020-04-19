@@ -65,9 +65,15 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         List jsonEditPrivileges = (List) jsonCustomAttributeSets.get("editPrivileges");
         assertThat(jsonEditPrivileges.get(0)).isEqualTo("LEVEL_2");
         List jsonDefaultViewPrivileges = (List) jsonCustomAttributeSets.get("defaultViewPrivileges");
-        assertThat(jsonDefaultViewPrivileges.get(0)).isEqualTo("LEVEL_3");
+        assertThat(jsonDefaultViewPrivileges.get(0)).isEqualTo("LEVEL_1");
+        assertThat(jsonDefaultViewPrivileges.get(1)).isEqualTo("LEVEL_2");
+        assertThat(jsonDefaultViewPrivileges.get(2)).isEqualTo("LEVEL_3");
+        assertThat(jsonDefaultViewPrivileges.get(3)).isEqualTo("LEVEL_4");
         List jsonDefaultEditPrivileges = (List) jsonCustomAttributeSets.get("defaultEditPrivileges");
-        assertThat(jsonDefaultEditPrivileges.get(0)).isEqualTo("LEVEL_4");
+        assertThat(jsonDefaultEditPrivileges.get(0)).isEqualTo("LEVEL_1");
+        assertThat(jsonDefaultEditPrivileges.get(1)).isEqualTo("LEVEL_2");
+        assertThat(jsonDefaultEditPrivileges.get(2)).isEqualTo("LEVEL_3");
+        assertThat(jsonDefaultEditPrivileges.get(3)).isEqualTo("LEVEL_4");
         Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("properties")).get(0);
         assertThat(jsonCustomAttributes.get("key")).isEqualTo("customAttribute");
         Map propertyTypeInfo = (Map) jsonCustomAttributes.get("propertyTypeInfo");
