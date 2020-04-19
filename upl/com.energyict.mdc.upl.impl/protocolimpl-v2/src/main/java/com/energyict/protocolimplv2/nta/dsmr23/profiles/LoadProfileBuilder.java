@@ -236,7 +236,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
     protected ObisCode fixObisCodeForSlaveLoadProfile( ObisCode obisCode )
     {
         // special case for combined load profile
-        if (obisCode.equalsIgnoreBChannel(MBUS_MONTHLY_LP_OBISCODE)) {
+        if( obisCode.equalsIgnoreBChannel(MBUS_MONTHLY_LP_OBISCODE) || obisCode.equalsIgnoreBChannel(MBUS_DAILY_LP_OBISCODE) ) {
             obisCode.setB(0);
         }
 
