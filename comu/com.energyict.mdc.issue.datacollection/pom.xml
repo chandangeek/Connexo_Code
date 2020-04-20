@@ -152,14 +152,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>jupiter-oracle</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bootstrap.oracle</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bootstrap</artifactId>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
