@@ -35,7 +35,6 @@ public class DeviceAlarmModule extends AbstractModule {
         requireBinding(DeviceService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(EndPointConfigurationService.class);
-        requireBinding(PasswordDecryptService.class);
 
         bind(DeviceAlarmService.class).to(DeviceAlarmServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceAlarmEventHandlerFactory.class).in(Scopes.SINGLETON);

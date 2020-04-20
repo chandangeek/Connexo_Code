@@ -44,7 +44,6 @@ public class IssueModule extends AbstractModule {
         requireBinding(PropertySpecService.class);
         requireBinding(EndPointConfigurationService.class);
         requireBinding(MeteringGroupsService.class);
-//        requireBinding(PasswordDecryptService.class);
 
         bind(PropertyFactoriesProvider.class).to(PropertyFactoriesProviderImpl.class).in(Scopes.SINGLETON);
         bind(IssueService.class).to(IssueServiceImpl.class).in(Scopes.SINGLETON);
