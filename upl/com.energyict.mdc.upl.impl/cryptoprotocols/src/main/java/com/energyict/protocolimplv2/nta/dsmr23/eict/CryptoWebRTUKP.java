@@ -43,7 +43,7 @@ public class CryptoWebRTUKP extends WebRTUKP {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-27";
+        return "Crypto version: 2020-04-15";
     }
 
     @Override
@@ -113,6 +113,11 @@ public class CryptoWebRTUKP extends WebRTUKP {
                     this.getNumberLookupExtractor(), this.getLoadProfileExtractor(), this.getKeyAccessorTypeExtractor());
         }
         return this.cryptoMessaging;
+    }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return false;
     }
 
 }

@@ -12,7 +12,6 @@ import com.energyict.mdc.issue.datacollection.event.RegisteredToGatewayEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceResolvedEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
 import org.osgi.service.event.EventConstants;
 
@@ -129,6 +128,11 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
 
     @Override
     public String getUniqueKey() {
+        return this.name();
+    }
+
+    @Override
+    public String getName() {
         return this.name();
     }
 

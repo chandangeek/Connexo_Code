@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyPurpose;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -155,6 +156,17 @@ public class SecurityAccessorTypeResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/keypurposes")
+    @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
+    public List<KeyPurposeInfo> getKeyPurposes() {
+        return securityManagementService.getAllKeyPurposes().stream()
+                .map(KeyPurposeInfo::new)
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/keytypes/{id}/keyencryptionmethods")
     @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
     public List<KeyEncryptionMethodInfo> getKeyEncryptionMethods(@PathParam("id") long id) {
@@ -248,7 +260,10 @@ public class SecurityAccessorTypeResource {
         if (securityAccessorTypeInfo.defaultValue != null) {
             keyFunctionTypeBuilder.managedCentrally();
         }
-
+        if (securityAccessorTypeInfo.keyPurpose != null && securityAccessorTypeInfo.keyPurpose.key != null) {
+            KeyPurpose keyPurpose = securityManagementService.getKeyPurpose(securityAccessorTypeInfo.keyPurpose.key);
+            keyFunctionTypeBuilder.keyPurpose(keyPurpose);
+        }
         if (CryptographicType.Hsm.equals(keyType.getCryptographicType())) {
             checkHSMLabel(securityAccessorTypeInfo.label);
             keyFunctionTypeBuilder.label(securityAccessorTypeInfo.label);
@@ -305,6 +320,10 @@ public class SecurityAccessorTypeResource {
         SecurityAccessorTypeUpdater updater = securityAccessorType.startUpdate();
         updater.name(securityAccessorTypeInfo.name);
         updater.description(securityAccessorTypeInfo.description);
+        if (securityAccessorTypeInfo.keyPurpose != null && securityAccessorTypeInfo.keyPurpose.key != null) {
+            KeyPurpose keyPurpose = securityManagementService.getKeyPurpose(securityAccessorTypeInfo.keyPurpose.key);
+            updater.keyPurpose(keyPurpose);
+        }
         if (securityAccessorType.keyTypeIsHSM()){
             checkHSMLabel(securityAccessorTypeInfo.label);
             updater.jssKeyType(securityAccessorTypeInfo.hsmJssKeyType);

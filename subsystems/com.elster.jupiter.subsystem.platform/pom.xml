@@ -312,6 +312,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>webservice.inbound.rest.scim</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.extjs</artifactId>
         </dependency>
         <dependency>

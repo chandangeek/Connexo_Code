@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.Disconnector;
@@ -12,6 +11,7 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -22,13 +22,26 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.io.ConnectionType;
-import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.*;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -39,7 +52,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
@@ -259,7 +271,9 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
         collectFirmwareVersionMeterCore(result);
 
-        collectFirmwareVersionCommunicationModule(result);
+        if (supportsCommunicationFirmwareVersion()) {
+            collectFirmwareVersionCommunicationModule(result);
+        }
 
         if (supportsAuxiliaryFirmwareVersion()) {
             collectFirmwareVersionAuxiliary(result);
@@ -302,7 +316,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-12-06$";
+        return "$Date: 2020-04-15$";
     }
 
     @Override

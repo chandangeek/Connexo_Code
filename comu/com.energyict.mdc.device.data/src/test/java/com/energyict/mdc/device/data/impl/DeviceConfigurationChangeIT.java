@@ -755,7 +755,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                         .getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-        assertThat(modifiedDevice.getConnectionTasks()).isEmpty();
     }
 
     @Test

@@ -1848,7 +1848,7 @@ public abstract class AbstractCosemObject {
         int minutesOffset = (protocolLink.getTimeZone().getRawOffset() + protocolLink.getTimeZone().getDSTSavings()) / (-1 * 1000 * 60);
         byte[] offset = getBytesFromInt(minutesOffset, 2);
 
-        intreq[CAPTURE_FROM_OFFSET + 10] = dsmr4SelectiveAccessFormat ? 0 : (byte) 0xFF;
+        intreq[CAPTURE_FROM_OFFSET + 10] = 0x00;
         intreq[CAPTURE_FROM_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
         intreq[CAPTURE_FROM_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
 
@@ -1868,7 +1868,7 @@ public abstract class AbstractCosemObject {
         intreq[CAPTURE_TO_OFFSET + 7] = toCalendar != null ? (byte) toCalendar.get(Calendar.HOUR_OF_DAY) : (byte) 0xFF;
         intreq[CAPTURE_TO_OFFSET + 8] = toCalendar != null ? (byte) toCalendar.get(Calendar.MINUTE) : (byte) 0xFF;
         intreq[CAPTURE_TO_OFFSET + 9] = 0x00;
-        intreq[CAPTURE_TO_OFFSET + 10] = dsmr4SelectiveAccessFormat ? 0 : (byte) 0xFF;
+        intreq[CAPTURE_TO_OFFSET + 10] = 0x00;
         intreq[CAPTURE_TO_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
         intreq[CAPTURE_TO_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
 

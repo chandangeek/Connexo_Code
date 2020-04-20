@@ -18,6 +18,7 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
@@ -796,6 +797,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(AuditInfoFactory.class).to(AuditInfoFactory.class);
             bind(auditInfoFactory).to(AuditInfoFactory.class);
             bind(ComTaskExecutionPrivilegeCheck.class).to(ComTaskExecutionPrivilegeCheck.class);
+            bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
 
         }
     }

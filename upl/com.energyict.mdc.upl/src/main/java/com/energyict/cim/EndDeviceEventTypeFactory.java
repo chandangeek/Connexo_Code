@@ -1396,6 +1396,26 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.19.129.85");
     }
 
+    public static EndDeviceEventType getHighConsumptionOrProductionEnergy() {
+        return new EndDeviceEventType("3.21.67.93");
+    }
+
+    public static EndDeviceEventType getIndexValuesDecreaseOrReset() {
+        return new EndDeviceEventType("3.21.89.215");
+    }
+
+    public static EndDeviceEventType getMismatchBetweenTotalAndTariffRegisters() {
+        return new EndDeviceEventType("3.20.140.159");
+    }
+
+    public static EndDeviceEventType getSendFrameCounterAboveThreshold() {
+            return new EndDeviceEventType("3.12.261.81");
+    }
+
+    public static EndDeviceEventType getReceiveFrameCounterAboveThreshold() {
+        return new EndDeviceEventType("3.12.261.80");
+    }
+
     /// https://jira.eict.vpdc/secure/attachment/92046/CIM%20Codes%20A2_EI6_7_v1.xlsx
     /// Standard Event Logbook
     public static EndDeviceEventType getLogReset() { return new EndDeviceEventType("4.14.0.214"); }
@@ -1656,4 +1676,5 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getValveCloseForExceededBatteryRemovalTime() { return new EndDeviceEventType("4.2.17.139" ); }
 
     public static EndDeviceEventType getValveConfigurationPgvBit8Changed() { return new EndDeviceEventType("4.4.75.24" ); }
+
 }

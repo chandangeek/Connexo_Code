@@ -13,7 +13,6 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.Size;
@@ -82,17 +81,17 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     }
 
     @Override
-    public long getId(){
-        return  id;
+    public long getId() {
+        return id;
     }
 
     @Override
-    public String getPrefix(){
+    public String getPrefix() {
         return prefix;
     }
 
     @Override
-    public void setPrefix(String prefix){
+    public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
 
@@ -104,7 +103,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
         }
     }
 
-    public void delete(){
+    public void delete() {
         if (!isDefault()) {
             this.removeUsers();
             dataModel.remove(this);
@@ -124,8 +123,13 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     }
 
     @Override
-    public UserImpl newUser(String userName, String description, boolean allowPwdChange,boolean status) {
-        return UserImpl.from(dataModel, this, userName, description, allowPwdChange, status);
+    public UserImpl newUser(String userName, String description, boolean allowPwdChange, boolean status) {
+        return UserImpl.from(dataModel, this, userName, description, allowPwdChange, status, null);
+    }
+
+    @Override
+    public UserImpl newUser(String userName, String description, boolean allowPwdChange, boolean status, String externalId) {
+        return UserImpl.from(dataModel, this, userName, description, allowPwdChange, status, externalId);
     }
 
     protected Optional<User> findUser(String name) {

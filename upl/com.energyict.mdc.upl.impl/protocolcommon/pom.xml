@@ -44,7 +44,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>javax.mail</groupId>
-                    <artifactId>mail</artifactId>
+                    <artifactId>javax.mail-api</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>

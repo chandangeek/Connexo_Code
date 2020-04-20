@@ -889,7 +889,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
         if (isRandomizationOn) {
-            orderList.add(Order.ascending("mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ", 100)"));
+            orderList.add(Order.ascending("mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ",100)"));
         }
         if (isTrueMinimizedOn) {
             orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));

@@ -1005,6 +1005,9 @@ Ext.define('Cfg.controller.Validation', {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
                 }
             },
+            failure: function(){
+                record.set('active', isActive);
+            },
             callback: function () {
                 if (!versionsGrid) {
                     view.setLoading(false);

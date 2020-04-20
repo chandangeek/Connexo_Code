@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.util.exception.PersistenceException;
+
 /**
  * Thrown when an update using optimistic locking fails, because another process has done an update between this process' read and write.
  */
@@ -11,8 +13,8 @@ public class OptimisticLockException extends PersistenceException {
 	
 	private static final long serialVersionUID = 1;
 	
-	public OptimisticLockException() {
-		super(MessageSeeds.OPTIMISTIC_LOCK);
+	public OptimisticLockException(String tableName) {
+		super(MessageSeeds.OPTIMISTIC_LOCK, tableName);
 	}
 	
 }

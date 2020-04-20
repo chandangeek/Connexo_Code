@@ -15,6 +15,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -25,6 +26,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -152,7 +154,7 @@ public class DeviceDataCsvImporterTest {
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(Matchers.anyString());
+        verify(logger, times(1)).log(Matchers.eq(Level.SEVERE), Matchers.anyString(), any(Exception.class));
     }
 
     @Test

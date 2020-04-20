@@ -17,7 +17,6 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserSecuritySettings;
 import com.elster.jupiter.users.WorkGroup;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -40,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.UUID_LENGHT;
 import static com.elster.jupiter.util.Checks.is;
 
 public final class UserImpl implements User {
@@ -47,6 +47,9 @@ public final class UserImpl implements User {
     private static final int MINIMAL_PASSWORD_STRENGTH = 4;
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
+
+    @Size(max = UUID_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
+    private String externalId;
     private String authenticationName;
     @Size(max = SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
     private String description;
@@ -82,21 +85,26 @@ public final class UserImpl implements User {
     }
 
     static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange, boolean status) {
-        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange, status);
+        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange, status, null);
     }
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange, boolean status) {
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, String externalId) {
+        return from(dataModel, userDirectory, authenticationName, description, false, true, externalId);
+    }
+
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange, boolean status, String externalId) {
         return dataModel
                 .getInstance(UserImpl.class)
-                .init(userDirectory, authenticationName, description, allowPwdChange, status);
+                .init(userDirectory, authenticationName, description, allowPwdChange, status, externalId);
     }
 
-    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange, boolean status) {
+    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange, boolean status, String externalId) {
         validateAuthenticationName(authenticationName);
         this.status = status;
         this.userDirectory.set(userDirectory);
         this.authenticationName = authenticationName;
         this.description = description;
+        this.externalId = externalId;
         return this;
     }
 
@@ -109,6 +117,11 @@ public final class UserImpl implements User {
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public String getExternalId() {
+        return externalId;
     }
 
     @Override
@@ -399,14 +412,18 @@ public final class UserImpl implements User {
     }
 
     @Override
-    public int getUnSuccessfulLoginCount(){ return unSuccessfulLoginCount;}
+    public int getUnSuccessfulLoginCount() {
+        return unSuccessfulLoginCount;
+    }
 
     @Override
-    public void setUnSuccessfulLoginCount(int unSuccessfulLoginCount){  this.unSuccessfulLoginCount = unSuccessfulLoginCount;}
+    public void setUnSuccessfulLoginCount(int unSuccessfulLoginCount) {
+        this.unSuccessfulLoginCount = unSuccessfulLoginCount;
+    }
 
     @Override
     public boolean isUserLocked(Optional<UserSecuritySettings> loginSettings) {
-        if(loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
+        if (loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
             Instant result = Instant.now().minus(loginSettings.get().getLockOutMinutes(), ChronoUnit.MINUTES);
             return getLastUnSuccessfulLogin() != null && result.isBefore(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
         }
@@ -414,9 +431,9 @@ public final class UserImpl implements User {
     }
 
     public boolean shouldUnlockUser(Optional<UserSecuritySettings> loginSettings) {
-        if(loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
+        if (loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
             Instant result = Instant.now().minus(loginSettings.get().getLockOutMinutes(), ChronoUnit.MINUTES);
-            return getLastUnSuccessfulLogin() !=  null && result.isAfter(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
+            return getLastUnSuccessfulLogin() != null && result.isAfter(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
         }
         return false;
     }
@@ -424,10 +441,10 @@ public final class UserImpl implements User {
     @Override
     public void setLastUnSuccessfulLogin(Instant lastUnSuccessfulLogin, Optional<UserSecuritySettings> loginSettings) {
         List<String> fields = Lists.newArrayList();
-        if(shouldUnlockUser(loginSettings)) {
+        if (shouldUnlockUser(loginSettings)) {
             this.unSuccessfulLoginCount = 0;
         }
-        if(!isUserLocked(loginSettings)) {
+        if (!isUserLocked(loginSettings)) {
             unSuccessfulLoginCount++;
             this.lastUnSuccessfulLogin = lastUnSuccessfulLogin;
         }
@@ -441,5 +458,4 @@ public final class UserImpl implements User {
         return dataModel.mapper(UsersInWorkGroup.class).find("userId", this.getId())
                 .stream().map(UsersInWorkGroup::getWorkGroup).collect(Collectors.toList());
     }
-
 }

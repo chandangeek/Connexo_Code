@@ -4,49 +4,8 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.metering.CimUsagePointAttributeNames;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingTypeFilter;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
-import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.masterdata.LoadProfileType;
-import com.energyict.mdc.common.masterdata.RegisterGroup;
-import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.common.tasks.ConnectionTask;
-import com.energyict.mdc.common.tasks.LoadProfilesTask;
-import com.energyict.mdc.common.tasks.MessagesTask;
-import com.energyict.mdc.common.tasks.RegistersTask;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
-import com.energyict.mdc.masterdata.MasterDataService;
-
-import ch.iec.tc57._2011.getmeterreadings.DataSource;
-import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
+import ch.iec.tc57._2011.getmeterreadings.*;
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
-import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
-import ch.iec.tc57._2011.getmeterreadings.GetMeterReadings;
-import ch.iec.tc57._2011.getmeterreadings.GetMeterReadingsPort;
-import ch.iec.tc57._2011.getmeterreadings.Name;
-import ch.iec.tc57._2011.getmeterreadings.NameType;
-import ch.iec.tc57._2011.getmeterreadings.Reading;
 import ch.iec.tc57._2011.getmeterreadings.ReadingType;
 import ch.iec.tc57._2011.getmeterreadings.UsagePoint;
 import ch.iec.tc57._2011.getmeterreadingsmessage.GetMeterReadingsRequestMessageType;
@@ -57,28 +16,35 @@ import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.*;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.*;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.google.common.base.Strings;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.TreeRangeSet;
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.*;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -346,7 +312,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
                 Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
                 if (comTaskExecutionOptional.isPresent()) {
-                    if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+                    if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
                         if (!comTaskExecutionOptional.get().getComSchedule().isPresent()) {
                             syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null, device.getName()));
                         }
@@ -406,7 +372,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
                 }
         );
-        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+        if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
             filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
         }
         if (!noComTaskExecutionLoadProfileList.isEmpty()) {
@@ -429,7 +395,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
                 }
         );
-        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+        if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
             filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
         }
         if (!noComTaskExecutionRegisterGroupList.isEmpty()) {
@@ -460,7 +426,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
             }
         }
-        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+        if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
             filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
         }
         if (!noComTaskExecutionReadingTypeList.isEmpty()) {

@@ -15,10 +15,7 @@ import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
-import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -76,6 +73,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
 
     @Mock
     IssueFilter issueFilter;
+
 
     @Test
     public void testGetAllIssuesWithoutParameters() {
@@ -413,17 +411,20 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGroupedList() {
-        IssueGroup entity = mock(IssueGroup.class);
-        when(entity.getGroupKey()).thenReturn(1L);
-        when(entity.getGroupName()).thenReturn("Reason 1");
-        when(entity.getCount()).thenReturn(5L);
+        /* Finder<? extends DeviceAlarm> alarmFinder = mock(Finder.class);
+        doReturn(alarmFinder).when(deviceAlarmService).findAlarms(any(DeviceAlarmFilter.class), anyVararg());
+        List<? extends DeviceAlarm> alarms = Collections.singletonList(getDefaultAlarm());
+        doReturn(alarms).when(alarmFinder).find();*/
+        Finder<? extends Issue> issueFinder = mock(Finder.class);
+        doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
+        List<? extends Issue> issues = Collections.singletonList(getDefaultIssue());
+        doReturn(issues).when(issueFinder).find();
+        IssueGroupInfo issueGroupInfo = new IssueGroupInfo(1L, "Reason 1", 5L);
+        Optional<IssueType> issueType = Optional.of(getDefaultIssueType());
+        when(issueService.findIssueType("datacollection")).thenReturn(issueType);
+        when(issueService.newIssueFilter()).thenReturn(issueFilter);
 
-        List<IssueGroup> groupedList = Arrays.asList(entity);
-        IssueGroupFilter issueGroupFilter = mockIssueGroupFilter();
-        when(issueService.newIssueGroupFilter()).thenReturn(issueGroupFilter);
-        doReturn(groupedList).when(issueService).getIssueGroupList(issueGroupFilter);
-        TransactionContext context = mock(TransactionContext.class);
-        when(transactionService.getContext()).thenReturn(context);
+        when(issueResourceUtility.getIssueGroupList(any(List.class), any(String.class))).thenReturn(Arrays.asList(issueGroupInfo));
 
         String filter = URLEncoder.encode("[{\"property\":\"id\",\"value\":\"1\"},{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
         Query<IssueType> query = mock(Query.class);

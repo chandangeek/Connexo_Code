@@ -25,6 +25,7 @@ public class SecurityAccessorTypeInfo {
     public String name;
     public String description;
     public KeyTypeInfo keyType;
+    public KeyPurposeInfo keyPurpose;
     public String storageMethod;
     public long trustStoreId;
     public TimeDurationInfo duration;

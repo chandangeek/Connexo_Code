@@ -12,4 +12,5 @@ Ext.onReady(function () {
 
         autoCreateViewport: true
     });
+
 });

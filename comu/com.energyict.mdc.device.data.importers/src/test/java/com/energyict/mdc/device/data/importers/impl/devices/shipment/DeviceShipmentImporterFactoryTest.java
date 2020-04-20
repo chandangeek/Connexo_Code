@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -404,7 +405,7 @@ public class DeviceShipmentImporterFactoryTest {
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(thesaurus.getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE).format(2, "VPB0001", "Error!"));
+        verify(logger, times(1)).log(Matchers.eq(Level.WARNING), Matchers.eq(thesaurus.getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE).format(2, "VPB0001", "Error!")), any(Exception.class));
         verify(logger, never()).severe(Matchers.anyString());
     }
 

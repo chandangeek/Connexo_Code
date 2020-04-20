@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.util.exception.PersistenceException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;

@@ -48,4 +48,6 @@ public interface UserDirectory {
 
     User newUser(String userName, String description, boolean allowPwdChange, boolean status);
 
+    User newUser(String userName, String description, boolean allowPwdChange, boolean status, String externalId);
+
 }

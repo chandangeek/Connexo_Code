@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -18,10 +19,9 @@ import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.MbusControlLog;
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.MASTER;
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.SLAVE;
+import java.util.logging.Level;
 
 public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmartNtaProtocol> implements DeviceLogBookSupport {
 
@@ -46,7 +46,10 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
 
     @Override
     protected List<MeterEvent> parseStandardEventLog(DataContainer dataContainer) throws ProtocolException {
-        return new EventsLog(dataContainer).getMeterEvents();
+        List<MeterEvent> meterEvents = new EventsLog(dataContainer).getMeterEvents();
+        // also check the frame-counter events when reading the frame-counter
+        checkFrameCounterEvents(meterEvents);
+        return meterEvents;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
     }
 
     @Override
-    protected List<MeterEvent> parseCommunicationLogEventLog(DataContainer dataContainer) throws ProtocolException {
+    protected List<MeterEvent> parseCommunicationLogEventLog(DataContainer dataContainer) {
         return Collections.emptyList();
     }
 
@@ -85,7 +88,7 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
     }
 
     @Override
-    protected List<MeterEvent> parseVoltageQualityLog(DataContainer dataContainer) throws ProtocolException {
+    protected List<MeterEvent> parseVoltageQualityLog(DataContainer dataContainer) {
         return Collections.emptyList();
     }
 
@@ -96,6 +99,36 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
         }
         else {
             return getProtocol().getPhysicalAddressCorrectedObisCode(obisCode, meterSerialNumber);
+        }
+    }
+
+    protected void checkFrameCounterEvents(List<MeterEvent> eventList) {
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+
+        generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, MeterEvent.SEND_FRAME_COUNTER_ABOVE_THRESHOLD, eventList);
+
+        if (securityContext.getResponseFrameCounter() != null) {
+            generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, MeterEvent.RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD, eventList);
+        } else {
+            getProtocol().journal("Response frame counter not initialized.");
+        }
+    }
+
+    protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, int eiCode, List<MeterEvent> eventList) {
+        try {
+            long frameCounterLimit = this.getProtocol().getDlmsSessionProperties().getFrameCounterLimit();
+
+            if (frameCounterLimit == 0){
+                getProtocol().journal("Frame counter threshold not configured. FYI the current " + name + " is " + frameCounter);
+            } else if (frameCounter > frameCounterLimit) {
+                getProtocol().journal(name+": " + frameCounter + " is above the threshold (" + frameCounterLimit + ") - will create an event");
+                MeterEvent frameCounterEvent = new MeterEvent(new Date(), eiCode, eventId, name+" above threshold: " + frameCounter);
+                eventList.add(frameCounterEvent);
+            } else {
+                getProtocol().journal(name + " below configured threshold: " + frameCounter + " < "+frameCounterLimit);
+            }
+        } catch (Exception e) {
+            getProtocol().journal(Level.WARNING, "Error getting  " + name + e.getMessage(), e);
         }
     }
 
