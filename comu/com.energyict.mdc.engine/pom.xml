@@ -274,6 +274,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
