@@ -27,7 +27,7 @@ Ext.define('Usr.view.user.List', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('general.name', 'USR', 'Name'),
+                    header: Uni.I18n.translate('general.username', 'USR', 'Username'),
                     dataIndex: 'authenticationName',
                     flex: 2,
                     renderer: function (val, metaData, record) {
