@@ -46,7 +46,6 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
         CSV_METER_DATA_FORMATTER(CsvMeterDataFormatterFactory.NAME, "CSV formatter [STD]"),
         CSV_USAGEPOINT_DATA_FORMATTER(CsvUsagePointDataFormatterFactory.NAME, "CSV formatter [STD]"),
         CSV_EVENTS_FORMATTER(StandardCsvEventDataFormatterFactory.NAME, "CSV formatter [STD]"),
-        CSV_EVENTS_WITH_DEVICE_CODES_FORMATTER(CsvEventWithDeviceCodeDataFormatterFactory.NAME, "CSV formatter with device codes [STD]"),
         AND("des.processor.and", "and");
 
         private final String key;
