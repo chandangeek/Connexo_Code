@@ -272,12 +272,22 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         DeviceMessageCategory securityCategory = deviceMessageSpecificationService.getSecurityCategory();
         List<DeviceMessageSpec> deviceMessageSpecs = getEnabledAndAuthorizedDeviceMessageSpecsIn(securityCategory, deviceType);
         List<DeviceMessageId> deviceMessageIds = deviceMessageService.findKeyRenewalMessages();
-        return deviceMessageSpecs.stream()
+        List<DeviceMessageSpecInfo> infos = new ArrayList<>();
+        infos.add(getNotSetSecurityCategoryCommand());
+        infos.addAll(deviceMessageSpecs.stream()
                 .filter(deviceMessageSpec -> deviceMessageIds.contains(deviceMessageSpec.getId()))
                 .map(deviceMessageSpec -> DeviceMessageSpecInfo.from(deviceMessageSpec, mdcPropertyUtils))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+        return infos;
     }
 
+    public DeviceMessageSpecInfo getNotSetSecurityCategoryCommand() {
+        DeviceMessageSpecInfo deviceMessageSpecInfo = new DeviceMessageSpecInfo();
+        deviceMessageSpecInfo.id = "NOT_SET";
+        deviceMessageSpecInfo.name = "Not set";
+        deviceMessageSpecInfo.properties = Collections.emptyList();
+        return deviceMessageSpecInfo;
+    }
 
     public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category, DeviceType deviceType) {
         List<Long> ids = deviceType.getDeviceProtocolPluggableClass()
