@@ -66,7 +66,7 @@ abstract class AbstractCsvEventDataFormatter implements StandardFormatter {
                 .collect(Collectors.toList());
     }
 
-    abstract protected String formatPayload(EndDeviceEvent endDeviceEvent, StructureMarker structureMarker);
+    protected abstract String formatPayload(EndDeviceEvent endDeviceEvent, StructureMarker structureMarker);
 
     @Override
     public void endExport() {

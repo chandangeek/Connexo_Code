@@ -35,11 +35,9 @@ abstract public class AbstractCsvEventDataFormatterFactory implements DataFormat
     protected volatile DataExportService dataExportService;
     protected volatile Thesaurus thesaurus;
 
-    //OSGI
     public AbstractCsvEventDataFormatterFactory() {
     }
 
-    // Tests
     @Inject
     public AbstractCsvEventDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, NlsService nlsService) {
         setPropertySpecService(propertySpecService);
@@ -92,7 +90,7 @@ abstract public class AbstractCsvEventDataFormatterFactory implements DataFormat
     }
 
     @Override
-    abstract public DataFormatter createDataFormatter(Map<String, Object> properties);
+    public abstract DataFormatter createDataFormatter(Map<String, Object> properties);
 
     protected String getTag(Map<String, Object> properties) {
         return (String) properties.get(FormatterProperties.TAG.getKey());
@@ -103,7 +101,7 @@ abstract public class AbstractCsvEventDataFormatterFactory implements DataFormat
     }
 
     @Override
-    abstract public String getName();
+    public abstract String getName();
 
     @Override
     public void validateProperties(List<DataExportProperty> properties) {
@@ -133,6 +131,6 @@ abstract public class AbstractCsvEventDataFormatterFactory implements DataFormat
     }
 
     @Override
-    abstract public String getDisplayName();
+    public abstract String getDisplayName();
 
 }

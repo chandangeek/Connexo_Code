@@ -47,6 +47,12 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
         return new EndDeviceEventImpl(eventTypeCode, eventTime);
     }
 
+    public static EndDeviceEventImpl of(String eventTypeCode, Instant eventTime, String deviceCode) {
+        EndDeviceEventImpl event = of(eventTypeCode, eventTime);
+        event.setType(deviceCode);
+        return event;
+    }
+
     public static EndDeviceEventImpl copyOf(EndDeviceEvent endDeviceEvent, Instant eventOccurredDate) {
         EndDeviceEventImpl event = new EndDeviceEventImpl(endDeviceEvent.getEventTypeCode(), eventOccurredDate);
         event.setMrid(endDeviceEvent.getMRID());

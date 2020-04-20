@@ -123,11 +123,7 @@ class EventSelector implements DataSelector {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addAllEndDeviceEvents(endDevice.getDeviceEvents(range).stream()
                 .filter(selectorConfig.getFilterPredicate())
-                .map(endDeviceEventRecord -> {
-                    EndDeviceEventImpl event = EndDeviceEventImpl.of(endDeviceEventRecord.getEventTypeCode(), endDeviceEventRecord.getCreatedDateTime());
-                    event.setType(endDeviceEventRecord.getDeviceEventType());
-                    return event;
-                })
+                .map(endDeviceEventRecord -> EndDeviceEventImpl.of(endDeviceEventRecord.getEventTypeCode(), endDeviceEventRecord.getCreatedDateTime(), endDeviceEventRecord.getDeviceEventType()))
                 .collect(Collectors.toList()));
         events.add(meterReading.getEvents().size());
         devicesWithEvents.add(meterReading.getEvents().size() == 0 ? 0 : 1);

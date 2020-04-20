@@ -20,7 +20,7 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.export.processor.StandardCsvEventDataFormatterFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_EVENT_DATA_TYPE},
         service = DataFormatterFactory.class, immediate = true)
-public class StandardCsvEventDataFormatterFactory extends AbstractCsvEventDataFormatterFactory implements DataFormatterFactory {
+public class StandardCsvEventDataFormatterFactory extends AbstractCsvEventDataFormatterFactory {
 
     static final String NAME = "standardCsvEventDataProcessorFactory";
 

@@ -12,19 +12,19 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.StringJoiner;
 
-class WithDeviceCodesCsvEventDataFormatter extends AbstractCsvEventDataFormatter implements StandardFormatter {
+class CsvEventWithDeviceCodeDataFormatter extends AbstractCsvEventDataFormatter {
 
-    WithDeviceCodesCsvEventDataFormatter(DataExportService dataExportService) {
+    CsvEventWithDeviceCodeDataFormatter(DataExportService dataExportService) {
         super(dataExportService);
     }
 
-    private WithDeviceCodesCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
+    private CsvEventWithDeviceCodeDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
         super.initialize(translatablePropertyValueInfo, tag);
         return this;
     }
 
-    static WithDeviceCodesCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
-        return new WithDeviceCodesCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag);
+    static CsvEventWithDeviceCodeDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
+        return new CsvEventWithDeviceCodeDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag);
     }
 
     @Override
@@ -39,7 +39,4 @@ class WithDeviceCodesCsvEventDataFormatter extends AbstractCsvEventDataFormatter
         return joiner.toString();
     }
 
-    @Override
-    public void endExport() {
-    }
 }

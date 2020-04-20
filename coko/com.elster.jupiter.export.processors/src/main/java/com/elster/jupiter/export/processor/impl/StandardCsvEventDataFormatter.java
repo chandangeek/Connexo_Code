@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.StringJoiner;
 
-class StandardCsvEventDataFormatter extends AbstractCsvEventDataFormatter implements StandardFormatter {
+class StandardCsvEventDataFormatter extends AbstractCsvEventDataFormatter {
 
     StandardCsvEventDataFormatter(DataExportService dataExportService) {
         super(dataExportService);
@@ -38,7 +38,4 @@ class StandardCsvEventDataFormatter extends AbstractCsvEventDataFormatter implem
         return joiner.toString();
     }
 
-    @Override
-    public void endExport() {
-    }
 }

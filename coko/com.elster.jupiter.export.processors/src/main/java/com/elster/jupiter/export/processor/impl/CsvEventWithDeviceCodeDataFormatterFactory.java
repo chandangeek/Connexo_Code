@@ -7,7 +7,6 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -17,20 +16,20 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.export.processor.WithDeviceCodesCsvEventDataFormatterFactory",
+@Component(name = "com.elster.jupiter.export.processor.CsvEventWithDeviceCodeDataFormatterFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_EVENT_DATA_TYPE},
         service = DataFormatterFactory.class, immediate = true)
-public class WithDeviceCodesCsvEventDataFormatterFactory extends AbstractCsvEventDataFormatterFactory implements DataFormatterFactory {
+public class CsvEventWithDeviceCodeDataFormatterFactory extends AbstractCsvEventDataFormatterFactory {
 
-    static final String NAME = "withDeviceCodesCsvEventDataProcessorFactory";
+    static final String NAME = "csvEventWithDeviceCodeDataProcessorFactory";
 
     //OSGI
-    public WithDeviceCodesCsvEventDataFormatterFactory() {
+    public CsvEventWithDeviceCodeDataFormatterFactory() {
     }
 
     // Tests
     @Inject
-    public WithDeviceCodesCsvEventDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, NlsService nlsService) {
+    public CsvEventWithDeviceCodeDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, NlsService nlsService) {
         super(propertySpecService, dataExportService, nlsService);
     }
 
@@ -51,7 +50,7 @@ public class WithDeviceCodesCsvEventDataFormatterFactory extends AbstractCsvEven
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return WithDeviceCodesCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties));
+        return CsvEventWithDeviceCodeDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties));
     }
 
     @Override
