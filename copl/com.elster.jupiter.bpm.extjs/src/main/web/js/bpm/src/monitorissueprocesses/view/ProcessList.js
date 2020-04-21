@@ -17,15 +17,21 @@ Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
         align: 'left'
     },
     noProcessText: Uni.I18n.translate('processes.issue.noProcessesStarted', 'BPM', 'No process started yet on this issue'),
+    errorDuringLoadingProcessText: Uni.I18n.translate('processes.issue.flowNotAvailable', 'BPM', 'Connexo Flow is not available'),
     initComponent: function () {
         var me = this;
 
         me.items = [
-
             {
                 xtype: 'uni-form-empty-message',
                 itemId: 'no-issue-processes',
                 text: me.noProcessText,
+                hidden: true
+            },
+            {
+                xtype: 'uni-form-error-message',
+                itemId: 'issue-processes-has-error',
+                text: me.errorDuringLoadingProcessText,
                 hidden: true
             },
             {

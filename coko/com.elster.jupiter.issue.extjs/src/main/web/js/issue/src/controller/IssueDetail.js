@@ -219,14 +219,6 @@ Ext.define('Isu.controller.IssueDetail', {
             timelineView.bindStore(timelineStore);
             timelineView.previousSibling('#no-issue-timeline').setVisible(timelineStore.data.items.length <= 0);
         }
-
-        if (!me.canViewProcesses()) return;
-
-        procesStore.sort('startDate', 'DESC');
-        if (processView) {
-            processView.bindStore(procesStore);
-            processView.previousSibling('#no-issue-processes').setVisible(procesStore.data.items.length <= 0);
-        }
     },
 
     makeLinkToList: function (router) {
@@ -241,6 +233,7 @@ Ext.define('Isu.controller.IssueDetail', {
         alarm = Ext.ComponentQuery.query('alarm-timeline')[0];
         var me = this,
             processView = this.widget ? this.widget.down('#issue-process-view') : this.getPage().down('#issue-process-view'),
+            processList = processView.up('issue-process-list'),
             processStore = (alarm) ? me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses') : me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses');
         if (me.canViewProcesses()) {
             switch (issueType) {
@@ -255,16 +248,12 @@ Ext.define('Isu.controller.IssueDetail', {
                     processView.setLoading();
                     processStore.load({
                         callback: function (records, options, success) {
-                            if (!success) {
-                                processView.removeAll();
-                                processView.add([
-                                    {
-                                        xtype: 'label',
-                                        itemId: 'lbl-top-most',
-                                        style: 'font-weight: normal; margin: 0px 0px 0px 5px',
-                                        text: 'Connexo Flow is not available.'
-                                    }
-                                ]);
+                            if (success) {
+                                processStore.sort('startDate', 'DESC');
+                                processView.bindStore(processStore);
+                                processList.down('#no-issue-processes')&&processList.down('#no-issue-processes').setVisible(processStore.getCount() <= 0);
+                            } else {
+                                processList.down('#issue-processes-has-error')&&processList.down('#issue-processes-has-error').show();
                             }
                             processView.setLoading(false);
                             Ext.Ajax.resumeEvent('requestexception');
