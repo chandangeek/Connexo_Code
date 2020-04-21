@@ -16,9 +16,5 @@ Ext.define('Mdc.securityaccessors.model.SecurityCategoryCommand', {
     hasMany: [{
         name: 'properties',
         model: 'Uni.property.model.Property'
-    },
-    {
-            name: 'serviceProperties',
-            model: 'Uni.property.model.Property'
     }]
 });

@@ -386,13 +386,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             keyRenewalRecord = combobox.findRecordByValue(newValue),
             keyRenewalPropertyHeader = me.getServiceKeyRenewalPropertyHeader();
 
-        if (keyRenewalRecord && keyRenewalRecord.serviceProperties() && (keyRenewalRecord.serviceProperties().getCount() > 0)) {
+        if (keyRenewalRecord && keyRenewalRecord.properties() && (keyRenewalRecord.properties().getCount() > 0)) {
             keyRenewalPropertyHeader.show();
             keyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', keyRenewalRecord.get('name')) + '</h3>');
         } else {
             keyRenewalPropertyHeader.hide();
         }
-        propertiesForm.loadRecord(combobox.findRecordByValue(newValue));
+        propertiesForm.loadRecord(keyRenewalRecord);
     },
 
     onSaveKeyRenewal: function (button) {
