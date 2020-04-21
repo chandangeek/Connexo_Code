@@ -141,7 +141,11 @@ class MdmAppPrivileges {
                 //web services
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
-                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES,
+
+                //System Properties
+                com.elster.jupiter.systemproperties.Privileges.Constants.VIEW_SYS_PROPS,
+                com.elster.jupiter.systemproperties.Privileges.Constants.ADMINISTRATE_SYS_PROPS
         );
     }
 }

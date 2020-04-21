@@ -111,6 +111,7 @@ Ext.define('Sam.controller.Main', {
                         },
                         {
                             text: Uni.I18n.translate('general.systemProperties', 'SAM', 'System properties'),
+                            privileges: Sam.privileges.SystemProperties.view,
                             href: router.getRoute('administration/systemprop').buildUrl()
                         }
                     ]

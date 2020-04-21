@@ -32,8 +32,8 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
     ],
 
     initComponent: function () {
-        var me = this,
-            dynamicElements;
+        var me = this;
+        me.canEditSysProps = Uni.Auth.checkPrivileges(Sam.privileges.SystemProperties.admin);
 
         me.content = [
             {
@@ -48,8 +48,7 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
                     {
                         xtype: 'uni-button-action',
                         itemId: 'sys-prop-attributes-actions-button',
-                        privileges: me.canManageUsagePoint,
-                        usagePoint: me.usagePoint,
+                        privileges: me.canEditSysProps,
                         margin: '0 16 0 0',
                         menu: {
                             xtype: 'menu',

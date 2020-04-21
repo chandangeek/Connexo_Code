@@ -292,6 +292,11 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemproperties</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>

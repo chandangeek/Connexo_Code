@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.system.app.impl;
 
+import com.elster.jupiter.systemproperties.Privileges;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,7 +65,11 @@ class SysAppPrivileges {
                 // PKI
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_CERTIFICATES,
                 com.elster.jupiter.pki.security.Privileges.Constants.ADMINISTRATE_CERTIFICATES,
-                com.elster.jupiter.pki.security.Privileges.Constants.ADMINISTRATE_TRUST_STORES
+                com.elster.jupiter.pki.security.Privileges.Constants.ADMINISTRATE_TRUST_STORES,
+
+                //System Properties
+                com.elster.jupiter.systemproperties.Privileges.Constants.VIEW_SYS_PROPS,
+                com.elster.jupiter.systemproperties.Privileges.Constants.ADMINISTRATE_SYS_PROPS
         );
     }
 }
