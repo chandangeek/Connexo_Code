@@ -51,43 +51,12 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                         hidden: true
                     },
                     {
-                        xtype: 'radiogroup',
-                        fieldLabel: Uni.I18n.translate('keyRenewal.without.keyRenewal', 'MDC', 'Without key renewal'),
-                        itemId: 'key-renewal-radio',
-                        columns: 1,
-                        labelWidth: 200,
-                        listeners: {
-                            change: function (field, newValue, oldValue) {
-                                me.down('#key-renewal-command-combo').setDisabled(!newValue.keyRenewal);
-                                me.down('#key-renewal-no-command').setDisabled(!newValue.keyRenewal);
-                                me.down('#key-renewal-property-header').setDisabled(!newValue.keyRenewal);
-                                me.down('#key-renewal-property-form').setDisabled(!newValue.keyRenewal);
-                                me.down('#key-renewal-add-button').setDisabled(newValue.keyRenewal && me.down('#key-renewal-no-command').isVisible());
-                            }
-                        },
-                        items: [
-                            {
-                                boxLabel: Uni.I18n.translate('keyRenewal.without.keyRenewal', 'MDC', 'Without key renewal'),
-                                itemId: 'key-renewal-without',
-                                xtype: 'radiofield',
-                                name: 'keyRenewal',
-                                inputValue: false
-                            },
-                            {
-                                boxLabel: Uni.I18n.translate('keyRenewal.with.keyRenewal', 'MDC', 'With key renewal'),
-                                itemId: 'key-renewal-with-key-renewal',
-                                xtype: 'radiofield',
-                                inputValue: true,
-                                name: 'keyRenewal'
-                            }
-                        ]
-                    },
-                    {
                         xtype: 'form',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
+                        margin: '16 0 0 0',
                         itemId: 'key-renewal-with-form',
                         items: [
                             {
@@ -118,7 +87,8 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                             },
                             {
                                 itemId: 'key-renewal-property-header',
-                                margin: '16 0 0 0'
+                                margin: '16 0 0 0',
+                                hidden: true
                             },
                             {
                                 xtype: 'property-form',
@@ -129,7 +99,48 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                                     resetButtonHidden: false,
                                     width: 334
                                 }
-                            }
+                            },
+                            {
+                                xtype: 'combobox',
+                                name: 'servicekeycommand',
+                                fieldLabel: Uni.I18n.translate('serviceKeyRenewal.command', 'MDC', 'Service key renewal command'),
+                                itemId: 'service-key-renewal-command-combo',
+                                emptyText: Uni.I18n.translate('keyRenewal.selectACommand', 'MDC', 'Select a command...'),
+                                store: 'Mdc.securityaccessors.store.SecurityCategoryCommands',
+                                displayField: 'name',
+                                valueField: 'id',
+                                required: true,
+                                allowBlank: false,
+                                editable: false,
+                                queryMode: 'local',
+                                labelWidth: 200,
+                                width: 550
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'service-key-renewal-no-command',
+                                fieldLabel: Uni.I18n.translate('serviceKeyRenewal.command', 'MDC', 'Service key renewal command'),
+                                value: Uni.I18n.translate('keyRenewal.noCommands', 'MDC', 'No commands are available'),
+                                fieldStyle: {
+                                    color: '#EB5642'
+                                },
+                                hidden: true
+                            },
+                            {
+                                itemId: 'service-key-renewal-property-header',
+                                margin: '16 0 0 0',
+                                hidden: true
+                            },
+                            {
+                                xtype: 'property-form',
+                                itemId: 'service-key-renewal-property-form',
+                                margin: '20 0 0 0',
+                                defaults: {
+                                    labelWidth: 200,
+                                    resetButtonHidden: false,
+                                    width: 334
+                                }
+                            },
                         ]
                     },
                     {

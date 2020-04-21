@@ -93,6 +93,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             selector: '#edit-security-accessor-key-renewal #key-renewal-property-form'
         },
         {
+            ref: 'serviceKeyRenewalPropertiesForm',
+            selector: '#edit-security-accessor-key-renewal #service-key-renewal-property-form'
+        },
+        {
             ref: 'keyRenewalPage',
             selector: '#edit-security-accessor-key-renewal'
         },
@@ -111,6 +115,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         {
             ref: 'keyRenewalPropertyHeader',
             selector: '#edit-security-accessor-key-renewal #key-renewal-property-header'
+        },
+        {
+            ref: 'serviceKeyRenewalPropertyHeader',
+            selector: '#edit-security-accessor-key-renewal #service-key-renewal-property-header'
         }
     ],
 
@@ -294,7 +302,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                     }),
                                     keyRenewalForm = me.getKeyRenewalForm(),
                                     commandCombo = keyRenewalForm.down('#key-renewal-command-combo'),
-                                    noCommand = keyRenewalForm.down('#key-renewal-no-command');
+                                    noCommand = keyRenewalForm.down('#key-renewal-no-command'),
+                                    serviceKeyCommandCombo = keyRenewalForm.down('#service-key-renewal-command-combo'),
+                                    serviceKeyNoCommand = keyRenewalForm.down('#service-key-renewal-no-command');
 
                                 keyWrapperForm = me.getKeyWrapperForm(),
                                     wrapperCombo = keyWrapperForm.down('#key-wrapper-combo');
@@ -304,20 +314,34 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
                                 records.length == 0 && commandCombo.setVisible(false) && noCommand.setVisible(true);
                                 records.length != 0 && commandCombo.setVisible(true) && noCommand.setVisible(false);
+                                if (serviceKeyCommandCombo && serviceKeyNoCommand){
+                                    records.length == 0 && serviceKeyCommandCombo.setVisible(false) && serviceKeyNoCommand.setVisible(true);
+                                    records.length != 0 && serviceKeyCommandCombo.setVisible(true) && serviceKeyNoCommand.setVisible(false);
+                                }
                                 me.getApplication().fireEvent('changecontentevent', view);
                                 me.getApplication().fireEvent('configurekeyrenewal', securityAccessorRecord);
                                 view.down('#edit-security-accessor-key-renewal-panel').setTitle(Uni.I18n.translate('general.editKeyRenewal', 'MDC', "Edit key renewal for '{0}'", securityAccessorRecord.get('name')));
-                                view.down('#key-renewal-radio').setValue({keyRenewal: !Ext.isEmpty(securityAccessorRecord.get('keyRenewalCommandSpecification'))});
 
                                 if (securityAccessorRecord.get('keyRenewalCommandSpecification')) {
                                     commandCombo.setValue(securityAccessorRecord.get('keyRenewalCommandSpecification').id);
                                     view.down('#key-renewal-property-form').loadRecord(securityAccessorRecord);
+                                    var keyRenewalPropertyHeader = me.getKeyRenewalPropertyHeader();
                                     if (securityAccessorRecord.properties() && (securityAccessorRecord.properties().getCount() > 0)) {
-                                        var keyRenewalPropertyHeader = me.getKeyRenewalPropertyHeader();
                                         keyRenewalPropertyHeader.show();
                                         keyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', securityAccessorRecord.get('keyRenewalCommandSpecification').name) + '</h3>');
                                     } else {
                                         keyRenewalPropertyHeader.hide();
+                                    }
+                                }
+                               if (securityAccessorRecord.get('serviceKeyRenewalCommandSpecification')) {
+                                    serviceKeyCommandCombo.setValue(securityAccessorRecord.get('serviceKeyRenewalCommandSpecification').id);
+                                    view.down('#service-key-renewal-property-form').loadRecord(securityAccessorRecord);
+                                    var serviceKeyRenewalPropertyHeader = me.getServiceKeyRenewalPropertyHeader();
+                                    if (securityAccessorRecord.serviceProperties() && (securityAccessorRecord.serviceProperties().getCount() > 0)) {
+                                        serviceKeyRenewalPropertyHeader.show();
+                                        serviceKeyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', securityAccessorRecord.get('keyRenewalCommandSpecification').name) + '</h3>');
+                                    } else {
+                                        serviceKeyRenewalPropertyHeader.hide();
                                     }
                                 }
                             }
@@ -347,18 +371,22 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         var me = this,
             keyRenewalPage = me.getKeyRenewalPage(),
             propertiesForm = me.getKeyRenewalPropertiesForm(),
+            servicePropertiesForm = me.getServiceKeyRenewalPropertiesForm(),
             keyRenewalForm = me.getKeyRenewalForm(),
             securityAccessorRecord = me.getKeyRenewalPage().securityAccessorRecord;
 
-        if (keyRenewalPage.down('#key-renewal-radio').getValue().keyRenewal) {
-            if (keyRenewalForm.isValid() && (propertiesForm && propertiesForm.isValid())) {
+            if (keyRenewalForm.isValid() && (propertiesForm && propertiesForm.isValid()) && (servicePropertiesForm && servicePropertiesForm.isValid())) {
                 propertiesForm.updateRecord(securityAccessorRecord);
                 securityAccessorRecord.beginEdit();
                 securityAccessorRecord.set('keyRenewalCommandSpecification', {
                     id: keyRenewalPage.down('#key-renewal-command-combo').getValue()
                 });
+                securityAccessorRecord.set('serviceKeyRenewalCommandSpecification', {
+                    id: keyRenewalPage.down('#service-key-renewal-command-combo').getValue()
+                });
                 securityAccessorRecord.set('wrapperAccessorId', keyRenewalPage.down('#key-wrapper-combo').getValue());
                 securityAccessorRecord.propertiesStore = propertiesForm.getRecord().properties();
+                securityAccessorRecord.serviceProperties = propertiesForm.getRecord().serviceProperties();
                 securityAccessorRecord.endEdit();
                 securityAccessorRecord.save({
                     backUrl: keyRenewalPage.backUrl,
@@ -377,28 +405,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             } else {
                 keyRenewalPage.down('#key-renewal-with-key-renewal-error').show();
             }
-        }
-        else {
-            securityAccessorRecord.beginEdit();
-            securityAccessorRecord.set('keyRenewalCommandSpecification', {});
-            securityAccessorRecord.set('wrapperAccessorId', keyRenewalPage.down('#key-wrapper-combo').getValue());
-            securityAccessorRecord.propertiesStore = undefined;
-            securityAccessorRecord.endEdit();
-            securityAccessorRecord.save({
-                backUrl: keyRenewalPage.backUrl,
-                success: function (record) {
-                    location.href = keyRenewalPage.cancelLink;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('securityAccessor.acknowledgment', 'MDC', 'Security accessor saved'));
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        keyRenewalPage.getForm().markInvalid(json.errors);
-                        propertiesForm.getForm().markInvalid(json.errors);
-                    }
-                }
-            });
-        }
     },
 
     recordSelected: function (grid, recordParam) {
