@@ -32,9 +32,9 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
 
     initComponent: function () {
         var me = this;
-
+        me.canEdit = Uni.Auth.checkPrivileges(Sam.privileges.SystemProperties.admin);
         me.addEvents('save', 'edit', 'canceledit');
-
+        if (me.canEdit){
             me.tools = [{
                 xtype: 'button',
                 itemId: 'sys-props-form-edit-button',
@@ -44,14 +44,14 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                 hidden: me.displayMode === 'edit',
                 style: {
                     fontSize: '16px',
-                    margin: '0 0 0 10px',
-                    padding: '4px 0 0 0'
-                },
-                handler: function () {
-                    me.fireEvent('edit', me);
-                }
-            }];
-
+                        margin: '0 0 0 10px',
+                        padding: '4px 0 0 0'
+                    },
+                    handler: function () {
+                        me.fireEvent('edit', me);
+                    }
+                }];
+        }
             me.viewForm = {
                 xtype: 'property-form',
                 itemId: 'props-form-view',

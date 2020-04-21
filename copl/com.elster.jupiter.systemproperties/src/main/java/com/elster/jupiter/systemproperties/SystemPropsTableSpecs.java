@@ -9,6 +9,7 @@ public enum SystemPropsTableSpecs {
     SYS_PROP{
         @Override
         public void addTo(DataModel dataModel) {
+
             Table<SystemProperty> table = dataModel.addTable(this.name(), SystemProperty.class);
             table.map(SystemPropertyImpl.class);
             Column name = table.column("PROPERTYNAME").varChar().map(SystemPropertyImpl.Fields.PROP_NAME.fieldName()).notNull().add();
