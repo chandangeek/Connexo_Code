@@ -583,6 +583,9 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             },
             failure: function(record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
+                if (operation.response.status === 409) {
+                    me.deviceKeyRecord = undefined;
+                }
                 if (json && json.errors) {
                     Ext.each(json.errors, function (error) {
                         var parts = error.id.split('.');
