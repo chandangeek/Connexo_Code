@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.events;
 
+import com.energyict.protocolimplv2.nta.esmr50.elster;
+import com.energyict.protocolimplv2.nta.esmr50.itron;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.mdc.upl.ProtocolException;
@@ -14,7 +17,6 @@ import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.VoltageQualityEventLog;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -84,7 +86,16 @@ public final class ESMR50LogBookFactory extends AbstractNtaLogBookFactory<ESMR50
 
     @Override
     protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException {
-        return new ESMR50MbusEventLog(dataContainer).getMeterEvents();
+        if( getProtocol().getProtocolDescription().equals("Itron Crypto MbusDevice DLMS (NTA ESMR5.0) V2" ) )
+        {
+            return new ItronMBusEventLog(dataContainer).getMeterEvents();
+        }
+        else if(getProtocol().getProtocolDescription().equals("Elster Crypto MbusDevice DLMS (NTA ESMR5.0) V2" ))
+        {
+            return new ElsterMBusEventLog(dataContainer).getMeterEvents();
+        }
+        else
+            return new ESMR50MbusEventLog(dataContainer).getMeterEvents();
     }
 
     @Override
