@@ -10,10 +10,13 @@ import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.upl.TypedProperties;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DeviceMessageSpecInfo {
+    public static final String NOT_SET = "NOT_SET";
+
     public String id;
     public String name;
     public List<PropertyInfo> properties;
@@ -27,6 +30,14 @@ public class DeviceMessageSpecInfo {
                     .filter(propertySpec -> !(propertySpec.getValueFactory()!= null && propertySpec.getValueFactory().getValueType().getName().equals("com.elster.jupiter.pki.SecurityAccessorType")))
                     .collect(Collectors.toList());
         deviceMessageSpecInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, TypedProperties.empty());
+        return deviceMessageSpecInfo;
+    }
+
+    public static DeviceMessageSpecInfo getNotSetDeviceMessageSpecInfo() {
+        DeviceMessageSpecInfo deviceMessageSpecInfo = new DeviceMessageSpecInfo();
+        deviceMessageSpecInfo.id = NOT_SET;
+        deviceMessageSpecInfo.name = "Not set";
+        deviceMessageSpecInfo.properties = Collections.emptyList();
         return deviceMessageSpecInfo;
     }
 }

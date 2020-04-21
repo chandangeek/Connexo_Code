@@ -49,6 +49,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.energyict.mdc.device.configuration.rest.impl.DeviceMessageSpecInfo.NOT_SET;
+
 public class SecurityAccessorTypeOnDeviceTypeResource {
     private final ResourceHelper resourceHelper;
     private final SecurityManagementService securityManagementService;
@@ -186,9 +188,13 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
 
         deviceType.setWrappingSecurityAccessor(securityAccessorOnDeviceType.getDeviceSecurityAccessorType(), getWrappingAccessor(keyRenewalInfo.wrapperAccessorId, deviceType));
 
-        DeviceMessageId deviceMessageId = (keyRenewalInfo.keyRenewalCommandSpecification != null && keyRenewalInfo.keyRenewalCommandSpecification.id != null) ?
+        DeviceMessageId deviceMessageId = (keyRenewalInfo.keyRenewalCommandSpecification != null &&
+                keyRenewalInfo.keyRenewalCommandSpecification.id != null &&
+                keyRenewalInfo.keyRenewalCommandSpecification.id != NOT_SET) ?
                 DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()) : null;
-        DeviceMessageId serviceDeviceMessageId = (keyRenewalInfo.serviceKeyRenewalCommandSpecification != null && keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null) ?
+        DeviceMessageId serviceDeviceMessageId = (keyRenewalInfo.serviceKeyRenewalCommandSpecification != null &&
+                keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null &&
+                keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != NOT_SET) ?
                 DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()) : null;
         if (deviceMessageId != null || serviceDeviceMessageId != null) {
             SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageId, serviceDeviceMessageId);
@@ -273,20 +279,12 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         List<DeviceMessageSpec> deviceMessageSpecs = getEnabledAndAuthorizedDeviceMessageSpecsIn(securityCategory, deviceType);
         List<DeviceMessageId> deviceMessageIds = deviceMessageService.findKeyRenewalMessages();
         List<DeviceMessageSpecInfo> infos = new ArrayList<>();
-        infos.add(getNotSetSecurityCategoryCommand());
+        infos.add(DeviceMessageSpecInfo.getNotSetDeviceMessageSpecInfo());
         infos.addAll(deviceMessageSpecs.stream()
                 .filter(deviceMessageSpec -> deviceMessageIds.contains(deviceMessageSpec.getId()))
                 .map(deviceMessageSpec -> DeviceMessageSpecInfo.from(deviceMessageSpec, mdcPropertyUtils))
                 .collect(Collectors.toList()));
         return infos;
-    }
-
-    public DeviceMessageSpecInfo getNotSetSecurityCategoryCommand() {
-        DeviceMessageSpecInfo deviceMessageSpecInfo = new DeviceMessageSpecInfo();
-        deviceMessageSpecInfo.id = "NOT_SET";
-        deviceMessageSpecInfo.name = "Not set";
-        deviceMessageSpecInfo.properties = Collections.emptyList();
-        return deviceMessageSpecInfo;
     }
 
     public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category, DeviceType deviceType) {
