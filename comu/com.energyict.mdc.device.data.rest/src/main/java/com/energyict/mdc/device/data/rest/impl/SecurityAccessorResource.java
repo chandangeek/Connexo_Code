@@ -276,9 +276,9 @@ public class SecurityAccessorResource {
         Optional<SecurityAccessor> keyAccessor = device.getSecurityAccessor(securityAccessorType);
         keyAccessor.ifPresent(key -> {
             if (key.getVersion() != securityAccessorInfo.version){
-                conflictFactory.contextDependentConflictOn(securityAccessorType.getName())
+                throw conflictFactory.contextDependentConflictOn(securityAccessorType.getName())
                         .withActualVersion(() -> keyAccessor.get().getVersion())
-                        .supplier();
+                        .build();
             }
         });
         BiFunction<SecurityAccessorType, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessorType, properties) -> {
