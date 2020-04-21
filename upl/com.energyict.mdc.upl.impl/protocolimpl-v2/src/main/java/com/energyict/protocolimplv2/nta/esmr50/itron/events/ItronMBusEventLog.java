@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.esmr50.elster;
+package com.energyict.protocolimplv2.nta.esmr50.itron.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;
@@ -14,9 +14,9 @@ import static com.energyict.protocol.MeterEvent.*;
  */
 
 //TODO: md: some events specific for slaved devices overriden here with generic event codes; check correctness
-public class ElsterMBusEventLog extends ESMR50MbusEventLog {
+public class ItronMBusEventLog extends ESMR50MbusEventLog {
 
-    public ElsterMBusEventLog(DataContainer dc) {
+    public ItronMBusEventLog(DataContainer dc) {
         super(dc);
     }
 
@@ -49,18 +49,17 @@ public class ElsterMBusEventLog extends ESMR50MbusEventLog {
         FIRMWARE_UPGRADE_UNSUCCESSFUL       (117, OTHER,                    "FW upgrade unsuccessful"),
         FUAK_CHANGE_SUCCESSFUL              (118, OTHER,                    "FUAK change successful"),
         // 119      reserved for future use
-        EVENT_TAMPER_BATTERY                      (120, TAMPER_BATTERY,     "Tamper battery"),
-        EVENT_HLC_DAMAGE                          (121, HLC_DAMAGE,         "HLC damage"),
-        EVENT_PERMANENT_LOG_FILLED_UP_90_PERSENT  (122, PERMANENT_LOG_FILLED_UP_90_PERSENT, "Permanent Log filled up to 90%"),
-        EVENT_DEVICE_ABOUT_HIBERNATION_MODE       (123, DEVICE_ABOUT_HIBERNATION_MODE, "Device is about to enter hibernation mode"),
-        EVENT_ELSTER_RESERVED_1                   (124, OTHER,              "Elster reserved 1"),
-        EVENT_ELSTER_RESERVED_2                   (125, OTHER,              "Elster reserved 2"),
-        EVENT_ELSTER_RESERVED_3                   (126, OTHER,              "Elster reserved 3"),
-        EVENT_ELSTER_RESERVED_4                   (127, OTHER,              "Elster reserved 4"),
-        EVENT_ELSTER_RESERVED_5                   (128, OTHER,              "Elster reserved 5"),
-        EVENT_ELSTER_RESERVED_6                   (129, OTHER,              "Elster reserved 6"),
-        EVENT_ELSTER_RESERVED_7                   (130, OTHER,              "Elster reserved 7"),
-        EVENT_ELSTER_RESERVED_8                   (131, OTHER,              "Elster reserved 8"),
+        EVENT_POWER_FAIL                          (120, POWER_FAIL,         "Powerfail"),
+        EVENT_MAX_FLOW                            (121, MAX_FLOW,           "Max Flow"),
+        EVENT_TEMP_MIN_LIMIT                      (123, TEMP_MIN_LIMIT,     "TempMinLimit"),
+        EVENT_TEMP_MAX_LIMIT                      (124, TEMP_MAX_LIMIT,     "TempMaxLimit"),
+        EVENT_PULSE_ERROR                         (125, PULSE_ERROR,        "Pulse error"),
+        EVENT_CONSUMPTION_ERROR                   (126, CONSUMPTION_ERROR,  "Consumption Error"),
+        EVENT_ELSTER_RESERVED_1                   (127, OTHER,              "Elster reserved 4"),
+        EVENT_ELSTER_RESERVED_2                   (128, OTHER,              "Elster reserved 5"),
+        EVENT_ELSTER_RESERVED_3                   (129, OTHER,              "Elster reserved 6"),
+        EVENT_ELSTER_RESERVED_4                   (130, OTHER,              "Elster reserved 7"),
+        EVENT_ELSTER_RESERVED_7                   (131, OTHER,              "Elster reserved 8"),
 
         MBUS_COMMUNICATION_ERROR            (132, COMMUNICATION_ERROR_MBUS, "M-Bus communication error"),
         MBUS_COMMUNICATION_ERROR_RESOLVED   (133, COMMUNICATION_OK_MBUS,    "M-Bus communication error resolved"),

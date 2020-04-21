@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.events;
 
-import com.energyict.protocolimplv2.nta.esmr50.elster;
-import com.energyict.protocolimplv2.nta.esmr50.itron;
+import com.energyict.protocolimplv2.nta.esmr50.elster.events.ElsterMBusEventLog;
+import com.energyict.protocolimplv2.nta.esmr50.itron.events.ItronMBusEventLog;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.aso.SecurityContext;
@@ -9,22 +9,15 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
-import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.VoltageQualityEventLog;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
-import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.MASTER;
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.SLAVE;
 
 public final class ESMR50LogBookFactory extends AbstractNtaLogBookFactory<ESMR50Protocol> {
 

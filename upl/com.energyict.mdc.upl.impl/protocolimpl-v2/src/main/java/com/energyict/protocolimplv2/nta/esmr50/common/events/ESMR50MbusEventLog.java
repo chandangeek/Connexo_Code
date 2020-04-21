@@ -7,16 +7,8 @@ import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.AbstractEvent;
 import java.util.Date;
 import java.util.List;
 
-import static com.energyict.protocol.MeterEvent.CLOCK_INVALID;
-import static com.energyict.protocol.MeterEvent.COMMUNICATION_ERROR_MBUS;
-import static com.energyict.protocol.MeterEvent.COMMUNICATION_OK_MBUS;
-import static com.energyict.protocol.MeterEvent.EVENT_LOG_CLEARED;
-import static com.energyict.protocol.MeterEvent.OTHER;
-import static com.energyict.protocol.MeterEvent.WATCHDOG_ERROR;
-import static com.energyict.protocol.MeterEvent.TAMPER_BATTERY;
-import static com.energyict.protocol.MeterEvent.HLC_DAMAGE;
-import static com.energyict.protocol.MeterEvent.PERMANENT_LOG_FILLED_UP_90_PERSENT;
-import static com.energyict.protocol.MeterEvent.DEVICE_ABOUT_HIBERNATION_MODE;
+import static com.energyict.protocol.MeterEvent.*;
+
 
 /**
  *
@@ -58,19 +50,6 @@ public class ESMR50MbusEventLog extends AbstractEvent {
         FIRMWARE_UPGRADE_UNSUCCESSFUL       (117, OTHER,                    "FW upgrade unsuccessful"),
         FUAK_CHANGE_SUCCESSFUL              (118, OTHER,                    "FUAK change successful"),
         // 119      reserved for future use
-        EVENT_TAMPER_BATTERY                      (120, TAMPER_BATTERY,     "Tamper battery"),
-        EVENT_HLC_DAMAGE                          (121, HLC_DAMAGE,         "HLC damage"),
-        EVENT_PERMANENT_LOG_FILLED_UP_90_PERSENT  (122, PERMANENT_LOG_FILLED_UP_90_PERSENT, "Permanent Log filled up to 90%"),
-        EVENT_DEVICE_ABOUT_HIBERNATION_MODE       (123, DEVICE_ABOUT_HIBERNATION_MODE, "Device is about to enter hibernation mode"),
-        EVENT_ELSTER_RESERVED_1                   (124, OTHER,              "Elster reserved 1"),
-        EVENT_ELSTER_RESERVED_2                   (125, OTHER,              "Elster reserved 2"),
-        EVENT_ELSTER_RESERVED_3                   (126, OTHER,              "Elster reserved 3"),
-        EVENT_ELSTER_RESERVED_4                   (127, OTHER,              "Elster reserved 4"),
-        EVENT_ELSTER_RESERVED_5                   (128, OTHER,              "Elster reserved 5"),
-        EVENT_ELSTER_RESERVED_6                   (129, OTHER,              "Elster reserved 6"),
-        EVENT_ELSTER_RESERVED_7                   (130, OTHER,              "Elster reserved 7"),
-        EVENT_ELSTER_RESERVED_8                   (131, OTHER,              "Elster reserved 8"),
-
         MBUS_COMMUNICATION_ERROR            (132, COMMUNICATION_ERROR_MBUS, "M-Bus communication error"),
         MBUS_COMMUNICATION_ERROR_RESOLVED   (133, COMMUNICATION_OK_MBUS,    "M-Bus communication error resolved"),
         MBUS_SECURITY_ERROR                 (134, COMMUNICATION_ERROR_MBUS, "M-Bus security error"),
