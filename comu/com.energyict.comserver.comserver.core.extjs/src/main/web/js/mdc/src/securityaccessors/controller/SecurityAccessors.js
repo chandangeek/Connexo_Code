@@ -179,6 +179,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             '#edit-security-accessor-key-renewal #key-renewal-command-combo': {
                 change: me.keyRenewalCommandChanged
             },
+            '#edit-security-accessor-key-renewal #service-key-renewal-command-combo': {
+                change: me.serviceKeyRenewalCommandChanged
+            },
             '#edit-security-accessor-key-renewal button[action=save]': {
                 click: this.onSaveKeyRenewal
             }
@@ -332,7 +335,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                     } else {
                                         keyRenewalPropertyHeader.hide();
                                     }
-                                }
+                               }else{
+                                    var commandComboStore = commandCombo.store;
+                                    if (commandComboStore && commandComboStore.getCount() > 0){
+                                        commandCombo.setValue(commandComboStore.getAt(0).data.id)
+                                    }
+                               }
                                if (securityAccessorRecord.get('serviceKeyRenewalCommandSpecification')) {
                                     serviceKeyCommandCombo.setValue(securityAccessorRecord.get('serviceKeyRenewalCommandSpecification').id);
                                     view.down('#service-key-renewal-property-form').loadRecord(securityAccessorRecord);
@@ -343,7 +351,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                     } else {
                                         serviceKeyRenewalPropertyHeader.hide();
                                     }
-                                }
+                               } else {
+                                    var serviceKeyCommandComboStore = serviceKeyCommandCombo.store;
+                                    if (serviceKeyCommandComboStore && serviceKeyCommandComboStore.getCount() > 0){
+                                        serviceKeyCommandCombo.setValue(serviceKeyCommandComboStore.getAt(0).data.id)
+                                    }
+                               }
                             }
                         });
                     }
@@ -359,6 +372,21 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             keyRenewalPropertyHeader = me.getKeyRenewalPropertyHeader();
 
         if (keyRenewalRecord && keyRenewalRecord.properties() && (keyRenewalRecord.properties().getCount() > 0)) {
+            keyRenewalPropertyHeader.show();
+            keyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', keyRenewalRecord.get('name')) + '</h3>');
+        } else {
+            keyRenewalPropertyHeader.hide();
+        }
+        propertiesForm.loadRecord(combobox.findRecordByValue(newValue));
+    },
+
+    serviceKeyRenewalCommandChanged: function (combobox, newValue, oldValue) {
+        var me = this,
+            propertiesForm = me.getServiceKeyRenewalPropertiesForm(),
+            keyRenewalRecord = combobox.findRecordByValue(newValue),
+            keyRenewalPropertyHeader = me.getServiceKeyRenewalPropertyHeader();
+
+        if (keyRenewalRecord && keyRenewalRecord.serviceProperties() && (keyRenewalRecord.serviceProperties().getCount() > 0)) {
             keyRenewalPropertyHeader.show();
             keyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', keyRenewalRecord.get('name')) + '</h3>');
         } else {
