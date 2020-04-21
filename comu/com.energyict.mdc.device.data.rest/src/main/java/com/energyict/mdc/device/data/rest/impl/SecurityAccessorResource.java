@@ -274,7 +274,13 @@ public class SecurityAccessorResource {
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
         Optional<SecurityAccessor> keyAccessor = device.getSecurityAccessor(securityAccessorType);
-
+        keyAccessor.ifPresent(key -> {
+            if (key.getVersion() != securityAccessorInfo.version){
+                conflictFactory.contextDependentConflictOn(securityAccessorType.getName())
+                        .withActualVersion(() -> keyAccessor.get().getVersion())
+                        .supplier();
+            }
+        });
         BiFunction<SecurityAccessorType, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessorType, properties) -> {
             SecurityValueWrapper securityValueWrapper;
             if (keyAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.Passphrase)) {
@@ -471,11 +477,13 @@ public class SecurityAccessorResource {
         if (propertiesContainValues(properties)) {
             if (propertiesDiffer(properties, actualValue.get().getProperties())) {
                 actualValueUpdater.apply(securityAccessor, properties);
+                securityAccessor.touch();
             }
             return Optional.of(securityAccessor);
         } else {
             if (securityAccessor.getTempValue().isPresent()) {
                 securityAccessor.clearActualValue();
+                securityAccessor.touch();
                 return Optional.of(securityAccessor);
             } else {
                 securityAccessor.delete();
