@@ -31,31 +31,16 @@ Ext.define('Isu.controller.IssueDetail', {
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             issueType = queryString.issueType,
             store = me.getIssueStore(),
-            processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widgetXtype,
             widget;
 
-        switch (issueType){
-            case 'datavalidation':
-            case 'datacollection':
-            case 'devicelifecycle':
-            case 'task':
-            case 'servicecall':
-            case 'webservice':
-                processStore.getProxy().setUrl(id);
-                processStore.load();
-                break;
-            default:
-                break;
-        }
-
         var storeParams = {};
 
-        if (queryString && queryString.meter){
-            storeParams['filters'] = [{property: 'meter',  value : queryString.meter}]
+        if (queryString && queryString.meter) {
+            storeParams['filters'] = [{property: 'meter', value: queryString.meter}]
         }
 
-        var callback = function(){
+        var callback = function () {
             if (store.getCount() && store.getById(parseInt(id)) != null) {
                 var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
                 if (issueActualType != issueType) {
@@ -102,6 +87,7 @@ Ext.define('Isu.controller.IssueDetail', {
                             widget.down('#issue-detail-action-menu').record = record;
                         }
                         me.loadComments(record, issueType);
+                        me.loadProcesses(record, issueType, id);
                     }
                 },
                 failure: function () {
@@ -115,16 +101,16 @@ Ext.define('Isu.controller.IssueDetail', {
         store.load(storeParams);
     },
 
-    settingsForCurrentIssueType: function(issueType){
+    settingsForCurrentIssueType: function (issueType) {
         var me = this,
             widgetXtype;
-        switch (issueType){
+        switch (issueType) {
             case 'datacollection':
                 widgetXtype = 'data-collection-issue-detail';
                 me.issueModel = 'Idc.model.Issue';
                 break;
             case 'datavalidation':
-                if (Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'MDC'){
+                if (Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'MDC') {
                     widgetXtype = 'data-validation-issue-detail';
                     me.issueModel = 'Idv.model.Issue';
                     me.nonEstimatedDataStore = 'Idv.store.NonEstimatedDataStore';
@@ -147,7 +133,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 break;
             case 'manual':
                 widgetXtype = 'manual-issue-detail';
-                me.issueModel='Isu.model.ManualIssue';
+                me.issueModel = 'Isu.model.ManualIssue';
                 break;
             case 'webservice':
                 widgetXtype = 'webservice-issue-detail';
@@ -162,10 +148,10 @@ Ext.define('Isu.controller.IssueDetail', {
         return widgetXtype;
     },
 
-    setAdditionalSettingsForCurrentIssue: function(issueType, widget){
+    setAdditionalSettingsForCurrentIssue: function (issueType, widget) {
         var me = this;
 
-        switch (issueType){
+        switch (issueType) {
             case 'datavalidation':
             case 'usagepointdatavalidation':
                 me.addValidationBlocksWidget(widget);
@@ -182,7 +168,7 @@ Ext.define('Isu.controller.IssueDetail', {
             case 'webservice':
                 me.addWebServiceIssueLogs(widget);
                 break;
-             default:
+            default:
                 break;
         }
     },
@@ -251,6 +237,46 @@ Ext.define('Isu.controller.IssueDetail', {
         return Ext.String.format(link, router.getRoute('workspace/issues').buildUrl(null, queryParams));
     },
 
+    loadProcesses: function (record, issueType, id) {
+        alarm = Ext.ComponentQuery.query('alarm-timeline')[0];
+        var me = this,
+            processView = this.widget ? this.widget.down('#issue-process-view') : this.getPage().down('#issue-process-view'),
+            processStore = (alarm) ? me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses') : me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses');
+        if (me.canViewProcesses()) {
+            switch (issueType) {
+                case 'datavalidation':
+                case 'datacollection':
+                case 'devicelifecycle':
+                case 'task':
+                case 'servicecall':
+                case 'webservice':
+                    processStore.getProxy().setUrl(id);
+                    Ext.Ajax.suspendEvent('requestexception');
+                    processView.setLoading();
+                    processStore.load({
+                        callback: function (records, options, success) {
+                            if (!success) {
+                                processView.removeAll();
+                                processView.add([
+                                    {
+                                        xtype: 'label',
+                                        itemId: 'lbl-top-most',
+                                        style: 'font-weight: normal; margin: 0px 0px 0px 5px',
+                                        text: 'Connexo Flow is not available.'
+                                    }
+                                ]);
+                            }
+                            processView.setLoading(false);
+                            Ext.Ajax.resumeEvent('requestexception');
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
+    },
+
     loadComments: function (record, issueType) {
         var
             me = this,
@@ -284,7 +310,8 @@ Ext.define('Isu.controller.IssueDetail', {
                 this.showCommentFormValidation();
             }
         }
-    },
+    }
+    ,
 
     showCommentForm: function () {
         var me = this,
@@ -311,7 +338,8 @@ Ext.define('Isu.controller.IssueDetail', {
             page.up('#tab-issue-context').setActiveTab(1);
         }
         Ext.resumeLayouts(true);
-    },
+    }
+    ,
 
     showCommentFormValidation: function () {
         var me = this,
@@ -332,7 +360,8 @@ Ext.define('Isu.controller.IssueDetail', {
         }
 
         Ext.resumeLayouts(true);
-    },
+    }
+    ,
 
     hideCommentForm: function () {
         var me = this,
@@ -364,15 +393,18 @@ Ext.define('Isu.controller.IssueDetail', {
 
         Ext.resumeLayouts(true);
 
-    },
+    }
+    ,
 
     validateCommentForm: function (textarea, newValue) {
         this.getCommentsPanel().down('#issue-comment-save-button').setDisabled(!newValue.trim().length);
-    },
+    }
+    ,
 
     validateEditCommentForm: function (textarea, newValue) {
         textarea.up('panel').down('#issue-comment-edit-button').setDisabled(!newValue.trim().length);
-    },
+    }
+    ,
 
     addComment: function () {
         var me = this,
@@ -394,7 +426,8 @@ Ext.define('Isu.controller.IssueDetail', {
         });
 
         me.hideCommentForm();
-    },
+    }
+    ,
 
     addCommentValidation: function () {
         var me = this,
@@ -415,13 +448,15 @@ Ext.define('Isu.controller.IssueDetail', {
         });
 
         me.hideCommentForm();
-    },
+    }
+    ,
 
     chooseAction: function (menu, menuItem) {
         if (!Ext.isEmpty(menuItem.actionRecord)) {
             this.applyActionImmediately(menu.record, menuItem.actionRecord);
         }
-    },
+    }
+    ,
 
     applyActionImmediately: function (issue, action) {
         var me = this,
@@ -452,7 +487,8 @@ Ext.define('Isu.controller.IssueDetail', {
                 }
             }
         });
-    },
+    }
+    ,
 
     loadDataCollectionIssueDetails: function (widget, issue) {
         var me = this,
@@ -522,7 +558,8 @@ Ext.define('Isu.controller.IssueDetail', {
         }
         form.loadRecord(issue);
         container.add(form);
-    },
+    }
+    ,
 
     addValidationBlocksWidget: function (widget) {
         var me = this,
@@ -565,7 +602,8 @@ Ext.define('Isu.controller.IssueDetail', {
         }, me, {
             single: true
         });
-    },
+    }
+    ,
 
     addTransitionBlocksWidget: function (widget) {
         var me = this,
@@ -599,7 +637,8 @@ Ext.define('Isu.controller.IssueDetail', {
         }, me, {
             single: true
         });
-    },
+    }
+    ,
 
     addTaskOccurrenceWidget: function (widget) {
         var me = this,
@@ -630,16 +669,18 @@ Ext.define('Isu.controller.IssueDetail', {
                                 property: 'startDate',
                                 direction: 'DESC'
                             }
-                        ],});
+                        ],
+                    });
                     panel.getView().bindStore(store);
                 }
             }
         }, me, {
             single: true
         });
-    },
+    }
+    ,
 
-    addServiceCallIssueLogs: function(widget) {
+    addServiceCallIssueLogs: function (widget) {
         var me = this;
 
         me.getApplication().on('issueLoad', function (rec) {
@@ -660,20 +701,20 @@ Ext.define('Isu.controller.IssueDetail', {
                 Ext.getStore('Isc.store.Logs').loadData(data);
                 panel.bindStore(Ext.getStore('Isc.store.Logs'), true);
                 panel.addDocked({
-                xtype: 'toolbar',
-                itemId: 'components-list-top-toolbar',
-                items: [
-                    '->',
-                    {
-                        xtype: 'exporterbutton',
-                        itemId: 'components-exporter-button',
-                        ui: 'icon',
-                        iconCls: 'icon-file-download',
-                        text: '',
-                        component: 'servicecall-issue-detail-log'
-                    }
-                ]
-            })
+                    xtype: 'toolbar',
+                    itemId: 'components-list-top-toolbar',
+                    items: [
+                        '->',
+                        {
+                            xtype: 'exporterbutton',
+                            itemId: 'components-exporter-button',
+                            ui: 'icon',
+                            iconCls: 'icon-file-download',
+                            text: '',
+                            component: 'servicecall-issue-detail-log'
+                        }
+                    ]
+                })
             }
 
             detailsForm && detailsForm.loadRecord(rec);
@@ -681,9 +722,10 @@ Ext.define('Isu.controller.IssueDetail', {
         }, me, {
             single: true
         });
-    },
+    }
+    ,
 
-    addWebServiceIssueLogs: function(widget) {
+    addWebServiceIssueLogs: function (widget) {
         var me = this;
 
         me.getApplication().on('issueLoad', function (rec) {
@@ -703,20 +745,20 @@ Ext.define('Isu.controller.IssueDetail', {
                 Ext.getStore('Iws.store.Logs').loadData(data);
                 panel.bindStore(Ext.getStore('Iws.store.Logs'), true);
                 panel.addDocked({
-                xtype: 'toolbar',
-                itemId: 'components-list-top-toolbar',
-                items: [
-                    '->',
-                    {
-                        xtype: 'exporterbutton',
-                        itemId: 'components-exporter-button',
-                        ui: 'icon',
-                        iconCls: 'icon-file-download',
-                        text: '',
-                        component: 'webservice-issue-detail-log'
-                    }
-                ]
-            })
+                    xtype: 'toolbar',
+                    itemId: 'components-list-top-toolbar',
+                    items: [
+                        '->',
+                        {
+                            xtype: 'exporterbutton',
+                            itemId: 'components-exporter-button',
+                            ui: 'icon',
+                            iconCls: 'icon-file-download',
+                            text: '',
+                            component: 'webservice-issue-detail-log'
+                        }
+                    ]
+                })
             }
 
             detailsForm && detailsForm.loadRecord(rec);
@@ -724,7 +766,8 @@ Ext.define('Isu.controller.IssueDetail', {
         }, me, {
             single: true
         });
-    },
+    }
+    ,
 
     refreshGrid: function (widget) {
         var me = this,
@@ -750,7 +793,7 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'webservice') {
             issueModel = 'Iws.model.Issue';
         }
-         else {
+        else {
             issueModel = me.issueModel;
         }
 
@@ -796,15 +839,18 @@ Ext.define('Isu.controller.IssueDetail', {
         if (issueType === 'webservice') {
             me.addWebServiceIssueLogs(widget);
         }
-    },
+    }
+    ,
 
     canViewProcesses: function () {
         return Isu.privileges.Issue.canViewProcesses();
-    },
+    }
+    ,
 
     canComment: function () {
         return Isu.privileges.Issue.canComment();
-    },
+    }
+    ,
 
     containerclick: function (view, record) {
         var className = record && record.getTarget() && record.getTarget().className;
@@ -815,7 +861,8 @@ Ext.define('Isu.controller.IssueDetail', {
         else if (className == 'icon-cancel-circle2') {
             this.removeComment(view, record)
         }
-    },
+    }
+    ,
 
     editComment: function (view, record) {
         var me = this,
@@ -831,7 +878,8 @@ Ext.define('Isu.controller.IssueDetail', {
         });
 
 
-    },
+    }
+    ,
 
     constructComments: function (issueCommentsView, commentsStore) {
         var me = this,
@@ -944,12 +992,14 @@ Ext.define('Isu.controller.IssueDetail', {
                 issueCommentsView.doLayout();
             }
         });
-    },
+    }
+    ,
 
     formatCreationDate: function (date) {
         date = Ext.isDate(date) ? date : new Date(date);
         return Uni.DateTime.formatDateTimeLong(date);
-    },
+    }
+    ,
 
     hideEditCommentForm: function (button) {
         var me = this,
@@ -964,7 +1014,8 @@ Ext.define('Isu.controller.IssueDetail', {
         commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && me.canComment());
         commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
         Ext.resumeLayouts(true);
-    },
+    }
+    ,
 
     editComment: function (editButton, b, c) {
         var me = this,
@@ -1002,7 +1053,8 @@ Ext.define('Isu.controller.IssueDetail', {
                 me.loadTimeline(commentsStore);
             })
         }
-    },
+    }
+    ,
 
     removeComment: function (commentsView, button) {
         var me = this,
@@ -1034,7 +1086,8 @@ Ext.define('Isu.controller.IssueDetail', {
             title: Uni.I18n.translate('remove.comment.title', 'ISU', 'Remove this comment?')
 
         });
-    },
+    }
+    ,
 
     setDisableEditButtons: function (enable) {
         var me = this,
@@ -1048,7 +1101,8 @@ Ext.define('Isu.controller.IssueDetail', {
                 button.setDisabled(enable);
             })
         }
-    },
+    }
+    ,
 
     getIssueStore: function () {
         return this.getStore('Isu.store.Issues');
