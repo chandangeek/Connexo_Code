@@ -22,6 +22,8 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.HsmException;
 import com.energyict.protocolimpl.base.CRCGenerator;
@@ -42,10 +44,13 @@ import javax.naming.ConfigurationException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
+import static com.energyict.protocolimpl.utils.ProtocolTools.getHexStringFromBytes;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.DEFAULT_KEY;
@@ -54,7 +59,7 @@ import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigura
 public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
     private static final int BLOCK_SIZE = 64 * 1024;
-    private CommonCryptoMbusMessageExecutor mbusCryptoMessageExecutor;
+    private final CommonCryptoMbusMessageExecutor mbusCryptoMessageExecutor;
 
     public CryptoESMR50MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
                                            IssueFactory issueFactory, DeviceMasterDataExtractor deviceMasterDataExtractor) {
@@ -71,9 +76,9 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             try {
                 if (pendingMessage.getSpecification().equals(SecurityMessage.MBUS_TRANSFER_FUAK)) {
-                    collectedMessage = doTransferCryptoFUAK(pendingMessage);
+                    collectedMessage = doTransferFUAK(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBUS_TRANSFER_P2KEY)) {
-                    collectedMessage = doTransferCryptoP2Key(pendingMessage);
+                    collectedMessage = doTransferP2Key(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.MBUS_ESMR5_FIRMWARE_UPGRADE)) {
                     collectedMessage = doFirmwareUpgradeCrypto(pendingMessage);
                 } else if (pendingMessage.getSpecification()
@@ -116,7 +121,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
             int dataParameter = 0;
             Unsigned8 data = new Unsigned8(dataParameter);
             byte[] response = mbusClient.readDetailedVersionInformation(data);
-            String msg = "Method response: " + ProtocolTools.getHexStringFromBytes(response, "");
+            String msg = "Method response: " + getHexStringFromBytes(response, "");
             journal(Level.INFO, msg);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
             collectedMessage.setDeviceProtocolInformation(msg);
@@ -130,225 +135,190 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         return collectedMessage;
     }
 
-    protected void setCryptoserverMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
-        mbusCryptoMessageExecutor.setCryptoserverMbusEncryptionKeys(pendingMessage);
+    private CollectedMessage doTransferFUAK(OfflineDeviceMessage pendingMessage) throws ProtocolException {
+        if (isUsingCryptoServer()) {
+            return doTransferCryptoFUAK(pendingMessage);
+        } else {
+            return doTransferMbusKeyPlain(MBusKeyID.FUAK, pendingMessage);
+        }
     }
 
-    private CollectedMessage doTransferCryptoFUAK(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        return doTransferMBusKeyCrypto(MBusKeyID.FUAK, pendingMessage);
+    private String determineFUAKSecurityAccessorName(String slaveSerialNumber) throws ConfigurationException {
+        return getProtocol().getOfflineDevice().getAllSlaveDevices()
+                    .stream()
+                    .filter(slaveDevice -> slaveDevice.getSerialNumber().equals(slaveSerialNumber))
+                    .findFirst()
+                    .map(slaveDevice -> slaveDevice.getAllProperties().getTypedProperty(FUAK))
+                    .map(fuakProperty -> fuakProperty.toString())
+                    .orElseThrow(() -> new ConfigurationException("Property '" + FUAK + "' is not set"));
     }
 
-    private CollectedMessage doTransferCryptoP2Key(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        return doTransferMBusKeyCrypto(MBusKeyID.P2, pendingMessage);
-    }
-
-    private CollectedMessage doTransferMBusKeyCrypto(MBusKeyID keyID, OfflineDeviceMessage pendingMessage) throws ProtocolException {
+    private CollectedMessage doTransferCryptoFUAK(OfflineDeviceMessage pendingMessage) {
         final String serialNumber = pendingMessage.getDeviceSerialNumber();
 
-        if (!isUsingCryptoServer()) {
-            return super.doTransferMbusKeyPlain(keyID, pendingMessage);
-        }
-        CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-
-        String newOpenKey = "";
-        String newKeyEncrypted = "";
-        byte[] smartMeterKey = new byte[0];
-        byte[] authenticationTag = new byte[0];
-        byte[] keyData = new byte[0];
-
         try {
-            List<byte[]> response = getKeyData(keyID, serialNumber, pendingMessage);
-            keyData = response.get(0);
-            if (MBusKeyID.FUAK.equals(keyID)) {
-                byte[] keyLabel = response.get(1);
-                byte[] mdmSmWK = response.get(2);
-                newKeyEncrypted = ProtocolTools.getHexStringFromBytes(keyLabel, "") + ":" + ProtocolTools.getHexStringFromBytes(mdmSmWK, "");
-            } else if (MBusKeyID.P2.equals(keyID)) {
-                smartMeterKey = response.get(1);
-                authenticationTag = response.get(2);
-            } else {
-                newKeyEncrypted = "";
-            }
+            final String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
+            String securityAccessorName = determineFUAKSecurityAccessorName(serialNumber);
+            FUAKKeyData fuakKeyData = getFUAKKeyData(serialNumber, defaultKeyProperty);
+            String newKeyEncrypted = getHexStringFromBytes(fuakKeyData.getKeyLabel(), "") + ":" + getHexStringFromBytes(fuakKeyData.getMdmSmWK(), "");
+            journal(Level.INFO, "Complete key data " + getHexStringFromBytes(fuakKeyData.getKeyData()));
+            MBusClient mbusClientESMR5 = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
+            journal(Level.INFO, "Invoking FUAK method");
+            mbusClientESMR5.transferFUAK(fuakKeyData.getKeyData());
+            journal(Level.INFO, "Successfully wrote the new MBus FUAK");
+            CollectedMessage collectedMessage = createCollectedMessageWithUpdateSecurityProperty(pendingMessage, securityAccessorName, newKeyEncrypted);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            return collectedMessage;
         } catch (ConfigurationException | IOException e) {
             String msg = "doTransferMBusKeyCrypto exception:" + e.getCause() + " " + e.getMessage();
             journal(Level.SEVERE, msg);
+            CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
             collectedMessage.setDeviceProtocolInformation(msg);
             return collectedMessage;
         }
-
-        return doSendKeys(pendingMessage, serialNumber, keyID, keyData, smartMeterKey, authenticationTag, newOpenKey, newKeyEncrypted);
     }
 
-    private CollectedMessage doSendKeys(OfflineDeviceMessage pendingMessage, String serialNumber, MBusKeyID keyID,
-                                          byte[] keyData, byte[] smartMeterKey, byte[] authenticationTag, String newOpenKey, String newKeyEncrypted) {
-        journal(Level.INFO, "Complete key data " + ProtocolTools.getHexStringFromBytes(keyData));
-        CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-        try {
-            MBusClient mbusClientESMR5 = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
-            if (MBusKeyID.FUAK.equals(keyID)) {
-                journal(Level.INFO, "Invoking FUAK method");
-                mbusClientESMR5.transferFUAK(keyData);
-                journal(Level.INFO, "Successfully wrote the new MBus FUAK");
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-                collectedMessage.setDeviceProtocolInformation(newKeyEncrypted);
-            } else if (MBusKeyID.P2.equals(keyID)) {
-
-                if (isUsingCryptoServer()) {
-                    MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
-                    CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(mbusClient, MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
-
-                    journal(Level.INFO, "Invoking transportKey method with the full key data");
-                    // this is to pass the key to the g-meter
-                    cryptoMBusClient.setTransportKey(keyData);
-
-                    journal(Level.FINEST, "AuthenticationTag: " + ProtocolTools.getHexStringFromBytes(authenticationTag));
-                    journal(Level.FINEST, "Wrapping smartMeterKey.");
-
-                    byte[] fullRequest = mbusCryptoMessageExecutor.wrap(smartMeterKey, authenticationTag);
-
-                    journal(Level.FINEST, "Full request to send: " + ProtocolTools.getHexStringFromBytes(fullRequest));
-                    cryptoMBusClient.sendSetEncryptionKeyRequest(fullRequest);
-
-                    journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
-
-                    journal(Level.FINEST, "Incrementing frame-counter");
-                    getProtocol().getDlmsSession().getAso().getSecurityContext().incFrameCounter();
-
-                    journal(Level.INFO, "Encryption key status is now: " + mbusClientESMR5.readKeyStatusAsText() );
-
-                    journal(Level.INFO, "Saving the smartMeterKey: " + ProtocolTools.getHexStringFromBytes(smartMeterKey));
-
-                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-                    collectedMessage.setDeviceProtocolInformation(ProtocolTools.getHexStringFromBytes(smartMeterKey));
-                } else {
-                    /** this part is obsolete, was copied from EIServer, now ENEXIS will use only CryptoServer! */
-                    journal(Level.INFO, "Invoking transportKey method with the full key data");
-                    // this is to pass the key to the g-meter
-                    mbusClientESMR5.setTransportKey(keyData);
-
-                    journal(Level.INFO, "Invoking encryptionKey method to send the openKey: " + newOpenKey);
-                    // this is to store the key
-                    mbusClientESMR5.setEncryptionKey(ProtocolTools.getBytesFromHexString(newOpenKey, 2));
-
-                    journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
-                    journal(Level.INFO, "Saving the messageInfo: " + newKeyEncrypted);
-                    //return MessageResult.createSuccess(msgEntry, newKeyEncrypted);
-                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-                    collectedMessage.setDeviceProtocolInformation(newKeyEncrypted);
-                }
-            } else {
-                //return MessageResult.createFailed(msgEntry, "Only FUAK change and MBus P2 key options available.");
-                String msg = "Only FUAK change and MBus P2 key options available.";
-                journal(Level.SEVERE, msg);
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
-                collectedMessage.setDeviceProtocolInformation(msg);
-            }
-        } catch (IOException e) {
-            String msg = "IO Exception while writing key:" + e.getCause() + e.getMessage();
-            journal(Level.SEVERE, msg);
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
-            collectedMessage.setDeviceProtocolInformation(msg);
-        }
-        return collectedMessage;
-    }
-
-    private List<byte[]> getKeyData(MBusKeyID keyID, String serialNumber, OfflineDeviceMessage pendingMessage)
-            throws HsmException, ConfigurationException, IOException {
+    private FUAKKeyData getFUAKKeyData(String serialNumber, String defaultKeyProperty) throws HsmException {
         journal(Level.INFO, "Preparing key data for phase 2 ... ");
 
         byte[] kcc = getKCC();
         byte[] mbusIV = getInitializationVector(kcc, serialNumber);
 
-        final String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
         IrreversibleKey defaultKey = new IrreversibleKeyImpl(defaultKeyProperty);
 
         KeyRenewalMBusResponse response;
-        if (MBusKeyID.FUAK.equals(keyID)) {
-            journal(Level.INFO, "Calling renewMBusFuakWithGCM ...");
+        journal(Level.INFO, "Calling renewMBusFuakWithGCM ...");
 
-            AbstractSmartNtaProtocol protocol = (AbstractSmartNtaProtocol) getProtocol();
-            String workingKeyLabel = ((ESMR50Properties) protocol.getDlmsSessionProperties()).getWorkingKeyLabelPhase2();
+        AbstractSmartNtaProtocol protocol = (AbstractSmartNtaProtocol) getProtocol();
+        String workingKeyLabel = ((ESMR50Properties) protocol.getDlmsSessionProperties()).getWorkingKeyLabelPhase2();
 
-            journal(Level.FINEST, " - mbusIV [" + mbusIV + "]: " + ProtocolTools.getHexStringFromBytes(mbusIV));
+        journal(Level.FINEST, " - mbusIV [" + Arrays.toString(mbusIV) + "]: " + getHexStringFromBytes(mbusIV));
+        response = Services.hsmService().renewMBusFuakWithGCM(workingKeyLabel, defaultKey, mbusIV);
+        journal(Level.FINEST, "Atos response:" + response.toString());
 
-            response = Services.hsmService().renewMBusFuakWithGCM(workingKeyLabel, defaultKey, mbusIV);
+        //the first 8 bytes of the mBusAuthTag
+        byte[] authTag = ProtocolUtils.getSubArray(response.getMBusAuthTag(), 0, 7);
 
-            journal(Level.FINEST, "Atos response:" + response.toString());
+        byte[] keyData = ProtocolTools.concatByteArrays(kcc, response.getMbusDeviceKey(), authTag);
+        byte[] keyLabel = workingKeyLabel.getBytes(StandardCharsets.US_ASCII);
+        byte[] mdmSmWk = response.getMdmSmWK().getEncryptedKey();
+        return new FUAKKeyData(keyData, keyLabel, mdmSmWk);
+    }
 
-            List<byte[]> ret = new ArrayList<>();
-            //the first 8 bytes of the mBusAuthTag
+    private CollectedMessage doTransferP2Key(OfflineDeviceMessage pendingMessage) throws ProtocolException {
+        if (isUsingCryptoServer()) {
+            return doTransferCryptoP2Key(pendingMessage);
+        } else {
+            return doTransferMbusKeyPlain(MBusKeyID.P2, pendingMessage);
+        }
+    }
 
-            byte[] authTag = ProtocolUtils.getSubArray(response.getMBusAuthTag(), 0, 7);
-            ret.add(ProtocolTools.concatByteArrays(kcc, response.getMbusDeviceKey(), authTag));
-            ret.add(workingKeyLabel.getBytes(StandardCharsets.US_ASCII));
-            ret.add(response.getMdmSmWK().getEncryptedKey());
-            return ret;
-        } else if (MBusKeyID.P2.equals(keyID)) {
-            journal(Level.INFO, "Preparing P2 meter data using HSM");
+    private CollectedMessage doTransferCryptoP2Key(OfflineDeviceMessage pendingMessage) {
+        final String serialNumber = pendingMessage.getDeviceSerialNumber();
+        try {
+            final String defaultKeyProperty = getDeviceProtocolPropertyValue(pendingMessage.getDeviceId(), DEFAULT_KEY);
+            P2KeyData p2KeyData = getP2KeyData(serialNumber, defaultKeyProperty);
 
-            journal(Level.INFO, "Reading information required for apduTemplate");
-            byte[] apduTemplate = mbusCryptoMessageExecutor.createApduTemplate(serialNumber);
+            journal(Level.INFO, "Complete key data " + getHexStringFromBytes(p2KeyData.getKeyData()));
+            MBusClient mbusClientESMR5 = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION1);
 
-            /** No other meter communication until method8 invocation to keep the frame-counter in sync! */
-            byte[] eMeterIV = mbusCryptoMessageExecutor.getNextInitializationVector();
+            MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
+            CryptoMBusClient cryptoMBusClient = new CryptoMBusClient(mbusClient, MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
 
-            journal(Level.INFO, "Calling renewMBusUserKeyWithGCM with the parameters:");
+            journal(Level.INFO, "Invoking transportKey method with the full key data");
+            // this is to pass the key to the g-meter
+            cryptoMBusClient.setTransportKey(p2KeyData.getKeyData());
 
-            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
-            SecurityProvider securityProvider = getProtocol().getDlmsSession().getProperties().getSecurityProvider();
-            IrreversibleKey encrKey = IrreversibleKeyImpl.fromByteArray(securityContext.getEncryptionKey(false));
-            IrreversibleKey authKey = IrreversibleKeyImpl.fromByteArray(securityProvider.getAuthenticationKey());
+            journal(Level.FINEST, "AuthenticationTag: " + getHexStringFromBytes(p2KeyData.getAuthenticationTag()));
+            journal(Level.FINEST, "Wrapping smartMeterKey.");
 
-            journal(Level.FINEST, " - apduTemplate [" + apduTemplate + "]: " + ProtocolTools.getHexStringFromBytes(apduTemplate));
-            journal(Level.FINEST, " - eMeterIV [" + eMeterIV + "]: " + ProtocolTools.getHexStringFromBytes(eMeterIV));
-            journal(Level.FINEST, " - defaultKey : " + defaultKey.getKeyLabel()+":"+ProtocolTools.getHexStringFromBytes(defaultKey.getEncryptedKey()));
-            journal(Level.FINEST, " - mbusIV [" + mbusIV + "]: " + ProtocolTools.getHexStringFromBytes(mbusIV));
+            byte[] fullRequest = mbusCryptoMessageExecutor.wrap(p2KeyData.getSmartMeterKey(), p2KeyData.getAuthenticationTag());
 
-            response = Services.hsmService().renewMBusUserKeyWithGCM(encrKey,
-                    apduTemplate,
-                    eMeterIV, //e-meter fc
-                    authKey,
-                    defaultKey,
-                    mbusIV,
-                    getProtocol().getDlmsSession().getProperties().getSecuritySuite());//mbus
-            try {
-                journal(Level.FINEST, "Atos smartMeterKey: \t" + ProtocolTools.getHexStringFromBytes(response.getSmartMeterKey()));
-                journal(Level.FINEST, "Atos authenticationTag: \t" + ProtocolTools.getHexStringFromBytes(response.getAuthenticationTag()));
-                journal(Level.FINEST, "Atos mbusDeviceKey: \t" + ProtocolTools.getHexStringFromBytes(response.getMbusDeviceKey()));
-                journal(Level.FINEST, "Atos authTag: \t" + ProtocolTools.getHexStringFromBytes(response.getMBusAuthTag()));
-            } catch (NullPointerException e) {
-                journal(Level.FINEST, "Null pointer exception while reading the ATOS response");
-            }
+            journal(Level.FINEST, "Full request to send: " + getHexStringFromBytes(fullRequest));
+            cryptoMBusClient.sendSetEncryptionKeyRequest(fullRequest);
 
-            journal(Level.FINEST, "KEY content:");
+            journal(Level.INFO, "Successfully wrote the new MBus P2 Key");
+            journal(Level.FINEST, "Incrementing frame-counter");
+            getProtocol().getDlmsSession().getAso().getSecurityContext().incFrameCounter();
+            journal(Level.INFO, "Encryption key status is now: " + mbusClientESMR5.readKeyStatusAsText() );
+            journal(Level.INFO, "Saving the smartMeterKey: " + getHexStringFromBytes(p2KeyData.getSmartMeterKey()));
 
-            byte[] keyEncrypted = response.getMbusDeviceKey();
-            journal(Level.FINEST, " - keyEncrypted [" + keyEncrypted.length + "]: " + ProtocolTools.getHexStringFromBytes(keyEncrypted));
+            CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            collectedMessage.setDeviceProtocolInformation(getHexStringFromBytes(p2KeyData.getSmartMeterKey()));
+            return collectedMessage;
+        } catch (ConfigurationException | IOException e) {
+            String msg = "doTransferMBusKeyCrypto exception:" + e.getCause() + " " + e.getMessage();
+            journal(Level.SEVERE, msg);
+            CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+            collectedMessage.setDeviceProtocolInformation(msg);
+            return collectedMessage;
+        }
+    }
 
-            byte[] keyTag = response.getMBusAuthTag();
-            //only the 8 Most Significant Bytes should be used
-            keyTag = ProtocolUtils.getSubArray(keyTag, 0, 7);
-            journal(Level.FINEST, " - gcmTag [" + keyTag.length + "]: " + ProtocolTools.getHexStringFromBytes(keyTag));
+    private P2KeyData getP2KeyData(String serialNumber, String defaultKeyProperty) throws HsmException, IOException {
+        journal(Level.INFO, "Preparing key data for phase 2 ... ");
 
-            byte[] keyInfo = response.getSmartMeterKey();
-            byte[] authenticationTag = response.getAuthenticationTag();
+        byte[] kcc = getKCC();
+        byte[] mbusIV = getInitializationVector(kcc, serialNumber);
 
-            journal(Level.FINEST, " - keyInfo [" + keyInfo.length + "]: " + ProtocolTools.getHexStringFromBytes(keyInfo));
+        IrreversibleKey defaultKey = new IrreversibleKeyImpl(defaultKeyProperty);
 
-            journal(Level.FINEST, " - kcc [" + kcc.length + "]: " + ProtocolTools.getHexStringFromBytes(kcc));
+        journal(Level.INFO, "Preparing P2 meter data using HSM");
+        journal(Level.INFO, "Reading information required for apduTemplate");
+        byte[] apduTemplate = mbusCryptoMessageExecutor.createApduTemplate(serialNumber);
 
-            List<byte[]> ret = new ArrayList<>();
-            ret.add(ProtocolTools.concatByteArrays(kcc, keyEncrypted, keyTag));
-            ret.add(keyInfo); // this needs to be published to protocolInfo
-            ret.add(authenticationTag);
-            return ret;
+        /* No other meter communication until method8 invocation to keep the frame-counter in sync! */
+        byte[] eMeterIV = mbusCryptoMessageExecutor.getNextInitializationVector();
+        journal(Level.INFO, "Calling renewMBusUserKeyWithGCM with the parameters:");
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        SecurityProvider securityProvider = getProtocol().getDlmsSession().getProperties().getSecurityProvider();
+        IrreversibleKey encrKey = IrreversibleKeyImpl.fromByteArray(securityContext.getEncryptionKey(false));
+        IrreversibleKey authKey = IrreversibleKeyImpl.fromByteArray(securityProvider.getAuthenticationKey());
+
+        journal(Level.FINEST, String.format(" - apduTemplate [%s]: %s", Arrays.toString(apduTemplate), getHexStringFromBytes(apduTemplate)));
+        journal(Level.FINEST, String.format(" - eMeterIV [%s]: %s", Arrays.toString(eMeterIV), getHexStringFromBytes(eMeterIV)));
+        journal(Level.FINEST, String.format(" - defaultKey : %s:%s", defaultKey.getKeyLabel(), getHexStringFromBytes(defaultKey.getEncryptedKey())));
+        journal(Level.FINEST, String.format(" - mbusIV [%s]: %s", Arrays.toString(mbusIV), getHexStringFromBytes(mbusIV)));
+
+        KeyRenewalMBusResponse response = Services.hsmService().renewMBusUserKeyWithGCM(encrKey,
+                apduTemplate,
+                eMeterIV, //e-meter fc
+                authKey,
+                defaultKey,
+                mbusIV,
+                getProtocol().getDlmsSession().getProperties().getSecuritySuite());//mbus
+        try {
+            journal(Level.FINEST, "Atos smartMeterKey: \t" + getHexStringFromBytes(response.getSmartMeterKey()));
+            journal(Level.FINEST, "Atos authenticationTag: \t" + getHexStringFromBytes(response.getAuthenticationTag()));
+            journal(Level.FINEST, "Atos mbusDeviceKey: \t" + getHexStringFromBytes(response.getMbusDeviceKey()));
+            journal(Level.FINEST, "Atos authTag: \t" + getHexStringFromBytes(response.getMBusAuthTag()));
+        } catch (NullPointerException e) {
+            journal(Level.FINEST, "Null pointer exception while reading the ATOS response");
         }
 
-        return null;
+        journal(Level.FINEST, "KEY content:");
+
+        byte[] keyEncrypted = response.getMbusDeviceKey();
+        journal(Level.FINEST, " - keyEncrypted [" + keyEncrypted.length + "]: " + getHexStringFromBytes(keyEncrypted));
+
+        byte[] keyTag = response.getMBusAuthTag();
+        //only the 8 Most Significant Bytes should be used
+        keyTag = ProtocolUtils.getSubArray(keyTag, 0, 7);
+        journal(Level.FINEST, " - gcmTag [" + keyTag.length + "]: " + getHexStringFromBytes(keyTag));
+
+        byte[] keyInfo = response.getSmartMeterKey();
+        byte[] authenticationTag = response.getAuthenticationTag();
+
+        journal(Level.FINEST, " - keyInfo [" + keyInfo.length + "]: " + getHexStringFromBytes(keyInfo));
+        journal(Level.FINEST, " - kcc [" + kcc.length + "]: " + getHexStringFromBytes(kcc));
+
+        return new P2KeyData(ProtocolTools.concatByteArrays(kcc, keyEncrypted, keyTag), keyInfo, authenticationTag);
+
     }
 
     private boolean isUsingCryptoServer() {
@@ -417,17 +387,17 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
                     .getInitVector(), macResponse.getData());
         }
         byte[] MAC = macResponse.getData();
-        journal(Level.FINE, " - MAC: " + ProtocolTools.getHexStringFromBytes(MAC));
+        journal(Level.FINE, " - MAC: " + getHexStringFromBytes(MAC));
 
         // TODO: encrypt more?
         encryptedImage = ProtocolTools.concatByteArrays(clearImageData, MAC);
         journal(Level.FINE, " - encryptedData length (image+MAC) " + encryptedImage.length);
 
-        journal(Level.FINEST, "CRC16 calculation is done on: " + ProtocolTools.getHexStringFromBytes(encryptedImage));
+        journal(Level.FINEST, "CRC16 calculation is done on: " + getHexStringFromBytes(encryptedImage));
 
         int crcVal = CRCGenerator.calcCRCDirect(encryptedImage);
         byte[] crc = ProtocolTools.getBytesFromInt(crcVal, 2);
-        journal(Level.FINE, " - CRC = " + crcVal + ": " + ProtocolTools.getHexStringFromBytes(crc));
+        journal(Level.FINE, " - CRC = " + crcVal + ": " + getHexStringFromBytes(crc));
 
         String imageIdentifier = getFirmwareImageIdentifier(crc);
         journal(Level.FINE, " - imageIdentifier = " + imageIdentifier);
@@ -461,8 +431,8 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         byte[] initVector = macResponse.getInitVector();
         byte[] macValue = macResponse.getData();
 
-        journal(Level.INFO, "generateMacSingleBlockBlock - Init vector value: " + initVector);
-        journal(Level.INFO, "generateMacSingleBlockBlock - Mac value: " + macValue);
+        journal(Level.INFO, String.format("generateMacSingleBlockBlock - Init vector value: %s", Arrays.toString(initVector)));
+        journal(Level.INFO, String.format("generateMacSingleBlockBlock - Mac value: %s", Arrays.toString(macValue)));
         return macResponse;
     }
 
@@ -471,8 +441,8 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         MacResponse macResponse = Services.hsmService().generateMacFirstBlock(FUAK, clearData);
         byte[] initVector = macResponse.getInitVector();
         byte[] macValue = macResponse.getData();
-        journal(Level.INFO, "generateMacFirstBlock - Init vector value: " + initVector);
-        journal(Level.INFO, "generateMacFirstBlock - Mac value: " + macValue);
+        journal(Level.INFO, String.format("generateMacFirstBlock - Init vector value: %s", Arrays.toString(initVector)));
+        journal(Level.INFO, String.format("generateMacFirstBlock - Mac value: %s", Arrays.toString(macValue)));
         return macResponse;
     }
 
@@ -482,8 +452,8 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         MacResponse macResponse = Services.hsmService().generateMacMiddleBlock(FUAK, clearData, state);
         byte[] initVector = macResponse.getInitVector();
         byte[] macValue = macResponse.getData();
-        journal(Level.INFO, "generateMacMiddleBlock - Init vector value: " + initVector);
-        journal(Level.INFO, "generateMacMiddleBlock - Mac value: " + macValue);
+        journal(Level.INFO, String.format("generateMacMiddleBlock - Init vector value: %s", Arrays.toString(initVector)));
+        journal(Level.INFO, String.format("generateMacMiddleBlock - Mac value: %s", Arrays.toString(macValue)));
         return macResponse;
     }
 
@@ -493,8 +463,8 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         MacResponse macResponse = Services.hsmService().generateMacLastBlock(FUAK, clearData, icv, state);
         byte[] initVector = macResponse.getInitVector();
         byte[] macValue = macResponse.getData();
-        journal(Level.INFO, "generateMacLastBlock - Init vector value: " + initVector);
-        journal(Level.INFO, "generateMacLastBlock - Mac value: " + macValue);
+        journal(Level.INFO, String.format("generateMacLastBlock - Init vector value: %s", Arrays.toString(initVector)));
+        journal(Level.INFO, String.format("generateMacLastBlock - Mac value: %s", Arrays.toString(macValue)));
         return macResponse;
     }
 
@@ -515,4 +485,56 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         }
     }
 
+    private static class FUAKKeyData {
+
+        private final byte[] keyData;
+        private final byte[] keyLabel;
+        private final byte[] mdmSmWK;
+
+        FUAKKeyData(byte[] keyData, byte[] keyLabel, byte[] mdmSmWK) {
+            this.keyData = keyData;
+            this.keyLabel = keyLabel;
+            this.mdmSmWK = mdmSmWK;
+        }
+
+        public byte[] getKeyData() {
+            return keyData;
+        }
+
+        public byte[] getKeyLabel() {
+            return keyLabel;
+        }
+
+        public byte[] getMdmSmWK() {
+            return mdmSmWK;
+        }
+    }
+
+    private static class P2KeyData {
+
+        private final byte[] keyData;
+        private final byte[] smartMeterKey;
+        private final byte[] authenticationTag;
+
+        P2KeyData(byte[] keyData, byte[] smartMeterKey, byte[] authenticationTag) {
+            this.keyData = keyData;
+            this.smartMeterKey = smartMeterKey;
+            this.authenticationTag = authenticationTag;
+        }
+
+        public byte[] getKeyData() {
+            return keyData;
+        }
+
+        public byte[] getSmartMeterKey() {
+            return smartMeterKey;
+        }
+
+        public byte[] getAuthenticationTag() {
+            return authenticationTag;
+        }
+    }
+
 }
+
+

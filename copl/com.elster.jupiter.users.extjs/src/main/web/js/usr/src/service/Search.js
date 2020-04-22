@@ -41,7 +41,7 @@ Ext.define('Usr.service.Search', {
             && column.xtype != 'uni-grid-column-search-quantity') {
             column.renderer = function (value, metaData, record) {
 
-                if (column.header === 'Name') {
+                if (column.header === Uni.I18n.translate('general.username', 'USR', 'Username')) {
                     var isUserLocked = record.raw.isUserLocked;
                     if (isUserLocked) {
                         value = '<span>' + record.get('authenticationName') + '</span><span class="icon-lock2" style="display:inline-block; color:rgba(255, 0, 0, 0.3);position:relative; left:5px;"></span>';
@@ -50,7 +50,7 @@ Ext.define('Usr.service.Search', {
                 }
 
                 // Special case for status column
-                if (column.header === 'Status') {
+                if (column.header === Uni.I18n.translate('user.status', 'USR', 'Status')) {
                     if (value === 'true') {
                         value = Uni.I18n.translate('general.active', 'USR', 'Active');
                     } else {
@@ -58,7 +58,7 @@ Ext.define('Usr.service.Search', {
                     }
                 }
 
-                if (column.header === 'Locked') {
+                if (column.header === Uni.I18n.translate('user.locked', 'USR', 'Locked')) {
                     if (value === 'true') {
                         value = Uni.I18n.translate('general.userLocked', 'USR', 'Yes');
                     } else {
@@ -67,7 +67,7 @@ Ext.define('Usr.service.Search', {
                 }
 
                 // Special case for language column
-                if (column.header === 'Language') {
+                if (column.header === Uni.I18n.translate('user.language', 'USR', 'Language')) {
                     if (value) {
                         value = value.languageTag;
                     }

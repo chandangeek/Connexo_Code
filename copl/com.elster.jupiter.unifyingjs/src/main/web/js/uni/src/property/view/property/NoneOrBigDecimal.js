@@ -93,11 +93,18 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
     setValue: function (value) {
         var me =this;
         if(me.isEdit){
-            if(value.isNone){
-                me.getNoneRadioField().setValue(true);
-            } else {
-                me.getValueRadioField().setValue(true);
-                me.getValueNumberField().setValue(value.value);
+            me.getValueRadioField().setValue(true);
+            if (value && value.value) {
+                /*
+                    Properties is a common feature which using a many and many places in connexo and sometimes they have a slightly different format
+                    This behaviour is coded in base property class(Base.js) and now this is extended by NoneOrBigDecimal property within CONM-1364
+                */
+                if (Ext.isObject(value.value) && value.value.value){
+                    value = value.value;
+                }
+                if (!value.isNone){
+                    me.getValueNumberField().setValue(value.value);
+                }
             }
         } else {
             this.callParent([me.getValueAsDisplayString(value)]);
