@@ -148,11 +148,12 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         props.put("mail.smtp.port", smtpPort);
         props.setProperty("mail.smtp.user", user);
         props.setProperty("mail.smtp.password", password);
+        props.setProperty("mail.smtp.from", fromAddress);
         return props;
     }
 
     private void validateMailProperty(String propertyName, String value, List<String> badPropertiesCollector){
-        if (value == null){
+        if (value == null || value.isEmpty()){
             badPropertiesCollector.add(propertyName);
         }
     }
@@ -161,8 +162,11 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         List<String> badProperties = new ArrayList<>();
         validateMailProperty(MAIL_SMTP_HOST_PROPERTY, this.smtpHost, badProperties);
         validateMailProperty(MAIL_SMTP_PORT_PROPERTY, this.smtpPort, badProperties);
+        validateMailProperty(MAIL_FROM_PROPERTY, this.fromAddress, badProperties);
         validateMailProperty(MAIL_USER_PROPERTY, this.user, badProperties);
+        /* password is not mandatory
         validateMailProperty(MAIL_PASSWORD_PROPERTY, this.password, badProperties);
+        */
         if (!badProperties.isEmpty()){
             throw new IncompleteEmailConfigurationException(this.getThesaurus(), badProperties.toArray(new String[badProperties.size()]));
         }
