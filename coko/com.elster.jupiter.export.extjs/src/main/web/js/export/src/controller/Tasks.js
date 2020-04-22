@@ -1785,17 +1785,25 @@ Ext.define('Dxp.controller.Tasks', {
                 tooltip.setVisible(true);
                 tooltip.setTooltip(
                     Ext.String.format(
-                        Uni.I18n.translate('addDataExportTask.formatter.tooltip2', 'DES', 'The export file contains 4 columns')
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip3', 'DES', 'By default the export file contains 4 columns')
                         + ':<br>'
                         + '<div style="text-indent: 40px">{0}</div>'
                         + '<div style="text-indent: 40px">{1}</div>'
                         + '<div style="text-indent: 40px">{2}</div>'
                         + '<div style="text-indent: 40px">{3}</div>'
-                        + '<div style="text-indent: 40px">{4}</div>',
+                        + '<br>'
+                        + Uni.I18n.translate('addDataExportTask.formatter.tooltip4', 'DES', 'File format if \'Include device codes\' is selected')
+                        + ':<br>'
+                        + '<div style="text-indent: 40px">{0}</div>'
+                        + '<div style="text-indent: 40px">{1}</div>'
+                        + '<div style="text-indent: 40px">{4}</div>'
+                        + '<div style="text-indent: 40px">{2}</div>'
+                        + '<div style="text-indent: 40px">{3}</div>',
                         Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col1', 'DES', 'Event date (YYYY-MM-DDThh:mm:ss.sTZD)'),
                         Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col2', 'DES', 'Event type (text)'),
                         Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device MRID (text)'),
-                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col4', 'DES', 'Device name (text)')));
+                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col4', 'DES', 'Device name (text)'),
+                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col5', 'DES', 'Device code (text)')));
                 break;
             default:
                 tooltip.setTooltip('');

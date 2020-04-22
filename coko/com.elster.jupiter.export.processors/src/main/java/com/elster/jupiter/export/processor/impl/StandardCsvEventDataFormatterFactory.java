@@ -92,6 +92,13 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
                         .setDefaultValue(this.asInfo(FormatterProperties.defaultSeparator()))
                         .finish());
+        propertySpecs.add(
+                propertySpecService
+                        .booleanSpec()
+                        .named(FormatterProperties.WITH_DEVICE_CODE)
+                        .fromThesaurus(this.thesaurus)
+                        .setDefaultValue(false)
+                        .finish());
         return propertySpecs;
     }
 
@@ -101,7 +108,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties));
+        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties), withDeviceCode(properties));
     }
 
     private String getTag(Map<String, Object> properties) {
@@ -110,6 +117,10 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     private TranslatablePropertyValueInfo getSeparator(Map<String, Object> properties) {
         return (TranslatablePropertyValueInfo) properties.get(FormatterProperties.SEPARATOR.getKey());
+    }
+
+    private boolean withDeviceCode(Map<String, Object> properties) {
+        return properties.containsKey(FormatterProperties.WITH_DEVICE_CODE.getKey()) ? (Boolean) properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey()) : false;
     }
 
     @Override
@@ -123,7 +134,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
             if (property.getValue() instanceof TranslatablePropertyValueInfo) {
                 TranslatablePropertyValueInfo translatablePropertyValueInfo = (TranslatablePropertyValueInfo) property.getValue();
                 checkInvalidChars(translatablePropertyValueInfo.getId().toString(), property.getName(), NON_PATH_INVALID);
-            } else {
+            } else if (property.getValue() instanceof String) {
                 String stringValue = (String) property.getValue();
                 checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
             }
