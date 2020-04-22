@@ -48,6 +48,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusS
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientManufacturerId;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientVersion;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortId;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.mbusChannel;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
@@ -164,7 +166,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
 
     private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
+        int installChannel = getIntegerAttribute(pendingMessage, mbusChannel);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
@@ -177,7 +179,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     }
 
     private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
+        int installChannel = getIntegerAttribute(pendingMessage, mbusChannel);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
         ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(installChannel).getObisCode();
 
@@ -314,7 +316,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     }
 
     protected void changeAuthenticationLevel(OfflineDeviceMessage pendingMessage, int type, boolean enable) throws IOException {
-        int newAuthLevel = getIntegerAttribute(pendingMessage);
+        int newAuthLevel = getIntegerAttribute(pendingMessage, authenticationLevelAttributeName);
         if (newAuthLevel != -1) {
             int bit = 4 - type + newAuthLevel;
             changeConfigurationObjectFlag(bit, enable);

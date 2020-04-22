@@ -186,7 +186,7 @@ public class DeviceScheduleResource {
         }
         if (info.schedule == null) {
             comTaskExecution.getUpdater().removeSchedule().update();
-            comTaskExecution.schedule(null);
+            comTaskExecution.removeSchedule();
         } else {
             comTaskExecution.getUpdater().createNextExecutionSpecs(info.schedule.asTemporalExpression()).update();
         }

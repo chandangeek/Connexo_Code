@@ -124,9 +124,15 @@ sub check_root {
 
 sub check_java8 {
     if ("$JAVA_HOME" eq "") {
-        $JAVA_HOME=$ENV{"JAVA_HOME"};
-        print "Detected JAVA_HOME from environment: $JAVA_HOME\n";
+        $JAVA_HOME="$CONNEXO_DIR/java";
+
+        if (-d "$JAVA_HOME" and -d "$JAVA_HOME") {
+            print "Using Java from path=$JAVA_HOME\n"
+        } else {
+            $JAVA_HOME=$ENV{"JAVA_HOME"};
+        }
     }
+
     if (-d "$JAVA_HOME") {
         $ENV{"JAVA_HOME"}=$JAVA_HOME;
     } else {
@@ -387,6 +393,7 @@ sub read_uninstall_config {
             if ( "$row" ne "") {
                 my @val=split('=',$row);
                 if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "JAVA_HOME" )         {$JAVA_HOME=$val[1];}
             }
         }
         close($FH);

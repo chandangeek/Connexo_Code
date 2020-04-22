@@ -19,6 +19,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -98,10 +99,12 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
     private RSAPublicKey publicKey;
     private RSAPrivateKey privateKey;
 
-    private long TIMEOUT;
     private long TOKEN_REFRESH_MAX_COUNT;
+
+    // All the variables below are representing milliseconds
+    private long TIMEOUT_FRAME_TO_REFRESH_TOKEN;
     private long TOKEN_EXPIRATION_TIME;
-    private long EXPIRED_TOKEN_TASK_EXECUTION_PERIOD = 2 * 60 * 1000; // 2 minutes
+    private long EXPIRED_TOKEN_TASK_EXECUTION_PERIOD = 30 * 60 * 1000; // 30 minutes
 
     public DatabaseBasedTokenService() {
     }
@@ -157,12 +160,12 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
     }
 
     @Override
-    public void initialize(byte[] publicKey, byte[] privateKey, long tokenExpirationTime, long tokenRefreshThershold, long timeout) {
+    public void initialize(byte[] publicKey, byte[] privateKey, long tokenExpirationTime, long tokenRefreshThershold, long timeoutFrameToRefreshToken) {
         this.publicKey = extractPublicKey(publicKey);
         this.privateKey = extractPrivateKey(privateKey);
-        this.TOKEN_EXPIRATION_TIME = tokenExpirationTime;
+        this.TOKEN_EXPIRATION_TIME = tokenExpirationTime * 1000; // Converting to millis
         this.TOKEN_REFRESH_MAX_COUNT = tokenRefreshThershold;
-        this.TIMEOUT = timeout;
+        this.TIMEOUT_FRAME_TO_REFRESH_TOKEN = timeoutFrameToRefreshToken * 1000; // Converting to millis
     }
 
     private RSAPublicKey extractPublicKey(final byte[] publicKey) {
@@ -188,7 +191,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
     @Override
     public UserJWT createUserJWT(User user, Map<String, Object> customClaims) throws JOSEException {
         final UUID jwtId = UUID.randomUUID();
-        final long tokenExpirationTime = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME * 1000;
+        final long tokenExpirationTime = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME;
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setJWTID(jwtId.toString());
@@ -256,10 +259,38 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
                 && verifyIfUserHasUserJWTInStorage(user, UUID.fromString(jwtClaimsSet.getJWTID()))
                 && verifyJWTSignature(signedJWT)
                 && verifyJWTIssuer(jwtClaimsSet.getIssuer())
-                && verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime())
                 && verifyBlackList(jwtClaimsSet.getSubject(), signedJWT.serialize());
 
-        return new TokenValidation(result, user, signedJWT.serialize());
+        /*
+         *  Additional logic to refresh access:
+         *
+         *  When token is located inside a time frame which is
+         *  starts when token epxiraion time is passed and ends
+         *  when expiration time + TIMEOUT_FRAME_TO_REFRESH_TOKEN is reached.
+         */
+        final boolean isTokenExpired = !verifyJWTExpirationTime(jwtClaimsSet.getExpirationTime());
+
+        if (result && isTokenExpired && isTokenValidForRefresh(signedJWT)) {
+            // Increasing refresh counter by one
+            final long refreshCounter = (Long) jwtClaimsSet.getCustomClaim("cnt") + 1L;
+
+            // Invalidate previously issued token
+            invalidateUserJWT(UUID.fromString(jwtClaimsSet.getJWTID()));
+
+            // Create new token with increased counter
+            final UserJWT userJWT = createUserJWT(user, createUserSpecificClaims(user, refreshCounter));
+            return new TokenValidation(true, user, userJWT.getToken());
+        }
+
+        return new TokenValidation(result && !isTokenExpired, user, signedJWT.serialize());
+    }
+
+    private boolean isTokenValidForRefresh(SignedJWT signedJWT) throws ParseException {
+        final ReadOnlyJWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
+        final Long refreshCounter = (Long) jwtClaimsSet.getCustomClaim("cnt");
+        final Date expirationTime = jwtClaimsSet.getExpirationTime();
+        final Date expirationOfTokenRenewalTimeFrame = new Date(expirationTime.getTime() + TIMEOUT_FRAME_TO_REFRESH_TOKEN);
+        return new Date().after(expirationTime) && new Date().before(expirationOfTokenRenewalTimeFrame) && refreshCounter < TOKEN_REFRESH_MAX_COUNT;
     }
 
     @Override
@@ -314,7 +345,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
 
     private void deleteExpiredUserJWTs() {
         dataModel.query(UserJWT.class)
-                .select(Operator.LESSTHAN.compare("expirationDate", Instant.now()))
+                .select(Where.where("expirationDate").isLessThanOrEqual(Instant.now()))
                 .forEach(UserJWT::delete);
     }
 
@@ -349,7 +380,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         public void run() {
             try (TransactionContext context = transactionService.getContext()) {
                 deleteExpiredUserJWTs();
-                context.commit(); ;
+                context.commit();
             }
         }
     }

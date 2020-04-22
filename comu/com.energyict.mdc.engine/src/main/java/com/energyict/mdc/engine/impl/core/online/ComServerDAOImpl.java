@@ -694,14 +694,30 @@ public class ComServerDAOImpl implements ComServerDAO {
         throw new UnsupportedOperationException("Waiting for implementation of the PKI feature (CXO-3603)");
     }
 
+    /**
+     * This method should be used when trying to set the actual security accessor value and we don't have a passive key generated. This could be the case during key agreement
+     *
+     * @param deviceIdentifier
+     * @param propertyName the name of the security accessor
+     * @param propertyValue the new label and key in hex format separated by a colon e.g. 574B2D44422D30312D544553542D5048415345322D32303137:800202300D020012301A0D021220041420586F8048EB8683B5EA8A51BD8317CEF38C50E7AA28A4260D0224580420FA9829FF5E6D2AC488DE3249714E7CE9CC18DA04FB4099910E0C7CB7AC76ECC1
+     */
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        //TODO: re-add usefull implementation
-//        handleCertificatePropertyValue(propertyValue);
-//
-//        //Now update the given security property.
-//        Device device = findDevice(deviceIdentifier);
-//        device.setSecurityProperty(propertyName, propertyValue);
+        String newKey = (String) propertyValue;
+        Device device = findDevice(deviceIdentifier);
+
+        device.getDeviceType().getSecurityAccessors().stream()
+                .filter(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType().getName().equals(propertyName))
+                .findFirst()
+                .map(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType())
+                .map(securityAccessorType -> device.getSecurityAccessor(securityAccessorType).orElseGet(() -> device.newSecurityAccessor(securityAccessorType)))
+                .ifPresent( securityAccessor -> {
+                    HsmKey hsmKey = (HsmKey) getServiceProvider().securityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                    byte[] key = DatatypeConverter.parseHexBinary(newKey.split(":")[1]);
+                    String label =  new String(DatatypeConverter.parseHexBinary(newKey.split(":")[0]));
+                    hsmKey.setKey(key, label);
+                    securityAccessor.setActualPassphraseWrapperReference(hsmKey);
+                    securityAccessor.save();});
     }
 
     /**
