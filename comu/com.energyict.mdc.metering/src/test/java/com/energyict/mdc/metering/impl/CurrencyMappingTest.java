@@ -46,6 +46,16 @@ public class CurrencyMappingTest {
     }
 
     @Test
+    public void egpTest() {
+        Unit egyptianPounds = Unit.get(BaseUnit.EGP);
+        Optional<Currency> egp = CurrencyMapping.getCurrencyFor(egyptianPounds);
+
+        assertThat(egp.isPresent()).isTrue();
+        assertThat(egp.get().getCurrencyCode()).isEqualTo("EGP");
+        assertThat(egp.get().getNumericCode()).isEqualTo(818);
+    }
+
+    @Test
     public void unknownCurrencyTest() {
         Unit liters = Unit.get(BaseUnit.LITER);
         Optional<Currency> litre = CurrencyMapping.getCurrencyFor(liters);

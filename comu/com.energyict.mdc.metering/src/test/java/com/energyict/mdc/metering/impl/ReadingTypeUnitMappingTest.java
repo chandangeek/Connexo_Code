@@ -193,7 +193,7 @@ public class ReadingTypeUnitMappingTest {
                                 return asciiSymbol.equals("B");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.IMP_GALLONPERHOUR) {
                                 return asciiSymbol.equals("ImperialGal/h");
-                            } else if (baseUnit.getDlmsCode() == BaseUnit.POUND || baseUnit.getDlmsCode() == BaseUnit.USD || baseUnit.getDlmsCode() == BaseUnit.EURO) {
+                            } else if (baseUnit.getDlmsCode() == BaseUnit.POUND || baseUnit.getDlmsCode() == BaseUnit.USD || baseUnit.getDlmsCode() == BaseUnit.EURO || baseUnit.getDlmsCode() == BaseUnit.EGP) {
                                 return asciiSymbol.isEmpty();
                             } else {
                                 if (symbol.equals(baseUnit.toString())) {

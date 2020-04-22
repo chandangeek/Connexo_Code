@@ -15,7 +15,8 @@ enum CurrencyMapping {
 
     POUND(BaseUnit.POUND, Currency.getInstance("GBP")),
     EURO(BaseUnit.EURO, Currency.getInstance("EUR")),
-    USDOLLAR(BaseUnit.USD, Currency.getInstance("USD"));
+    USDOLLAR(BaseUnit.USD, Currency.getInstance("USD")),
+    EGP(BaseUnit.EGP, Currency.getInstance("EGP"));
 
     private final int baseUnit;
     private final Currency currency;
