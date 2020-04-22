@@ -898,9 +898,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
             orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
         }
-        orderList.add(Order.ascending("case when mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName()
-                + ", " + elementsSize + ") = " + elementIndex
-                + " then 0 else 1 end"));
+        orderList.add(Order.ascending("decode(mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName()
+                + "," + elementsSize + ")," + elementIndex
+                + ",0,1)"));
         return orderList.toArray(new Order[orderList.size()]);
     }
 
