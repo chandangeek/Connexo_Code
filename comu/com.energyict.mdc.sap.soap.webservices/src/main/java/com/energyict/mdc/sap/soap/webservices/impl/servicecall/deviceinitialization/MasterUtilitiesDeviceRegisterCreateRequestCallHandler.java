@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -95,7 +96,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler extends Abstr
             SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
             String deviceId = extension.getDeviceId();
             Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
-            if (device.isPresent() &&
+            if (device.isPresent() && device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey()) &&
                     !sapCustomPropertySets.isRegistered(device.get()) &&
                     (child.getState() == DefaultState.SUCCESSFUL || ServiceCallHelper.hasAnyChildState(ServiceCallHelper.findChildren(child), DefaultState.SUCCESSFUL)) &&
                     sapCustomPropertySets.isAnyLrnPresent(device.get().getId(), now)) {
