@@ -17,7 +17,7 @@ Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
         align: 'left'
     },
     noProcessText: Uni.I18n.translate('processes.issue.noProcessesStarted', 'BPM', 'No process started yet on this issue'),
-    errorDuringLoadingProcessText: Uni.I18n.translate('processes.issue.flowNotAvailable', 'BPM', 'Connexo Flow is not available'),
+    errorDuringLoadingProcessText: Uni.I18n.translate('processes.issue.flowNotAvailable', 'BPM', 'Connexo Flow isn\'t available.'),
     initComponent: function () {
         var me = this;
 
