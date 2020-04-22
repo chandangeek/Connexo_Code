@@ -211,9 +211,10 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     @Path("/relativeperiods")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE, com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE})
-    public PagedInfoList getRelativePeriods(@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getRelativePeriods(@BeanParam JsonQueryParameters queryParameters, @QueryParam("category") String category) {
         ZonedDateTime now = ZonedDateTime.now(clock);
-        List<RelativePeriod> relativePeriods = fetchRelativePeriods().stream()
+        //String types = new String(queryParameters.queryParameters.get("types").get(0).value);
+        List<RelativePeriod> relativePeriods = fetchRelativePeriods(category).stream()
                 .sorted((RelativePeriod rp1, RelativePeriod rp2) -> {
                     int cmp = Long.compare(getIntervalLengthDifference(rp1, now), getIntervalLengthDifference(rp2, now));
                     if (cmp == 0) {
@@ -304,9 +305,15 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
         }
     }
 
-    private List<? extends RelativePeriod> fetchRelativePeriods() {
+    private List<? extends RelativePeriod> fetchRelativePeriods(String category) {
+        String relativePeriodCategory = "";
+        if (category.equals("issues"))
+            relativePeriodCategory = ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY;
+        else
+            relativePeriodCategory = ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY;
+
         return timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
-                .isEqualTo(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY));
+                .isEqualTo(relativePeriodCategory));
     }
 
     private String findTranslatedRelativePeriod(String name) {
