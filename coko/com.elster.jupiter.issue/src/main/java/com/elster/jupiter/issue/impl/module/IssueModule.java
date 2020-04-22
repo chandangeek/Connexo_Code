@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.impl.module;
 
-import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.impl.service.PropertyFactoriesProviderImpl;

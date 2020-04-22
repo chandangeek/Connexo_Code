@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.alarms.impl;
 
-import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
