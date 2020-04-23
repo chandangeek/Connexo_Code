@@ -134,7 +134,7 @@ public class ConnectionMethodResource {
                 }
                 break;
             case INACTIVE:
-                if (task.isActive()) {
+                if (task.getStatus() != ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE) {
                     task.deactivate();
                 }
                 break;
