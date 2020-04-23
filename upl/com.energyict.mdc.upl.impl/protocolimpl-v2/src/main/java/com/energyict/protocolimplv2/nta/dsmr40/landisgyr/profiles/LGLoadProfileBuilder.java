@@ -99,12 +99,6 @@ public class LGLoadProfileBuilder<T extends AbstractDlmsProtocol> extends Dsmr40
         return collectedLoadProfileList;
     }
 
-    @Override
-    protected ObisCode fixObisCodeForSlaveLoadProfile( ObisCode obisCode )
-    {
-        return obisCode;
-    }
-
     public ProfileIntervalStatusBits getProfileIntervalStatusBits() {
         return new DSMRProfileIntervalStatusBits(isIgnoreDstStatusCode());
     }
