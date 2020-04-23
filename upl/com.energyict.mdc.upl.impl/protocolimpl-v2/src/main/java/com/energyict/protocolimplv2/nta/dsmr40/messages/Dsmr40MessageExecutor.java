@@ -168,20 +168,22 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage, mbusChannel);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
+        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(physicalAddress-1).getObisCode();
+        getProtocol().journal("Remote commissioning for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
+
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
         mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
         mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
         mbusClient.setVersion(mbusProvider.getVersion(shortId));
         mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
-        mbusClient.installSlave(physicalAddress);
     }
 
     private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage, mbusChannel);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(installChannel).getObisCode();
+        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(physicalAddress).getObisCode();
 
         getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
 

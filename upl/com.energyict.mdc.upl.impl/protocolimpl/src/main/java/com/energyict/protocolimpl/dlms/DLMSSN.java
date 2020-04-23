@@ -798,16 +798,8 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
             } catch (IOException e) {
                 logger.severe("status attribute error");
             }
-            try {
-                logger.severe("DLMSSN Clock daylight_savings_begin     : " + requestAttributeString(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_BEGIN));
-            } catch (IOException e) {
-                logger.severe("DS begin attribute error");
-            }
-            try {
-                logger.severe("DLMSSN Clock daylight_savings_end       : " + requestAttributeString(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_END));
-            } catch (IOException e) {
-                logger.severe("DS end attribute error");
-            }
+            logger.severe("DLMSSN Clock daylight_savings_begin     : " + requestAttributeString(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_BEGIN));
+            logger.severe("DLMSSN Clock daylight_savings_end       : " + requestAttributeString(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_END));
             try {
                 logger.severe("DLMSSN Clock daylight_savings_deviation : " + requestAttributeLong(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_DEVIATION));
             } catch (IOException e) {
