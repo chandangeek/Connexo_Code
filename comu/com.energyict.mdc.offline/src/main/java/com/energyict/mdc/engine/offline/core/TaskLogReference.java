@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.offline.core;
 
-import org.apache.commons.collections.MultiMap;
-import org.apache.commons.collections.map.MultiValueMap;
+import org.apache.commons.collections4.MultiMap;
+import org.apache.commons.collections4.map.MultiValueMap;
 
 import java.util.List;
 

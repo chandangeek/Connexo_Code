@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SuspectValueCreatedEvent extends DataValidationEvent {
 
@@ -88,6 +90,10 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
     }
 
     public boolean checkValidationRule(final String relativePeriodWithCount, final String validationRules) {
+        if (validationRules.isEmpty()) {
+            return false;
+        }
+
         final Range<Instant> timeRange = getTimeRange(relativePeriodWithCount)
                 .getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now()));
 
@@ -96,10 +102,16 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
-        final List<Map<com.energyict.mdc.common.device.data.Channel, DataValidationStatus>> validationStates = getLoadProfiles().stream()
-                .map(loadProfile -> loadProfile.getChannelData(timeRange))
+        ReadingType readingType = findReadingType().get();
+        Channel coreChannel = findChannel().get();
+        boolean needBulkReadingQualities = !coreChannel.getMainReadingType().equals(readingType);
+
+        final List<Map<com.energyict.mdc.common.device.data.Channel, DataValidationStatus>> validationStates = getDevice().getChannels().stream()
+                .filter(channel -> coreChannel.getReadingTypes().contains(channel.getReadingType()))
+                .map(channel -> channel.getChannelData(timeRange))
                 .flatMap(Collection::stream)
                 .map(LoadProfileReading::getChannelValidationStates)
+                .filter(states -> !states.isEmpty())
                 .collect(Collectors.toList());
 
         final List<Map.Entry<com.energyict.mdc.common.device.data.Channel, DataValidationStatus>> validationStatesFilteredByReading = validationStates.stream()
@@ -113,11 +125,17 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
         }
 
         final List<ValidationRule> offendedValidationRules = validationStatesFilteredByReading.stream()
-                .map(channelDataValidationStatusEntry -> channelDataValidationStatusEntry.getValue().getOffendedRules())
+                .map(channelDataValidationStatusEntry -> {
+                    if (needBulkReadingQualities) {
+                        return channelDataValidationStatusEntry.getValue().getBulkOffendedRules();
+                    } else {
+                        return channelDataValidationStatusEntry.getValue().getOffendedRules();
+                    }
+                })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        if (validationRules.isEmpty()) {
+        if (offendedValidationRules.isEmpty()) {
             return false;
         }
 
@@ -125,7 +143,7 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
     }
 
     private boolean containsReadingQualityRecord(final Map.Entry<com.energyict.mdc.common.device.data.Channel, DataValidationStatus> entry) {
-        return entry.getValue().getReadingQualities().stream()
+        return Stream.concat(entry.getValue().getReadingQualities().stream(), entry.getValue().getBulkReadingQualities().stream())
                 .map(o -> (ReadingQualityRecord) o)
                 .anyMatch(readingQualityRecord -> readingQualityRecord.getReadingTimestamp().equals(readingTimeStamp));
     }
@@ -143,7 +161,7 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
             return false;
         }
 
-        final ReadingQualityRecord issueCreationCausingSuspect = suspects.get(eventCountThreshold);
+        final ReadingQualityRecord issueCreationCausingSuspect = suspects.get(eventCountThreshold - 1);
         lastSuspectOccurrenceDatetime = issueCreationCausingSuspect.getReadingTimestamp();
 
         return true;
@@ -192,5 +210,4 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
     private int sortSuspectsByDateAscOrder(final ReadingQualityRecord first, final ReadingQualityRecord second) {
         return first.getReadingTimestamp().compareTo(second.getReadingTimestamp());
     }
-
 }

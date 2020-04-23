@@ -177,6 +177,7 @@ public class DeviceTypeResource {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
         List<DeviceTypeInfo> deviceTypeInfos = DeviceTypeInfo.from(allDeviceTypes);
+        deviceTypeInfos.sort(Comparator.comparing(dt -> dt.name, String.CASE_INSENSITIVE_ORDER));
         return PagedInfoList.fromPagedList("deviceTypes", deviceTypeInfos, queryParameters);
     }
 

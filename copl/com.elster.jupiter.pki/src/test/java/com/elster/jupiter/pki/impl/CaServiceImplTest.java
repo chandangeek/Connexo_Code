@@ -68,9 +68,6 @@ public class CaServiceImplTest {
     private static final String CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
     private static final String SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate";
     private static final String MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate";
-    private static final String CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
-    private static final String CERT_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
-    private static final String EE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
 
     private static final String PKI_HOST_PROPERTY_VALUE = "127.0.0.1";
     private static final String PKI_PORT_PROPERTY_VALUE = "8443";
@@ -123,9 +120,6 @@ public class CaServiceImplTest {
                 .thenReturn(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY_VALUE);
         when(bundleContext.getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY))
                 .thenReturn(MANAGEMENT_CLIENT_ALIAS_PROPERTY_VALUE);
-        when(bundleContext.getProperty(CA_NAME_PROPERTY)).thenReturn(CA_NAME_PROPERTY_VALUE);
-        when(bundleContext.getProperty(CERT_PROFILE_NAME_PROPERTY)).thenReturn(CERT_PROFILE_NAME_PROPERTY_VALUE);
-        when(bundleContext.getProperty(EE_PROFILE_NAME_PROPERTY)).thenReturn(EE_PROFILE_NAME_PROPERTY_VALUE);
         when(nlsService.getThesaurus(CaService.COMPONENTNAME, Layer.DOMAIN)).thenReturn(thesaurus);
         when(ejbcaWS.getEjbcaVersion()).thenReturn(PKI_VERSION);
         NameAndId nameAndId = new NameAndId();
@@ -186,21 +180,6 @@ public class CaServiceImplTest {
     @Test
     public void testGetManagementClientAliasProperty() {
         verify(bundleContext, times(1)).getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY);
-    }
-
-    @Test
-    public void testGetCaNameProperty() {
-        verify(bundleContext, times(1)).getProperty(CA_NAME_PROPERTY);
-    }
-
-    @Test
-    public void testGetCertProfileNameProperty() {
-        verify(bundleContext, times(1)).getProperty(CERT_PROFILE_NAME_PROPERTY);
-    }
-
-    @Test
-    public void testGetEndEntityProfileNameProperty() {
-        verify(bundleContext, times(1)).getProperty(EE_PROFILE_NAME_PROPERTY);
     }
 
     @Test

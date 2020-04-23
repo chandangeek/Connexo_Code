@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
@@ -83,4 +84,11 @@ public final class AM540LoadProfileBuilder extends LGLoadProfileBuilder<AM540>  
         }
         return idisProfileDataReader;
     }
+
+    @Override
+    protected ObisCode fixObisCodeForSlaveLoadProfile(ObisCode obisCode )
+    {
+        return obisCode;
+    }
+
 }
