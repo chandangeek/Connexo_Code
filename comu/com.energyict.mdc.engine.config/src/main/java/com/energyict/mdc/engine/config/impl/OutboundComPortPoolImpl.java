@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public final class OutboundComPortPoolImpl extends ComPortPoolImpl implements OutboundComPortPool {
 
     public static final String FIELD_TASKEXECUTIONTOMEOUT = "taskExecutionTimeout";
-
+    public static final TimeDuration DEFAULT_TASK_EXECUTION_TIMEOUT = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     private Provider<ComPortPoolMember> comPortPoolMemberProvider;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private TimeDuration taskExecutionTimeout;
@@ -71,7 +71,7 @@ public final class OutboundComPortPoolImpl extends ComPortPoolImpl implements Ou
     @Override
     @XmlAttribute
     public TimeDuration getTaskExecutionTimeout() {
-        return new TimeDuration(this.taskExecutionTimeout.getCount(), this.taskExecutionTimeout.getTimeUnitCode());
+        return taskExecutionTimeout.getCount() == 0 ? DEFAULT_TASK_EXECUTION_TIMEOUT : new TimeDuration(taskExecutionTimeout.getCount(), taskExecutionTimeout.getTimeUnitCode());
     }
 
     @Override
