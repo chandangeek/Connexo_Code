@@ -1003,13 +1003,37 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public TimeDuration releaseTimedOutTasks(final ComPort comPort) {
         LOGGER.warning("Start unlocking timed out comTasks on comPort '" + comPort + "'");
-        return executeTransaction(() -> {
-            TimeDuration timeDuration = getCommunicationTaskService().releaseTimedOutComTasks(comPort);
-            LOGGER.info("Unlocked comTasks timed out on comPort '" + comPort + "'");
-            getConnectionTaskService().releaseTimedOutConnectionTasks(comPort);
-            LOGGER.info("Unlocked connectionTasks timed out on comPort '" + comPort + "'");
-            return timeDuration;
-        });
+        List<ComTaskExecution> timedOutComTasks = getCommunicationTaskService().findTimedOutComTasksByComPort(comPort);
+        LOGGER.warning("Found " + timedOutComTasks.size() + " comtasks to be unblocked");
+        long unlockedCount = unlockComTasks(timedOutComTasks);
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + timedOutComTasks.size() + " timed out comTasks on comPort '" + comPort + "'");
+        List<ConnectionTask> timedOutConnectionTasks = getConnectionTaskService().findTimedOutConnectionTasksByComPort(comPort);
+        LOGGER.warning("Found " + timedOutConnectionTasks.size() + " connections to be unblocked");
+        unlockedCount = unlockConnectionTasks(timedOutConnectionTasks);
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + timedOutConnectionTasks.size() + " timed out connectionTasks on comPort '" + comPort + "'");
+
+        return getMinimumWaitTimeForPort((OutboundComPort) comPort);
+    }
+
+    private TimeDuration getMinimumWaitTimeForPort(OutboundComPort comPort) {
+        int waitTime = -1;
+        List<OutboundComPortPool> containingComPortPoolsForComServer = getEngineModelService().findContainingComPortPoolsForComPort(comPort);
+        for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
+            waitTime = minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
+        }
+        if (waitTime <= 0) {
+            return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        } else {
+            return new TimeDuration(waitTime, TimeDuration.TimeUnit.SECONDS);
+        }
+    }
+
+    private int minimumWaitTime(int currentWaitTime, int comPortPoolTaskExecutionTimeout) {
+        if (currentWaitTime < 0) {
+            return comPortPoolTaskExecutionTimeout;
+        } else {
+            return Math.min(currentWaitTime, comPortPoolTaskExecutionTimeout);
+        }
     }
 
     @Override
@@ -1020,14 +1044,39 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void unlockComTasks(ComPort comPort) {
         List<ComTaskExecution> lockedComTasks = getCommunicationTaskService().findLockedByComPort(comPort);
-        LOGGER.warning("Start unlocking BUSY comTasks on comPort '" + comPort + "'");
+        LOGGER.warning("Start unlocking " + lockedComTasks.size() + " 'BUSY' comTasks on comPort '" + comPort + "'");
+        long unlockedCount = unlockComTasks(lockedComTasks);
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedComTasks.size() + " 'BUSY' comTasks on comPort '" + comPort + "'");
+    }
+
+    private long unlockComTasks(List<ComTaskExecution> lockedComTasks) {
         long unlockedCount = 0;
+        long triedCount = 0;
         for (ComTaskExecution lockedComTask : lockedComTasks) {
+            ++triedCount;
             if (unlocked(lockedComTask)) {
                 ++unlockedCount;
             }
+            if (triedCount % 2000 == 0) {
+                LOGGER.warning("Tried " + triedCount + ", unlocked " + unlockedCount);
+            }
         }
-        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedComTasks.size() + " comTasks on comPort '" + comPort + "'");
+        return unlockedCount;
+    }
+
+    private long unlockConnectionTasks(List<ConnectionTask> lockedConnectionTasks) {
+        long unlockedCount = 0;
+        long triedCount = 0;
+        for (ConnectionTask lockedComTask : lockedConnectionTasks) {
+            ++triedCount;
+            if (unlocked(lockedComTask)) {
+                ++unlockedCount;
+            }
+            if (triedCount % 1000 == 0) {
+                LOGGER.warning("Tried " + triedCount + ", unlocked " + unlockedCount);
+            }
+        }
+        return unlockedCount;
     }
 
     private boolean unlocked(ComTaskExecution lockedComTask) {
@@ -1047,7 +1096,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void unlockConnectionTasks(ComPort comPort) {
         List<ConnectionTask> lockedConnectionTasks = getConnectionTaskService().findLockedByComPort(comPort);
-        LOGGER.warning("Start unlocking BUSY connections on comPort '" + comPort + "'");
+        LOGGER.warning("Start unlocking " + lockedConnectionTasks.size() + " BUSY connections on comPort '" + comPort + "'");
         long unlockedCount = 0;
         for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
             if (unlocked(lockedConnectionTask)) {

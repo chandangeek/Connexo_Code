@@ -54,9 +54,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -72,6 +75,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 @LiteralSql
 public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
+    private static final Logger LOGGER = Logger.getLogger(ConnectionTaskServiceImpl.class.getName());
 
     private final DeviceDataModelService deviceDataModelService;
     private final EventService eventService;
@@ -94,33 +98,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(" = ");
         sqlBuilder.addLong(comPort.getId());
         deviceDataModelService.executeUpdate(sqlBuilder);
-    }
-
-    @Override
-    public void releaseTimedOutConnectionTasks(ComPort comPort) {
-        List<OutboundComPortPool> containingComPortPoolsForComPort = deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort((OutboundComPort) comPort);
-        for (ComPortPool comPortPool : containingComPortPoolsForComPort) {
-            releaseTimedOutConnectionTasks((OutboundComPortPool) comPortPool);
-        }
-    }
-
-    private void releaseTimedOutConnectionTasks(OutboundComPortPool outboundComPortPool) {
-        long now = toSeconds(deviceDataModelService.clock().instant());
-        int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
-        deviceDataModelService.executeUpdate(releaseTimedOutConnectionTasksSqlBuilder(outboundComPortPool, now, timeOutSeconds));
-    }
-
-    private SqlBuilder releaseTimedOutConnectionTasksSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
-        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append("   set ");
-        sqlBuilder.append(ConnectionTaskFields.COM_PORT.fieldName());
-        sqlBuilder.append(" = null");
-        sqlBuilder.append(" where id in (select connectiontask from ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" where id in (");
-        TimedOutTasksSqlBuilder.appendTimedOutComTaskExecutionSql(sqlBuilder, outboundComPortPool, now, timeOutSeconds);
-        sqlBuilder.append("))");
-        return sqlBuilder;
     }
 
     private long toSeconds(Instant time) {
@@ -435,4 +412,25 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         Condition condition = where(ConnectionTaskFields.COM_PORT.fieldName()).isEqualTo(comPort);
         return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
     }
+
+    public List<ConnectionTask> findTimedOutConnectionTasksByComPort(ComPort comPort) {
+        Set<ConnectionTask> timedOutComTasks = new HashSet<>();
+        deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort((OutboundComPort) comPort)
+                .forEach(pool -> timedOutComTasks.addAll(findTimedOutConnectionTasksByPool(pool)));
+
+        return timedOutComTasks.stream().collect(Collectors.toList());
+    }
+
+    private List<ConnectionTask> findTimedOutConnectionTasksByPool(OutboundComPortPool comPortPool) {
+        int timeOutSeconds = comPortPool.getTaskExecutionTimeout().getSeconds();
+        Instant lastValidInstant = deviceDataModelService.clock().instant().minusSeconds(timeOutSeconds);
+        Condition condition =
+                where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull()
+                        .and(where(ConnectionTaskFields.COM_PORT.fieldName()).isNotNull())
+                        .and(where(ConnectionTaskFields.COM_PORT_POOL.fieldName()).isEqualTo(comPortPool))
+                        .and(where(ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName()).isLessThan(lastValidInstant));
+        LOGGER.warning("Looking for busy connection tasks started before " + lastValidInstant + " on pool " + comPortPool);
+        return deviceDataModelService.dataModel().query(ConnectionTask.class).select(condition);
+    }
+
 }

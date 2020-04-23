@@ -5,11 +5,11 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.OutboundComPort;
@@ -66,7 +66,13 @@ public interface CommunicationTaskService {
      */
     List<ComTaskExecution> findComTaskExecutionsWithConnectionFunction(Device device, ConnectionFunction connectionFunction);
 
-    TimeDuration releaseTimedOutComTasks(ComPort comPort);
+    /**
+     * Gets all {@link ComTaskExecution}s that have {@link ConnectionTask} linked to a {@link ComPortPool}
+     * containing the {@link ComPort} given as parameter, and started communication before the timeout value specified on the {@link ComPortPool}.
+     * @param comPort the comPort to check for timed out ComTaskExecutions
+     * @return the List of ComTaskExecutions
+     */
+    List<ComTaskExecution> findTimedOutComTasksByComPort(ComPort comPort);
 
     /**
      * Cleans up any marker flags on {@link ComTaskExecution}s that were not properly
