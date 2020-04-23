@@ -7,7 +7,12 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.http.whiteboard.*;
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.TokenValidation;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -28,7 +33,6 @@ import com.google.inject.AbstractModule;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.lang3.StringUtils;
-import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -49,18 +53,35 @@ import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.rmi.NoSuchObjectException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.Checks.is;
 
 @Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
-        property = {"name=" + BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
-        immediate = true, service = {HttpAuthenticationService.class})
+        property = {
+                "name=" + BasicAuthentication.COMPONENT_NAME,
+                "osgi.command.scope=jupiter",
+                "osgi.command.function=createNewTokenKey",
+                "osgi.command.function=updateExistingTokenKey"
+        },
+        immediate = true,
+        service = {HttpAuthenticationService.class})
 public final class BasicAuthentication implements HttpAuthenticationService {
 
     public static final String COMPONENT_NAME = "HTW";
@@ -248,8 +269,18 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
         x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
 
-        upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, ImmutableMap.of(version(10, 4), UpgraderV10_4_1.class, version(10, 4, 1), UpgraderV10_4_2.class));
-        initSecurityTokenImpl();
+        initializeTokenService();
+
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", "HTP"),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 4), UpgraderV10_4_1.class,
+                        version(10, 4, 1), UpgraderV10_4_2.class,
+                        version(10, 8), UpgraderV10_8.class
+                )
+        );
 
         host = getOptionalStringProperty("com.elster.jupiter.url.rewrite.host", context);
         Optional<String> portString = getOptionalStringProperty("com.elster.jupiter.url.rewrite.port", context);
@@ -261,13 +292,46 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             }
         }).orElse(Optional.<Integer>empty());
         scheme = getOptionalStringProperty("com.elster.jupiter.url.rewrite.scheme", context);
-
-        Optional<KeyStoreImpl> keyStore = getKeyPair();
-        keyStore.ifPresent(store -> tokenService.initialize(dataVaultService.decrypt(store.getPublicKey()), dataVaultService.decrypt(store.getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeoutFrameToRefreshToken));
     }
 
     public void createNewTokenKey(String... args) {
         System.out.println("Usage : createNewTokenKey <fileName>");
+    }
+
+    public void updateExistingTokenKey() {
+        try {
+            final Optional<KeyStoreImpl> keyStore = getKeyPair();
+
+            if (keyStore.isPresent()) {
+                final KeyStoreImpl store = keyStore.get();
+                store.delete();
+                dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
+                initializeTokenService();
+            }
+
+            Optional<User> processExecutor = userService.findUser("process executor");
+
+            if (processExecutor.isPresent()) {
+                final String configPropertiesFilePath = System.getProperty("connexo.home") + "/conf/config.properties";
+                final List<String> allLines = Files.readAllLines(Paths.get(configPropertiesFilePath));
+                for (int i = 0; i < allLines.size(); i++) {
+                    if (!allLines.get(i).contains("#")) {
+                        if (allLines.get(i).contains("com.elster.jupiter.token")) {
+                            allLines.set(i, "com.elster.jupiter.token=" + tokenService.createPermamentSignedJWT(processExecutor.get()).serialize());
+                        }
+                        if (allLines.get(i).contains("com.elster.jupiter.sso.public.key")) {
+                            allLines.set(i, "com.elster.jupiter.sso.public.key=" + new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
+                        }
+                    }
+                }
+
+                Files.write(Paths.get(configPropertiesFilePath), allLines, StandardOpenOption.WRITE);
+            } else {
+                throw new NoSuchObjectException("\"Process Executor\" User is not present.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void createNewTokenKey(String fileName) {
@@ -280,19 +344,20 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         });
     }
 
-    private void tryCreateNewTokenKey(String fileName) throws NoSuchAlgorithmException, IOException {
+    private void tryCreateNewTokenKey(String fileName) throws NoSuchAlgorithmException {
         final Optional<KeyStoreImpl> keyStore = getKeyPair();
-        keyStore.ifPresent(KeyStoreImpl::delete);
-        dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
 
-        initSecurityTokenImpl();
-        keyStore.ifPresent(store -> tokenService.initialize(
-                dataVaultService.decrypt(store.getPublicKey()),
-                dataVaultService.decrypt(store.getPrivateKey()),
-                tokenExpTime, tokenRefreshMaxCount,
-                timeoutFrameToRefreshToken));
+        if (keyStore.isPresent()) {
+            final KeyStoreImpl store = keyStore.get();
 
-        saveKeyToFile(FileSystems.getDefault().getPath(fileName));
+            store.delete();
+
+            dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
+
+            initializeTokenService();
+
+            saveKeyToFile(FileSystems.getDefault().getPath(fileName));
+        }
     }
 
     protected void saveKeyToFile(Path filePath) {
@@ -300,28 +365,25 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             Optional<User> foundUser = userService.findUser("process executor");
             if (foundUser.isPresent()) {
                 writer.write("\ncom.elster.jupiter.token=");
-                writer.write(securityToken.createPermanentToken(foundUser.get()));
+                writer.write(tokenService.createPermamentSignedJWT(foundUser.get()).serialize());
             }
             writer.write("\ncom.elster.jupiter.sso.public.key=");
             writer.write(new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
             writer.flush();
-        } catch (IOException e) {
+        } catch (IOException | JOSEException e) {
             e.printStackTrace();
         }
     }
 
-    protected void initSecurityTokenImpl() {
+    protected void initializeTokenService() {
         Optional<KeyStoreImpl> keyStore = getKeyPair();
-        if (keyStore.isPresent()) {
-
-            try {
-                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()), dataVaultService.decrypt(keyStore.get().getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeoutFrameToRefreshToken);
-                securityToken.setEventService(eventService);
-                securityToken.preventEventGeneration(false);
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        keyStore.ifPresent(store -> tokenService.initialize(
+                dataVaultService.decrypt(store.getPublicKey()),
+                dataVaultService.decrypt(store.getPrivateKey()),
+                tokenExpTime,
+                tokenRefreshMaxCount,
+                timeoutFrameToRefreshToken
+        ));
     }
 
     private int getIntParameter(String propertyName, BundleContext context, int defaultValue) {
@@ -565,7 +627,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             }
             String token = Objects.requireNonNull(userJWT).getToken();
             response.addCookie(createTokenCookie(token, "/"));
-            response.addCookie(createSessionCookie(Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes()),"/"));
+            response.addCookie(createSessionCookie(Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes()), "/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
@@ -609,7 +671,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             response.getWriter().write(ACCOUNT_LOCKED);
             response.getWriter().flush();
             response.getWriter().close();
-        } catch(IOException exception){}
+        } catch (IOException exception) {}
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
