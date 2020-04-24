@@ -37,9 +37,4 @@ public class PlainTextSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl 
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();
     }
-
-    @Override
-    public void touch(){
-        this.dataModel.touch(this);
-    }
 }
