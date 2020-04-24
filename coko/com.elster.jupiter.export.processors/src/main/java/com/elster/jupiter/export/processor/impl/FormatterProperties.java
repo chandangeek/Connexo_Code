@@ -21,7 +21,7 @@ public enum FormatterProperties implements TranslationKey {
     SEPARATOR_SEMICOLON(FORMATTER_PROPERTIES.getKey() + ".separator.semicolon", "Semicolon (;)"),
     TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Identifier"),
     UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier"),
-    WITH_DEVICE_CODE(FORMATTER_PROPERTIES.getKey() + '.' + "withDeviceCode", "Include device codes"),
+    WITH_DEVICE_CODE(FORMATTER_PROPERTIES.getKey() + '.' + "withDeviceCode", "Include device code"),
     ;
 
     private String name;

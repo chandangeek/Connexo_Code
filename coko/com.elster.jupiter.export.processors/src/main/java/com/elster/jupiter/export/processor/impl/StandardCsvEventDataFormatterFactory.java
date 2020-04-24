@@ -120,7 +120,8 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
     }
 
     private boolean shouldIncludeDeviceCode(Map<String, Object> properties) {
-        return properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey()) != null ? (Boolean) properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey()) : false;
+        Object includeDeviceCodeProperty = properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey());
+        return includeDeviceCodeProperty != null ? (Boolean) includeDeviceCodeProperty : false;
     }
 
     @Override

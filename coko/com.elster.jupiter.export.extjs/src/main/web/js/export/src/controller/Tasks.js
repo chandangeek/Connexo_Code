@@ -1792,7 +1792,7 @@ Ext.define('Dxp.controller.Tasks', {
                         + '<div style="text-indent: 40px">{2}</div>'
                         + '<div style="text-indent: 40px">{3}</div>'
                         + '<br>'
-                        + Uni.I18n.translate('addDataExportTask.formatter.tooltip4', 'DES', 'File format if \'Include device codes\' is selected')
+                        + Uni.I18n.translate('addDataExportTask.formatter.tooltip4', 'DES', 'File format if \'Include device code\' is selected')
                         + ':<br>'
                         + '<div style="text-indent: 40px">{0}</div>'
                         + '<div style="text-indent: 40px">{1}</div>'
