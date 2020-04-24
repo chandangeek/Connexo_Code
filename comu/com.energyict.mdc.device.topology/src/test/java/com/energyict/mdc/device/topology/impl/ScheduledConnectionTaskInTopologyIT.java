@@ -458,7 +458,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
         final Instant futureTrigger = freezeClock(2013, Calendar.AUGUST, 5); // pending task
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Pending);
-        connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getConnectionTaskService().findDefaultConnectionTaskForDevice(device).get();
+        reloadedDevice = getReloadedDevice(device);
+        connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getConnectionTaskService().findDefaultConnectionTaskForDevice(reloadedDevice).get();
         connectionTask.trigger(futureTrigger);
         reloadedDevice = getReloadedDevice(device);
         comTaskExecutions = reloadedDevice.getComTaskExecutions();
@@ -478,6 +479,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
 
+        reloadedDevice = getReloadedDevice(device);
+        connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getConnectionTaskService().findDefaultConnectionTaskForDevice(reloadedDevice).get();
         connectionTask.trigger(futureTrigger);
         reloadedDevice = getReloadedDevice(device);
         comTaskExecutions = reloadedDevice.getComTaskExecutions();
@@ -497,7 +500,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ((ServerComTaskExecution) comTaskExecution).executionFailed();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();  // make it fail
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Failed);
-        connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getConnectionTaskService().findDefaultConnectionTaskForDevice(device).get();
+        reloadedDevice = getReloadedDevice(device);
+        connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getConnectionTaskService().findDefaultConnectionTaskForDevice(reloadedDevice).get();
         connectionTask.trigger(futureTrigger);
         reloadedDevice = getReloadedDevice(device);
         comTaskExecutions = reloadedDevice.getComTaskExecutions();
