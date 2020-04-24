@@ -86,11 +86,11 @@ public class StandardCsvEventDataFormatterTest {
         StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", true);
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
-        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", time1.toInstant(), "10"));
-        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("2.2.3.4", time2.toInstant(), "20"));
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", "10", time1.toInstant()));
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("2.2.3.4", null, time2.toInstant()));
         MeterEventData meterEventData1 = new MeterEventData(meterReading1, TestDefaultStructureMarker.createRoot(clock, "MRID1").child("Device1"));
         MeterReadingImpl meterReading2 = MeterReadingImpl.newInstance();
-        meterReading2.addEndDeviceEvent(EndDeviceEventImpl.of("3.2.3.4", time3.toInstant(), "30"));
+        meterReading2.addEndDeviceEvent(EndDeviceEventImpl.of("3.2.3.4", "30", time3.toInstant()));
         MeterEventData meterEventData2 = new MeterEventData(meterReading2, TestDefaultStructureMarker.createRoot(clock, "MRID2").child("Device2"));
 
         FormattedData formattedData = standardCsvEventDataFormatter.processData(Stream.of(meterEventData1, meterEventData2));
@@ -103,7 +103,7 @@ public class StandardCsvEventDataFormatterTest {
         assertThat(textLine1.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
 
         TextLineExportData textLine2 = (TextLineExportData) formattedData.getData().get(1);
-        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00,2.2.3.4,20,MRID1,Device1\n");
+        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00,2.2.3.4,null,MRID1,Device1\n");
         assertThat(textLine2.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
 
         TextLineExportData textLine3 = (TextLineExportData) formattedData.getData().get(2);
