@@ -103,7 +103,7 @@ public class StandardCsvEventDataFormatterTest {
         assertThat(textLine1.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
 
         TextLineExportData textLine2 = (TextLineExportData) formattedData.getData().get(1);
-        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00,2.2.3.4,null,MRID1,Device1\n");
+        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00,2.2.3.4,,MRID1,Device1\n");
         assertThat(textLine2.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
 
         TextLineExportData textLine3 = (TextLineExportData) formattedData.getData().get(2);
