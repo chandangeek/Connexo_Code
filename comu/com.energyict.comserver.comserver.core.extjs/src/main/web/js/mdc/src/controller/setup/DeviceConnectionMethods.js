@@ -794,6 +794,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
         var activateUrl = connectionMethod.getProxy().url.replace('{deviceId}', me.deviceId) + "/" + connectionData.id + '/activate';
 
+        connectionData.comWindowStart = 0;
+        connectionData.comWindowEnd = 0;
+        connectionData.connectionWindow = undefined;
+
         Ext.Ajax.request({
             url: activateUrl,
             method: 'PUT',
@@ -806,11 +810,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.deactivated', 'MDC', 'Connection method deactivated'));
                 }
                 router.getRoute().forward();
-            },
-            failure: function (response) {
-                var errorText = Uni.I18n.translate('deviceconnectionmethod.error.activated', 'MDC', 'One or more properties aren\'t set.');
-                var titleText = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action');
-                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
             }
         });
     },
