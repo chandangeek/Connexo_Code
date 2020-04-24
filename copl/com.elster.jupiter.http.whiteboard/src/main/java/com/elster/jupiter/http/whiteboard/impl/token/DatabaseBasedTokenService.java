@@ -233,6 +233,29 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         return SignedJWT.parse(userJWT.getToken());
     }
 
+    @Override
+    public SignedJWT createPermamentSignedJWT(User user) throws JOSEException {
+        final UUID jwtId = UUID.randomUUID();
+        final long tokenExpirationTime = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME;
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet();
+        claimsSet.setJWTID(jwtId.toString());
+        claimsSet.setSubject(Long.toString(user.getId()));
+        claimsSet.setIssuer(ISSUER_NAME);
+        claimsSet.setIssueTime(new Date());
+        claimsSet.setExpirationTime(new Date(Long.MAX_VALUE));
+        claimsSet.setCustomClaims(createUserSpecificClaims(user, 0));
+
+        final SignedJWT signedJWT = createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+
+        final UserJWT userJWT = dataModel.getInstance(UserJWT.class)
+                .init(jwtId.toString(), BigDecimal.valueOf(user.getId()), signedJWT.serialize(), Instant.ofEpochMilli(tokenExpirationTime));
+
+        userJWT.save();
+
+        return signedJWT;
+    }
+
     private SignedJWT createAndSignSignedJWT(final JWSHeader jwsHeader, final JWTClaimsSet jwtClaimsSet) throws JOSEException {
         final SignedJWT signedJWT = new SignedJWT(jwsHeader, jwtClaimsSet);
         JWSSigner jwsSigner = new RSASSASigner(privateKey);
