@@ -108,7 +108,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties), withDeviceCode(properties));
+        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties), shouldIncludeDeviceCode(properties));
     }
 
     private String getTag(Map<String, Object> properties) {
@@ -119,8 +119,8 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
         return (TranslatablePropertyValueInfo) properties.get(FormatterProperties.SEPARATOR.getKey());
     }
 
-    private boolean withDeviceCode(Map<String, Object> properties) {
-        return properties.containsKey(FormatterProperties.WITH_DEVICE_CODE.getKey()) ? (Boolean) properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey()) : false;
+    private boolean shouldIncludeDeviceCode(Map<String, Object> properties) {
+        return properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey()) != null ? (Boolean) properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey()) : false;
     }
 
     @Override
