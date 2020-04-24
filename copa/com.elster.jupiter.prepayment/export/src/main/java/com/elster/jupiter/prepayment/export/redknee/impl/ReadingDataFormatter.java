@@ -100,7 +100,7 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
     @Override
     public void startItem(ReadingTypeDataExportItem item) {
         readingContainer = item.getReadingContainer();
-        latestTimeStamp =  item.getLastExportedDate().orElse(null);
+        latestTimeStamp =  item.getLastExportedChangedData().orElse(null);
         this.logger.finest("readingContainer:" + readingContainer.getMeter(latestTimeStamp).get().getMRID());
     }
 

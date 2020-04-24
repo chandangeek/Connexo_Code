@@ -27,8 +27,8 @@ public class DataSourceInfoFactory {
         info.occurrenceId = item.getLastOccurrence().map(DataExportOccurrence::getId).orElse(null);
         info.readingType = readingTypeInfoFactory.from(item.getReadingType());
         info.details = getDataSourceDetails(item.getReadingContainer());
-        item.getLastExportedDate().ifPresent(instant -> info.lastExportedDate = instant);
-        item.getLastExportedPeriodEnd().ifPresent(instant -> info.lastExportedPeriodEnd = instant);
+        item.getLastExportedChangedData().ifPresent(instant -> info.lastExportedChangedData = instant);
+        item.getLastExportedNewDate().ifPresent(instant -> info.lastExportedNewData = instant);
         return info;
     }
 

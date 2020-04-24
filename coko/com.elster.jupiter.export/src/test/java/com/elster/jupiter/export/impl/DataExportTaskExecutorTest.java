@@ -235,8 +235,8 @@ public class DataExportTaskExecutorTest {
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter2.getUsagePoint(any())).thenReturn(Optional.empty());
-        when(existingItem.getLastExportedDate()).thenReturn(Optional.of(lastExported.toInstant()));
-        when(newItem.getLastExportedDate()).thenReturn(Optional.empty());
+        when(existingItem.getLastExportedChangedData()).thenReturn(Optional.of(lastExported.toInstant()));
+        when(newItem.getLastExportedChangedData()).thenReturn(Optional.empty());
         when(newItem.getReadingContainer()).thenReturn(meter1);
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
         when(meter1.getUsagePoint(any())).thenReturn(Optional.empty());
@@ -783,8 +783,8 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(existingItem);
 
             inOrder.verify(existingItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(existingItem).setLastExportedPeriodEnd(exportPeriodEnd.toInstant());
-            inOrder.verify(existingItem).setLastExportedDate(triggerTime.toInstant());
+            inOrder.verify(existingItem).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(existingItem).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(existingItem).update();
         }
 
@@ -792,8 +792,8 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(newItem);
 
             inOrder.verify(newItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(newItem).setLastExportedPeriodEnd(exportPeriodEnd.toInstant());
-            inOrder.verify(newItem).setLastExportedDate(triggerTime.toInstant());
+            inOrder.verify(newItem).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(newItem).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(newItem).update();
         }
     }
@@ -815,8 +815,8 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(existingItem);
 
             inOrder.verify(existingItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(existingItem, never()).setLastExportedPeriodEnd(exportPeriodEnd.toInstant());
-            inOrder.verify(existingItem).setLastExportedDate(triggerTime.toInstant());
+            inOrder.verify(existingItem, never()).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(existingItem).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(existingItem).update();
         }
 
@@ -824,8 +824,8 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(newItem);
 
             inOrder.verify(newItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(newItem).setLastExportedPeriodEnd(exportPeriodEnd.toInstant());
-            inOrder.verify(newItem, never()).setLastExportedDate(triggerTime.toInstant());
+            inOrder.verify(newItem).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(newItem, never()).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(newItem).update();
         }
     }
