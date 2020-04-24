@@ -267,8 +267,6 @@ public class FirmwareCampaignInfoFactory {
         FirmwareVersionInfo firmwareVersionInfo = new FirmwareVersionInfo();
         firmwareVersionInfo.firmwareVersion = firmwareCampaignVersionStateShapshot.getFirmwareVersion();
         firmwareVersionInfo.firmwareType = new FirmwareTypeInfo(firmwareCampaignVersionStateShapshot.getFirmwareType(), thesaurus);
-        firmwareVersionInfo.firmwareStatus = new FirmwareStatusInfo(firmwareCampaignVersionStateShapshot.getFirmwareStatus(), thesaurus);
-        firmwareVersionInfo.firmwareType = new FirmwareTypeInfo(firmwareCampaignVersionStateShapshot.getFirmwareType(), thesaurus);
         firmwareVersionInfo.firmwareStatus = new FirmwareStatusInfo(firmwareCampaignVersionStateShapshot.getFirmwareStatus(), firmwareService.getLocalizedFirmwareStatus(firmwareCampaignVersionStateShapshot.getFirmwareStatus()));
         firmwareVersionInfo.imageIdentifier = firmwareCampaignVersionStateShapshot.getImageIdentifier();
         firmwareVersionInfo.rank = firmwareCampaignVersionStateShapshot.getRank();
