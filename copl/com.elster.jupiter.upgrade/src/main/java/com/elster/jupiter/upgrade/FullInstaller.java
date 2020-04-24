@@ -134,4 +134,12 @@ public interface FullInstaller {
         sqlBuilder.append(" END;");
         return sqlBuilder.toString();
     }
+
+    default String getDropJobStatement(String jobName){
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" BEGIN ");
+        sqlBuilder.append(" dbms_scheduler.drop_job(job_name => '" + jobName + "'); ");
+        sqlBuilder.append(" END;");
+        return sqlBuilder.toString();
+    }
 }
