@@ -160,8 +160,8 @@ public class ConnectionMethodResource {
         // TCP/IP
         if (isOutBoundTcpIp(task.getPluggableClass())) {
             return !Checks.is(connectionMethodInfo.comPortPool).empty() &&
-                    props.stream().anyMatch(prop -> prop.name.equals("host") && hasValue(prop))
-                    && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && hasValue(prop));
+                    props.stream().anyMatch(prop -> prop.key.equals("host") && hasValue(prop))
+                    && props.stream().anyMatch(prop -> prop.key.equals("portNumber") && hasValue(prop));
         }
         //Serial Optical
         return !Checks.is(connectionMethodInfo.comPortPool).empty();
