@@ -234,6 +234,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         propertyInfos.add(new PropertyInfo("Firmware file", "FirmwareDeviceMessage.upgrade.userfile", new PropertyValueInfo<>(8, ""), null, true));
         firmwareCampaignInfo.properties = propertyInfos;
         firmwareCampaignInfo.checkOptions = mock(EnumMap.class);
+        firmwareCampaignInfo.withUniqueFirmwareVersion = false;
         return firmwareCampaignInfo;
     }
 
@@ -270,6 +271,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
+        when(firmwareCampaign.isWithUniqueFirmwareVersion()).thenReturn(false);
         FirmwareCampaignManagementOptions firmwareCampaignMgtOptions = mock(FirmwareCampaignManagementOptions.class);
         when(firmwareService.findFirmwareCampaignCheckManagementOptions(firmwareCampaign)).thenReturn(Optional.of(firmwareCampaignMgtOptions));
         when(firmwareCampaign.getFirmwareUploadComTaskId()).thenReturn(1L);

@@ -38,6 +38,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     ConnectionStrategy firmwareUploadConnectionStrategy;
     Long validationComTaskId;
     ConnectionStrategy validationConnectionStrategy;
+    Boolean withUniqueFirmwareVersion;
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel dataModel;
@@ -91,19 +92,20 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withFirmwareUploadComTaskId(Long firmwareUploadComTaskId){
+    public FirmwareCampaignBuilderImpl withFirmwareUploadComTaskId(Long firmwareUploadComTaskId) {
         this.firmwareUploadComTaskId = firmwareUploadComTaskId;
         return this;
     }
+
     @Override
-    public FirmwareCampaignBuilderImpl withValidationComTaskId(Long validationComTaskId){
+    public FirmwareCampaignBuilderImpl withValidationComTaskId(Long validationComTaskId) {
         this.validationComTaskId = validationComTaskId;
         return this;
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withFirmwareUploadConnectionStrategy(String firmwareUploadConnectionStrategy){
-        if(firmwareUploadConnectionStrategy == null){
+    public FirmwareCampaignBuilderImpl withFirmwareUploadConnectionStrategy(String firmwareUploadConnectionStrategy) {
+        if (firmwareUploadConnectionStrategy == null) {
             this.firmwareUploadConnectionStrategy = null;
             return this;
         }
@@ -112,12 +114,18 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy){
-        if(validationConnectionStrategy == null){
+    public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy) {
+        if (validationConnectionStrategy == null) {
             this.validationConnectionStrategy = null;
             return this;
         }
         this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy.toUpperCase().replace(' ', '_'));
+        return this;
+    }
+
+    @Override
+    public FirmwareCampaignBuilderImpl withUniqueFirmwareVersion(Boolean withUniqueFirmwareVersion) {
+        this.withUniqueFirmwareVersion = withUniqueFirmwareVersion;
         return this;
     }
 
@@ -144,6 +152,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         firmwareCampaign.setFirmwareUploadConnectionStrategy(firmwareUploadConnectionStrategy);
         firmwareCampaign.setValidationComTaskId(validationComTaskId);
         firmwareCampaign.setValidationConnectionStrategy(validationConnectionStrategy);
+        firmwareCampaign.withUniqueFirmwareVersion(withUniqueFirmwareVersion);
         Optional.ofNullable(activationDate).ifPresent(firmwareCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(firmwareCampaign::setValidationTimeout);
         ServiceCall serviceCall = firmwareCampaignService.createServiceCallAndTransition(firmwareCampaign);
