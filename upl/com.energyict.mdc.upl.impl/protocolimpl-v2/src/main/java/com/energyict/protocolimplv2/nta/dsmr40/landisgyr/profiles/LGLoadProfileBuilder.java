@@ -61,6 +61,8 @@ public class LGLoadProfileBuilder<T extends AbstractDlmsProtocol> extends Dsmr40
 
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            lpObisCode = fixObisCodeForSlaveLoadProfile(lpObisCode);
+
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
 
