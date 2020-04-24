@@ -79,7 +79,8 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
                 .add(DEFAULT_DATE_TIME_FORMAT.format(eventTime))
                 .add(endDeviceEvent.getEventTypeCode());
         if (withDeviceCode) {
-            joiner.add(endDeviceEvent.getType());
+            String deviceCode = endDeviceEvent.getType();
+            joiner.add(deviceCode != null ? deviceCode : "");
         }
         // adding list of device identifiers; see com.elster.jupiter.export.impl.EventSelector.buildStructureMarker
         structureMarker.getStructurePath().forEach(joiner::add);
