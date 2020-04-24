@@ -154,7 +154,7 @@ public class ConnectionMethodResource {
         List<PropertyInfo> props = connectionMethodInfo.properties;
 
         //for Outbound TLS only
-        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.name.equals("ServerTLSCertificate")).noneMatch(this::hasValue)) {
+        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.key.equals("ServerTLSCertificate")).noneMatch(this::hasValue)) {
             return false;
         }
         // TCP/IP
