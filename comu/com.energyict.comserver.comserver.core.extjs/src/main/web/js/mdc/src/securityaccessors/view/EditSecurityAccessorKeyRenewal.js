@@ -92,7 +92,7 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                             {
                                 xtype: 'property-form',
                                 itemId: 'key-renewal-property-form',
-                                margin: '20 0 0 0',
+                                margin: '20 0 5 0',
                                 defaults: {
                                     labelWidth: 200,
                                     resetButtonHidden: false,
@@ -132,7 +132,7 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                             {
                                 xtype: 'property-form',
                                 itemId: 'service-key-renewal-property-form',
-                                margin: '20 0 0 0',
+                                margin: '20 0 5 0',
                                 defaults: {
                                     labelWidth: 200,
                                     resetButtonHidden: false,

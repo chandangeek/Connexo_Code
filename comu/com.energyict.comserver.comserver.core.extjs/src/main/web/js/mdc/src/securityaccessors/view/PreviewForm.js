@@ -77,8 +77,21 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         itemId: 'previewPropertiesCommandName',
                     },
                     {
+                        xtype: 'keyRenewalOverviewProperties',
+                        commandTypePrefix: ''
+                    },
+                    {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
+                        fieldLabel: Uni.I18n.translate('serviceKeyRenewal.command', 'MDC', 'Service key renewal command'),
+                        itemId: 'previewPropertiesServiceKeyCommandName',
+                    },
+                    {
+                        xtype: 'keyRenewalOverviewProperties',
+                        commandTypePrefix: 'serviceKey-'
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('key.wrapper.label', 'MDC', 'Wrapped by'),
                         itemId: 'previewWrapperName',
                     }
                 ]
