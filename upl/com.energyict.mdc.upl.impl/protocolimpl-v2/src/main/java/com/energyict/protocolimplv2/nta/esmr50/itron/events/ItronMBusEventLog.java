@@ -20,14 +20,6 @@ public class ItronMBusEventLog extends ESMR50MbusEventLog {
         super(dc);
     }
 
-    @Override
-    protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int protocolCode) {
-        Event event = Event.forProtocolCode(protocolCode);
-        if (event!=null) {
-            meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), event.getEiCode(), protocolCode, event.getMessage()));
-        }
-    }
-
     public enum Event {
         BATTERY_LOW                         (100, OTHER,                    "Battery low"),
         BATTERY_CONSUMPTION_HIGH            (101, OTHER,                    "Battery consumption high"),
@@ -77,15 +69,6 @@ public class ItronMBusEventLog extends ESMR50MbusEventLog {
             this.protocolCode = protocolCode;
             this.eiCode = eiCode;
             this.message = message;
-        }
-
-        public static Event forProtocolCode(int protocolCode) {
-            for (Event event: values()) {
-                if (event.getProtocolCode()==protocolCode) {
-                    return event;
-                }
-            }
-            return null;
         }
 
         public int getProtocolCode() {

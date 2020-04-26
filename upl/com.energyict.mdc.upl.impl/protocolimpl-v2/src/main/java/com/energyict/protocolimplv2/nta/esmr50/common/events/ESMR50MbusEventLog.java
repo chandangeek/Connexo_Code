@@ -15,7 +15,7 @@ import static com.energyict.protocol.MeterEvent.*;
  */
 
 //TODO: md: some events specific for slaved devices overriden here with generic event codes; check correctness
-public class ESMR50MbusEventLog extends AbstractEvent {
+public abstract class ESMR50MbusEventLog extends AbstractEvent {
 
     public ESMR50MbusEventLog(DataContainer dc) {
         super(dc);
