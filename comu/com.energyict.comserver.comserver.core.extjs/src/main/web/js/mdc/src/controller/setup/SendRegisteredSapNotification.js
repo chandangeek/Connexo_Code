@@ -15,8 +15,7 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
     ],
 
     stores: [
-        'Mdc.store.RegisteredNotificationEndpoints',
-        'Mdc.store.DeviceSendSapNotification'
+        'Mdc.store.RegisteredNotificationEndpoints'
     ],
 
     init: function () {
@@ -66,8 +65,12 @@ Ext.define('Mdc.controller.setup.SendRegisteredSapNotification', {
         form.setLoading();
         var record = form.getRecord();
         record.getProxy().setUrl(me.deviceId);
-        form.getRecord().save({
-            success: function (record) {
+
+        Ext.Ajax.request({
+            url: record.getProxy().url,
+            method: 'POST',
+            jsonData: record.data,
+            success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('sap.webserviceendpoint.hassended', 'MDC', 'Registered notification successfully sent'));
                 location.href = "#/devices/" + me.deviceId;
             },

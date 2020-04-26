@@ -312,6 +312,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>webservice.inbound.rest.scim</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.extjs</artifactId>
         </dependency>
         <dependency>
@@ -351,7 +355,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat</artifactId>
-            <version>9.0.22</version>
+            <version>9.0.34</version>
             <type>zip</type>
             <classifier>connexo</classifier>
             <scope>provided</scope>

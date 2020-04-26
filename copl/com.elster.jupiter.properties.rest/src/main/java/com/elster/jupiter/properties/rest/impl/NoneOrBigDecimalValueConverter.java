@@ -33,22 +33,9 @@ public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
             if (isNone) {
                 return NoneOrBigDecimal.none();
             } else {
-                Double value = null;
-                    Object valueObj = ((Map) infoValue).get("value");
-                    if (valueObj instanceof String) {
-                        try {
-                           valueObj =  Integer.parseInt((String) valueObj);
-                        } catch (NumberFormatException e) {
-                            valueObj = Double.parseDouble((String)valueObj);
-                        }
-                    }
-                    if (valueObj instanceof Integer) {
-                        value = ((Integer) valueObj).doubleValue();
-                    } else if (valueObj instanceof Double) {
-                    value = (Double) valueObj;
-                }
-                if (value != null) {
-                    return NoneOrBigDecimal.of(BigDecimal.valueOf(value));
+                Object valueObj = ((Map) infoValue).get("value");
+                if (valueObj instanceof String || valueObj instanceof Integer || valueObj instanceof Double) {
+                    return NoneOrBigDecimal.of(new BigDecimal(valueObj.toString()));
                 }
             }
         }
@@ -59,9 +46,20 @@ public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
             if (domainValue instanceof NoneOrBigDecimal) {
-                return String.valueOf(domainValue);
+                NoneOrBigDecimal value = (NoneOrBigDecimal) domainValue;
+                return new NoneOrBigDecimalInfo(value.isNone(), value.toString());
             }
         }
         return null;
+    }
+
+    public static class NoneOrBigDecimalInfo {
+        public boolean isNone;
+        public String value;
+
+        public NoneOrBigDecimalInfo(boolean isNone, String value) {
+            this.isNone = isNone;
+            this.value = value;
+        }
     }
 }

@@ -1,6 +1,6 @@
- /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
+/*
+* Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+*/
 
 Ext.define('Mdc.processes.controller.ProcBulkActions', {
     extend: 'Ext.app.Controller',
@@ -53,7 +53,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
     init: function () {
         this.control({
-           'process-bulk-browse process-bulk-wizard': {
+            'process-bulk-browse process-bulk-wizard': {
                 wizardnext: this.onWizardNextEvent,
                 wizardprev: this.onWizardPrevEvent,
                 wizardstarted: this.onWizardStartedEvent,
@@ -70,10 +70,10 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
     showBulkActions: function () {
         var me = this,
-        processesStore = this.getStore('Mdc.processes.store.ProcessesBuffered'),
-        queryStringValues = Uni.util.QueryString.getQueryStringValues(false),
-        filter = [],
-        widget, grid;
+            processesStore = this.getStore('Mdc.processes.store.ProcessesBuffered'),
+            queryStringValues = Uni.util.QueryString.getQueryStringValues(false),
+            filter = [],
+            widget, grid;
         var property;
         var value;
 
@@ -82,12 +82,11 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var sortingFromMainStore = mainProcessesStore.getProxy().extraParams.sort;
 
         /* Assemble filter from query string */
-        if (queryStringValues.process){
+        if (queryStringValues.process) {
             property = "process";
-            if (Ext.isArray(queryStringValues.process))
-            {
+            if (Ext.isArray(queryStringValues.process)) {
                 value = queryStringValues.process;
-            }else{
+            } else {
                 value = [queryStringValues.process];
             }
             filter.push({
@@ -96,12 +95,11 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             });
         }
 
-        if (queryStringValues.status){
+        if (queryStringValues.status) {
             property = "status";
-            if (Ext.isArray(queryStringValues.status))
-            {
+            if (Ext.isArray(queryStringValues.status)) {
                 value = queryStringValues.status;
-            }else{
+            } else {
                 value = [queryStringValues.status];
             }
             filter.push({
@@ -110,7 +108,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             });
         }
 
-        if (queryStringValues.variableId){
+        if (queryStringValues.variableId) {
             property = "variableId";
             value = [queryStringValues.variableId];
 
@@ -119,7 +117,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                 value: value
             });
 
-            if (queryStringValues.value){
+            if (queryStringValues.value) {
                 property = "value";
                 value = [queryStringValues.value];
 
@@ -130,12 +128,11 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             }
         }
 
-        if (queryStringValues.user){
+        if (queryStringValues.user) {
             property = "user";
-            if (Ext.isArray(queryStringValues.user))
-            {
+            if (Ext.isArray(queryStringValues.user)) {
                 value = queryStringValues.user;
-            }else{
+            } else {
                 value = [queryStringValues.user];
             }
             filter.push({
@@ -144,23 +141,23 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             });
         }
 
-        if (queryStringValues.startedBetween){
+        if (queryStringValues.startedBetween) {
             varValueString = queryStringValues.startedBetween.split('-');
 
             if (varValueString[0])
-            filter.push({
-                property: "startedOnFrom",
-                value: parseInt(varValueString[0], 10)
-            });
+                filter.push({
+                    property: "startedOnFrom",
+                    value: parseInt(varValueString[0], 10)
+                });
 
             if (varValueString[1])
-            filter.push({
-                property: "startedOnTo",
-                value: parseInt(varValueString[1], 10)
-            });
+                filter.push({
+                    property: "startedOnTo",
+                    value: parseInt(varValueString[1], 10)
+                });
         }
 
-        widget  = Ext.widget('process-bulk-browse');
+        widget = Ext.widget('process-bulk-browse');
 
         grid = widget.down('processes-bulk-step1').down('processes-selection-grid');
         grid.reconfigure(processesStore);
@@ -172,7 +169,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         processesStore.clearFilter(true);
 
         /* Set sorting as in main process storage */
-        processesStore.getProxy().setExtraParam('sort',sortingFromMainStore);
+        processesStore.getProxy().setExtraParam('sort', sortingFromMainStore);
         processesStore.filter(filter);
         processesStore.load();
 
@@ -222,7 +219,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
     onWizardCancelledEvent: function () {
         Mdc.processes.controller.ProcGlobalVars.setDefaultParams = false;
-        this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null,Uni.util.QueryString.getQueryStringValues(false));
+        this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null, Uni.util.QueryString.getQueryStringValues(false));
     },
 
     setBulkActionListActiveItem: function (wizard) {
@@ -236,7 +233,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
     },
 
     getBulkRecord: function () {
-          var bulkStore = Ext.getStore('Mdc.processes.store.BulkChangeProcesses'),
+        var bulkStore = Ext.getStore('Mdc.processes.store.BulkChangeProcesses'),
             bulkRecord = bulkStore.getAt(0);
 
         if (!bulkRecord) {
@@ -253,7 +250,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var record = this.getBulkRecord(),
             grid = wizard.down('processes-bulk-step1').down('processes-selection-grid'),
             selection = grid.getSelectionModel().getSelection(),
-            name,version;
+            name, version;
 
         if (grid.isAllSelected()) {
             var params = Ext.ComponentQuery.query('grid')[0].filterParams;
@@ -279,28 +276,28 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             version = processesStore.getAt(0).get('version');
             var numberOfElements = processesStore.getCount();
 
-            for (var i = 0;  i < numberOfElements; ++i) {
-                if (processesStore.getAt(i).get('name') != name ){
+            for (var i = 0; i < numberOfElements; ++i) {
+                if (processesStore.getAt(i).get('name') != name) {
                     actionIsAllowed = false;
                     break;
                 }
-                if (processesStore.getAt(i).get('version') != version ){
+                if (processesStore.getAt(i).get('version') != version) {
                     actionIsAllowed = false;
                     break;
                 }
             }
         } else {
-            if (selection.length == 1){
+            if (selection.length == 1) {
                 actionIsAllowed = true;
-            }else{
+            } else {
                 name = selection[0].data.name;
                 version = selection[0].data.version;
-                for (var i = 1;  i < selection.length; ++i) {
-                    if (selection[i].data.name != name ){
+                for (var i = 1; i < selection.length; ++i) {
+                    if (selection[i].data.name != name) {
                         actionIsAllowed = false;
                         break;
                     }
-                    if (selection[i].data.version != version ){
+                    if (selection[i].data.version != version) {
                         actionIsAllowed = false;
                         break;
                     }
@@ -309,11 +306,11 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         }
 
         var step2Panel = wizard.down('processes-bulk-step2');
-        if (actionIsAllowed == false){
+        if (actionIsAllowed == false) {
             step2Panel.down('#Restart').setValue(false);
             step2Panel.down('#Restart').disable();
             wizard.down('#next').disable();
-        } else{
+        } else {
             step2Panel.down('#Restart').setValue(true);
             step2Panel.down('#Restart').enable();
             wizard.down('#next').enable();
@@ -353,14 +350,14 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var record = this.getBulkRecord();
         var processName;
 
-        if (record.get('allProcesses')){
+        if (record.get('allProcesses')) {
             /* get process information get it from processBuffered */
             var processesStore = this.getStore('Mdc.processes.store.ProcessesBuffered');
             processNameToStart = processesStore.getAt(0).get('name');
             processObjectType = processesStore.getAt(0).get('type');
             processVersionToStart = processesStore.getAt(0).get('version');
             processValue = processesStore.getAt(0).get('value');
-        }else{
+        } else {
             var processes = record.get('processes');
             processNameToStart = processes[0].get('name');
             processObjectType = processes[0].get('type');
@@ -374,9 +371,9 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         /* This GET request is used to check if process is active and to obtain his versionDB. Instead of using two requests activeprocesses
         signal could be used. But it provides list of all active processes. In case if we have a lot of processes it will provide us
         a lot of unnecessary information */
-        var processUrl = '/api/bpm/runtime/process/'+processNameToStart;
+        var processUrl = '/api/bpm/runtime/process/' + processNameToStart;
         Ext.Ajax.request({
-            url: processUrl+'?version='+processVersionToStart,
+            url: processUrl + '?version=' + processVersionToStart,
             method: 'GET',
             timeout: 180000,
             async: false,
@@ -396,74 +393,73 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             method: 'GET',
             timeout: 180000,
             async: false,
-                success: function (response) {
-                    var decodedResponse = response.responseText ? Ext.decode(response.responseText, true) : null;
-                    processDeploymentId = decodedResponse.deploymentId;
-                    processId = decodedResponse.processId;
-                },
+            success: function (response) {
+                var decodedResponse = response.responseText ? Ext.decode(response.responseText, true) : null;
+                processDeploymentId = decodedResponse.deploymentId;
+                processId = decodedResponse.processId;
+            },
 
-                failure: function () {
+            failure: function () {
+                wizard.setLoading(false);
+            }
+        });
+
+        /* Get process content and fill in property form */
+        var processContent = me.getModel('Bpm.startprocess.model.ProcessContent');
+        var propertyForm = step3Panel.down('retry-process').down('property-form');
+        processContent.getProxy().setUrl(processDeploymentId);
+        processContent.load(processId, {
+            success: function (startProcessRecord) {
+                globalStartProcessRecord = startProcessRecord;
+                if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
+                    if (processObjectType === "Device") {
+                        Ext.Ajax.suspendEvent("requestexception");
+                        Ext.Ajax.request({
+                            url: '/api/ddr/devices/byMRID/' + processValue,
+                            method: 'GET',
+                            timeout: 180000,
+                            async: false,
+                            success: function (response) {
+                                if (response && response.responseText) {
+                                    propertyForm.context = {'id': response.responseText};
+                                }
+                            },
+                            callback: function () {
+                                Ext.Ajax.resumeEvent("requestexception");
+                                wizard.setLoading(false);
+                                propertyForm.loadRecord(startProcessRecord);
+                                propertyForm.show();
+                            }
+                        });
+                    } else {
+                        wizard.setLoading(false);
+                        propertyForm.loadRecord(startProcessRecord);
+                        propertyForm.show();
+                    }
+                } else {
                     wizard.setLoading(false);
+                    propertyForm.hide();
                 }
-            });
-
-            /* Get process content and fill in property form */
-             var processContent = me.getModel('Bpm.startprocess.model.ProcessContent');
-             var propertyForm = step3Panel.down('retry-process').down('property-form');
-             processContent.getProxy().setUrl(processDeploymentId);
-             processContent.load(processId, {
-                         success: function (startProcessRecord) {
-                             globalStartProcessRecord = startProcessRecord;
-                             if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
-                                 if (processObjectType === "Device"){
-                                     Ext.Ajax.suspendEvent("requestexception");
-                                     Ext.Ajax.request({
-                                            url: '/api/ddr/devices/byMRID/' + processValue,
-                                            method: 'GET',
-                                            timeout: 180000,
-                                            async: false,
-                                            success: function (response) {
-                                                if ( response && response.responseText ){
-                                                    propertyForm.context = {'id' : response.responseText};
-                                                }
-                                            },
-                                            callback: function(){
-                                                Ext.Ajax.resumeEvent("requestexception");
-                                                wizard.setLoading(false);
-                                                propertyForm.loadRecord(startProcessRecord);
-                                                propertyForm.show();
-                                            }
-                                     });
-                                 }else{
-                                      wizard.setLoading(false);
-                                      propertyForm.loadRecord(startProcessRecord);
-                                      propertyForm.show();
-                                 }
-                             } else {
-                                 wizard.setLoading(false);
-                                 propertyForm.hide();
-                             }
-                         },
-                         failure: function (record, operation) {
-                            wizard.setLoading(false);
-                         }
-                     });
+            },
+            failure: function (record, operation) {
+                wizard.setLoading(false);
+            }
+        });
     },
 
     /* Process cllick Next button on Step3 */
     onWizardPreparationFinishedEvent: function (wizard) {
         me = this;
         var record = this.getBulkRecord(),
-        step4Panel = wizard.down('processes-bulk-step4'),
-        operation = record.get('operation'),
-        propertyFormIsValid = true,
-        message, widget;
+            step4Panel = wizard.down('processes-bulk-step4'),
+            operation = record.get('operation'),
+            propertyFormIsValid = true,
+            message, widget;
 
         var step3Panel = wizard.down('processes-bulk-step3');
         var propertyForm = step3Panel.down('retry-process').down('property-form');
 
-        if (propertyFormIsValid = propertyForm.isValid())
-        {
+        if (propertyFormIsValid = propertyForm.isValid()) {
             propertyForm.updateRecord();
             globalStartProcessRecord = propertyForm.getRecord();
 
@@ -472,21 +468,21 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
             /* Validation.Check number of process instances that can be retried  */
             var processValuesProperties = globalStartProcessRecord && globalStartProcessRecord.properties();
-            processValuesProperties.each(function (property){
-                  if (property.get('required')){
-                       var propertyKey = property.get('key');
-                       if (propertyKey && propertyForm){
-                           var propertyField = propertyForm.getPropertyField(propertyKey);
-                           if (propertyField.getValue()){
-                                propertyField.clearInvalid();
-                           }else{
-                                propertyFormIsValid = false;
-                                propertyField.markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
-                           }
-                       }
-                  }
+            processValuesProperties.each(function (property) {
+                if (property.get('required')) {
+                    var propertyKey = property.get('key');
+                    if (propertyKey && propertyForm) {
+                        var propertyField = propertyForm.getPropertyField(propertyKey);
+                        if (propertyField.getValue()) {
+                            propertyField.clearInvalid();
+                        } else {
+                            propertyFormIsValid = false;
+                            propertyField.markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                        }
+                    }
+                }
             });
-            if (propertyFormIsValid){
+            if (propertyFormIsValid) {
                 me.validateProcessesAction(wizard, record.get('allProcesses'), filter);
             }
         }
@@ -494,7 +490,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
     },
 
-   validateProcessesAction: function (wizard, isAllDevices, filter) {
+    validateProcessesAction: function (wizard, isAllDevices, filter) {
         var me = this,
             url = '/api/ddr/flowprocesses/validate',
             jsonData = {
@@ -508,23 +504,23 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var record = me.getBulkRecord();
 
         if (!isAllDevices) {
-            jsonData.processHistories = record.get('processes').map(function (value){
-                    return {
-                        processId: value.data.processId,
-                        name: value.data.name,
-                        startDate: value.data.startDate,
-                        endDate: value.data.endDate,
-                        status: value.data.status,
-                        startedBy: value.data.startedBy,
-                        duration: value.data.duration,
-                        value: value.data.value,
-                        version: value.data.version,
-                        variableId: value.data.variableId,
-                        objectName: value.data.objectName,
-                        corrDeviceName: value.data.corrDeviceName,
-                        issueType: value.data.issueType
-                    }
-                });
+            jsonData.processHistories = record.get('processes').map(function (value) {
+                return {
+                    processId: value.data.processId,
+                    name: value.data.name,
+                    startDate: value.data.startDate,
+                    endDate: value.data.endDate,
+                    status: value.data.status,
+                    startedBy: value.data.startedBy,
+                    duration: value.data.duration,
+                    value: value.data.value,
+                    version: value.data.version,
+                    variableId: value.data.variableId,
+                    objectName: value.data.objectName,
+                    corrDeviceName: value.data.corrDeviceName,
+                    issueType: value.data.issueType
+                }
+            });
         } else {
             filterToValidate = filter;
         }
@@ -537,86 +533,99 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             params: {filter: filterToValidate},
             jsonData: jsonData,
             timeout: 180000,
-                callback: function (config, success, response) {
-                    var decodedRsponse =  Ext.decode(response.responseText);
-                    var msgText;
+            callback: function (config, success, response) {
+                var decodedResponse = Ext.decode(response.responseText);
+                var msgText;
 
-                    if (success){
-                        if (decodedRsponse.processHistories && decodedRsponse.processHistories.length > 0)
-                        {
-                            var validatedProcesses = decodedRsponse.processHistories;
-                            var tmpObjId;
-                            var tmpObjType;
-                            switch (validatedProcesses[0].variableId) {
-                                case 'deviceId':
-                                    tmpObjId = 'deviceId';
-                                    tmpObjType = 'device';
+                if (success) {
+                    if (decodedResponse.processHistories && decodedResponse.processHistories.length > 0) {
+                        var validatedProcesses = decodedResponse.processHistories;
+                        var tmpObjId;
+                        var tmpObjType;
+                        switch (validatedProcesses[0].variableId) {
+                            case 'deviceId':
+                                tmpObjId = 'deviceId';
+                                tmpObjType = 'device';
                                 break;
-                                case 'alarmId':
-                                    tmpObjId = 'alarmId';
-                                    tmpObjType = 'alarm';
+                            case 'alarmId':
+                                tmpObjId = 'alarmId';
+                                tmpObjType = 'alarm';
                                 break;
-                                case 'issueId':
-                                    tmpObjId = 'issueId';
-                                    tmpObjType = 'issue';
+                            case 'issueId':
+                                tmpObjId = 'issueId';
+                                tmpObjType = 'issue';
                                 break;
-                                }
-
-                                var array =  validatedProcesses.map(function (value){
-                                    return {
-                                        id: tmpObjId,
-                                        type: tmpObjType,
-                                        value: value.value
-                                        }
-                                    });
-                            record.set('objectsToStartProcess',array);
-
-                            msgText = Uni.I18n.translate('processes.processesToRetry.validateOkTitle', 'MDC', '<h3>Retry selected process instances?</h3><br>') +
-                                      Uni.I18n.translatePlural('processes.processesToRetry.validateOkMsg', decodedRsponse.processHistories.length, 'MDC', '-', '{0} process instances will be restarted', '{0} process instances will be restarted');
-
-
-                            widget = Ext.widget('container', {
-                                        style: 'margin: 20px 0',
-                                        html: msgText
-                                    });
-                                    Ext.suspendLayouts();
-                                    step4Panel.removeAll(true);
-                                    Ext.resumeLayouts();
-                                    step4Panel.add(widget);
-
-
-
-
-                            me.getBulkNavigation().moveNextStep();
-                            me.setBulkActionListActiveItem(wizard);
-                            wizard.getLayout().setActiveItem(++wizard.activeItemId);
-                            wizard.fireEvent('wizardpagechange', wizard);
-
-                        }else{
-
-                            msgText = Uni.I18n.translate('processes.processesToRetry.validateNotOkMsg', 'MDC', 'No process instances can be retried');
-
-                            widget = Ext.widget('container', {
-                                style: 'margin: 20px 0',
-                                html: msgText
-                            });
-                            Ext.suspendLayouts();
-                            step4Panel.removeAll(true);
-                            Ext.resumeLayouts();
-                            step4Panel.add(widget);
-
-
-                            me.getBulkNavigation().moveNextStep();
-                            me.setBulkActionListActiveItem(wizard);
-                            wizard.getLayout().setActiveItem(++wizard.activeItemId);
-                            wizard.fireEvent('wizardpagechange', wizard);
-                            wizard.down('#finish').disable();
                         }
 
+                        var array = validatedProcesses.map(function (value) {
+                            return {
+                                id: tmpObjId,
+                                type: tmpObjType,
+                                value: value.value
+                            }
+                        });
+                        record.set('objectsToStartProcess', array);
+                        msgText = Uni.I18n.translate('processes.processesToRetry.validateOkTitle', 'MDC', '<h3>Retry selected process instances?</h3><br>') +
+                            Uni.I18n.translatePlural('processes.processesToRetry.validateOkMsg', decodedResponse.processHistories.length, 'MDC', '-', '{0} process instance will be restarted', '{0} process instances will be restarted');
+
+                        widget = Ext.widget('container', {
+                            style: 'margin: 20px 0',
+                            html: msgText
+                        });
+                        Ext.suspendLayouts();
+                        step4Panel.removeAll(true);
+                        Ext.resumeLayouts();
+                        step4Panel.add(widget);
+
+                        if (decodedResponse.errors) {
+                            var errText = '<h3>';
+                            errText += Uni.I18n.translate('processes.processesToRetry.validatePartialOkTitle', 'MDC', '{0} process instances won\'t be restarted because of:', decodedResponse.total - decodedResponse.processHistories.length);
+                            errText += '</h3><br><ul>';
+                            Ext.Array.each(decodedResponse.errors, function (error) {
+                                errText += '<li data-qtip="' + error.tooltip + '">' + error.message + '</li>';
+                            });
+                            errText += '</ul>';
+                            step4Panel.add(Ext.widget('container', {
+                                style: 'margin: 20px 0',
+                                html: errText
+                            }));
+                        }
+
+                        me.getBulkNavigation().moveNextStep();
+                        me.setBulkActionListActiveItem(wizard);
+                        wizard.getLayout().setActiveItem(++wizard.activeItemId);
+                        wizard.fireEvent('wizardpagechange', wizard);
+
+                    } else {
+                        msgText = '<h3>';
+                        msgText += Uni.I18n.translate('processes.processesToRetry.validateErrorTitle', 'MDC', 'No process instances out of {0} can be retried:', decodedResponse.total);
+                        msgText += '</h3><br><ul>';
+                        Ext.Array.each(decodedResponse.errors, function (error) {
+                            msgText += '<li data-qtip="' + error.tooltip + '">' + error.message + '</li>';
+                        });
+                        msgText += '</ul>';
+
+                        widget = Ext.widget('container', {
+                            style: 'margin: 20px 0',
+                            html: msgText
+                        });
+                        Ext.suspendLayouts();
+                        step4Panel.removeAll(true);
+                        Ext.resumeLayouts();
+                        step4Panel.add(widget);
+
+
+                        me.getBulkNavigation().moveNextStep();
+                        me.setBulkActionListActiveItem(wizard);
+                        wizard.getLayout().setActiveItem(++wizard.activeItemId);
+                        wizard.fireEvent('wizardpagechange', wizard);
+                        wizard.down('#finish').disable();
                     }
 
-                    wizard.setLoading(false);
                 }
+
+                wizard.setLoading(false);
+            }
         });
     },
 
@@ -633,46 +642,46 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var record = this.getBulkRecord();
 
         var processJsonData = {
-                    deploymentId: processDeploymentId,
-                    id: processId,
-                    processName: processNameToStart,
-                    processVersion: processVersionToStart,
-                    versionDB: processDbVersionToStart,//me.processRecord.versionDB,
-                    properties: ( globalStartProcessRecord ? globalStartProcessRecord.getWriteData(true, true).properties : [] )
-                },
+                deploymentId: processDeploymentId,
+                id: processId,
+                processName: processNameToStart,
+                processVersion: processVersionToStart,
+                versionDB: processDbVersionToStart,//me.processRecord.versionDB,
+                properties: (globalStartProcessRecord ? globalStartProcessRecord.getWriteData(true, true).properties : [])
+            },
 
-        processUrl = '/api/bpm/runtime/processcontent/' + processDeploymentId  + '/' + processId;
+            processUrl = '/api/bpm/runtime/processcontent/' + processDeploymentId + '/' + processId;
 
         processJsonData.bulkBusinessObjects = record.get('objectsToStartProcess');
 
         Ext.Ajax.request({
-                url: processUrl,
-                method: 'PUT',
-                jsonData: processJsonData,
-                timeout: 180000,
-                success: function (response) {
-                    wizard.setLoading(false);
+            url: processUrl,
+            method: 'PUT',
+            jsonData: processJsonData,
+            timeout: 180000,
+            success: function (response) {
+                wizard.setLoading(false);
 
-                    msgText = Uni.I18n.translate('processes.processesToRetry.retryResultOkTitle', 'MDC', '<h3>The task has been queued</h3><br>') +
+                msgText = Uni.I18n.translate('processes.processesToRetry.retryResultOkTitle', 'MDC', '<h3>The task has been queued</h3><br>') +
                     Uni.I18n.translatePlural('processes.processesToRetry.retryResultOkMsg', record.get('objectsToStartProcess').length, 'MDC', '-', '{0} process instances have been triggered', '{0} process instances have been triggered')
 
 
-                    widget = Ext.widget('container', {
-                            style: 'margin: 20px 0',
-                            html: msgText
-                         });
-                    Ext.suspendLayouts();
-                    step5Panel.removeAll(true);
-                    Ext.resumeLayouts();
-                    step5Panel.add(widget);
+                widget = Ext.widget('container', {
+                    style: 'margin: 20px 0',
+                    html: msgText
+                });
+                Ext.suspendLayouts();
+                step5Panel.removeAll(true);
+                Ext.resumeLayouts();
+                step5Panel.add(widget);
 
-                    me.getBulkNavigation().moveNextStep();
-                },
+                me.getBulkNavigation().moveNextStep();
+            },
 
-                failure: function () {
-                    wizard.setLoading(false);
-                    me.getBulkNavigation().moveNextStep();
-                }
+            failure: function () {
+                wizard.setLoading(false);
+                me.getBulkNavigation().moveNextStep();
+            }
         });
 
         me.setBulkActionListActiveItem(wizard);
@@ -680,12 +689,12 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
     onBulkActionFinished: function (wizard) {
         Mdc.processes.controller.ProcGlobalVars.setDefaultParams = false;
-        this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null,Uni.util.QueryString.getQueryStringValues(false));
+        this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null, Uni.util.QueryString.getQueryStringValues(false));
     },
 
     getIssueType: function (array, value) {
         for (var i = 0; i < array.length; i++) {
-            if (array[i].id === value && array[i].title.indexOf('estimate') >= 0 ) {
+            if (array[i].id === value && array[i].title.indexOf('estimate') >= 0) {
                 return "datavalidation";
             }
         }

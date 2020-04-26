@@ -58,7 +58,7 @@ my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners";
-my $TOMCAT_ZIP="tomcat-9.0.22";
+my $TOMCAT_ZIP="tomcat-9.0.34";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -124,9 +124,15 @@ sub check_root {
 
 sub check_java8 {
     if ("$JAVA_HOME" eq "") {
-        $JAVA_HOME=$ENV{"JAVA_HOME"};
-        print "Detected JAVA_HOME from environment: $JAVA_HOME\n";
+        $JAVA_HOME="$CONNEXO_DIR/java";
+
+        if (-d "$JAVA_HOME" and -d "$JAVA_HOME") {
+            print "Using Java from path=$JAVA_HOME\n"
+        } else {
+            $JAVA_HOME=$ENV{"JAVA_HOME"};
+        }
     }
+
     if (-d "$JAVA_HOME") {
         $ENV{"JAVA_HOME"}=$JAVA_HOME;
     } else {
@@ -387,6 +393,7 @@ sub read_uninstall_config {
             if ( "$row" ne "") {
                 my @val=split('=',$row);
                 if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "JAVA_HOME" )         {$JAVA_HOME=$val[1];}
             }
         }
         close($FH);

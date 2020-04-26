@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.impl.actions;
 
+import com.elster.jupiter.issue.impl.module.IncompleteEmailConfigException;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
@@ -36,6 +37,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -152,11 +154,33 @@ public class MailIssueAction extends AbstractIssueAction {
         password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
         smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
+        smtpPort =  bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
+        validateMailProperties();
         props.put("mail.smtp.host", smtpHost);
-        props.put("mail.smtp.port", bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY));
+        props.put("mail.smtp.port",smtpPort);
         props.setProperty("mail.smtp.user", user);
         props.setProperty("mail.smtp.password", password);
+        props.setProperty("mail.smtp.from", fromAddress);
         return props;
+    }
+
+    private void validateMailProperty(String propertyName, String value, List<String> badPropertiesCollector){
+        if (value == null || value.isEmpty()){
+            badPropertiesCollector.add(propertyName);
+        }
+    }
+    private void validateMailProperties(){
+        List<String> badProperties = new ArrayList<>();
+        validateMailProperty(MAIL_SMTP_HOST_PROPERTY, this.smtpHost, badProperties);
+        validateMailProperty(MAIL_SMTP_PORT_PROPERTY, this.smtpPort, badProperties);
+        validateMailProperty(MAIL_FROM_PROPERTY, this.fromAddress, badProperties);
+        validateMailProperty(MAIL_USER_PROPERTY, this.user, badProperties);
+        /* password is not mandatory
+        validateMailProperty(MAIL_PASSWORD_PROPERTY, this.password, badProperties);
+        */
+        if (!badProperties.isEmpty()){
+            throw new IncompleteEmailConfigException(this.getThesaurus(), badProperties.toArray(new String[badProperties.size()]));
+        }
     }
 
     private String getContent(Issue issue) {

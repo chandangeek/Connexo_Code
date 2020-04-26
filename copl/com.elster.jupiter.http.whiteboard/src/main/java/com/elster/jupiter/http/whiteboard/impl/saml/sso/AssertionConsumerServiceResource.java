@@ -9,7 +9,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.saml2.core.Assertion;

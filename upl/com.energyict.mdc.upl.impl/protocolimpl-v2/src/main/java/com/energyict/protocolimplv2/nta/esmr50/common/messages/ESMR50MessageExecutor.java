@@ -45,6 +45,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SetMBusConfigBit11AttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+
 public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final ObisCode LTE_IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.5.44.0.0.255");
@@ -113,7 +116,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     }
     @Override
     protected void changeAuthenticationLevel(OfflineDeviceMessage pendingMessage, int type, boolean enable) throws IOException {
-        int newAuthLevel = getIntegerAttribute(pendingMessage); //TODO add original logging messages from 8.11 implementation
+        int newAuthLevel = getIntegerAttribute(pendingMessage, authenticationLevelAttributeName); //TODO add original logging messages from 8.11 implementation
         if (newAuthLevel != -1) {
             Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
             Structure value;
@@ -199,9 +202,9 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         return collectedMessage;
     }
 
-    private CollectedMessage doMbusChangeConfigurationObject(OfflineDeviceMessage pendingMessage) {
+    private CollectedMessage doMbusChangeConfigurationObject(OfflineDeviceMessage pendingMessage) throws ProtocolException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-        int bit11 = getIntegerAttribute(pendingMessage);// TODO check that the field is a number. Change attribute type maybe?
+        int bit11 = getIntegerAttribute(pendingMessage, SetMBusConfigBit11AttributeName);// TODO check that the field is a number. Change attribute type maybe?
         getProtocol().journal("Writing MBus Change Configuration object bit 11 to {"+bit11+"}");
 
         try {

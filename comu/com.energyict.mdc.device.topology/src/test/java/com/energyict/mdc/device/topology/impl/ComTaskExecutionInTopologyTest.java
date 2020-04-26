@@ -43,8 +43,9 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
         inMemoryPersistence.update("update " + com.energyict.mdc.device.data.impl.TableSpecs.DDC_CONNECTIONTASK.name() + " set comport = " + outboundComPort.getId() + " where id = " + connectionTask.getId());
 
+        Device reloadedDevice = getReloadedDevice(device);
         // Business method
-        device.removeComTaskExecution(comTaskExecution);
+        reloadedDevice.removeComTaskExecution(comTaskExecution);
 
         // Asserts: see expected exception rule
     }

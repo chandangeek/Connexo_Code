@@ -38,6 +38,7 @@ public class CSRFFilterServiceTest {
         assertNotNull(csrfToken);
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
+        when(httpServletRequest.getRequestURI()).thenReturn("https://localhost/an/example/of/your/url");
         when(httpServletRequest.getHeader("X-CSRF-TOKEN")).thenReturn(csrfToken);
         when(httpServletRequest.getMethod()).thenReturn("POST");
         Cookie cookie = new Cookie("X-SESSIONID", "ConnexoSessionXYZ");

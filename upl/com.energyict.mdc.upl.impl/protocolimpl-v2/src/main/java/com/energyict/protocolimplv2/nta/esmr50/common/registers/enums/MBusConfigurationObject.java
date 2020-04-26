@@ -26,7 +26,7 @@ public class MBusConfigurationObject {
                 OctetString octetString = abstractDataType.getOctetString();
                 content = octetString.stringValue();
                 StringBuilder decodedContent = new StringBuilder();
-                if(content != null){
+                if (content != null && !content.equals("")) {
                     decoded = true;
                     StringTokenizer stringTokenizer = new StringTokenizer(content, "\r\n");
                     int i = 1;
@@ -48,9 +48,12 @@ public class MBusConfigurationObject {
                         i++;
                     }
                     content = decodedContent.toString();
+                } else {
+                    decoded = false;
+                    errorMessage = "Empty string for MBusConfigurationObject.";
                 }
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             decoded = false;
             errorMessage = ex.getMessage();
         }
