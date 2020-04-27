@@ -268,9 +268,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
         acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
         x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
-
-        initializeTokenService();
-
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", "HTP"),
                 dataModel,
@@ -281,6 +278,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                         version(10, 8), UpgraderV10_8.class
                 )
         );
+
+        initializeTokenService();
 
         host = getOptionalStringProperty("com.elster.jupiter.url.rewrite.host", context);
         Optional<String> portString = getOptionalStringProperty("com.elster.jupiter.url.rewrite.port", context);
