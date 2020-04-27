@@ -115,7 +115,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                     },
                     {
                         itemId: 'fwc-campaign-unique-firmware-version-field',
-                        xtype: 'checkbox',
+                        xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate(
                             'general.uniqueFirmwareVersion',
                             'FWC',
