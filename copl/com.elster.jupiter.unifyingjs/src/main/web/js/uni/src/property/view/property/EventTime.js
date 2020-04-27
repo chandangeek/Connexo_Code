@@ -56,18 +56,21 @@ Ext.define('Uni.property.view.property.EventTime', {
 
     initComponent: function () {
         var periods = Ext.getStore('Uni.property.store.RelativePeriodsWithCount');
-        periods.load();
+
+        //periods.load();
 
         var fieldKey = this.initialConfig.property.getData().key;
 
         if (fieldKey === "BasicDataCollectionRuleTemplate.threshold" || fieldKey === "SuspectCreationRuleTemplate.threshold") {
+            periods.getProxy().setExtraParam("category", "issues");
             this.occurencesFieldLabel = Uni.I18n.translate('general.create.issues.when', 'UNI', 'Create issues when at least');
         } else if (fieldKey === "BasicDeviceAlarmRuleTemplate.threshold") {
+            periods.getProxy().setExtraParam("category", "dal");
             this.occurencesFieldLabel = Uni.I18n.translate('general.create.alarms.when', 'UNI', 'Create alarms when at least');
         } else {
             this.occurencesFieldLabel = Uni.I18n.translate('general.create.abstract.when', 'UNI', 'Create {0} when at least', ['[object is not initialized]']);
         }
-
+        periods.load();
         this.callParent(arguments);
     },
 
