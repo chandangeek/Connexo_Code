@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -1072,16 +1073,17 @@ public enum TableSpecs {
             Column deviceType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.name()).number().notNull().add();
             Column secAccType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.name()).number().notNull().add();
             Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
-            table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
-            Column serviceKey = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
+            Column servKey = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
                     .bool()
                     .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.fieldName())
                     .since(version(10, 9))
                     .installValue("'N'")
                     .add();
+            table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
             table.addAuditColumns();
-            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name, serviceKey).add();
+            PrimaryKeyConstraint previousConstraint = table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).upTo(version(10, 9)).add();
+            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name, servKey).since(version(10, 9)).previously(previousConstraint).add();
             table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_DT")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceType)
