@@ -1073,7 +1073,7 @@ public enum TableSpecs {
             Column secAccType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.name()).number().notNull().add();
             Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
             table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
-            table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
+            Column serviceKey = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
                     .bool()
                     .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.fieldName())
                     .since(version(10, 9))
@@ -1081,7 +1081,7 @@ public enum TableSpecs {
                     .add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
             table.addAuditColumns();
-            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).add();
+            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name, serviceKey).add();
             table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_DT")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceType)

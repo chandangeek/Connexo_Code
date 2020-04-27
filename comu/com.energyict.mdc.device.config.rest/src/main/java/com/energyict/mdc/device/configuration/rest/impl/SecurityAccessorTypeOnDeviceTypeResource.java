@@ -190,11 +190,11 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
 
         DeviceMessageId deviceMessageId = (keyRenewalInfo.keyRenewalCommandSpecification != null &&
                 keyRenewalInfo.keyRenewalCommandSpecification.id != null &&
-                keyRenewalInfo.keyRenewalCommandSpecification.id != NOT_SET) ?
+                !keyRenewalInfo.keyRenewalCommandSpecification.id.equals(NOT_SET)) ?
                 DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()) : null;
         DeviceMessageId serviceDeviceMessageId = (keyRenewalInfo.serviceKeyRenewalCommandSpecification != null &&
                 keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null &&
-                keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != NOT_SET) ?
+                !keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.equals(NOT_SET)) ?
                 DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()) : null;
         if (deviceMessageId != null || serviceDeviceMessageId != null) {
             SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageId, serviceDeviceMessageId);
