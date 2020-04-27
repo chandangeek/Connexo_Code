@@ -39,6 +39,7 @@ set SMTP_HOST=localhost
 set SMTP_PORT=25
 set SMTP_USER=
 set SMTP_PASSWORD=
+set SMTP_FROM=
 
 set SSO_ENABLED=false
 set SSO_IDP_ENDPOINT=

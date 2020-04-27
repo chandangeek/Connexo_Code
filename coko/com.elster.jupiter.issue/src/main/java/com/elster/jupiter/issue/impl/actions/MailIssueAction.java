@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.module.IncompleteEmailConfigException;
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
@@ -57,6 +58,7 @@ public class MailIssueAction extends AbstractIssueAction {
 
     private Issue issue;
     private IssueService issueService;
+    private PasswordDecryptService passwordDecryptService;
 
     private String smtpHost;
     private int port = 25;
@@ -68,9 +70,12 @@ public class MailIssueAction extends AbstractIssueAction {
 
 
     @Inject
-    protected MailIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+    protected MailIssueAction(DataModel dataModel, Thesaurus thesaurus,
+                              PropertySpecService propertySpecService, IssueService issueService,
+                              UserService userService, ThreadPrincipalService threadPrincipalService, PasswordDecryptService passwordDecryptService) {
         super(dataModel, thesaurus, propertySpecService);
         this.issueService = issueService;
+        this.passwordDecryptService = passwordDecryptService;
     }
 
     @Override
@@ -151,7 +156,8 @@ public class MailIssueAction extends AbstractIssueAction {
         Properties props = new Properties();
         BundleContext bundleContext = ((IssueServiceImpl) issueService).getBundleContext().get();
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
-        password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        String encryptedPassword = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        password = passwordDecryptService.getDecryptPassword(encryptedPassword, bundleContext.getProperty("com.elster.jupiter.datasource.keyfile"));
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
         smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
         smtpPort =  bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);

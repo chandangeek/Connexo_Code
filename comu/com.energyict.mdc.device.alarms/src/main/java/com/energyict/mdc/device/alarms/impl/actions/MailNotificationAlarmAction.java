@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.alarms.impl.actions;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -44,6 +45,8 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     private Issue issue;
     private DeviceAlarmService deviceAlarmService;
+    private PasswordDecryptService passwordDecryptService;
+
     private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
     private static final String MAIL_SMTP_PORT_PROPERTY = "mail.smtp.port";
     private static final String MAIL_USER_PROPERTY = "mail.user";
@@ -56,10 +59,12 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
     private String password;
     private String fromAddress;
     @Inject
-    public MailNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, com.energyict.mdc.dynamic.PropertySpecService propertySpecService, DeviceAlarmService deviceAlarmService)
+    public MailNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, com.energyict.mdc.dynamic.PropertySpecService propertySpecService,
+                                       DeviceAlarmService deviceAlarmService, PasswordDecryptService passwordDecryptService)
     {
         super(dataModel, thesaurus, propertySpecService);
         this.deviceAlarmService =deviceAlarmService ;
+        this.passwordDecryptService = passwordDecryptService;
     }
 
 
@@ -139,7 +144,8 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         Properties props = new Properties();
         BundleContext bundleContext = ((DeviceAlarmServiceImpl)deviceAlarmService).getBundleContext().get();
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
-        password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        String encryptedPassword = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        password = passwordDecryptService.getDecryptPassword(encryptedPassword, bundleContext.getProperty("com.elster.jupiter.datasource.keyfile"));
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
         smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
         smtpPort = bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
