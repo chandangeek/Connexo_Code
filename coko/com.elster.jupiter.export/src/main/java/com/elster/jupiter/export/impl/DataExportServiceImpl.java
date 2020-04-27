@@ -445,6 +445,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7), UpgraderV10_7.class)
                             .put(version(10, 7, 1), UpgraderV10_7_1.class)
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                            .put(version(10, 8), UpgraderV10_8.class)
                             .build());
 
             if (transactionService.isInTransaction()) {
@@ -470,13 +471,13 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     private void failOngoingExportTaskOccurrences() {
-            List<Long> dataExportTaskIds = this.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
-            List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
-                    .withExportTask(dataExportTaskIds)
-                    .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
-                    .find();
-            dataExportOccurrences.stream()
-                    .forEach(o -> o.setToFailed());
+        List<Long> dataExportTaskIds = this.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
+        List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
+                .withExportTask(dataExportTaskIds)
+                .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
+                .find();
+        dataExportOccurrences.stream()
+                .forEach(o -> o.setToFailed());
     }
 
     @Reference
@@ -703,7 +704,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public boolean isUsedAsADestination(EndPointConfiguration endPointConfiguration) {
         return dataModel.stream(WebServiceDestinationImpl.class)
                 .filter(Where.where(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)
-                .or(Where.where(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)))
+                        .or(Where.where(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)))
                 .findAny()
                 .isPresent();
     }

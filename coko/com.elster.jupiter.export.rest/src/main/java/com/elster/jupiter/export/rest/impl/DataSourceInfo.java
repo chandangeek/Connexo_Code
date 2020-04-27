@@ -14,8 +14,8 @@ public class DataSourceInfo {
     @JsonUnwrapped
     public DataSource details;
     public ReadingTypeInfo readingType;
-    public Instant lastExportedDate;
-    public Instant lastExportedPeriodEnd;
+    public Instant lastExportedChangedData;
+    public Instant lastExportedNewData;
     public Long occurrenceId;
 
     public static class DataSource {
