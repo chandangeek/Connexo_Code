@@ -18,6 +18,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
@@ -32,11 +35,22 @@ import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEv
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
 import javax.inject.Inject;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
+//import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.;
+
 
 public class Installer implements FullInstaller {
     private static final Logger LOG = Logger.getLogger("DataCollectionIssueInstaller");
@@ -46,14 +60,16 @@ public class Installer implements FullInstaller {
     private final IssueActionService issueActionService;
     private final DataModel dataModel;
     private final EventService eventService;
+    private final TimeService timeService;
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService) {
+    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService, TimeService timeService) {
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.timeService = timeService;
     }
 
     @Override
@@ -65,6 +81,8 @@ public class Installer implements FullInstaller {
             IssueType issueType = setSupportedIssueType();
             setDataCollectionReasons(issueType);
         }, "issue reasons and action types", logger);
+        run(this::createRelativePeriodCategory, "create issue relative period category", logger);
+        run(this::createRelativePeriods, "Assign default relative periods to IDC category", logger);
         run(this::publishEvents, "event publishing", logger);
         run(this::createEventTypes, "create event types", logger);
     }
@@ -146,6 +164,26 @@ public class Installer implements FullInstaller {
 
         issueService.createReason(ModuleConstants.REASON_UNREGISTERED_DEVICE, issueType,
                 TranslationKeys.ISSUE_REASON_UNREGISTERED_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE);
+    }
+
+    private void createRelativePeriods() {
+        RelativePeriodCategory category = getCategory();
+
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY, YESTERDAY)
+                .forEach(definition -> {
+                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
+                            .orElseThrow(IllegalArgumentException::new);
+                    relativePeriod.addRelativePeriodCategory(category);
+                });
+    }
+
+    private void createRelativePeriodCategory() {
+        timeService.createRelativePeriodCategory(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY);
+    }
+
+    private RelativePeriodCategory getCategory() {
+        return timeService.findRelativePeriodCategoryByName(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY)
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

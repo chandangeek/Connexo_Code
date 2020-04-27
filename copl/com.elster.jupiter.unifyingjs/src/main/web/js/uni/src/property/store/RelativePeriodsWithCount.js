@@ -13,6 +13,10 @@ Ext.define('Uni.property.store.RelativePeriodsWithCount', {
         reader: {
             type: 'json',
             root: 'relativePeriods'
+        },
+        extraParams: {
+            //category to check DAL or Issues
+            category: ""
         }
     }
 });

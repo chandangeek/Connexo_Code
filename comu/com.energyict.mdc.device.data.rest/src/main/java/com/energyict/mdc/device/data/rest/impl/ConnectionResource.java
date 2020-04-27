@@ -52,8 +52,9 @@ public class ConnectionResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnectionMethods(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -65,9 +66,10 @@ public class ConnectionResource {
         return Response.ok(PagedInfoList.fromPagedList("connections", infos, queryParameters)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateDeactivateConnection(@PathParam("name") String name, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
@@ -75,7 +77,11 @@ public class ConnectionResource {
         ConnectionTask<?, ?> task = resourceHelper.lockConnectionTaskOrThrowException(connectionTaskInfo);
         switch (connectionTaskInfo.connectionMethod.status) {
             case ACTIVE:
-                task.activate();
+                if (!ConnectionMethodResource.hasAllRequiredProps(task)) {
+                    throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+                } else if (!task.isActive()) {
+                    task.activate();
+                }
                 break;
             case INACTIVE:
                 task.deactivate();
@@ -99,14 +105,14 @@ public class ConnectionResource {
                         .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, connectionTaskInfo.name)
                         .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, connectionTaskInfo.name)
                         .supplier());
-        if (connectionTaskInfo.protocolDialect != null && !connectionTaskInfo.protocolDialect.isEmpty()){
+        if (connectionTaskInfo.protocolDialect != null && !connectionTaskInfo.protocolDialect.isEmpty()) {
             List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = task.getDevice().getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
             Optional<ProtocolDialectConfigurationProperties> dialectConfigurationProperties = protocolDialectConfigurationPropertiesList.stream()
                     .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getDeviceProtocolDialect()
                             .getDeviceProtocolDialectName()
                             .equals(connectionTaskInfo.protocolDialect))
                     .findFirst();
-            if (!dialectConfigurationProperties.isPresent()){
+            if (!dialectConfigurationProperties.isPresent()) {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PROTOCOL_PROPERTIES, connectionTaskInfo.protocolDialect);
             }
             resourceHelper.updateConnectionTask(task, dialectConfigurationProperties.get());
@@ -114,9 +120,10 @@ public class ConnectionResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}/run")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     @SuppressWarnings("unchecked")

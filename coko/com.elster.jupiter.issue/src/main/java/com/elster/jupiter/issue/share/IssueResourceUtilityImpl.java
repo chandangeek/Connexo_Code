@@ -62,7 +62,8 @@ public class IssueResourceUtilityImpl implements IssueResourceUtility {
                     workGroups.add(((IssueAssignee) l.keySet().toArray()[i]).getWorkGroup());
                 }
                 long workgroupUnassignedCount = workGroups.stream().filter(item -> item == null).count();
-                Map<?, ? extends List<?>> map1 = workGroups.stream().filter(item -> item != null).collect(Collectors.groupingBy(WorkGroup::getDescription));
+                Map<?, ? extends List<?>> map1 = workGroups.stream().filter(item -> item != null && item.getDescription()!=null).
+                        collect(Collectors.groupingBy(WorkGroup::getDescription));
                 for (int i = 0; i < map1.keySet().size(); i++) {
                     long workGroupId = ((WorkGroup)((List) (map1.values().toArray()[i])).get(0)).getId();
                     String description = (String) map1.keySet().toArray()[0];
