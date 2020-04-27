@@ -21,15 +21,5 @@ public class UpgraderV10_8 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
-        updateDataExportItemTable();
-    }
-
-    private void updateDataExportItemTable() {
-        if (dataModel.doesColumnExist("DES_RTDATAEXPORTITEM", "LASTEXPORTED")) {
-            execute(dataModel, "ALTER TABLE DES_RTDATAEXPORTITEM RENAME COLUMN LASTEXPORTED TO LASTEXPORTEDCHANGEDDATA");
-        }
-        if (dataModel.doesColumnExist("DES_RTDATAEXPORTITEM", "LASTEXPORTEDPERIODEND")) {
-            execute(dataModel, "ALTER TABLE DES_RTDATAEXPORTITEM RENAME COLUMN LASTEXPORTEDPERIODEND TO LASTEXPORTEDNEWDATA");
-        }
     }
 }

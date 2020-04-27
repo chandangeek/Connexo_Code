@@ -85,7 +85,7 @@ public class CustomMeterReadingItemDataSelectorTest {
         customMeterReadingItemDataSelector = new CustomMeterReadingItemDataSelector(clock, thesaurus, transactionService);
         customMeterReadingItemDataSelector.init(sapCustomPropertySets, logger);
         when(((DefaultSelectorOccurrence)occurrence).getExportedDataInterval()).thenReturn(Range.openClosed(Instant.from(FIRST), Instant.from(LAST)));
-        when(item.getLastExportedNewDate()).thenReturn(Optional.of(Instant.from(LAST)));
+        when(item.getLastExportedNewData()).thenReturn(Optional.of(Instant.from(LAST)));
         when(item.getReadingType()).thenReturn(readingType);
         when(readingType.isRegular()).thenReturn(true);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);

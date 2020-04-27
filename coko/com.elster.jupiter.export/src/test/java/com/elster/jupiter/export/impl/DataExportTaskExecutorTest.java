@@ -783,7 +783,7 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(existingItem);
 
             inOrder.verify(existingItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(existingItem).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(existingItem).setLastExportedNewData(exportPeriodEnd.toInstant());
             inOrder.verify(existingItem).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(existingItem).update();
         }
@@ -792,7 +792,7 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(newItem);
 
             inOrder.verify(newItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(newItem).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(newItem).setLastExportedNewData(exportPeriodEnd.toInstant());
             inOrder.verify(newItem).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(newItem).update();
         }
@@ -815,7 +815,7 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(existingItem);
 
             inOrder.verify(existingItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(existingItem, never()).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(existingItem, never()).setLastExportedNewData(exportPeriodEnd.toInstant());
             inOrder.verify(existingItem).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(existingItem).update();
         }
@@ -824,7 +824,7 @@ public class DataExportTaskExecutorTest {
             InOrder inOrder = inOrder(newItem);
 
             inOrder.verify(newItem).setLastRun(triggerTime.toInstant());
-            inOrder.verify(newItem).setLastExportedNewDate(exportPeriodEnd.toInstant());
+            inOrder.verify(newItem).setLastExportedNewData(exportPeriodEnd.toInstant());
             inOrder.verify(newItem, never()).setLastExportedChangedData(triggerTime.toInstant());
             inOrder.verify(newItem).update();
         }

@@ -26,6 +26,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -213,7 +214,7 @@ enum TableSpecs {
             table.column("LASTEXPORTEDCHANGEDDATA").number().conversion(ColumnConversion.NUMBER2INSTANT)
                     .map("lastExportedChangedData").since(version(10, 8)).previously(lastExported).add();
             Column lastExportedPeriodEnd = table.column("LASTEXPORTEDPERIODEND").number().conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map("lastExportedPeriodEnd").since(Version.version(10, 7, 1)).upTo(version(10, 8)).add();
+                    .map("lastExportedPeriodEnd").during(Range.closedOpen(version(10, 7, 1), version(10, 8))).add();
             table.column("LASTEXPORTEDNEWDATA").number().conversion(ColumnConversion.NUMBER2INSTANT)
                     .map("lastExportedNewDate").since(Version.version(10, 8)).previously(lastExportedPeriodEnd).add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();

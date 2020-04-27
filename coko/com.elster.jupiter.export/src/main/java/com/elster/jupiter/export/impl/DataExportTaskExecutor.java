@@ -186,7 +186,7 @@ class DataExportTaskExecutor implements TaskExecutor {
                             if (!dataSendingStatus.isFailedForNewData(item) && !item.isExportPostponedForNewData()) {
                                 // move lastExportedNewData not to send these data as 'new' anymore
                                 // if we move lastExportedChangedData as well, unsent changed data will be lost next time
-                                occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedNewDate(s.getExportedDataInterval().upperEndpoint()));
+                                occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedNewData(s.getExportedDataInterval().upperEndpoint()));
                                 needToUpdate = true;
                             }
                             if (!dataSendingStatus.isFailedForChangedData(item) && !item.isExportPostponedForChangedData()) {
