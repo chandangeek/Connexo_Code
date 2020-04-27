@@ -34,16 +34,6 @@ public enum MicroAction {
     DISABLE_VALIDATION(MicroCategory.VALIDATION_AND_ESTIMATION, "conflict_validation"),
 
     /**
-     * Activates all communication tasks on the device.
-     */
-    ACTIVATE_ALL_COMMUNICATION(MicroCategory.COMMUNICATION),
-
-    /**
-     * Activates all recurring communication tasks on the device.
-     */
-    ACTIVATE_ALL_RECURRING_COMMUNICATION(MicroCategory.COMMUNICATION),
-
-    /**
      * Activates all connection tasks on the device.
      */
 
@@ -135,7 +125,18 @@ public enum MicroAction {
     /**
      * Cancels all running Service Calls on the device
      */
-    CANCEL_ALL_SERVICE_CALLS(MicroCategory.MONITORING);
+    CANCEL_ALL_SERVICE_CALLS(MicroCategory.MONITORING),
+
+    /**
+     * Activates all communication tasks on the device.
+     */
+    ACTIVATE_ALL_COMMUNICATION(MicroCategory.COMMUNICATION),
+
+    /**
+     * Activates all recurring communication tasks on the device.
+     */
+    ACTIVATE_ALL_RECURRING_COMMUNICATION(MicroCategory.COMMUNICATION)
+    ;
 
     private MicroCategory category;
     private String conflictGroupKey;

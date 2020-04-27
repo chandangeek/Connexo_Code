@@ -501,6 +501,10 @@ public class BaseUnit implements java.io.Serializable {
      * Dollar sign
      */
     public static final int USD = 603;
+    /**
+     * Egyptian Pound sign
+     */
+    public static final int EGP = 604;
 
     private static final Map<Integer, BaseUnit> units = new HashMap<Integer, BaseUnit>();
 
@@ -630,6 +634,7 @@ public class BaseUnit implements java.io.Serializable {
         units.put(POUND, new BaseUnit(POUND, "\u00A3"));
         units.put(EURO, new BaseUnit(EURO, "\u20AC"));
         units.put(USD, new BaseUnit(USD, "$"));
+        units.put(EGP, new BaseUnit(EGP, "\u00A3"));
 
     }
 

@@ -690,9 +690,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     MBUS_TRANSFER_FUAK(7076, "Set M-Bus Firmware Update Authentication Key (FUAK)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.FUAKeyAttributeName, DeviceMessageConstants.FUAKeyAttributeDefaultTranslation)
-            );
+            return Collections.emptyList();
         }
     },
 

@@ -386,7 +386,7 @@ public class MessageHandlerLauncherServiceTest {
                 }
                 return null;
             }
-        }).when(handler).process(message);
+        }).when(handler).onMessageDelete(message);
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);

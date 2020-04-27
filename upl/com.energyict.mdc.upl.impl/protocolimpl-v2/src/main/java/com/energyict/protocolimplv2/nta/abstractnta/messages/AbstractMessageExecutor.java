@@ -169,6 +169,10 @@ public abstract class AbstractMessageExecutor {
         return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
+    protected CollectedMessage createCollectedMessageWithUpdateSecurityProperty(OfflineDeviceMessage message, String propertyName, String propertyValue) {
+        return this.collectedDataFactory.createCollectedMessageWithUpdateSecurityProperty(message.getDeviceIdentifier(), message.getMessageIdentifier(), propertyName, propertyValue);
+    }
+
     protected CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
         return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLoadProfile, loadProfileReader);
     }
@@ -221,8 +225,14 @@ public abstract class AbstractMessageExecutor {
         return (byte) dow;
     }
 
-    protected int getIntegerAttribute(OfflineDeviceMessage pendingMessage) {
-        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
+    protected int getIntegerAttribute(OfflineDeviceMessage pendingMessage, String attributeName) throws ProtocolException {
+        String stringValue = getDeviceMessageAttributeValue(pendingMessage, attributeName);
+        try {
+            return Integer.parseInt(stringValue);
+        }
+        catch (NumberFormatException e) {
+            throw new ProtocolException("Invalid value for attribute :"+ attributeName+", expected Number but received : " + stringValue);
+        }
     }
 
     protected boolean getBooleanAttribute(OfflineDeviceMessage pendingMessage) {

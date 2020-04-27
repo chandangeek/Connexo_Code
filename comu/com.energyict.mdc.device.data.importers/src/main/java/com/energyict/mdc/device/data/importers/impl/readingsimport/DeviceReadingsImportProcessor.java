@@ -77,6 +77,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
     @Override
     public void process(DeviceReadingsImportRecord data, FileImportLogger logger) throws ProcessorException {
         setDevice(data, logger);
+        validateReadingDate(device, data.getReadingDateTime(), data.getLineNumber());
         for (int i = 0; i < data.getReadingTypes().size(); i++) {
             String readingTypeString = data.getReadingTypes().get(i);
             MeteringService meteringService = getContext().getMeteringService();
@@ -172,6 +173,22 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         return slaves.computeIfAbsent(slave, key -> new DeviceReadingsData());
     }
 
+    private void validateReadingDate(Device device, ZonedDateTime readingDate, long lineNumber) {
+        List<MeterActivation> meterActivations = device.getMeterActivationsMostRecentFirst();
+        if (!hasMeterActivationEffectiveAt(meterActivations, readingDate.toInstant())) {
+            MeterActivation firstMeterActivation = meterActivations.get(meterActivations.size() - 1);
+            if (firstMeterActivation.getRange().hasLowerBound() && !readingDate.toInstant().isAfter(firstMeterActivation.getStart())) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION, lineNumber,
+                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate));
+            }
+            MeterActivation lastMeterActivation = meterActivations.get(0);
+            if (lastMeterActivation.getRange().hasUpperBound() && readingDate.toInstant().isAfter(lastMeterActivation.getEnd())) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION, lineNumber,
+                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate));
+            }
+        }
+    }
+
     private Optional<ReadingType> getReadingTypeByObisCode(String readingTypeStr, long lineNumber) {
         List<Integer> channelsList = IntStream.range(0, device.getChannels().size()).boxed()
                 .filter(opt -> device.getChannels().get(opt).getObisCode().toString().equals(readingTypeStr))
@@ -233,7 +250,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         resetState();
     }
 
-    private List<IntervalBlockImpl> getIntervalBlocksFromChannelReadings(Multimap<ReadingType, IntervalReading> channelReadingsToStore){
+    private List<IntervalBlockImpl> getIntervalBlocksFromChannelReadings(Multimap<ReadingType, IntervalReading> channelReadingsToStore) {
         return channelReadingsToStore.asMap().entrySet().stream().map(channelReadings -> {
             IntervalBlockImpl block = IntervalBlockImpl.of(channelReadings.getKey().getMRID());
             block.addAllIntervalReadings(new ArrayList<>(channelReadings.getValue()));
@@ -267,7 +284,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         }
     }
 
-    private void updateLastReading(Device device, Multimap<ReadingType, IntervalReading> channelReadingsToStore, Map<ReadingType, Instant> lastReadingPerChannel){
+    private void updateLastReading(Device device, Multimap<ReadingType, IntervalReading> channelReadingsToStore, Map<ReadingType, Instant> lastReadingPerChannel) {
         device.getChannels().stream()
                 .filter(channel -> channelReadingsToStore.containsKey(channel.getReadingType()))
                 .map(channel -> Pair.of(channel.getLoadProfile(), lastReadingPerChannel.get(channel.getReadingType())))
