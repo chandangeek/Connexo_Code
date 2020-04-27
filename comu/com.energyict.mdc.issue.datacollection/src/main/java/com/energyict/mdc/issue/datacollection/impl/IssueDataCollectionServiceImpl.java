@@ -169,7 +169,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN)
-                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));;
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference

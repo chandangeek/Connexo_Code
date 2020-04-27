@@ -41,8 +41,16 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
-import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.*;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
+//import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.;
+
 
 public class Installer implements FullInstaller {
     private static final Logger LOG = Logger.getLogger("DataCollectionIssueInstaller");

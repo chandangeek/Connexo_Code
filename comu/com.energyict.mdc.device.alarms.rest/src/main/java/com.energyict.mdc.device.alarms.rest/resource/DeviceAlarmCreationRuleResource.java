@@ -213,7 +213,6 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     @RolesAllowed({com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE, com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE})
     public PagedInfoList getRelativePeriods(@BeanParam JsonQueryParameters queryParameters, @QueryParam("category") String category) {
         ZonedDateTime now = ZonedDateTime.now(clock);
-        //String types = new String(queryParameters.queryParameters.get("types").get(0).value);
         List<RelativePeriod> relativePeriods = fetchRelativePeriods(category).stream()
                 .sorted((RelativePeriod rp1, RelativePeriod rp2) -> {
                     int cmp = Long.compare(getIntervalLengthDifference(rp1, now), getIntervalLengthDifference(rp2, now));
