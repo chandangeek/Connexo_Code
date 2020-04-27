@@ -33,7 +33,7 @@ public class UpgraderV10_8 implements Upgrader {
      * Due to change of JWT id format, we need to renew JWT token for Flow
      */
     private void updateExistingTokenKey(){
-        basicAuthentication.updateExistingTokenKey();
+        basicAuthentication.updateExistingTokenKeyWithoutTransaction();
     }
 
 }
