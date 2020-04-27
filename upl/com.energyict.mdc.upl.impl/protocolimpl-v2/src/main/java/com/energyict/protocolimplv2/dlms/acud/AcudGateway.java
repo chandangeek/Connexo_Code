@@ -54,7 +54,7 @@ public class AcudGateway extends Acud {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION.get(getPropertySpecService(), getNlsService(), getConverter()));
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.get(getPropertySpecService(), getNlsService(), getConverter()));
     }
 
     public EndDeviceType getTypeMeter() {

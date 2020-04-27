@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -10,7 +13,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
 

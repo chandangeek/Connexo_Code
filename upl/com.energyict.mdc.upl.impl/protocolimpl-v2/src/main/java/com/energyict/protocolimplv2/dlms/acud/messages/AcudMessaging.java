@@ -9,11 +9,9 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
@@ -53,7 +51,7 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 ChargeDeviceMessage.CHANGE_CHARGE_PERIOD.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.UPDATE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION.get(this.propertySpecService, this.nlsService, this.converter));
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
@@ -63,13 +61,7 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))
             return String.valueOf(((Date) messageAttribute).getTime());
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName))
-            //This is the path of the temp file representing the FirmwareVersion
             return messageAttribute.toString();
-        if (propertySpec.getName().equals(DeviceMessageConstants.configUserFileAttributeName)) {
-            //Bytes of the userFile, as a hex string
-            DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
-            return ProtocolTools.getHexStringFromBytes(this.messageFileExtractor.binaryContents(userFile), "");
-        }
         return messageAttribute.toString();
     }
 

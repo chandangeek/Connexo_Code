@@ -1,11 +1,7 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ChargeSetup;
-import com.energyict.dlms.cosem.CreditSetup;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
 import com.energyict.dlms.cosem.methods.CreditSetupMethods;
@@ -20,17 +16,18 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
+import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.List;
-
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
 
@@ -79,7 +76,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION)) {
+        if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
             upgradeFirmware(pendingMessage);
             // clock
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_AMOUNT)) {
@@ -227,41 +224,51 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hexUserFileContent = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
-        String activationEpochString = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateActivationDateAttributeName);
-        String hash = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateHashAttributeName);
-        String kdl = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateKDLAttributeName);
-        String type = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateImageTypeAttributeName);
-        byte[] imageData = ProtocolTools.getBytesFromHexString(hexUserFileContent, "");
-        byte[] typeBytes = FirmwareImageType.typeForDescription(type).getByteArray();
-        byte[] hashBytes = ProtocolTools.getBytesFromHexString(hash, 2);
-        byte[] kdlBytes = ProtocolTools.getBytesFromHexString(kdl, 2);
-        byte[] dateBytes = new AXDRDateTime(Long.parseLong(activationEpochString), getProtocol().getTimeZone()).getCosemDate().toBytes();
-        byte[] initializationBytes = ProtocolTools.concatByteArrays(kdlBytes, hashBytes, dateBytes, typeBytes);
-        String imageIdentifier = new String(initializationBytes, StandardCharsets.ISO_8859_1);
+        String path = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        byte[] binaryImage = TempFileLoader.loadTempFile(path);
 
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
-        imageTransfer.setCharSet(StandardCharsets.ISO_8859_1);
-        imageTransfer.setCheckNumberOfBlocksInPreviousSession(false);
-        imageTransfer.setTransferBlocks(true);
-        List<ImageTransfer.ImageToActivateInfo> imageToActivateInfos = null;
-        String imageIdentifierInDevice = "";
+        imageTransfer.setBooleanValue(getBooleanValue());
+        imageTransfer.setUsePollingVerifyAndActivate(true);     //Use polling to check the result of the image verification
+        imageTransfer.upgrade(binaryImage, false);
+
         try {
-            imageToActivateInfos = imageTransfer.readImageToActivateInfo();
-            imageIdentifierInDevice = imageToActivateInfos.get(0).getImageIdentifier();
-        } catch (DataAccessResultException e) {
-            // swallow, this happens when a device has never been upgraded
+            imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
+            imageTransfer.imageActivation();
+        } catch (IOException e) {
+            if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause()) || isHardwareFault(e) || isHardwareFault(e.getCause())) {
+                //Move on in case of temporary failure/hardware fault,
+                return;
+            } else {
+                throw e;
+            }
         }
-        int lastTransferredBlockNumber = imageTransfer.readFirstNotTransferedBlockNumber().intValue();
-        if (lastTransferredBlockNumber > 0 && imageIdentifier.equalsIgnoreCase(imageIdentifierInDevice)) {
-            imageTransfer.setStartIndex(lastTransferredBlockNumber - 1);
+    }
+
+    private boolean isTemporaryFailure(Throwable e) {
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+        } else {
+            return false;
         }
-        ImageTransfer.ImageBlockSupplier dataSupplier = new ImageTransfer.ByteArrayImageBlockSupplier(imageData);
-        imageTransfer.enableImageTransfer(dataSupplier, imageIdentifier);
-        imageTransfer.initializeAndTransferBlocks(dataSupplier, false, imageIdentifier);
-        if (imageTransfer.getImageTransferStatus().getValue() == 1) {
-            imageTransfer.checkAndSendMissingBlocks();
+    }
+
+    private boolean isHardwareFault(Throwable e) {
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return ((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.HARDWARE_FAULT.getResultCode();
+        } else {
+            return false;
         }
-//        The device will start verification and activation wil be done on the date that is specified in the imageIdentifier.
+    }
+
+    /**
+     * Default value, subclasses can override. This value is used to set the image_transfer_enable attribute.
+     */
+    protected int getBooleanValue() {
+        return 0xFF;
     }
 }
