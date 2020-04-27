@@ -43,7 +43,6 @@ import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -66,6 +65,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -174,7 +174,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                 if (groupIdsList != null) {
                     List<HasId> value = (List<HasId>) action.getProperties().get(propertyKey);
                     if (value != null && !value.isEmpty()) {
-                        List<String> valuesList = value.stream().map(object -> String.valueOf(object.getId()))
+                        List<String> valuesList = value.stream()
+                                .filter(Objects::nonNull)
+                                .map(object -> String.valueOf(object.getId()))
                                 .collect(Collectors.toList());
                         valuesList.retainAll(groupIdsList);
                         if (!valuesList.isEmpty()) {
