@@ -56,7 +56,7 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'authenticationName',
-                                    fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name')
+                                    fieldLabel: Uni.I18n.translate('general.username', 'USR', 'Username')
                                 },
                                 {
                                     xtype: 'displayfield',

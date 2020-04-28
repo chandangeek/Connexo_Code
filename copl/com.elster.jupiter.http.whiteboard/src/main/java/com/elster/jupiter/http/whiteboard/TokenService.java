@@ -43,6 +43,11 @@ public interface TokenService<T> {
     SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException;
 
     /**
+     * Creates a permament signed JWT token (used by Flow)
+     */
+    SignedJWT createPermamentSignedJWT(User user) throws JOSEException;
+
+    /**
      *
      */
     Optional<T> getUserJWT(UUID jwtId);

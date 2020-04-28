@@ -58,10 +58,11 @@ public class ComServerAliveLoopImpl implements Runnable, EngineService.Deactivat
     public void run() {
         try (TransactionContext context = transactionService.getContext()) {
             updateStatus();
-            executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
             context.commit();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
         }
     }
 

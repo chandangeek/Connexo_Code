@@ -344,7 +344,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     @Override
     public String toString() {
-        return getClass().getName() + ": " + name;
+        // Do not modify, this is used by ESMR50MbusMessageExecutor
+        return name;
     }
 
     public void setIsWrapper(boolean isWrapper) {

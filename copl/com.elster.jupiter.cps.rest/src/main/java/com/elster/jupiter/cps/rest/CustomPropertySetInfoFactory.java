@@ -7,9 +7,11 @@ package com.elster.jupiter.cps.rest;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -23,6 +25,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,8 +63,8 @@ public class CustomPropertySetInfoFactory {
 
             info.isVersioned = cps.isVersioned();
             info.isRequired = cps.isRequired();
-            info.defaultViewPrivileges = cps.defaultViewPrivileges();
-            info.defaultEditPrivileges = cps.defaultEditPrivileges();
+            info.defaultViewPrivileges = EnumSet.allOf(ViewPrivilege.class);
+            info.defaultEditPrivileges = EnumSet.allOf(EditPrivilege.class);
         }
         return info;
     }

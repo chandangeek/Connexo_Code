@@ -7,7 +7,7 @@ public enum TranslationSeeds implements TranslationKey {
 
     // key - name of the field, defaultFormat - name of the column on grid
 
-    NAME("authenticationName", "Name"),
+    NAME("authenticationName", "Username"),
     DESCRIPTION("description", "Description"),
     DOMAIN("domain", "Domain"),
     STATUS("active", "Status"),

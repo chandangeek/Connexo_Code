@@ -516,7 +516,8 @@ public final class ReadingTypeTranslationKeys {
         NOTAPPLICABLE("XXX"),
         POUND("GBP"),
         EURO("EUR"),
-        USDOLLAR("USD");
+        USDOLLAR("USD"),
+        EGP("EGP");
 
         private final int id;
         private final java.util.Currency currency;
