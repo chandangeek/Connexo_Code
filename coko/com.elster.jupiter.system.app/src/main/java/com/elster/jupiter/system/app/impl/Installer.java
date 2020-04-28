@@ -12,9 +12,14 @@ import com.elster.jupiter.upgrade.SqlExceptionThrowingFunction;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 final class Installer implements FullInstaller, Upgrader {
@@ -67,9 +72,18 @@ final class Installer implements FullInstaller, Upgrader {
     private void grantPrivileges() {
         String[] adminPrivileges = userService.userAdminPrivileges();
         userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, batchExecutorPrivileges());
         userService.grantGroupWithPrivilege(UserService.DEFAULT_INSTALLER_ROLE, SysAppService.APPLICATION_KEY, installerPrivileges());
         userService.grantGroupWithPrivilege(UserService.SYSTEM_ADMIN_ROLE, SysAppService.APPLICATION_KEY, getAdminPrivileges());
+    }
+
+
+    private String[] batchExecutorPrivileges(){
+        List<String> privilegesList = new ArrayList<>(Arrays.asList(userService.userAdminPrivileges()));
+        privilegesList.add(com.elster.jupiter.systemproperties.impl.Privileges.Constants.VIEW_SYS_PROPS);
+        privilegesList.add(com.elster.jupiter.systemproperties.impl.Privileges.Constants.ADMINISTRATE_SYS_PROPS);
+        return (String[]) privilegesList.toArray();
+
     }
 
     private String[] installerPrivileges() {

@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.systemproperties.impl.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;

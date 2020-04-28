@@ -10,9 +10,9 @@
         <artifactId>platform</artifactId>
         <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
-    <artifactId>systemproperties</artifactId>
+    <artifactId>systemproperties.rest</artifactId>
     <packaging>bundle</packaging>
-    <name>[Jupiter] com.elster.jupiter.systemproperties</name>
+    <name>[Jupiter] com.elster.jupiter.systemproperties.rest</name>
 
 
     <properties>
@@ -52,10 +52,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>domain.util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
         <dependency>
@@ -71,10 +67,6 @@
             <artifactId>upgrade</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
         </dependency>
@@ -84,15 +76,23 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemproperties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

@@ -2,6 +2,7 @@ package com.elster.jupiter.system.app.impl;
 
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.system.app.SysAppService;
+import com.elster.jupiter.systemproperties.impl.Privileges;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
@@ -23,8 +24,8 @@ public class UpgraderV10_8 implements Upgrader {
 
     private String[] getNewSysAdminPrivileges() {
         return new String[]{
-                com.elster.jupiter.systemproperties.Privileges.Constants.VIEW_SYS_PROPS,
-                com.elster.jupiter.systemproperties.Privileges.Constants.ADMINISTRATE_SYS_PROPS
+                Privileges.Constants.VIEW_SYS_PROPS,
+                Privileges.Constants.ADMINISTRATE_SYS_PROPS
         };
     }
 }

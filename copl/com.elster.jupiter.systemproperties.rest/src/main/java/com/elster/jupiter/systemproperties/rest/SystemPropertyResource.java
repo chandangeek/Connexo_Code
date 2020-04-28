@@ -1,8 +1,11 @@
-package com.elster.jupiter.systemproperties;
+package com.elster.jupiter.systemproperties.rest;
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.systemproperties.SystemProperty;
+import com.elster.jupiter.systemproperties.SystemPropertyService;
+import com.elster.jupiter.systemproperties.SystemPropertySpec;
 
 
 import javax.inject.Inject;
@@ -39,7 +42,7 @@ public class SystemPropertyResource {
         List<PropertyInfo> propertyInfos = new ArrayList<>();
 
         for (SystemProperty sp : sysPropsList){
-            SystemPropertySpec spec = systemPropertyService.getPropertySpec(sp.getName()).get();
+            SystemPropertySpec spec = systemPropertyService.getPropertySpec(sp.getKey()).get();
             PropertyInfo info = spec.preparePropertyInfo(sp);
             propertyInfos.add(info);
         }
@@ -55,11 +58,10 @@ public class SystemPropertyResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response updateSystemProperties(SystemPropertiesInfo propertiesInfo){
-
         List<PropertyInfo> propertiesToUpdate = propertiesInfo.properties;
 
         for (PropertyInfo property : propertiesToUpdate) {
-            SystemProperty sysprop = systemPropertyService.getSystemPropertiesByName(property.key).get();
+            SystemProperty sysprop = systemPropertyService.getSystemPropertiesByKey(property.key).get();
             SystemPropertySpec spec = systemPropertyService.getPropertySpec(property.key).get();
             //Update system property if value changed.
             if (!spec.convertValueToString(property).equals(sysprop.getValue())) {

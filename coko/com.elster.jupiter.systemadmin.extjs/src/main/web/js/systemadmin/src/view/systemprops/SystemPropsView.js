@@ -19,7 +19,6 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
     viewForm: null,
     editForm: null,
     router: null,
-    usagePoint: null,
     viewDefaults: {
         xtype: 'displayfield',
         labelWidth: 150
@@ -79,7 +78,7 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                                         me.fireEvent('save', me);
                                     }
                                 },
-                                me.editForm.xtype === 'property-form' ? {
+                                {
                                     itemId: 'edit-form-restore-default-values-button',
                                     text: Uni.I18n.translate('general.restoreToDefault', 'SAM', 'Restore to default'),
                                     iconCls: 'icon-rotate-ccw3',
@@ -87,7 +86,7 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                                     handler: function () {
                                         me.getEditForm().restoreAll();
                                     }
-                                } : null,
+                                },
                                 {
                                     itemId: 'edit-form-cancel-button',
                                     text: Uni.I18n.translate('general.cancel', 'SAM', 'Cancel'),

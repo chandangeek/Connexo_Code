@@ -416,7 +416,7 @@ public class DataModelImpl implements DataModel {
         allModules[modules.length] = getModule();
         injector = Guice.createInjector(allModules);
         for (TableImpl<?> each : getTables(getVersion())) {
-            each.prepare(ormService.getEvictionTime(), ormService.getEnableCache());
+            each.prepare(ormService.getEvictionTime(), ormService.isCacheEnabled());
         }
         this.ormService.register(this);
         registered = true;

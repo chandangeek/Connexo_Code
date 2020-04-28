@@ -1,9 +1,7 @@
-package com.elster.jupiter.systemproperties;
+package com.elster.jupiter.systemproperties.rest;
 
 
-import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.systemproperties.SystemPropertyService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -11,18 +9,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.time.Clock;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.systemproperties",
         service = {Application.class}, immediate = true,
-        property = {"alias=/sp", "app=" + SystemPropertyApllication.APP_KEY, "name=" + SystemPropertyApllication.COMPONENT_NAME})
-public class SystemPropertyApllication extends Application{
+        property = {"alias=/sp", "app=" + SystemPropertyApplication.APP_KEY, "name=" + SystemPropertyApplication.COMPONENT_NAME})
+public class SystemPropertyApplication extends Application{
 
     public static final String APP_KEY = "SYS";
-    public static final String COMPONENT_NAME = "SP";
+    public static final String COMPONENT_NAME = "SYR";
     private volatile SystemPropertyService systemPropertiesService;
 
 

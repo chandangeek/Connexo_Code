@@ -65,8 +65,8 @@ public final class OrmServiceImpl implements OrmService {
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
-    private volatile Long evictionTime = 100L;
-    private volatile boolean enableCache = false;
+    private volatile long evictionTime = 100L;
+    private volatile boolean cacheEnabled = false;
     private volatile FileSystem fileSystem;
     private volatile Publisher publisher;
     private volatile JsonService jsonService;
@@ -156,12 +156,12 @@ public final class OrmServiceImpl implements OrmService {
         return enablePartition;
     }
 
-    public Long getEvictionTime(){
+    public long getEvictionTime(){
         return evictionTime;
     }
 
-    public boolean getEnableCache(){
-        return enableCache;
+    public boolean isCacheEnabled(){
+        return cacheEnabled;
     }
 
     @Reference
@@ -217,8 +217,8 @@ public final class OrmServiceImpl implements OrmService {
         this.evictionTime =  evictionTime;
     }
 
-    public void setEnableCache(boolean enableCache){
-        this.enableCache = enableCache;
+    public void setCacheEnabled(boolean enableCache){
+        this.cacheEnabled = enableCache;
     }
 
     private DataModel createDataModel(boolean register) {
@@ -246,7 +246,11 @@ public final class OrmServiceImpl implements OrmService {
 
     public void prepareSysProperties(){
 
-        String createTableStatement = "CREATE TABLE SYS_PROP (propertyName varchar2(50), propertyValue varchar2(50))";
+        String createTableStatement = "CREATE TABLE SYP_PROP " +
+                "(KEY varchar2(" + Table.NAME_LENGTH + ") NOT NULL," +
+                " VALUE varchar2(" + Table.NAME_LENGTH + ")  NOT NULL," +
+                "CONSTRAINT PK_SYP_PROP PRIMARY KEY (KEY))";
+
 
         try (Connection connection = getConnection(false)) {
             try (Statement statement = connection.createStatement()) {
@@ -265,17 +269,17 @@ public final class OrmServiceImpl implements OrmService {
         long evictionTimeMs = Long.valueOf(evictionTime);
         setEvictionTime(evictionTimeMs);
         boolean enableCacheBoolean = Boolean.valueOf(enablecache);
-        setEnableCache(enableCacheBoolean);
+        setCacheEnabled(enableCacheBoolean);
     }
 
     private String readSystemPropertyValue(String propertyName, String defaultValue){
-        String getSystemPropertySql = "SELECT * FROM SYS_PROP WHERE PROPERTYNAME='"+propertyName+"'";
+        String getSystemPropertySql = "SELECT VALUE FROM SYP_PROP WHERE KEY='"+propertyName+"'";
         String systemPropertyValue = "";
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(getSystemPropertySql)) {
             if (resultSet.next()) {
-                systemPropertyValue = resultSet.getString("PROPERTYVALUE");
+                systemPropertyValue = resultSet.getString("VALUE");
             }
         }catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -288,11 +292,11 @@ public final class OrmServiceImpl implements OrmService {
     }
 
     private void setSystemPropertyValue(String propertyName, String defaultValue){
-        String insertSystemPropertySql = "INSERT INTO SYS_PROP (PROPERTYNAME, PROPERTYVALUE) VALUES('"+propertyName+"','"+defaultValue+"')";
+        String insertSystemPropertySql = "INSERT INTO SYP_PROP (KEY, VALUE) VALUES('"+propertyName+"','"+defaultValue+"')";
         try (Connection connection = getConnection(false);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(insertSystemPropertySql)) {
-        }catch (SQLException e) {
+             Statement statement = connection.createStatement()) {
+            statement.executeQuery(insertSystemPropertySql);
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }

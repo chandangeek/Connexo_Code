@@ -123,7 +123,7 @@ public class TableImpl<T> implements Table<T> {
     private List<TableAudit> tableAuditList = new ArrayList<>();
     private boolean hasAudit = false;
 
-    public CacheType cacheType = CacheType.NO_CACH;
+    private CacheType cacheType = CacheType.NO_CACHE;
 
 
     private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
@@ -224,12 +224,10 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cache(long cacheTtl, long maximumSize, boolean recordStat) {
-        //this.cached = true;
         this.cacheTtl = cacheTtl;
         this.cacheMaximumSize = maximumSize;
         this.cacheRecordStat = recordStat;
-        //this.cacheWholeTable = false;
-        setCacheType(CacheType.TUPLE_CACHE);
+        this.cacheType = CacheType.TUPLE_CACHE;
     }
 
     @Override
@@ -239,11 +237,9 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cacheWholeTable(boolean recordStat, long cacheTtl) {
-        //this.cached = true;
-        //this.cacheWholeTable = true;
         this.cacheRecordStat = recordStat;
         this.cacheTtl = cacheTtl;
-        setCacheType(CacheType.WHOLE_TABLE_CACHE);
+        this.cacheType =  CacheType.WHOLE_TABLE_CACHE;
     }
 
     @Override
@@ -881,18 +877,21 @@ public class TableImpl<T> implements Table<T> {
         cacheTtl = evictionTime;
 
         if (enableCache) {
-            if (getCacheType().equals(CacheType.WHOLE_TABLE_CACHE)) {
-                cached = true;
-                cacheWholeTable = true;
-                cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
-            } else if (getCacheType().equals(CacheType.TUPLE_CACHE)) {
-                cached = true;
-                cacheWholeTable = false;
-                cache = new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat);
-            } else {
-                cached = false;
-                cacheWholeTable = false;
-                cache = new TableCache.NoCache<>();
+            switch (cacheType) {
+                case WHOLE_TABLE_CACHE:
+                    cached = true;
+                    cacheWholeTable = true;
+                    cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
+                    break;
+                case TUPLE_CACHE:
+                    cached = true;
+                    cacheWholeTable = false;
+                    cache = new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat);
+                    break;
+                default:
+                    cached = false;
+                    cacheWholeTable = false;
+                    cache = new TableCache.NoCache<>();
             }
         } else {
             cached = false;
@@ -901,7 +900,7 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
-    public void changeEvictionTime(Long cacheTtl){
+    public void changeEvictionTime(long cacheTtl){
         this.cacheTtl = cacheTtl;
         if (isWholeTableCached()) {
             cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
@@ -910,41 +909,28 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
+    @Override
     public synchronized void disableCache(){
-        if (cacheType == CacheType.WHOLE_TABLE_CACHE) {
-            cached = false;
-            cacheWholeTable = false;
-            cache = new TableCache.NoCache<>();
-        }
-        if (cacheType == CacheType.TUPLE_CACHE){
-            cached = false;
-            cacheWholeTable = false;
-            cache = new TableCache.NoCache<>();
-        }
+        cached = false;
+        cacheWholeTable = false;
+        cache = new TableCache.NoCache<>();
     }
 
+    @Override
     public synchronized void enableCache(){
-        if (cacheType == CacheType.WHOLE_TABLE_CACHE) {
-            cached = true;
-            cacheWholeTable = true;
-            cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
-        }
-        if (cacheType == CacheType.TUPLE_CACHE){
-            cached = true;
-            cacheWholeTable = false;
-            cache = new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
-        }
-    }
-
-    public synchronized void recreateCache(Long evictionTime){
-        if (cacheType == CacheType.WHOLE_TABLE_CACHE && cached && cacheWholeTable) {
-            cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
-        }
-        if (cacheType == CacheType.TUPLE_CACHE && cached){
-            cache = new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat);
+        switch (cacheType) {
+            case WHOLE_TABLE_CACHE:
+                cached = true;
+                cacheWholeTable = true;
+                cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
+                return;
+            case TUPLE_CACHE:
+                cached = true;
+                cacheWholeTable = false;
+                cache = new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
+                return;
         }
     }
-
 
     private void fail(String template, Object... arguments) {
         throw new IllegalTableMappingException("Table " + getName() + ": " + MessageFormat.format(template, arguments));
@@ -1389,11 +1375,8 @@ public class TableImpl<T> implements Table<T> {
             Stream.of(ranges).forEach(range -> journalNameHistory.put(range, this.tableName));
         }
     }
+    @Override
     public CacheType getCacheType(){
         return cacheType;
-    }
-
-    public void setCacheType(CacheType cacheType){
-        this.cacheType = cacheType;
     }
 }

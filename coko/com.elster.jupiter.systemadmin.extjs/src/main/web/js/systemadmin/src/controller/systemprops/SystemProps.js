@@ -1,13 +1,9 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Sam.controller.systemprops.SystemProps', {
     extend: 'Ext.app.Controller',
-
-    stores: [
-        'Sam.store.SystemInfo'
-    ],
 
     views: [
         'Sam.view.systemprops.SysPropsContainer'
@@ -16,7 +12,6 @@ Ext.define('Sam.controller.systemprops.SystemProps', {
     models: [
         'Sam.model.SystemPropsInfo'
     ],
-
 
     refs: [
         {
@@ -44,9 +39,6 @@ Ext.define('Sam.controller.systemprops.SystemProps', {
         var me = this;
         var record = form.getRecord();
         var page = me.getPage();
-        var propInfo = me.getPage().propertyInfo;
-
-        propInfo.set('properties', record.properties());
         record.getProxy().url = '/api/sp/systemproperties';
         record.phantom = false; //Needed to send PUT request instead of POST on save call.
         record.getProxy().appendId = false; //To avoid adding id to request url.
@@ -95,8 +87,7 @@ Ext.define('Sam.controller.systemprops.SystemProps', {
 
          me.getModel('Sam.model.SystemPropsInfo').load(null, {
                             success: function (record) {
-                                var propeses = record.properties()
-                                    me.getPage().loadRecord(record);
+                                me.getPage().loadRecord(record);
                             }
          });
     },
