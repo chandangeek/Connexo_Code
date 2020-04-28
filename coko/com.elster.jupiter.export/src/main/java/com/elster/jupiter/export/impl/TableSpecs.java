@@ -216,7 +216,7 @@ enum TableSpecs {
             Column lastExportedPeriodEnd = table.column("LASTEXPORTEDPERIODEND").number().conversion(ColumnConversion.NUMBER2INSTANT)
                     .map("lastExportedPeriodEnd").during(Range.closedOpen(version(10, 7, 1), version(10, 8))).add();
             table.column("LASTEXPORTEDNEWDATA").number().conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map("lastExportedNewDate").since(Version.version(10, 8)).previously(lastExportedPeriodEnd).add();
+                    .map("lastExportedNewData").since(Version.version(10, 8)).previously(lastExportedPeriodEnd).add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
             table.column("ACTIVE").bool().notNull().map("active").add();
             table.column("READING_INTERVAL").varChar().map("readingInterval").since(Version.version(10, 7, 2)).add();
