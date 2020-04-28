@@ -3,8 +3,6 @@
  */
 package com.energyict.mdc.app.impl;
 
-import com.elster.jupiter.systemproperties.impl.Privileges;
-
 import java.util.Arrays;
 import java.util.List;
 

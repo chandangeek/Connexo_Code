@@ -192,6 +192,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
     Optional<T> findByPrimaryKey(KeyValue keyValue) {
 		TableCache<? super T> cache = getCache();
+
 		Object cacheVersion = cache.get(keyValue);
 		/* When caching of whole table is used it is assumed that all objects from table should be in cache.
 		 * In no , it means that cache was invalidated or eviction time was expired. In both cases we have to load table to cache again.*/
