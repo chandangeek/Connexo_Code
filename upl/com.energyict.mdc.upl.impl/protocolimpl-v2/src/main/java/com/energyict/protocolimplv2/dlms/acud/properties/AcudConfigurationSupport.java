@@ -19,11 +19,16 @@ public class AcudConfigurationSupport extends DlmsConfigurationSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.add(readCachePropertySpec());
         propertySpecs.add(addressModePropertySpec());
         return propertySpecs;
     }
 
     private PropertySpec addressModePropertySpec() {
         return this.bigDecimalSpec(DlmsProtocolProperties.ADDRESSING_MODE, true, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, new BigDecimal(4), new BigDecimal(2), new BigDecimal(4));
+    }
+
+    private PropertySpec readCachePropertySpec() {
+        return this.booleanSpecBuilder(DlmsProtocolProperties.READCACHE_PROPERTY, false, PropertyTranslationKeys.DLMS_READ_CACHE);
     }
 }

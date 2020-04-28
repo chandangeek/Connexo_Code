@@ -102,7 +102,8 @@ public abstract class Acud extends AbstractDlmsProtocol {
             setDeviceCache(new DLMSCache());
         }
         DLMSCache dlmsCache = getDeviceCache();
-        if (dlmsCache.getObjectList() == null) {
+        boolean readCache = getDlmsSessionProperties().isReadCache();
+        if (dlmsCache.getObjectList() == null || readCache) {
             readObjectList();
             dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
         } else {
