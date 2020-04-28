@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.systemproperties.impl.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -279,8 +280,8 @@ public class MdcAppInstaller {
                     com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
 
                     //System Properties
-                    com.elster.jupiter.systemproperties.Privileges.Constants.VIEW_SYS_PROPS,
-                    com.elster.jupiter.systemproperties.Privileges.Constants.ADMINISTRATE_SYS_PROPS
+                    Privileges.Constants.VIEW_SYS_PROPS,
+                    Privileges.Constants.ADMINISTRATE_SYS_PROPS
 
             };
         }

@@ -1,21 +1,21 @@
-package com.elster.jupiter.systemproperties;
+package com.elster.jupiter.systemproperties.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.systemproperties.SystemProperty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 
-public class SystemPropertyImpl implements SystemProperty{
-    private long id;
+public class SystemPropertyImpl implements SystemProperty {
 
-    @Size(max = Table.NAME_LENGTH, message = "Filed too long")
-    private String propertyName;
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String key;
 
-    @Size(max = Table.NAME_LENGTH, message = "Field too long")
-    private String propertyValue;
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String value;
 
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -27,7 +27,7 @@ public class SystemPropertyImpl implements SystemProperty{
     private long version;
 
 
-    private DataModel dataModel;
+    private final transient DataModel dataModel;
 
     @Inject
     public SystemPropertyImpl(DataModel dataModel){
@@ -36,9 +36,8 @@ public class SystemPropertyImpl implements SystemProperty{
 
 
     public enum Fields {
-        ID("id"),
-        PROP_NAME("propertyName"),
-        PROP_VALUE("propertyValue");
+        PROP_KEY("key"),
+        PROP_VALUE("value");
 
         private final String javaFieldName;
 
@@ -53,18 +52,18 @@ public class SystemPropertyImpl implements SystemProperty{
 
 
     @Override
-    public String getName(){
-        return propertyName;
+    public String getKey(){
+        return key;
     };
 
     @Override
     public String getValue(){
-        return propertyValue;
+        return value;
     };
 
     @Override
     public void setValue(String value){
-        this.propertyValue = value;
+        this.value = value;
     };
 
     public void update(){

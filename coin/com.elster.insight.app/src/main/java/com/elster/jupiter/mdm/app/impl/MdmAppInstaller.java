@@ -10,6 +10,7 @@ import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.systemproperties.impl.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -189,10 +190,6 @@ public class MdmAppInstaller {
                     //WebServices
                     com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
                     com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
-
-                    //System Properties
-                    com.elster.jupiter.systemproperties.Privileges.Constants.VIEW_SYS_PROPS,
-                    com.elster.jupiter.systemproperties.Privileges.Constants.ADMINISTRATE_SYS_PROPS
             };
         }
     }

@@ -90,7 +90,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                             {
                                 xtype: 'general-attributes-form',
                                 itemId: 'general-attributes-form',
-                                title: 'GENERAL INFO',//Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
+                                title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
                                 router: me.router,
                                 record: me.usagePoint,
                                 viewDefaults: me.viewDefaults,
@@ -100,7 +100,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                             {
                                 xtype: me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].form,
                                 itemId: 'technical-attributes-form',
-                                title: 'TECH INFO!!!',//Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
+                                title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
                                 record: Ext.create(me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].model, me.usagePoint.get('techInfo')),
                                 viewDefaults: me.viewDefaults,
                                 editDefaults: me.editDefaults,

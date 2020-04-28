@@ -1,3 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
+Private-Package: com.elster.jupiter.systemproperties.impl.*
 Export-Package: com.elster.jupiter.systemproperties

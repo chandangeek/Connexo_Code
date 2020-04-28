@@ -5,7 +5,7 @@
 /**
  * @class Sam.privileges.SystemProperties
  *
- * Class that defines privileges for DataPurge
+ * Class that defines privileges for SystemProperties
  */
 Ext.define('Sam.privileges.SystemProperties', {
     requires:[

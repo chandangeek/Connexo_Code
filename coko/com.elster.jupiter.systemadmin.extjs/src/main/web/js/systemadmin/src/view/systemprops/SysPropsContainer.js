@@ -10,8 +10,6 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
     ],
 
     router: null,
-    usagePoint: null,
-    propertyInfo: null,
 
     viewDefaults: {
         xtype: 'displayfield',
@@ -90,7 +88,6 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
 
     loadRecord: function (record) {
             var me = this;
-            me.propertyInfo = Ext.create('Sam.model.SystemPropsInfo', {properties: record.properties});
             me.down('#sys-props-attributes-form').loadRecord(record);
     }
 });

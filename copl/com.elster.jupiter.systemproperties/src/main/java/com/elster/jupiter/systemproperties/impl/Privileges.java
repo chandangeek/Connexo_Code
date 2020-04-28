@@ -1,4 +1,4 @@
-package com.elster.jupiter.systemproperties;
+package com.elster.jupiter.systemproperties.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
@@ -12,7 +12,7 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     VIEW_SYS_PROPS(Constants.VIEW_SYS_PROPS, "View"),
-    ADMINISTRATE_SYS_PROPS(Constants.ADMINISTRATE_SYS_PROPS, "Administrate");
+    ADMINISTRATE_SYS_PROPS(Constants.ADMINISTRATE_SYS_PROPS, "Administer");
 
 
     private final String key;
@@ -23,29 +23,19 @@ public enum Privileges implements TranslationKey {
         this.description = description;
     }
 
+    @Override
     public String getKey() {
         return key;
     }
 
     @Override
     public String getDefaultFormat() {
-        return getDescription();
-    }
-
-    public String getDescription() {
         return description;
     }
 
-    public static String[] keys() {
-        return Arrays.stream(Privileges.values())
-                .map(Privileges::getKey)
-                .collect(Collectors.toList())
-                .toArray(new String[Privileges.values().length]);
-    }
+
 
     public interface Constants {
-        //String VIEW_DATA_PURGE = "privilege.view.sysProps";
-        //String ADMINISTRATE_DATA_PURGE = "privilege.administrate.sysProps";
         String VIEW_SYS_PROPS = "privilege.view.sysProps";
         String ADMINISTRATE_SYS_PROPS = "privilege.administrate.sysProps";
     }

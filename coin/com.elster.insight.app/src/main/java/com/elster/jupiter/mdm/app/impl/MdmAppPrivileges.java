@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.mdm.app.impl;
 
+import com.elster.jupiter.systemproperties.impl.Privileges;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -141,11 +143,7 @@ class MdmAppPrivileges {
                 //web services
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
-                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES,
-
-                //System Properties
-                com.elster.jupiter.systemproperties.Privileges.Constants.VIEW_SYS_PROPS,
-                com.elster.jupiter.systemproperties.Privileges.Constants.ADMINISTRATE_SYS_PROPS
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES
         );
     }
 }

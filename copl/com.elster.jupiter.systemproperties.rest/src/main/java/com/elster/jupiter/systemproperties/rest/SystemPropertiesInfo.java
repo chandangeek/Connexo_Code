@@ -1,7 +1,7 @@
-package com.elster.jupiter.systemproperties;
+package com.elster.jupiter.systemproperties.rest;
+
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
-
 import java.util.List;
 
 public class SystemPropertiesInfo {
