@@ -575,9 +575,11 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
      * @return requested configuration
      */
     protected CollectedLoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
-        for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
-                return lpc;
+        if( this.loadProfileConfigurationList != null ) {
+            for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
+                if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+                    return lpc;
+                }
             }
         }
         return null;
