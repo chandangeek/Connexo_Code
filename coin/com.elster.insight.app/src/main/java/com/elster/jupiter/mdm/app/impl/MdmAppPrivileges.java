@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.mdm.app.impl;
 
-import com.elster.jupiter.systemproperties.impl.Privileges;
-
 import java.util.Arrays;
 import java.util.List;
 

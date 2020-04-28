@@ -160,8 +160,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 hasEditMode = me.canManageUsagePoint
                     && cps.get('isEditable')
                     && (!cps.get('isVersioned') || cps.get('isActive'));
-            console.log("NAME = ",name);
-            console.log("CPS = ",cps);
+
             forms.push({
                 xtype: 'custom-attribute-set-form',
                 itemId: itemId,

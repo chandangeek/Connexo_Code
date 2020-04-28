@@ -94,6 +94,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
             editedForm = page.down('[displayMode=edit]'),
             menu = page.down('#usage-point-attributes-actions-menu'),
             confirmationWindow;
+
         if (!editedForm) {
             Ext.suspendLayouts();
             form.switchDisplayMode('edit');
