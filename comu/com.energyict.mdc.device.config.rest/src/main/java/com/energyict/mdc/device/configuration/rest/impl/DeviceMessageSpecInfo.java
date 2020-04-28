@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DeviceMessageSpecInfo {
-    public static final String NOT_SET = "NOT_SET";
+    public static final String NOT_SET_ID = "NOT_SET";
+    public static final String NOT_SET_NAME = "Not set";
 
     public String id;
     public String name;
@@ -35,8 +36,8 @@ public class DeviceMessageSpecInfo {
 
     public static DeviceMessageSpecInfo getNotSetDeviceMessageSpecInfo() {
         DeviceMessageSpecInfo deviceMessageSpecInfo = new DeviceMessageSpecInfo();
-        deviceMessageSpecInfo.id = NOT_SET;
-        deviceMessageSpecInfo.name = "Not set";
+        deviceMessageSpecInfo.id = NOT_SET_ID;
+        deviceMessageSpecInfo.name = NOT_SET_NAME;
         deviceMessageSpecInfo.properties = Collections.emptyList();
         return deviceMessageSpecInfo;
     }

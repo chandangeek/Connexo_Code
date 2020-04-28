@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.energyict.mdc.device.configuration.rest.impl.DeviceMessageSpecInfo.NOT_SET;
+import static com.energyict.mdc.device.configuration.rest.impl.DeviceMessageSpecInfo.NOT_SET_ID;
 
 public class SecurityAccessorTypeOnDeviceTypeResource {
     private final ResourceHelper resourceHelper;
@@ -190,11 +190,11 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
 
         DeviceMessageId deviceMessageId = (keyRenewalInfo.keyRenewalCommandSpecification != null &&
                 keyRenewalInfo.keyRenewalCommandSpecification.id != null &&
-                !keyRenewalInfo.keyRenewalCommandSpecification.id.equals(NOT_SET)) ?
+                !keyRenewalInfo.keyRenewalCommandSpecification.id.equals(NOT_SET_ID)) ?
                 DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString()) : null;
         DeviceMessageId serviceDeviceMessageId = (keyRenewalInfo.serviceKeyRenewalCommandSpecification != null &&
                 keyRenewalInfo.serviceKeyRenewalCommandSpecification.id != null &&
-                !keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.equals(NOT_SET)) ?
+                !keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.equals(NOT_SET_ID)) ?
                 DeviceMessageId.valueOf(keyRenewalInfo.serviceKeyRenewalCommandSpecification.id.toString()) : null;
         if (deviceMessageId != null || serviceDeviceMessageId != null) {
             SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageId, serviceDeviceMessageId);

@@ -83,13 +83,13 @@ public class SecurityAccessorTypeInfoFactory {
 
     public SecurityAccessorTypeInfo from(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
         SecurityAccessorTypeInfo info = from(securityAccessorTypeOnDeviceType.getSecurityAccessorType());
-
+        info.keyRenewalCommandSpecification = new IdWithNameInfo(DeviceMessageSpecInfo.NOT_SET_ID, DeviceMessageSpecInfo.NOT_SET_NAME);
         securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageSpecification().ifPresent(
                 deviceMessageSpec -> {
                     info.keyRenewalCommandSpecification = new IdWithNameInfo(deviceMessageSpec.getId().name(), deviceMessageSpec.getName());
                 }
         );
-
+        info.serviceKeyRenewalCommandSpecification = new IdWithNameInfo(DeviceMessageSpecInfo.NOT_SET_ID, DeviceMessageSpecInfo.NOT_SET_NAME);
         securityAccessorTypeOnDeviceType.getServiceKeyRenewalDeviceMessageSpecification().ifPresent(
                 deviceMessageSpec -> {
                     info.serviceKeyRenewalCommandSpecification = new IdWithNameInfo(deviceMessageSpec.getId().name(), deviceMessageSpec.getName());
