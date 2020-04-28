@@ -268,9 +268,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
         acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
         x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
-
-        initializeTokenService();
-
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", "HTP"),
                 dataModel,
@@ -281,6 +278,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                         version(10, 8), UpgraderV10_8.class
                 )
         );
+
+        initializeTokenService();
 
         host = getOptionalStringProperty("com.elster.jupiter.url.rewrite.host", context);
         Optional<String> portString = getOptionalStringProperty("com.elster.jupiter.url.rewrite.port", context);
@@ -299,6 +298,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     public void updateExistingTokenKey() {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            updateExistingTokenKeyWithoutTransaction();
+            transactionContext.commit();
+        }
+    }
+
+    public void updateExistingTokenKeyWithoutTransaction() {
         try {
             final Optional<KeyStoreImpl> keyStore = getKeyPair();
 
@@ -312,20 +318,25 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             Optional<User> processExecutor = userService.findUser("process executor");
 
             if (processExecutor.isPresent()) {
-                final String configPropertiesFilePath = System.getProperty("connexo.home") + "/conf/config.properties";
-                final List<String> allLines = Files.readAllLines(Paths.get(configPropertiesFilePath));
-                for (int i = 0; i < allLines.size(); i++) {
-                    if (!allLines.get(i).contains("#")) {
-                        if (allLines.get(i).contains("com.elster.jupiter.token")) {
-                            allLines.set(i, "com.elster.jupiter.token=" + tokenService.createPermamentSignedJWT(processExecutor.get()).serialize());
-                        }
-                        if (allLines.get(i).contains("com.elster.jupiter.sso.public.key")) {
-                            allLines.set(i, "com.elster.jupiter.sso.public.key=" + new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
+                final String connexoRootPath = System.getProperty("connexo.home");
+
+                if (!Objects.isNull(connexoRootPath)) {
+                    final String configPropertiesFilePath = connexoRootPath + "/conf/config.properties";
+
+                    final List<String> allLines = Files.readAllLines(Paths.get(configPropertiesFilePath));
+                    for (int i = 0; i < allLines.size(); i++) {
+                        if (!allLines.get(i).contains("#")) {
+                            if (allLines.get(i).contains("com.elster.jupiter.token")) {
+                                allLines.set(i, "com.elster.jupiter.token=" + tokenService.createPermamentSignedJWT(processExecutor.get()).serialize());
+                            }
+                            if (allLines.get(i).contains("com.elster.jupiter.sso.public.key")) {
+                                allLines.set(i, "com.elster.jupiter.sso.public.key=" + new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
+                            }
                         }
                     }
-                }
 
-                Files.write(Paths.get(configPropertiesFilePath), allLines, StandardOpenOption.WRITE);
+                    Files.write(Paths.get(configPropertiesFilePath), allLines, StandardOpenOption.WRITE);
+                }
             } else {
                 throw new NoSuchObjectException("\"Process Executor\" User is not present.");
             }
@@ -377,13 +388,24 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     protected void initializeTokenService() {
         Optional<KeyStoreImpl> keyStore = getKeyPair();
-        keyStore.ifPresent(store -> tokenService.initialize(
-                dataVaultService.decrypt(store.getPublicKey()),
-                dataVaultService.decrypt(store.getPrivateKey()),
-                tokenExpTime,
-                tokenRefreshMaxCount,
-                timeoutFrameToRefreshToken
-        ));
+        keyStore.ifPresent(store -> {
+            tokenService.initialize(
+                    dataVaultService.decrypt(store.getPublicKey()),
+                    dataVaultService.decrypt(store.getPrivateKey()),
+                    tokenExpTime,
+                    tokenRefreshMaxCount,
+                    timeoutFrameToRefreshToken
+            );
+
+            // TODO: move event service logic and event logging to TokenService impl
+            try {
+                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()), dataVaultService.decrypt(keyStore.get().getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeoutFrameToRefreshToken);
+                securityToken.setEventService(eventService);
+                securityToken.preventEventGeneration(false);
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private int getIntParameter(String propertyName, BundleContext context, int defaultValue) {
@@ -532,8 +554,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     @Override
-    public String createToken(User user, String ipAddress) {
-        return securityToken.createToken(user, 0, ipAddress);
+    public String createToken(User user, String ipAddress) throws JOSEException {
+        return tokenService.createUserJWT(user, createCustomClaimsForUser(user, 0)).getToken();
     }
 
     @Override
@@ -588,6 +610,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> xsrf = getTokenCookie(request);
         if (xsrf.isPresent()) {
             token = xsrf.get().getValue();
+            // TODO: Move implementation of token comparison to TokenService
             if (!securityToken.compareTokens(token, authentication.substring(authentication.lastIndexOf(" ") + 1), request
                     .getRemoteAddr())) {
                 return deny(request, response);

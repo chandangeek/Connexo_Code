@@ -6,6 +6,7 @@ package com.elster.jupiter.http.whiteboard;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.users.User;
+import com.nimbusds.jose.JOSEException;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
 
@@ -26,7 +27,7 @@ public interface HttpAuthenticationService {
 
     void logout(HttpServletRequest request, HttpServletResponse response);
 
-    String createToken(User user, String ipAddress);
+    String createToken(User user, String ipAddress) throws JOSEException;
 
     String getSsoX509Certificate();
 

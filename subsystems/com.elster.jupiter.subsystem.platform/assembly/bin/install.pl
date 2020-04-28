@@ -1160,6 +1160,8 @@ sub start_tomcat_service {
             }
             chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc";
             chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh";
+            chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/startup.sh";
+            chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/catalina.sh";
             #system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" start");
             system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
             system("/sbin/chkconfig --add ConnexoTomcat$SERVICE_VERSION");
