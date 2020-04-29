@@ -83,13 +83,13 @@ public class SecurityAccessorTypeInfoFactory {
 
     public SecurityAccessorTypeInfo from(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
         SecurityAccessorTypeInfo info = from(securityAccessorTypeOnDeviceType.getSecurityAccessorType());
-        info.keyRenewalCommandSpecification = new IdWithNameInfo(DeviceMessageSpecInfo.NOT_SET_ID, DeviceMessageSpecInfo.NOT_SET_NAME);
+        info.keyRenewalCommandSpecification = new IdWithNameInfo(DeviceMessageSpecInfo.NOT_SET_ID, getNotSetName());
         securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageSpecification().ifPresent(
                 deviceMessageSpec -> {
                     info.keyRenewalCommandSpecification = new IdWithNameInfo(deviceMessageSpec.getId().name(), deviceMessageSpec.getName());
                 }
         );
-        info.serviceKeyRenewalCommandSpecification = new IdWithNameInfo(DeviceMessageSpecInfo.NOT_SET_ID, DeviceMessageSpecInfo.NOT_SET_NAME);
+        info.serviceKeyRenewalCommandSpecification = new IdWithNameInfo(DeviceMessageSpecInfo.NOT_SET_ID, getNotSetName());
         securityAccessorTypeOnDeviceType.getServiceKeyRenewalDeviceMessageSpecification().ifPresent(
                 deviceMessageSpec -> {
                     info.serviceKeyRenewalCommandSpecification = new IdWithNameInfo(deviceMessageSpec.getId().name(), deviceMessageSpec.getName());
@@ -154,7 +154,11 @@ public class SecurityAccessorTypeInfoFactory {
     }
 
     public SecurityAccessorTypeInfo getNotSetSecurityAccessorWrapper() {
-        return SecurityAccessorTypeInfo.getNotAvailable(thesaurus.getString(MessageSeeds.SECACC_WRAPPER_NOT_SET.getKey(), MessageSeeds.SECACC_WRAPPER_NOT_SET.getDefaultFormat()));
+        return SecurityAccessorTypeInfo.getNotAvailable(getNotSetName());
+    }
+
+    private String getNotSetName() {
+        return thesaurus.getString(MessageSeeds.SECACC_WRAPPER_NOT_SET.getKey(), MessageSeeds.SECACC_WRAPPER_NOT_SET.getDefaultFormat());
     }
 
 }

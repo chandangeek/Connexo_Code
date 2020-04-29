@@ -279,7 +279,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         List<DeviceMessageSpec> deviceMessageSpecs = getEnabledAndAuthorizedDeviceMessageSpecsIn(securityCategory, deviceType);
         List<DeviceMessageId> deviceMessageIds = deviceMessageService.findKeyRenewalMessages();
         List<DeviceMessageSpecInfo> infos = new ArrayList<>();
-        infos.add(DeviceMessageSpecInfo.getNotSetDeviceMessageSpecInfo());
+        infos.add(DeviceMessageSpecInfo.getNotSetDeviceMessageSpecInfo(thesaurus.getString(MessageSeeds.SECACC_WRAPPER_NOT_SET.getKey(), MessageSeeds.SECACC_WRAPPER_NOT_SET.getDefaultFormat())));
         infos.addAll(deviceMessageSpecs.stream()
                 .filter(deviceMessageSpec -> deviceMessageIds.contains(deviceMessageSpec.getId()))
                 .map(deviceMessageSpec -> DeviceMessageSpecInfo.from(deviceMessageSpec, mdcPropertyUtils))
