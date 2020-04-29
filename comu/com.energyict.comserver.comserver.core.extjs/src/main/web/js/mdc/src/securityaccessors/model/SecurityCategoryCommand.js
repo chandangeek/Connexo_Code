@@ -10,7 +10,8 @@ Ext.define('Mdc.securityaccessors.model.SecurityCategoryCommand', {
     fields: [
         {name: 'id', type: 'string'},
         {name: 'name', type: 'string'},
-        'properties'
+        'properties',
+        'serviceProperties'
     ],
     hasMany: [{
         name: 'properties',

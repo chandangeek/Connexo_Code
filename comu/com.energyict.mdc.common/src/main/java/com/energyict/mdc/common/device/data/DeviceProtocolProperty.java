@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.common.device.data;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface DeviceProtocolProperty {
 
     /**
