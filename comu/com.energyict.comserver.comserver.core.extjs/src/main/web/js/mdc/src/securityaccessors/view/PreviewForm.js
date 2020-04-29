@@ -78,7 +78,8 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     },
                     {
                         xtype: 'keyRenewalOverviewProperties',
-                        commandTypePrefix: ''
+                        commandTypePrefix: '',
+                        itemId: 'keyRenewalOverviewProperties'
                     },
                     {
                         xtype: 'displayfield',
@@ -87,7 +88,8 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     },
                     {
                         xtype: 'keyRenewalOverviewProperties',
-                        commandTypePrefix: 'serviceKey-'
+                        commandTypePrefix: 'serviceKey-',
+                        itemId: 'serviceKeyRenewalOverviewProperties'
                     },
                     {
                         xtype: 'displayfield',

@@ -463,12 +463,21 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     previewPropertiesForm = previewForm.down('#previewPropertiesPanel property-form'),
                     previewPropertiesHeader = previewForm.down('#previewPropertiesHeader'),
                     previewNoProperties = previewForm.down('#previewNoProperties'),
+                    keyRenewalOverviewPropertiesForm = previewForm.down('#keyRenewalOverviewProperties')
                     serviceKeyPreviewPropertiesPanel = previewForm.down('#serviceKey-previewPropertiesPanel'),
                     serviceKeyPreviewPropertiesForm = previewForm.down('#serviceKey-previewPropertiesPanel property-form'),
                     serviceKeyPreviewPropertiesHeader = previewForm.down('#serviceKey-previewPropertiesHeader'),
-                    serviceKeyPreviewNoProperties = previewForm.down('#serviceKey-previewNoProperties');
-                if (!Ext.isEmpty(recordParam.get('keyRenewalCommandSpecification'))) {
-                    previewForm.down('#previewPropertiesCommandName').setValue(recordParam.get('keyRenewalCommandSpecification').name);
+                    serviceKeyPreviewNoProperties = previewForm.down('#serviceKey-previewNoProperties'),
+                    serviceKeyRenewalOverviewPropertiesForm = previewForm.down('#serviceKeyRenewalOverviewProperties');
+
+                var keyRenewalCommandSpecification = recordParam.get('keyRenewalCommandSpecification');
+                if (keyRenewalCommandSpecification.name) {
+                    previewForm.down('#previewPropertiesCommandName').setValue(keyRenewalCommandSpecification.name);
+                } else {
+                    previewForm.down('#previewPropertiesCommandName').setVisible(false);
+                }
+                if (!Ext.isEmpty(keyRenewalCommandSpecification) && keyRenewalCommandSpecification.id !== "NOT_SET") {
+                    keyRenewalOverviewPropertiesForm.show();
                     previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', recordParam.get('keyRenewalCommandSpecification').name) + '</h3>');
                     previewPropertiesHeader.show();
                     if (!Ext.isEmpty(recordParam.get('properties'))) {
@@ -480,12 +489,16 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         previewNoProperties.show();
                     }
                 } else {
-                    previewForm.down('#previewPropertiesCommandName').setVisible(false);
-                    previewPropertiesHeader.hide();
-                    previewNoProperties.hide();
+                    keyRenewalOverviewPropertiesForm.hide();
                 }
-                if (!Ext.isEmpty(recordParam.get('serviceKeyRenewalCommandSpecification'))) {
-                    previewForm.down('#previewPropertiesServiceKeyCommandName').setValue(recordParam.get('serviceKeyRenewalCommandSpecification').name);
+                var serviceKeyRenewalCommandSpecification = recordParam.get('serviceKeyRenewalCommandSpecification');
+                if (serviceKeyRenewalCommandSpecification.name) {
+                    previewForm.down('#previewPropertiesServiceKeyCommandName').setValue(serviceKeyRenewalCommandSpecification.name);
+                } else {
+                    previewForm.down('#previewPropertiesServiceKeyCommandName').setVisible(false);
+                }
+                if (!Ext.isEmpty(serviceKeyRenewalCommandSpecification) && serviceKeyRenewalCommandSpecification.id !== "NOT_SET") {
+                    serviceKeyRenewalOverviewPropertiesForm.show();
                     serviceKeyPreviewPropertiesHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', recordParam.get('serviceKeyRenewalCommandSpecification').name) + '</h3>');
                     serviceKeyPreviewPropertiesHeader.show();
                     if (!Ext.isEmpty(recordParam.get('serviceProperties'))) {
@@ -497,9 +510,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         serviceKeyPreviewNoProperties.show();
                     }
                 } else {
-                    previewForm.down('#previewPropertiesServiceKeyCommandName').setVisible(false);
-                    serviceKeyPreviewPropertiesHeader.hide();
-                    serviceKeyPreviewNoProperties.hide();
+                    serviceKeyRenewalOverviewPropertiesForm.hide();
                 }
                 if (recordParam.get('keyType').isKey && !Ext.isEmpty(recordParam.get('wrapperIdAndName'))) {
                     me.getPreviewForm().down('#previewWrapperName').setValue(recordParam.get('wrapperIdAndName').name);
