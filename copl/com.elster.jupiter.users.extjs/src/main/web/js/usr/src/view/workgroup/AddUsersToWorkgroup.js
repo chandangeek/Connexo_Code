@@ -27,7 +27,7 @@ Ext.define('Usr.view.workgroup.AddUsersToWorkgroup', {
                     maxHeight: 395,
                     columns: [
                         {
-                            header: Uni.I18n.translate('workgroups.addUsers.userName', 'USR', 'User name'),
+                            header: Uni.I18n.translate('workgroups.addUsers.username', 'USR', 'Username'),
                             dataIndex: 'name',
                             flex: 1
                         },

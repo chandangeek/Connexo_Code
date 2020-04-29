@@ -690,13 +690,36 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     MBUS_TRANSFER_FUAK(7076, "Set M-Bus Firmware Update Authentication Key (FUAK)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+
+    CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS(7077, "Change HLS secret using service key process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.FUAKeyAttributeName, DeviceMessageConstants.FUAKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation)
             );
         }
     },
 
-    ;
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS(7078, "Change authentication key using service key process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation)
+            );
+        }
+    },
+
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS(7079, "Change encryption key using service key process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
+            );
+        }
+    };
 
     private final long id;
     private final String defaultNameTranslation;

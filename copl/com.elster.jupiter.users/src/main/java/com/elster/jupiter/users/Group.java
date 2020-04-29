@@ -5,7 +5,7 @@
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.users.impl.ApplicationPrivilege;
+import com.elster.jupiter.util.HasExternalId;
 import com.elster.jupiter.util.HasName;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public interface Group extends HasName {
+public interface Group extends HasName, HasExternalId {
 
     long getId();
 

@@ -15,7 +15,9 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE_DEVICE_CONFIG_IN_USE(3001, "deviceTypeInUseByIssueCreationRule", "Device type ''{0}'' has one or more configurations that are still in use by an issue creation rule", Level.SEVERE),
     DEVICE_TYPE_IN_USE(3002, "deviceTypeInUseByIssueCreationRule", "Device type ''{0}'' in use by an issue creation rule", Level.SEVERE),
     INVALID_NUMBER_OF_ARGUMENTS(4001, "invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1} ", Level.SEVERE),
-    EVENT_BAD_DATA_NO_RELATIVE_PERIOD(4002, "EventBadDataNoRelativePeriod", "Unable to process issue creation event because relative period cannot be obtained", Level.SEVERE);
+    EVENT_BAD_DATA_NO_RELATIVE_PERIOD(4002, "EventBadDataNoRelativePeriod", "Unable to process issue creation event because relative period cannot be obtained", Level.SEVERE),
+    RELATIVE_PERIOD_IN_USE(5001, "relativePeriodInUseByIssueCreationRule", "The relative period ''{0}'' is still in use by an issue creation rule", Level.SEVERE),
+    ;
 
     private final int number;
     private final String key;

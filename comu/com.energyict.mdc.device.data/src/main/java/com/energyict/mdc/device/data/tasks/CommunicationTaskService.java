@@ -5,11 +5,11 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.OutboundComPort;
@@ -66,7 +66,13 @@ public interface CommunicationTaskService {
      */
     List<ComTaskExecution> findComTaskExecutionsWithConnectionFunction(Device device, ConnectionFunction connectionFunction);
 
-    TimeDuration releaseTimedOutComTasks(ComPort comPort);
+    /**
+     * Gets all {@link ComTaskExecution}s that have {@link ConnectionTask} linked to a {@link ComPortPool}
+     * containing the {@link ComPort} given as parameter, and started communication before the timeout value specified on the {@link ComPortPool}.
+     * @param comPort the comPort to check for timed out ComTaskExecutions
+     * @return the List of ComTaskExecutions
+     */
+    List<ComTaskExecution> findTimedOutComTasksByComPort(ComPort comPort);
 
     /**
      * Cleans up any marker flags on {@link ComTaskExecution}s that were not properly
@@ -200,13 +206,14 @@ public interface CommunicationTaskService {
      * Finds all pending communication tasks with the given ComPortPools of the associated connection method.
      * The advantage over getPlannedComTaskExecutionsFor is that connectionTasks are fetched too, so no roundtrip needed for each of them
      *
+     * @param comServer
      * @param comPortPools
      * @param delta        - duration to add to current time
      * @param limit        - nr of entries to be returned.
      * @param skip         - nr of entries to skip.
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
-    List<ComTaskExecution> getPendingComTaskExecutionsListFor(List<OutboundComPortPool> comPortPools, Duration delta, long limit, long skip);
+    List<ComTaskExecution> getPendingComTaskExecutionsListFor(ComServer comServer, List<OutboundComPortPool> comPortPools, Duration delta, long limit, long skip);
 
     /**
      * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds

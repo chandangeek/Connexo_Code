@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.util.exception.PersistenceException;
+
 /**
  * Thrown when an operation is performed outside a Transaction, which needs to be performed from within a Transaction.
  */

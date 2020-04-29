@@ -35,6 +35,7 @@ import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.DeviceEstimation;
 import com.energyict.mdc.common.device.data.DeviceEstimationRuleSetActivation;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.common.device.data.PassiveCalendar;
@@ -60,7 +61,6 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
@@ -275,8 +275,8 @@ public enum TableSpecs {
                     .map(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName())
                     .notAudited()
                     .add();
-            Column comServer = table.column("COMSERVER").number().notAudited().upTo(version(10,7)).add();
-            Column comPort = table.column("COMPORT").number().notAudited().since(version(10,7)).previously(comServer).add();
+            Column comServer = table.column("COMSERVER").number().notAudited().upTo(version(10, 7)).add();
+            Column comPort = table.column("COMPORT").number().notAudited().since(version(10, 7)).previously(comServer).add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             // Common columns for sheduled connection tasks
@@ -1227,13 +1227,13 @@ public enum TableSpecs {
     DDC_CRL_REQUEST_TASK_PROPS {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {
-            Table<CrlRequestTaskProperty> table = dataModel.addTable(name(), CrlRequestTaskProperty.class).since(version(10,4,1));
+            Table<CrlRequestTaskProperty> table = dataModel.addTable(name(), CrlRequestTaskProperty.class).since(version(10, 4, 1));
             table.map(CrlRequestTaskPropertyImpl.class);
             Column task = table.column(CrlRequestTaskPropertyImpl.Fields.TASK.name())
                     .number()
                     .notNull()
                     .add();
-            Column crlSigner = table.column(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.name()).since(version(10,4,9))
+            Column crlSigner = table.column(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.name()).since(version(10, 8))
                     .number()
                     .notNull()
                     .add();
@@ -1249,7 +1249,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_CRL_SIGNER")
                     .on(crlSigner)
                     .references(com.elster.jupiter.pki.CertificateWrapper.class)
-                    .map(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.fieldName()).since(version(10,4,9))
+                    .map(CrlRequestTaskPropertyImpl.Fields.CRL_SIGNER.fieldName())
                     .add();
             table.foreignKey("FK_DDC_CRL_TASK")
                     .on(task)

@@ -15,12 +15,15 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.pki.KeyPurpose;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypeUpdater;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.EventType;
+import com.elster.jupiter.pki.impl.KeyPurposeImpl;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.ProtocolKeyTypes;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -54,6 +57,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private DataModel dataModel;
     private ThreadPrincipalService threadPrincipalService;
     private EventService eventService;
+    private SecurityManagementService securityManagementService;
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -66,6 +70,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private String keyEncryptionMethod;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<KeyType> keyType = Reference.empty();
+    private KeyPurposeImpl keyPurpose;
     private Reference<TrustStore> trustStore = Reference.empty();
     private Set<SecurityAccessorUserAction> userActions = EnumSet.noneOf(SecurityAccessorUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
@@ -92,10 +97,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     }
 
     @Inject
-    public SecurityAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, EventService eventService) {
+    public SecurityAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, EventService eventService, SecurityManagementService securityManagementService) {
         this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
         this.eventService = eventService;
+        this.securityManagementService = securityManagementService;
     }
 
     public long getId() {
@@ -209,6 +215,14 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     protected void setPurpose(Purpose purpose) {
         this.purpose = purpose;
+    }
+
+    public KeyPurpose getKeyPurpose() {
+        return securityManagementService.getKeyPurpose(keyPurpose == null ? keyPurpose.OTHER.getKey() : keyPurpose.getKey());
+    }
+
+    void setKeyPurpose(KeyPurposeImpl keyPurpose) {
+        this.keyPurpose = keyPurpose;
     }
 
     @Override
@@ -330,7 +344,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     @Override
     public String toString() {
-        return getClass().getName() + ": " + name;
+        // Do not modify, this is used by ESMR50MbusMessageExecutor
+        return name;
     }
 
     public void setIsWrapper(boolean isWrapper) {
@@ -345,6 +360,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         ENCRYPTIONMETHOD("keyEncryptionMethod"),
         DURATION("duration"),
         KEYTYPE("keyType"),
+        KEYPURPOSE("keyPurpose"),
         TRUSTSTORE("trustStore"),
         MANAGED_CENTRALLY("managedCentrally"),
         PURPOSE("purpose"),
@@ -381,6 +397,12 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         @Override
         public SecurityAccessorType.Updater description(String description) {
             SecurityAccessorTypeImpl.this.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public Updater keyPurpose(KeyPurpose keyPurpose) {
+            SecurityAccessorTypeImpl.this.setKeyPurpose(KeyPurposeImpl.from(keyPurpose.getId()));
             return this;
         }
 

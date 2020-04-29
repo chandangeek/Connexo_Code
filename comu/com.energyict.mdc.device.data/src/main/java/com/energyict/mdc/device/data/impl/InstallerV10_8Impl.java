@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.FullInstaller;
 
+import com.google.common.collect.ImmutableMap;
+
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
@@ -27,6 +29,8 @@ public class InstallerV10_8Impl implements FullInstaller {
         execute(dataModel, getCommunicationTasksBreakDownStatement());
         execute(dataModel, getComTaskDTHeatMapStatement());
         execute(dataModel, getComTaskExWithDevStsStatement());
+        execute(dataModel, getBusyConTaskStCountStatement());
+        execute(dataModel, getNotBusyConTaskStCountStatement());
         if (ormService.isTest()) {
             return;
         }
@@ -34,6 +38,7 @@ public class InstallerV10_8Impl implements FullInstaller {
         execute(dataModel, getRefreshMvCommunicationTasksBreakDownJobStatement());
         execute(dataModel, getRefreshMvComTaskDTHeatMapJobStatement());
         execute(dataModel, getRefreshMvComTaskExWithDevStsJobStatement());
+        execute(dataModel, getRefreshMvConTaskStatusCountJobStatement());
     }
 
     private String getConnectionTasksBreakDownStatement() {
@@ -261,7 +266,86 @@ public class InstallerV10_8Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private String getRefreshMvConnectionTasksBreakDownJobStatement() {
+    private String getBusyConTaskStCountStatement() {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" CREATE TABLE MV_BUSYCONTASKSTCOUNT  ");
+        sqlBuilder.append(" AS ");
+        sqlBuilder.append(" SELECT /*+ NO_MERGE */ connT.id, ");
+        sqlBuilder.append(" 	   connT.discriminator, ");
+        sqlBuilder.append(" 	   connT.comport, ");
+        sqlBuilder.append(" 	   connT.status, ");
+        sqlBuilder.append(" 	   connT.currentretrycount, ");
+        sqlBuilder.append(" 	   connT.lastsuccessfulcommunicationend, ");
+        sqlBuilder.append(" 	   connT.nextexecutiontimestamp, ");
+        sqlBuilder.append(" 	   connT.lastExecutionFailed, ");
+        sqlBuilder.append(" 	   connT.connectiontypepluggableclass, ");
+        sqlBuilder.append(" 	   connT.comportpool, ");
+        sqlBuilder.append(" 	   connT.device ");
+        sqlBuilder.append(" FROM DDC_CONNECTIONTASK connT ");
+        sqlBuilder.append("   JOIN DDC_DEVICE dev ON connT.device = dev.id ");
+        sqlBuilder.append("   JOIN (SELECT ES.enddevice id ");
+        sqlBuilder.append(" 		FROM MTR_ENDDEVICESTATUS ES, ");
+        sqlBuilder.append(" 			 (SELECT FS.ID ");
+        sqlBuilder.append(" 			  FROM FSM_STATE FS ");
+        sqlBuilder.append(" 			  WHERE FS.OBSOLETE_TIMESTAMP IS NULL ");
+        sqlBuilder.append(" 			  AND   FS.NAME NOT IN ('dlc.default.inStock','dlc.default.decommissioned')) FS ");
+        sqlBuilder.append(" 		WHERE ES.STARTTIME <= ROUND((SYSDATE- DATE '1970-01-01')*24*60*60*1000) ");
+        sqlBuilder.append(" 		AND   ES.ENDTIME > ROUND((SYSDATE- DATE '1970-01-01')*24*60*60*1000) ");
+        sqlBuilder.append(" 		AND   ES.STATE = FS.ID) kd ON dev.meterid = kd.id ");
+        sqlBuilder.append(" WHERE connT.status = 0 ");
+        sqlBuilder.append(" AND   connT.obsolete_date IS NULL ");
+        sqlBuilder.append(" AND   connT.nextexecutiontimestamp IS NOT NULL ");
+        sqlBuilder.append(" AND   (EXISTS (SELECT * ");
+        sqlBuilder.append(" 			   FROM (SELECT connectiontask, ");
+        sqlBuilder.append(" 							comport /*+ NO_MERGE */ ");
+        sqlBuilder.append(" 					 FROM DDC_COMTASKEXEC ");
+        sqlBuilder.append(" 					 WHERE comport IS NOT NULL ");
+        sqlBuilder.append(" 					 AND   obsolete_date IS NULL) busytask ");
+        sqlBuilder.append(" 			   WHERE busytask.connectiontask = connT.id) OR comport IS NOT NULL)");
+        return sqlBuilder.toString();
+    }
+
+    private String getNotBusyConTaskStCountStatement() {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" CREATE TABLE MV_NOTBUSYCONTASKSTCOUNT  ");
+        sqlBuilder.append(" AS ");
+        sqlBuilder.append(" SELECT /*+ NO_MERGE */ connT.id, ");
+        sqlBuilder.append(" 	   connT.discriminator, ");
+        sqlBuilder.append(" 	   connT.comport, ");
+        sqlBuilder.append(" 	   connT.status, ");
+        sqlBuilder.append(" 	   connT.currentretrycount, ");
+        sqlBuilder.append(" 	   connT.lastsuccessfulcommunicationend, ");
+        sqlBuilder.append(" 	   connT.nextexecutiontimestamp, ");
+        sqlBuilder.append(" 	   connT.lastExecutionFailed, ");
+        sqlBuilder.append(" 	   connT.connectiontypepluggableclass, ");
+        sqlBuilder.append(" 	   connT.comportpool, ");
+        sqlBuilder.append(" 	   connT.device ");
+        sqlBuilder.append(" FROM DDC_CONNECTIONTASK connT ");
+        sqlBuilder.append("   JOIN DDC_DEVICE dev ON connT.device = dev.id ");
+        sqlBuilder.append("   JOIN (SELECT ES.enddevice id ");
+        sqlBuilder.append("         FROM MTR_ENDDEVICESTATUS ES, ");
+        sqlBuilder.append(" 			 (SELECT FS.ID ");
+        sqlBuilder.append(" 			  FROM FSM_STATE FS ");
+        sqlBuilder.append(" 			  WHERE FS.OBSOLETE_TIMESTAMP IS NULL ");
+        sqlBuilder.append(" 			  AND   FS.NAME NOT IN ('dlc.default.inStock','dlc.default.decommissioned')) FS ");
+        sqlBuilder.append(" 		WHERE ES.STARTTIME <= ROUND((SYSDATE- DATE '1970-01-01')*24*60*60*1000) ");
+        sqlBuilder.append(" 		AND   ES.ENDTIME > ROUND((SYSDATE- DATE '1970-01-01')*24*60*60*1000) ");
+        sqlBuilder.append(" 		AND   ES.STATE = FS.ID) kd ON dev.meterid = kd.id ");
+        sqlBuilder.append(" WHERE connT.status = 0 ");
+        sqlBuilder.append(" AND   connT.obsolete_date IS NULL ");
+        sqlBuilder.append(" AND   connT.nextexecutiontimestamp IS NOT NULL ");
+        sqlBuilder.append(" AND   (NOT EXISTS (SELECT 1 ");
+        sqlBuilder.append(" 				   FROM (SELECT connectiontask, ");
+        sqlBuilder.append(" 								comport /*+ NO_MERGE */ ");
+        sqlBuilder.append(" 						 FROM DDC_COMTASKEXEC ");
+        sqlBuilder.append(" 						 WHERE comport IS NOT NULL ");
+        sqlBuilder.append(" 						 AND   obsolete_date IS NULL) busytask ");
+        sqlBuilder.append(" 				   WHERE busytask.connectiontask = connT.id ");
+        sqlBuilder.append(" 				   AND   comport IS NOT NULL) AND comport IS NULL)");
+        return sqlBuilder.toString();
+    }
+
+    private String getRefreshMvConnectionTasksBreakDownJobStatement(){
         return getRefreshJob("REF_MV_CONTASKBREAKDOWN", "MV_CONTASKBREAKDOWN",
                 getConnectionTasksBreakDownStatement(), 5);
     }
@@ -279,5 +363,13 @@ public class InstallerV10_8Impl implements FullInstaller {
     private String getRefreshMvComTaskExWithDevStsJobStatement() {
         return getRefreshJob("REF_MV_COMTASKEXWITHDEVSTS", "MV_COMTASKEXWITHDEVSTS",
                 getComTaskExWithDevStsStatement(), 5);
+    }
+
+    private String getRefreshMvConTaskStatusCountJobStatement(){
+        ImmutableMap<String,String> tableInfos = ImmutableMap.<String, String>builder()
+                .put("MV_BUSYCONTASKSTCOUNT", getBusyConTaskStCountStatement())
+                .put("MV_NOTBUSYCONTASKSTCOUNT", getNotBusyConTaskStCountStatement())
+                .build();
+        return getRefreshJob("REF_MV_CONTASKSTATUSCOUNT", tableInfos, 5);
     }
 }

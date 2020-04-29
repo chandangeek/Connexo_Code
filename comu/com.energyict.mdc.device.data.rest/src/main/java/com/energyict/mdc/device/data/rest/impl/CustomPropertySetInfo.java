@@ -29,6 +29,7 @@ public class CustomPropertySetInfo {
     public Long endTime;
     public Boolean isActive;
     public String customPropertySetId;
+    public boolean removable;
     public List<PropertyInfo> properties;
 
     public CustomPropertySetInfo() {

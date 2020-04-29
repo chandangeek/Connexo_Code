@@ -381,7 +381,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                         .filter(comPortPool -> !comPortPool.isInbound())
                         .map(OutboundComPortPool.class::cast)
                         .collect(Collectors.toList());
-        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(outboundComPortPools, delta, limit, skip);
+        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(comServer, outboundComPortPools, delta, limit, skip);
     }
 
 
@@ -712,14 +712,30 @@ public class ComServerDAOImpl implements ComServerDAO {
         throw new UnsupportedOperationException("Waiting for implementation of the PKI feature (CXO-3603)");
     }
 
+    /**
+     * This method should be used when trying to set the actual security accessor value and we don't have a passive key generated. This could be the case during key agreement
+     *
+     * @param deviceIdentifier
+     * @param propertyName the name of the security accessor
+     * @param propertyValue the new label and key in hex format separated by a colon e.g. 574B2D44422D30312D544553542D5048415345322D32303137:800202300D020012301A0D021220041420586F8048EB8683B5EA8A51BD8317CEF38C50E7AA28A4260D0224580420FA9829FF5E6D2AC488DE3249714E7CE9CC18DA04FB4099910E0C7CB7AC76ECC1
+     */
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        //TODO: re-add usefull implementation
-//        handleCertificatePropertyValue(propertyValue);
-//
-//        //Now update the given security property.
-//        Device device = findDevice(deviceIdentifier);
-//        device.setSecurityProperty(propertyName, propertyValue);
+        String newKey = (String) propertyValue;
+        Device device = findDevice(deviceIdentifier);
+
+        device.getDeviceType().getSecurityAccessors().stream()
+                .filter(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType().getName().equals(propertyName))
+                .findFirst()
+                .map(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType())
+                .map(securityAccessorType -> device.getSecurityAccessor(securityAccessorType).orElseGet(() -> device.newSecurityAccessor(securityAccessorType)))
+                .ifPresent( securityAccessor -> {
+                    HsmKey hsmKey = (HsmKey) getServiceProvider().securityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                    byte[] key = DatatypeConverter.parseHexBinary(newKey.split(":")[1]);
+                    String label =  new String(DatatypeConverter.parseHexBinary(newKey.split(":")[0]));
+                    hsmKey.setKey(key, label);
+                    securityAccessor.setActualPassphraseWrapperReference(hsmKey);
+                    securityAccessor.save();});
     }
 
     /**
@@ -1003,13 +1019,37 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public TimeDuration releaseTimedOutTasks(final ComPort comPort) {
         LOGGER.warning("Start unlocking timed out comTasks on comPort '" + comPort + "'");
-        return executeTransaction(() -> {
-            TimeDuration timeDuration = getCommunicationTaskService().releaseTimedOutComTasks(comPort);
-            LOGGER.info("Unlocked comTasks timed out on comPort '" + comPort + "'");
-            getConnectionTaskService().releaseTimedOutConnectionTasks(comPort);
-            LOGGER.info("Unlocked connectionTasks timed out on comPort '" + comPort + "'");
-            return timeDuration;
-        });
+        List<ComTaskExecution> timedOutComTasks = getCommunicationTaskService().findTimedOutComTasksByComPort(comPort);
+        LOGGER.warning("Found " + timedOutComTasks.size() + " comtasks to be unblocked");
+        long unlockedCount = unlockComTasks(timedOutComTasks);
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + timedOutComTasks.size() + " timed out comTasks on comPort '" + comPort + "'");
+        List<ConnectionTask> timedOutConnectionTasks = getConnectionTaskService().findTimedOutConnectionTasksByComPort(comPort);
+        LOGGER.warning("Found " + timedOutConnectionTasks.size() + " connections to be unblocked");
+        unlockedCount = unlockConnectionTasks(timedOutConnectionTasks);
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + timedOutConnectionTasks.size() + " timed out connectionTasks on comPort '" + comPort + "'");
+
+        return getMinimumWaitTimeForPort((OutboundComPort) comPort);
+    }
+
+    private TimeDuration getMinimumWaitTimeForPort(OutboundComPort comPort) {
+        int waitTime = -1;
+        List<OutboundComPortPool> containingComPortPoolsForComServer = getEngineModelService().findContainingComPortPoolsForComPort(comPort);
+        for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
+            waitTime = minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
+        }
+        if (waitTime <= 0) {
+            return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        } else {
+            return new TimeDuration(waitTime, TimeDuration.TimeUnit.SECONDS);
+        }
+    }
+
+    private int minimumWaitTime(int currentWaitTime, int comPortPoolTaskExecutionTimeout) {
+        if (currentWaitTime < 0) {
+            return comPortPoolTaskExecutionTimeout;
+        } else {
+            return Math.min(currentWaitTime, comPortPoolTaskExecutionTimeout);
+        }
     }
 
     @Override
@@ -1020,14 +1060,39 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void unlockComTasks(ComPort comPort) {
         List<ComTaskExecution> lockedComTasks = getCommunicationTaskService().findLockedByComPort(comPort);
-        LOGGER.warning("Start unlocking BUSY comTasks on comPort '" + comPort + "'");
+        LOGGER.warning("Start unlocking " + lockedComTasks.size() + " 'BUSY' comTasks on comPort '" + comPort + "'");
+        long unlockedCount = unlockComTasks(lockedComTasks);
+        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedComTasks.size() + " 'BUSY' comTasks on comPort '" + comPort + "'");
+    }
+
+    private long unlockComTasks(List<ComTaskExecution> lockedComTasks) {
         long unlockedCount = 0;
+        long triedCount = 0;
         for (ComTaskExecution lockedComTask : lockedComTasks) {
+            ++triedCount;
             if (unlocked(lockedComTask)) {
                 ++unlockedCount;
             }
+            if (triedCount % 2000 == 0) {
+                LOGGER.warning("Tried " + triedCount + ", unlocked " + unlockedCount);
+            }
         }
-        LOGGER.warning("Unlocked " + unlockedCount + " out of " + lockedComTasks.size() + " comTasks on comPort '" + comPort + "'");
+        return unlockedCount;
+    }
+
+    private long unlockConnectionTasks(List<ConnectionTask> lockedConnectionTasks) {
+        long unlockedCount = 0;
+        long triedCount = 0;
+        for (ConnectionTask lockedComTask : lockedConnectionTasks) {
+            ++triedCount;
+            if (unlocked(lockedComTask)) {
+                ++unlockedCount;
+            }
+            if (triedCount % 1000 == 0) {
+                LOGGER.warning("Tried " + triedCount + ", unlocked " + unlockedCount);
+            }
+        }
+        return unlockedCount;
     }
 
     private boolean unlocked(ComTaskExecution lockedComTask) {
@@ -1047,7 +1112,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void unlockConnectionTasks(ComPort comPort) {
         List<ConnectionTask> lockedConnectionTasks = getConnectionTaskService().findLockedByComPort(comPort);
-        LOGGER.warning("Start unlocking BUSY connections on comPort '" + comPort + "'");
+        LOGGER.warning("Start unlocking " + lockedConnectionTasks.size() + " BUSY connections on comPort '" + comPort + "'");
         long unlockedCount = 0;
         for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
             if (unlocked(lockedConnectionTask)) {
@@ -1687,7 +1752,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                 g3NeighborBuilder.nodeAddress(topologyNeighbour.getNodeAddress());
                 g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
                 g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
-                g3NeighborBuilder.lastPathRequest(topologyNeighbour.getLastPathRequest().toInstant());
+                java.util.Date last_path_request = topologyNeighbour.getLastPathRequest();
+                if( last_path_request != null )
+                    g3NeighborBuilder.lastPathRequest(last_path_request.toInstant());
                 g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                 g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
             } else {
@@ -1730,7 +1797,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                             g3NeighborBuilder.nodeAddress(macAddress);
                             g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
                             g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
-                            g3NeighborBuilder.lastPathRequest(topologyNeighbour.getLastPathRequest().toInstant());
+                            java.util.Date last_path_request = topologyNeighbour.getLastPathRequest();
+                            if( last_path_request != null )
+                                g3NeighborBuilder.lastPathRequest(last_path_request.toInstant());
                             g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                             g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
                         }

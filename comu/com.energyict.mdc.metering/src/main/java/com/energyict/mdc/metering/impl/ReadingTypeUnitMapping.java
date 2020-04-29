@@ -112,7 +112,8 @@ enum ReadingTypeUnitMapping {
     IMPGALLONPERHOUR(BaseUnit.IMP_GALLONPERHOUR, ReadingTypeUnit.IMPERIALGALLONPERHOUR, Matcher.DONT_CARE),
     POUND(BaseUnit.POUND, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE),
     EURO(BaseUnit.EURO, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE),
-    USDOLLAR(BaseUnit.USD, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE);
+    USDOLLAR(BaseUnit.USD, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE),
+    EGP(BaseUnit.EGP, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE);
 
     private final Matcher<Integer> cField;
 

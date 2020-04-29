@@ -429,7 +429,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
                 this.connectionTypeHeatMapSqlBuilder(
                         deviceGroup,
                         this.connectionTypeHeapMapFailureIndicators(),
-                        "dev", "devicetype"
+                        "ct", "devicetype"
                 ));
     }
 

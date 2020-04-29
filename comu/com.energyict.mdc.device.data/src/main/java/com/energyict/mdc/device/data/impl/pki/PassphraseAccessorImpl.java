@@ -141,4 +141,9 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
     public void save() {
         Save.UPDATE.save(dataModel, this);
     }
+
+    @Override
+    public void touch(){
+        this.dataModel.touch(this);
+    }
 }

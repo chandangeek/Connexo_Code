@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.audit.impl.AuditServiceModule;
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -19,6 +20,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
@@ -123,6 +126,7 @@ public abstract class BaseTest {
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     protected static IssueService issueService;
     protected static EndPointConfigurationService endPointConfigurationService;
+    protected static PasswordDecryptService passwordDecryptService;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
@@ -137,6 +141,7 @@ public abstract class BaseTest {
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(PasswordDecryptService.class).toInstance(mock(PasswordDecryptService.class));
 
             TaskService taskService = mock(TaskService.class);
             bind(TaskService.class).toInstance(taskService);
@@ -188,7 +193,9 @@ public abstract class BaseTest {
                 new CustomPropertySetsModule(),
                 new AuditServiceModule(),
                 new WebServicesModule(),
-                new MeteringGroupsModule()
+                new MeteringGroupsModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
 
         TransactionService transactionService = injector.getInstance(TransactionService.class);
@@ -198,6 +205,7 @@ public abstract class BaseTest {
             injector.getInstance(WebServicesService.class);
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
+            passwordDecryptService = injector.getInstance(PasswordDecryptService.class);
             injector.getInstance(DummyIssueProvider.class);
             injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
             // In OSGI container issue types will be set by separate bundle
@@ -234,6 +242,8 @@ public abstract class BaseTest {
     protected IssueService getIssueService() {
         return injector.getInstance(IssueService.class);
     }
+
+    protected PasswordDecryptService getPasswordDecryptService(){return  injector.getInstance(PasswordDecryptService.class);}
 
     protected IssueCreationService getIssueCreationService() {
         return issueService.getIssueCreationService();

@@ -7,9 +7,12 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 
+import com.google.common.collect.Iterables;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,8 +23,10 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     private static final Logger LOGGER = Logger.getLogger(GroupingComJobFactory.class.getName());
     private int maximumJobs;
     private List<ComJob> jobs = new ArrayList<>();
-    private Map<Long, ComTaskExecutionGroup> groups = new HashMap<>();   // grouping based on the ID of the ConnectionTask
+    private Map<Long, ComTaskExecutionGroup> groups = new LinkedHashMap<>();   // grouping based on the ID of the ConnectionTask
     private ComTaskExecution previous;
+    private int highestNbOfComTasksInGroup;
+    private int nbOfGroupsWithMaxComTasks;
 
     public GroupingComJobFactory(int maximumJobs) {
         this.maximumJobs = maximumJobs;
@@ -37,6 +42,8 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
 
     @Override
     public List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions) {
+        highestNbOfComTasksInGroup = 0;
+        nbOfGroupsWithMaxComTasks = 0;
         while (comTaskExecutions.hasNext()) {
             ComTaskExecution comTaskExecution = comTaskExecutions.next();
             if (continueFetching(comTaskExecution)) {
@@ -45,8 +52,44 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
                 break;
             }
         }
-        jobs.addAll(groups.values());
+        jobs.addAll(getCompleteJobs());
         return jobs;
+    }
+
+    private Collection<ComTaskExecutionGroup> getCompleteJobs() {
+        if (groups.isEmpty()) {
+            return groups.values();
+        }
+        Map.Entry<Long, ComTaskExecutionGroup> lastGroup = Iterables.getLast(groups.entrySet());
+        countInLastAddedGroup(lastGroup.getValue());
+        int pctGroupsWithMaxComTasks = getPercentageOfGroupsWithMaxComTasks();
+        if (pctGroupsWithMaxComTasks >= 90 && pctGroupsWithMaxComTasks < 100) {
+            // when 90% or more of the groups have the same number of comtasks, then drop the last one, if it's incomplete
+            if (isLastGroupIncomplete(lastGroup)) {
+                removeLastGroup(lastGroup);
+            }
+            LOGGER.info("perf - " + (groups.size() - nbOfGroupsWithMaxComTasks) + " incomplete jobs out of " + groups.size());
+        }
+        return groups.values();
+    }
+
+    private void countInLastAddedGroup(ComTaskExecutionGroup comTaskExecutionGroup) {
+        if (comTaskExecutionGroup.getComTaskExecutions().size() == highestNbOfComTasksInGroup) {
+            ++nbOfGroupsWithMaxComTasks;
+        }
+    }
+
+    private int getPercentageOfGroupsWithMaxComTasks() {
+        // groups already checked for emptiness
+        return nbOfGroupsWithMaxComTasks * 100 / groups.size();
+    }
+
+    private boolean isLastGroupIncomplete(Map.Entry<Long, ComTaskExecutionGroup> lastGroup) {
+        return lastGroup.getValue().getComTaskExecutions().size() < highestNbOfComTasksInGroup;
+    }
+
+    private void removeLastGroup(Map.Entry<Long, ComTaskExecutionGroup> lastGroup) {
+        groups.remove(lastGroup.getKey());
     }
 
     @Override
@@ -117,9 +160,24 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
             return Optional.empty();
         ComTaskExecutionGroup group = this.groups.get(connectionTask.get().getId());
         if (group == null) {
+            if (!groups.isEmpty()) {
+                updateIncompleteJobCounters();
+            }
             group = new ComTaskExecutionGroup(connectionTask.get());
             this.groups.put(connectionTask.get().getId(), group);
         }
         return Optional.of(group);
+    }
+
+    private void updateIncompleteJobCounters() {
+        int nbOfComTasksInLastGroup = Iterables.getLast(groups.entrySet()).getValue().getComTaskExecutions().size();
+        if (nbOfComTasksInLastGroup > highestNbOfComTasksInGroup) {
+            highestNbOfComTasksInGroup = nbOfComTasksInLastGroup;
+            nbOfGroupsWithMaxComTasks = 1;
+        } else {
+            if (nbOfComTasksInLastGroup == highestNbOfComTasksInGroup) {
+                ++nbOfGroupsWithMaxComTasks;
+            }
+        }
     }
 }

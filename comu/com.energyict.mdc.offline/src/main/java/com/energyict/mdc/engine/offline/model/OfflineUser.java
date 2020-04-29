@@ -9,7 +9,13 @@ import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.engine.users.PrivilegesWrapper;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class OfflineUser implements User {
 
@@ -122,7 +128,7 @@ public class OfflineUser implements User {
     @Override
     public Set<Privilege> getPrivileges() {
         Set<Privilege> privileges = new HashSet<Privilege>();
-        for(List<Privilege> list: getApplicationPrivileges().values())
+        for (List<Privilege> list : getApplicationPrivileges().values())
             privileges.addAll(list);
         return privileges;
     }
@@ -130,7 +136,7 @@ public class OfflineUser implements User {
     @Override
     public Map<String, List<Privilege>> getApplicationPrivileges() {
         Map<String, List<Privilege>> applicationPrivileges = new HashMap<String, List<Privilege>>();
-        for(Map.Entry<String, PrivilegesWrapper> entry: userInfo.getApplicationPrivileges().entrySet())
+        for (Map.Entry<String, PrivilegesWrapper> entry : userInfo.getApplicationPrivileges().entrySet())
             applicationPrivileges.put(entry.getKey(), entry.getValue().getList());
         return applicationPrivileges;
     }
@@ -193,13 +199,18 @@ public class OfflineUser implements User {
     }
 
     @Override
-    public int getUnSuccessfulLoginCount() { return 0;}
+    public int getUnSuccessfulLoginCount() {
+        return 0;
+    }
 
     @Override
-    public void setUnSuccessfulLoginCount(int  unSuccessfulLoginCount){ }
+    public void setUnSuccessfulLoginCount(int unSuccessfulLoginCount) {
+    }
 
     @Override
-    public boolean isUserLocked(Optional<UserSecuritySettings> userSecuritySettings) { return false; }
+    public boolean isUserLocked(Optional<UserSecuritySettings> userSecuritySettings) {
+        return false;
+    }
 
     @Override
     public List<WorkGroup> getWorkGroups() {
@@ -209,5 +220,10 @@ public class OfflineUser implements User {
     @Override
     public String getName() {
         return userInfo.getUserName();
+    }
+
+    @Override
+    public String getExternalId() {
+        return null;
     }
 }

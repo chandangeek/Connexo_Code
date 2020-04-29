@@ -119,7 +119,13 @@ public enum EndDeviceControlTypeMapping {
             Collections.singletonList(DeviceMessageId.SECURITY_AGREE_NEW_ENCRYPTION_KEY),
             Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_TEMPORARY_KEY),
             Collections.singletonList(DeviceMessageId.SECURITY_KEY_RENEWAL),
-            Collections.singletonList(DeviceMessageId.MBUS_TRANSFER_FUAK)
+            Collections.singletonList(DeviceMessageId.MBUS_TRANSFER_FUAK),
+            // Service Key Injection commands
+            Arrays.asList(
+                    DeviceMessageId.CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS,
+                    DeviceMessageId.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS,
+                    DeviceMessageId.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS
+            )
     ) {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {

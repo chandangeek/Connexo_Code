@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.util.exception.PersistenceException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
@@ -130,7 +130,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private EventMechanism eventMechanism;
     private DeviceCommandExecutorImpl deviceCommandExecutor;
     private TimeOutMonitor timeOutMonitor;
-    private ComServerCleanupProcess cleanupProcess;
+    private ComServerCleanupProcess comTaskExecutionTriggersCleanupProcess;
     private ComServerMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
     private Map<ComPort, List<Long>> comPortPoolsComPortBelongsToCache = new HashMap<>();
@@ -293,7 +293,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private void initializeTimeoutMonitor(OutboundCapableComServer comServer) {
-        this.timeOutMonitor = new TimeOutMonitorImpl(comServer, this.comServerDAO, this.threadFactory);
+        this.timeOutMonitor = new TimeOutMonitorImpl(comServer, this.comServerDAO, this.threadFactory, serviceProvider.threadPrincipalService());
     }
 
     private void initializeComTaskExecFetcher(OutboundCapableComServer comServer) {
@@ -302,7 +302,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private void initializeCleanupProcess(OutboundCapableComServer comServer) {
-        this.cleanupProcess = new ComServerCleanupProcessImpl(comServer, this.comServerDAO, this.threadFactory);
+        this.comTaskExecutionTriggersCleanupProcess = new ComServerCleanupProcessImpl(comServer, this.comServerDAO, this.threadFactory);
     }
 
     private void addOutboundComPorts(List<OutboundComPort> outboundComPorts) {
@@ -434,17 +434,17 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         LOGGER.info("Event mechanism started");
         this.startDeviceCommandExecutor();
         LOGGER.info("DeviceCommandExecutor started");
-        this.timeOutMonitor.start();
-        LOGGER.info("TimeOutMonitor started");
-        this.comTaskExecFetcher.start();
-        LOGGER.info("ComTaskExecFetcher started");
         this.startOutboundComPorts();
         LOGGER.info("OutboundComPorts started");
         this.startInboundComPorts();
         LOGGER.info("InboundComPorts started");
         startHighPriorityTaskScheduler();
         LOGGER.info("High priority task scheduler started");
-        this.cleanupProcess.start();
+        this.timeOutMonitor.start();
+        LOGGER.info("TimeOutMonitor started");
+        this.comTaskExecFetcher.start();
+        LOGGER.info("ComTaskExecFetcher started");
+        this.comTaskExecutionTriggersCleanupProcess.start();
         LOGGER.info("Cleanup process started");
         self = this.threadFactory.newThread(this);
         self.setName("Changes monitor for " + this.comServer.getName());
@@ -557,9 +557,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private void shutdownCleanupProcess(boolean immediate) {
         if (immediate) {
-            this.cleanupProcess.shutdownImmediate();
+            this.comTaskExecutionTriggersCleanupProcess.shutdownImmediate();
         } else {
-            this.cleanupProcess.shutdown();
+            this.comTaskExecutionTriggersCleanupProcess.shutdown();
         }
     }
 

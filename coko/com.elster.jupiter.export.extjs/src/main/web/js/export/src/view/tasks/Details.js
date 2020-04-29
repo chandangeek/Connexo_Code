@@ -25,7 +25,8 @@ Ext.define('Dxp.view.tasks.Details', {
                 flex: 1,
                 items: {
                     xtype: 'dxp-tasks-preview-form',
-                    margin: '0 0 0 100'
+                    margin: '0 0 0 100',
+                    maxWidth: 600
                 }
             },
             {

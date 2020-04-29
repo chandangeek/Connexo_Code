@@ -1264,7 +1264,7 @@ public class SecurityContext {
     /**
      * @return the responding frameCounter
      */
-    public long getResponseFrameCounter() {
+    public Long getResponseFrameCounter() {
         return this.responseFrameCounter;
     }
 
@@ -1398,4 +1398,7 @@ public class SecurityContext {
         return new byte[]{};
     }
 
+    public boolean isIncrementFramecounterWhenReplyingToHLS() {
+        return incrementFramecounterWhenReplyingToHLS;
+    }
 }

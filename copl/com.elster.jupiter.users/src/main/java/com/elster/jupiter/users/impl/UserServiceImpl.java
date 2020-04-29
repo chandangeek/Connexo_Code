@@ -18,12 +18,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.GrantPrivilege;
@@ -177,13 +180,19 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
-            upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class,
-                    version(10, 3), UpgraderV10_3.class,
-                    version(10, 4), UpgraderV10_4.class,
-                    version(10, 4, 8), UpgraderV10_4_8.class,
-                    version(10, 4, 9), V10_4_9SimpleUpgrader.class
-            ));
+            upgradeService.register(
+                    identifier("Pulse", COMPONENTNAME),
+                    dataModel,
+                    InstallerImpl.class,
+                    ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                            .put(version(10, 2), UpgraderV10_2.class)
+                            .put(version(10, 3), UpgraderV10_3.class)
+                            .put(version(10, 4), UpgraderV10_4.class)
+                            .put(version(10, 4, 8), UpgraderV10_4_8.class)
+                            .put(version(10, 4, 9), V10_4_9SimpleUpgrader.class)
+                            .put(version(10, 8), UpgraderV10_8.class)
+                            .build()
+            );
         }
     }
 
@@ -283,7 +292,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
 
-        if(user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())){
+        if (user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())) {
             logMessage(ACCOUNT_LOCKED, userName, domain, ipAddr);
         } else if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
             logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
@@ -299,6 +308,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     public User createUser(String name, String description) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) findUserDirectory(getRealm()).orElse(null);
         UserImpl result = directory.newUser(name, description, false, true);
+        result.update();
+        return result;
+    }
+
+    @Override
+    public User createSCIMUser(String name, String description, String externalId) {
+        threadPrincipalService.set(() -> "Provisioning tool");
+        InternalDirectoryImpl directory = (InternalDirectoryImpl) findUserDirectory(getRealm()).orElse(null);
+        UserImpl result = directory.newUser(name, description, false, true, externalId);
         result.update();
         return result;
     }
@@ -324,6 +342,14 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public Group createGroup(String name, String description) {
         GroupImpl result = GroupImpl.from(dataModel, name, description);
+        result.update();
+        return result;
+    }
+
+    @Override
+    public Group createSCIMGroup(String name, String description, String externalId) {
+        threadPrincipalService.set(() -> "Provisioning tool");
+        GroupImpl result = GroupImpl.from(dataModel, name, description, externalId);
         result.update();
         return result;
     }
@@ -360,6 +386,19 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public Optional<Group> findGroupByExternalId(String externalId) {
+        Condition groupCondition = Operator.EQUALIGNORECASE.compare("externalId", externalId);
+        final List<Group> possibleGroups = dataModel.query(Group.class).select(groupCondition);
+
+        if (possibleGroups.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(possibleGroups.get(0));
+
+    }
+
+    @Override
     public Optional<Resource> findResource(String name) {
         Condition condition = Operator.EQUALIGNORECASE.compare("name", name);
         List<Resource> resources = dataModel.query(Resource.class).select(condition);
@@ -392,6 +431,18 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findUserByExternalId(String externalId) {
+        Condition userCondition = Operator.EQUALIGNORECASE.compare("externalId", externalId);
+        final List<User> possibleUsers = dataModel.query(User.class).select(userCondition);
+
+        if (possibleUsers.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(possibleUsers.get(0));
     }
 
     @Override
@@ -889,8 +940,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public UserSecuritySettings findOrCreateUserSecuritySettings(boolean activate, int numberOfAttempts, int numberOfMinutes) {
-        if(getLockingAccountSettings().isPresent())
-            return  getLockingAccountSettings().get();
+        if (getLockingAccountSettings().isPresent())
+            return getLockingAccountSettings().get();
         else
             return createUserSecuritySettings(activate, numberOfAttempts, numberOfMinutes);
     }

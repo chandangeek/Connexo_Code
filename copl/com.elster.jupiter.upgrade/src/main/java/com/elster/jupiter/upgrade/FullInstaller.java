@@ -9,12 +9,15 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,6 +95,13 @@ public interface FullInstaller {
     }
 
     default String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval) {
+        ImmutableMap<String,String> tableInfos = ImmutableMap.<String, String>builder()
+                .put(tableName, createTableStatement)
+                .build();
+        return getRefreshJob(jobName, tableInfos, minRefreshInterval);
+    }
+
+    default String getRefreshJob(String jobName, Map<String, String> tableInfos, int minRefreshInterval) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" BEGIN ");
         sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
@@ -100,11 +110,13 @@ public interface FullInstaller {
         sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
         sqlBuilder.append(" JOB_ACTION          => ' ");
         sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" execute immediate ''DROP TABLE ").append(tableName).append("''; ");
-        sqlBuilder.append(" execute immediate ");
-        sqlBuilder.append(" ''");
-        sqlBuilder.append(createTableStatement.replace("'", "''''"));
-        sqlBuilder.append(" ''; ");
+        for(Map.Entry<String, String> tableInfo: tableInfos.entrySet()) {
+            sqlBuilder.append(" execute immediate ''DROP TABLE ").append(tableInfo.getKey()).append("''; ");
+            sqlBuilder.append(" execute immediate ");
+            sqlBuilder.append(" ''");
+            sqlBuilder.append(tableInfo.getValue().replace("'", "''''"));
+            sqlBuilder.append(" ''; ");
+        }
         sqlBuilder.append(" EXCEPTION ");
         sqlBuilder.append("    WHEN OTHERS THEN ");
         sqlBuilder.append("       IF SQLCODE != -942 THEN ");
@@ -119,6 +131,14 @@ public interface FullInstaller {
         sqlBuilder.append(" AUTO_DROP           => FALSE, ");
         sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
         sqlBuilder.append(" ); ");
+        sqlBuilder.append(" END;");
+        return sqlBuilder.toString();
+    }
+
+    default String getDropJobStatement(String jobName){
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" BEGIN ");
+        sqlBuilder.append(" dbms_scheduler.drop_job(job_name => '" + jobName + "'); ");
         sqlBuilder.append(" END;");
         return sqlBuilder.toString();
     }

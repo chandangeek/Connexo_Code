@@ -186,7 +186,9 @@ Ext.define('Wss.view.Add', {
             value = value.toUpperCase();
             var userRoleField = this.down('#userRoleField'),
                 userNameField = this.down('#userNameField'),
-                passwordField = this.down('#passwordField');
+                passwordField = this.down('#passwordField'),
+                clientIdField = this.down('#clientIdField'),
+                clientSecretField = this.down('#clientSecretField');
             if (value === 'NONE') {
                 if (!!userRoleField) {
                     userRoleField.setVisible(false)
@@ -197,6 +199,12 @@ Ext.define('Wss.view.Add', {
                 if (!!passwordField) {
                     passwordField.setVisible(false)
                 }
+                if (!!clientIdField) {
+                    clientIdField.setVisible(false)
+                }
+                if (!!clientSecretField) {
+                    clientSecretField.setVisible(false)
+                }
             } else if (value === 'BASIC_AUTHENTICATION') {
                 if (!!userRoleField) {
                     userRoleField.setVisible(true)
@@ -206,6 +214,28 @@ Ext.define('Wss.view.Add', {
                 }
                 if (!!passwordField) {
                     passwordField.setVisible(true)
+                }
+                if (!!clientIdField) {
+                    clientIdField.setVisible(false)
+                }
+                if (!!clientSecretField) {
+                    clientSecretField.setVisible(false)
+                }
+            } else if (value === 'OAUTH2_FRAMEWORK'){
+                if (!!userRoleField) {
+                    userRoleField.setVisible(false)
+                }
+                if (!!userNameField) {
+                    userNameField.setVisible(false)
+                }
+                if (!!passwordField) {
+                    passwordField.setVisible(false)
+                }
+                if (!!clientIdField) {
+                    clientIdField.setVisible(true)
+                }
+                if (!!clientSecretField) {
+                    clientSecretField.setVisible(true)
                 }
             }
         }
@@ -317,6 +347,22 @@ Ext.define('Wss.view.Add', {
                     displayField: 'name',
                     queryMode: 'local',
                     valueField: 'id',
+                    hidden: true
+                },
+                {
+                    xtype: 'textfield',
+                    name: 'clientId',
+                    itemId: 'clientIdField',
+                    fieldLabel: Uni.I18n.translate('endPointAdd.clientId', 'WSS', 'Client ID'),
+                    required: true,
+                    hidden: true
+                },
+                {
+                    xtype: 'textfield',
+                    name: 'clientSecret',
+                    itemId: 'clientSecretField',
+                    fieldLabel: Uni.I18n.translate('endPointAdd.clientSecret', 'WSS', 'Client Secret'),
+                    required: true,
                     hidden: true
                 }
             );

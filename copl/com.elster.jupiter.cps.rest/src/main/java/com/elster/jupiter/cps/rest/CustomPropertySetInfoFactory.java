@@ -5,10 +5,13 @@
 package com.elster.jupiter.cps.rest;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -22,8 +25,10 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,12 +37,14 @@ public class CustomPropertySetInfoFactory {
     private final Thesaurus thesaurus;
     private final PropertyValueInfoService propertyValueInfoService;
     private final Clock clock;
+    private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    public CustomPropertySetInfoFactory(Thesaurus thesaurus, Clock clock, PropertyValueInfoService propertyValueInfoService) {
+    public CustomPropertySetInfoFactory(Thesaurus thesaurus, Clock clock, PropertyValueInfoService propertyValueInfoService, CustomPropertySetService customPropertySetService) {
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.propertyValueInfoService = propertyValueInfoService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     private CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
@@ -56,8 +63,8 @@ public class CustomPropertySetInfoFactory {
 
             info.isVersioned = cps.isVersioned();
             info.isRequired = cps.isRequired();
-            info.defaultViewPrivileges = cps.defaultViewPrivileges();
-            info.defaultEditPrivileges = cps.defaultEditPrivileges();
+            info.defaultViewPrivileges = EnumSet.allOf(ViewPrivilege.class);
+            info.defaultEditPrivileges = EnumSet.allOf(EditPrivilege.class);
         }
         return info;
     }
@@ -75,7 +82,7 @@ public class CustomPropertySetInfoFactory {
     }
 
 
-    public CustomPropertySetInfo getFullInfo(RegisteredCustomPropertySet rcps, CustomPropertySetValues customPropertySetValue) {
+    public CustomPropertySetInfo getFullInfo(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetValues customPropertySetValue) {
         CustomPropertySetInfo info = getGeneralInfo(rcps);
         if (rcps != null) {
             if (info.isVersioned) {
@@ -86,8 +93,29 @@ public class CustomPropertySetInfoFactory {
                     .map(propertySpec -> getPropertyInfo(propertySpec, key -> customPropertySetValue != null ? customPropertySetValue
                             .getProperty(key) : null))
                     .collect(Collectors.toList());
+            setLastItemRemovable(rcps, object, info);
         }
         return info;
+    }
+
+    private void setLastItemRemovable(RegisteredCustomPropertySet rcps, Object object, CustomPropertySetInfo info) {
+        if (info.isVersioned
+                && (info.properties == null || info.properties.stream().noneMatch(prop -> ((CustomPropertySetAttributeInfo)prop).required))
+                && isLastItem(rcps, info.endTime, object)) {
+            info.removable = true;
+        }
+    }
+
+    public boolean isLastItem(RegisteredCustomPropertySet registeredCps, Long endTimestamp, Object object, Object... objects) {
+        if (endTimestamp == null || endTimestamp == 0) {
+            return true;
+        }
+        Instant timestamp = Instant.ofEpochMilli(endTimestamp).plusMillis(1);
+        CustomPropertySetValues versionAfter = customPropertySetService.getUniqueValuesFor(registeredCps.getCustomPropertySet(), object, timestamp, objects);
+        if (versionAfter != null && !versionAfter.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     private void addTimeSliceCustomPropertySetInfo(CustomPropertySetInfo info, CustomPropertySetValues customPropertySetValue) {

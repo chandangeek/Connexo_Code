@@ -15,7 +15,7 @@ import java.net.UnknownHostException;
 
 public class GenericExceptionInfo {
 
-    private final Thesaurus thesaurus;
+    protected final Thesaurus thesaurus;
     @JsonProperty("success")
     public final boolean success = false;
     @JsonProperty("message")
@@ -37,8 +37,7 @@ public class GenericExceptionInfo {
         return this;
     }
 
-
-    private String getErrorCode() {
+    protected String getErrorCode() {
         return getHostname() + "-" + Long.toHexString(System.currentTimeMillis()).toUpperCase();
     }
 

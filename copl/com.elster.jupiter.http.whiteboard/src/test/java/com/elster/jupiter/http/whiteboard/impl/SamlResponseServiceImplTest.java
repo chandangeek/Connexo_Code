@@ -1,6 +1,9 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlResponseService;
+import com.elster.jupiter.http.whiteboard.impl.saml.SamlRequestServiceImpl;
+import com.elster.jupiter.http.whiteboard.impl.saml.SamlResponseServiceImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.helpers.IOUtils;

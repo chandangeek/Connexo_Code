@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr40.ibm;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -15,10 +18,6 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -28,13 +27,12 @@ import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.KaifaDsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.KaifaDsmr40Messaging;
 
-import java.io.IOException;
 import java.util.logging.Level;
 
 public class Kaifa extends E350 {
+
     private KaifaDsmr40Messaging kaifaMessaging;
     private KaifaDsmr40MessageExecutor kaifaMessageExecutor;
-
 
     public Kaifa(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);

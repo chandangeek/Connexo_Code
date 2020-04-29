@@ -137,7 +137,13 @@ class KeyStoreDataVault implements DataVault {
         return cipher;
     }
 
-    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws
+            NoSuchAlgorithmException,
+            KeyStoreException,
+            UnrecoverableKeyException,
+            NoSuchPaddingException,
+            InvalidKeyException,
+            InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
         return cipher;

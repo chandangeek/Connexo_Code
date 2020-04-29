@@ -40,6 +40,7 @@ public class CommonCryptoMessaging {
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
             case DeviceMessageConstants.newMasterKeyAttributeName:
+            case DeviceMessageConstants.newPasswordAttributeName:
             case DeviceMessageConstants.newPSKAttributeName:
             case DeviceMessageConstants.newPSKKEKAttributeName:
                 if (Arrays.asList(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY.get(propertySpecService, nlsService, converter),

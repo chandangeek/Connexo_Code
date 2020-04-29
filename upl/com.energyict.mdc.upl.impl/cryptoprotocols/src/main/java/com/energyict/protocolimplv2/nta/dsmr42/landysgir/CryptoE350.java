@@ -19,7 +19,7 @@ public class CryptoE350 extends com.energyict.protocolimplv2.nta.dsmr40.landisgy
 
     @Override
     public String getVersion() {
-        return  "2019-02-27";
+        return  "2020-04-26";
     }
 
     @Override

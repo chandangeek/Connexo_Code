@@ -1,12 +1,80 @@
-#!/bin/sh
-JAVA_HOME=${JAVA_HOME}
-export VM_OPTIONS="-Djava.util.logging.config.file=${CONNEXO_DIR}/conf/logging.properties"
-CLASSPATH=.
-for i in `ls ${CONNEXO_DIR}/lib/*.jar`
-do
-	CLASSPATH=$CLASSPATH:$i
-done
-export LD_LIBRARY_PATH=${CONNEXO_DIR}/lib:$LD_LIBRARY_PATH
-cd ${CONNEXO_DIR}
-"$JAVA_HOME/bin/java" $VM_OPTIONS -cp "$CLASSPATH" com.elster.jupiter.launcher.ConnexoLauncher
+#!/bin/bash
 
+JAVA_HOME=${JAVA_HOME}
+CXO=${CONNEXO_DIR}
+
+VMOPTIONSFILE=$CXO/bin/Connexo.vmoptions
+
+echo "[*] Loading VM options form: $VMOPTIONSFILE"
+
+VMFILE=""
+while read LINE
+do
+    CLEANED=${LINE//[$'\t\r\n']} && CLEANED=${CLEANED%%*( )}
+
+    if [[ $CLEANED == *"Windows XP"* ]]; then
+        echo "[-] Ignoring property since we don't need it on Linux: ${CLEANED}"
+    else
+        VMFILE="${VMFILE} ${CLEANED}"
+    fi
+
+done < $VMOPTIONSFILE
+
+
+if [  "$2"  = "--debug" ]
+then
+    DEBUG_VMFILE_PATH=$CXO/bin/Connexo-debug.vmoptions
+    echo "[*] Adding debug VM options from: $DEBUG_VMFILE_PATH"
+    DEBUG_VMFILE=""
+
+    if [ -f "$DEBUG_VMFILE_PATH" ]
+    then
+        while read -r LINE;
+        do
+            CLEANED=${LINE//[$'\t\r\n']} && CLEANED=${CLEANED%%*( )}
+            DEBUG_VMFILE="${DEBUG_VMFILE} ${CLEANED}"
+        done < $DEBUG_VMFILE_PATH
+    else
+        echo " - skipping, file not found: $DEBUG_VMFILE_PATH"
+    fi
+
+   echo "[*] Removing felix-cache"
+   rm -rf $CXO/felix-cache
+else
+   DEBUG_VMFILE=""
+fi
+
+
+CLASSPATH=.:$CXO/conf/
+
+for i in `ls $CXO/lib/*.jar`
+do
+        CLASSPATH=$CLASSPATH:$i
+done
+
+
+export VM_OPTIONS="$VMFILE $DEBUG_VMFILE"
+export LD_LIBRARY_PATH=$CXO/bin/:$CXO/lib:$CXO/conf:$LD_LIBRARY_PATH
+export CLASSPATH=$CLASSPATH
+
+# Various  Java distributions use different options, set them all
+export JAVA_OPTS=$VM_OPTIONS
+export JAVA_TOOL_OPTIONS=$VM_OPTIONS
+export _JAVA_OPTIONS=$VM_OPTIONS
+
+
+echo "[*] Preparing for launch, going to $CXO"
+cd $CXO
+
+echo "[*] Launching Java from $JAVA_HOME/bin/java "
+
+if [  "$2"  = "--debug" ]
+then
+    echo "--------------"
+    echo "$JAVA_HOME/bin/java" -cp "$CLASSPATH" com.elster.jupiter.launcher.ConnexoLauncher "$1"
+    echo "--------------"
+fi
+
+"$JAVA_HOME/bin/java" -cp "$CLASSPATH" com.elster.jupiter.launcher.ConnexoLauncher "$1"
+
+echo "[*] Done!"

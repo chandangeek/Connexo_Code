@@ -7,27 +7,34 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.TokenService;
+import com.elster.jupiter.http.whiteboard.TokenValidation;
+import com.elster.jupiter.http.whiteboard.UserJWT;
+import com.elster.jupiter.http.whiteboard.impl.saml.SAMLUtilities;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
-import org.apache.commons.lang.StringUtils;
-import org.opensaml.core.config.InitializationException;
-import org.opensaml.core.config.InitializationService;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
+import org.apache.commons.lang3.StringUtils;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,6 +45,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.MessageInterpolator;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -45,20 +53,35 @@ import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.rmi.NoSuchObjectException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.Checks.is;
 
 @Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
-        property = {"name=" + BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
-        immediate = true, service = {HttpAuthenticationService.class})
+        property = {
+                "name=" + BasicAuthentication.COMPONENT_NAME,
+                "osgi.command.scope=jupiter",
+                "osgi.command.function=createNewTokenKey",
+                "osgi.command.function=updateExistingTokenKey"
+        },
+        immediate = true,
+        service = {HttpAuthenticationService.class})
 public final class BasicAuthentication implements HttpAuthenticationService {
 
     public static final String COMPONENT_NAME = "HTW";
@@ -73,7 +96,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             "/apps/sky/",
             "/apps/uni/",
             "/apps/ext/",
-            "/api/apps/security/acs"
+            "/api/apps/security/acs",
+            "/api/apps/saml/v2/logout"
     };
 
     // No caching for index.html files, so that authentication will be verified first;
@@ -97,6 +121,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public static final String LOGIN_URL = "/apps/login/";
 
     private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
+    private final String USER_SESSIONID = "X-SESSIONID";
+
 
     private volatile UserService userService;
     private volatile DataVaultService dataVaultService;
@@ -108,8 +134,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile SamlRequestService samlRequestService;
+    private volatile TokenService<UserJWT> tokenService;
+    private volatile BlackListTokenService blackListTokenService;
+    private volatile Thesaurus thesaurus;
+    private volatile CSRFFilterService csrfFilterService;
 
-    private int timeout;
+    private int timeoutFrameToRefreshToken;
     private int tokenRefreshMaxCount;
     private int tokenExpTime;
     private String installDir;
@@ -121,11 +151,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> acsEndpoint;
     private Optional<String> x509Certificate;
     private Optional<String> ssoAdminUser;
-    private volatile BlackListTokenService blackListTokenService;
+
+    private static final SAMLUtilities samlUtilities = SAMLUtilities.getInstance();
 
     @Inject
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService,
-                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService) throws
+                        BpmService bpmService, BundleContext context, BlackListTokenService blackListTokenService, TokenService tokenService, CSRFFilterService csrfFilterService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -134,6 +165,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
         setBlackListdTokenService(blackListTokenService);
+        setTokenService(tokenService);
+        setCSRFFilterService(csrfFilterService);
         activate(context);
     }
 
@@ -149,9 +182,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(WhiteBoardImpl.COMPONENTNAME, "HTTP Whiteboard");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
+        TableSpecs.HTW_KEYSTORE.addTo(dataModel);
     }
 
     @Reference
@@ -190,8 +221,23 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     @Reference
+    public void setCSRFFilterService(CSRFFilterService csrfFilterService) {
+        this.csrfFilterService = csrfFilterService;
+    }
+
+    @Reference
     public void setBlackListdTokenService(BlackListTokenService blackListdTokenService) {
         this.blackListTokenService = blackListdTokenService;
+    }
+
+    @Reference
+    public void setTokenService(TokenService<UserJWT> tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.SERVICE);
     }
 
     @Activate
@@ -206,10 +252,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(BlackListTokenService.class).toInstance(blackListTokenService);
+                bind(CSRFFilterService.class).toInstance(csrfFilterService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
+                bind(TokenService.class).toInstance(tokenService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
-        timeout = getIntParameter(TIMEOUT, context, 300);
+        timeoutFrameToRefreshToken = getIntParameter(TIMEOUT, context, 300);
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
@@ -218,9 +268,18 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
         acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
         x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", "HTP"),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 4), UpgraderV10_4_1.class,
+                        version(10, 4, 1), UpgraderV10_4_2.class,
+                        version(10, 8), UpgraderV10_8.class
+                )
+        );
 
-        upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, ImmutableMap.of(version(10, 4), UpgraderV10_4_1.class, version(10, 4, 1), UpgraderV10_4_2.class));
-        initSecurityTokenImpl();
+        initializeTokenService();
 
         host = getOptionalStringProperty("com.elster.jupiter.url.rewrite.host", context);
         Optional<String> portString = getOptionalStringProperty("com.elster.jupiter.url.rewrite.port", context);
@@ -232,21 +291,58 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             }
         }).orElse(Optional.<Integer>empty());
         scheme = getOptionalStringProperty("com.elster.jupiter.url.rewrite.scheme", context);
-
-        Thread thread = Thread.currentThread();
-        ClassLoader loader = thread.getContextClassLoader();
-        thread.setContextClassLoader(InitializationService.class.getClassLoader());
-        try {
-            SamlUtils.initializeOpenSAML();
-        } catch (InitializationException e) {
-            throw new RuntimeException(e);
-        } finally {
-            thread.setContextClassLoader(loader);
-        }
     }
 
     public void createNewTokenKey(String... args) {
         System.out.println("Usage : createNewTokenKey <fileName>");
+    }
+
+    public void updateExistingTokenKey() {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            updateExistingTokenKeyWithoutTransaction();
+            transactionContext.commit();
+        }
+    }
+
+    public void updateExistingTokenKeyWithoutTransaction() {
+        try {
+            final Optional<KeyStoreImpl> keyStore = getKeyPair();
+
+            if (keyStore.isPresent()) {
+                final KeyStoreImpl store = keyStore.get();
+                store.delete();
+                dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
+                initializeTokenService();
+            }
+
+            Optional<User> processExecutor = userService.findUser("process executor");
+
+            if (processExecutor.isPresent()) {
+                final String connexoRootPath = System.getProperty("connexo.home");
+
+                if (!Objects.isNull(connexoRootPath)) {
+                    final String configPropertiesFilePath = connexoRootPath + "/conf/config.properties";
+
+                    final List<String> allLines = Files.readAllLines(Paths.get(configPropertiesFilePath));
+                    for (int i = 0; i < allLines.size(); i++) {
+                        if (!allLines.get(i).contains("#")) {
+                            if (allLines.get(i).contains("com.elster.jupiter.token")) {
+                                allLines.set(i, "com.elster.jupiter.token=" + tokenService.createPermamentSignedJWT(processExecutor.get()).serialize());
+                            }
+                            if (allLines.get(i).contains("com.elster.jupiter.sso.public.key")) {
+                                allLines.set(i, "com.elster.jupiter.sso.public.key=" + new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
+                            }
+                        }
+                    }
+
+                    Files.write(Paths.get(configPropertiesFilePath), allLines, StandardOpenOption.WRITE);
+                }
+            } else {
+                throw new NoSuchObjectException("\"Process Executor\" User is not present.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void createNewTokenKey(String fileName) {
@@ -259,12 +355,20 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         });
     }
 
-    private void tryCreateNewTokenKey(String fileName) throws NoSuchAlgorithmException, IOException {
-        getKeyPair().ifPresent(KeyStoreImpl::delete);
-        dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
+    private void tryCreateNewTokenKey(String fileName) throws NoSuchAlgorithmException {
+        final Optional<KeyStoreImpl> keyStore = getKeyPair();
 
-        initSecurityTokenImpl();
-        saveKeyToFile(FileSystems.getDefault().getPath(fileName));
+        if (keyStore.isPresent()) {
+            final KeyStoreImpl store = keyStore.get();
+
+            store.delete();
+
+            dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
+
+            initializeTokenService();
+
+            saveKeyToFile(FileSystems.getDefault().getPath(fileName));
+        }
     }
 
     protected void saveKeyToFile(Path filePath) {
@@ -272,30 +376,36 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             Optional<User> foundUser = userService.findUser("process executor");
             if (foundUser.isPresent()) {
                 writer.write("\ncom.elster.jupiter.token=");
-                writer.write(securityToken.createPermanentToken(foundUser.get()));
+                writer.write(tokenService.createPermamentSignedJWT(foundUser.get()).serialize());
             }
             writer.write("\ncom.elster.jupiter.sso.public.key=");
             writer.write(new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
             writer.flush();
-        } catch (IOException e) {
+        } catch (IOException | JOSEException e) {
             e.printStackTrace();
         }
     }
 
-    protected void initSecurityTokenImpl() {
+    protected void initializeTokenService() {
         Optional<KeyStoreImpl> keyStore = getKeyPair();
-        if (keyStore.isPresent()) {
+        keyStore.ifPresent(store -> {
+            tokenService.initialize(
+                    dataVaultService.decrypt(store.getPublicKey()),
+                    dataVaultService.decrypt(store.getPrivateKey()),
+                    tokenExpTime,
+                    tokenRefreshMaxCount,
+                    timeoutFrameToRefreshToken
+            );
 
+            // TODO: move event service logic and event logging to TokenService impl
             try {
-                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()),
-                        dataVaultService.decrypt(keyStore.get().getPrivateKey()),
-                        tokenExpTime, tokenRefreshMaxCount, timeout);
+                securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()), dataVaultService.decrypt(keyStore.get().getPrivateKey()), tokenExpTime, tokenRefreshMaxCount, timeoutFrameToRefreshToken);
                 securityToken.setEventService(eventService);
                 securityToken.preventEventGeneration(false);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 throw new RuntimeException(e);
             }
-        }
+        });
     }
 
     private int getIntParameter(String propertyName, BundleContext context, int defaultValue) {
@@ -337,11 +447,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return installDir;
     }
 
-    public Optional<String> getSsoAdminUser(){
+    public Optional<String> getSsoAdminUser() {
         return ssoAdminUser;
     }
 
-    public boolean isSsoEnabled(){
+    public boolean isSsoEnabled() {
         return ssoEnabled;
     }
 
@@ -372,7 +482,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (ssoEnabled) {
-                if(isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
+                if (isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
                 ssoAuthentication(request, response);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
@@ -388,7 +498,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }
     }
 
-    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request){
+    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request) {
         return request.getRequestURI().startsWith(LOGIN_URL) &&
                 (StringUtils.isEmpty(request.getParameter("page")) || request.getParameterMap().containsKey("logout"));
     }
@@ -397,9 +507,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
         if (ssoAuthenticationRequestOptional.isPresent()) {
             String redirectUrl;
-            if(StringUtils.isEmpty(request.getParameter("page"))){
+            if (StringUtils.isEmpty(request.getParameter("page"))) {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-            }else{
+            } else {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getParameter("page"));
             }
             response.sendRedirect(redirectUrl);
@@ -423,12 +533,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Object logoutParameter = request.getUserPrincipal();
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
             invalidateSession(request);
         }
         if (logoutParameter instanceof User) {
             //the eventService is sent ONLY if the Object is an instance of User class,
             postWhiteboardEvent(WhiteboardEvent.LOGOUT.topic(), new LocalEventUserSource((User) logoutParameter));
-            blackListToken(((User) logoutParameter).getId(), tokenCookie.get().getValue());
+            tokenCookie.ifPresent(cookie -> blackListToken(((User) logoutParameter).getId(), cookie.getValue()));
         }
     }
 
@@ -443,8 +554,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     @Override
-    public String createToken(User user, String ipAddress) {
-        return securityToken.createToken(user, 0, ipAddress);
+    public String createToken(User user, String ipAddress) throws JOSEException {
+        return tokenService.createUserJWT(user, createCustomClaimsForUser(user, 0)).getToken();
     }
 
     @Override
@@ -456,18 +567,34 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public Cookie createTokenCookie(String cookieValue, String cookiePath) {
         Cookie cookie = new Cookie(TOKEN_COOKIE_NAME, cookieValue);
         cookie.setPath(cookiePath);
-        cookie.setMaxAge(securityToken.getCookieMaxAge());
+        cookie.setMaxAge(tokenExpTime + timeoutFrameToRefreshToken);
         cookie.setHttpOnly(true);
         return cookie;
     }
 
-    private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
-        SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
-                .getRemoteAddr(), blackListTokenService);
-        return handleTokenValidation(validation, tokenCookie.getValue(), request, response);
+    public Cookie createSessionCookie(String sessionId, String cookiePath) {
+        Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
+        sessionCookie.setPath(cookiePath);
+        sessionCookie.setMaxAge(tokenExpTime + timeoutFrameToRefreshToken);
+        sessionCookie.setHttpOnly(true);
+        csrfFilterService.createCSRFToken(sessionId);
+        return sessionCookie;
     }
 
-    private boolean handleTokenValidation(SecurityTokenImpl.TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
+    private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
+        TokenValidation validation = null;
+        try {
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                validation = tokenService.validateSignedJWT(SignedJWT.parse(tokenCookie.getValue()));
+                transactionContext.commit();
+            }
+        } catch (JOSEException | ParseException e) {
+            e.printStackTrace();
+        }
+        return handleTokenValidation(Objects.requireNonNull(validation), tokenCookie.getValue(), request, response);
+    }
+
+    private boolean handleTokenValidation(TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
         if (validation.isValid() && isAuthenticated(validation.getUser())) {
             if (!originalToken.equals(validation.getToken())) {
                 response.addCookie(createTokenCookie(validation.getToken(), "/"));
@@ -483,6 +610,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> xsrf = getTokenCookie(request);
         if (xsrf.isPresent()) {
             token = xsrf.get().getValue();
+            // TODO: Move implementation of token comparison to TokenService
             if (!securityToken.compareTokens(token, authentication.substring(authentication.lastIndexOf(" ") + 1), request
                     .getRemoteAddr())) {
                 return deny(request, response);
@@ -491,20 +619,38 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
-        SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr(), blackListTokenService);
-        return handleTokenValidation(tokenValidation, token, request, response);
+        TokenValidation tokenValidation = null;
+        try {
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                tokenValidation = tokenService.validateSignedJWT(SignedJWT.parse(token));
+                transactionContext.commit();
+            }
+        } catch (JOSEException | ParseException e) {
+            e.printStackTrace();
+        }
+        return handleTokenValidation(Objects.requireNonNull(tokenValidation), token, request, response);
     }
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
-        if(isUserLocked(user)){
+        if (isUserLocked(user)) {
             return denyAccountLocked(request, response);
         } else if (isAuthenticated(user)) {
             User returnedUserByAuthentication = user.get();
             //required because user returned by auth has not yet lastSuccessfulLogin set.... This is a vamp. the login mechanism should be changed.
             User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
-            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
+            UserJWT userJWT = null;
+            try {
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    userJWT = tokenService.createUserJWT(usr, createCustomClaimsForUser(usr, 0));
+                    transactionContext.commit();
+                }
+            } catch (JOSEException e) {
+                e.printStackTrace();
+            }
+            String token = Objects.requireNonNull(userJWT).getToken();
             response.addCookie(createTokenCookie(token, "/"));
+            response.addCookie(createSessionCookie(Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes()), "/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
@@ -542,13 +688,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return true;
     }
 
-    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response)   {
+    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         try {
             response.getWriter().write(ACCOUNT_LOCKED);
             response.getWriter().flush();
             response.getWriter().close();
-        } catch(IOException exception){}
+        } catch (IOException exception) {}
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
@@ -563,16 +709,26 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
         }
         invalidateSession(request);
         return false;
     }
 
-    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
+    private void invalidateSessionCookie(HttpServletRequest request, HttpServletResponse response) {
+        Optional<Cookie> sessionCookie = getSessionCookie(request);
+        if (sessionCookie.isPresent()) {
+            csrfFilterService.removeUserSession(sessionCookie.get().getValue());
+            removeCookie(response, sessionCookie.get().getName());
+        }
+    }
+
+    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
         }
         invalidateSession(request);
         return false;
@@ -594,7 +750,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean unsecureAllowed(String uri) {
-        if(!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
+        if (!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
         return Stream.of(RESOURCES_NOT_SECURED)
                 .filter(uri::startsWith)
                 .findAny().isPresent();
@@ -621,6 +777,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return Optional.empty();
     }
 
+    private Optional<Cookie> getSessionCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(cookie -> USER_SESSIONID.equals(cookie.getName()))
+                    .findFirst();
+        }
+        return Optional.empty();
+    }
+
     private void postWhiteboardEvent(String topic, Object user) {
         eventService.postEvent(topic, user);
     }
@@ -637,6 +802,32 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         stringBuilder.append(URLEncoder.encode(requestUrl, "UTF-8").trim());
 
         return stringBuilder.toString();
+    }
+
+    public Map<String, Object> createCustomClaimsForUser(final User user, long count) {
+        List<Group> userGroups = user.getGroups();
+        List<RoleClaimInfo> roles = new ArrayList<>();
+        List<String> privileges = new ArrayList<>();
+        for (Group group : userGroups) {
+
+            group.getPrivileges().forEach((key, value) -> {
+                if (key.equals("BPM") || key.equals("YFN"))
+                    value.forEach(p -> privileges.add(p.getName()));
+            });
+
+            privileges.add("privilege.public.api.rest");
+            privileges.add("privilege.pulse.public.api.rest");
+            privileges.add("privilege.view.userAndRole");
+
+            roles.add(new RoleClaimInfo(group.getId(), group.getName()));
+        }
+
+        final HashMap<String, Object> result = new HashMap<>();
+        result.put("username", user.getName());
+        result.put("roles", roles);
+        result.put("privileges", privileges);
+        result.put("cnt", count);
+        return result;
     }
 
 }

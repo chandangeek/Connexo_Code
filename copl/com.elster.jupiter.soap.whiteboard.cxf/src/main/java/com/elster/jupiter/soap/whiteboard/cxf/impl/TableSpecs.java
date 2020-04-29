@@ -77,6 +77,16 @@ public enum TableSpecs {
                     .varChar()
                     .map(EndPointConfigurationImpl.Fields.PASSWD.fieldName())
                     .add();
+            table.column("clientId")
+                    .varChar()
+                    .map(EndPointConfigurationImpl.Fields.CLIENT_ID.fieldName())
+                    .since(version(10, 8))
+                    .add();
+            table.column("clientSecret")
+                    .varChar()
+                    .map(EndPointConfigurationImpl.Fields.CLIENT_SECRET.fieldName())
+                    .since(version(10, 8))
+                    .add();
             table.foreignKey("FK_USR_GROUP")
                     .references(Group.class)
                     .on(group)

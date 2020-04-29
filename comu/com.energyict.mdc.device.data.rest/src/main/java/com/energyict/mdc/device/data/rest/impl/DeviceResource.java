@@ -76,6 +76,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -697,6 +698,29 @@ public class DeviceResource {
                 .filter(f -> f.id == cpsId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
+    public Response removeDeviceCustomPropertyVersion(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        resourceHelper.lockDeviceTypeOrThrowException(device.getDeviceType().getId(), device.getDeviceType().getVersion());
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(device.getId(), name, device.getVersion());
+
+        CustomPropertySetInfo cpsInfo = resourceHelper.getDeviceCustomPropertySetInfos(lockedDevice, Instant.ofEpochMilli(timeStamp))
+                .stream()
+                .filter(f -> f.id == cpsId)
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        if (cpsInfo.removable) {
+            resourceHelper.deleteCustomPropertySetVersion(lockedDevice, cpsInfo);
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, cpsInfo.name, Instant.ofEpochMilli(timeStamp));
+        }
+        return Response.ok().build();
     }
 
     @GET

@@ -1907,5 +1907,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         //Ignore, only used for JSON
     }
 
+    @Override
+    public void removeSchedule() {
+        setPlannedNextExecutionTimestamp(null);
+        schedule(null);
+    }
 
 }

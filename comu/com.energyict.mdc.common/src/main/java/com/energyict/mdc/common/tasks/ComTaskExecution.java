@@ -159,6 +159,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     TaskStatus getStatus();
 
+    void setStatus(TaskStatus status);
+
     String getStatusDisplayName();
 
     /**
@@ -434,4 +436,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public String getXmlType();
 
     public void setXmlType(String ignore);
+
+    void removeSchedule();
 }

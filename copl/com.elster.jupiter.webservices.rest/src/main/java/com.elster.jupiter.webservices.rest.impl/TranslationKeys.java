@@ -13,7 +13,8 @@ public enum TranslationKeys implements TranslationKey {
     WST_INBOUND("webservices.direction.inbound", "Inbound"),
     WST_OUTBOUND("webservices.direction.outbound", "Outbound"),
     AUTH_NONE("webservices.authentication.none", "No authentication"),
-    AUTH_BASIC("webservices.authentication.basic_authentication", "Basic authentication");
+    AUTH_BASIC("webservices.authentication.basic_authentication", "Basic authentication"),
+    AUTH_OAUTH2("webservices.authentication.oauth2_framework", "OAuth 2.0 Framework");
 
     private final String key;
     private final String defaultFormat;

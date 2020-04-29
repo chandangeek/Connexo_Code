@@ -6,7 +6,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmKeyImpl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -160,7 +160,7 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         when(hsmKeyType.getLabel()).thenReturn("label");
         when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
         when(securityAccessor.getKeyAccessorTypeReference().keyTypeIsHSM()).thenReturn(true);
-        SecurityValueWrapper mockSecurityValueWrapper = mock(SecurityValueWrapper.class);
+        HsmKeyImpl mockSecurityValueWrapper = mock(HsmKeyImpl.class);
         when(securityAccessor.getTempValue()).thenReturn(Optional.of(mockSecurityValueWrapper));
         when(device.getSecurityAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
         String val = "ABCDABCDABCDABCDABCDABCDABCDABCE";
@@ -192,7 +192,7 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
     public void testKeyAccessorTypeFields() throws Exception {
         Response response = target("/devices/x/keyAccessorTypes").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(3);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "name", "description");
+        assertThat(model.<List>get("$")).hasSize(4);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "name", "keyPurposeId", "description");
     }
 }

@@ -108,6 +108,17 @@ Ext.define('Sam.model.SystemInfo', {
             }
         },
         {
+            name: 'environmentParameters',
+            mapping: function (data) {
+                output = '<ul>';
+                for (propName in data.environmentParameters) {
+                    output += '<li>' + propName + ': ' + data.environmentParameters[propName] + '</li>';
+                }
+                output += '</ul>';
+                return output;
+            }
+        },
+        {
             name: 'browserNameInfo',
             defaultValue: Uni.I18n.translate('systemInfo.browserName', 'SAM', 'Browser name: {0}', [Ext.browser.name])
         },

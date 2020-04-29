@@ -22,6 +22,7 @@ Ext.define('Dxp.view.tasks.Preview', {
 
     items: {
         xtype: 'dxp-tasks-preview-form',
+        maxWidth: 900,
         itemId: 'pnl-data-export-task-preview-form'
     }
 });

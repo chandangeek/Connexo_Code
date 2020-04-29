@@ -274,6 +274,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -423,6 +427,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm.h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -32,19 +32,21 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
     private final DataExportService dataExportService;
     private String separator;
     private String tag;
+    private boolean withDeviceCode;
 
     StandardCsvEventDataFormatter(DataExportService dataExportService) {
         this.dataExportService = dataExportService;
     }
 
-    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
+    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag, boolean withDeviceCode) {
         this.separator = defineSeparator(translatablePropertyValueInfo);
         this.tag = tag;
+        this.withDeviceCode = withDeviceCode;
         return this;
     }
 
-    static StandardCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag) {
-        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag);
+    static StandardCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag, boolean withDeviceCode) {
+        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag, withDeviceCode);
     }
 
     @Override
@@ -76,6 +78,10 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
         StringJoiner joiner = new StringJoiner(separator, "", "\n")
                 .add(DEFAULT_DATE_TIME_FORMAT.format(eventTime))
                 .add(endDeviceEvent.getEventTypeCode());
+        if (withDeviceCode) {
+            String deviceCode = endDeviceEvent.getType();
+            joiner.add(deviceCode != null ? deviceCode : "");
+        }
         // adding list of device identifiers; see com.elster.jupiter.export.impl.EventSelector.buildStructureMarker
         structureMarker.getStructurePath().forEach(joiner::add);
         return joiner.toString();

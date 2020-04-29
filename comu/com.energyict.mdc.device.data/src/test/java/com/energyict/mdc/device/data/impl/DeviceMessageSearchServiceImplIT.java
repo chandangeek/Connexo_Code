@@ -113,7 +113,7 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
         assertThat(device).isNotNull();
         assertThat(device.getId()).isGreaterThan(0L);
         assertThat(device.getName()).isEqualTo(DEVICE_NAME);
-        assertThat(device.getSerialNumber()).isNullOrEmpty();
+        assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
     }
 
     @Test
