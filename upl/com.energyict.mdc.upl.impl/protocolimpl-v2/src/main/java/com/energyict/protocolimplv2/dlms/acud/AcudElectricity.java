@@ -19,8 +19,12 @@ public class AcudElectricity extends Acud {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor);
     }
 
+    protected AcudRegisterFactory createRegisterFactory() {
+        return new AcudElectricRegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
+    }
+
     protected AcudMessaging createProtocolMessaging() {
-        return  new AcudElectricMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
+        return new AcudElectricMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
     }
 
     public EndDeviceType getTypeMeter() {
