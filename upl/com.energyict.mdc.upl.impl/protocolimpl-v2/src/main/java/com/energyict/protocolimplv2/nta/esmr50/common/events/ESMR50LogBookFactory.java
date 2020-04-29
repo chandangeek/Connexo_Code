@@ -1,23 +1,27 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.events;
 
-import com.energyict.protocolimplv2.nta.esmr50.elster.events.ElsterMBusEventLog;
-import com.energyict.protocolimplv2.nta.esmr50.itron.events.ItronMBusEventLog;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.VoltageQualityEventLog;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
+import com.energyict.protocolimplv2.nta.esmr50.elster.events.ElsterMBusEventLog;
+import com.energyict.protocolimplv2.nta.esmr50.itron.events.ItronMBusEventLog;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol.CRYPTO_ELSTER_MBUS_PROTOCOL_DESCRIPTION;
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol.CRYPTO_ITRON_MBUS_PROTOCOL_DESCRIPTION;
 
 public final class ESMR50LogBookFactory extends AbstractNtaLogBookFactory<ESMR50Protocol> {
 
@@ -78,17 +82,27 @@ public final class ESMR50LogBookFactory extends AbstractNtaLogBookFactory<ESMR50
     }
 
     @Override
-    protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException {
-        if( getProtocol().getProtocolDescription().equals("Itron Crypto MbusDevice DLMS (NTA ESMR5.0) V2" ) )
+    protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel, LogBookReader logBookReader ) throws ProtocolException
+    {
+        for( OfflineDevice od : getProtocol().getOfflineDevice().getAllSlaveDevices() )
         {
-            return new ItronMBusEventLog(dataContainer).getMeterEvents();
+            if( logBookReader.getMeterSerialNumber().equals( od.getSerialNumber() ) )
+            {
+                String protocolName = od.getProtocolName();
+                if( protocolName.equals(CRYPTO_ITRON_MBUS_PROTOCOL_DESCRIPTION ) ) {
+                    return new ItronMBusEventLog(dataContainer).getMeterEvents();
+                }
+                else if(protocolName.equals(CRYPTO_ELSTER_MBUS_PROTOCOL_DESCRIPTION )) {
+                    return new ElsterMBusEventLog(dataContainer).getMeterEvents();
+                }
+                else {
+                    getProtocol().journal("Unable to parse MBusEventLog for protocol: " + protocolName);
+                }
+
+                break;
+            }
         }
-        else if(getProtocol().getProtocolDescription().equals("Elster Crypto MbusDevice DLMS (NTA ESMR5.0) V2" ))
-        {
-            return new ElsterMBusEventLog(dataContainer).getMeterEvents();
-        }
-        else
-            return new ESMR50MbusEventLog(dataContainer).getMeterEvents();
+        return null;
     }
 
     @Override

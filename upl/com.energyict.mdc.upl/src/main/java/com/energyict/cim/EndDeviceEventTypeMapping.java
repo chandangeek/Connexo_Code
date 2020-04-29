@@ -374,7 +374,7 @@ public enum EndDeviceEventTypeMapping {
     MISMATCH_BETWEEN_TOTAL_AND_TARIFF_REGISTERS(354, EndDeviceEventTypeFactory.getMismatchBetweenTotalAndTariffRegisters()),
     SEND_FRAME_COUNTER_ABOVE_THRESHOLD(359, EndDeviceEventTypeFactory.getSendFrameCounterAboveThreshold()),
     RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD(360, EndDeviceEventTypeFactory.getReceiveFrameCounterAboveThreshold()),
-    TAMPER_BATTERY( 355, EndDeviceEventTypeFactory.getTamperEventType() ),
+    TAMPER_BATTERY( 355, EndDeviceEventTypeFactory.getTamperBattery() ),
     HLC_DAMAGE( 356, EndDeviceEventTypeFactory.getHlcDamage()),
     PERMANENT_LOG_FILLED_UP_90_PERSENT (357, EndDeviceEventTypeFactory.getPermanentLogFilledUp90Persent()),
     DEVICE_ABOUT_HIBERNATION_MODE  (358, EndDeviceEventTypeFactory.getDeviceAboutHibernationMode()),

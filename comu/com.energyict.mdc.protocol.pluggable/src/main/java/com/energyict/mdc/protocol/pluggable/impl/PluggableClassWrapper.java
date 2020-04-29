@@ -63,7 +63,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
     }
 
     @XmlElement(type = PluggableClassImpl.class)
-    protected PluggableClass getPluggableClass() {
+    public PluggableClass getPluggableClass() {
         return pluggableClass;
     }
 
