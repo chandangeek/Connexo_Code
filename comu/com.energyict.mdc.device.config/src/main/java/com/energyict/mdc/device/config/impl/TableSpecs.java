@@ -1039,7 +1039,7 @@ public enum TableSpecs {
                    .since(Version.version(10, 6))
                    .add();
             table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.KEYRENEWALMESSAGEID.name()).number().conversion(NUMBER2LONG).map("keyRenewalMessageIdIdDbValue").since(version(10, 7)).add();
-            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SERVICEKEYRENEWALMSGID.name()).number().conversion(NUMBER2LONG).map("serviceKeyRenewalMessageIdDbValue").since(version(10, 9)).add();
+            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SERVICEKEYRENEWALMSGID.name()).number().conversion(NUMBER2LONG).map("serviceKeyRenewalMessageIdDbValue").since(version(10, 8)).add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
             table.addAuditColumns();
             table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
@@ -1076,14 +1076,14 @@ public enum TableSpecs {
             Column servKey = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
                     .bool()
                     .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.fieldName())
-                    .since(version(10, 9))
+                    .since(version(10, 8))
                     .installValue("'N'")
                     .add();
             table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
             table.addAuditColumns();
-            PrimaryKeyConstraint previousConstraint = table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).upTo(version(10, 9)).add();
-            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name, servKey).since(version(10, 9)).previously(previousConstraint).add();
+            PrimaryKeyConstraint previousConstraint = table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).upTo(version(10, 8)).add();
+            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name, servKey).since(version(10, 8)).previously(previousConstraint).add();
             table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_DT")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceType)
