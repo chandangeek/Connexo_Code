@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.impl.service;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
@@ -56,6 +57,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private volatile DataModel dataModel;
     private volatile PropertyFactoriesProvider propertyFactoriesProvider;
     private volatile BpmService bpmService;
+    private volatile PasswordDecryptService passwordDecryptService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -64,7 +66,10 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Inject
-    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService, PropertySpecService propertySpecService, EndPointConfigurationService endPointConfigurationService, PropertyFactoriesProvider propertyFactoriesProvider, BpmService bpmService) {
+    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService,
+                                      ThreadPrincipalService threadPrincipalService, OrmService ormService,
+                                      PropertySpecService propertySpecService, EndPointConfigurationService endPointConfigurationService,
+                                      PropertyFactoriesProvider propertyFactoriesProvider, BpmService bpmService, PasswordDecryptService passwordDecryptService) {
         setThesaurus(nlsService);
         setUserService(userService);
         setIssueService(issueService);
@@ -74,6 +79,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         setEndPointConfigurationService(endPointConfigurationService);
         setPropertyFactoriesProvider(propertyFactoriesProvider);
         setBpmService(bpmService);
+        setPasswordDecryptService(passwordDecryptService);
         activate();
     }
 
@@ -93,6 +99,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PropertyFactoriesProvider.class).toInstance(propertyFactoriesProvider);
                 bind(BpmService.class).toInstance(bpmService);
+                bind(PasswordDecryptService.class).toInstance(passwordDecryptService);
             }
         });
 
@@ -112,6 +119,10 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         return ID;
     }
 
+    @Reference
+    public final void setPasswordDecryptService(PasswordDecryptService passwordDecryptService){
+        this.passwordDecryptService = passwordDecryptService;
+    }
     @Reference
     public final void setThesaurus(NlsService nlsService) {
         this.nlsService = nlsService;

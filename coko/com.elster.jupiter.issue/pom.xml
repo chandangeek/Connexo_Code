@@ -42,6 +42,10 @@
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bootstrap.oracle</artifactId>
+        </dependency>
 
         <!-- Platform&#249; modules -->
         <dependency>
@@ -137,11 +141,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>bootstrap</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
             <scope>test</scope>
         </dependency>
@@ -229,5 +228,10 @@
             <artifactId>http.whiteboard</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bootstrap</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

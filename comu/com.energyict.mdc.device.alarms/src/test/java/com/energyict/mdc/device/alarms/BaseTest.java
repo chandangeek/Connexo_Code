@@ -7,6 +7,7 @@ package com.energyict.mdc.device.alarms;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -154,6 +155,7 @@ public abstract class BaseTest {
 
     protected static IssueService issueService;
     protected static DeviceAlarmService deviceAlarmService;
+    protected static PasswordDecryptService passwordDecryptService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -170,6 +172,7 @@ public abstract class BaseTest {
             bind(KnowledgeBaseFactoryService.class).to(KnowledgeBaseFactoryServiceImpl.class);
             bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(PasswordDecryptService.class).toInstance(mock(PasswordDecryptService.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));

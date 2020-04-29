@@ -76,6 +76,11 @@ my $SSO_X509_CERTIFICATE;
 my $SSO_ADMIN_USER;
 my $SSO_ENABLED;
 
+my $SMTP_PASSWORD;
+my $SMTP_HOST;
+my $SMTP_PORT;
+my $SMTP_USER;
+my $SMTP_FROM;				  
 
 # Function Definitions
 sub dircopy {
@@ -250,6 +255,11 @@ sub read_config {
                 if ( "$val[0]" eq "SSO_X509_CERTIFICATE" )          {$SSO_X509_CERTIFICATE=$val[1];}
                 if ( "$val[0]" eq "SSO_ADMIN_USER" )                {$SSO_ADMIN_USER=$val[1];}
                 if ( "$val[0]" eq "SSO_ENABLED" )                   {$SSO_ENABLED=$val[1];}
+				if ( "$val[0]" eq "SMTP_PASSWORD" )                   {$SMTP_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "SMTP_HOST" )                   {$SMTP_HOST=$val[1];}
+                if ( "$val[0]" eq "SMTP_PORT" )                   {$SMTP_PORT=$val[1];}
+                if ( "$val[0]" eq "SMTP_USER" )                   {$SMTP_USER=$val[1];}
+                if ( "$val[0]" eq "SMTP_FROM" ) 				    {$SMTP_FROM=$val[1]}
             }
         }
         close($FH);
@@ -462,6 +472,11 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$KEYFILE_FULLPATH");
 			add_to_file_if($config_file,"enable.auditing=$ENABLE_AUDITING");
 			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
+			add_to_file_if($config_file,"mail.smtp.host=$SMTP_HOST");
+            add_to_file_if($config_file,"mail.smtp.port=$SMTP_PORT");
+            add_to_file_if($config_file,"mail.user=$SMTP_USER");
+            add_to_file_if($config_file,"mail.from=$SMTP_FROM");
+            											 
             update_properties_file_with_encrypted_password();
 
             add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.host=$HOST_NAME");
@@ -506,6 +521,9 @@ sub install_connexo {
 			print "\n\nSkip installation of Connexo\n";
 	}
 	    replace_row_in_file($config_cmd, "dbPassword=", "set dbPassword=");
+		replace_row_in_file($config_cmd, "SMTP_PASSWORD=", "set SMTP_PASSWORD=");
+		replace_row_in_file($config_cmd, "ADMIN_PASSWORD=", "set ADMIN_PASSWORD=");
+
 }
 
 sub update_properties_file_with_encrypted_password {
@@ -539,8 +557,13 @@ sub update_properties_file_with_encrypted_password {
 
     my $encryptedPassword = $cipher->encrypt($dbPassword);
     my $base64EncodedPassword = encode_base64($encryptedPassword);
+	my $mailEncryptedPassword = $cipher->encrypt($SMTP_PASSWORD);
+    my $mailBase64EncodedPassword = encode_base64($mailEncryptedPassword);								
     replace_row_in_file($config_file,"com.elster.jupiter.datasource.jdbcpassword=","");
     add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
+	replace_row_in_file($config_file,"mail.password=","");
+    add_to_file_if($config_file,"mail.password=$mailBase64EncodedPassword");
+   
 }
 
 sub add_or_update_encryption_key_file{
@@ -1137,6 +1160,8 @@ sub start_tomcat_service {
             }
             chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc";
             chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh";
+            chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/startup.sh";
+            chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/catalina.sh";
             #system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" start");
             system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
             system("/sbin/chkconfig --add ConnexoTomcat$SERVICE_VERSION");
