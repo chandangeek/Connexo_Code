@@ -100,7 +100,7 @@ public class DeviceSharedScheduleResource {
                 }
                 device.getComTaskExecutions().stream()
                         .filter(comTaskExecution -> comSchedule.getComTasks().contains(comTaskExecution.getComTask()))
-                        .forEach(comTaskExecution -> comTaskExecution.schedule(null));
+                        .forEach(ComTaskExecution::removeSchedule);
             }
         }
         optionalSchedules.stream().forEach(comSchedule -> comSchedule.ifPresent(device::removeComSchedule));

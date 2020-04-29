@@ -21,7 +21,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE_IN_USE(12, "deviceTypeInUseByAlarmCreationRule", "Device type ''{0}'' is still in use by an alarm creation rule", Level.SEVERE),
     DEVICE_GROUP_IN_USE(12, "deviceGroupInUseByAlarmCreationRule", "Device group ''{0}'' is still in use by an alarm creation rule", Level.SEVERE),
     RELATIVE_PERIOD_IN_USE(13, "relativePeriodInUseByAlarmCreationRule", "The relative period ''{0}'' is still in use by an alarm creation rule", Level.SEVERE),
-    ALARM_RULE_STILL_HAS_ACTIVE_WEB_SERVICE(14, "AlarmRuleWithWebService", "The web service endpoint is still in use by an alarm creation rule.", Level.SEVERE)
+    ALARM_RULE_STILL_HAS_ACTIVE_WEB_SERVICE(14, "AlarmRuleWithWebService", "The web service endpoint is still in use by an alarm creation rule.", Level.SEVERE),
+    INCOMPLETE_MAIL_CONFIG(15, "mail.incomplete.config", "Mail configuration is incomplete. The following properties are missing: {0}",Level.SEVERE)
     ;
 
     private final int number;
