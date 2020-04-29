@@ -40,7 +40,6 @@ public class SystemPropertyLoop implements Runnable {
         }
     }
 
-//    @Override
     public void shutDown() {
         executor.shutdownNow();
     }

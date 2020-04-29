@@ -20,5 +20,3 @@ public enum SystemPropsTableSpecs {
 
     abstract void addTo(DataModel component);
 }
-
-

@@ -26,14 +26,12 @@ public class SystemPropertyImpl implements SystemProperty {
     @SuppressWarnings("unused")
     private long version;
 
-
     private final transient DataModel dataModel;
 
     @Inject
-    public SystemPropertyImpl(DataModel dataModel){
+    public SystemPropertyImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
-
 
     public enum Fields {
         PROP_KEY("key"),
@@ -50,23 +48,22 @@ public class SystemPropertyImpl implements SystemProperty {
         }
     }
 
-
     @Override
-    public String getKey(){
+    public String getKey() {
         return key;
-    };
+    }
 
     @Override
-    public String getValue(){
+    public String getValue() {
         return value;
-    };
+    }
 
     @Override
-    public void setValue(String value){
+    public void setValue(String value) {
         this.value = value;
-    };
+    }
 
-    public void update(){
+    public void update() {
         Save.UPDATE.save(this.dataModel, this);
     }
 }
