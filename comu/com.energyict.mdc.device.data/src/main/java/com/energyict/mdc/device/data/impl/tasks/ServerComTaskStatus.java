@@ -305,8 +305,6 @@ public enum ServerComTaskStatus {
         public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append("cte.onhold = 0 ");
-            sqlBuilder.append("and cte.nextExecutionTimestamp >");
-            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("and cte.lastSuccessfulCompletion is not null ");
             sqlBuilder.append("and cte.LASTEXECUTIONTIMESTAMP > lastSuccessfulCompletion ");
             sqlBuilder.append("and cte.lastExecutionFailed = 1 ");

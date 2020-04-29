@@ -714,6 +714,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(securityAccessor1.getTempValue()).thenReturn(Optional.ofNullable(temp));
         when(securityAccessor1.getActualPassphraseWrapperReference()).thenReturn(Optional.ofNullable(actual));
         when(securityAccessor1.getKeyAccessorTypeReference()).thenReturn(symmetricKeyAccessorType);
+        when(securityAccessor1.getVersion()).thenReturn(11L);
         return securityAccessor1;
     }
 
