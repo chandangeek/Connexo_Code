@@ -77,13 +77,11 @@ final class Installer implements FullInstaller, Upgrader {
         userService.grantGroupWithPrivilege(UserService.SYSTEM_ADMIN_ROLE, SysAppService.APPLICATION_KEY, getAdminPrivileges());
     }
 
-
-    private String[] batchExecutorPrivileges(){
+    private String[] batchExecutorPrivileges() {
         List<String> privilegesList = new ArrayList<>(Arrays.asList(userService.userAdminPrivileges()));
         privilegesList.add(com.elster.jupiter.systemproperties.impl.Privileges.Constants.VIEW_SYS_PROPS);
         privilegesList.add(com.elster.jupiter.systemproperties.impl.Privileges.Constants.ADMINISTRATE_SYS_PROPS);
         return (String[]) privilegesList.toArray();
-
     }
 
     private String[] installerPrivileges() {

@@ -141,8 +141,6 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
         return property;
     }
 
-    ;
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -154,7 +152,6 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
             }
         };
     }
-
 
     public synchronized void readAndCheckProperties() {
         List<SystemProperty> newprops = getAllSystemProperties();
