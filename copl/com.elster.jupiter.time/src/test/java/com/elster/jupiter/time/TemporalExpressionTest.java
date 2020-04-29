@@ -345,10 +345,52 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(6);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(7);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
-
     }
+
+    @Test
+    public final void testDSTLeapNextOccurrence1Day() {
+
+        Calendar cal = Calendar.getInstance(TIMEZONE_WITH_DST);
+        cal.clear();
+        cal.set(Calendar.YEAR, 2010);
+        cal.set(Calendar.MONTH, 2);
+        cal.set(Calendar.DATE, 26);
+        cal.set(Calendar.HOUR_OF_DAY, 10);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        TimeDuration every = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration offset = new TimeDuration(51403, TimeDuration.TimeUnit.SECONDS);
+
+        TemporalExpression expr = new TemporalExpression(every, offset);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(16);
+        assertThat(cal.get(Calendar.SECOND)).isEqualTo(43);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(16);
+        assertThat(cal.get(Calendar.SECOND)).isEqualTo(43);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(16);
+        assertThat(cal.get(Calendar.SECOND)).isEqualTo(43);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(16);
+        assertThat(cal.get(Calendar.SECOND)).isEqualTo(43);
+    }
+
 
     /**
      * Tests summer to winter time transition with 15 min leaps
@@ -356,7 +398,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     @Test
     public final void testNonDSTLeapNextOccurrence15min() {
 
-        Calendar cal = Calendar.getInstance(TIMEZONE_WITH_DST);
+        Calendar cal = Calendar.getInstance(TIMEZONE_WITHOUT_DST);
         cal.clear();
         cal.set(Calendar.YEAR, 2010);
         cal.set(Calendar.MONTH, 9);

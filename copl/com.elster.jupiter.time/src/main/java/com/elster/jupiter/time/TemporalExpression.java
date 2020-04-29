@@ -11,6 +11,7 @@ import org.joda.time.DateTimeConstants;
 
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.ZonedDateTime;
+import java.time.chrono.ChronoZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -207,59 +208,14 @@ public final class TemporalExpression implements ScheduleExpression {
      * @param previous calendar specifying the start Date
      * @return the Date of the next occurrence
      */
+    @Deprecated
     public Date nextOccurrence(Calendar previous) {
-        Calendar base = (Calendar) previous.clone();
-        base.setLenient(true);
-
-        if (every.getTimeUnitCode() == offset.getTimeUnitCode()) {
-            every.addTo(base, true);
-        }
-        every.truncate(base);
-        TimeDuration offset = this.offset;
-        if (this.indicatesLastOfMonth()) {
-            if (previous.get(Calendar.DAY_OF_MONTH) == previous.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-                base.add(Calendar.MONTH, 1);
-            }
-            offset = this.offsetToLastOfMonth(base, this.offset);
-        }
-        offset.addTo(base, true);
-
-        if (!base.getTime().after(previous.getTime())) {
-            every.addTo(base, false);
-        }
-
-        return base.getTime();
-    }
-
-    private TimeDuration offsetToLastOfMonth(Calendar base, TimeDuration offset) {
-        /** Base will already be set to the first of the month
-         * so to get to midnight of the last day,
-         * we need to add max - 1 days to the first day of the month.
-         **/
-        int lastDayOfMonth = base.getActualMaximum(Calendar.DAY_OF_MONTH) - 1;
-        int remainingSecondsInDay = offset.getSeconds() % SECONDS_PER_DAY;
-        if (remainingSecondsInDay > 0) {
-            return new TimeDuration(lastDayOfMonth * SECONDS_PER_DAY + remainingSecondsInDay, TimeDuration.TimeUnit.SECONDS);
-        } else {
-            return new TimeDuration(lastDayOfMonth, TimeDuration.TimeUnit.DAYS);
-        }
+        return Date.from(nextOccurrence(ZonedDateTime.ofInstant(previous.toInstant(), previous.getTimeZone().toZoneId())).map(ChronoZonedDateTime::toInstant).get());
     }
 
     private boolean indicatesLastOfMonth() {
         return every.getTimeUnit() == TimeDuration.TimeUnit.MONTHS
                 && offset.getSeconds() >= NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS;
-    }
-
-
-    /**
-     * Tests whether the next occurence based on the argument,
-     * is earlier than the current time.
-     *
-     * @param previous calendar specifying the start Date
-     * @return true if the next occurence is earlier than the current time
-     */
-    public boolean hasExpired(Calendar previous) {
-        return nextOccurrence(previous).before(new Date());
     }
 
     @Override
@@ -306,12 +262,16 @@ public final class TemporalExpression implements ScheduleExpression {
             if (ChronoField.DAY_OF_MONTH.rangeRefinedBy(time).getMaximum() == time.getDayOfMonth()) {
                 result = result.plusMonths(1);
             }
+            result = result.plusSeconds(offset.getSeconds() % NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS);
             result = result.with(ChronoField.DAY_OF_MONTH, ChronoField.DAY_OF_MONTH.rangeRefinedBy(result).getMaximum());
         } else {
             result = result.plus(offset.getCount(), offset.getTemporalUnit());
         }
         while (!result.isAfter(time)) {
             result = result.plus(every.getCount(), every.getTemporalUnit());
+            if (indicatesLastOfMonth()) {
+                result = result.with(ChronoField.DAY_OF_MONTH, ChronoField.DAY_OF_MONTH.rangeRefinedBy(result).getMaximum());
+            }
         }
         return Optional.of(result);
     }
