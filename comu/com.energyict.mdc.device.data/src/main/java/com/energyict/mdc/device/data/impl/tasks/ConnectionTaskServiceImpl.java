@@ -190,16 +190,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Optional<ConnectionTask> findDefaultConnectionTaskForDevice(Device device) {
-        Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
-                          and(where("isDefault").isEqualTo(true)).
-                          and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        List<ConnectionTask> connectionTasks = deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
-        if (connectionTasks.size() == 1) {
-            return Optional.of(connectionTasks.get(0));
-        }
-        else {
-            return Optional.empty();
-        }
+        return device.getConnectionTasks().stream().filter(ConnectionTask::isDefault).findAny().map(ConnectionTask.class::cast);
     }
 
     @Override
@@ -284,10 +275,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private void clearOldDefault(Device device, ConnectionTaskImpl newDefaultConnectionTask) {
-        Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
-                          and(where("isDefault").isEqualTo(true)).
-                          and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        List<ConnectionTask> connectionTasks = deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
+        List<ConnectionTask> connectionTasks = device.getConnectionTasks().stream().filter(ConnectionTask::isDefault).collect(Collectors.toList());
         connectionTasks
                 .stream()
                 .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))

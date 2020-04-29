@@ -7,6 +7,7 @@ package com.energyict.mdc.issue.datacollection;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -165,6 +166,8 @@ public abstract class BaseTest {
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(AppService.class).toInstance(mock(AppService.class));
+
+            bind(PasswordDecryptService.class).toInstance(mock(PasswordDecryptService.class));
         }
     }
 
@@ -240,6 +243,7 @@ public abstract class BaseTest {
             injector.getInstance(IssueDataCollectionService.class);
             injector.getInstance(AuditService.class);
             injector.getInstance(MeteringZoneService.class);
+            injector.getInstance(PasswordDecryptService.class);
             ctx.commit();
         }
     }
@@ -248,6 +252,8 @@ public abstract class BaseTest {
     public static void deactivateEnvironment() {
         inMemoryBootstrapModule.deactivate();
     }
+
+    public PasswordDecryptService getPasswordDecryptService(){return injector.getInstance(PasswordDecryptService.class);}
 
     protected TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);

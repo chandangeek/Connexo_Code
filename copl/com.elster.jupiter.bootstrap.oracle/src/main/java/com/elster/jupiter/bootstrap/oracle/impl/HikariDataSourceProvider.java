@@ -22,7 +22,7 @@ public class HikariDataSourceProvider implements DataSourceProvider {
 
         hikariDataSource.setJdbcUrl(properties.jdbcUrl);
         hikariDataSource.setUsername(properties.jdbcUser);
-        hikariDataSource.setPassword(getDecryptedPassword(properties.jdbcPassword, properties.keyFile));
+        hikariDataSource.setPassword(new PasswordDecryptServiceImpl().getDecryptPassword(properties.jdbcPassword, properties.keyFile));
         hikariDataSource.setDriverClassName("oracle.jdbc.OracleDriver");
         hikariDataSource.setMaximumPoolSize(properties.maxLimit);
         hikariDataSource.setMinimumIdle(3);

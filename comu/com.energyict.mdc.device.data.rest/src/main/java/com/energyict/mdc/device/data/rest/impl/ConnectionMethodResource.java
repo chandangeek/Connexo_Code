@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -45,6 +46,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -62,10 +64,11 @@ public class ConnectionMethodResource {
     private final ConnectionTaskService connectionTaskService;
     private final TopologyService topologyService;
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
     private final Provider<ComSessionResource> comTaskExecutionResourceProvider;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, TopologyService topologyService, ExceptionFactory exceptionFactory, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, TopologyService topologyService, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.engineConfigurationService = engineConfigurationService;
@@ -73,6 +76,7 @@ public class ConnectionMethodResource {
         this.connectionTaskService = connectionTaskService;
         this.topologyService = topologyService;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
         this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
 
@@ -97,7 +101,10 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("name") String name, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        validateTask(connectionMethodInfo, partialConnectionTask);
+        Optional<ConfirmationInfo> confirmationInfoOptional = validateTask(connectionMethodInfo, partialConnectionTask);
+        if (confirmationInfoOptional.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(confirmationInfoOptional.get()).build();
+        }
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
@@ -107,31 +114,27 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
-    private void validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+    private Optional<ConfirmationInfo> validateTask(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
+        ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         if (connectionMethodInfo.status == ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE && !hasAllRequiredProps(connectionMethodInfo, task)) {
-            if (isOutboundTLS(task.getPluggableClass())) {
-                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
-            } else {
-                throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
-            }
+            confirmationInfo.errors.add(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format()));
         }
+        return Optional.of(confirmationInfo)
+                .filter(confirmation -> !confirmation.errors.isEmpty());
     }
 
-    private void pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+    private Optional<ConfirmationInfo> pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+        ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         switch (connectionMethodInfo.status) {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
-                    if (isOutboundTLS(task.getPluggableClass())) {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED_TLS);
-                    } else {
-                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
-                    }
+                    confirmationInfo.errors.add(new ErrorInfo(thesaurus.getSimpleFormat(MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED).format()));
                 } else if (!task.isActive()) {
                     task.activate();
                 }
                 break;
             case INACTIVE:
-                if (task.isActive()) {
+                if (task.getStatus() != ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE) {
                     task.deactivate();
                 }
                 break;
@@ -139,6 +142,8 @@ public class ConnectionMethodResource {
                 task.invalidateStatus();
                 break;
         }
+        return Optional.of(confirmationInfo)
+                .filter(confirmation -> !confirmation.errors.isEmpty());
     }
 
     private boolean hasAllRequiredProps(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask task) {
@@ -149,14 +154,14 @@ public class ConnectionMethodResource {
         List<PropertyInfo> props = connectionMethodInfo.properties;
 
         //for Outbound TLS only
-        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.name.equals("ServerTLSCertificate")).noneMatch(this::hasValue)) {
+        if (isOutboundTLS(task.getPluggableClass()) && props.stream().filter(prop -> prop.key.equals("ServerTLSCertificate")).noneMatch(this::hasValue)) {
             return false;
         }
         // TCP/IP
         if (isOutBoundTcpIp(task.getPluggableClass())) {
             return !Checks.is(connectionMethodInfo.comPortPool).empty() &&
-                    props.stream().anyMatch(prop -> prop.name.equals("host") && hasValue(prop))
-                    && props.stream().anyMatch(prop -> prop.name.equals("portNumber") && hasValue(prop));
+                    props.stream().anyMatch(prop -> prop.key.equals("host") && hasValue(prop))
+                    && props.stream().anyMatch(prop -> prop.key.equals("portNumber") && hasValue(prop));
         }
         //Serial Optical
         return !Checks.is(connectionMethodInfo.comPortPool).empty();
@@ -166,7 +171,7 @@ public class ConnectionMethodResource {
         return prop.propertyValueInfo != null && prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value);
     }
 
-    private boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
+    static boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {
         //if the connection is inbound don't check the props: host name and portPool
         if (InboundConnectionTask.class.isAssignableFrom(task.getClass())) {
             return true;
@@ -187,16 +192,16 @@ public class ConnectionMethodResource {
         return Objects.nonNull(task.getComPortPool());
     }
 
-    private boolean isOutBoundTcpIp(PluggableClass pluggableClass) {
+    static boolean isOutBoundTcpIp(PluggableClass pluggableClass) {
         //todo: use com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys.OutboundTcpIpConnectionType
         return pluggableClass.getName().equals("Outbound TCP/IP");
     }
 
-    private boolean isOutboundTLS(PluggableClass pluggableClass) {
+    static boolean isOutboundTLS(PluggableClass pluggableClass) {
         return pluggableClass.getName().equals("Outbound TLS");
     }
 
-    private Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {
+    static Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {
         return properties.stream().filter(prop -> prop.getName().equals(name)).findFirst();
     }
 
@@ -209,6 +214,33 @@ public class ConnectionMethodResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(connectionTask, uriInfo)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/activate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response activateConnectionMethod(@PathParam("name") String name, @PathParam("id") long connectionMethodId,
+                                             @Context UriInfo uriInfo,
+                                             ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> info) {
+        info.id = connectionMethodId;
+        ConnectionTask task = resourceHelper.lockConnectionTaskOrThrowException(info);
+        switch (info.status) {
+            case ACTIVE:
+                if (!ConnectionMethodResource.hasAllRequiredProps(task)) {
+                    throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINED);
+                } else if (!task.isActive()) {
+                    task.activate();
+                }
+                break;
+            case INACTIVE:
+                task.deactivate();
+                break;
+            default:
+                break;
+        }
+        return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
     @PUT
@@ -238,7 +270,10 @@ public class ConnectionMethodResource {
         }
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.saveAllProperties();
-        pauseOrResumeTaskIfNeeded(info, task);
+        Optional<ConfirmationInfo> confirmationInfoOptional = pauseOrResumeTaskIfNeeded(info, task);
+        if (confirmationInfoOptional.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(confirmationInfoOptional.get()).build();
+        }
         task.save();
         if (info.isDefault && !wasConnectionTaskDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
@@ -280,6 +315,21 @@ public class ConnectionMethodResource {
             return Optional.of(uriParams.getFirst(parameter));
         } else {
             return Optional.empty();
+        }
+    }
+
+    private static class ConfirmationInfo {
+        public final boolean confirmation = true;
+        public final boolean success = false;
+        public List<ErrorInfo> errors = new ArrayList<>();
+    }
+
+    private static class ErrorInfo {
+        public String id;
+        public String msg;
+
+        private ErrorInfo(String msg) {
+            this.msg = msg;
         }
     }
 }

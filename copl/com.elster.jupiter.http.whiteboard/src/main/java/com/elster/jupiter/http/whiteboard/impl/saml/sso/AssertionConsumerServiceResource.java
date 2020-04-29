@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.nimbusds.jose.JOSEException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.opensaml.saml.common.SAMLException;
@@ -81,7 +82,7 @@ public class AssertionConsumerServiceResource {
                 }
 
             }
-        } catch (SAMLException e) {
+        } catch (SAMLException | JOSEException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }

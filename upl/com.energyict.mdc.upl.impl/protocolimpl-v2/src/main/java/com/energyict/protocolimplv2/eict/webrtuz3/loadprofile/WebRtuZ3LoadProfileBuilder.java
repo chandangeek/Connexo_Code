@@ -75,4 +75,10 @@ public final class WebRtuZ3LoadProfileBuilder extends LoadProfileBuilder<WebRTUZ
 
         return isStatusObisCode;
     }
+
+    @Override
+    protected ObisCode fixObisCodeForSlaveLoadProfile( ObisCode obisCode )
+    {
+        return obisCode;
+    }
 }

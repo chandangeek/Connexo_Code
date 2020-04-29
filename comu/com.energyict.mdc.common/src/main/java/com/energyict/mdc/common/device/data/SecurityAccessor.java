@@ -72,4 +72,6 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.el
     }
 
     public default void setXmlType(String ignore) {}
+
+    default void touch(){};
 }
