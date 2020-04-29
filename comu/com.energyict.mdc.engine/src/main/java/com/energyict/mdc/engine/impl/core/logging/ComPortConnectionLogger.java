@@ -98,6 +98,16 @@ public interface ComPortConnectionLogger {
     @Configuration(format = "The execution of task ''{1}'' for device ''{2}'' by ''{0}'' failed, see stacktrace below", logLevel = LogLevel.ERROR)
     void taskExecutionFailed(Throwable e, String comPortThreadName, String comTaskName, String device);
 
+    /**
+     * Logs that the task {@link ComTask}
+     * by a {@link ComPort} not executed due to no command exists.
+     *
+     * @param comPortThreadName The name of the ComPort thread that completed the execution
+     * @param comTaskName       The name of the {@link ComTask} whish is not executed
+     * @param device            Device name
+     */
+    @Configuration(format = "Task ''{1}'' for device ''{2}'' by ''{0}'' is not executed due to no command exists", logLevel = LogLevel.WARN)
+    void taskExecutionNotExecutedDueToNoCommand(String comPortThreadName, String comTaskName, String device);
 
     /**
      * Logs that the execution of a {@link ComTask}

@@ -346,7 +346,8 @@ public abstract class JobExecution implements ScheduledJob {
     private void addCompletionEvent() {
         ExecutionContext executionContext = this.getExecutionContext();
         if (executionContext != null && serviceProvider.engineService().isOnlineMode()) {
-            if (!executionContext.connectionFailed()) {
+            if (!executionContext.connectionFailed()
+                    && !(onlyNotExecutedComTasks() && getSuccessIndicator().equals(ComSession.SuccessIndicator.Not_Executed))) {
                 executionContext.getStoreCommand().add(
                         new PublishConnectionCompletionEvent(
                                 getConnectionTask(),
@@ -363,6 +364,10 @@ public abstract class JobExecution implements ScheduledJob {
                     "Attempt to publish an event that a ConnectionTask has completed for OfflineEngine or no ExecutionContext!",
                     new Exception("For diagnostic purposes only"));
         }
+    }
+
+    private boolean onlyNotExecutedComTasks() {
+        return getSuccessfulComTaskExecutions().size() == 0 && getFailedComTaskExecutions().size() == 0 && getNotExecutedComTaskExecutions().size() > 0;
     }
 
     protected void completeOutsideComWindow() {
@@ -389,8 +394,7 @@ public abstract class JobExecution implements ScheduledJob {
         return new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
     }
 
-    @Override
-    public void reschedule() {
+    private ComSession.SuccessIndicator getSuccessIndicator() {
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
         if (commandRoot.hasConnectionNotExecuted()) {
             successIndicator = ComSession.SuccessIndicator.Not_Executed;
@@ -403,6 +407,12 @@ public abstract class JobExecution implements ScheduledJob {
         } else if (commandRoot.hasConnectionBeenInterrupted()) {
             successIndicator = ComSession.SuccessIndicator.Interrupted;
         }
+        return successIndicator;
+    }
+
+    @Override
+    public void reschedule() {
+        ComSession.SuccessIndicator successIndicator = getSuccessIndicator();
 
         if (successIndicator.equals(ComSession.SuccessIndicator.Success) || successIndicator.equals(ComSession.SuccessIndicator.Not_Executed)) {
             rescheduleSuccess(successIndicator);
