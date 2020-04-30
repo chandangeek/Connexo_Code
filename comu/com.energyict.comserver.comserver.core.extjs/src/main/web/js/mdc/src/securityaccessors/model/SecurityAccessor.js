@@ -117,12 +117,22 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             defaultValue: null
         },
         {
+            name: 'serviceKeyRenewalCommandSpecification',
+            useNull: true,
+            defaultValue: null
+        },
+        {
             name: 'wrapperIdAndName',
             useNull: true,
             defaultValue: null
         },
         {
             name: 'properties',
+            useNull: true,
+            defaultValue: null
+        },
+        {
+            name: 'serviceProperties',
             useNull: true,
             defaultValue: null
         }
@@ -152,6 +162,15 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             foreignKey: 'properties'
         },
         {
+            name: 'serviceProperties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            getterName: 'getServiceProperties',
+            setterName: 'setServiceProperties',
+            foreignKey: 'serviceProperties'
+        },
+        {
             name: 'keyType',
             type: 'hasOne',
             model: 'Mdc.securityaccessors.model.KeyType',
@@ -168,6 +187,15 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             getterName: 'getKeyRenewalCommandSpecification',
             setterName: 'setKeyRenewalCommandSpecification',
             foreignKey: 'keyRenewalCommandSpecification'
+        },
+        {
+            name: 'serviceKeyRenewalCommandSpecification',
+            type: 'hasOne',
+            model: 'Mdc.securityaccessors.model.IdWithName',
+            associationKey: 'serviceKeyRenewalCommandSpecification',
+            getterName: 'getServiceKeyRenewalCommandSpecification',
+            setterName: 'setServiceKeyRenewalCommandSpecification',
+            foreignKey: 'serviceKeyRenewalCommandSpecification'
         },
         {
             name: 'wrapperIdAndName',

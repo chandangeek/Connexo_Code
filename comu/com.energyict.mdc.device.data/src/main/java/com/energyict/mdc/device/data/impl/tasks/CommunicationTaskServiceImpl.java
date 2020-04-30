@@ -130,18 +130,25 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public TimeDuration releaseTimedOutComTasks(ComPort comPort) {
-        int waitTime = -1;
-        List<OutboundComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort((OutboundComPort)comPort);
-        for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
-            this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
-            waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
-        }
-        if (waitTime <= 0) {
-            return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
-        } else {
-            return new TimeDuration(waitTime, TimeDuration.TimeUnit.SECONDS);
-        }
+    public List<ComTaskExecution> findTimedOutComTasksByComPort(ComPort comPort) {
+        Set<ComTaskExecution> timedOutComTasks = new HashSet<>();
+        List<OutboundComPortPool> containingPools = deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort((OutboundComPort) comPort);
+        containingPools.forEach(pool -> timedOutComTasks.addAll(findTimedOutComTasksByPool(pool)));
+
+        return timedOutComTasks.stream().collect(Collectors.toList());
+    }
+
+    private List<ComTaskExecution> findTimedOutComTasksByPool(OutboundComPortPool comPortPool) {
+        int timeOutSeconds = comPortPool.getTaskExecutionTimeout().getSeconds();
+        Instant lastValidInstant = deviceDataModelService.clock().instant().minusSeconds(timeOutSeconds);
+        Condition condition =
+                where("connectionTask." + ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull()
+                        .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                        .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNotNull())
+                        .and(where("connectionTask." + ConnectionTaskFields.COM_PORT_POOL.fieldName()).isEqualTo(comPortPool))
+                        .and(where("connectionTask." + ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName()).isLessThan(lastValidInstant));
+        LOGGER.warning("Looking for busy comtasks started before " + lastValidInstant + " on pool " + comPortPool);
+        return deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition);
     }
 
     private ServerComTaskExecution refreshComTaskExecution(ComTaskExecution comTaskExecution) {
@@ -151,29 +158,6 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             return new PriorityComTaskExecutionImpl(freshComTaskExecution, (ServerPriorityComTaskExecutionLink) priorityComTaskExecutionLink.get());
         }
         return freshComTaskExecution;
-    }
-
-    private int minimumWaitTime(int currentWaitTime, int comPortPoolTaskExecutionTimeout) {
-        if (currentWaitTime < 0) {
-            return comPortPoolTaskExecutionTimeout;
-        } else {
-            return Math.min(currentWaitTime, comPortPoolTaskExecutionTimeout);
-        }
-    }
-
-    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool) {
-        long now = this.toSeconds(this.deviceDataModelService.clock().instant());
-        int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
-        this.deviceDataModelService.executeUpdate(this.releaseTimedOutComTaskExecutionsSqlBuilder(outboundComPortPool, now, timeOutSeconds));
-    }
-
-    private SqlBuilder releaseTimedOutComTaskExecutionsSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
-        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append("   set comport = null, executionStart = null");
-        sqlBuilder.append(" where id in (");
-        TimedOutTasksSqlBuilder.appendTimedOutComTaskExecutionSql(sqlBuilder, outboundComPortPool, now, timeOutSeconds);
-        sqlBuilder.append(")");
-        return sqlBuilder;
     }
 
     private long toSeconds(Instant time) {
