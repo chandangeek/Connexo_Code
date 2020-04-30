@@ -184,15 +184,15 @@ class DataExportTaskExecutor implements TaskExecutor {
                         .filter(item -> {
                             boolean needToUpdate = false;
                             if (!dataSendingStatus.isFailedForNewData(item) && !item.isExportPostponedForNewData()) {
-                                // move lastExportedPeriodEnd not to send these data as 'new' anymore
-                                // if we move lastExportedDate as well, unsent changed data will be lost next time
-                                occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedPeriodEnd(s.getExportedDataInterval().upperEndpoint()));
+                                // move lastExportedNewData not to send these data as 'new' anymore
+                                // if we move lastExportedChangedData as well, unsent changed data will be lost next time
+                                occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedNewData(s.getExportedDataInterval().upperEndpoint()));
                                 needToUpdate = true;
                             }
                             if (!dataSendingStatus.isFailedForChangedData(item) && !item.isExportPostponedForChangedData()) {
-                                // move lastExportedDate not to send these changed data anymore
-                                // if we move lastExportedPeriodEnd as well, unsent new data will be lost next time
-                                item.setLastExportedDate(occurrence.getTriggerTime());
+                                // move lastExportedChangedData not to send these changed data anymore
+                                // if we move lastExportedNewData as well, unsent new data will be lost next time
+                                item.setLastExportedChangedData(occurrence.getTriggerTime());
                                 needToUpdate = true;
                             }
                             return needToUpdate;

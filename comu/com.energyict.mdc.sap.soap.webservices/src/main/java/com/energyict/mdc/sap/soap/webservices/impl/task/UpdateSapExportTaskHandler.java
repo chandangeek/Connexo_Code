@@ -90,7 +90,7 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
             if (lastProfileIdInterval.get().getEnd() == null) {
                 return false;
             }
-            return item.getLastExportedPeriodEnd().isPresent() && item.getLastExportedPeriodEnd().get().isAfter(lastProfileIdInterval.get().getEnd());
+            return item.getLastExportedNewData().isPresent() && item.getLastExportedNewData().get().isAfter(lastProfileIdInterval.get().getEnd());
         }
         return true;
     }
