@@ -391,7 +391,6 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         assertThat(cal.get(Calendar.SECOND)).isEqualTo(43);
     }
 
-
     @Test
     public final void testEverydayNextOccurrence1Day() {
 

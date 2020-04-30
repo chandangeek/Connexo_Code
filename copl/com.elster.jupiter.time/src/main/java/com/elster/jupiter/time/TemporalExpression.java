@@ -203,13 +203,12 @@ public final class TemporalExpression implements ScheduleExpression {
     }
 
     /**
-     * @deprecated  {@link java.util.Calendar} has a lot of issues.
-     * please use the {@link TemporalExpression#nextOccurrence(java.time.ZonedDateTime)}.
-     *
-     * Returns the first occurrence of the receiver later than the argument.
-     *
      * @param previous calendar specifying the start Date
      * @return the Date of the next occurrence
+     * @deprecated {@link java.util.Calendar} has a lot of issues.
+     * please use the {@link TemporalExpression#nextOccurrence(java.time.ZonedDateTime)}.
+     * <p>
+     * Returns the first occurrence of the receiver later than the argument.
      */
     @Deprecated
     public Date nextOccurrence(Calendar previous) {
@@ -262,9 +261,6 @@ public final class TemporalExpression implements ScheduleExpression {
 
         result = every.getTimeUnit().truncate(result);
         if (indicatesLastOfMonth()) {
-            if (ChronoField.DAY_OF_MONTH.rangeRefinedBy(time).getMaximum() == time.getDayOfMonth()) {
-                result = result.plusMonths(1);
-            }
             result = result.plusSeconds(offset.getSeconds() % NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS);
             result = result.with(ChronoField.DAY_OF_MONTH, ChronoField.DAY_OF_MONTH.rangeRefinedBy(result).getMaximum());
         } else {
