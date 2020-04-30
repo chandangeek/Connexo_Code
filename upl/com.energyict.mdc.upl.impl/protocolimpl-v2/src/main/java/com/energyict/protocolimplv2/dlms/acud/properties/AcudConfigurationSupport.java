@@ -21,7 +21,12 @@ public class AcudConfigurationSupport extends DlmsConfigurationSupport {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(readCachePropertySpec());
         propertySpecs.add(addressModePropertySpec());
+        propertySpecs.add(informationFieldSizePropertySpec());
         return propertySpecs;
+    }
+
+    private PropertySpec informationFieldSizePropertySpec() {
+        return this.bigDecimalSpec(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, false, com.energyict.nls.PropertyTranslationKeys.V2_TASKS_INFORMATION_FIELD_SIZE,BigDecimal.valueOf(128), BigDecimal.valueOf(128), BigDecimal.valueOf(256), BigDecimal.valueOf(512), BigDecimal.valueOf(1024), BigDecimal.valueOf(2048));
     }
 
     private PropertySpec addressModePropertySpec() {

@@ -14,6 +14,4 @@ public class AcudDlmsProperties extends DlmsProperties {
     public boolean isReadCache() {
         return getProperties().<Boolean>getTypedProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
     }
-
-
 }
