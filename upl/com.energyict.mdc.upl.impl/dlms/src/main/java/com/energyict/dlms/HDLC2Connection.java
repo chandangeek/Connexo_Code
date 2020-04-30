@@ -127,8 +127,8 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
     protected byte[] protocolParameters = null;
     protected int sMaxRXIFSize;
     protected int sMaxTXIFSize;
-    protected byte[] txFrame = new byte[MAX_BUFFER_SIZE + 1];
-    protected byte[] rxFrame = new byte[MAX_BUFFER_SIZE + 1];
+    protected byte[] txFrame;
+    protected byte[] rxFrame;
     protected int NR;
     protected int NS;
     protected boolean boolHDLCConnected;
@@ -150,6 +150,8 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         this.iServerUpperMacAddress = properties.getServerUpperMacAddress();
         this.iServerLowerMacAddress = properties.getServerLowerMacAddress();
         this.informationFieldSize = (properties.getInformationFieldSize() == -1) ? ISIZE : properties.getInformationFieldSize();
+        this.txFrame = new byte[Math.max(informationFieldSize, MAX_BUFFER_SIZE) + 1];
+        this.rxFrame = new byte[Math.max(informationFieldSize, MAX_BUFFER_SIZE) + 1];
     }
 
     public HDLC2Connection(
@@ -178,6 +180,8 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         getAddressingMode(addressingMode);
         setProtocolParams();
         this.informationFieldSize = (informationFieldSize == -1) ? ISIZE : informationFieldSize;
+        this.txFrame = new byte[Math.max(informationFieldSize, MAX_BUFFER_SIZE) + 1];
+        this.rxFrame = new byte[Math.max(informationFieldSize, MAX_BUFFER_SIZE) + 1];
         this.hhuSignonBaudRateCode = hhuSignonBaudRateCode;
         generateSNRMFrames();
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
@@ -471,7 +475,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             while (true) {
                 int inewKar = readIn();
                 if (inewKar != -1) {
-                    if (sRXCount >= MAX_BUFFER_SIZE) {
+                    if (sRXCount >= byteReceiveBuffer.length) {
                         return HDLC_BADFRAME;
                     }
                     switch (bCurrentState) {
@@ -527,7 +531,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
 
         try {
             for (byte inewKar : byteReceiveBuffer) {
-                if (sRXCount >= MAX_BUFFER_SIZE) {
+                if (sRXCount >= byteReceiveBuffer.length) {
                     return HDLC_BADFRAME;
                 }
                 switch (bCurrentState) {
