@@ -203,6 +203,9 @@ public final class TemporalExpression implements ScheduleExpression {
     }
 
     /**
+     * @deprecated  {@link java.util.Calendar} has a lot of issues.
+     * please use the {@link TemporalExpression#nextOccurrence(java.time.ZonedDateTime)}.
+     *
      * Returns the first occurrence of the receiver later than the argument.
      *
      * @param previous calendar specifying the start Date
