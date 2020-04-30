@@ -199,7 +199,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     void executeForNoCommands(ExecutionContext executionContext) {
         commandRoot.connectionNotExecuted();
-        executeWithNotExecuted(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
+        executeAsNotExecuted(executionContext, MessageSeeds.NOT_EXECUTED_BECAUSE_COMMAND_NOT_PRESENT);
     }
 
     /**
@@ -228,9 +228,9 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         }
     }
 
-    private void executeWithNotExecuted(ExecutionContext executionContext, MessageSeeds messageSeed) {
+    private void executeAsNotExecuted(ExecutionContext executionContext, MessageSeeds messageSeed) {
         for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : comTaskExecutionComCommands.values()) {
-            completeComCommandWithNotExecuted(executionContext, messageSeed, comTaskExecutionComCommand);
+            completeComCommandAsNotExecuted(executionContext, messageSeed, comTaskExecutionComCommand);
         }
     }
 
@@ -254,7 +254,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         }
     }
 
-    private void completeComCommandWithNotExecuted(ExecutionContext executionContext, MessageSeeds messageSeed, ComTaskExecutionComCommandImpl comTaskExecutionComCommand) {
+    private void completeComCommandAsNotExecuted(ExecutionContext executionContext, MessageSeeds messageSeed, ComTaskExecutionComCommandImpl comTaskExecutionComCommand) {
         try {
             executionContext.start(comTaskExecutionComCommand);
             Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, messageSeed);

@@ -106,7 +106,7 @@ public interface ComPortConnectionLogger {
      * @param comTaskName       The name of the {@link ComTask} whish is not executed
      * @param device            Device name
      */
-    @Configuration(format = "Task ''{1}'' for device ''{2}'' by ''{0}'' is not executed due to no command exists", logLevel = LogLevel.WARN)
+    @Configuration(format = "Task ''{1}'' for device ''{2}'' isn''t executed by ''{0}'' because no command is present", logLevel = LogLevel.WARN)
     void taskExecutionNotExecutedDueToNoCommand(String comPortThreadName, String comTaskName, String device);
 
     /**

@@ -346,8 +346,8 @@ public abstract class JobExecution implements ScheduledJob {
     private void addCompletionEvent() {
         ExecutionContext executionContext = this.getExecutionContext();
         if (executionContext != null && serviceProvider.engineService().isOnlineMode()) {
-            if (!executionContext.connectionFailed()
-                    && !(onlyNotExecutedComTasks() && getSuccessIndicator().equals(ComSession.SuccessIndicator.Not_Executed))) {
+            if (!(executionContext.connectionFailed()
+                    || onlyNotExecutedComTasks() && getSuccessIndicator().equals(ComSession.SuccessIndicator.Not_Executed))) {
                 executionContext.getStoreCommand().add(
                         new PublishConnectionCompletionEvent(
                                 getConnectionTask(),
@@ -367,7 +367,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private boolean onlyNotExecutedComTasks() {
-        return getSuccessfulComTaskExecutions().size() == 0 && getFailedComTaskExecutions().size() == 0 && getNotExecutedComTaskExecutions().size() > 0;
+        return getSuccessfulComTaskExecutions().isEmpty() && getFailedComTaskExecutions().isEmpty() && !getNotExecutedComTaskExecutions().isEmpty();
     }
 
     protected void completeOutsideComWindow() {
