@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ChargeSetup;
+import com.energyict.dlms.cosem.CreditSetup;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
 import com.energyict.dlms.cosem.methods.CreditSetupMethods;
@@ -30,7 +32,6 @@ import java.util.Calendar;
 import java.util.List;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
-
 
     private static final ObisCode CHARGE_TOU_IMPORT = ObisCode.fromString("0.0.19.20.0.255");
     private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
@@ -226,49 +227,10 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
         String path = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
         byte[] binaryImage = TempFileLoader.loadTempFile(path);
-
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
-        imageTransfer.setBooleanValue(getBooleanValue());
+        imageTransfer.setVerifyImage(true);
+        imageTransfer.setActivateImage(true);
         imageTransfer.setUsePollingVerifyAndActivate(true);     //Use polling to check the result of the image verification
         imageTransfer.upgrade(binaryImage, false);
-
-        try {
-            imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
-            imageTransfer.imageActivation();
-        } catch (IOException e) {
-            if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause()) || isHardwareFault(e) || isHardwareFault(e.getCause())) {
-                //Move on in case of temporary failure/hardware fault,
-                return;
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    private boolean isTemporaryFailure(Throwable e) {
-        if (e == null) {
-            return false;
-        } else if (e instanceof DataAccessResultException) {
-            return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
-        } else {
-            return false;
-        }
-    }
-
-    private boolean isHardwareFault(Throwable e) {
-        if (e == null) {
-            return false;
-        } else if (e instanceof DataAccessResultException) {
-            return ((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.HARDWARE_FAULT.getResultCode();
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Default value, subclasses can override. This value is used to set the image_transfer_enable attribute.
-     */
-    protected int getBooleanValue() {
-        return 0xFF;
     }
 }
