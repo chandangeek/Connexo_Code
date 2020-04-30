@@ -50,10 +50,10 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
     public static final ObisCode AMR_PROFILE_STATUS_CODE_E_METER_DAILY = ObisCode.fromString("0.0.96.10.4.255");
     public static final ObisCode AMR_PROFILE_STATUS_CODE_MBUS_DAILY = ObisCode.fromString("0.0.96.10.5.255");
     /*
-       Montly billing profiles
+       Monthly billing profiles
     */
-    public static final ObisCode AMR_PROFILE_STATUS_CODE_E_METER_MONTLY = ObisCode.fromString("0.0.96.10.6.255");
-    public static final ObisCode AMR_PROFILE_STATUS_CODE_MBUS_MONTLY = ObisCode.fromString("0.0.96.10.7.255");
+    public static final ObisCode AMR_PROFILE_STATUS_CODE_E_METER_MONTHLY = ObisCode.fromString("0.0.96.10.6.255");
+    public static final ObisCode AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY = ObisCode.fromString("0.0.96.10.7.255");
     /*
       Power quality profile status 1 profiles
     */
@@ -117,14 +117,14 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
         }
 
 
-        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_MONTLY, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_MONTHLY, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_MONTLY, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
