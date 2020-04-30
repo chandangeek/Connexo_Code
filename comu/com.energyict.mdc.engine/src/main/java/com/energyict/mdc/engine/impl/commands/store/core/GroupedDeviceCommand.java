@@ -200,10 +200,6 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     void executeForNoCommands(ExecutionContext executionContext) {
         commandRoot.connectionNotExecuted();
         executeWithNotExecuted(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
-//        comTaskExecutionComCommands.keySet().forEach(cte -> {
-//            executionContext.comTaskExecutionFailed(cte);
-//            executionContext.completeExecutedComTask(cte, ComTaskExecutionSession.SuccessIndicator.Failure);
-//        });
     }
 
     /**
