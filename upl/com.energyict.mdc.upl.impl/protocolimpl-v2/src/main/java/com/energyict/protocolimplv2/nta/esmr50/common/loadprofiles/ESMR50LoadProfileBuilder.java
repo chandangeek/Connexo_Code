@@ -178,7 +178,6 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
                     if (lpObisCode.equals(LTE_MONITORING_LOAD_PROFILE)) {
                         intervals = new LTEMonitoringProfileIntervals(
                                 profile.getBufferData(fromCalendar, toCalendar),
-                                DLMSProfileIntervals.DefaultClockMask,
                                 getStatusMasksMap().get(lpr),
                                 getChannelMaskMap().get(lpr),
                                 new ESMR5ProfileIntervalStatusBits(getIgnoreDstStatusCode()),

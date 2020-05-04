@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
@@ -37,14 +36,12 @@ public class LTEMonitoringProfileVersion0 {
      last_rejected_mnc long-unsigned (Mobile Network Code of the last rejected network)
      timestamp_last_rejection date_time (specifies the date and time of the rejection). This date_time can be stored in EIServer in epoch format.
      *
-     * @param lpc
+     * @param lpc The loadprofile configuration to identify the serial number
      */
     public static List<ChannelInfo> getLTEMonitoringChannelInfos(CollectedLoadProfileConfiguration lpc) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
         int ch = 0;
-        channelInfos.add(new ChannelInfo(ch++, Clock.getDefaultObisCode().toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), true));
-
         channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
         channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
         channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));

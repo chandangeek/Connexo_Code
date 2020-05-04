@@ -2325,6 +2325,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
                         while (channelContainerInterval.contains(requestStart.toInstant())) {
                             ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                            readingTimestamp = readingTimestamp.plusSeconds(requestStart.getOffset().getTotalSeconds()-readingTimestamp.getOffset().getTotalSeconds());
                             if (requestedInterval.contains(readingTimestamp.toInstant())) {
                                 LoadProfileReadingImpl value = new LoadProfileReadingImpl();
                                 value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
