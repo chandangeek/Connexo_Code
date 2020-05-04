@@ -123,8 +123,11 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             renewKeyFor(renewKeyData, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(),
                     getCosemObjectFactory().getSecuritySetup().getObisCode(),
                     getProtocol().getDlmsSession().getProperties().getClientMacAddress());
-        } else {
-            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
+        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.PASSWORD.getKey())) {
+            renewHlsSecret(renewKeyData);
+        }
+        else {
+            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication key, encryption key or password in the security setting. Therefore it is not clear which key should be renewed.");
         }
     }
 
@@ -151,6 +154,13 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             }
         }
     }
+
+    private void renewHlsSecret(RenewKeyData renewKeyData) throws IOException {
+        byte[] keyBytes = ProtocolTools.getBytesFromHexString(renewKeyData.getNewWrappedKey(), "");
+        getProtocol().journal("Writing HLS secret");
+        getProtocol().getDlmsSession().getCosemObjectFactory().getAssociationLN().changeHLSSecret(keyBytes);
+    }
+
 
     /**
      * Return true if the given client of the key renewal message is the same as the client that is currently used for this communication session.
