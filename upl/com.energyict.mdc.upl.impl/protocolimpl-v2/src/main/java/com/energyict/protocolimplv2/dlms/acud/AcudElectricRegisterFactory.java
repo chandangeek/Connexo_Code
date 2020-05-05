@@ -21,20 +21,19 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
         String lowThreshold;
         String description = structure.toString();
         if (obisCode.equals(MONEY_CREDIT_THRESHOLD)) {
-            highThreshold = Integer.toString(structure.getDataType(0).getUnsigned8().getValue());
-            lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned8().getValue());
+            highThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
+            lowThreshold = Integer.toString(structure.getDataType(2).getUnsigned16().getValue());
             description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingCreditHighDefaultTranslation, DeviceMessageConstants.remainingCreditLowDefaultTranslation);
         } else if (obisCode.equals(CONSUMPTION_CREDIT_THRESHOLD)) {
-            highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
-            lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
-            description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.consumedCreditHighDefaultTranslation, DeviceMessageConstants.consumedCreditLowDefaultTranslation);
-        } else if (obisCode.equals(TIME_CREDIT_THRESHOLD)) {
             highThreshold = Long.toString(structure.getDataType(0).getUnsigned32().getValue());
             lowThreshold = Long.toString(structure.getDataType(1).getUnsigned32().getValue());
+            description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.consumedCreditHighDefaultTranslation, DeviceMessageConstants.consumedCreditLowDefaultTranslation);
+        } else if (obisCode.equals(TIME_CREDIT_THRESHOLD)) {
+            highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
+            lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
             description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingTimeHighDefaultTranslation, DeviceMessageConstants.remainingTimeLowDefaultTranslation);
         } else
             throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
         return new RegisterValue(obisCode, description);
     }
-
 }

@@ -44,8 +44,8 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
         Integer remainingCreditHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditHigh));
         Integer remainingCreditLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditLow));
         Structure thresholdStructure = new Structure();
-        thresholdStructure.addDataType(new Unsigned8(remainingCreditHigh));
-        thresholdStructure.addDataType(new Unsigned8(remainingCreditLow));
+        thresholdStructure.addDataType(new Unsigned16(remainingCreditHigh));
+        thresholdStructure.addDataType(new Unsigned16(remainingCreditLow));
         getCosemObjectFactory().writeObject(MONEY_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), CREDIT_THRESHOLD_VALUE_ATTR, thresholdStructure.getBEREncodedByteArray());
     }
 
@@ -53,17 +53,17 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
         Integer consumedCreditHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumedCreditHigh));
         Integer consumedCreditLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumedCreditLow));
         Structure thresholdStructure = new Structure();
-        thresholdStructure.addDataType(new Unsigned16(consumedCreditHigh));
-        thresholdStructure.addDataType(new Unsigned16(consumedCreditLow));
+        thresholdStructure.addDataType(new Unsigned32(consumedCreditHigh));
+        thresholdStructure.addDataType(new Unsigned32(consumedCreditLow));
         getCosemObjectFactory().writeObject(CONSUMPTION_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), CREDIT_THRESHOLD_VALUE_ATTR, thresholdStructure.getBEREncodedByteArray());
     }
 
     private void updateTimeCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
-        Long remainingTimeHigh = Long.parseLong(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeHigh));
-        Long remainingTimeLow = Long.parseLong(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeLow));
+        Integer remainingTimeHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeHigh));
+        Integer remainingTimeLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeLow));
         Structure thresholdStructure = new Structure();
-        thresholdStructure.addDataType(new Unsigned32(remainingTimeHigh));
-        thresholdStructure.addDataType(new Unsigned32(remainingTimeLow));
+        thresholdStructure.addDataType(new Unsigned16(remainingTimeHigh));
+        thresholdStructure.addDataType(new Unsigned16(remainingTimeLow));
         getCosemObjectFactory().writeObject(TIME_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), CREDIT_THRESHOLD_VALUE_ATTR, thresholdStructure.getBEREncodedByteArray());
     }
 }
