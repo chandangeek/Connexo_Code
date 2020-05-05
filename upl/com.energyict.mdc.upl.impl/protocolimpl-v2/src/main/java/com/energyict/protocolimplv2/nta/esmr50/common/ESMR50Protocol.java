@@ -66,6 +66,9 @@ import java.util.logging.Level;
 
 public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
+    public static final String CRYPTO_ELSTER_MBUS_PROTOCOL_DESCRIPTION = "Elster Crypto MbusDevice DLMS (NTA ESMR5.0) V2";
+    public static final String CRYPTO_ITRON_MBUS_PROTOCOL_DESCRIPTION = "Itron Crypto MbusDevice DLMS (NTA ESMR5.0) V2";
+
     public static final ObisCode EMETER_LP1_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
     public static final ObisCode EMETER_LP2_OBISCODE_SAME_AS_MBUS_LP2 = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode EMETER_LP3_OBISCODE_SAME_AS_MBUS_LP3 = ObisCode.fromString("1.0.98.1.0.255");
