@@ -70,6 +70,7 @@ import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -184,6 +185,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return Optional.ofNullable(dataModel).filter(dm -> dm instanceof DataModelImpl)
                 .map(DataModelImpl.class::cast).map(DataModelImpl::getOrmService)
                 .map(ormService -> ormService.getProperty("com.elster.jupiter.comtaskexecution.useTriggers"))
+                .filter(value -> value.trim().length()>0)
                 .map(Boolean::valueOf)
                 .orElse(true);
     }
