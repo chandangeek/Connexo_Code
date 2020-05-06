@@ -53,6 +53,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
             if (areWeAllowedToPerformTheCommand(comCommand)) {
                 comCommand.execute(deviceProtocol, executionContext);
             } else {
+                deviceProtocol.journal("The execution of command not allowed.");
                 comCommand.setCompletionCode(CompletionCode.NotExecuted);
             }
         }

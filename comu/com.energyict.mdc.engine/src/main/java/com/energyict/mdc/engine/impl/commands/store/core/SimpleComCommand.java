@@ -158,6 +158,10 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                     }
                 }
             }
+            else
+            {
+                deviceProtocol.journal("Command already in execution state");
+            }
         } finally {
             if (executionContext != null) {
             /* AspectJ - ComCommandJournaling - ComCommandLogging */

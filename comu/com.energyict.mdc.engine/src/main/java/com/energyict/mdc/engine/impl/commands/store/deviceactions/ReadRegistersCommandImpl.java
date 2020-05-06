@@ -90,6 +90,19 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         verifyObisCodeRequiresSerialNumber();
         collectedRegisters = deviceProtocol.readRegisters(this.registers);
+
+        if( collectedRegisters.size() != 0 ) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Read registers: ");
+            for (CollectedRegister or : collectedRegisters) {
+                sb.append(or.getRegisterIdentifier().toString());
+            }
+            deviceProtocol.journal(sb.substring(0));
+        }
+        else
+        {
+            deviceProtocol.journal( "No registers to request.");
+        }
         this.commandOwner.addListOfCollectedDataItems(convertToTextRegistersIfRequired(this.registers, collectedRegisters));
     }
 
