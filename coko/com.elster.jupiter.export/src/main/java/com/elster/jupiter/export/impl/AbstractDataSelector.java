@@ -49,7 +49,7 @@ abstract class AbstractDataSelector implements DataSelector {
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
         Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
         Map<Long, Optional<Instant>> previousSuccessfulRuns = activeItems.stream()
-                .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedDate));
+                .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedChangedData));
         AbstractItemDataSelector itemDataSelector = getItemDataSelector();
         try {
             Map<Long, Optional<MeterReadingData>> selectedData = new LinkedHashMap<>();

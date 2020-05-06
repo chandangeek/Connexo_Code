@@ -258,7 +258,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                .peek(item -> item.setLastExportedChangedData(occurrence.getTriggerTime()))
                 .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
@@ -301,7 +301,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                .peek(item -> item.setLastExportedChangedData(occurrence.getTriggerTime()))
                 .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
@@ -370,7 +370,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                .peek(item -> item.setLastExportedChangedData(occurrence.getTriggerTime()))
                 .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
@@ -421,7 +421,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                .peek(item -> item.setLastExportedChangedData(occurrence.getTriggerTime()))
                 .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
@@ -485,7 +485,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                .peek(item -> item.setLastExportedChangedData(occurrence.getTriggerTime()))
                 .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
@@ -545,7 +545,7 @@ public class MeterReadingDataSelectorImplTest {
         Set<ReadingTypeDataExportItem> activeItems = selectorConfig.getActiveItems(occurrence);
         activeItems.stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                .peek(item -> item.setLastExportedChangedData(occurrence.getTriggerTime()))
                 .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());

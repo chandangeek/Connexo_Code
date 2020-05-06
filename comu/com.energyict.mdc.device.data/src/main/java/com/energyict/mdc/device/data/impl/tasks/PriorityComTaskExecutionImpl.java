@@ -23,6 +23,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -259,7 +260,8 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
 
     @Override
     public List<ComTaskExecutionTrigger> getComTaskExecutionTriggers() {
-        return comTaskExecution.getComTaskExecutionTriggers();
+        return comTaskExecution.isUsingComTaskExecutionTriggers()
+                ? comTaskExecution.getComTaskExecutionTriggers() : Collections.emptyList();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
@@ -77,14 +78,18 @@ public class Dsmr23LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
         return new MbusControlLog(dataContainer).getMeterEvents();
     }
 
-    @Override
-    protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException {
+    private List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException {
         DSMR23MbusEventLog mBusLog = new DSMR23MbusEventLog(dataContainer, channel);
         List<MeterEvent> meterEvents = mBusLog.getMeterEvents();
         if (mBusLog.getIgnoredEvents()>0){
             getProtocol().journal("Ignored events: "+mBusLog.getIgnoredEvents());
         }
         return meterEvents;
+    }
+
+    @Override
+    protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel, LogBookReader logBookReader) throws ProtocolException {
+        return parseMBUSEventLog(dataContainer, channel);
     }
 
     @Override

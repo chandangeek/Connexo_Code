@@ -236,7 +236,6 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
     @Override
     public SignedJWT createPermamentSignedJWT(User user) throws JOSEException {
         final UUID jwtId = UUID.randomUUID();
-        final long tokenExpirationTime = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME;
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setJWTID(jwtId.toString());
@@ -249,7 +248,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         final SignedJWT signedJWT = createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
         final UserJWT userJWT = dataModel.getInstance(UserJWT.class)
-                .init(jwtId.toString(), BigDecimal.valueOf(user.getId()), signedJWT.serialize(), Instant.ofEpochMilli(tokenExpirationTime));
+                .init(jwtId.toString(), BigDecimal.valueOf(user.getId()), signedJWT.serialize(), Instant.ofEpochMilli(Long.MAX_VALUE));
 
         userJWT.save();
 
@@ -377,16 +376,17 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         List<RoleClaimInfo> roles = new ArrayList<>();
         List<String> privileges = new ArrayList<>();
 
+        if(!userGroups.isEmpty()){
+            privileges.add("privilege.public.api.rest");
+            privileges.add("privilege.pulse.public.api.rest");
+            privileges.add("privilege.view.userAndRole");
+        }
+
         userGroups.forEach(group -> {
             group.getPrivileges().forEach((key, value) -> {
                 if (key.equals("BPM") || key.equals("YFN"))
                     value.forEach(p -> privileges.add(p.getName()));
             });
-
-            privileges.add("privilege.public.api.rest");
-            privileges.add("privilege.pulse.public.api.rest");
-            privileges.add("privilege.view.userAndRole");
-
             roles.add(new RoleClaimInfo(group.getId(), group.getName()));
         });
 

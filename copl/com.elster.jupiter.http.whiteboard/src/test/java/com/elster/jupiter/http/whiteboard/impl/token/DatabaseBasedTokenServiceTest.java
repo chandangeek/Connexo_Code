@@ -145,6 +145,19 @@ public class DatabaseBasedTokenServiceTest extends TokenServicePersistence {
         LOG.info(String.format("TOKEN_SERVICE_TEST: 100 000 user tokens were validated in %f seconds", executionTime / 1000D));
     }
 
+    @Test
+    @Transactional
+    public void shouldCreatePermanentToken() throws JOSEException, ParseException {
+        final SignedJWT permamentSignedJWT = databaseBasedTokenService.createPermamentSignedJWT(userMock);
+
+        final Optional<UserJWT> userJWT = databaseBasedTokenService.getUserJWT(UUID.fromString(permamentSignedJWT.getJWTClaimsSet().getJWTID()));
+
+        assertThat(userJWT.isPresent()).isTrue();
+
+        final UserJWT actualUserJWT = userJWT.get();
+        assertThat(actualUserJWT.getExpirationDate()).isEqualTo(Instant.ofEpochMilli(Long.MAX_VALUE));
+    }
+
     private List<User> createListOfUserMocks(final long count) {
         when(userMock.getId()).thenAnswer(invocationOnMock -> new SecureRandom().nextLong());
         when(userMock.getGroups()).thenReturn(new ArrayList<>());

@@ -362,8 +362,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
         byte[] encryptedImage;
 
-        //ProtectedSessionKey protectedFUAK = EncryptedKeyPhase2.fromDataBaseString(fuakRaw).toProtectedSessionKey();
-        IrreversibleKey irreversibleFUAK = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(fuakRaw));
+        IrreversibleKey irreversibleFUAK = new IrreversibleKeyImpl(fuakRaw);
         journal(Level.INFO, "protectedFUAK value: " + irreversibleFUAK);
 
         MacResponse macResponse;

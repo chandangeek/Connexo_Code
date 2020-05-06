@@ -768,6 +768,18 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD = 360;
 
+    public static final int POWER_FAIL = 361;
+
+    public static final int MAX_FLOW = 362;
+
+    public static final int TEMP_MIN_LIMIT = 363;
+
+    public static final int TEMP_MAX_LIMIT = 364;
+
+    public static final int PULSE_ERROR = 365;
+
+    public static final int CONSUMPTION_ERROR = 366;
+
     /**
      * Start of Beacon3100 custom codes
      * Range from 100000 to 100129
@@ -1337,6 +1349,18 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Send Frame Counter above threshold");
             case RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD:
                 return ("Receive Fame Counter above threshold");
+            case POWER_FAIL:
+                return ("Powerfail");
+            case MAX_FLOW:
+                return ("Max Flow");
+            case TEMP_MIN_LIMIT:
+                return ("TempMinLimit");
+            case TEMP_MAX_LIMIT:
+                return ("TempMaxLimit");
+            case PULSE_ERROR:
+                return ("Pulse error");
+            case CONSUMPTION_ERROR:
+                return ("Consumption Error");
             case  TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
                 return ("Too high consumption or production of energy.");
             case INDEX_VALUE_DECREASE_OR_RESET:

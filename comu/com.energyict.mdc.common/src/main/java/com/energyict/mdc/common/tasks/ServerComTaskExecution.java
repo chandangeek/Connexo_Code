@@ -120,4 +120,6 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      */
     public void injectConnectionTask(OutboundConnectionTask connectionTask);
 
+    default boolean isUsingComTaskExecutionTriggers() {return true;}
+
 }

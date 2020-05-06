@@ -75,4 +75,6 @@ public interface OrmService {
     DataModelDifferencesLister getDataModelDifferences(Logger logger);
 
     boolean isTest();
+
+    String getProperty(String key);
 }
