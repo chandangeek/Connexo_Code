@@ -194,10 +194,17 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         if (hsmKey.getSmartMeterKey() == null && validateSmartMeterKey) {
             throw new UnsupportedOperationException("Smart Meter key is null, maybe you forgot to generate a new passive key.");
         }
-        if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty() && validateSmartMeterKey) {
-            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey()) + "," + DatatypeConverter.printHexBinary(hsmKey.getSmartMeterKey()));
-        } else if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty()) {
-            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey()));
+        byte[] key = hsmKey.getKey();
+        if (hsmKey.isServiceKey()) {
+            key = hsmKey.getWrappedKey();
+            if (key == null) {
+                throw new UnsupportedOperationException("Service key wrapped value is null.");
+            }
+        }
+        if (key.length > 0 && !hsmKey.getLabel().isEmpty() && validateSmartMeterKey) {
+            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(key) + "," + DatatypeConverter.printHexBinary(hsmKey.getSmartMeterKey()));
+        } else if (key.length > 0 && !hsmKey.getLabel().isEmpty()) {
+            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(key));
         }
         return Optional.empty();
     }

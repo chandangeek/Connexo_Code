@@ -234,6 +234,8 @@ public class KeyAccessorResource {
         if (securityAccessor.getKeyAccessorTypeReference().keyTypeIsHSM()) {
             String value = info.get("value");
             String injectedValue = info.get("injectedValue");
+            boolean serviceKey = Boolean.valueOf(info.get("serviceKey"));
+            String wrappedValue = info.get("wrappedValue");
 
             Map<String, Object> properties = new HashMap<>();
             properties.put(KEY_PROPERTY, value);
@@ -243,11 +245,15 @@ public class KeyAccessorResource {
             if (currentTempValue.isPresent()) {
                 SecurityValueWrapper tempValueWrapper = currentTempValue.get();
                 ((HsmKey)tempValueWrapper).setSmartMeterKey(injectedValue);
+                ((HsmKey)tempValueWrapper).setServiceKey(serviceKey);
+                ((HsmKey)tempValueWrapper).setWrappedKey(wrappedValue);
                 tempValueWrapper.setProperties(properties);
             } else if (!value.isEmpty()) {
                 SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor
                         .getKeyAccessorTypeReference());
                 ((HsmKey)securityValueWrapper).setSmartMeterKey(injectedValue);
+                ((HsmKey)securityValueWrapper).setServiceKey(serviceKey);
+                ((HsmKey)securityValueWrapper).setWrappedKey(wrappedValue);
                 securityValueWrapper.setProperties(properties);
                 securityAccessor.setTempValue(securityValueWrapper);
                 securityAccessor.save();
