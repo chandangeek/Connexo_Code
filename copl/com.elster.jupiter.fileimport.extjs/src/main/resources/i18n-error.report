@@ -1,2 +1,0 @@
-Errors detected in JS sources:
-Wrong argument for method invocation {jsFilePath='model\ImportService.js', lineNo=23, args=[record.get('application'), 'FIM', record.get('application')]}

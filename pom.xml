@@ -354,7 +354,7 @@
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>js-unifying-i18n-maven-plugin</artifactId>
-                    <version>1.6</version>
+                    <version>1.7</version>
                     <configuration>
                         <sourceFolder>${sencha.src.dir}</sourceFolder>
                         <propertyFile>${project.basedir}/src/main/resources/i18n.properties</propertyFile>
