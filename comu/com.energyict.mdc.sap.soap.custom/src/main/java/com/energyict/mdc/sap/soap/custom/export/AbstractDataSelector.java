@@ -52,7 +52,7 @@ abstract class AbstractDataSelector implements DataSelector {
         occurrence.getDefaultSelectorOccurrence().ifPresent(o -> o.updateExportedDataRange(Range.closed(Instant.EPOCH, o.getExportedDataInterval().upperEndpoint())));
         Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
         Map<Long, Optional<Instant>> previousSuccessfulRuns = activeItems.stream()
-                .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedDate));
+                .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedChangedData));
         CustomMeterReadingItemDataSelector itemDataSelector = getItemDataSelector();
 
         try {

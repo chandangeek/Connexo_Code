@@ -86,6 +86,13 @@ public class CompositeComPortConnectionLogger implements ComPortConnectionLogger
     }
 
     @Override
+    public void taskExecutionNotExecutedDueToNoCommand(String comPortThreadName, String comTaskName, String device) {
+        for (ComPortConnectionLogger logger : this.loggers) {
+            logger.taskExecutionNotExecutedDueToNoCommand(comPortThreadName, comTaskName, device);
+        }
+    }
+
+    @Override
     public void reschedulingTask(String comPortThreadName, String comTaskName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.reschedulingTask(comPortThreadName, comTaskName);

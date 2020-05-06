@@ -199,11 +199,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     void executeForNoCommands(ExecutionContext executionContext) {
         commandRoot.connectionNotExecuted();
-        executeWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
-//        comTaskExecutionComCommands.keySet().forEach(cte -> {
-//            executionContext.comTaskExecutionFailed(cte);
-//            executionContext.completeExecutedComTask(cte, ComTaskExecutionSession.SuccessIndicator.Failure);
-//        });
+        executeAsNotExecuted(executionContext, MessageSeeds.NOT_EXECUTED_BECAUSE_COMMAND_NOT_PRESENT);
     }
 
     /**
@@ -232,6 +228,12 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         }
     }
 
+    private void executeAsNotExecuted(ExecutionContext executionContext, MessageSeeds messageSeed) {
+        for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : comTaskExecutionComCommands.values()) {
+            completeComCommandAsNotExecuted(executionContext, messageSeed, comTaskExecutionComCommand);
+        }
+    }
+
     void executeForGeneralSetupError(ExecutionContext executionContext, List<? extends ComTaskExecution> scheduledButNotPreparedComTaskExecutions) {
         for (ComTaskExecution scheduledButNotPreparedComTaskExecution : scheduledButNotPreparedComTaskExecutions) {
             ComTaskExecutionComCommandImpl comTaskExecutionComCommand = getComTaskRoot(scheduledButNotPreparedComTaskExecution);
@@ -249,6 +251,21 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
             executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
         } finally {
             executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), ComTaskExecutionSession.SuccessIndicator.Failure);
+        }
+    }
+
+    private void completeComCommandAsNotExecuted(ExecutionContext executionContext, MessageSeeds messageSeed, ComTaskExecutionComCommandImpl comTaskExecutionComCommand) {
+        try {
+            executionContext.start(comTaskExecutionComCommand);
+            Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, messageSeed);
+            comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+            comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
+            comTaskExecutionComCommand.delegateToJournalistIfAny(executionContext);
+            executionContext.connectionLogger.taskExecutionNotExecutedDueToNoCommand(Thread.currentThread().getName(),
+                    comTaskExecutionComCommand.getComTaskExecution().getComTask().getName(),
+                    comTaskExecutionComCommand.getComTaskExecution().getDevice().getName());
+        } finally {
+            executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), ComTaskExecutionSession.SuccessIndicator.Success);
         }
     }
 

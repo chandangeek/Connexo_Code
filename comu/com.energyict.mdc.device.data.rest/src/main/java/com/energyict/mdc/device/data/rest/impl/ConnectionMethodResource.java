@@ -168,7 +168,10 @@ public class ConnectionMethodResource {
     }
 
     private boolean hasValue(PropertyInfo prop) {
-        return prop.propertyValueInfo != null && prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value);
+        return prop.propertyValueInfo != null &&
+                ((prop.propertyValueInfo.value != null && !"".equals(prop.propertyValueInfo.value))
+                        || (prop.propertyValueInfo.inheritedValue != null && !"".equals(prop.propertyValueInfo.inheritedValue))
+                );
     }
 
     static boolean hasAllRequiredProps(ConnectionTask<?, ?> task) {

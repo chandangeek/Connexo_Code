@@ -958,7 +958,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         GLOBAL_UNICAST_ENCRYPTION_KEY(0),
         GLOBAL_BROADCAST_ENCRYPTION_KEY(1),
         AUTHENTICATION_KEY(2),
-        MASTER_KEY(3);
+        MASTER_KEY(3),
+        HLS_SECRET(4);
 
         private final int id;
 

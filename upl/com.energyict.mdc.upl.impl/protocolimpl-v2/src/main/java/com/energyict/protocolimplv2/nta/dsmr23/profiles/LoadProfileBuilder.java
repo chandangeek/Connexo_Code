@@ -49,6 +49,9 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_LP_DUPLICATED_CHANNEL;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_DAILY;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_HOURLY;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY;
 import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.setFieldAndGet;
 
 /**
@@ -492,6 +495,28 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         } else {
             return false;
         }
+
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_HOURLY, serialNumber);
+        if (testObisCode != null) {
+            isStatusObisCode |= testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_DAILY, serialNumber);
+        if (testObisCode != null) {
+            isStatusObisCode |= testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY, serialNumber);
+        if (testObisCode != null) {
+            isStatusObisCode |= testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
         return isStatusObisCode;
     }
 

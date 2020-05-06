@@ -58,7 +58,7 @@ public class HeadEndController {
         HeadEndInterface headEndInterface = getHeadEndInterface(endDevice);
         switch (deviceCommandInfo.command) {
             case RENEW_KEY:
-                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device, false);
                 break;
             case UPLOAD_CERTIFICATE:
                 performUploadCertificateOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
@@ -69,19 +69,22 @@ public class HeadEndController {
             case REQUEST_CSR:
                 performRequestCsrOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
                 break;
+            case RENEW_SERVICE_KEY:
+                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device, true);
+                break;
             default:
                 performDummyOperation(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
         }
     }
 
-    private void performKeyRenewalOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performKeyRenewalOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device, boolean isServiceKey) {
         serviceCall.log(LogLevel.INFO, "Handling key renewal.");
         EndDeviceCommand deviceCommand;
         List<SecurityAccessorType> securityAccessorTypes = Arrays.stream(deviceCommandInfo.keyAccessorType.split(","))
                 .map(sA -> getKeyAccessorType(sA, device))
                 .peek(aT -> {if (aT == null) throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);})
                 .collect(Collectors.toList());
-        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes);
+        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes, isServiceKey);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }

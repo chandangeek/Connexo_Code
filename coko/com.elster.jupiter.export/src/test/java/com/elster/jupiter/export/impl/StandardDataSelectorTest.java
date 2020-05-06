@@ -208,8 +208,8 @@ public class StandardDataSelectorTest {
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter2.getUsagePoint(any())).thenReturn(Optional.empty());
-        when(existingItem.getLastExportedDate()).thenReturn(Optional.of(lastExported.toInstant()));
-        when(newItem.getLastExportedDate()).thenReturn(Optional.empty());
+        when(existingItem.getLastExportedChangedData()).thenReturn(Optional.of(lastExported.toInstant()));
+        when(newItem.getLastExportedChangedData()).thenReturn(Optional.empty());
         when(newItem.getReadingContainer()).thenReturn(meter1);
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
         when(meter1.getUsagePoint(any())).thenReturn(Optional.empty());
