@@ -610,7 +610,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         assertThat(exportItem.getSelector().getId()).isEqualTo(task.getId());
         assertThat(exportItem.getReadingType()).isEqualTo(readingType);
         assertThat(exportItem.getLastRun()).isEmpty();
-        assertThat(exportItem.getLastExportedDate()).isEmpty();
+        assertThat(exportItem.getLastExportedChangedData()).isEmpty();
         assertThat(exportItem.isActive()).isTrue();
     }
 

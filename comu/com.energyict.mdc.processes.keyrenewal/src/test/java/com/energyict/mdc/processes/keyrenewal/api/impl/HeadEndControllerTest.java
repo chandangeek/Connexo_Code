@@ -227,7 +227,7 @@ public class HeadEndControllerTest {
 
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
-        when(commandFactory.createKeyRenewalCommand(endDevice, securityAccessorTypes)).thenReturn(endDeviceCommand);
+        when(commandFactory.createKeyRenewalCommand(endDevice, securityAccessorTypes, false)).thenReturn(endDeviceCommand);
         PropertySpec keyAccessorTypeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
                 .named(KEY_ACCESSORTYPE_ATTRIBUTE_TRANSLATION_KEY)
@@ -240,7 +240,7 @@ public class HeadEndControllerTest {
         headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
 
         // Asserts
-        verify(commandFactory).createKeyRenewalCommand(endDevice, securityAccessorTypes);
+        verify(commandFactory).createKeyRenewalCommand(endDevice, securityAccessorTypes, false);
         verify(headEndInterface).sendCommand(endDeviceCommand, deviceCommandInfo.activationDate, serviceCall);
         verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }

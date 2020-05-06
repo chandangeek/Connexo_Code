@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -35,6 +36,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         SECACCTYPE("securityAccessorType"),
         WRAPPINGSECACCTYPE("wrappingSecurityAccessorType"),
         KEYRENEWALMESSAGEID("keyRenewalMessageIdIdDbValue"),
+        SERVICEKEYRENEWALMSGID("serviceKeyRenewalMessageIdDbValue"),
         DEFAULTKEY("defaultKey");
 
         private final String javaFieldName;
@@ -60,6 +62,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     // associations
     private List<SecurityAccessorTypeKeyRenewal> securityAccessorTypeKeyRenewals = new ArrayList<>();
     private long keyRenewalMessageIdIdDbValue;
+    private long serviceKeyRenewalMessageIdDbValue;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -121,6 +124,11 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
+    public Optional<DeviceMessageId> getServiceKeyRenewalDeviceMessageId() {
+        return DeviceMessageId.find(this.serviceKeyRenewalMessageIdDbValue);
+    }
+
+    @Override
     public Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification() {
         return getKeyRenewalDeviceMessageId()
                 .map(deviceMessageId -> this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()))
@@ -128,17 +136,29 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
+    public Optional<DeviceMessageSpec> getServiceKeyRenewalDeviceMessageSpecification() {
+            return getServiceKeyRenewalDeviceMessageId()
+                    .map(deviceMessageId -> this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()))
+                    .orElseGet(Optional::empty);
+    }
+
+    @Override
     public List<SecurityAccessorTypeKeyRenewal> getKeyRenewalAttributes() {
-        return securityAccessorTypeKeyRenewals;
+        return securityAccessorTypeKeyRenewals.stream().filter(a -> !a.isServiceKey()).collect(Collectors.toList());
     }
 
     @Override
     public void resetKeyRenewal() {
         keyRenewalMessageIdIdDbValue = 0;
+        serviceKeyRenewalMessageIdDbValue = 0;
         securityAccessorTypeKeyRenewals.clear();
         save();
     }
 
+    @Override
+    public List<SecurityAccessorTypeKeyRenewal> getServiceKeyRenewalAttributes() {
+        return securityAccessorTypeKeyRenewals.stream().filter(a -> a.isServiceKey()).collect(Collectors.toList());
+    }
 
     private void setWrappingAccessor(DeviceSecurityAccessorType securityAccessorType) {
         if (securityAccessorType != null && securityAccessorType.getWrappingSecurityAccessor() != null && securityAccessorType.getWrappingSecurityAccessor().isPresent()) {
@@ -147,8 +167,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
-    public KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId) {
-        keyRenewalMessageIdIdDbValue = deviceMessageId.dbValue();
+    public KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId, DeviceMessageId serviceDeviceMessageId) {
+        keyRenewalMessageIdIdDbValue = deviceMessageId != null ? deviceMessageId.dbValue() : 0;
+        serviceKeyRenewalMessageIdDbValue = serviceDeviceMessageId != null ? serviceDeviceMessageId.dbValue() : 0;
         securityAccessorTypeKeyRenewals.clear();
         return new InternalKeyRenewalBuilder(this);
     }
@@ -188,12 +209,13 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         }
 
         @Override
-        public InternalKeyRenewalBuilder addProperty(String key, Object value) {
+        public InternalKeyRenewalBuilder addProperty(String key, Object value, boolean isServiceKey) {
             SecurityAccessorTypeKeyRenewalImpl securityAccessorTypeKeyRenewal = securityAccessorTypeOnDeviceType.getDataModel()
                     .getInstance(SecurityAccessorTypeKeyRenewalImpl.class)
                     .init(securityAccessorTypeOnDeviceType.getDeviceType(), securityAccessorTypeOnDeviceType.getSecurityAccessorType());
             securityAccessorTypeKeyRenewal.setName(key);
             securityAccessorTypeKeyRenewal.setValue(value.toString());
+            securityAccessorTypeKeyRenewal.setServiceKey(isServiceKey);
             securityAccessorTypeKeyRenewals.add(securityAccessorTypeKeyRenewal);
             return this;
         }

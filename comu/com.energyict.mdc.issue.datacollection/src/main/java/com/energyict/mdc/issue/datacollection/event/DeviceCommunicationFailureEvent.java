@@ -93,9 +93,10 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
 
     @Override
     public boolean matchesByComTask(List<HasId> comTasks) {
-        if (this.comTaskId.isPresent()) {
-            final long id = comTaskId.get();
-            return comTasks.stream().filter(e -> id == e.getId()).findFirst().isPresent();
+        Optional<ComTaskExecution> cte = getComTask();
+        if (cte.isPresent()) {
+            final long id = cte.get().getComTask().getId();
+            return comTasks.stream().anyMatch(e -> id == e.getId());
         }
         return false;
     }

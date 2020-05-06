@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles;
 
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -10,23 +9,29 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by Iulian on 5/18/2017.
  */
 public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
 
-    private Logger logger = Logger.getAnonymousLogger();
+    private static final int SECONDS_PER_HOUR = 3600;
 
-    public LTEMonitoringProfileIntervals(byte[] encodedData, int defaultClockMask, Integer statusMask, Integer channelMask, ProfileIntervalStatusBits statusBits, Logger logger) throws IOException {
+    private final Logger logger;
+
+    public LTEMonitoringProfileIntervals(byte[] encodedData, Integer statusMask, Integer channelMask, ProfileIntervalStatusBits statusBits, Logger logger) throws IOException {
         super(encodedData, statusBits);
         this.logger = logger;
-    }
-
-    public LTEMonitoringProfileIntervals(byte[] encodedData, int clockMask, int statusMask, int channelMask, ProfileIntervalStatusBits statusBits) throws IOException {
-        super(encodedData, clockMask, statusMask, channelMask, statusBits);
     }
 
     public Logger getLogger(){
@@ -36,9 +41,9 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
     @Override
     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
-        List<IntervalData> intervalList = new ArrayList<>();
+        List<ExtendedIntervalData> intervalList = new ArrayList<>();
         Calendar cal = null;
-        IntervalData currentInterval = null;
+
         int profileStatus = 0;
         if (getAllDataTypes().size() != 0) {
 
@@ -48,7 +53,10 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
                 int index = 0;
                 // 0 = calendar
                 cal = constructIntervalCalendar(cal, element.getDataType(index++), timeZone);
-                currentInterval = new IntervalData(cal.getTime(), profileStatus);
+                Date originalDate = cal.getTime();
+                cal = roundDownToInterval(cal, timeZone, profileInterval);
+
+                ExtendedIntervalData currentInterval = new ExtendedIntervalData(cal.getTime(), originalDate, profileStatus);
 
                 Structure   gsmDiagOperator   = element.getDataType(index++).getStructure();
                 if (element.getDataType(index).isTypeEnum()) {
@@ -67,7 +75,32 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
             }
         }
 
-        return intervalList;
+        return deDuplicate(intervalList);
+    }
+
+    private List<IntervalData> deDuplicate(List<ExtendedIntervalData> intervalDataList) {
+        Map<Long, IntervalData> map = new HashMap<>();
+        intervalDataList.stream().sorted(extendedIntervalDataComparator()).forEach(intervalData -> map.put(intervalData.getEndTime().getTime(), intervalData));
+        return map.values().stream().sorted().collect(Collectors.toList());
+    }
+
+    private Comparator<ExtendedIntervalData> extendedIntervalDataComparator() {
+        return new Comparator<ExtendedIntervalData>() {
+            @Override
+            public int compare(ExtendedIntervalData o1, ExtendedIntervalData o2) {
+                return o2.getOriginalDate().compareTo(o1.getOriginalDate());
+            }
+        };
+    }
+
+    private Calendar roundDownToInterval(Calendar calendar, TimeZone timeZone, int profileIntervalInSeconds) {
+        Calendar cal = Calendar.getInstance(timeZone);
+        cal.setTimeInMillis(calendar.getTimeInMillis());
+        cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY) / (profileIntervalInSeconds/SECONDS_PER_HOUR) * (profileIntervalInSeconds/SECONDS_PER_HOUR));
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND,0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal;
     }
 
     /**
@@ -78,11 +111,11 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
              RSRP: unsigned (represents the signal level )
              qRxlevMin: integer (specifies the minimum required Rx level in the cell in dBm)
 
-     * @param gsmDiagOperator
-     * @return
+     * @param gsmDiagOperator the Structure to be processed
+     * @return List<? extends Number> a list of numerical values</?>
      */
     private List<? extends Number> decodeGSMDiagnosticOperator(Structure gsmDiagOperator) {
-        List<Number> values = new ArrayList<Number>();
+        List<Number> values = new ArrayList<>();
 
         for (int ch = 0; ch < gsmDiagOperator.nrOfDataTypes(); ch++) {
             values.add(getNumericalValue(gsmDiagOperator.getDataType(ch)));
@@ -101,11 +134,11 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
              mnc: long-unsigned (Mobile Network Code of the serving network)
              channel_number double-long-unsigned (Represents the absolute radio-frequency channel number (ARFCN or eaRFCN for LTE network))
 
-     * @param gsmDiagCellInfo
-     * @return
+     * @param gsmDiagCellInfo the Structure to be processed
+     * @return List<? extends Number> a List of numerical values</?>
      */
     private List<? extends Number> decodeGSMDiagnosticCellInfo(Structure gsmDiagCellInfo) {
-        List<Number> values = new ArrayList<Number>();
+        List<Number> values = new ArrayList<>();
 
         for (int ch = 0; ch < gsmDiagCellInfo.nrOfDataTypes(); ch++) {
             values.add(getNumericalValue(gsmDiagCellInfo.getDataType(ch)));
@@ -129,12 +162,12 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
                     Make a note in the protocol-logging of the fact that there were more than 3 entries in the array and when possible
                     also place an info message on the communication session which still ended with status success.
 
-     * @param adjacentCellsArray
-     * @param cal
-     * @return
+     * @param adjacentCellsArray the Array with data
+     * @param cal the Calendar which holds the timestamp
+     * @return List<? extends Number> </?> A List of values
      */
     private List<? extends Number> decodeGSMDiagnosticAdjacentCells(Array adjacentCellsArray, Calendar cal) {
-        List<Number> values = new ArrayList<Number>();
+        List<Number> values = new ArrayList<>();
 
         Structure adjacentCell;
         int filledChannels = 0;
@@ -145,16 +178,14 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
                 values.add(getNumericalValue(adjacentCell.getDataType(0)));
                 values.add(getNumericalValue(adjacentCell.getDataType(1)));
             } else {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Adjacent Cell info not saved: ");
-                sb.append(cal.getTime().toString());
-                sb.append(", #").append(i);
-                sb.append(": cellId=");
-                sb.append(getNumericalValue(adjacentCell.getDataType(0)));
-                sb.append(", signalQuality=");
-                sb.append(getNumericalValue(adjacentCell.getDataType(1)));
-
-                getLogger().info(sb.toString());
+                String sb = "Adjacent Cell info not saved: " +
+                        cal.getTime().toString() +
+                        ", #" + i +
+                        ": cellId=" +
+                        getNumericalValue(adjacentCell.getDataType(0)) +
+                        ", signalQuality=" +
+                        getNumericalValue(adjacentCell.getDataType(1));
+                getLogger().info(sb);
             }
             filledChannels++;
         }
@@ -205,12 +236,12 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
              last_rejected_mnc long-unsigned (Mobile Network Code of the last rejected network)
              timestamp_last_rejection date_time (specifies the date and time of the rejection). This date_time can be stored in EIServer in epoch format.
 
-     * @param rejection
-     * @param timeZone
-     * @return
+     * @param rejection the Structure
+     * @param timeZone the TimeZone used to parse the dates
+     * @return List<? extends Number> A list with numerical values</?>
      */
     private List<? extends Number> decodeLTEConectionRejection(Structure rejection, TimeZone timeZone) {
-        List<Number> values = new ArrayList<Number>();
+        List<Number> values = new ArrayList<>();
 
         for(int ch = 0; ch < 3; ch++) {
             values.add(getNumericalValue(rejection.getDataType(ch)));
@@ -220,6 +251,23 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
         values.add(os.getDateTime(timeZone).getValue().getTimeInMillis() / 1000);
 
         return values;
+    }
+
+    static class ExtendedIntervalData extends IntervalData {
+
+        private Date originalDate;
+
+        public ExtendedIntervalData() {
+        }
+
+        public ExtendedIntervalData(Date endTime, Date originalDate, int eiStatus) {
+            super(endTime, eiStatus);
+            this.originalDate = originalDate;
+        }
+
+        private Date getOriginalDate() {
+            return originalDate;
+        }
     }
 
 }

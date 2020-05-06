@@ -54,8 +54,6 @@ public class LTEMonitoringProfileVersion1 {
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
         int ch = 0;
-        channelInfos.add(new ChannelInfo(ch++, Clock.getDefaultObisCode().toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), true));
-
         channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
         channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
         channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412ext2.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));

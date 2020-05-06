@@ -1416,6 +1416,38 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("3.12.261.80");
     }
 
+    public static EndDeviceEventType getTamperBattery() {
+        return new EndDeviceEventType("4.2.0.257");
+    }
+    public static EndDeviceEventType getHlcDamage() {
+        return new EndDeviceEventType("4.2.139.85");
+    }
+    public static EndDeviceEventType getPermanentLogFilledUp90Persent() {
+        return new EndDeviceEventType("4.17.44.32");
+    }
+    public static EndDeviceEventType getDeviceAboutHibernationMode() {
+        return new EndDeviceEventType("4.7.108.242");
+    }
+
+    public static EndDeviceEventType getPowerFail() {
+        return new EndDeviceEventType("4.26.0.85");
+    }
+    public static EndDeviceEventType getMaxFlow() {
+        return new EndDeviceEventType("4.21.48.93");
+    }
+    public static EndDeviceEventType getTempMinLimit() {
+        return new EndDeviceEventType("4.35.261.150");
+    }
+    public static EndDeviceEventType getTempMaxLimit() {
+        return new EndDeviceEventType("4.35.261.93");
+    }
+    public static EndDeviceEventType getPulseError() {
+        return new EndDeviceEventType("4.21.84.79");
+    }
+    public static EndDeviceEventType getConsumptionError() {
+        return new EndDeviceEventType("4.21.87.79");
+    }
+
     /// https://jira.eict.vpdc/secure/attachment/92046/CIM%20Codes%20A2_EI6_7_v1.xlsx
     /// Standard Event Logbook
     public static EndDeviceEventType getLogReset() { return new EndDeviceEventType("4.14.0.214"); }

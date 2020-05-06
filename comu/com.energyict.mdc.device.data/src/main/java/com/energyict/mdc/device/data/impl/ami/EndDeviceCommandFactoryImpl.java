@@ -197,7 +197,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     }
 
     @Override
-    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, List<SecurityAccessorType> securityAccessorTypes) {
+    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, List<SecurityAccessorType> securityAccessorTypes, boolean isServiceKey) {
         Device deviceForEndDevice = findDeviceForEndDevice(endDevice);
         final Set<String> securityAccessorTypesNames = securityAccessorTypes.stream().map(s -> s.getName()).collect(Collectors.toSet());
         List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes = deviceForEndDevice.getDeviceConfiguration()
@@ -214,6 +214,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         }
         KeyRenewalCommand command = (KeyRenewalCommand) this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
         command.setSecurityAccessorOnDeviceTypes(securityAccessorTypeOnDeviceTypes);
+        command.setServiceKey(isServiceKey);
 
         return command;
     }

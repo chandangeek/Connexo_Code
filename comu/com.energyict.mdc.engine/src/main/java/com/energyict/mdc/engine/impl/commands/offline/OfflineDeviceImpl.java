@@ -652,6 +652,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    public String getProtocolName() {
+        return ((DeviceProtocolPluggableClassImpl) deviceProtocolPluggableClass).getPluggableClass().getName();
+    }
+
+    @Override
     public DeviceProtocolCache getDeviceProtocolCache() {
         return deviceProtocolCache;
     }
