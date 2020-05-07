@@ -104,7 +104,7 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
         } else {
             rules = query.select(conditionIssue, Order.ascending("name"));
         }
-        List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfoForPreview).collect(Collectors.toList());
+        List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asShortInfo).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("creationRules", infos, queryParams);
     }
 

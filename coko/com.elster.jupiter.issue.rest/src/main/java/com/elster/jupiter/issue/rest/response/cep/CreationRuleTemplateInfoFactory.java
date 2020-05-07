@@ -19,16 +19,15 @@ public class CreationRuleTemplateInfoFactory {
     }
 
     public CreationRuleTemplateInfo asInfo(CreationRuleTemplate template) {
-        CreationRuleTemplateInfo info = new CreationRuleTemplateInfo();
-        info.name = template.getName();
-        info.displayName = template.getDisplayName();
+        CreationRuleTemplateInfo info = asShortInfo(template);
         info.description = template.getDescription();
         info.properties = propertyValueInfoService.getPropertyInfos(template.getPropertySpecs());
         return info;
     }
 
-    public CreationRuleTemplateInfo asInfoWithOnlyDisplayName(CreationRuleTemplate template) {
+    public CreationRuleTemplateInfo asShortInfo(CreationRuleTemplate template) {
         CreationRuleTemplateInfo info = new CreationRuleTemplateInfo();
+        info.name = template.getName();
         info.displayName = template.getDisplayName();
         return info;
     }

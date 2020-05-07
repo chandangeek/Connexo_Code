@@ -34,17 +34,9 @@ public class CreationRuleInfoFactory {
     }
     
     public CreationRuleInfo asInfo(CreationRule rule) {
-        CreationRuleInfo info = new CreationRuleInfo();
-        info.id = rule.getId();
-        info.name = rule.getName();
-        info.active = rule.isActive();
+        CreationRuleInfo info = asShortInfo(rule);
         info.comment = rule.getComment();
-        info.reason = new IssueReasonInfo(rule.getReason());
-        info.issueType = new IssueTypeInfo(rule.getIssueType());
         info.priority = new PriorityInfo(rule.getPriority());
-        if (rule.getDueInType() != null) {
-            info.dueIn = new DueInInfo(rule.getDueInType().getName(), rule.getDueInValue());
-        }
         if (rule.getActions() != null) {
             info.actions = new ArrayList<>();
             for (CreationRuleAction action : rule.getActions()) {
@@ -59,14 +51,11 @@ public class CreationRuleInfoFactory {
         }
         info.properties = propertyValueInfoService.getPropertyInfos(rule.getPropertySpecs(), rule.getProperties());
         info.template = templateFactory.asInfo(rule.getTemplate());
-        info.modificationDate = rule.getModTime().toEpochMilli();
-        info.creationDate = rule.getCreateTime().toEpochMilli();
-        info.version = rule.getVersion();
         return info;
     }
 
-    //asInfoForPreview() was added because asInfo() takes a long time (due to propertyValueInfoService.getPropertyInfos())
-    public CreationRuleInfo asInfoForPreview(CreationRule rule) {
+    //asShortInfo() was added because asInfo() takes a long time (due to propertyValueInfoService.getPropertyInfos())
+    public CreationRuleInfo asShortInfo(CreationRule rule) {
         CreationRuleInfo info = new CreationRuleInfo();
         info.id = rule.getId();
         info.name = rule.getName();
@@ -76,7 +65,7 @@ public class CreationRuleInfoFactory {
         if (rule.getDueInType() != null) {
             info.dueIn = new DueInInfo(rule.getDueInType().getName(), rule.getDueInValue());
         }
-        info.template = templateFactory.asInfoWithOnlyDisplayName(rule.getTemplate());
+        info.template = templateFactory.asShortInfo(rule.getTemplate());
         info.modificationDate = rule.getModTime().toEpochMilli();
         info.creationDate = rule.getCreateTime().toEpochMilli();
         info.version = rule.getVersion();
