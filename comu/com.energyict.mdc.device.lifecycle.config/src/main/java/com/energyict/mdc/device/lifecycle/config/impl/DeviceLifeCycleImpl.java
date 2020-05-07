@@ -180,7 +180,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public Instant getMaximumPastEffectiveTimestamp() {
-        return this.clock.instant().minusMillis(this.getMaximumPastEffectiveTimeShift().getMilliSeconds());
+        return Instant.EPOCH;
     }
 
     @Override

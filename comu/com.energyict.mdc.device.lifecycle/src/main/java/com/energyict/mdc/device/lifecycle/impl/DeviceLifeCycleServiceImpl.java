@@ -492,7 +492,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private void effectiveTimestampIsInRange(Instant effectiveTimestamp, Device device, AuthorizedTransitionAction action, Optional<Instant> lastStateChangeTimestamp) {
         DeviceLifeCycle deviceLifeCycle = action.getDeviceLifeCycle();
-        Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant lowerBound = device.getLifecycleDates().getReceivedDate()
+                .orElse(deviceLifeCycle.getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).toInstant());
         if (lastStateChangeTimestamp.isPresent() && lowerBound.isBefore(lastStateChangeTimestamp.get())) {
             lowerBound = lastStateChangeTimestamp.get();
         }
@@ -696,12 +697,13 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * Create an event for a Failed Transition.<br>
      * We don't want to do rollbacks before saving the failure message into DB, otherwise we'll get a
      * TransactionRequiredException
-     *  @param action the authorize action
+     *
+     * @param action the authorize action
      * @param device the device
      * @param cause the cause
      */
     private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause) {
-        if(transactionService.isInTransaction()){
+        if (transactionService.isInTransaction()) {
             this.rollback();
         }
         eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
@@ -721,7 +723,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return this.thesaurus.getSimpleFormat(seed);
     }
 
-    private void setSavepoint(){
+    private void setSavepoint() {
         savepoint = Optional.empty();
         try {
             if (transactionService.isInTransaction()) {
@@ -731,7 +733,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void rollback(){
+    private void rollback() {
         try {
             if (transactionService.isInTransaction() && savepoint.isPresent()) {
                 dataModel.getConnection(false).rollback(savepoint.get());
