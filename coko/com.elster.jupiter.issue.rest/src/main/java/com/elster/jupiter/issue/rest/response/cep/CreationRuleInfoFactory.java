@@ -36,7 +36,6 @@ public class CreationRuleInfoFactory {
     public CreationRuleInfo asInfo(CreationRule rule) {
         CreationRuleInfo info = asShortInfo(rule);
         info.comment = rule.getComment();
-        info.priority = new PriorityInfo(rule.getPriority());
         if (rule.getActions() != null) {
             info.actions = new ArrayList<>();
             for (CreationRuleAction action : rule.getActions()) {
@@ -62,6 +61,7 @@ public class CreationRuleInfoFactory {
         info.active = rule.isActive();
         info.reason = new IssueReasonInfo(rule.getReason());
         info.issueType = new IssueTypeInfo(rule.getIssueType());
+        info.priority = new PriorityInfo(rule.getPriority());
         if (rule.getDueInType() != null) {
             info.dueIn = new DueInInfo(rule.getDueInType().getName(), rule.getDueInValue());
         }
