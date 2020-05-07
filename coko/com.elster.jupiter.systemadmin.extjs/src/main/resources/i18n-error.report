@@ -1,2 +1,0 @@
-Errors detected in JS sources:
-Wrong argument for method invocation {jsFilePath='controller\licensing\Licenses.js', lineNo=71, args=[property.key, 'SAM', property.key]}
