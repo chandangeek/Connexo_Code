@@ -19,7 +19,7 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
     protected RegisterValue readStructure(ObisCode obisCode, Structure structure) throws IOException {
         String highThreshold;
         String lowThreshold;
-        String description = structure.toString();
+        String description;
         if (obisCode.equals(MONEY_CREDIT_THRESHOLD)) {
             highThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
             lowThreshold = Integer.toString(structure.getDataType(2).getUnsigned16().getValue());
@@ -32,8 +32,7 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
             highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
             lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
             description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingTimeHighDefaultTranslation, DeviceMessageConstants.remainingTimeLowDefaultTranslation);
-        } else
-            throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
+        } else return super.readStructure(obisCode, structure);
         return new RegisterValue(obisCode, description);
     }
 }

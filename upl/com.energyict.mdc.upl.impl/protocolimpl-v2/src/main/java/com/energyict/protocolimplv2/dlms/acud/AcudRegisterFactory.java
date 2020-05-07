@@ -33,6 +33,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
     public final static ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
     public final static ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
+    public final static ObisCode CREDIT_DAY_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
 
 
     private final Acud protocol;
@@ -117,7 +118,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     protected RegisterValue readStructure(ObisCode obisCode, Structure structure) throws IOException {
         String highThreshold;
         String lowThreshold;
-        String description = structure.toString();
+        String description;
         if (obisCode.equals(MONEY_CREDIT_THRESHOLD)) {
             highThreshold = Integer.toString(structure.getDataType(0).getInteger32().getValue());
             lowThreshold = Integer.toString(structure.getDataType(1).getInteger32().getValue());
@@ -130,6 +131,10 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             highThreshold = Integer.toString(structure.getDataType(0).getUnsigned8().getValue());
             lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned8().getValue());
             description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingTimeHighDefaultTranslation, DeviceMessageConstants.remainingTimeLowDefaultTranslation);
+        } else if (obisCode.equals(CREDIT_DAY_LIMIT)) {
+            highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
+            lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
+            description = formatDescr(highThreshold, lowThreshold, "Days Limit1", "Days Limit2");
         } else
             throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
         return new RegisterValue(obisCode, description);
