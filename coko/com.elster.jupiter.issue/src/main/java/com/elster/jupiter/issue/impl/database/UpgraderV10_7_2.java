@@ -87,9 +87,10 @@ public class UpgraderV10_7_2 implements Upgrader {
     private void updateIssueAction(Connection connection, Long actionTypeIdToKeep, List<PhaseContent> contentList) throws SQLException {
         for (PhaseContent content : contentList) {
             if (content.actionTypeId != actionTypeIdToKeep) {
-                try (Statement statement = connection.createStatement()) {
-                    statement.execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
-                    statement.execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = '%s' where CREATIONRULEACTION = %s and ( NAME = '%s' or NAME = '%s')", START_PROCESS_PROPERTY_NAME, content.actionId, START_PROCESS_WEBSERVICE_PROPERTY_NAME, START_PROCESSS_SERVICE_CALL_PROPERTY_NAME));
+                try (Statement actionStatement = connection.createStatement();
+                     Statement actionPropsStatement = connection.createStatement()) {
+                    actionStatement.execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
+                    actionPropsStatement.execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = '%s' where CREATIONRULEACTION = %s and ( NAME = '%s' or NAME = '%s')", START_PROCESS_PROPERTY_NAME, content.actionId, START_PROCESS_WEBSERVICE_PROPERTY_NAME, START_PROCESSS_SERVICE_CALL_PROPERTY_NAME));
                 } catch (SQLException e) {
                     throw new UnderlyingSQLFailedException(e);
                 }
