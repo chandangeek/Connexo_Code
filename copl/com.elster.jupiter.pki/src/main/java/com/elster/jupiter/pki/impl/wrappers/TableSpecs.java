@@ -101,7 +101,7 @@ public enum TableSpecs {
                     .installValue("'N'")
                     .add();
             table.column("WRAPPED_KEY")
-                    .varChar(4000)
+                    .varChar(Table.MAX_STRING_LENGTH)
                     .map(KeyImpl.Fields.WRAPPED_KEY.fieldName())
                     .since(version(10, 8))
                     .add();

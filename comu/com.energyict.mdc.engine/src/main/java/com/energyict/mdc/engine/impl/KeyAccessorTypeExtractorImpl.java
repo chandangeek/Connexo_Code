@@ -198,7 +198,7 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         if (hsmKey.isServiceKey()) {
             key = hsmKey.getWrappedKey();
             if (key == null) {
-                throw new UnsupportedOperationException("Service key wrapped value is null.");
+                throw new UnsupportedOperationException("Wrapped key isn't set for service key.");
             }
         }
         if (key.length > 0 && !hsmKey.getLabel().isEmpty() && validateSmartMeterKey) {
