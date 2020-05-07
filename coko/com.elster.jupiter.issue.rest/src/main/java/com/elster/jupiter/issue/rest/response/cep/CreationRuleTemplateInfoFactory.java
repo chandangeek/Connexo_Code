@@ -26,4 +26,10 @@ public class CreationRuleTemplateInfoFactory {
         info.properties = propertyValueInfoService.getPropertyInfos(template.getPropertySpecs());
         return info;
     }
+
+    public CreationRuleTemplateInfo asInfoWithOnlyDisplayName(CreationRuleTemplate template) {
+        CreationRuleTemplateInfo info = new CreationRuleTemplateInfo();
+        info.displayName = template.getDisplayName();
+        return info;
+    }
 }

@@ -124,7 +124,7 @@ public class    CreationRuleResource extends BaseResource {
         } else {
             rules = query.select(conditionIssue, Order.ascending("name"));
         }
-        List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfo).collect(Collectors.toList());
+        List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfoForPreview).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("creationRules", infos, queryParams);
     }
 
@@ -152,7 +152,7 @@ public class    CreationRuleResource extends BaseResource {
                                     Arrays.asList(IssueTypes.DATA_COLLECTION, IssueTypes.DATA_VALIDATION,
                                             IssueTypes.DEVICE_LIFECYCLE),
                                     "CloseIssueAction.excludedGroups", groupIdsList);
-                    infos = actions.stream().map(action -> action.getRule()).map(ruleInfoFactory::asInfo)
+                    infos = actions.stream().map(action -> action.getRule()).map(ruleInfoFactory::asInfoForPreview)
                             .collect(Collectors.toList());
                 }
             }
