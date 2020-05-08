@@ -528,6 +528,7 @@ public class TableImpl<T> implements Table<T> {
         }
         return column("ID").number()
                 .notNull()
+                .installValue("0")
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .sequence(sequence)
                 .skipOnUpdate()
@@ -537,7 +538,12 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public Column addPositionColumn() {
-        return column("POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
+        return column("POSITION").number()
+                .notNull()
+                .installValue("0")
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map("position")
+                .add();
     }
 
     @Override

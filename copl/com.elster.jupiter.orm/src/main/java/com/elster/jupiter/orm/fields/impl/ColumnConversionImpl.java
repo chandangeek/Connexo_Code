@@ -185,7 +185,7 @@ public enum ColumnConversionImpl {
         }
     },
     // convert number to enum field by ordinal + 1
-    // useful in to avoid 0 in database, which often means Not Applicable
+    // useful to avoid 0 in database, which often means Not Applicable
     NUMBER2ENUMPLUSONE {
         @Override
         public boolean isEnumRelated() {
