@@ -99,6 +99,7 @@ public enum TableSpecs {
                     .map(KeyImpl.Fields.SERVICEKEY.fieldName())
                     .since(version(10, 8))
                     .installValue("'N'")
+                    .notNull(false)
                     .add();
             table.column("WRAPPED_KEY")
                     .varChar(Table.MAX_STRING_LENGTH)
