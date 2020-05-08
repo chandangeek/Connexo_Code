@@ -77,10 +77,5 @@ public class UpgraderV10_8 implements Upgrader {
                             "ALTER TABLE " + tableName + " SET INTERVAL (" + PARTITIONSIZE + ")")
             );
         }
-        execute(dataModel,
-                "alter table DDC_COMTASKEXECJOURNALENTRY drop column ID",
-                "drop sequence DDC_COMTASKEXECJOURNALENTRYID",
-                "alter table DDC_COMTASKEXECJOURNALENTRY drop column MOD_DATE"
-        );
     }
 }

@@ -24,10 +24,11 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
             String.valueOf(ComTaskExecutionMessageJournalEntryImplDiscriminator), ComTaskExecutionMessageJournalEntryImpl.class
     );
 
-    enum Fields {
+    public enum Fields {
         ComTaskExecutionSession("comTaskExecutionSession"),
         LogLevel("logLevel"),
-        timestamp("timestamp");
+        TIMESTAMP("timestamp"),
+        POSITION("position");
 
         private final String fieldName;
 
@@ -44,6 +45,9 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
     private Instant timestamp;
     private ComServer.LogLevel logLevel;
     private String errorDescription;
+    // managed by ORM
+    @SuppressWarnings("unused")
+    private int position;
 
     protected void init(ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, ComServer.LogLevel logLevel, String errorDescription) {
         this.comTaskExecutionSession.set(comTaskExecutionSession);
