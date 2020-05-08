@@ -18,7 +18,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -186,9 +185,6 @@ public class MaximumFutureEffectiveTimeShiftInRangeValidatorTest {
 
         // Asserts
         assertThat(validationResult).isFalse();
-        verify(this.context).getDefaultConstraintMessageTemplate();
-        verify(this.context).buildConstraintViolationWithTemplate(anyString());
-        verify(this.nodeBuilderCustomizableContext).addConstraintViolation();
     }
 
     private MaximumFutureEffectiveTimeShiftInRangeValidator getTestInstance() {

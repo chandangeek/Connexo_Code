@@ -26,17 +26,6 @@ public interface DeviceLifeCycleBuilder {
     DeviceLifeCycleBuilder maximumFutureEffectiveTimeShift(TimeDuration timeDuration);
 
     /**
-     * Sets the maximum time shift in the past
-     * that can be used for the effective timestamp
-     * of a device life cycle transition.
-     *
-     * @param timeDuration The TimeDuration
-     * @return The DeviceLifeCycleBuilder to support method chaining
-     * @see DeviceLifeCycle#getMaximumPastEffectiveTimeShift()
-     */
-    DeviceLifeCycleBuilder maximumPastEffectiveTimeShift(TimeDuration timeDuration);
-
-    /**
      * Starts the building process to authorize the initiation of the {@link TransitionBusinessProcess}
      * when the related device is in the specified {@link State}.
      *

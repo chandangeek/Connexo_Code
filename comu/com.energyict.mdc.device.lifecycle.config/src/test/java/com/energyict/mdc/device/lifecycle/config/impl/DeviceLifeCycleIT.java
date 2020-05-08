@@ -15,12 +15,12 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleUpdater;
@@ -178,14 +178,11 @@ public class DeviceLifeCycleIT {
         String name = "createDeviceLifeCycleWithoutMaximumPastEffectiveTimeShift";
         this.getTestService()
                 .newDeviceLifeCycleUsing(name, stateMachine)
-                .maximumPastEffectiveTimeShift(null)
                 .complete().save();
 
         // Business method
         DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(name, stateMachine).complete();
         deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -217,7 +214,6 @@ public class DeviceLifeCycleIT {
         // Business method
         DeviceLifeCycle deviceLifeCycle = this.getTestService()
                 .newDeviceLifeCycleUsing(name, stateMachine)
-                .maximumPastEffectiveTimeShift(expectedMaximumPastEffectiveTimeShift)
                 .complete();
         deviceLifeCycle.save();
 
@@ -255,7 +251,6 @@ public class DeviceLifeCycleIT {
         TimeDuration expectedMaximumPastEffectiveTimeShift = TimeDuration.days(1);
         DeviceLifeCycle deviceLifeCycle = this.getTestService()
                 .newDeviceLifeCycleUsing(name, stateMachine)
-                .maximumPastEffectiveTimeShift(expectedMaximumPastEffectiveTimeShift)
                 .complete();
         deviceLifeCycle.save();
         DeviceLifeCycle reloaded = this.getTestService().findDeviceLifeCycle(deviceLifeCycle.getId()).get();
@@ -295,11 +290,8 @@ public class DeviceLifeCycleIT {
         // Business method
         DeviceLifeCycle deviceLifeCycle = this.getTestService()
                 .newDeviceLifeCycleUsing(name, stateMachine)
-                .maximumPastEffectiveTimeShift(TimeDuration.days(365))
                 .complete();
         deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
     }
 
     @Transactional

@@ -51,12 +51,6 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
     }
 
     @Override
-    public DeviceLifeCycleBuilder maximumPastEffectiveTimeShift(TimeDuration timeDuration) {
-        this.underConstruction.setMaximumPastEffectiveTimeShift(timeDuration);
-        return this;
-    }
-
-    @Override
     public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, TransitionBusinessProcess process) {
         AuthorizedBusinessProcessActionImpl businessProcessAction = this.dataModel
                 .getInstance(AuthorizedBusinessProcessActionImpl.class)

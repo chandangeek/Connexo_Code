@@ -41,20 +41,8 @@ public class MaximumFutureEffectiveTimeShiftInRangeValidator implements Constrai
         if (timeShift == null) {
             // Other annotations deal with null values
             return true;
-        }
-        else {
-            if (timeShift.compareTo(this.deviceLifeCycleConfigurationService.getMaximumFutureEffectiveTimeShift()) > 0) {
-                // time shift > maximum
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        context.getDefaultConstraintMessageTemplate())
-                        .addPropertyNode(DeviceLifeCycleImpl.Fields.MAX_FUTURE_EFFECTIVE_TIME_SHIFT.fieldName())
-                        .addConstraintViolation();
-                return false;
-            }
-            else {
-                return true;
-            }
+        } else {
+            return timeShift.compareTo(this.deviceLifeCycleConfigurationService.getMaximumFutureEffectiveTimeShift()) <= 0;
         }
     }
 
