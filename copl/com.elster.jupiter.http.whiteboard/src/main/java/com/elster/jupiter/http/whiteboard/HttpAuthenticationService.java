@@ -31,5 +31,5 @@ public interface HttpAuthenticationService {
 
     String getSsoX509Certificate();
 
-    Cookie createTokenCookie(String cookieValue, String cookiePath);
+    Cookie createTokenCookie(boolean isSecure, String cookieValue, String cookiePath);
 }
