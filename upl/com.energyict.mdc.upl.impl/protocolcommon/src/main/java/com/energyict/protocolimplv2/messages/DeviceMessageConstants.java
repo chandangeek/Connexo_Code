@@ -1041,6 +1041,19 @@ public final class DeviceMessageConstants {
     public static final String LongPowerFailureThresholdAttributeName = "PowerConfigurationDeviceMessage.longpowerfailurethreshold";
     public static final String LongPowerFailureThresholdAttributeDefaultTranslation = "Long power failure threshold";
 
+    public static final String CurrentOverLimitThresholdAttributeName = "PowerConfigurationDeviceMessage.currentOverLimitThreshold";
+    public static final String CurrentOverLimitThresholdAttributeDefaultTranslation = "Current Over Limit Threshold";
+    public static final String CurrentOverLimitTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.currentOverLimitTimeThreshold";
+    public static final String CurrentOverLimitTimeThresholdAttributeDefaultTranslation = "Current Over Limit Time Threshold";
+    public static final String VoltageUnderLimitThresholdAttributeName = "PowerConfigurationDeviceMessage.voltageUnderLimitThreshold";
+    public static final String VoltageUnderLimitThresholdAttributeDefaultTranslation = "Voltage Under Limit Threshold";
+    public static final String VoltageUnderLimitTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.voltageUnderLimitTimeThreshold";
+    public static final String VoltageUnderLimitTimeThresholdAttributeDefaultTranslation = "Voltage Under Limit Time Threshold";
+    public static final String LiPfUnderLimitThresholdAttributeName = "PowerConfigurationDeviceMessage.LiPfUnderLimitThreshold";
+    public static final String LiPfUnderLimitThresholdAttributeDefaultTranslation = "\u01A9Li PF Under Limit Threshold";
+    public static final String LiPfUnderLimitTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.LiPfUnderLimitTimeThreshold";
+    public static final String LiPfUnderLimitTimeThresholdAttributeDefaultTranslation = "\u01A9Li PF Under Limit Time Threshold";
+
     public static final String SetMmEveryAttributeName = "ModbusConfigurationDeviceMessage.setmmevery";
     public static final String SetMmEveryAttributeDefaultTranslation = "Mm every";
     public static final String SetMmTimeoutAttributeName = "ModbusConfigurationDeviceMessage.setmmtimeout";

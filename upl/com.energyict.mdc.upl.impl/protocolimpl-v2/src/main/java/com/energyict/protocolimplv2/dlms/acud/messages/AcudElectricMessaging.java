@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +25,13 @@ public class AcudElectricMessaging extends AcudMessaging {
         supportedMessages.addAll(Arrays.asList(
                 CreditDeviceMessage.UPDATE_MONEY_CREDIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
                 CreditDeviceMessage.UPDATE_CONSUMPTION_CREDIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
-                CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter())
+                CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
+                LoadBalanceDeviceMessage.SET_CURRENT_OVER_LIMIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
+                LoadBalanceDeviceMessage.SET_CURRENT_OVER_LIMIT_TIME_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
+                LoadBalanceDeviceMessage.SET_VOLTAGE_UNDER_LIMIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
+                LoadBalanceDeviceMessage.SET_VOLTAGE_UNDER_LIMIT_TIME_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
+                LoadBalanceDeviceMessage.SET_LIPF_UNDER_LIMIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
+                LoadBalanceDeviceMessage.SET_LIPF_UNDER_LIMIT_TIME_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter())
                 )
         );
         return supportedMessages;
