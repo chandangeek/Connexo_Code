@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -71,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -99,6 +99,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private final PriorityComTaskService priorityComTaskService;
     private final ConfigPropertiesService configPropertiesService;
     private final BundleContext bundleContext;
+    private final ComTaskExecutionBalancing comTaskExecutionBalancing = new ComTaskExecutionBalancing();
 
     @Inject
     public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, ConfigPropertiesService configPropertiesService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
@@ -785,7 +786,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 .select();
     }
 
-    private <T extends HasId> int getElementIndex(List<T> elements, T element) {
+    /*private <T extends HasId> int getElementIndex(List<T> elements, T element) {
         if (elements != null && element != null) {
             for (int i = 0; i < elements.size(); i++) {
                 if (elements.get(i).getId() == element.getId()) {
@@ -795,6 +796,18 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         }
         return -1;
     }
+
+    private Order getBalancingOrder(List<OutboundComPortPool> comPortPools, OutboundComPort comPort) {
+        int orderingIndicator = comPortPools.stream().map(OutboundComPortPool::getComPorts)
+                .map(outboundComPorts -> outboundComPorts.stream()
+                        .sorted(Comparator.comparing(OutboundComPort::getId))
+                        .collect(Collectors.toList()))
+                .map(list -> getElementIndex(list, comPort)).collect(Collectors.groupingBy(index -> index % 2 == 0))
+                .entrySet().stream().mapToInt(e -> (e.getKey() ? 1 : -1) * e.getValue().size()).sum();
+
+        boolean isAsc = (orderingIndicator >= 0) && ((orderingIndicator != 0) || Math.random() < 0.5);
+        return isAsc ? Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()) : Order.descending(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
+    }*/
 
     private List<ComTaskExecution> getPendingComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds, int factor) {
         long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
@@ -810,9 +823,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         if (factor > 0) {
             comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
         }
-        List<OutboundComPort> comPorts = this.deviceDataModelService
-                .engineConfigurationService().findAllOutboundComPorts();
-        return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList(comPorts.size(), getElementIndex(comPorts, comPort)))
+        return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                getOrderForPlannedComTaskExecutionsList(comTaskExecutionBalancing.getBalancingOrder(comPortPools, comPort)))
                 .select();
     }
 
@@ -829,7 +841,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         List<ComServer> comServers = this.deviceDataModelService
                 .engineConfigurationService().findAllComServers().sorted("id", true).find();
         return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
-                getOrderForPlannedComTaskExecutionsList(comServers.size(), getElementIndex(comServers, comServer)))
+                getOrderForPlannedComTaskExecutionsList(comTaskExecutionBalancing.getBalancingOrder(comServers, comServer)))
                 .select();
     }
 
@@ -847,7 +859,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 .engineConfigurationService().findAllOutboundComPorts();
         return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
                 .limit(comPort.getNumberOfSimultaneousConnections() * 2)
-                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList(comPorts.size(), getElementIndex(comPorts, comPort)))
+                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                        getOrderForPlannedComTaskExecutionsList(comTaskExecutionBalancing.getBalancingOrder(comPortPools, comPort)))
                 .select();
     }
 
@@ -867,7 +880,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 );
     }
 
-    private Order[] getOrderForPlannedComTaskExecutionsList(int elementsSize, int elementIndex) {
+    private Order[] getOrderForPlannedComTaskExecutionsList(Order balancingOrder) {
         List<Order> orderList = new ArrayList<>(4);
         boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
         boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
@@ -882,9 +895,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
             orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
         }
-        orderList.add(Order.ascending("decode(mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName()
-                + "," + elementsSize + ")," + elementIndex
-                + ",0,1)"));
+        orderList.add(balancingOrder);
         return orderList.toArray(new Order[orderList.size()]);
     }
 
