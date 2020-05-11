@@ -234,8 +234,11 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
             store = me.getStore('Mtr.store.ReadingTypesByAlias'),
             storeBulk = me.getStore('Mtr.store.ReadingTypesBulk');
         storeBulk.setProxy(store.getProxy());
+
+        var filterParams = filterPanel.getFilterParams() || {};
+        filterParams.aliasName = decodeURIComponent(router.arguments.aliasName);
         storeBulk.getProxy().setExtraParam('filter',
-            filterPanel.createFiltersObject(filterPanel.getFilterParams())
+            filterPanel.createFiltersObject(filterParams)
         );
 
         router.getRoute('administration/readingtypes/bulk').forward({aliasName: router.arguments.aliasName},
