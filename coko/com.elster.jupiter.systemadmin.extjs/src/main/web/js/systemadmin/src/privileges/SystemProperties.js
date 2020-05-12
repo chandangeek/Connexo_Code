@@ -12,16 +12,16 @@ Ext.define('Sam.privileges.SystemProperties', {
         'Uni.Auth'
     ],
     singleton: true,
-    view : ['privilege.administrate.sysProps','privilege.view.sysProps'],
-    admin: ['privilege.administrate.sysProps'],
+    view: ['privilege.administer.sysProps','privilege.view.sysProps'],
+    admin: ['privilege.administer.sysProps'],
     all: function() {
-        return Ext.Array.merge(Sam.privileges.DataPurge.view, Sam.privileges.DataPurge.admin);
+        return Ext.Array.merge(Sam.privileges.SystemProperties.view, Sam.privileges.SystemProperties.admin);
     },
     canView:function(){
-        return Uni.Auth.checkPrivileges(Sam.privileges.DataPurge.view);
+        return Uni.Auth.checkPrivileges(Sam.privileges.SystemProperties.view);
     },
     canAdmin:function(){
-        return Uni.Auth.checkPrivileges(Sam.privileges.DataPurge.admin);
+        return Uni.Auth.checkPrivileges(Sam.privileges.SystemProperties.admin);
     }
 
 });

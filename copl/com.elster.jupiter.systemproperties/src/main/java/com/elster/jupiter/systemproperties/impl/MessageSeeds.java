@@ -7,7 +7,7 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    FIELD_TOO_LONG(1, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters");
+    FIELD_TOO_LONG(1, Keys.FIELD_TOO_LONG, "Field mustn''t exceed {max} characters");
 
     private final int number;
     private final String key;

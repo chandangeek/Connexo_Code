@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -17,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.systemproperties.security.Privileges;
 import com.elster.jupiter.systemproperties.SystemProperty;
 import com.elster.jupiter.systemproperties.SystemPropertyService;
 import com.elster.jupiter.systemproperties.SystemPropertySpec;
@@ -24,26 +26,27 @@ import com.elster.jupiter.systemproperties.impl.properties.CacheIsEnabledSystemP
 import com.elster.jupiter.systemproperties.impl.properties.EvictionTimeSystemPropertySpec;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 
 @Component(name = "com.elster.jupiter.systemproperties.service",
-        service = {SystemPropertyService.class},
+        service = {SystemPropertyService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + SystemPropertyService.COMPONENT_NAME,
         immediate = true)
-public class SystemPropertyServiceImpl implements SystemPropertyService, TranslationKeyProvider {
+public class SystemPropertyServiceImpl implements SystemPropertyService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile Thesaurus thesaurus;
     private volatile OrmService ormService;
@@ -52,9 +55,9 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile UserService userService;
-    private Map<String, SystemPropertySpec> specs = new HashMap<>();
-    private Map<String, String> props = new ConcurrentHashMap<>();
-    private volatile SystemPropertyLoop sysLoop;
+    private final Map<String, SystemPropertySpec> specs = new ConcurrentHashMap<>();
+    private final Map<String, String> props = new ConcurrentHashMap<>();
+    private volatile SystemPropertyChangeHandlerLoop sysLoop;
 
 
     @Reference
@@ -90,7 +93,7 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
 
     @Activate
     public void activate() {
-        dataModel = ormService.newDataModel(COMPONENT_NAME, "System Property Name");
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "System Property");
 
         for (SystemPropsTableSpecs spec : SystemPropsTableSpecs.values()) {
             spec.addTo(dataModel);
@@ -100,30 +103,36 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
         upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         initSystemPropertySpecs();
         initSystemProperties();
-        sysLoop = new SystemPropertyLoop(this);
+        sysLoop = new SystemPropertyChangeHandlerLoop(this);
         sysLoop.run();
     }
 
     @Deactivate
     public void deactivate() {
+        specs.clear();
+        props.clear();
         sysLoop.shutDown();
     }
 
     private void initSystemPropertySpecs() {
         specs.put(SystemPropertyTranslationKeys.ENABLE_CACHE.getKey(),
-                new CacheIsEnabledSystemPropertySpec(ormService, propertyValueInfoService, propertySpecService, thesaurus));
+                dataModel.getInstance(CacheIsEnabledSystemPropertySpec.class));
         specs.put(SystemPropertyTranslationKeys.EVICTION_TIME.getKey(),
-                new EvictionTimeSystemPropertySpec(ormService, propertyValueInfoService, propertySpecService, thesaurus));
+                dataModel.getInstance(EvictionTimeSystemPropertySpec.class));
     }
 
     private void initSystemProperties() {
-        props = getAllSystemProperties().stream().collect(
-                Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+        getAllSystemProperties().stream().forEach(x -> props.put(x.getKey(), x.getValue()));
     }
 
     @Override
-    public Optional<SystemPropertySpec> getPropertySpec(String key) {
+    public Optional<SystemPropertySpec> findPropertySpec(String key) {
         return Optional.ofNullable(specs.get(key));
+    }
+
+    @Override
+    public String getPropertyValue(String key){
+        return props.get(key);
     }
 
     @Override
@@ -133,12 +142,23 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     }
 
     @Override
-    public Optional<SystemProperty> getSystemPropertiesByKey(String key) {
+    public Optional<SystemProperty> findSystemPropertyByKey(String key) {
 
         Optional<SystemProperty> property = dataModel.mapper(SystemProperty.class)
-                .getUnique("key", key);
+                .getOptional(key);
 
         return property;
+    }
+
+
+    @Override
+    public void setPropertyValue(String key, String newValue){
+        SystemProperty sysprop = findSystemPropertyByKey(key).get();
+        //Update system property if value changed.
+        if (!newValue.equals(sysprop.getValue())) {
+            sysprop.setValue(newValue);
+            actionOnPropertyChange(sysprop);
+        }
     }
 
     private Module getModule() {
@@ -149,11 +169,13 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(PropertyValueInfoService.class).toInstance(propertyValueInfoService);
             }
         };
     }
 
-    public synchronized void readAndCheckProperties() {
+    public synchronized void readAndProcessUpdatedProperties() {
         List<SystemProperty> newprops = getAllSystemProperties();
         for (SystemProperty prop : newprops) {
             if (!props.put(prop.getKey(), prop.getValue()).equals(prop.getValue())) {
@@ -163,10 +185,10 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     }
 
     @Override
-    public synchronized void actionOnPropertyChange(SystemProperty systemProperty, SystemPropertySpec spec) {
+    public synchronized void actionOnPropertyChange(SystemProperty systemProperty) {
         systemProperty.update();
         props.put(systemProperty.getKey(), systemProperty.getValue());
-        spec.actionOnChange(systemProperty);
+        specs.get(systemProperty.getKey()).actionOnChange(systemProperty);
     }
 
     @Override
@@ -185,6 +207,11 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
         Stream.of(Privileges.values()).forEach(keys::add);
         Stream.of(SystemPropertyTranslationKeys.values()).forEach(keys::add);
         return keys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
 

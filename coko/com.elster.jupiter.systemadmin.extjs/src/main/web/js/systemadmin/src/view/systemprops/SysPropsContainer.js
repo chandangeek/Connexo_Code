@@ -54,7 +54,7 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
                             plain: true,
                             items: [
                                 {
-                                    text: Uni.I18n.translate('general.editSystemProperties', 'SAM', 'Edit'),
+                                    text: Uni.I18n.translate('general.editCacheSystemProps', 'SAM', "Edit 'Cache properties'"),
                                     itemId: 'edit-system-properties'
                                 }
                             ]

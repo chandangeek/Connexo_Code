@@ -1,9 +1,6 @@
-package com.elster.jupiter.systemproperties.impl;
+package com.elster.jupiter.systemproperties.security;
 
 import com.elster.jupiter.nls.TranslationKey;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
     //Resources
@@ -12,7 +9,7 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     VIEW_SYS_PROPS(Constants.VIEW_SYS_PROPS, "View"),
-    ADMINISTRATE_SYS_PROPS(Constants.ADMINISTRATE_SYS_PROPS, "Administer");
+    ADMINISTER_SYS_PROPS(Constants.ADMINISTER_SYS_PROPS, "Administer");
 
 
     private final String key;
@@ -37,6 +34,6 @@ public enum Privileges implements TranslationKey {
 
     public interface Constants {
         String VIEW_SYS_PROPS = "privilege.view.sysProps";
-        String ADMINISTRATE_SYS_PROPS = "privilege.administrate.sysProps";
+        String ADMINISTER_SYS_PROPS = "privilege.administer.sysProps";
     }
 }

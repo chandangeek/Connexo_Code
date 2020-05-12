@@ -1,27 +1,25 @@
 package com.elster.jupiter.systemproperties.impl;
 
-import com.elster.jupiter.systemproperties.SystemProperty;
 import com.elster.jupiter.systemproperties.SystemPropertyService;
 
-import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SystemPropertyLoop implements Runnable {
+public class SystemPropertyChangeHandlerLoop implements Runnable {
 
     private final ScheduledThreadPoolExecutor executor;
     private final SystemPropertyService systemPropertyService;
-    private static final Logger LOGGER = Logger.getLogger(SystemPropertyLoop.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SystemPropertyChangeHandlerLoop.class.getName());
 
-    SystemPropertyLoop(SystemPropertyService systemPropertyService) {
+    SystemPropertyChangeHandlerLoop(SystemPropertyService systemPropertyService) {
         executor = new ScheduledThreadPoolExecutor(1);
         this.systemPropertyService = systemPropertyService;
     }
 
     private void updateStatus() {
-        systemPropertyService.readAndCheckProperties();
+        systemPropertyService.readAndProcessUpdatedProperties();
     }
 
     /*Separate thread is used to read system properties from DB by timeout.
@@ -36,7 +34,7 @@ public class SystemPropertyLoop implements Runnable {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            executor.schedule(this, 20, TimeUnit.SECONDS);
+            executor.schedule(this, Long.valueOf(systemPropertyService.getPropertyValue("evictiontime")), TimeUnit.SECONDS);
         }
     }
 

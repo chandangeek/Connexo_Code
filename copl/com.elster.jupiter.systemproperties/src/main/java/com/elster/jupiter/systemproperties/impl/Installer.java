@@ -3,6 +3,7 @@ package com.elster.jupiter.systemproperties.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.systemproperties.security.Privileges;
 import com.elster.jupiter.systemproperties.SystemPropertyService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -44,7 +45,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 Privileges.RESOURCE_SYS_PROPS.getKey(), Privileges.RESOURCE_SYS_PROPS_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_SYS_PROPS, Privileges.Constants.VIEW_SYS_PROPS)));
+                Arrays.asList(Privileges.Constants.ADMINISTER_SYS_PROPS, Privileges.Constants.VIEW_SYS_PROPS)));
         return resources;
     }
 }

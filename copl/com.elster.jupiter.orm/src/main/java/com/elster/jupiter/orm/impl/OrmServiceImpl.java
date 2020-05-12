@@ -156,11 +156,11 @@ public final class OrmServiceImpl implements OrmService {
         return enablePartition;
     }
 
-    public long getEvictionTime(){
+    public long getEvictionTime() {
         return evictionTime;
     }
 
-    public boolean isCacheEnabled(){
+    public boolean isCacheEnabled() {
         return cacheEnabled;
     }
 
@@ -213,11 +213,11 @@ public final class OrmServiceImpl implements OrmService {
         this.transactionService = transactionService;
     }
 
-    public void setEvictionTime(Long evictionTime){
-        this.evictionTime =  evictionTime;
+    private void setEvictionTime(Long evictionTime) {
+        this.evictionTime = evictionTime;
     }
 
-    public void setCacheEnabled(boolean enableCache){
+    public void setCacheEnabled(boolean enableCache) {
         this.cacheEnabled = enableCache;
     }
 
@@ -244,10 +244,14 @@ public final class OrmServiceImpl implements OrmService {
     }
 
 
-    public void prepareSysProperties(){
+    private void prepareSysProperties() {
 
         String createTableStatement = "CREATE TABLE SYP_PROP " +
-                "(KEY varchar2(" + Table.NAME_LENGTH + ") NOT NULL," +
+                "( KEY varchar2(" + Table.NAME_LENGTH + ") NOT NULL," +
+                " VERSIONCOUNT number DEFAULT 1 NOT NULL,"+
+                " CREATETIME number DEFAULT 0 NOT NULL,"+
+                " MODTIME number DEFAULT 0 NOT NULL,"+
+                " USERNAME varchar2(" + Table.NAME_LENGTH + ") NULL,"+
                 " VALUE varchar2(" + Table.NAME_LENGTH + ")  NOT NULL," +
                 "CONSTRAINT PK_SYP_PROP PRIMARY KEY (KEY))";
 
@@ -263,8 +267,8 @@ public final class OrmServiceImpl implements OrmService {
         }
 
 
-        String evictionTime = readSystemPropertyValue("evictiontime", "300");
-        String enablecache = readSystemPropertyValue("enablecache", "true");
+        String evictionTime = readSystemPropertyValue("evictiontime", Integer.toString(EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE));
+        String enablecache = readSystemPropertyValue("enablecache", Boolean.toString(ENABLE_CACHE_DEFAULT_VALUE));
 
         long evictionTimeMs = Long.valueOf(evictionTime);
         setEvictionTime(evictionTimeMs);
@@ -272,8 +276,8 @@ public final class OrmServiceImpl implements OrmService {
         setCacheEnabled(enableCacheBoolean);
     }
 
-    private String readSystemPropertyValue(String propertyName, String defaultValue){
-        String getSystemPropertySql = "SELECT VALUE FROM SYP_PROP WHERE KEY='"+propertyName+"'";
+    private String readSystemPropertyValue(String propertyName, String defaultValue) {
+        String getSystemPropertySql = "SELECT VALUE FROM SYP_PROP WHERE KEY='" + propertyName + "'";
         String systemPropertyValue = "";
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement();
@@ -281,18 +285,18 @@ public final class OrmServiceImpl implements OrmService {
             if (resultSet.next()) {
                 systemPropertyValue = resultSet.getString("VALUE");
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-        if (systemPropertyValue.isEmpty()){
+        if (systemPropertyValue.isEmpty()) {
             setSystemPropertyValue(propertyName, defaultValue);
             systemPropertyValue = defaultValue;
         }
         return systemPropertyValue;
     }
 
-    private void setSystemPropertyValue(String propertyName, String defaultValue){
-        String insertSystemPropertySql = "INSERT INTO SYP_PROP (KEY, VALUE) VALUES('"+propertyName+"','"+defaultValue+"')";
+    private void setSystemPropertyValue(String key, String value) {
+        String insertSystemPropertySql = "INSERT INTO SYP_PROP (KEY, VALUE) VALUES('" + key + "','" + value + "')";
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement()) {
             statement.executeQuery(insertSystemPropertySql);

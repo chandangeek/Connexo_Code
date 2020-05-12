@@ -7,20 +7,18 @@ package com.elster.jupiter.system.app.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.system.app.SysAppService;
+import com.elster.jupiter.systemproperties.security.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.SqlExceptionThrowingFunction;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 final class Installer implements FullInstaller, Upgrader {
 
@@ -78,10 +76,8 @@ final class Installer implements FullInstaller, Upgrader {
     }
 
     private String[] batchExecutorPrivileges() {
-        List<String> privilegesList = new ArrayList<>(Arrays.asList(userService.userAdminPrivileges()));
-        privilegesList.add(com.elster.jupiter.systemproperties.impl.Privileges.Constants.VIEW_SYS_PROPS);
-        privilegesList.add(com.elster.jupiter.systemproperties.impl.Privileges.Constants.ADMINISTRATE_SYS_PROPS);
-        return (String[]) privilegesList.toArray();
+        return Stream.concat(Arrays.stream(userService.userAdminPrivileges()), Stream.of(Privileges.Constants.VIEW_SYS_PROPS, Privileges.Constants.ADMINISTER_SYS_PROPS))
+                .toArray(String[]::new);
     }
 
     private String[] installerPrivileges() {

@@ -889,14 +889,10 @@ public class TableImpl<T> implements Table<T> {
                     cache = new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat);
                     break;
                 default:
-                    cached = false;
-                    cacheWholeTable = false;
-                    cache = new TableCache.NoCache<>();
+                    disableCache();
             }
         } else {
-            cached = false;
-            cacheWholeTable = false;
-            cache = new TableCache.NoCache<>();
+            disableCache();
         }
     }
 
