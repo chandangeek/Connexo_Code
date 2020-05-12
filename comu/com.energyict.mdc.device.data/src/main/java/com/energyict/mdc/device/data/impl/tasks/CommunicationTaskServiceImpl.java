@@ -786,29 +786,6 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 .select();
     }
 
-    /*private <T extends HasId> int getElementIndex(List<T> elements, T element) {
-        if (elements != null && element != null) {
-            for (int i = 0; i < elements.size(); i++) {
-                if (elements.get(i).getId() == element.getId()) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    private Order getBalancingOrder(List<OutboundComPortPool> comPortPools, OutboundComPort comPort) {
-        int orderingIndicator = comPortPools.stream().map(OutboundComPortPool::getComPorts)
-                .map(outboundComPorts -> outboundComPorts.stream()
-                        .sorted(Comparator.comparing(OutboundComPort::getId))
-                        .collect(Collectors.toList()))
-                .map(list -> getElementIndex(list, comPort)).collect(Collectors.groupingBy(index -> index % 2 == 0))
-                .entrySet().stream().mapToInt(e -> (e.getKey() ? 1 : -1) * e.getValue().size()).sum();
-
-        boolean isAsc = (orderingIndicator >= 0) && ((orderingIndicator != 0) || Math.random() < 0.5);
-        return isAsc ? Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()) : Order.descending(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
-    }*/
-
     private List<ComTaskExecution> getPendingComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds, int factor) {
         long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
         List<OutboundComPortPool> comPortPools =
@@ -881,7 +858,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private Order[] getOrderForPlannedComTaskExecutionsList(Order balancingOrder) {
-        List<Order> orderList = new ArrayList<>(4);
+        List<Order> orderList = new ArrayList<>(3);
         boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
         boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
@@ -889,13 +866,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             orderList.add(Order.ascending("mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ",100)"));
         }
         if (isTrueMinimizedOn) {
-            orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+            orderList.add(balancingOrder);
             orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
         } else {
             orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
-            orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+            orderList.add(balancingOrder);
         }
-        orderList.add(balancingOrder);
         return orderList.toArray(new Order[orderList.size()]);
     }
 
