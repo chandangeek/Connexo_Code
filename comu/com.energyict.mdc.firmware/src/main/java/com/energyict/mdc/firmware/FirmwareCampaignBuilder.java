@@ -7,7 +7,6 @@ package com.energyict.mdc.firmware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.device.config.DeviceType;
-import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignBuilderImpl;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
@@ -39,7 +38,7 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaign create();
 
-    FirmwareCampaignBuilder withUniqueFirmwareVersion(Boolean withUniqueFirmwareVersion);
+    FirmwareCampaignBuilder withUniqueFirmwareVersion(boolean withUniqueFirmwareVersion);
 
     FirmwareCampaignBuilder addProperty(PropertySpec propertySpec, Object propertyValue);
 }

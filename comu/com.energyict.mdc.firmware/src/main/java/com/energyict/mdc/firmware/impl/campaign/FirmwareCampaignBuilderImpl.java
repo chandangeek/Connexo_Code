@@ -24,21 +24,21 @@ import java.util.Optional;
 
 public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
 
-    String name;
-    DeviceType deviceType;
-    String deviceGroup;
-    Instant uploadStart;
-    Instant uploadEnd;
-    Instant activationDate;
-    TimeDuration validationTimeout;
-    ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
-    FirmwareType firmwareType;
-    Map<PropertySpec, Object> properties;
-    Long firmwareUploadComTaskId;
-    ConnectionStrategy firmwareUploadConnectionStrategy;
-    Long validationComTaskId;
-    ConnectionStrategy validationConnectionStrategy;
-    Boolean withUniqueFirmwareVersion;
+    private String name;
+    private DeviceType deviceType;
+    private String deviceGroup;
+    private Instant uploadStart;
+    private Instant uploadEnd;
+    private Instant activationDate;
+    private TimeDuration validationTimeout;
+    private ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
+    private FirmwareType firmwareType;
+    private Map<PropertySpec, Object> properties;
+    private Long firmwareUploadComTaskId;
+    private ConnectionStrategy firmwareUploadConnectionStrategy;
+    private Long validationComTaskId;
+    private ConnectionStrategy validationConnectionStrategy;
+    private boolean withUniqueFirmwareVersion;
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel dataModel;
@@ -124,7 +124,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withUniqueFirmwareVersion(Boolean withUniqueFirmwareVersion) {
+    public FirmwareCampaignBuilderImpl withUniqueFirmwareVersion(boolean withUniqueFirmwareVersion) {
         this.withUniqueFirmwareVersion = withUniqueFirmwareVersion;
         return this;
     }
