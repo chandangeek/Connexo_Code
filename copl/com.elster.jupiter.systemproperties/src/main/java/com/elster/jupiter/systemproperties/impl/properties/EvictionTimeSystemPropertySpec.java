@@ -20,6 +20,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
     PropertySpec propertySpec;
     PropertySpecService propertySpecService;
 
+    @Inject
     public EvictionTimeSystemPropertySpec(OrmService ormService,
                                           PropertyValueInfoService propertyValueInfoService,
                                           PropertySpecService propertySpecService,
@@ -44,7 +46,8 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
                 .named(SystemPropertyTranslationKeys.EVICTION_TIME)
                 .describedAs(SystemPropertyTranslationKeys.EVICTION_TIME_DESCRIPTION)
                 .fromThesaurus(thesaurus)
-                .setDefaultValue(TimeDuration.seconds(300))
+                .setDefaultValue(TimeDuration.seconds(OrmService.EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE))
+                .markRequired()
                 .finish();
     }
 
@@ -60,9 +63,7 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
         for (DataModel dataModel : datamodels) {
             for (Table table : dataModel.getTables()) {
                 if (table.isCached() || table.isWholeTableCached()) {
-                    if (table.getCacheType() != Table.CacheType.NO_CACHE) {
-                        table.changeEvictionTime(evictionTime);
-                    }
+                    table.changeEvictionTime(evictionTime);
                 }
             }
         }

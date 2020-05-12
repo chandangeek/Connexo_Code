@@ -1,5 +1,6 @@
 package com.elster.jupiter.systemproperties;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyType;
 

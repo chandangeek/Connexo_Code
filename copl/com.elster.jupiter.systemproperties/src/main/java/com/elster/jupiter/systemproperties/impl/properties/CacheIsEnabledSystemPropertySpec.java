@@ -16,6 +16,7 @@ import com.elster.jupiter.systemproperties.SystemProperty;
 import com.elster.jupiter.systemproperties.SystemPropertySpec;
 import com.elster.jupiter.systemproperties.impl.SystemPropertyTranslationKeys;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
@@ -26,6 +27,7 @@ public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
     private volatile Thesaurus thesaurus;
     private PropertySpec propertySpec;
 
+    @Inject
     public CacheIsEnabledSystemPropertySpec(OrmService ormService,
                                             PropertyValueInfoService propertyValueInfoService,
                                             PropertySpecService propertySpecService,
@@ -37,7 +39,7 @@ public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
                 .named(SystemPropertyTranslationKeys.ENABLE_CACHE)
                 .describedAs(SystemPropertyTranslationKeys.ENABLE_CACHE_DESCRIPTION)
                 .fromThesaurus(thesaurus)
-                .setDefaultValue(true)
+                .setDefaultValue(OrmService.ENABLE_CACHE_DEFAULT_VALUE)
                 .finish();
     }
 

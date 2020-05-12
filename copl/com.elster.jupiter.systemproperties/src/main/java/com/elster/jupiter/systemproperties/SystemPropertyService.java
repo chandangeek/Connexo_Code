@@ -12,11 +12,15 @@ public interface SystemPropertyService {
 
     List<SystemProperty> getAllSystemProperties();
 
-    Optional<SystemProperty> getSystemPropertiesByKey(String key);
+    Optional<SystemProperty> findSystemPropertyByKey(String key);
 
-    Optional<SystemPropertySpec> getPropertySpec(String key);
+    Optional<SystemPropertySpec> findPropertySpec(String key);
 
-    void actionOnPropertyChange(SystemProperty systemProperty, SystemPropertySpec spec);
+    String getPropertyValue(String key);
 
-    void readAndCheckProperties();
+    void actionOnPropertyChange(SystemProperty systemProperty);
+
+    void readAndProcessUpdatedProperties();
+
+    void setPropertyValue(String key, String value);
 }

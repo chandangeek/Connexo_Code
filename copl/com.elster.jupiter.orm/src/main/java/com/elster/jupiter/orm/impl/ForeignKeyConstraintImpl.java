@@ -174,7 +174,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         /*if (!getTable().hasForceJournal() && !deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
             throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
         }*/
-        if (getReferencedTable().isCached() && forwardEagers.length > 0) {
+        if (getReferencedTable().getCacheType() != Table.CacheType.NO_CACHE && forwardEagers.length > 0) {
             throw new IllegalStateException("Table: " + getTable().getName() + " Do not specify eager mapping when referencing cached table " + getReferencedTable().getName());
         }
     }

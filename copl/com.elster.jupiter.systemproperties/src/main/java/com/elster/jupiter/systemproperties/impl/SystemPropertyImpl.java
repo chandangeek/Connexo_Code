@@ -33,21 +33,6 @@ public class SystemPropertyImpl implements SystemProperty {
         this.dataModel = dataModel;
     }
 
-    public enum Fields {
-        PROP_KEY("key"),
-        PROP_VALUE("value");
-
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        public String fieldName() {
-            return javaFieldName;
-        }
-    }
-
     @Override
     public String getKey() {
         return key;
@@ -63,7 +48,23 @@ public class SystemPropertyImpl implements SystemProperty {
         this.value = value;
     }
 
+    @Override
     public void update() {
         Save.UPDATE.save(this.dataModel, this);
+    }
+
+    public enum Fields {
+        PROP_KEY("key"),
+        PROP_VALUE("value");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
     }
 }

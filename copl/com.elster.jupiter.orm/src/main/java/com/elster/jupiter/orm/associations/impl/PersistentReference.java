@@ -8,6 +8,7 @@ package com.elster.jupiter.orm.associations.impl;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.KeyValue;
@@ -42,7 +43,7 @@ public class PersistentReference<T> implements Reference<T> {
 	public Optional<T> getOptional() {
 		if (value == null) {
 			if (isPresent()) {
-				if (eagers.length == 0 || dataMapper.getTable().isCached()) {
+				if (eagers.length == 0 || dataMapper.getTable().getCacheType() != Table.CacheType.NO_CACHE) {
 					value = dataMapper.getOptional(primaryKey.getKey());
 				} else {
 					value = dataMapper.query(eagers).getOptional(primaryKey.getKey());

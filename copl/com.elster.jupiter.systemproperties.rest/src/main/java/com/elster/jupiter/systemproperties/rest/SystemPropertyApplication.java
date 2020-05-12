@@ -1,6 +1,7 @@
 package com.elster.jupiter.systemproperties.rest;
 
 
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.systemproperties.SystemPropertyService;
 
 import com.google.common.collect.ImmutableSet;
@@ -13,14 +14,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.systemproperties",
+@Component(name = "com.elster.jupiter.systemproperties.rest",
         service = {Application.class}, immediate = true,
         property = {"alias=/sp", "app=" + SystemPropertyApplication.APP_KEY, "name=" + SystemPropertyApplication.COMPONENT_NAME})
-public class SystemPropertyApplication extends Application{
+public class SystemPropertyApplication extends Application {
 
     public static final String APP_KEY = "SYS";
     public static final String COMPONENT_NAME = "SYR";
     private volatile SystemPropertyService systemPropertiesService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
 
     @Override
@@ -35,6 +37,11 @@ public class SystemPropertyApplication extends Application{
         this.systemPropertiesService = systemPropertiesService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService){
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -46,7 +53,9 @@ public class SystemPropertyApplication extends Application{
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
+
             bind(systemPropertiesService).to(SystemPropertyService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }
 

@@ -19,28 +19,6 @@
         <baseline>(,${project.version})</baseline>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>restdoc</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.qmino</groupId>
-                        <artifactId>miredot-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>restdoc</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -69,10 +47,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

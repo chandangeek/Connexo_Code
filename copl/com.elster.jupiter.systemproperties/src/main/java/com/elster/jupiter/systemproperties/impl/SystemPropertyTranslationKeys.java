@@ -6,7 +6,7 @@ public enum SystemPropertyTranslationKeys implements TranslationKey {
     EVICTION_TIME("evictiontime", "Cache eviction time"),
     EVICTION_TIME_DESCRIPTION("evictionTimeDescription", "Eviction time for table cache"),
     ENABLE_CACHE("enablecache", "Enable caching"),
-    ENABLE_CACHE_DESCRIPTION("enableCacheDescription", "Enable caching for specified tables"),;
+    ENABLE_CACHE_DESCRIPTION("enableCacheDescription", "Enable cache"),;
 
     private final String key;
     private final String defaultFormat;
