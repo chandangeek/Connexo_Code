@@ -183,7 +183,9 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private void readProperties(BundleContext bundleContext){
         try {
             String val = bundleContext.getProperty(MAX_LIMIT_IN_THE_PAST_DAYS);
-            maximumPastEffectiveTimeShift = TimeDuration.days(Integer.valueOf(val));
+            if (val != null) {
+                maximumPastEffectiveTimeShift = TimeDuration.days(Integer.valueOf(val));
+            }
         } catch (NumberFormatException e) {
             //nothing to do
         }
@@ -376,18 +378,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    public TimeDuration getDefaultFutureEffectiveTimeShift() {
-        return EffectiveTimeShift.FUTURE.defaultValue();
-    }
-
-    @Override
     public TimeDuration getMaximumPastEffectiveTimeShift() {
         return maximumPastEffectiveTimeShift;
-    }
-
-    @Override
-    public TimeDuration getDefaultPastEffectiveTimeShift() {
-        return EffectiveTimeShift.PAST.defaultValue();
     }
 
     @Override

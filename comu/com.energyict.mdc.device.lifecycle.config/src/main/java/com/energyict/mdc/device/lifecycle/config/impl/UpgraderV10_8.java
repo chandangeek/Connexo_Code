@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ public class UpgraderV10_8 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 6));
         execute(dataModel, "alter table DLD_DEVICE_LIFE_CYCLE drop " +
                 "(MAXPASTEFFTIMESHIFTUNIT, MAXPASTEFFTIMESHIFTVALUE, MAXFUTUREEFFTIMESHIFTUNIT, MAXFUTUREEFFTIMESHIFTVALUE);");
     }

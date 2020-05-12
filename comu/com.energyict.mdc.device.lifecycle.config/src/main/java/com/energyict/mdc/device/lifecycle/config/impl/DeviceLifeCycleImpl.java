@@ -25,7 +25,6 @@ import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.EventType;
-import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumFutureEffectiveTimeShiftInRange;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,7 +48,6 @@ import java.util.stream.Collectors;
  * @since 2015-03-11 (10:30)
  */
 @Unique(message = "{" + MessageSeeds.Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME + "}", groups = {Save.Create.class, Save.Update.class})
-@MaximumFutureEffectiveTimeShiftInRange(message = "{" + MessageSeeds.Keys.MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", groups = {Save.Create.class, Save.Update.class})
 @XmlRootElement
 public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
@@ -153,27 +151,13 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     @Override
-    public TimeDuration getMaximumFutureEffectiveTimeShift() {
-        return this.maximumFutureEffectiveTimeShift;
-    }
-
-    void setMaximumFutureEffectiveTimeShift(TimeDuration maximumFutureEffectiveTimeShift) {
-        this.maximumFutureEffectiveTimeShift = maximumFutureEffectiveTimeShift;
-    }
-
-    @Override
     public Instant getMaximumFutureEffectiveTimestamp() {
-        return this.clock.instant().plusMillis(this.getMaximumFutureEffectiveTimeShift().getMilliSeconds());
-    }
-
-    @Override
-    public TimeDuration getMaximumPastEffectiveTimeShift() {
-        return deviceLifeCycleConfigurationService.getMaximumPastEffectiveTimeShift();
+        return this.clock.instant().plusMillis(deviceLifeCycleConfigurationService.getMaximumFutureEffectiveTimeShift().getMilliSeconds());
     }
 
     @Override
     public Instant getMaximumPastEffectiveTimestamp() {
-        return this.clock.instant().minusMillis(this.getMaximumPastEffectiveTimeShift().getMilliSeconds());
+        return this.clock.instant().minusMillis(deviceLifeCycleConfigurationService.getMaximumPastEffectiveTimeShift().getMilliSeconds());
     }
 
     @Override
