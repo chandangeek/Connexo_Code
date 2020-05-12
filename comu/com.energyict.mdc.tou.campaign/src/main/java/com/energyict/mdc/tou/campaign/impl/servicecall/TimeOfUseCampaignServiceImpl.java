@@ -383,16 +383,16 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
             } else if (notAddedDevicesBecauseDifferentType > 1) {
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_DIFFERENT_TYPE).format(notAddedDevicesBecauseDifferentType));
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN) != null) {
-                int notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN);
+            Integer notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN);
+            if (notAdded != null) {
                 if (notAdded == 1) {
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN).format());
                 } else {
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN).format(notAdded));
                 }
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR) != null) {
-                int notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR);
+            notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR);
+            if (notAdded != null) {
                 if (notAdded == 1) {
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_HAVE_THIS_CALENDAR).format());
                 } else {
