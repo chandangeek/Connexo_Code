@@ -378,16 +378,26 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND).format(campaign.getDeviceGroup(), campaign.getDeviceType().getName()));
             }
             int notAddedDevicesBecauseDifferentType = devicesByGroup.size() - devicesByGroupAndType.size();
-            if (notAddedDevicesBecauseDifferentType > 0) {
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_DIFFERENT_TYPE).format(notAddedDevicesBecauseDifferentType));
+            if (notAddedDevicesBecauseDifferentType == 1) {
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_DIFFERENT_TYPE).format());
+            } else if (notAddedDevicesBecauseDifferentType > 1) {
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_DIFFERENT_TYPE).format(notAddedDevicesBecauseDifferentType));
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN) != null) {
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)
-                        .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)));
+            Integer notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN);
+            if (notAdded != null) {
+                if (notAdded == 1) {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN).format());
+                } else {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN).format(notAdded));
+                }
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR) != null) {
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR)
-                        .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR)));
+            notAdded = numberOfDevices.get(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR);
+            if (notAdded != null) {
+                if (notAdded == 1) {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_HASNT_ADDED_BECAUSE_HAVE_THIS_CALENDAR).format());
+                } else {
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR).format(notAdded));
+                }
             }
             if (numberOfDevices.get(MessageSeeds.DEVICE_WAS_ADDED) == null) {
                 serviceCallService.lockServiceCall(serviceCall.getId());
@@ -406,7 +416,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     .flatMap(AllowedCalendar::getCalendar)
                     .filter(calendar1 -> (calendar1.getId() == campaign.getCalendar().getId()))
                     .isPresent()) {
-                return MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR;
+                return MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR;
             }
         }
         if (!findActiveTimeOfUseItemByDevice(device).isPresent()) {
@@ -418,7 +428,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
             serviceCall.requestTransition(DefaultState.PENDING);
             return MessageSeeds.DEVICE_WAS_ADDED;
         } else {
-            return MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN;
+            return MessageSeeds.DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN;
         }
     }
 

@@ -57,6 +57,8 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     ServiceCall getServiceCall();
 
+    boolean isWithUniqueFirmwareVersion();
+
     Map<DefaultState, Long> getNumbersOfChildrenWithStatuses();
 
     void update();

@@ -115,6 +115,7 @@ public class FirmwareCampaignInfoFactory {
                 .getName());
         info.validationConnectionStrategy = campaign.getValidationConnectionStrategy().isPresent() ? new IdWithNameInfo(campaign.getValidationConnectionStrategy()
                 .get(), thesaurus.getString(campaign.getValidationConnectionStrategy().get().name(), campaign.getValidationConnectionStrategy().get().name())) : null;
+        info.withUniqueFirmwareVersion = campaign.isWithUniqueFirmwareVersion();
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
@@ -184,7 +185,8 @@ public class FirmwareCampaignInfoFactory {
                 .withValidationComTaskId(info.validationComTask == null ? null : ((Number) info.validationComTask.id).longValue())
                 .withFirmwareUploadConnectionStrategy(info.calendarUploadConnectionStrategy == null ? null : info.calendarUploadConnectionStrategy.name)
                 .withValidationConnectionStrategy(info.validationConnectionStrategy == null ? null : info.validationConnectionStrategy.name)
-                .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
+                .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
+                .withUniqueFirmwareVersion(info.withUniqueFirmwareVersion);
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);
         String imageIdentifier = firmwareVersion.getImageIdentifier();
         if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId) && imageIdentifier != null) {
@@ -218,7 +220,6 @@ public class FirmwareCampaignInfoFactory {
 
         Finder<FirmwareVersion> firmwaresFinder = firmwareService.findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType));
         firmwaresFinder.find().forEach(ff -> firmwareService.createFirmwareCampaignVersionStateSnapshot(firmwareCampaign, ff));
-
         return firmwareCampaign;
     }
 
