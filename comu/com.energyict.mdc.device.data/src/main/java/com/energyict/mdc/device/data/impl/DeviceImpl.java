@@ -2326,13 +2326,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
                         while (channelContainerInterval.contains(requestStart.toInstant())) {
                             ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                            // we should handle dst difference for all hours load profiles except 1-hour dst started
+                            // we should handle dst difference for all hours load profiles except 1-hour
                             TimeDuration interval = loadProfile.getInterval();
-                            if (interval.getTimeUnit() == TimeDuration.TimeUnit.HOURS) {
-                                int diffOffset = requestStart.getOffset().getTotalSeconds() - readingTimestamp.getOffset().getTotalSeconds();
-                                if(interval.getCount() > 1 || diffOffset > 0) {
-                                    readingTimestamp = readingTimestamp.plusSeconds(diffOffset);
-                                }
+                            if (interval.getTimeUnit() == TimeDuration.TimeUnit.HOURS && interval.getCount() > 1) {
+                                readingTimestamp = readingTimestamp.plusSeconds(requestStart.getOffset().getTotalSeconds() - readingTimestamp.getOffset().getTotalSeconds());
                             }
 
                             if (requestedInterval.contains(readingTimestamp.toInstant())) {
