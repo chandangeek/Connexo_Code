@@ -36,14 +36,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.security.SignedObject;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("/license")
@@ -127,7 +122,11 @@ public class LicenseResource {
         SignedObject signedObject;
         try {
             ObjectInputStream serializedObject = new ObjectInputStream(new ByteArrayInputStream(bytes));
-            signedObject = (SignedObject) serializedObject.readObject();
+            // whitelist based approach, resolve the class from the serialized object and
+            Set whitelist = new HashSet<String>(Arrays.asList("SignedObject"));
+            ObjectInputStream oin = new SafeObjectInputStream(serializedObject, whitelist);
+
+            signedObject = (SignedObject) oin.readObject();
             serializedObject.close();
         } catch (Exception ex) {
             throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(
@@ -147,6 +146,26 @@ public class LicenseResource {
         } catch (Exception ex) {
             info.setFailure(ex.getLocalizedMessage());
             throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService.serialize(info)).build());
+        }
+    }
+
+    public class SafeObjectInputStream<Public> extends ObjectInputStream {
+        public Set whitelist;
+
+        public SafeObjectInputStream(ObjectInputStream objectInputStream, Set whitelist) throws IOException {
+            super(objectInputStream);
+            this.whitelist = whitelist;
+        }
+
+        @Override
+        protected Class<?> resolveClass(ObjectStreamClass cls)
+                throws IOException, ClassNotFoundException
+        {
+            // check with expected whitelist classes
+            if (!whitelist.contains(cls.getName())) {
+                throw new InvalidClassException("Unsupported class => ", cls.getName());
+            }
+            return super.resolveClass(cls);
         }
     }
 }
