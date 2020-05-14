@@ -6,6 +6,7 @@ package com.elster.insight.issue.datavalidation.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -22,6 +23,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.users.blacklist.BlackListModule;
+import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
@@ -121,6 +124,8 @@ public abstract class BaseTest {
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(AppService.class).toInstance(mock(AppService.class));
+
+            bind(PasswordDecryptService.class).toInstance(mock(PasswordDecryptService.class));
         }
     }
 
@@ -162,7 +167,9 @@ public abstract class BaseTest {
                 new ServiceCallModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new TokenModule(),
+                new BlackListModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

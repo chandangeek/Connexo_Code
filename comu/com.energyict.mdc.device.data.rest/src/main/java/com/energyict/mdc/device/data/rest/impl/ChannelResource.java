@@ -56,6 +56,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.POST;
@@ -81,7 +82,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @DeviceStagesRestricted(
@@ -222,6 +222,27 @@ public class ChannelResource {
         return customPropertySetInfo;
     }
 
+    @DELETE
+    @Transactional
+    @Path("/{channelId}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response removeChannelCustomPropertyVersion(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, Instant.ofEpochMilli(timeStamp));
+        resourceHelper.lockLoadProfileTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
+        if (customPropertySetInfo.id != cpsId) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
+        if (customPropertySetInfo.removable) {
+            resourceHelper.deleteCustomPropertySetVersion(channel, customPropertySetInfo);
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, customPropertySetInfo.name, Instant.ofEpochMilli(timeStamp));
+        }
+        return Response.ok().build();
+    }
+
     @GET
     @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/versions")
@@ -339,54 +360,21 @@ public class ChannelResource {
     }
 
     private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter) {
-        Predicate<String> filterByLoadProfileName = getStringListFilterIfAvailable("loadProfileName", filter);
-        Predicate<String> filterByChannelName = getStringFilterIfAvailable("channelName", filter);
-        return device.getLoadProfiles().stream()
+        Predicate<String> filterByLoadProfileName = FilterHelper.getStringListFilterIfAvailable("loadProfileName", filter);
+        Predicate<String> filterByChannelName = FilterHelper.getStringFilterIfAvailable("channelName", filter);
+        List<Channel> channels = device.getLoadProfiles().stream()
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
                 .filter(c -> filterByChannelName.test(c.getReadingType().getFullAliasName()))
-                .collect(Collectors.toList());
-    }
-
-    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter) {
-        if (filter.hasProperty(name)) {
-            Pattern pattern = getFilterPattern(filter.getString(name));
-            if (pattern != null) {
-                return s -> pattern.matcher(s).matches();
-            }
-        }
-        return s -> true;
-    }
-
-    private Predicate<String> getStringListFilterIfAvailable(String name, JsonQueryFilter filter) {
-        if (filter.hasProperty(name)) {
-            List<String> entries = filter.getStringList(name);
-            List<Pattern> patterns = new ArrayList<>();
-            for (String entry : entries) {
-                patterns.add(getFilterPattern(entry));
-            }
-            if (!patterns.isEmpty()) {
-                return s -> {
-                    boolean match = false;
-                    for (Pattern pattern : patterns) {
-                        match = match || pattern.matcher(s).matches();
-                        if (match) {
-                            break;
-                        }
+                .filter(channel -> {
+                    if (filter.hasProperty("logicalRegisterNumber") || filter.hasProperty("profileId")) {
+                        return resourceHelper.filterSapAttributes(channel, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", filter), FilterHelper.getStringFilterIfAvailable("profileId", filter));
+                    } else {
+                        return true;
                     }
-                    return match;
-                };
-            }
-        }
-        return s -> true;
-    }
-
-    private Pattern getFilterPattern(String filter) {
-        if (filter != null) {
-            filter = Pattern.quote(filter.replace('%', '*'));
-            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
-        }
-        return null;
+                })
+                .collect(Collectors.toList());
+        return channels;
     }
 
     @GET
@@ -408,13 +396,15 @@ public class ChannelResource {
 
             // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
             // devices which are not dataloggers
-            List<Pair<Channel, Range<Instant>>> channelTimeLine = Collections.singletonList(Pair.of(channel, range));
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
             List<ChannelDataInfo> infos = channelTimeLine.stream()
                     .flatMap(channelRangePair -> {
                         Channel channelWithData = channelRangePair.getFirst();
                         List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(Interval.of(channelRangePair.getLast()).toOpenClosedRange());
                         return loadProfileReadings.stream()
-                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channelPeriodType));
+                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel
+                                        .equals(channelWithData) ? null : channelWithData
+                                        .getDevice(), channelPeriodType));
                     })
                     .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());
@@ -445,14 +435,16 @@ public class ChannelResource {
 
             // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
             // devices which are not dataloggers
-            List<Pair<Channel, Range<Instant>>> channelTimeLine = Collections.singletonList(Pair.of(channel, range));
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
             List<ChannelHistoryDataInfo> infos = channelTimeLine.stream()
                     .flatMap(channelRangePair -> {
                         Channel channelWithData = channelRangePair.getFirst();
                         List<LoadProfileJournalReading> loadProfileJournalReadings = channelWithData.getChannelWithHistoryData(Interval.of(channelRangePair.getLast())
                                 .toOpenClosedRange(), changedDataOnly);
                         return loadProfileJournalReadings.stream()
-                                .map(loadProfileJournalReading -> deviceDataInfoFactory.createChannelHistoryDataInfo(channelWithData, loadProfileJournalReading, isValidationActive, deviceValidation, channelPeriodType));
+                                .map(loadProfileJournalReading -> deviceDataInfoFactory.createChannelHistoryDataInfo(channelWithData, loadProfileJournalReading, isValidationActive, deviceValidation, channel
+                                        .equals(channelWithData) ? null : channelWithData
+                                        .getDevice(), channelPeriodType));
                     })
                     .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());

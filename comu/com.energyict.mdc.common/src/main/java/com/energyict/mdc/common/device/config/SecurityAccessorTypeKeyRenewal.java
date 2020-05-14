@@ -4,15 +4,16 @@
 
 package com.energyict.mdc.common.device.config;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.properties.PropertySpec;
 
-import aQute.bnd.annotation.ProviderType;
-
-@ProviderType
+@ConsumerType
 public interface SecurityAccessorTypeKeyRenewal {
     PropertySpec getSpecification();
     Object getValue();
     String getName();
+    boolean isServiceKey();
     void setName(String name);
     void setValue(String value);
+    void setServiceKey(boolean serviceKey);
 }

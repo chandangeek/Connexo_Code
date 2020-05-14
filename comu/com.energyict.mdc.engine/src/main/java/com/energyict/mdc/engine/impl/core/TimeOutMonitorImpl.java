@@ -4,7 +4,10 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OutboundCapableComServer;
@@ -16,6 +19,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
+import java.util.Locale;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -35,20 +39,16 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private AtomicBoolean continueRunning;
     private ThreadFactory threadFactory;
+    private ThreadPrincipalService threadPrincipalService;
     private Thread self;
     private OutboundCapableComServer comServer;
     private ComServerDAO comServerDAO;
-    private long waitTime;
 
-    public TimeOutMonitorImpl(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
-        super();
-        initialize(comServer, comServerDAO, threadFactory);
-    }
-
-    private void initialize(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
+    public TimeOutMonitorImpl(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory, ThreadPrincipalService threadPrincipalService) {
         this.comServer = comServer;
         this.comServerDAO = comServerDAO;
         this.threadFactory = threadFactory;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
@@ -66,8 +66,6 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
         continueRunning = new AtomicBoolean(true);
         self = threadFactory.newThread(this);
         self.setName("Timeout monitor for " + comServer.getName());
-        // the first time, execute the cleanup asynchronously, to not clash with the cleanup started on the outbound ComPorts
-        monitorTasks();
         self.start();
         status = ServerProcessStatus.STARTED;
     }
@@ -90,10 +88,11 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
 
     @Override
     public void run() {
+        setThreadPrincipal();
         while (continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
-                Thread.sleep(waitTime);
-                monitorTasks();
+                long waitTimeMax = monitorTasks();
+                Thread.sleep(waitTimeMax);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -101,11 +100,13 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 
-    private void monitorTasks() {
+    private long monitorTasks() {
         try {
-            waitTime = releaseTimedOutTasks();
-        } catch (RuntimeException e) {
-            waitTime = DEFAULT_WAIT_TIME.getMilliSeconds();
+            return releaseTimedOutTasks();
+        } catch (Throwable t) {
+            LOGGER.severe("TimeOutMonitor exception: " + t);
+            t.printStackTrace();
+            return DEFAULT_WAIT_TIME.getMilliSeconds();
         }
     }
 
@@ -115,12 +116,20 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
             for (ComPort comPort : comServer.getComPorts()) {
                 waitTimeMax = Math.max(waitTimeMax, comServerDAO.releaseTimedOutTasks(comPort).getMilliSeconds());
             }
-
+            LOGGER.warning("Calculated sleep time: " + waitTimeMax/1000 + " s");
             return waitTimeMax;
         } catch (DataAccessException e) {
             getLogger(comServer).timeOutCleanupFailure(comServer, e);
             throw e;
         }
+    }
+
+    private void setThreadPrincipal() {
+        User comServerUser = comServerDAO.getComServerUser();
+        if (comServerUser == null) {
+            throw new ApplicationException("Cannot start thread " + Thread.currentThread().getName() + " - user is undefined!");
+        }
+        threadPrincipalService.set(comServerUser, "TimeOutMonitor", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 
     private ComServerLogger getLogger(ComServer comServer) {

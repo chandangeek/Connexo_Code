@@ -128,6 +128,7 @@ import static org.mockito.Mockito.when;
 public class DeviceImplIT extends PersistenceIntegrationTest {
 
     private static final String DEVICE_NAME = "MyUniqueName";
+    private static final String SERIAL_NUMBER = "MyUniqueSerialNumber";
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     private static final TimeDuration interval = TimeDuration.minutes(15);
@@ -178,7 +179,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, Instant start) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, start);
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, name, start);
     }
 
     private void createTestDefaultTimeZone() {
@@ -232,7 +233,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(device).isNotNull();
         assertThat(device.getId()).isGreaterThan(0L);
         assertThat(device.getName()).isEqualTo(DEVICE_NAME);
-        assertThat(device.getSerialNumber()).isNullOrEmpty();
+        assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
     }
 
     @Test
@@ -250,14 +251,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice).isNotNull();
         assertThat(reloadedDevice.getName()).isEqualTo(DEVICE_NAME);
-        assertThat(reloadedDevice.getSerialNumber()).isNullOrEmpty();
+        assertThat(reloadedDevice.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     public void createWithoutNameTest() {
-        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, null, Instant.now());
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, null, Instant.now());
     }
 
 
@@ -265,14 +266,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     public void createWithEmptyNameTest() {
-        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "", Instant.now());
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "", Instant.now());
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", property = "shipmentDate")
     public void createWithoutShipmentDateTest() {
-        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "MyNameWithoutShipment", null);
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER,"MyNameWithoutShipment", null);
     }
 
     @Test
@@ -280,7 +281,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void createWithSerialNumberTest() {
         String serialNumber = "MyTestSerialNumber";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setSerialNumber(serialNumber);
         device.save();
 
@@ -294,7 +295,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void createWithManufactorerTest() {
         String manufacturer = "TheManufacturer";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setManufacturer(manufacturer);
         device.save();
 
@@ -308,7 +309,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testUpdateManufactorer() {
         String manufacturer = "TheManufacturer";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setManufacturer(manufacturer);
         device.save();
 
@@ -325,7 +326,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void createWithModelNumberTest() {
         String modelNbr = "TheModelNbr";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setModelNumber(modelNbr);
         device.save();
 
@@ -339,7 +340,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testUpdateModelNumber() {
         String modelNbr = "TheModelNbr";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setModelNumber(modelNbr);
         device.save();
 
@@ -356,7 +357,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void createWithModelVersionTest() {
         String modelVersion = "TheModelVersion";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setModelNumber(modelVersion);
         device.save();
 
@@ -370,7 +371,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testUpdateModelVersion() {
         String modelVersion = "TheModelVersion";
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setModelNumber(modelVersion);
         device.save();
 
@@ -385,7 +386,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testUpdateName() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         DeviceImpl reloadedDevice = (DeviceImpl) getReloadedDevice(device);
         reloadedDevice.setName("new name");
@@ -422,11 +423,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void successfulCreationOfTwoDevicesWithSameSerialNumberTest() {
         String serialNumber = "SerialNumber";
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME + "First", Instant.now());
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER,DEVICE_NAME + "First", Instant.now());
         device1.setSerialNumber(serialNumber);
         device1.save();
 
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME + "Second", Instant.now());
+        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER,DEVICE_NAME + "Second", Instant.now());
         device2.setSerialNumber(serialNumber);
         device2.save();
 
@@ -439,9 +440,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
     public void uniquenessOfExternalNameTest() {
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME + "First", Instant.now());
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER,DEVICE_NAME + "First", Instant.now());
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME + "Second", Instant.now());
+        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME + "Second", Instant.now());
         field("mRID").ofType(String.class).in(device2).set(device1.getmRID());
         device2.save();
     }
@@ -492,7 +493,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void userDefinedTimeZoneTest() {
         createTestDefaultTimeZone();
         TimeZone userDefinedTimeZone = TimeZone.getTimeZone("Asia/Novokuznetsk");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setTimeZone(userDefinedTimeZone);
         device.save();
 
@@ -517,7 +518,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void updateUserDefinedTimeZoneWithNullTimeZoneResultsInDefaultTest() {
         createTestDefaultTimeZone();
         TimeZone userDefinedTimeZone = TimeZone.getTimeZone("Asia/Novokuznetsk");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
         device.setTimeZone(userDefinedTimeZone);
         device.save();
 
@@ -550,7 +551,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void getRegistersForConfigWithRegistersTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -561,7 +562,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void getRegisterReadingsShouldReturnEmptyListTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).get().getReadings(Interval.sinceEpoch())).isEmpty();
@@ -575,7 +576,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         com.elster.jupiter.metering.readings.Reading reading = com.elster.jupiter.metering.readings.beans.ReadingImpl.of(forwardBulkSecondaryEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
         MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, readingTimeStamp);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, readingTimeStamp);
 
         device.store(meterReading);
 
@@ -604,7 +605,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addReading(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, eventStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, eventStart);
 
         device.store(meterReading);
 
@@ -625,7 +626,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void getRegisterWithDeviceObisCodeForConfigWithRegistersTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -645,7 +646,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void createDeviceWithTwoChannelsTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, SERIAL_NUMBER, "DeviceWithChannels", Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -672,7 +673,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder inactiveConfig = deviceType.newConfiguration("Inactie");
         DeviceConfiguration deviceConfiguration = inactiveConfig.add();
 
-        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "MySimpleName", Instant.now());
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "MySimpleName", Instant.now());
     }
 
     @Test
@@ -684,7 +685,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "name", Instant.now());
 
         assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
     }
@@ -698,7 +699,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "name", Instant.now());
 
         assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
     }
@@ -712,7 +713,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "name", Instant.now());
 
         assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.NONE);
     }
@@ -739,7 +740,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant nineOClock = localDateTime.withHour(9).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);  // 1/8/2014 9:00 <==  meterActivation starts at nine
         Instant quarterPastNine = localDateTime.withHour(9).withMinute(15).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC); // 1/8/2014 9:00 <== end first interval
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, nineOClock);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, nineOClock);
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
@@ -779,7 +780,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .withMinute(0)
                 .withSecond(0);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -821,7 +822,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(0).withHour(0).withSecond(0).withNano(0);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -863,7 +864,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(0).withHour(0).withSecond(0).withNano(0);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -905,7 +906,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testGetLoadProfileDataAfterLastReading() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -941,7 +942,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant requestIntervalStart = localDateTime.toInstant(ZoneOffset.UTC);
         Instant requestIntervalEnd = localDateTime.plus(1, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, requestIntervalStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, requestIntervalStart);
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
@@ -988,7 +989,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant requestIntervalStart = Instant.ofEpochMilli(1104523200000L); // Fri, 31 Dec 2004 20:00:00 GMT
         Instant requestIntervalEnd = Instant.ofEpochMilli(1420056000000L); // Wed, 31 Dec 2014 20:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(TimeDuration.months(1));
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, meterActivation);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, meterActivation);
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(MacroPeriod.MONTHLY)
@@ -1024,7 +1025,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant requestIntervalEnd = Instant.ofEpochMilli(1420066800000L); // 1/1/2015, 12:00:00 AM (UTC)
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(TimeDuration.months(1));
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, requestIntervalStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, requestIntervalStart);
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(MacroPeriod.MONTHLY)
@@ -1059,7 +1060,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant requestIntervalStart = Instant.ofEpochMilli(1420761600000L); // Fri, 09 Jan 2015 00:00:00 GMT
         Instant requestIntervalEnd = Instant.ofEpochMilli(1420848000000L); //  Sat, 10 Jan 2015 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.ofEpochMilli(1420801085000L));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.ofEpochMilli(1420801085000L));
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -1094,7 +1095,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, dayStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, dayStart);
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -1146,7 +1147,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         meterReading.addIntervalBlock(intervalBlock2);
 
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, dayStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, dayStart);
 
         device.store(meterReading);
 
@@ -1167,7 +1168,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, dayStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, dayStart);
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -1208,7 +1209,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC);
         Instant dayStart = localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, dayStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, dayStart);
 
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001", dayStart);
         UsagePointMetrologyConfiguration mc = createMetrologyConfiguration("mc", Collections.emptyList());
@@ -1278,7 +1279,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
         Collection<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
@@ -1304,7 +1305,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         meterReading.addIntervalBlock(intervalBlock2);
 
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, dayStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, dayStart);
 
         device.store(meterReading);
 
@@ -1409,7 +1410,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void newDeviceHasMultiplierOne() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "setMultiplierTest", Instant.now());
 
         device = getReloadedDevice(device);
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
@@ -1420,7 +1421,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void setMultiplierTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
         freezeClock(2016, 1, 2);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest2", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "setMultiplierTest2", inMemoryPersistence.getClock().instant());
         freezeClock(2016, 1, 3);
         device.setMultiplier(BigDecimal.TEN);
         device.save();
@@ -1435,7 +1436,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void setMultiplierToOneOnNewDevice() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
         freezeClock(2016, 1, 2);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest3", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "setMultiplierTest3", inMemoryPersistence.getClock().instant());
         freezeClock(2016, 1, 3);
         device.setMultiplier(BigDecimal.ONE);
         device.save();
@@ -1451,7 +1452,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Instant initialStart = freezeClock(2015, 11, 25);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest4", initialStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "setMultiplierTest4", initialStart);
 
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
@@ -1476,7 +1477,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Instant initialStart = freezeClock(2015, 11, 25);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest4", initialStart);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "setMultiplierTest4", initialStart);
 
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
@@ -1501,7 +1502,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "setMultiplierOfOneAlsoCreatesMeterActivationTest", Instant.now());
+                .newDevice(deviceConfiguration, SERIAL_NUMBER, "setMultiplierOfOneAlsoCreatesMeterActivationTest", Instant.now());
 
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
 
@@ -1518,7 +1519,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "settingMultiplierBackToOneShouldRemovePreviouslyDefinedMultiplierTest", Instant.now());
+                .newDevice(deviceConfiguration, SERIAL_NUMBER, "settingMultiplierBackToOneShouldRemovePreviouslyDefinedMultiplierTest", Instant.now());
 
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
         device.setMultiplier(BigDecimal.TEN);
@@ -1539,7 +1540,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "settingMultiplierWithValueZeroShouldFailTest", Instant.now());
+                .newDevice(deviceConfiguration, SERIAL_NUMBER, "settingMultiplierWithValueZeroShouldFailTest", Instant.now());
 
         device.setMultiplier(BigDecimal.ZERO);
         device.save();
@@ -1552,7 +1553,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "settingMultiplierLargerThanMaxIntShouleFailTest", Instant.now());
+                .newDevice(deviceConfiguration, SERIAL_NUMBER, "settingMultiplierLargerThanMaxIntShouleFailTest", Instant.now());
 
         device.setMultiplier(BigDecimal.valueOf(Long.MAX_VALUE));
         device.save();
@@ -1562,7 +1563,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void createMeterConfigurationForMultipliedRegisterSpecTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "DeviceWithMultiplierOnRegister", Instant.now());
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
@@ -1608,7 +1609,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
         freezeClock(2016, 6, 2);
         device.setMultiplier(BigDecimal.TEN);
         device.save();
@@ -1639,7 +1640,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void createMeterConfigurationForMultipliedRegisterSpecWithoutMultiplierSetOnDeviceTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister2", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "DeviceWithMultiplierOnRegister2", Instant.now());
 
         Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
                 .findMeterById(device.getId())
@@ -1676,7 +1677,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "DeviceWithMultiplierOnRegister", Instant.now());
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
@@ -1722,7 +1723,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "DeviceWithMultiplierOnRegister", Instant.now());
 
         Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
                 .findMeterById(device.getId())
@@ -1783,7 +1784,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
@@ -1851,7 +1852,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "DeviceWithMultipliers", Instant.now());
 
         Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
                 .findMeterById(device.getId())
@@ -1920,7 +1921,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER,"OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
@@ -1962,7 +1963,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
@@ -1998,7 +1999,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
@@ -2039,7 +2040,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
@@ -2068,7 +2069,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();
@@ -2102,7 +2103,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
         device.save();
 
         // business logic to check
@@ -2140,7 +2141,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
@@ -2164,7 +2165,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();
@@ -2194,7 +2195,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();
@@ -2218,7 +2219,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();
@@ -2246,7 +2247,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "noOverflowRequiredOnDeltaUpdateTest", inMemoryPersistence.getClock().instant());
+                .newDevice(deviceConfiguration, SERIAL_NUMBER, "noOverflowRequiredOnDeltaUpdateTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String registerReadingType = forwardDeltaSecondaryEnergyReadingType.getMRID();
@@ -2275,7 +2276,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "overruleOverflowOnDeltaWhenNoOverflowOnConfigTest", inMemoryPersistence.getClock().instant());
+                .newDevice(deviceConfiguration, SERIAL_NUMBER, "overruleOverflowOnDeltaWhenNoOverflowOnConfigTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String registerReadingType = forwardDeltaSecondaryEnergyReadingType.getMRID();
@@ -2309,7 +2310,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().accumulate(Accumulation.DELTADELTA).period(MacroPeriod.MONTHLY).code();
@@ -2343,7 +2344,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, "OverruleTest", inMemoryPersistence.getClock().instant());
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().accumulate(Accumulation.DELTADELTA).period(MacroPeriod.MONTHLY).code();
@@ -2380,7 +2381,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .setIgnoreNextExecutionSpecsForInbound(false)
                 .add();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -2409,7 +2410,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .add();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -2466,7 +2467,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void activateDeviceOnUsagePointMissingReadingTypeRequirements() {
         freezeClock(2016, 6, 1);
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, SERIAL_NUMBER, "DeviceWithChannels", inMemoryPersistence.getClock().instant());
 
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
 
@@ -2637,7 +2638,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @Expected(NoStatusInformationTaskException.class)
     public void testNoStatusInformationTaskAvailable() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, inMemoryPersistence.getClock().instant());
         device.save();
         device.runStatusInformationTask(ComTaskExecution::runNow);
     }
@@ -2646,7 +2647,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void runStatusInformationComTaskTest() {
         createComTaskWithStatusInformation();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, inMemoryPersistence.getClock().instant());
         device.save();
         assertThat(device.getComTaskExecutions()).hasSize(0);
         assertThat(device.getDeviceConfiguration().getComTaskEnablements()).hasSize(2);
@@ -2666,7 +2667,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void runStatusInformationComTaskTwiceTest() {
         createComTaskWithStatusInformation();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, DEVICE_NAME, inMemoryPersistence.getClock().instant());
         device.save();
         device.runStatusInformationTask(ComTaskExecution::runNow);
         assertThat(device.getComTaskExecutions()).hasSize(1);

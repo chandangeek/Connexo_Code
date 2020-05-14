@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -95,6 +96,7 @@ public class RegisterResource {
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).find()
                 .stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
+                .filter(register -> !jsonQueryFilter.hasProperty("logicalRegisterNumber") || resourceHelper.filterLogicalRegisterNumber(register, FilterHelper.getStringFilterIfAvailable("logicalRegisterNumber", jsonQueryFilter)))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         Collections.sort(registerInfos, this::compareRegisterInfos);
         return PagedInfoList.fromCompleteList("data", registerInfos, queryParameters);
@@ -320,6 +322,27 @@ public class RegisterResource {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
         return customPropertySetInfo;
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response removeRegisterCustomPropertyVersion(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Register<?, ?> register = doGetRegister(name, registerId);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, Instant.ofEpochMilli(timeStamp));
+        resourceHelper.lockRegisterTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
+        if (customPropertySetInfo.id != cpsId) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
+        if (customPropertySetInfo.removable) {
+            resourceHelper.deleteCustomPropertySetVersion(register, customPropertySetInfo);
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.CUSTOMPROPERTY_VERSION_NOT_DELETABLE, customPropertySetInfo.name, Instant.ofEpochMilli(timeStamp));
+        }
+        return Response.ok().build();
     }
 
     @GET

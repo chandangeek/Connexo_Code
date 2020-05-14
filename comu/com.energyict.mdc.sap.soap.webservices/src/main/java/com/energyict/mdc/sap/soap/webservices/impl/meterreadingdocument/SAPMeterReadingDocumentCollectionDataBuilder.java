@@ -37,7 +37,8 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     private final DeviceService deviceService;
 
     private Integer readindCollectionInterval;
-    private Integer readingDateWindow;
+    private int readingDateWindow;
+    private int backwardReadingDateWindow;
     private Instant scheduledReadingDate;
     private Optional<Channel> meterChannel;
     private Optional<ReadingType> meterReadingType;
@@ -62,10 +63,6 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
 
     public Integer getReadindCollectionInterval() {
         return readindCollectionInterval;
-    }
-
-    public Integer getReadingDateWindow() {
-        return readingDateWindow;
     }
 
     public Instant getScheduledReadingDate() {
@@ -109,9 +106,9 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
             domainExtension.setActualReadingDate(closestReadingRecord.get().getTimeStamp());
             serviceCall.update(domainExtension);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
-            if(isExtraDataSource){
+            if (isExtraDataSource) {
                 serviceCall.log(LogLevel.INFO, "The reading is found on extra data source.");
-            }else{
+            } else {
                 serviceCall.log(LogLevel.INFO, "The reading is found on data source.");
             }
         } else {
@@ -190,8 +187,8 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
 
     private List<BaseReadingRecord> getReadings(CimChannel cimChannel) {
         return cimChannel.getReadings(Range
-                .closed(scheduledReadingDate,
-                        scheduledReadingDate.plusSeconds(getReadingDateWindow() * 60)));
+                .closed(scheduledReadingDate.minusSeconds(backwardReadingDateWindow * 60),
+                        scheduledReadingDate.plusSeconds(readingDateWindow * 60)));
     }
 
     private Optional<BaseReadingRecord> getBaseReadingRecord(List<BaseReadingRecord> baseReadingRecords) {
@@ -200,7 +197,12 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                 : Optional.ofNullable(Collections.min(baseReadingRecords, (r1, r2) -> {
             long diff1 = Math.abs(r1.getTimeStamp().getEpochSecond() - scheduledReadingDate.getEpochSecond());
             long diff2 = Math.abs(r2.getTimeStamp().getEpochSecond() - scheduledReadingDate.getEpochSecond());
-            return Long.compare(diff1, diff2);
+            int cmp = Long.compare(diff1, diff2);
+            //if they are equidistant return the latest.
+            if(cmp == 0){
+                cmp = -1;
+            }
+            return cmp;
         }));
     }
 
@@ -220,6 +222,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                         setScheduledReadingDate(domainExtension.getScheduledReadingDate());
                         setReadindCollectionInterval(properties.get(AdditionalProperties.READING_COLLECTION_INTERVAL));
                         setReadingDateWindow(properties.get(AdditionalProperties.READING_DATE_WINDOW));
+                        setBackwardReadingDateWindow(properties.get(AdditionalProperties.BACKWARD_READING_DATE_WINDOW));
                         setPastCase(domainExtension.isFutureCase());
                     });
             return this;
@@ -254,7 +257,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                         .findReadingTypes(Collections.singletonList(extraDataSource))
                         .stream()
                         .findFirst();
-            }else{
+            } else {
                 SAPMeterReadingDocumentCollectionDataBuilder.this.extraMeterReadingType = Optional.empty();
             }
             return this;
@@ -271,7 +274,12 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
         }
 
         private SAPMeterReadingDocumentCollectionDataBuilder.Builder setReadingDateWindow(Integer readingDateWindow) {
-            SAPMeterReadingDocumentCollectionDataBuilder.this.readingDateWindow = readingDateWindow;
+            Optional.ofNullable(readingDateWindow).ifPresent(value -> SAPMeterReadingDocumentCollectionDataBuilder.this.readingDateWindow = value);
+            return this;
+        }
+
+        private SAPMeterReadingDocumentCollectionDataBuilder.Builder setBackwardReadingDateWindow(Integer backwardReadingDateWindow) {
+            Optional.ofNullable(backwardReadingDateWindow).ifPresent(value -> SAPMeterReadingDocumentCollectionDataBuilder.this.backwardReadingDateWindow = value);
             return this;
         }
 

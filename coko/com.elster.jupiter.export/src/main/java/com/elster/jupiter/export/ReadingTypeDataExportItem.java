@@ -29,11 +29,13 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     Optional<Range<Instant>> getLastExportPeriod();
 
-    Optional<Instant> getLastExportedDate();
+    Optional<Instant> getLastExportedChangedData();
 
-    Optional<Instant> getLastExportedPeriodEnd();
+    Optional<Instant> getLastExportedNewData();
 
-    boolean isExportPostponed();
+    boolean isExportPostponedForNewData();
+
+    boolean isExportPostponedForChangedData();
 
     Optional<TimeDuration> getRequestedReadingInterval();
 
@@ -47,14 +49,13 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     void setLastRun(Instant lastRun);
 
-    void setLastExportedDate(Instant lastExportedDate);
+    void setLastExportedChangedData(Instant lastExportedChangedData);
 
-    void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd);
+    void setLastExportedNewData(Instant lastExportedNewData);
 
-    /**
-     * Only postponing export of new data is supported.
-     */
-    void postponeExport();
+    void postponeExportForNewData();
+
+    void postponeExportForChangedData();
 
     void overrideReadingInterval(TimeDuration readingInterval);
 

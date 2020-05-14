@@ -47,7 +47,8 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_INCORRECT_STATUS(9016, "issue.incorrect.status", "Incorrect status \"{0}\"", Level.SEVERE),
     ISSUE_DEVICE_GROUP_NOT_FOUND(9017, "issue.devicegroup.find.falled", "Couldn''t find device group(s)", Level.SEVERE),
     ISSUE_USAGE_POINT_GROUP_NOT_FOUND(9018, "issue.usagepointgroup.find.falled", "Couldn''t find usage point group(s)", Level.SEVERE),
-    WEB_ELEMENT_FACTORY_NOT_FOUND(9019, "issue.creation.rule.find.factory.fail", "Couldn''t find web element factory for type \"{0}\"", Level.SEVERE)
+    WEB_ELEMENT_FACTORY_NOT_FOUND(9019, "issue.creation.rule.find.factory.fail", "Couldn''t find web element factory for type \"{0}\"", Level.SEVERE),
+    INCOMPLETE_MAIL_CONFIG(9020, "mail.incomplete.config", "Mail configuration is incomplete. The following properties are missing: {0}",Level.SEVERE)
     ;
 
     private final int number;

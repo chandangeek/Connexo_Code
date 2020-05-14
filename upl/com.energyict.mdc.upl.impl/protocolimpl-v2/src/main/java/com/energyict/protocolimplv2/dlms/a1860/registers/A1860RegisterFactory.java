@@ -1,16 +1,5 @@
 package com.energyict.protocolimplv2.dlms.a1860.registers;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
@@ -22,11 +11,21 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dlms.a1860.A1860;
-import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -129,14 +128,19 @@ public class A1860RegisterFactory implements DeviceRegisterSupport {
                     registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit
                             .get("")));
                 } else if (attribute.isInteger64() && attribute.getInteger64() != null) {
-                    //workaround for missing scaler factor
-                    if (obisCode.equals(CTratio) ||obisCode.equals(VTratio)) {
-                        Data sclr = protocol.getDlmsSession().getCosemObjectFactory().getData(InstrumentationScaleFactor);
-                        Data mltpr = protocol.getDlmsSession().getCosemObjectFactory().getData(InstrumentationMultiplier);
-                        registerValue = new RegisterValue(obisCode, new Quantity(
-                                attribute.getInteger64().toBigDecimal().scaleByPowerOfTen(sclr.getValueAttr().intValue()).multiply(mltpr.getValueAttr().toBigDecimal()), Unit.get("")));
-                    }else
                     registerValue = new RegisterValue(obisCode, new Quantity(attribute.getInteger64().longValue(), Unit.get("")));
+                } else if (attribute.isUnsigned64() && attribute.getUnsigned64() != null) {
+                    if (obisCode.equals(CTratio) || obisCode.equals(VTratio)) {
+                        final Data scalar = protocol.getDlmsSession().getCosemObjectFactory().getData(InstrumentationScaleFactor);
+                        final Data multiplier = protocol.getDlmsSession().getCosemObjectFactory().getData(InstrumentationMultiplier);
+                        registerValue = new RegisterValue(obisCode, new Quantity(
+                                attribute.getUnsigned64().toBigDecimal()
+                                        .scaleByPowerOfTen(scalar.getValueAttr().intValue())
+                                        .multiply(multiplier.getValueAttr().toBigDecimal()), Unit.get(""))
+                        );
+                    } else {
+                        registerValue = new RegisterValue(obisCode, new Quantity(attribute.getInteger64().longValue(), Unit.get("")));
+                    }
                 } else {
                     Unsigned32 value = register.getValueAttr().getUnsigned32();
                     if (value != null) {

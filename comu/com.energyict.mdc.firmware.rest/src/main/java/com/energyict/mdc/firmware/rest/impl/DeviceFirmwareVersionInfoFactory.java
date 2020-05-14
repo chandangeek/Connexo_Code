@@ -552,7 +552,7 @@ public class DeviceFirmwareVersionInfoFactory {
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
             properties.put(FIRMWARE_COM_TASK_ID, helper.getFirmwareCheckTask().get().getId());
-            Optional<ComTaskExecutionSession> lastSession = helper.getFirmwareComTaskExecution().get().getLastSession();
+            Optional<ComTaskExecutionSession> lastSession = helper.getComTaskExecutionToCheckTheFirmwareVersion().get().getLastSession();
             if (lastSession.isPresent()) {
                 properties.put(FIRMWARE_COM_TASK_SESSION_ID, lastSession.get().getId());
             }

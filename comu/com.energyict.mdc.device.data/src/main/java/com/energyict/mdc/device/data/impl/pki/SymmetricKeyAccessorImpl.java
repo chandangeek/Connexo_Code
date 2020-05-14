@@ -117,4 +117,9 @@ public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAcc
     public void save() {
         Save.UPDATE.save(dataModel, this);
     }
+
+    @Override
+    public void touch(){
+        this.dataModel.touch(this);
+    }
 }

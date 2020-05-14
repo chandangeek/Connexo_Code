@@ -10,7 +10,7 @@ import java.util.List;
 public class ProcessHistoryGenInfos {
     public int total;
     public List<ProcessHistoryGenInfo> processHistories = new ArrayList<>();
-    public List<String> errors;
+    public List<ErrorInfo> errors;
 
     public ProcessHistoryGenInfos() {
     }
@@ -21,9 +21,10 @@ public class ProcessHistoryGenInfos {
         total = processHistories.size();
     }
 
-    public ProcessHistoryGenInfos(List<ProcessHistoryGenInfo> processHistories, List<String> errors) {
+    public ProcessHistoryGenInfos(List<ProcessHistoryGenInfo> processHistories, int total, List<ErrorInfo> errors) {
         this(processHistories);
         this.errors = errors;
+        this.total = total;
     }
 
     public ProcessHistoryGenInfos(JSONArray processInstances) {
@@ -33,11 +34,11 @@ public class ProcessHistoryGenInfos {
 
     void addAll(JSONArray processInstances) {
         if (processInstances != null) {
-            for(int i = 0; i < processInstances.length(); i++) {
+            for (int i = 0; i < processInstances.length(); i++) {
                 try {
                     JSONObject process = processInstances.getJSONObject(i);
                     ProcessHistoryGenInfo result = new ProcessHistoryGenInfo(process);
-                    System.out.println("Add to processHistories="+result);
+                    System.out.println("Add to processHistories=" + result);
                     processHistories.add(result);
                     total++;
                 } catch (JSONException e) {
@@ -47,31 +48,31 @@ public class ProcessHistoryGenInfos {
         }
     }
 
-    public String getValue(int index){
+    public String getValue(int index) {
         return processHistories.get(index).getValue();
     }
 
-    public String getVariableId(int index){
+    public String getVariableId(int index) {
         return processHistories.get(index).getVariableId();
     }
 
-    public void setObjectName(int index,  String nameToSet){
+    public void setObjectName(int index, String nameToSet) {
         processHistories.get(index).setObjectName(nameToSet);
     }
 
-    public void setCorrDeviceName(int index,  String nameToSet){
+    public void setCorrDeviceName(int index, String nameToSet) {
         processHistories.get(index).setCorrDeviceName(nameToSet);
     }
 
-    public void setIssueType(int index,  String typeToSet){
+    public void setIssueType(int index, String typeToSet) {
         processHistories.get(index).setIssueType(typeToSet);
     }
 
-    public String getObjectName(int index){
+    public String getObjectName(int index) {
         return processHistories.get(index).getObjectName();
     }
 
-    public String getCorrDeviceName(int index){
+    public String getCorrDeviceName(int index) {
         return processHistories.get(index).getCorrDeviceName();
     }
 }

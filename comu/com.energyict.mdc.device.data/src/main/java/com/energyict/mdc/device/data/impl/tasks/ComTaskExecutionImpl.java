@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.ComPort;
@@ -69,6 +70,7 @@ import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -164,6 +166,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private int maxNumberOfTries;
     private TaskStatus taskStatus;
     private int currentTryCount;
+    private boolean usingComTaskExecutionTriggers = true;
 
     public ComTaskExecutionImpl() {
         super();
@@ -175,6 +178,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.clock = clock;
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
+        this.usingComTaskExecutionTriggers = shouldUseComTaskExecutionTriggers(dataModel);
+    }
+
+    private boolean shouldUseComTaskExecutionTriggers(DataModel dataModel){
+        return Optional.ofNullable(dataModel).filter(dm -> dm instanceof DataModelImpl)
+                .map(DataModelImpl.class::cast).map(DataModelImpl::getOrmService)
+                .map(ormService -> ormService.getProperty("com.elster.jupiter.comtaskexecution.useTriggers"))
+                .filter(value -> value.trim().length()>0)
+                .map(Boolean::valueOf)
+                .orElse(true);
+    }
+
+    @Override
+    public boolean isUsingComTaskExecutionTriggers() {
+        return usingComTaskExecutionTriggers;
     }
 
     protected SchedulingService getSchedulingService() {
@@ -381,9 +399,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void update() {
-        LOGGER.warning("CXO-11731: UPDATE EXECUTION TASK = "+this.toString());
+        LOGGER.info("CXO-11731: UPDATE EXECUTION TASK = "+this.toString());
         Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
-        LOGGER.warning("CXO-11731: Updated.");
+        LOGGER.info("CXO-11731: Updated.");
         this.notifyUpdated();
     }
 
@@ -758,9 +776,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * @return An optional containing the next execution timestamp, or Optional.empty() in case there were no ComTaskExecutionTriggers for this ComTaskExecution
      */
     private Optional<Instant> calculateNextExecutionTimestampFromTriggers() {
-        Optional<ComTaskExecutionTrigger> earliestComTaskExecutionTrigger = getComTaskExecutionTriggers().stream()
-                .filter(comTaskExecutionTrigger -> getLastExecutionStartTimestamp() == null || comTaskExecutionTrigger.getTriggerTimeStamp().isAfter(getLastExecutionStartTimestamp()))
-                .sorted((e1, e2) -> e1.getTriggerTimeStamp().compareTo(e2.getTriggerTimeStamp())).findFirst();
+        Optional<ComTaskExecutionTrigger> earliestComTaskExecutionTrigger = Optional.empty();
+        if (usingComTaskExecutionTriggers) {
+            earliestComTaskExecutionTrigger = getComTaskExecutionTriggers().stream()
+                    .filter(comTaskExecutionTrigger -> getLastExecutionStartTimestamp() == null || comTaskExecutionTrigger.getTriggerTimeStamp().isAfter(getLastExecutionStartTimestamp()))
+                    .sorted((e1, e2) -> e1.getTriggerTimeStamp().compareTo(e2.getTriggerTimeStamp())).findFirst();
+        }
         return earliestComTaskExecutionTrigger.isPresent() ? Optional.of(earliestComTaskExecutionTrigger.get().getTriggerTimeStamp()) : Optional.empty();
     }
 
@@ -900,7 +921,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
-        LOGGER.warning("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = "+this.toString());
+        LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = "+this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
@@ -937,7 +958,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         markSuccessfullyCompleted();
         Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
         doReschedule(rescheduleDate);
-        LOGGER.warning("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
+        LOGGER.info("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
         updateForScheduling(true);
         getBehavior().comTaskCompleted();
         this.postEvent(EventType.COMTASKEXECUTION_COMPLETION);
@@ -947,7 +968,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void executionRescheduled(Instant rescheduleDate) {
         currentRetryCount++;    // increment the current number of retries
         if (currentRetryCount < getMaxNumberOfTries()) {
-            LOGGER.warning("[comtaskexec] executionRescheduled for " + getDevice().getName() +
+            LOGGER.info("[comtaskexec] executionRescheduled for " + getDevice().getName() +
                     "; currentRetryCount=" + currentRetryCount + "; reschedule for " + rescheduleDate);
             doReschedule(rescheduleDate);
         } else {
@@ -987,7 +1008,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     protected void doExecutionAttemptFailed() {
         this.lastExecutionFailed = true;
         Instant rescheduleDate = calculateNextExecutionTimestampAfterFailure();
-        LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+        LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
         this.doReschedule(rescheduleDate);
     }
 
@@ -1047,11 +1068,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.lastExecutionFailed = true;
         this.resetCurrentRetryCount();
         if (isAdHoc()) {
-            LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
             this.doReschedule(null, null);
         } else {
             Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
-            LOGGER.warning("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
             this.doReschedule(rescheduleDate);
         }
         getBehavior().comTaskFailed();
@@ -1118,7 +1139,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void addNewComTaskExecutionTrigger(Instant triggerTimeStamp) {
-        if (!getComTaskExecutionTriggers().stream().anyMatch(trigger -> trigger.getTriggerTimeStamp().getEpochSecond() == triggerTimeStamp.getEpochSecond())) {
+        if (usingComTaskExecutionTriggers && !getComTaskExecutionTriggers().stream().anyMatch(trigger -> trigger.getTriggerTimeStamp().getEpochSecond() == triggerTimeStamp.getEpochSecond())) {
             ComTaskExecutionTriggerImpl comTaskExecutionTrigger = ComTaskExecutionTriggerImpl.from(getDataModel(), this, triggerTimeStamp);
             getComTaskExecutionTriggers().add(comTaskExecutionTrigger);
             comTaskExecutionTrigger.notifyCreated();
@@ -1907,5 +1928,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         //Ignore, only used for JSON
     }
 
+    @Override
+    public void removeSchedule() {
+        setPlannedNextExecutionTimestamp(null);
+        schedule(null);
+    }
 
 }

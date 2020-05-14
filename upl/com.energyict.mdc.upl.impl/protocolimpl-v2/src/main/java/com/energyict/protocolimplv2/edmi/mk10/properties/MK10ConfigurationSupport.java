@@ -21,6 +21,7 @@ import java.util.List;
 public class MK10ConfigurationSupport implements HasDynamicProperties {
 
     public static final String CONNECTION_MODE = "ConnectionMode";
+    public static final String OFFLINE_CONNECTION_MODE = "offline.ConnectionMode";
     public static final ConnectionMode DEFAULT_CONNECTION_MODE = ConnectionMode.EXTENDED_COMMAND_LINE;
     public static final String PREVENT_CROSSING_INTERVAL_BOUNDARY_WHEN_READING_PROFILES = "PreventCrossingIntervalBoundaryWhenReadingProfiles";
 
@@ -34,6 +35,7 @@ public class MK10ConfigurationSupport implements HasDynamicProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 connectionModePropertySpec(),
+                offlineConnectionModePropertySpec(),
                 preventCrossingIntervalBoundaryWhenReadingPropertySpec(),
                 timeZonePropertySpec(),
                 deviceIdPropertySpec(),
@@ -60,6 +62,13 @@ public class MK10ConfigurationSupport implements HasDynamicProperties {
 
     private PropertySpec connectionModePropertySpec() {
         return UPLPropertySpecFactory.specBuilder(CONNECTION_MODE, false, PropertyTranslationKeys.V2_DLMS_CONNECTION_MODE, propertySpecService::stringSpec)
+                .addValues(Arrays.asList(ConnectionMode.EXTENDED_COMMAND_LINE.getName(), ConnectionMode.MINI_E_COMMAND_LINE.getName()))
+                .setDefaultValue(DEFAULT_CONNECTION_MODE.getName())
+                .finish();
+    }
+
+    private PropertySpec offlineConnectionModePropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(OFFLINE_CONNECTION_MODE, false, PropertyTranslationKeys.V2_DLMS_OFFLINE_CONNECTION_MODE, propertySpecService::stringSpec)
                 .addValues(Arrays.asList(ConnectionMode.EXTENDED_COMMAND_LINE.getName(), ConnectionMode.MINI_E_COMMAND_LINE.getName()))
                 .setDefaultValue(DEFAULT_CONNECTION_MODE.getName())
                 .finish();

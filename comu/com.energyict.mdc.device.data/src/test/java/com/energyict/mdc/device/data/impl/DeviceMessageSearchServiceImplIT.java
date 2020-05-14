@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest {
 
     private static final String DEVICE_NAME = "MyUniqueName";
+    private static final String SERIAL_NUMBER = "MyUniqueSerialNumber";
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
@@ -91,7 +92,7 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
     }
 
     private Device createSimpleDeviceWithName(String name, Instant start) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, start);
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, SERIAL_NUMBER, name, start);
     }
 
     private EnumeratedEndDeviceGroup createDeviceGroup(Device device, AmrSystem amrSystem, String name) {
@@ -112,7 +113,7 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
         assertThat(device).isNotNull();
         assertThat(device.getId()).isGreaterThan(0L);
         assertThat(device.getName()).isEqualTo(DEVICE_NAME);
-        assertThat(device.getSerialNumber()).isNullOrEmpty();
+        assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
     }
 
     @Test

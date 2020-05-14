@@ -17,10 +17,12 @@ import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_4_9;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_6;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_7;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_7_2;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_8;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -30,14 +32,7 @@ import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.IssueActionFactory;
-import com.elster.jupiter.issue.share.IssueCreationValidator;
-import com.elster.jupiter.issue.share.IssueDeviceFilter;
-import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -172,6 +167,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TimeService timeService;
     private volatile Clock clock;
+    private volatile IssueResourceUtility issueResourceUtility;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
     private volatile Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
@@ -198,6 +194,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
+                            IssueResourceUtility issueResourceUtility,
                             UpgradeService upgradeService, MeteringGroupsService meteringGroupsService, Clock clock, TimeService timeService, EventService eventService, BundleContext bundleContext) {
         setOrmService(ormService);
         setQueryService(queryService);
@@ -217,6 +214,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
         setTimeService(timeService);
+        setIssueResourceUtility(issueResourceUtility);
         activate(bundleContext);
     }
 
@@ -249,6 +247,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(TimeService.class).toInstance(timeService);
+                bind(IssueResourceUtility.class).toInstance(issueResourceUtility);
             }
         });
         setBundleContext(bundleContext);
@@ -263,16 +262,24 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .put(version(10, 2), UpgraderV10_2.class)
                         .put(version(10, 3), UpgraderV10_3.class)
                         .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 4, 9), UpgraderV10_4_9.class)
                         .put(version(10, 5), UpgraderV10_5.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), UpgraderV10_7.class)
-                        .put(version(10, 7, 2), UpgraderV10_7_2.class).build()
+                        .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(version(10, 8), UpgraderV10_8.class)
+                        .build()
         );
     }
 
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Reference
+    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility){
+        this.issueResourceUtility = issueResourceUtility;
     }
 
     @Reference
@@ -629,10 +636,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds){
+    public Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds) {
         Map<Long, List<String>> issuesPerReason = new HashMap<>();
 
-        if (deviceIds.size() == 0){
+        if (deviceIds.size() == 0) {
             return issuesPerReason;
         }
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT " +
@@ -995,7 +1002,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
 
         // filter by SNOOZEDATETIME
-        if (filter.getUntilSnoozeDateTime().isPresent()){
+        if (filter.getUntilSnoozeDateTime().isPresent()) {
             condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
         }
 
@@ -1011,7 +1018,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
 
         // filter by SNOOZEDATETIME
-        if (filter.getUntilSnoozeDateTime().isPresent()){
+        if (filter.getUntilSnoozeDateTime().isPresent()) {
             condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
         }
         return condition;

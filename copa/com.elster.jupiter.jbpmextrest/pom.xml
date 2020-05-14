@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
     </parent>
 
     <repositories>
@@ -26,7 +26,7 @@
         <jbpm.version>6.4.0.Final</jbpm.version>
         <resteasy.version>2.3.10.Final</resteasy.version>
         <!--<resteasy.version>3.0.10.Final</resteasy.version>-->
-        <jackson.version>1.9.9</jackson.version>
+        <jackson.version>2.10.3</jackson.version>
     </properties>
 
     <dependencies>
@@ -86,13 +86,13 @@
             <version>${jbpm.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
 

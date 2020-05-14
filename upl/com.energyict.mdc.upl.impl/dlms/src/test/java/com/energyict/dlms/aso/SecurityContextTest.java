@@ -255,9 +255,9 @@ public class SecurityContextTest {
         msp.setRespondingFrameCounterHandling(new MockRespondingFrameCounterHandler());
         SecurityContext sc = new SecurityContext(SecurityPolicy.SECURITYPOLICY_AUTHENTICATION, 0, 0, systemTitle, msp, CipheringType.GLOBAL.getType(), false);
         sc.setResponseFrameCounter(0);
-        assertEquals(0, sc.getResponseFrameCounter());
+        assertEquals(new Long(0), sc.getResponseFrameCounter());
         sc.setResponseFrameCounter(1);
-        assertEquals(1, sc.getResponseFrameCounter());
+        assertEquals(new Long(1), sc.getResponseFrameCounter());
         try {
             sc.setResponseFrameCounter(1);
             fail("Should get a DLMSConnectionException for retrying the FrameCounter");
@@ -265,7 +265,7 @@ public class SecurityContextTest {
             assertTrue(e.getMessage().indexOf("Received incorrect FrameCounter") >= 0);
         }
         sc.setResponseFrameCounter(2);
-        assertEquals(2, sc.getResponseFrameCounter());
+        assertEquals(new Long(2), sc.getResponseFrameCounter());
 
         try {
             sc.setResponseFrameCounter(0xFFFFFFFFl);
@@ -281,6 +281,6 @@ public class SecurityContextTest {
         }
         sc.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         sc.setResponseFrameCounter(0);
-        assertEquals(0, sc.getResponseFrameCounter());
+        assertEquals(new Long(0), sc.getResponseFrameCounter());
     }
 }

@@ -12,17 +12,17 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CompositeThesaurus implements IThesaurus {
 
-    private final List<IThesaurus> components = new ArrayList<>();
+    private final List<IThesaurus> components = new CopyOnWriteArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
 
     public CompositeThesaurus(ThreadPrincipalService threadPrincipalService, IThesaurus... thesauruses) {
@@ -134,12 +134,14 @@ public class CompositeThesaurus implements IThesaurus {
 
     @Override
     public Thesaurus join(Thesaurus thesaurus) {
+        CompositeThesaurus th = new CompositeThesaurus(threadPrincipalService);
+        th.components.addAll(components);
         if (thesaurus instanceof CompositeThesaurus) {
-            components.addAll(((CompositeThesaurus) thesaurus).components);
-            return this;
+            th.components.addAll(((CompositeThesaurus) thesaurus).components);
+        } else {
+            th.components.add((IThesaurus) thesaurus);
         }
-        components.add((IThesaurus) thesaurus);
-        return this;
+        return th;
     }
 
     @Override

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform</artifactId>
@@ -27,7 +27,7 @@
 			<dependency>
 				<groupId>javax.annotation</groupId>
 				<artifactId>javax.annotation-api</artifactId>
-				<version>1.2</version>
+				<version>1.3.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -48,12 +48,12 @@
 			<dependency>
 				<groupId>com.fasterxml</groupId>
 				<artifactId>classmate</artifactId>
-				<version>0.8.0</version>
+				<version>1.5.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.logging</groupId>
 				<artifactId>jboss-logging</artifactId>
-				<version>3.1.3.GA</version>
+				<version>3.4.1.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.web</groupId>
@@ -84,7 +84,7 @@
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.log</artifactId>
-				<version>1.2.0</version>
+				<version>1.2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -150,7 +150,12 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>26.0</version>
+				<version>27.1-jre</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>failureaccess</artifactId>
+				<version>1.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.ws.rs</groupId>
@@ -215,32 +220,32 @@
 			<dependency>
 				<groupId>org.glassfish.jersey.core</groupId>
 				<artifactId>jersey-common</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.core</groupId>
 				<artifactId>jersey-server</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.core</groupId>
 				<artifactId>jersey-client</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.containers</groupId>
 				<artifactId>jersey-container-servlet-core</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.media</groupId>
 				<artifactId>jersey-media-json-jackson</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.media</groupId>
 				<artifactId>jersey-media-multipart</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jvnet.mimepull</groupId>
@@ -250,32 +255,32 @@
 			<dependency>
 				<groupId>org.glassfish.hk2</groupId>
 				<artifactId>hk2-api</artifactId>
-				<version>2.3.0-b10</version>
+				<version>${hk2.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.hk2</groupId>
 				<artifactId>hk2-locator</artifactId>
-				<version>2.3.0-b10</version>
+				<version>${hk2.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.hk2</groupId>
 				<artifactId>hk2-utils</artifactId>
-				<version>2.3.0-b10</version>
+				<version>${hk2.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.hk2</groupId>
 				<artifactId>osgi-resource-locator</artifactId>
-				<version>1.0.1</version>
+				<version>1.0.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.hk2.external</groupId>
 				<artifactId>aopalliance-repackaged</artifactId>
-				<version>2.3.0-b10</version>
+				<version>${hk2.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.hk2.external</groupId>
 				<artifactId>javax.inject</artifactId>
-				<version>2.3.0-b10</version>
+				<version>2.4.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.bundles.repackaged</groupId>
@@ -290,11 +295,16 @@
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
-				<version>2.5</version>
+				<version>2.10.5</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.mail</groupId>
-				<artifactId>mail</artifactId>
+				<artifactId>javax.mail-api</artifactId>
+				<version>1.4.7</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>javax.mail</artifactId>
 				<version>1.4.7</version>
 			</dependency>
 			<dependency>
@@ -424,11 +434,16 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>3.9</version>
 			</dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.2.2</version>
-            </dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-collections4</artifactId>
+				<version>4.4</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.2</version>
+			</dependency>
             <dependency>
                 <groupId>com.enterprisedt</groupId>
                 <artifactId>edtftpj-pro</artifactId>
@@ -459,14 +474,7 @@
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
-            <!--  EJBCA library dependencies -->
-            <dependency>
-                <groupId>org.ejbca</groupId>
-                <artifactId>ejbca-elster-bundle</artifactId>
-                <version>${ejbcabundle.version}</version>
-            </dependency>
-
-            <dependency>
+			<dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
                 <version>1.4_3</version>
@@ -935,7 +943,13 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>webservice.inbound.rest.scim</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservices.extjs</artifactId>
                 <version>${project.version}</version>
@@ -1023,7 +1037,7 @@
             <dependency>
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bndlib</artifactId>
-                <version>2.3.0</version>
+                <version>2.4.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1045,7 +1059,7 @@
             <dependency>
                 <groupId>javax.xml.ws</groupId>
                 <artifactId>jaxws-api</artifactId>
-                <version>2.1-1</version>
+                <version>2.3.1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.jws</groupId>
@@ -1078,13 +1092,13 @@
 			<dependency>
 				<groupId>org.glassfish.jersey.test-framework.providers</groupId>
 				<artifactId>jersey-test-framework-provider-inmemory</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.test-framework</groupId>
 				<artifactId>jersey-test-framework-core</artifactId>
-				<version>2.13</version>
+				<version>${glassfish-jersey.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -1126,19 +1140,19 @@
 			<dependency>
 				<groupId>com.google.jimfs</groupId>
 				<artifactId>jimfs</artifactId>
-				<version>1.0</version>
+				<version>1.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava-testlib</artifactId>
-				<version>18.0</version>
+				<version>27.1-jre</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mockftpserver</groupId>
 				<artifactId>MockFtpServer</artifactId>
-				<version>2.6</version>
+				<version>2.7.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -1208,11 +1222,12 @@
             com.elster.jupiter.appserver.security:com.elster.jupiter.bpm.security:com.elster.jupiter.fileimport.security:com.elster.jupiter.license.security:com.elster.jupiter.servicecall.security:${line.separator}
             com.elster.jupiter.soap.whiteboard.cxf.security:com.elster.jupiter.system.security:com.elster.jupiter.tasks.security:com.elster.jupiter.users.security:com.elster.jupiter.yellowfin.security
         </javadoc.excluded.package.names>
-		<apache.cxf.version>3.2.0</apache.cxf.version>
+		<apache.cxf.version>3.2.13</apache.cxf.version>
         <bouncycastle.version>1.64</bouncycastle.version>
-        <ejbcabundle.version>1.0.0</ejbcabundle.version>
-		<opensaml.version>1.0.0</opensaml.version>
-        <jackson.version>2.10.0</jackson.version>
+		<opensaml.version>1.0.1</opensaml.version>
+        <jackson.version>2.10.3</jackson.version>
+		<glassfish-jersey.version>2.13</glassfish-jersey.version>
+		<hk2.version>2.3.0-b10</hk2.version>
     </properties>
     <modules>
         <module>com.elster.jupiter.appserver</module>
@@ -1280,20 +1295,21 @@
 		<module>com.elster.jupiter.systemproperties.rest</module>
 		<module>com.elster.jupiter.tasks</module>
 		<module>com.elster.jupiter.tasks.rest</module>
-        <module>com.elster.jupiter.theme.skyline</module>
-        <module>com.elster.jupiter.time</module>
-        <module>com.elster.jupiter.time.extjs</module>
-        <module>com.elster.jupiter.time.rest</module>
-        <module>com.elster.jupiter.transaction</module>
-        <module>com.elster.jupiter.unifyingjs</module>
-        <module>com.elster.jupiter.upgrade</module>
-        <module>com.elster.jupiter.users</module>
-        <module>com.elster.jupiter.users.extjs</module>
-        <module>com.elster.jupiter.users.rest</module>
-        <module>com.elster.jupiter.util</module>
-        <module>com.elster.jupiter.webservices.extjs</module>
-        <module>com.elster.jupiter.webservices.rest</module>
-        <module>com.elster.jupiter.yellowfin</module>
+		<module>com.elster.jupiter.theme.skyline</module>
+		<module>com.elster.jupiter.time</module>
+		<module>com.elster.jupiter.time.extjs</module>
+		<module>com.elster.jupiter.time.rest</module>
+		<module>com.elster.jupiter.transaction</module>
+		<module>com.elster.jupiter.unifyingjs</module>
+		<module>com.elster.jupiter.upgrade</module>
+		<module>com.elster.jupiter.users</module>
+		<module>com.elster.jupiter.users.extjs</module>
+		<module>com.elster.jupiter.users.rest</module>
+		<module>com.elster.jupiter.util</module>
+		<module>com.elster.jupiter.webservice.inbound.rest.scim</module>
+		<module>com.elster.jupiter.webservices.extjs</module>
+		<module>com.elster.jupiter.webservices.rest</module>
+		<module>com.elster.jupiter.yellowfin</module>
         <module>com.elster.jupiter.yellowfin.app</module>
         <module>com.elster.jupiter.yellowfin.installer</module>
         <module>com.elster.jupiter.drools-integration</module>

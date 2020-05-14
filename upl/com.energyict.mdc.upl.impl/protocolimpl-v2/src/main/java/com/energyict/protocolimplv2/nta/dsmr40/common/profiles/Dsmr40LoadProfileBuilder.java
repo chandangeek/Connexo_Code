@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr40.common.profiles;
 
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
@@ -7,9 +11,6 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.mdc.upl.LoadProfileConfigurationException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -28,10 +29,7 @@ import java.util.List;
  */
 public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends LoadProfileBuilder<T> {
 
-    public static final ObisCode MBUS_LP1_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
-
-    // Gas Hourly load profile
-    public static final ObisCode MBUS_GAS_HOURLY_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.1.255");
+    public static final ObisCode MBUS_LP_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.1.255");
 
     private boolean cumulativeCaptureTimeChannel = false;
 
@@ -57,7 +55,8 @@ public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends Lo
                     registerObject.getAttribute();
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject));
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode()
+                                .toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
@@ -77,7 +76,7 @@ public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends Lo
      * Channels who store the capture timestamp will be fixed assigned ScalerUnit seconds.<br></br>
      * For all other channels, the ScalerUnit will be requested from the device.
      *
-     * @param registerObject   the CapturedRegisterObject
+     * @param registerObject the CapturedRegisterObject
      * @param ccoRegisterUnits the ComposedCosemObject
      * @return the ScalerUnit for the channel
      * @throws java.io.IOException

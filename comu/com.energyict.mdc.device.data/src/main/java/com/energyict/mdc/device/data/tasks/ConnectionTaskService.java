@@ -248,16 +248,6 @@ public interface ConnectionTaskService {
      */
     void releaseInterruptedConnectionTasks(ComPort comPort);
 
-    /**
-     * Cleans up any marker flags on {@link ConnectionTask}s that are running
-     * on {@link OutboundComPort}s of the {@link ComPort}
-     * for a period of time that is longer than the task execution timeout specified
-     * on the {@link OutboundComPortPool} they are contained in.
-     *
-     * @param comPort The ComPort
-     */
-    void releaseTimedOutConnectionTasks(ComPort comPort);
-
     List<ComSession> findAllSessionsFor(ConnectionTask<?, ?> connectionTask);
 
     ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime);
@@ -272,5 +262,12 @@ public interface ConnectionTaskService {
      * Finds all ConnectionTasks locked by a specific ComPort
      */
     List<ConnectionTask> findLockedByComPort(ComPort comPort);
+
+    /**
+     * Finds all ConnectionTasks that are running on {@link OutboundComPort}s of the {@link ComPort}
+     * for a period of time that is longer than the task execution timeout specified
+     * on the {@link OutboundComPortPool} they are contained in.
+     */
+    List<ConnectionTask> findTimedOutConnectionTasksByComPort(ComPort comPort);
 
 }

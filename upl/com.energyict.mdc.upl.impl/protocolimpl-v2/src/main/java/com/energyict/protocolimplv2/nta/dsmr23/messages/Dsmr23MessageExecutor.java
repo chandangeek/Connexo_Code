@@ -52,6 +52,7 @@ import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
@@ -64,6 +65,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
@@ -103,6 +105,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromD
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.mbusChannel;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
@@ -318,7 +321,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void mbusCommission(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
+        int installChannel = getIntegerAttribute(pendingMessage, mbusChannel);
         int mBusPhysicalAddress = getMBusPhysicalAddress(installChannel);
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (installChannel));
         getProtocol().journal("Installing slave on channel " + installChannel + " using M-Bus Client obis code "+mbusClientObisCode+" and physical address "+mBusPhysicalAddress);
@@ -327,7 +330,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
-        MBusClient mbusClient = getMBusClient(pendingMessage.getDeviceSerialNumber());
+        String mbusSerialNumberAttributeValue = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.mbusSerialNumber);
+        MBusClient mbusClient = getMBusClient(mbusSerialNumberAttributeValue);
         mbusClient.setIdentificationNumber(new Unsigned32(0));
         mbusClient.setManufacturerID(new Unsigned16(0));
         mbusClient.setVersion(0);
@@ -660,6 +664,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
                 .getValue(); // Will return empty string if the MessageAttribute could not be found
 
+        boolean additionalZeros = false;
+        if (getProtocol() instanceof Mx382) {
+            additionalZeros = true;
+        }
+
         getProtocol().journal("Using firmware file: "+path);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(pendingMessage)) {
@@ -682,7 +691,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 actualIdentifier = imageIdentifier;
             }
             getProtocol().journal("Starting block transfer of image file using identifier "+actualIdentifier);
-            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, actualIdentifier, false);
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), additionalZeros, actualIdentifier, false);
             getProtocol().journal("Block transfer finished");
         }
 

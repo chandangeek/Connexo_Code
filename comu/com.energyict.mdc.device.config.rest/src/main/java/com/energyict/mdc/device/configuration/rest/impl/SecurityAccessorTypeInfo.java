@@ -25,6 +25,7 @@ public class SecurityAccessorTypeInfo {
     public String name;
     public String description;
     public KeyTypeInfo keyType;
+    public KeyPurposeInfo keyPurpose;
     public String storageMethod;
     public long trustStoreId;
     public TimeDurationInfo duration;
@@ -43,6 +44,8 @@ public class SecurityAccessorTypeInfo {
     public boolean isReversible;
     public IdWithNameInfo keyRenewalCommandSpecification;
     public List<PropertyInfo> properties;
+    public IdWithNameInfo serviceKeyRenewalCommandSpecification;
+    public List<PropertyInfo> serviceProperties;
     public boolean isWrapper;
     // following field will be use only for edit key renewal on security accessor on device but this is the mess we've got .... current model class is used for both
     // security accessor and security accessor on device type!

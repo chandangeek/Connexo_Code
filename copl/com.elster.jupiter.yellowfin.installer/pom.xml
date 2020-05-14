@@ -8,7 +8,7 @@
 	 <parent>
         <groupId>com.elster.jupiter</groupId>
          <artifactId>platform</artifactId>
-         <version>3.0.0-Heracles-SNAPSHOT</version>
+         <version>1.0.0-Hermes-SNAPSHOT</version>
     </parent>
     <artifactId>yellowfin.installer</artifactId>
     <name>[Jupiter] com.elster.jupiter.yellowfin.installer</name>
@@ -31,9 +31,19 @@
             <version>1.4</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -48,7 +58,7 @@
         <dependency>
             <groupId>javax.xml.soap</groupId>
             <artifactId>javax.xml.soap-api</artifactId>
-            <version>1.3.7</version>
+            <version>1.3.8</version>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
@@ -61,6 +71,10 @@
             <version>1.5.1</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <log4j.version>2.8.2</log4j.version>
+    </properties>
 
     <build>
         <plugins>

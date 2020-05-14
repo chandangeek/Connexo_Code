@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -33,6 +32,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.User;
@@ -56,8 +56,10 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_2;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_4;
+import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_8;
 import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -89,6 +91,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+    private volatile TimeService timeService;
 
     private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
@@ -109,7 +112,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                                           TopologyService topologyService,
                                           DeviceService deviceService,
                                           EventService eventService,
-                                          UpgradeService upgradeService
+                                          UpgradeService upgradeService,
+                                          TimeService timeService
     ) {
         this();
         setMessageService(messageService);
@@ -121,7 +125,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         setDeviceService(deviceService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
-
+        setTimeService(timeService);
         activate();
     }
 
@@ -139,12 +143,15 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(EventService.class).toInstance(eventService);
+                bind(TimeService.class).toInstance(timeService);
+                bind(IssueDataCollectionService.class).toInstance(IssueDataCollectionServiceImpl.this);
             }
         });
         upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
                 version(10, 4), UpgraderV10_4.class,
-                version(10, 7), V10_7SimpleUpgrader.class
+                version(10, 7), V10_7SimpleUpgrader.class,
+                version(10, 8), UpgraderV10_8.class
         ));
     }
 
@@ -161,7 +168,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -199,6 +207,11 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Override
@@ -269,35 +282,34 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     }
 
     @Override
-    public void logDataCollectionEventDescription(final Device device, final String topic, final Long timestamp) {
-        final Optional<EventType> eventType = eventService.getEventType(topic);
-        if (eventType.isPresent()) {
-            final Instant creationTime = Instant.ofEpochMilli(timestamp);
-            final DataCollectionEventMetadataImpl dataCollectionEventDescription = new DataCollectionEventMetadataImpl(dataModel);
-            dataCollectionEventDescription.init(eventType.get(), device, null, creationTime).save();
-        }
+    public void logDataCollectionEventDescription(final Device device, final String eventType, final Long timestamp) {
+        final Instant creationTime = Instant.ofEpochMilli(timestamp);
+        final DataCollectionEventMetadataImpl dataCollectionEventDescription = new DataCollectionEventMetadataImpl(dataModel);
+        dataCollectionEventDescription.init(eventType, device, null, creationTime).save();
     }
 
     @Override
     public List<DataCollectionEventMetadata> getDataCollectionEvents() {
         return dataModel
-                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .query(DataCollectionEventMetadata.class, Device.class)
                 .select(Condition.TRUE);
     }
 
     @Override
     public List<DataCollectionEventMetadata> getDataCollectionEventsForDevice(final Device device) {
         return dataModel
-                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .query(DataCollectionEventMetadata.class, Device.class)
                 .select(Operator.EQUAL.compare("DEVICE", device.getId()));
     }
 
     @Override
     public List<DataCollectionEventMetadata> getDataCollectionEventsForDeviceWithinTimePeriod(final Device device, final Range<ZonedDateTime> range) {
         return dataModel
-                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .query(DataCollectionEventMetadata.class, Device.class)
                 .select(Operator.EQUAL.compare("DEVICE", device.getId())
-                        .and(Operator.BETWEEN.compare("createDateTime", range.lowerEndpoint().toInstant().toEpochMilli(), range.upperEndpoint().toInstant().toEpochMilli())), Order.descending("createDateTime"));
+                        .and(Operator.BETWEEN.compare("createDateTime", range.lowerEndpoint().toInstant().toEpochMilli(), range.upperEndpoint()
+                                .toInstant()
+                                .toEpochMilli())), Order.descending("createDateTime"));
     }
 
     private List<Class<?>> determineMainApiClass(IssueDataCollectionFilter filter) {

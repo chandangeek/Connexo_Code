@@ -79,6 +79,7 @@ public final class OrmServiceImpl implements OrmService {
     private String enablePartition;
     private String enableAuditing;
     private Registration clearCacheOnRollBackRegistration;
+    private BundleContext bundleContext;
 
     // For OSGi purposes
     public OrmServiceImpl() {
@@ -238,6 +239,7 @@ public final class OrmServiceImpl implements OrmService {
         createDataModel(false);
         createExistingTableDataModel();
         clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());
+        this.bundleContext = context;
         prepareSysProperties();
     }
 
@@ -530,4 +532,11 @@ public final class OrmServiceImpl implements OrmService {
         return Optional.ofNullable(schemaInfoProvider).map(SchemaInfoProvider::isTestSchemaProvider)
                 .orElse(false);
     }
+
+    @Override
+    public String getProperty(String key) {
+        return Optional.ofNullable(bundleContext).map(context -> context.getProperty(key)).orElse(null);
+    }
+
+
 }

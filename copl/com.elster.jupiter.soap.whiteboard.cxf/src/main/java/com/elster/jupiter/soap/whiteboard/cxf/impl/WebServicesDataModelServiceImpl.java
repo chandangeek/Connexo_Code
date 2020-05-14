@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -13,6 +14,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
@@ -30,6 +32,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -78,6 +81,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile TokenService tokenService;
     private volatile TransactionService transactionService;
     private volatile HttpService httpService;
     private volatile Clock clock;
@@ -101,7 +105,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                                            UserService userService, TransactionService transactionService,
                                            HttpService httpService, BundleContext bundleContext, UpgradeService upgradeService,
                                            SoapProviderSupportFactory soapProviderSupportFactory, ThreadPrincipalService threadPrincipalService,
-                                           Clock clock) {
+                                           Clock clock, TokenService tokenService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
@@ -112,6 +116,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setThreadPrincipalService(threadPrincipalService);
         setClock(clock);
+        setTokenService(tokenService);
         activate(bundleContext);
     }
 
@@ -165,6 +170,11 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     }
 
     @Reference
+    public void setTokenService(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
@@ -189,7 +199,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         this.httpService = httpService;
         HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
         try {
-            httpService.registerServlet("/soap",servlet,null,null);
+            httpService.registerServlet("/soap", servlet, null, null);
         } catch (NamespaceException | ServletException ex) {
             throw new RuntimeException(ex);
         }
@@ -205,13 +215,13 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider){
+    public void addAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider) {
         webServiceCallOccurrenceService.addRelatedObjectTypes(provider.getComponentName(),
-                                                                provider.getLayer(),
-                                                                provider.getAttributeTranslations());
-    };
+                provider.getLayer(),
+                provider.getAttributeTranslations());
+    }
 
-    public void removeAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider){
+    public void removeAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider) {
         webServiceCallOccurrenceService.removeRelatedObjectTypes(provider.getAttributeTranslations());
     }
 
@@ -225,12 +235,14 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(TokenService.class).toInstance(tokenService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(HttpService.class).toInstance(httpService);
                 bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(Clock.class).toInstance(clock);
+                bind(NlsService.class).toInstance(nlsService);
 
                 bind(WebServicesService.class).toInstance(webServicesService);
                 bind(WebServicesServiceImpl.class).toInstance(webServicesService);
@@ -252,20 +264,22 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         if (!logDirectory.endsWith(File.separator)) {
             logDirectory = logDirectory + File.separator;
         }
-        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock);
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
-        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel,endPointConfigurationService, nlsService);
+        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, nlsService);
+        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, endPointConfigurationService, webServiceCallOccurrenceService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
-                        UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class,
-                        UpgraderV10_7.VERSION, UpgraderV10_7.class,
-                        UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class
-                ));
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class)
+                        .put(UpgraderV10_4_9.VERSION, UpgraderV10_4_9.class)
+                        .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
+                        .put(UpgraderV10_7.VERSION, UpgraderV10_7.class)
+                        .put(UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class)
+                        .put(UpgraderV10_8.VERSION, UpgraderV10_8.class)
+                        .build());
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
         //BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
@@ -276,8 +290,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     @Override
     public void start(BundleContext context) {
         registrations.add(bundleContext.registerService(WebServicesDataModelService.class, this, new Hashtable<>()));
-        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
         registrations.add(bundleContext.registerService(EndPointConfigurationService.class, endPointConfigurationService, new Hashtable<>()));
+        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
         registrations.add(bundleContext.registerService(WebServiceCallOccurrenceService.class, webServiceCallOccurrenceService, new Hashtable<>()));
     }
 

@@ -16,6 +16,8 @@ import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
+
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
@@ -27,16 +29,17 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
-import com.energyict.cbo.Unit;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
@@ -194,18 +197,24 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     }
 
     @Override
-    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, SecurityAccessorType securityAccessorType) {
+    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, List<SecurityAccessorType> securityAccessorTypes, boolean isServiceKey) {
         Device deviceForEndDevice = findDeviceForEndDevice(endDevice);
-        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = deviceForEndDevice.getDeviceConfiguration()
+        final Set<String> securityAccessorTypesNames = securityAccessorTypes.stream().map(s -> s.getName()).collect(Collectors.toSet());
+        List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes = deviceForEndDevice.getDeviceConfiguration()
                 .getDeviceType()
                 .getSecurityAccessors()
                 .stream()
-                .filter(sec -> sec.getSecurityAccessorType().getName().equals(securityAccessorType.getName()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME)
-                        .format(securityAccessorType.getName())));
+                .filter(sec -> securityAccessorTypesNames.contains(sec.getSecurityAccessorType().getName())).collect(Collectors.toList());
+
+        if (securityAccessorTypesNames.size() != securityAccessorTypeOnDeviceTypes.size()) {
+            Set<String> securityAccessorTypeOnDeviceTypesNames = securityAccessorTypeOnDeviceTypes.stream().map(s -> s.getSecurityAccessorType().getName()).collect(Collectors.toSet());
+            String missingSecurityAccessorsNames = String.join(", ", securityAccessorTypesNames.stream().filter(sA -> !securityAccessorTypeOnDeviceTypesNames.contains(sA)).collect(Collectors.toList()));
+            throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSORS_ON_DEVICE_TYPE_FOR_NAMES)
+                    .format(missingSecurityAccessorsNames));
+        }
         KeyRenewalCommand command = (KeyRenewalCommand) this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
-        command.setSecurityAccessorOnDeviceType(securityAccessorTypeOnDeviceType);
+        command.setSecurityAccessorOnDeviceTypes(securityAccessorTypeOnDeviceTypes);
+        command.setServiceKey(isServiceKey);
 
         return command;
     }

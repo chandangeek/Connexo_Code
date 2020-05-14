@@ -66,13 +66,13 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
         } else {
             this.doExecutionFailed();
         }
-        this.update();
+        this.update(ConnectionTaskFields.COM_PORT.fieldName(), ConnectionTaskFields.CURRENT_RETRY_COUNT.fieldName(), ConnectionTaskFields.LAST_EXECUTION_FAILED.fieldName());
     }
 
     @Override
     public void executionRescheduled() {
         doExecutionRescheduled();
-        update();
+        update(ConnectionTaskFields.COM_PORT.fieldName());
     }
 
     protected void doExecutionRescheduled() {

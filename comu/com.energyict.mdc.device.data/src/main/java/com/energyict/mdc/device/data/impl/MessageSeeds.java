@@ -214,7 +214,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_WRAPPER_DEFINED(2187, "hsm.no.wrapper.defined", "No wrapper defined"),
     NO_WRAPPER_ACTUAL_VALUE(2188, "hsm.no.wrapper.value", "No wrapper value"),
     WRAPPER_NOT_HSMKEY(2189, "hsm.wrong.type", "Wrapper is not hsm key"),
-    NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME(2190, "NoSecurityAccessorOnDeviceTypeForName", "No security accessor on device type with name {0}"),
+    NO_SECURITY_ACCESSORS_ON_DEVICE_TYPE_FOR_NAMES(2190, "NoSecurityAccessorsOnDeviceTypeForNames", "No security accessor(s) on device type with name(s): {0}"),
     NO_KEY_RENEWAL_COMMAND_CONFIGURED(2191, "NoKeyRenewalCommandConfigured", "No key renewal command configured at device type level on security accessor with name {0}"),
     ONLY_ONE_KEY_TYPE_ATTRIBUTE_EXPECTED(2192, "OnlyOneKeyTypeAttributeExpetced", "Key renewal process does not support commands having more that one key type attribute"),
     SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized."),
@@ -223,6 +223,8 @@ public enum MessageSeeds implements MessageSeed {
     FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\, !, *, '', (, ), :, @, &, =, $, ,, [, ]."),
     NO_COMTASK_EXECUTION(2197, Keys.NO_COMTASK_EXECUTION, "A communication task execution for the device messages can''t be located or it is inactive."),
     NO_STATUS_INFORMATION_COMTASK_EXECUTION(2198, Keys.NO_STATUS_INFORMATION_COMTASK_EXECUTION, "A communication task execution to read out the status information can''t be located or it is inactive."),
+    NO_SUCH_COM_TASK_EXECUTION(2199, "NoSuchComTaskExecution", "The device has no communication task with id ''{0}''"),
+    NO_SERVICE_KEY_RENEWAL_COMMAND_CONFIGURED(2200, "NoServiceKeyRenewalCommandConfigured", "No service key renewal command configured on device type level on security accessor with name {0}."),
     ;
 
     private final int number;

@@ -22,6 +22,7 @@ class CustomPropertySetSearchDomainExtension implements SearchDomainExtension {
     private final CustomPropertySetServiceImpl customPropertySetService;
     private final CustomPropertySet<?, ?> customPropertySet;
     private final DataModel dataModel;
+    private static final String excludeCps = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceSAPInfoCustomPropertySet";
 
     CustomPropertySetSearchDomainExtension(CustomPropertySetServiceImpl customPropertySetService, ActiveCustomPropertySet activeCustomPropertySet) {
         this.customPropertySetService = customPropertySetService;
@@ -33,12 +34,13 @@ class CustomPropertySetSearchDomainExtension implements SearchDomainExtension {
     public boolean isExtensionFor(SearchDomain domain, List<SearchablePropertyConstriction> constrictions) {
         return domain.getDomainClass().isAssignableFrom(this.customPropertySet.getDomainClass())
                 && (this.customPropertySet.isSearchableByDefault()
+                && !this.customPropertySet.getId().equals(excludeCps)
                 || this.customPropertySetService.isSearchEnabledForCustomPropertySet(this.customPropertySet, constrictions));
     }
 
     @Override
     public List<SearchableProperty> getProperties() {
-        if (this.customPropertySet.isSearchableByDefault()) {
+        if (this.customPropertySet.isSearchableByDefault() && !this.customPropertySet.getId().equals(excludeCps)) {
             CustomPropertySetSearchablePropertyGroup searchablePropertyGroup = new CustomPropertySetSearchablePropertyGroup(this.customPropertySet);
             return this.customPropertySet.getPropertySpecs()
                     .stream()
@@ -50,7 +52,7 @@ class CustomPropertySetSearchDomainExtension implements SearchDomainExtension {
 
     @Override
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!this.customPropertySet.isSearchableByDefault()) {
+        if (!this.customPropertySet.isSearchableByDefault() && !this.customPropertySet.getId().equals(excludeCps)) {
             CustomPropertySetSearchablePropertyGroup searchablePropertyGroup = new CustomPropertySetSearchablePropertyGroup(this.customPropertySet);
             return this.customPropertySet.getPropertySpecs()
                     .stream()

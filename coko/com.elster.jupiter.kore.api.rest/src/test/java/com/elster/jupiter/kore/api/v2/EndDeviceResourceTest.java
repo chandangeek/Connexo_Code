@@ -100,6 +100,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         CompletionOptions completionOptions = mock(CompletionOptions.class);
         when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
         when(headEndInterface.scheduleMeterRead(eq(meter), any(), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
+        when(headEndInterface.scheduleMeterRead(eq(meter), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
         EndDeviceCapabilities capabilities = new EndDeviceCapabilities(Collections.emptyList(), Collections.emptyList());
         when(headEndInterface.getCapabilities(meter)).thenReturn(capabilities);
     }

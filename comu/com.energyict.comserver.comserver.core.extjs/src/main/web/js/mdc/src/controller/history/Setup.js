@@ -252,7 +252,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
                             items: {
                                 add: {
-                                    title: Uni.I18n.translate('general.addZone', 'MDC', 'Add zone'),
+                                    title: Uni.I18n.translate('general.linkZone', 'MDC', 'Link zone'),
                                     route: 'add',
                                     controller: 'Mdc.controller.setup.DeviceZones',
                                     privileges: Cfg.privileges.Validation.adminZones,
@@ -401,6 +401,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.networkvisualiser.controller.NetworkVisualiser',
                             // privileges: Mdc.privileges.Device.administrateDevice,
                             action: 'showNetwork'
+                        },
+                        sendregisteredsapnotification: {
+                            title: Uni.I18n.translate('deviceSendSapNotification.title', 'MDC', 'Send registered notification to SAP'),
+                            route: 'sendregisteredsapnotification',
+                            controller: 'Mdc.controller.setup.SendRegisteredSapNotification',
+                            privileges: Mdc.privileges.Device.sendSapRegisteredNotification,
+                            action: 'sendRegisteredSapNotification'
                         },
                         connectionmethods: {
                             title: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
@@ -1494,7 +1501,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     privileges: Cfg.privileges.Validation.viewZones,
                     items: {
                         add: {
-                            title: Uni.I18n.translate('zones.addZone', 'MDC', 'Add zone'),
+                            title: Uni.I18n.translate('zones.linkZone', 'MDC', 'Link zone'),
                             route: 'add',
                             controller: 'Mdc.zones.controller.Zones',
                             action: 'showAddZone',

@@ -41,13 +41,14 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
 
     private long id;
     private Instant lastRun;
-    private Instant lastExportedDate;
-    private Instant lastExportedPeriodEnd;
+    private Instant lastExportedChangedData;
+    private Instant lastExportedNewData;
     private String readingTypeMRId;
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
-    private boolean exportPostponed;
+    private boolean exportPostponedForNewData;
+    private boolean exportPostponedForChangedData;
     @Size(min = 3, // 1 symbol per count + space + 1 symbol per unit
             max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String readingInterval;
@@ -98,13 +99,13 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public Optional<Instant> getLastExportedDate() {
-        return Optional.ofNullable(lastExportedDate);
+    public Optional<Instant> getLastExportedChangedData() {
+        return Optional.ofNullable(lastExportedChangedData);
     }
 
     @Override
-    public Optional<Instant> getLastExportedPeriodEnd() {
-        return Optional.ofNullable(lastExportedPeriodEnd);
+    public Optional<Instant> getLastExportedNewData() {
+        return Optional.ofNullable(lastExportedNewData);
     }
 
     @Override
@@ -120,8 +121,13 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public boolean isExportPostponed() {
-        return exportPostponed;
+    public boolean isExportPostponedForNewData() {
+        return exportPostponedForNewData;
+    }
+
+    @Override
+    public boolean isExportPostponedForChangedData() {
+        return exportPostponedForChangedData;
     }
 
     @Override
@@ -130,18 +136,23 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public void setLastExportedDate(Instant lastExportedDate) {
-        this.lastExportedDate = lastExportedDate;
+    public void setLastExportedChangedData(Instant lastExportedChangedData) {
+        this.lastExportedChangedData = lastExportedChangedData;
     }
 
     @Override
-    public void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd) {
-        this.lastExportedPeriodEnd = lastExportedPeriodEnd;
+    public void setLastExportedNewData(Instant lastExportedNewData) {
+        this.lastExportedNewData = lastExportedNewData;
     }
 
     @Override
-    public void postponeExport() {
-        this.exportPostponed = true;
+    public void postponeExportForNewData() {
+        this.exportPostponedForNewData = true;
+    }
+
+    @Override
+    public void postponeExportForChangedData() {
+        this.exportPostponedForChangedData = true;
     }
 
     @Override

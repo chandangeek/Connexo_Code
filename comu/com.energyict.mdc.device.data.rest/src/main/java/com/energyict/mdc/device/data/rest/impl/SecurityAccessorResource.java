@@ -124,7 +124,10 @@ public class SecurityAccessorResource {
             com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getKeys(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
+        List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()))
+                .stream()
+                .sorted(Comparator.comparing(s -> s.name.toLowerCase()))
+                .collect(toList());
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 
@@ -271,7 +274,13 @@ public class SecurityAccessorResource {
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
         Optional<SecurityAccessor> keyAccessor = device.getSecurityAccessor(securityAccessorType);
-
+        keyAccessor.ifPresent(key -> {
+            if (key.getVersion() != securityAccessorInfo.version){
+                throw conflictFactory.contextDependentConflictOn(securityAccessorType.getName())
+                        .withActualVersion(() -> keyAccessor.get().getVersion())
+                        .build();
+            }
+        });
         BiFunction<SecurityAccessorType, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessorType, properties) -> {
             SecurityValueWrapper securityValueWrapper;
             if (keyAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.Passphrase)) {
@@ -468,11 +477,13 @@ public class SecurityAccessorResource {
         if (propertiesContainValues(properties)) {
             if (propertiesDiffer(properties, actualValue.get().getProperties())) {
                 actualValueUpdater.apply(securityAccessor, properties);
+                securityAccessor.touch();
             }
             return Optional.of(securityAccessor);
         } else {
             if (securityAccessor.getTempValue().isPresent()) {
                 securityAccessor.clearActualValue();
+                securityAccessor.touch();
                 return Optional.of(securityAccessor);
             } else {
                 securityAccessor.delete();

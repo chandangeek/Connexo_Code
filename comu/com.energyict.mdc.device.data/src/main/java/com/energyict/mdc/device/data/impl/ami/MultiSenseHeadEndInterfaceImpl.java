@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.CompletionOptionsBuilder;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -59,6 +60,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -102,6 +104,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile CommunicationTaskService communicationTaskService;
     private volatile Clock clock;
     private Optional<String> multiSenseUrl = Optional.empty();
 
@@ -112,7 +115,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Inject
     public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus,
                                           ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory,
-                                          ThreadPrincipalService threadPrincipalService, Clock clock) {
+                                          ThreadPrincipalService threadPrincipalService, Clock clock, CommunicationTaskService communicationTaskService) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -122,6 +125,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.endDeviceCommandFactory = endDeviceCommandFactory;
         this.threadPrincipalService = threadPrincipalService;
         this.clock = clock;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
@@ -170,6 +174,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.clock = clock;
     }
 
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
     @Activate
     public void activate(BundleContext bundleContext) {
         if (bundleContext != null) {
@@ -201,11 +210,10 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
     }
 
-    @Override
-    public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
-        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice).getDeviceConfiguration());
+    protected EndDeviceCapabilities getCapabilities(Device device) {
+        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(device.getDeviceConfiguration());
 
-        List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
+        List<DeviceMessageId> supportedMessages = device.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .filter(id -> DeviceMessageId.find(id).isPresent())
@@ -219,6 +227,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         return new EndDeviceCapabilities(readingTypes, controlTypes);
     }
 
+    @Override
+    public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
+        return getCapabilities(findDeviceForEndDevice(endDevice));
+    }
+
     public CommandFactory getCommandFactory() {
         return endDeviceCommandFactory;
     }
@@ -228,9 +241,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         return scheduleMeterRead(meter, readingTypes, instant, null);
     }
 
-    @Override
-    public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
-        Device multiSenseDevice = findDeviceForEndDevice(meter);
+    protected CompletionOptions scheduleMeterRead(Device multiSenseDevice, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
         Set<ReadingType> supportedReadingTypes = getSupportedReadingTypes(multiSenseDevice, readingTypes);
 
         ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, getComTaskExecutionsForReadingTypes(multiSenseDevice
@@ -245,6 +256,25 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
 
         return new CompletionOptionsImpl(serviceCall);
+    }
+
+    @Override
+    public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        return scheduleMeterRead(multiSenseDevice, readingTypes, instant, parentServiceCall);
+    }
+
+    @Override
+    public CompletionOptions scheduleMeterRead(Meter meter, Instant instant, ServiceCall serviceCall) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        return scheduleMeterRead(multiSenseDevice, getCapabilities(multiSenseDevice).getConfiguredReadingTypes(), instant, serviceCall);
+    }
+
+    @Override
+    public CompletionOptionsBuilder scheduleMeterRead(Meter meter, Instant instant) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        return new CompletionOptionsBuilderImpl(this, multiSenseDevice, instant)
+                .withReadingTypes(getCapabilities(multiSenseDevice).getConfiguredReadingTypes());
     }
 
     @Override
@@ -326,8 +356,15 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {
-        comTaskExecution.addNewComTaskExecutionTrigger(instant);
-        comTaskExecution.updateNextExecutionTimestamp();
+        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
+        lockedComTaskExecution.addNewComTaskExecutionTrigger(instant);
+        lockedComTaskExecution.updateNextExecutionTimestamp();
+    }
+
+    private Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
+        return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
+                .filter(candidate -> !candidate.isObsolete());
     }
 
     private ServiceCall getOnDemandReadServiceCall(Device device, int estimatedTasks, Instant triggerDate, Optional<ServiceCall> parentServiceCall) {
@@ -376,7 +413,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
-            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
+            scheduleDeviceCommandsComTaskEnablement(multiSenseDevice, deviceMessages);  // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
             return new CompletionOptionsImpl(serviceCall);
@@ -385,8 +422,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.log(LogLevel.SEVERE, e.getLocalizedMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
             if (e instanceof LimitsExceededForCommandException) {
-                Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException)e).getDeviceMessage();
-                deviceMessage.ifPresent(msg -> ((ServerDeviceMessage)msg).revokeWithNoUpdateNotification());
+                Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException) e).getDeviceMessage();
+                deviceMessage.ifPresent(msg -> ((ServerDeviceMessage) msg).revokeWithNoUpdateNotification());
             }
             throw e;
         }
@@ -406,7 +443,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-                throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+            throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
         }
     }
 
@@ -439,11 +476,14 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
             }
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
+            ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
             deviceMessages.stream()
                     .map(DeviceMessage::getReleaseDate)
                     .distinct()
-                    .forEach(comTaskExecution::addNewComTaskExecutionTrigger);
-            comTaskExecution.updateNextExecutionTimestamp();
+                    .forEach(lockedComTaskExecution::addNewComTaskExecutionTrigger);
+
+            lockedComTaskExecution.updateNextExecutionTimestamp();
         });
     }
 

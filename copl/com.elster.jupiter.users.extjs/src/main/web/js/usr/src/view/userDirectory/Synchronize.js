@@ -44,7 +44,7 @@ Ext.define('Usr.view.userDirectory.Synchronize', {
                                     width: 650,
                                     columns: [
                                         {
-                                            header: Uni.I18n.translate('general.userName', 'USR', 'User name'),
+                                            header: Uni.I18n.translate('general.username', 'USR', 'Username'),
                                             dataIndex: 'name',
                                             flex: 3
                                         },

@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>9.0.21</version>
+            <version>9.0.34</version>
         </dependency>
         <dependency>
             <groupId>com.elster.partners</groupId>

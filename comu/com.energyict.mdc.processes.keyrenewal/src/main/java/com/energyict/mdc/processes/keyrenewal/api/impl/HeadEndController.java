@@ -58,7 +58,7 @@ public class HeadEndController {
         HeadEndInterface headEndInterface = getHeadEndInterface(endDevice);
         switch (deviceCommandInfo.command) {
             case RENEW_KEY:
-                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device, false);
                 break;
             case UPLOAD_CERTIFICATE:
                 performUploadCertificateOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
@@ -69,19 +69,22 @@ public class HeadEndController {
             case REQUEST_CSR:
                 performRequestCsrOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
                 break;
+            case RENEW_SERVICE_KEY:
+                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device, true);
+                break;
             default:
                 performDummyOperation(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
         }
     }
 
-    private void performKeyRenewalOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performKeyRenewalOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device, boolean isServiceKey) {
         serviceCall.log(LogLevel.INFO, "Handling key renewal.");
         EndDeviceCommand deviceCommand;
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
-        if (securityAccessorType == null) {
-            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
-        }
-        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorType);
+        List<SecurityAccessorType> securityAccessorTypes = Arrays.stream(deviceCommandInfo.keyAccessorType.split(","))
+                .map(sA -> getKeyAccessorType(sA, device))
+                .peek(aT -> {if (aT == null) throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);})
+                .collect(Collectors.toList());
+        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes, isServiceKey);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
@@ -184,8 +187,11 @@ public class HeadEndController {
     }
 
     protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityAccessorType securityAccessorType) {
-        return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().getConfigurationSecurityProperties().stream()
-                .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getSecurityAccessorType().equals(securityAccessorType))).orElse(false)).collect(Collectors.toList());
+        return device.getComTaskExecutions()
+                .stream()
+                .filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().getConfigurationSecurityProperties().stream()
+                        .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getSecurityAccessorType().equals(securityAccessorType))).orElse(false))
+                .collect(Collectors.toList());
     }
 
     protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityPropertySet securityPropertySet) {
@@ -232,7 +238,9 @@ public class HeadEndController {
             }
 
         }
-        comTaskExecutionList.add(comTaskExec);
+        if (comTaskExec != null) {
+            comTaskExecutionList.add(comTaskExec);
+        }
         return comTaskExecutionList;
     }
 

@@ -4,11 +4,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dialer.connections.Connection;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.channel.serial.BaudrateValue;
-import com.energyict.mdc.channel.serial.NrOfDataBits;
-import com.energyict.mdc.channel.serial.NrOfStopBits;
-import com.energyict.mdc.channel.serial.Parities;
-import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.*;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
@@ -40,6 +36,12 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
     private String receivedIdentificationString = null;
 
     private final int[] baudrates = {300, 600, 1200, 2400, 4800, 9600, 19200};
+
+    public IEC1107HHUSignOn(SerialPortComChannel comChannel,  long timeout, int retries) {
+        this.comChannel = comChannel;
+        this.timeout = timeout;
+        this.retries = retries;
+    }
 
     public IEC1107HHUSignOn(SerialPortComChannel comChannel, CommunicationSessionProperties properties) {
         this.comChannel = comChannel;

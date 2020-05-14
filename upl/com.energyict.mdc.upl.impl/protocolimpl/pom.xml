@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -58,7 +58,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>javax.mail</groupId>
-                    <artifactId>mail</artifactId>
+                    <artifactId>javax.mail-api</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>

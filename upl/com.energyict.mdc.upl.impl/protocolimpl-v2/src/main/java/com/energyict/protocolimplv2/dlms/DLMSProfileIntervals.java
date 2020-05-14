@@ -121,16 +121,16 @@ public class DLMSProfileIntervals extends Array {
      */
     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
-        List<IntervalData> intervalList = new ArrayList<IntervalData>();
+        List<IntervalData> intervalList = new ArrayList<>();
         Calendar cal = null;
-        IntervalData currentInterval = null;
         int profileStatus = 0;
         if (getAllDataTypes().size() != 0) {
 
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
-                List<Number> values = new ArrayList<Number>();
+                List<Number> values = new ArrayList<>();
 
+                IntervalData currentInterval;
                 if (getNrOfStatusIndexes() <= 1) {
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
@@ -154,7 +154,7 @@ public class DLMSProfileIntervals extends Array {
                         throw new ProtocolException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
                 } else { // the implementation is different if you have multiple status flags
-                    Map<Integer, Integer> statuses = new HashMap<Integer, Integer>();
+                    Map<Integer, Integer> statuses = new HashMap<>();
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
                             try {
@@ -176,7 +176,7 @@ public class DLMSProfileIntervals extends Array {
                     if (cal != null) {
                         currentInterval = new IntervalData(cal.getTime(), profileStatus);
                         for (int j = 0; j < values.size(); j++) {
-                            currentInterval.addValue(values.get(j), 0, (statuses.containsKey(j) ? statuses.get(j) : 0));
+                            currentInterval.addValue(values.get(j), 0, (statuses.getOrDefault(j, 0)));
                         }
                     } else {
                         throw new ProtocolException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
@@ -216,6 +216,7 @@ public class DLMSProfileIntervals extends Array {
      * @return the new Calendar object
      * @throws java.io.IOException when the dataType is not as expected or the calendar could not be constructed
      */
+    @SuppressWarnings("unused")
     protected Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType) throws IOException {
         return this.constructIntervalCalendar(cal, dataType, null);
     }
@@ -299,6 +300,7 @@ public class DLMSProfileIntervals extends Array {
      *
      * @return the number of channel indexes
      */
+    @SuppressWarnings("unused")
     protected int getNrOfChannelIndexes() {
         return Integer.bitCount(this.channelMask);
     }
@@ -308,6 +310,7 @@ public class DLMSProfileIntervals extends Array {
      *
      * @return the number of clock indexes
      */
+    @SuppressWarnings("unused")
     protected int getNrOfClockIndexes() {
         return Integer.bitCount(this.clockMask);
     }

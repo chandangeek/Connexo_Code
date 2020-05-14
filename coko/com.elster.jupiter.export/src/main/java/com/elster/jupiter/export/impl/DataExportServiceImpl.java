@@ -51,6 +51,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -444,6 +445,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7), UpgraderV10_7.class)
                             .put(version(10, 7, 1), UpgraderV10_7_1.class)
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                            .put(version(10, 8), UpgraderV10_8.class)
                             .build());
 
             if (transactionService.isInTransaction()) {
@@ -454,6 +456,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     transactionContext.commit();
                 }
             }
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", DataExportServiceCallType.HANDLER_NAME));
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", DataExportServiceCallType.CHILD_HANDLER_NAME));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -467,13 +471,13 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     private void failOngoingExportTaskOccurrences() {
-            List<Long> dataExportTaskIds = this.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
-            List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
-                    .withExportTask(dataExportTaskIds)
-                    .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
-                    .find();
-            dataExportOccurrences.stream()
-                    .forEach(o -> o.setToFailed());
+        List<Long> dataExportTaskIds = this.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
+        List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
+                .withExportTask(dataExportTaskIds)
+                .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
+                .find();
+        dataExportOccurrences.stream()
+                .forEach(o -> o.setToFailed());
     }
 
     @Reference
@@ -700,7 +704,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public boolean isUsedAsADestination(EndPointConfiguration endPointConfiguration) {
         return dataModel.stream(WebServiceDestinationImpl.class)
                 .filter(Where.where(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)
-                .or(Where.where(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)))
+                        .or(Where.where(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)))
                 .findAny()
                 .isPresent();
     }

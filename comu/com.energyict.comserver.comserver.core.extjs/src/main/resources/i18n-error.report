@@ -1,9 +1,0 @@
-Errors detected in JS sources:
-Wrong argument for method invocation {jsFilePath='controller\setup\CommunicationTasks.js', lineNo=81, args=[textKey, 'MDC', text]}
-Wrong argument for method invocation {jsFilePath='controller\setup\CommunicationTasks.js', lineNo=422, args=[msgKey, 'MDC', msgValue]}
-Wrong argument for method invocation {jsFilePath='controller\setup\CommunicationTasks.js', lineNo=515, args=[msgKey, 'MDC', msgValue]}
-Wrong argument for method invocation {jsFilePath='controller\setup\DeviceChannelData.js', lineNo=672, args=['channelData.successMsg.potentialSuspects.', me.numberOfPotentialSuspects, 'MDC', null, 'Channel data have been saved with {0} potential suspect', 'Channel data have been saved with {0} potential suspects']}
-Wrong argument for method invocation {jsFilePath='controller\setup\DeviceChannelData.js', lineNo=1986, args=['preValidate.potentialSuspectsFound', response.total, 'MDC', null, '{0} potential suspect reading found.', '{0} potential suspect readings found.']}
-Wrong argument for method invocation {jsFilePath='model\ComServerComPort.js', lineNo=282, args=[item.unit.translateKey, parseInt(value), 'MDC', item.unit.defaultTranslationZero, item.unit.defaultTranslationOne, item.unit.defaultTranslationMany]}
-Wrong argument for method invocation {jsFilePath='view\setup\devicetransitionexecute\ResultPanel.js', lineNo=95, args=['devicetransitionexecute.wizard.step2.checksFail', 'MDC', "Unable to change device state to '{0}' due to failed pretransition checks"+':', me.response.targetState]}
-Wrong argument for method invocation {jsFilePath='view\setup\property\PropertyView.js', lineNo=66, args=['property.'+key, 'MDC', key]}

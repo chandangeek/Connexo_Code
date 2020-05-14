@@ -1,12 +1,15 @@
 .idea/
 *.iml
 target/
+dependency-reduced-pom.xml
+.settings
+.project
+.classpath
 
 # Following lines will ignore pkg files we create and import during FE component (app) build
 copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline
 copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/com.elster.*
 copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/com.energyict.*
-
 
 # Following lines will ignore app (FE) generated files
 **/src/main/web/js/*/build
@@ -15,3 +18,7 @@ copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/com.energyict.*
 **/src/main/web/js/*/bootstrap.css
 **/src/main/web/js/*/bootstrap.js
 **/src/main/web/js/*/bootstrap.json
+
+# Ignore auto-generated FE translation files & reports
+**/i18n.properties
+**/i18n-error.report

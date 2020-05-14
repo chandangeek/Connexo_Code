@@ -23,7 +23,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
         items: []
     },
 
-    doLoadRecord: function(record, defaultKeyValue, deviceTypeId) {
+    doLoadRecord: function (record, defaultKeyValue, deviceTypeId) {
         var me = this,
             leftItems = {
                 defaults: {
@@ -64,13 +64,36 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         }
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.keyPurpose', 'MDC', 'Key purpose'),
+                        name: 'keyPurpose',
+                        hidden: record.get('isKey') ? false : true,
+                        renderer: function (value) {
+                            return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
+                        }
+                    },
+                    {
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
                         itemId: 'previewPropertiesCommandName',
                     },
                     {
+                        xtype: 'keyRenewalOverviewProperties',
+                        commandTypePrefix: '',
+                        itemId: 'keyRenewalOverviewProperties'
+                    },
+                    {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
+                        fieldLabel: Uni.I18n.translate('serviceKeyRenewal.command', 'MDC', 'Service key renewal command'),
+                        itemId: 'previewPropertiesServiceKeyCommandName',
+                    },
+                    {
+                        xtype: 'keyRenewalOverviewProperties',
+                        commandTypePrefix: 'serviceKey-',
+                        itemId: 'serviceKeyRenewalOverviewProperties'
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('key.wrapper.label', 'MDC', 'Wrapped by'),
                         itemId: 'previewWrapperName',
                     }
                 ]
@@ -141,7 +164,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                             }
                             var trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores'),
                                 storeIndex = trustStoresStore.findExact('id', val);
-                            return storeIndex > -1 ?trustStoresStore.getAt(storeIndex).get('name') : '-';
+                            return storeIndex > -1 ? trustStoresStore.getAt(storeIndex).get('name') : '-';
                         }
                     },
                     {

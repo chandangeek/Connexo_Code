@@ -19,20 +19,22 @@ class TransientQueueTableSpec implements QueueTableSpec {
     private String name;
     private List<TransientDestinationSpec> destinations = new CopyOnWriteArrayList<>();
     private final Thesaurus thesaurus;
+    private String storageClause;
 
-    public static TransientQueueTableSpec createTopic(Thesaurus thesaurus, String name, String payloadType) {
-        return new TransientQueueTableSpec(thesaurus, name, payloadType, States.TOPIC);
-    }
-
-    public static TransientQueueTableSpec createQueue(Thesaurus thesaurus, String name, String payloadType) {
-        return new TransientQueueTableSpec(thesaurus, name, payloadType, States.QUEUE);
-    }
-
-    private TransientQueueTableSpec(Thesaurus thesaurus, String name, String payloadType, State state) {
+    private TransientQueueTableSpec(Thesaurus thesaurus, String name, String payloadType, String storageClause, State state) {
         this.thesaurus = thesaurus;
         this.name = name;
         this.payloadType = payloadType;
+        this.storageClause = storageClause;
         this.state = state;
+    }
+
+    public static TransientQueueTableSpec createTopic(Thesaurus thesaurus, String name, String payloadType, String storageClause) {
+        return new TransientQueueTableSpec(thesaurus, name, payloadType, storageClause, States.TOPIC);
+    }
+
+    public static TransientQueueTableSpec createQueue(Thesaurus thesaurus, String name, String payloadType, String storageClause) {
+        return new TransientQueueTableSpec(thesaurus, name, payloadType, storageClause, States.QUEUE);
     }
 
     public TransientDestinationSpec getDestination(String name) {
@@ -88,6 +90,11 @@ class TransientQueueTableSpec implements QueueTableSpec {
     @Override
     public String getPayloadType() {
         return payloadType;
+    }
+
+    @Override
+    public String getStorageClause() {
+        return storageClause;
     }
 
     @Override

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.alarms.impl;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
@@ -25,6 +26,7 @@ import com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.WebServiceNotificationAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.MailNotificationAlarmAction;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.protocolcommon.Password;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -57,6 +59,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     private volatile BpmService bpmService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile PropertyFactoriesProvider propertyFactoriesProvider;
+    private volatile PasswordDecryptService passwordDecryptService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -77,7 +80,8 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                                      BpmService bpmService,
                                      ThreadPrincipalService threadPrincipalService,
                                      EndPointConfigurationService endPointConfigurationService,
-                                     PropertyFactoriesProvider propertyFactoriesProvider) {
+                                     PropertyFactoriesProvider propertyFactoriesProvider,
+                                     PasswordDecryptService passwordDecryptService) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
@@ -89,6 +93,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
         setPropertyFactoriesProvider(propertyFactoriesProvider);
+        setPasswordDecryptService(passwordDecryptService);
 
         activate();
     }
@@ -110,6 +115,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                 bind(BpmService.class).toInstance(bpmService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(PropertyFactoriesProvider.class).toInstance(propertyFactoriesProvider);
+                bind(PasswordDecryptService.class).toInstance(passwordDecryptService);
             }
         });
 
@@ -141,6 +147,10 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         this.issueService = issueService;
     }
 
+    @Reference
+    public final void setPasswordDecryptService(PasswordDecryptService passwordDecryptService){
+        this.passwordDecryptService = passwordDecryptService;
+    }
     @Reference
     public final void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
         this.deviceAlarmService = deviceAlarmService;

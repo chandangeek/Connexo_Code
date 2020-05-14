@@ -33,7 +33,7 @@ public class CryptoMx382 extends Mx382 {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-27";
+        return "Crypto version: 2020-04-15";
     }
 
     @Override

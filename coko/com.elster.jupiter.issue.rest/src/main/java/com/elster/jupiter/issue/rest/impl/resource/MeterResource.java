@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.rest.response.device.MeterShortInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterFilter;
+import com.elster.jupiter.util.HasName;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
@@ -20,7 +21,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
@@ -31,22 +34,27 @@ import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 public class MeterResource extends BaseResource {
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getMeters(@BeanParam StandardParametersBean params) {
         validateMandatory(params, START, LIMIT);
         String searchText = params.getFirst(LIKE);
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
         MeterFilter filter = new MeterFilter();
         filter.setName(dbSearchText);
-        List<Meter> listMeters = getMeteringService().findMeters(filter).paged(params.getStart(), params.getLimit()).find();
+        List<Meter> listMeters = getMeteringService().findMeters(filter)
+                .stream()
+                .sorted(Comparator.comparingInt((Meter meter) -> meter.getName().length())
+                        .thenComparingInt(meter -> meter.getName().toLowerCase().indexOf(searchText == null ? "" : searchText.toLowerCase()))
+                        .thenComparing(HasName::getName))
+                .collect(Collectors.toList());
         return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
     }
 
     @GET
     @Path("/{name}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getMeter(@PathParam("name") String name) {
         return getMeteringService().findMeterByName(name)
                 .map(MeterShortInfo::new)

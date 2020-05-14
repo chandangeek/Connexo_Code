@@ -209,7 +209,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
             LockService lockService, DataVaultService dataVaultService,
             SecurityManagementService securityManagementService, MeteringZoneService meteringZoneService,
-            CalendarService calendarService,MeteringTranslationService meteringTranslationService,
+            CalendarService calendarService, MeteringTranslationService meteringTranslationService,
             ConfigPropertiesService configPropertiesService) {
         this();
         setOrmService(ormService);
@@ -514,7 +514,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService){
+    public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService) {
         this.configPropertiesService = configPropertiesService;
     }
 
@@ -629,7 +629,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setLockService(LockService lockService){
+    public void setLockService(LockService lockService) {
         this.lockService = lockService;
     }
 
@@ -639,7 +639,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setMeteringZoneService(MeteringZoneService meteringZoneService) { this.meteringZoneService = meteringZoneService; }
+    public void setMeteringZoneService(MeteringZoneService meteringZoneService) {
+        this.meteringZoneService = meteringZoneService;
+    }
 
     private Module getModule() {
         return new AbstractModule() {
@@ -727,7 +729,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 2), UpgraderV10_4_2.class)
                         .put(version(10, 4, 3), UpgraderV10_4_3.class)
                         .put(version(10, 4, 5), UpgraderV10_4_5.class)
-                        .put(version(10,4,9), UpgraderV10_4_9.class)
+                        .put(version(10, 4, 7), UpgraderV10_4_7.class)
+                        .put(version(10, 4, 9), UpgraderV10_4_9.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 6, 1), UpgraderV10_6_1.class)
                         .put(version(10, 7), UpgraderV10_7.class)

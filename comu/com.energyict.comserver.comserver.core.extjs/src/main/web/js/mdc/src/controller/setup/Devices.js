@@ -118,6 +118,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this;
         var connectionMethod = record.get('connectionMethod');
         var widget = this.getDeviceConnectionsList();
+        var previousConnectionData = Object.assign({}, record.data);
+        var previousConnectionMethod = Object.assign({}, connectionMethod);
 
         connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
         // COMU-705 : the save() failed due to the fact that for the dates numbers are expected (but strings were passed)
@@ -126,12 +128,16 @@ Ext.define('Mdc.controller.setup.Devices', {
         record.data.nextExecution = Number(Ext.Date.format(record.data.nextExecution, 'time'));
         record.set('connectionMethod', connectionMethod);
         widget.setLoading(true);
-        record.deactivate(function (record, operation, success) {
+        record.deactivate(function (recordData, success, request) {
             if (success) {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.connection.toggle', 'MDC', 'Connection status changed to {0}',[connectionMethod.status])
                 );
                 me.updateDevice(me.doRefresh);
+            }
+            else{
+                record.data = previousConnectionData;
+                record.set('connectionMethod', previousConnectionMethod);
             }
             widget.setLoading(false);
         }, _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent', 'connectionMethod'));
@@ -260,6 +266,22 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
     },
 
+    hasSapCas: function(deviceId, callback){
+        var me = this;
+        var url = '/api/sap/devices/' + deviceId + '/hassapcas';
+        Ext.Ajax.request({
+            url: url,
+            method: 'GET',
+            success: function (response) {
+                var hasSapCas = Ext.JSON.decode(response.responseText);
+                callback(hasSapCas && hasSapCas.value);
+            },
+            failure: function(){
+                callback(false);
+            }
+        });
+    },
+
     showDeviceDetailsView: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -281,72 +303,75 @@ Ext.define('Mdc.controller.setup.Devices', {
             };
 
         viewport.setLoading();
-        transitionsStore.getProxy().setExtraParam('deviceId', deviceId);
-        attributesModel.getProxy().setExtraParam('deviceId', deviceId);
+        me.hasSapCas(deviceId, function(hasSapCas){
+            transitionsStore.getProxy().setExtraParam('deviceId', deviceId);
+            attributesModel.getProxy().setExtraParam('deviceId', deviceId);
 
-        transitionsStore.load({
-            callback: function () {
-                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
-                    success: function (device) {
-                        me.getApplication().fireEvent('loadDevice', device);
+            transitionsStore.load({
+                callback: function () {
+                    Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+                        success: function (device) {
+                            me.getApplication().fireEvent('loadDevice', device);
 
-                        var widget = Ext.widget('deviceSetup', {
-                            router: router,
-                            device: device,
-                            actionsStore: transitionsStore
-                        });
-                        var deviceLabelsStore = device.labels();
-                        deviceLabelsStore.getProxy().setExtraParam('deviceId', deviceId);
-                        deviceLabelsStore.load(function () {
-                            widget.renderFlag(deviceLabelsStore);
-                        });
+                            var widget = Ext.widget('deviceSetup', {
+                                router: router,
+                                device: device,
+                                actionsStore: transitionsStore,
+                                hasSapCas: hasSapCas
+                            });
+                            var deviceLabelsStore = device.labels();
+                            deviceLabelsStore.getProxy().setExtraParam('deviceId', deviceId);
+                            deviceLabelsStore.load(function () {
+                                widget.renderFlag(deviceLabelsStore);
+                            });
 
-                        if (me.getDeviceGeneralInformationPanel().rendered) {
-                            attributesModel.load('attributes', { success: updateDeviceSummary });
-                        } else {
-                            me.getDeviceGeneralInformationPanel().on('afterrender', function () {
+                            if (me.getDeviceGeneralInformationPanel().rendered) {
                                 attributesModel.load('attributes', { success: updateDeviceSummary });
-                            }, me, {single:true});
-                        }
-
-                        me.getApplication().fireEvent('changecontentevent', widget);
-
-                        me.doRefresh();
-
-                        if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
-                            if (device.get('isDataLoggerSlave') || device.get('isMultiElementSlave')) {
-                                me.getDeviceCommunicationTopologyPanel().hide();
                             } else {
-                                me.getDeviceCommunicationTopologyPanel().setRecord(device);
+                                me.getDeviceGeneralInformationPanel().on('afterrender', function () {
+                                    attributesModel.load('attributes', { success: updateDeviceSummary });
+                                }, me, {single:true});
                             }
-                        }
 
-                        if (!Ext.isEmpty(me.getDeviceZonesPanel())) {
-                            if( device.get('zones').length == 0)
-                                me.getDeviceZonesPanel().hide();
-                            else
-                                me.getDeviceZonesPanel().setRecord(device);
-                        }
+                            me.getApplication().fireEvent('changecontentevent', widget);
 
-                        if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
-                            var dataLoggerSlavesPanel = me.getDataLoggerSlavesPanel();
-                            dataLoggerSlavesPanel.setDevice(device);
-                            dataLoggerSlavesPanel.setSlaveStore(me.createDataLoggerSlavesStore(device));
-                        }
-                        if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
-                            me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
-                        }
-                        if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                            && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
-                            me.updateDataValidationStatusSection(deviceId, widget, device);
-                        } else {
-                            !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
-                        }
-                        viewport.setLoading(false);
+                            me.doRefresh();
 
-                    }
-                });
-            }
+                            if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
+                                if (device.get('isDataLoggerSlave') || device.get('isMultiElementSlave')) {
+                                    me.getDeviceCommunicationTopologyPanel().hide();
+                                } else {
+                                    me.getDeviceCommunicationTopologyPanel().setRecord(device);
+                                }
+                            }
+
+                            if (!Ext.isEmpty(me.getDeviceZonesPanel())) {
+                                if( device.get('zones').length == 0)
+                                    me.getDeviceZonesPanel().hide();
+                                else
+                                    me.getDeviceZonesPanel().setRecord(device);
+                            }
+
+                            if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
+                                var dataLoggerSlavesPanel = me.getDataLoggerSlavesPanel();
+                                dataLoggerSlavesPanel.setDevice(device);
+                                dataLoggerSlavesPanel.setSlaveStore(me.createDataLoggerSlavesStore(device));
+                            }
+                            if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
+                                me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
+                            }
+                            if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
+                                && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
+                                me.updateDataValidationStatusSection(deviceId, widget, device);
+                            } else {
+                                !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
+                            }
+                            viewport.setLoading(false);
+
+                        }
+                    });
+                }
+            });
         });
     },
 

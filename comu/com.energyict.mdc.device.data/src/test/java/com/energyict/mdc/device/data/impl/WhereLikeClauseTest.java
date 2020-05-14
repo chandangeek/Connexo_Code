@@ -33,7 +33,7 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
 
     private Device createSimpleDeviceWithName(String name) {
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, name, "" + name.hashCode(), Instant.now());
+                .newDevice(deviceConfiguration, "SN" + name, name, "" + name.hashCode(), Instant.now());
         device.save();
         return device;
     }

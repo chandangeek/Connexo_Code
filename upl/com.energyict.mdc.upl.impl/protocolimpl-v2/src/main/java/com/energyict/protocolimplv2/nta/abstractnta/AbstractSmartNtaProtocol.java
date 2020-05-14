@@ -454,16 +454,16 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
             AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getExtendedRegister(mbusDeviceConfigurationObisCode).getValueAttr();
 
             MBusConfigurationObject configurationObject = new MBusConfigurationObject(valueAttr);
-            if (configurationObject.isDecoded()){
+            if (configurationObject.isDecoded()) {
                 journal("Collected firmware configuration: " + configurationObject.getContent());
 
                 result.setActiveCommunicationFirmwareVersion(configurationObject.getAdditionalFirmware());
-                journal("Setting communication fw: "+configurationObject.getAdditionalFirmware());
+                journal("Setting communication fw: " + configurationObject.getAdditionalFirmware());
 
                 result.setActiveMeterFirmwareVersion(configurationObject.getOperationalFirmware());
-                journal("Setting meter operational fw: "+configurationObject.getOperationalFirmware());
+                journal("Setting meter operational fw: " + configurationObject.getOperationalFirmware());
 
-                journal("Setting auxiliary fw: "+configurationObject.getAdditionalFirmware());
+                journal("Setting auxiliary fw: " + configurationObject.getAdditionalFirmware());
                 result.setActiveAuxiliaryFirmwareVersion(configurationObject.getAdditionalFirmware());
 
             } else {
@@ -497,7 +497,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
         collectFirmwareVersionMeterCore(result);
 
-        collectFirmwareVersionCommunicationModule(result);
+        if (supportsCommunicationFirmwareVersion()) {
+            collectFirmwareVersionCommunicationModule(result);
+        }
 
         if (supportsAuxiliaryFirmwareVersion()) {
             collectFirmwareVersionAuxiliary(result);

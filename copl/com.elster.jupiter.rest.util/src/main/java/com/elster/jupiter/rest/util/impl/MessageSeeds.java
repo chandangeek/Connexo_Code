@@ -21,7 +21,8 @@ public enum MessageSeeds implements MessageSeed {
     CONCURRENT_DELETE_BODY(8, "ConcurrentModificationRemoveMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     INVALID_RANGE(9, "InvalidRange", "Invalid range", Level.SEVERE),
     INTERNAL_CONNEXO_ERROR(10, "internalConnexoError", "Connexo has encountered an error, please contact your system administrator", Level.SEVERE),
-    MAC_ERROR(11, "MacFailure", "Message authentication check failed. Please contact your system administrator.", Level.SEVERE);
+    MAC_ERROR(11, "MacFailure", "Message authentication check failed. Please contact your system administrator.", Level.SEVERE),
+    PERSISTENCE_ERROR(12, "persistenceError", "Persistence layer error occurred. Probable cause: wrong request, database inconsistencies or connectivity", Level.SEVERE);
 
     public static final String COMPONENT_NAME = "RUT";
 

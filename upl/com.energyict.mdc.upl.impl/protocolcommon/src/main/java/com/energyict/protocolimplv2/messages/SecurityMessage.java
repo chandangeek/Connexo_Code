@@ -690,13 +690,36 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     MBUS_TRANSFER_FUAK(7076, "Set M-Bus Firmware Update Authentication Key (FUAK)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+
+    CHANGE_HLS_SECRET_USING_SERVICE_KEY_PROCESS(7077, "Change HLS secret using service key process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.FUAKeyAttributeName, DeviceMessageConstants.FUAKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation)
             );
         }
     },
 
-    ;
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_PROCESS(7078, "Change authentication key using service key process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation)
+            );
+        }
+    },
+
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_PROCESS(7079, "Change encryption key using service key process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
+            );
+        }
+    };
 
     private final long id;
     private final String defaultNameTranslation;
@@ -935,7 +958,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         GLOBAL_UNICAST_ENCRYPTION_KEY(0),
         GLOBAL_BROADCAST_ENCRYPTION_KEY(1),
         AUTHENTICATION_KEY(2),
-        MASTER_KEY(3);
+        MASTER_KEY(3),
+        HLS_SECRET(4);
 
         private final int id;
 

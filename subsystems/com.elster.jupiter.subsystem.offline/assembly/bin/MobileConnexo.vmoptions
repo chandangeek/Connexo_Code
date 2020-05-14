@@ -1,3 +1,7 @@
+# This file contains necessary startup options and should NOT be changed.
+# Custom changes can be made in the .vmoptions file in ../conf
 -Dsun.java2d.d3d=false
 -Dos.name=Windows XP
--Dservername=ConnexoMobile
+-include-options ../conf/MobileConnexo.vmoptions
+
+

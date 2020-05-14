@@ -17,30 +17,27 @@ import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
-
-import org.apache.commons.lang.StringUtils;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.cesecore.util.Base64;
-import org.cesecore.util.CryptoProviderTools;
-import org.ejbca.core.protocol.ws.client.gen.AlreadyRevokedException_Exception;
-import org.ejbca.core.protocol.ws.client.gen.ApprovalException_Exception;
-import org.ejbca.core.protocol.ws.client.gen.AuthorizationDeniedException_Exception;
-import org.ejbca.core.protocol.ws.client.gen.CADoesntExistsException_Exception;
-import org.ejbca.core.protocol.ws.client.gen.CertificateResponse;
-import org.ejbca.core.protocol.ws.client.gen.EjbcaException_Exception;
-import org.ejbca.core.protocol.ws.client.gen.EjbcaWS;
-import org.ejbca.core.protocol.ws.client.gen.EjbcaWSService;
-import org.ejbca.core.protocol.ws.client.gen.NameAndId;
-import org.ejbca.core.protocol.ws.client.gen.NotFoundException_Exception;
-import org.ejbca.core.protocol.ws.client.gen.UserDataVOWS;
-import org.ejbca.core.protocol.ws.client.gen.UserDoesntFullfillEndEntityProfile_Exception;
-import org.ejbca.core.protocol.ws.client.gen.WaitingForApprovalException_Exception;
-import org.ejbca.core.protocol.ws.common.CertificateHelper;
+import org.ejbca.core.protocol.ws.AlreadyRevokedException_Exception;
+import org.ejbca.core.protocol.ws.ApprovalException_Exception;
+import org.ejbca.core.protocol.ws.AuthorizationDeniedException_Exception;
+import org.ejbca.core.protocol.ws.CADoesntExistsException_Exception;
+import org.ejbca.core.protocol.ws.CertificateResponse;
+import org.ejbca.core.protocol.ws.EjbcaException_Exception;
+import org.ejbca.core.protocol.ws.EjbcaWS;
+import org.ejbca.core.protocol.ws.EjbcaWSService;
+import org.ejbca.core.protocol.ws.NameAndId;
+import org.ejbca.core.protocol.ws.NotFoundException_Exception;
+import org.ejbca.core.protocol.ws.UserDataVOWS;
+import org.ejbca.core.protocol.ws.UserDoesntFullfillEndEntityProfile_Exception;
+import org.ejbca.core.protocol.ws.WaitingForApprovalException_Exception;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -55,6 +52,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidKeyException;
@@ -70,9 +68,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -86,11 +86,23 @@ public class CaServiceImpl implements CaService {
     private static final String PKI_HOST_PROPERTY = "com.elster.jupiter.pki.host";
     private static final String PKI_PORT_PROPERTY = "com.elster.jupiter.pki.port";
     private static final String PKI_CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
-    private static final String PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate";
-    private static final String PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate";
-    private static final String PKI_CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
-    private static final String PKI_CERTIFICATE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
-    private static final String PKI_END_ENTITY_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
+    private static final String PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate"; // this is the client authentication certificate (key-store entry)
+    private static final String PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate"; // this is the trust-store entry, contains client's CA entry
+
+    // from Constants Required for EJBCA-WS
+    public static final String RESPONSETYPE_CERTIFICATE = "CERTIFICATE";
+    public static final String RESPONSETYPE_PKCS7 = "PKCS7";
+    public static final String RESPONSETYPE_PKCS7WITHCHAIN = "PKCS7WITHCHAIN";
+    public static final int CERT_REQ_TYPE_PKCS10 = 0;
+    public static final int CERT_REQ_TYPE_CRMF = 1;
+    public static final int CERT_REQ_TYPE_SPKAC = 2;
+    public static final int CERT_REQ_TYPE_PUBLICKEY = 3;
+
+    private static final String X509 = "X.509";
+    public static final String BEGIN_CERTIFICATE_REQUEST = "-----BEGIN CERTIFICATE REQUEST-----\n";
+    public static final String END_CERTIFICATE_REQUEST = "\n-----END CERTIFICATE REQUEST-----\n";
+    public static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n";
+    public static final String END_CERTIFICATE = "\n-----END CERTIFICATE-----\n";
 
     private boolean configured;
     private String pkiHost;
@@ -98,9 +110,6 @@ public class CaServiceImpl implements CaService {
     private String pkiTrustStore;
     private String pkiSuperAdminClientAlias;
     private String pkiManagementClientAlias;
-    private String pkiCaName;
-    private String pkiCertificateProfileName;
-    private String pkiEndEntityProfileName;
 
     private volatile SecurityManagementService securityManagementService;
     private volatile Thesaurus thesaurus;
@@ -144,9 +153,6 @@ public class CaServiceImpl implements CaService {
         pkiTrustStore = null;
         pkiSuperAdminClientAlias = null;
         pkiManagementClientAlias = null;
-        pkiCaName = null;
-        pkiCertificateProfileName = null;
-        pkiEndEntityProfileName = null;
         ejbcaWS = null;
         configured = false;
     }
@@ -157,18 +163,12 @@ public class CaServiceImpl implements CaService {
         pkiPort = StringUtils.isNotBlank(port) ? Integer.parseInt(port) : null;
         pkiTrustStore = bundleContext.getProperty(PKI_CXO_TRUSTSTORE_PROPERTY);
         pkiSuperAdminClientAlias = bundleContext.getProperty(PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY);
-        pkiManagementClientAlias= bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
-        pkiCaName = bundleContext.getProperty(PKI_CA_NAME_PROPERTY);
-        pkiCertificateProfileName = bundleContext.getProperty(PKI_CERTIFICATE_PROFILE_NAME_PROPERTY);
-        pkiEndEntityProfileName = bundleContext.getProperty(PKI_END_ENTITY_PROFILE_NAME_PROPERTY);
+        pkiManagementClientAlias = bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
 
         configured = pkiPort != null
                 && StringUtils.isNotBlank(pkiHost)
                 && StringUtils.isNotBlank(pkiTrustStore)
-                && StringUtils.isNotBlank(pkiSuperAdminClientAlias)
-                && StringUtils.isNotBlank(pkiCaName)
-                && StringUtils.isNotBlank(pkiCertificateProfileName)
-                && StringUtils.isNotBlank(pkiEndEntityProfileName);
+                && StringUtils.isNotBlank(pkiSuperAdminClientAlias);
 
         if (!configured) {
             LOGGER.info("CA service started in offline mode. Any service usages will be rejected until all properties are specified.");
@@ -182,22 +182,64 @@ public class CaServiceImpl implements CaService {
 
     @Override
     public X509Certificate signCsr(PKCS10CertificationRequest pkcs10, Optional<CertificateRequestData> certificateUserData) {
+        LOGGER.info("Signing CSR");
+
         checkConfiguration();
-        lazyInit();
         X509Certificate x509Cert;
         CertificateResponse certificateResponse;
         UserDataVOWS userData = new UserDataVOWS();
-        userData.setCaName((certificateUserData.isPresent())? certificateUserData.get().getCaName(): pkiCaName);
-        userData.setEndEntityProfileName((certificateUserData.isPresent())? certificateUserData.get().getEndEntityName(): pkiEndEntityProfileName);
-        userData.setCertificateProfileName((certificateUserData.isPresent())? certificateUserData.get().getCertificateProfileName(): pkiCertificateProfileName);
-        userData.setSubjectDN(pkcs10.getSubject().toString());
-        userData.setUsername(getUsernameFromCn(pkcs10.getSubject()));
+
+        String caName = (certificateUserData.isPresent()) ? certificateUserData.get().getCaName() : "";
+        LOGGER.info("- CA name: " + caName);
+        userData.setCaName(caName);
+
+        String endEntity = (certificateUserData.isPresent()) ? certificateUserData.get().getEndEntityName() : "";
+        LOGGER.info("- EndEntity: " + endEntity);
+        userData.setEndEntityProfileName(endEntity);
+
+        String certificateProfile = (certificateUserData.isPresent()) ? certificateUserData.get().getCertificateProfileName() : "";
+        LOGGER.info("- CertificateProfile: " + certificateProfile);
+        userData.setCertificateProfileName(certificateProfile);
+
+        String subjectDN = pkcs10.getSubject().toString();
+        LOGGER.info(" - Subject DN: " + subjectDN);
+        userData.setSubjectDN(subjectDN);
+
+        String userName = getUsernameFromCn(pkcs10.getSubject());
+        LOGGER.info(" - Username: " + userName);
+        userData.setUsername(userName);
+
+
         try {
-            certificateResponse = ejbcaWS
-                    .certificateRequest(userData, new String(Base64.encode(pkcs10.getEncoded())), CertificateHelper.CERT_REQ_TYPE_PKCS10, null,
-                            CertificateHelper.RESPONSETYPE_CERTIFICATE);
-            x509Cert = certificateResponse.getCertificate();
-        } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception | UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
+            String csrEncoded = new String(Base64.getEncoder().encode(pkcs10.getEncoded()));
+
+            LOGGER.info("Sending CSR to EJBCA WebService:\n" + BEGIN_CERTIFICATE_REQUEST + csrEncoded + END_CERTIFICATE_REQUEST);
+
+            certificateResponse = ejbcaWS.certificateRequest(userData, csrEncoded, CERT_REQ_TYPE_PKCS10, null, RESPONSETYPE_CERTIFICATE);
+
+            LOGGER.info("Response received");
+            LOGGER.info("\t- responseType: " + certificateResponse.getResponseType());
+            if (certificateResponse.getResponseType()!= null &&
+                    certificateResponse.getResponseType().equals(RESPONSETYPE_CERTIFICATE)) {
+                LOGGER.info("\t- response:\n" + new String(certificateResponse.getData()) + "\n");
+            } else {
+                LOGGER.info("\t- responseData:\n" + javax.xml.bind.DatatypeConverter.printHexBinary(certificateResponse.getData()) +"\n" );
+
+            }
+
+            LOGGER.info("Parsing as X.509 certificate");
+            //using MimeDecoder because the response data is Base64 with line breaks
+            byte[] decodedCertificate = Base64.getMimeDecoder().decode(certificateResponse.getData());
+            InputStream byteArrayInputStream = new ByteArrayInputStream(decodedCertificate);
+            CertificateFactory certificateFactory = CertificateFactory.getInstance(X509);
+            x509Cert = (X509Certificate) certificateFactory.generateCertificate(byteArrayInputStream);
+
+            String certEncoded  = new String(Base64.getEncoder().encode(x509Cert.getEncoded()));
+            LOGGER.info("Final certificate:\n"+ BEGIN_CERTIFICATE +certEncoded+ END_CERTIFICATE);
+
+        } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception |
+                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
         return x509Cert;
@@ -206,13 +248,13 @@ public class CaServiceImpl implements CaService {
     @Override
     public void revokeCertificate(CertificateAuthoritySearchFilter certificateTemplate, int reason) {
         checkConfiguration();
-        lazyInit();
         if (!RevokeStatus.fromValue(reason).isPresent()) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
         }
         try {
             ejbcaWS.revokeCert(certificateTemplate.getIssuerDN(), certificateTemplate.getSerialNumber().toString(SN_HEX), reason);
         } catch (AlreadyRevokedException_Exception | ApprovalException_Exception | AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception | NotFoundException_Exception | WaitingForApprovalException_Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
     }
@@ -220,11 +262,11 @@ public class CaServiceImpl implements CaService {
     @Override
     public RevokeStatus checkRevocationStatus(CertificateAuthoritySearchFilter searchFilter) {
         checkConfiguration();
-        lazyInit();
-        org.ejbca.core.protocol.ws.client.gen.RevokeStatus rs;
+        org.ejbca.core.protocol.ws.RevokeStatus rs;
         try {
             rs = ejbcaWS.checkRevokationStatus(searchFilter.getIssuerDN(), searchFilter.getSerialNumber().toString(SN_HEX));
         } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
         return RevokeStatus.fromValue(rs.getReason()).orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR));
@@ -233,24 +275,52 @@ public class CaServiceImpl implements CaService {
     @Override
     public Optional<X509CRL> getLatestCRL(String caname) {
         checkConfiguration();
-        lazyInit();
         return getCrl(caname, false);
     }
 
     @Override
     public Optional<X509CRL> getLatestDeltaCRL(String caname) {
         checkConfiguration();
-        lazyInit();
         return getCrl(caname, true);
     }
 
     @Override
     public List<String> getPkiCaNames() {
         checkConfiguration();
-        lazyInit();
         try {
             return ejbcaWS.getAvailableCAs().stream().map(NameAndId::getName).collect(Collectors.toList());
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    public List<IdWithNameInfo> getEndEntities() {
+        checkConfiguration();
+        try {
+            return ejbcaWS.getAuthorizedEndEntityProfiles().stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public List<IdWithNameInfo> getCaName(int endEntityId) {
+        try {
+            return ejbcaWS.getAvailableCAsInProfile(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public List<IdWithNameInfo> getCertificateProfile(int endEntityId) {
+        try {
+            return ejbcaWS.getAvailableCertificateProfiles(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
+        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
     }
@@ -259,11 +329,10 @@ public class CaServiceImpl implements CaService {
     public String getPkiInfo() {
         checkConfiguration();
         StringBuilder result = new StringBuilder();
-        lazyInit();
-        result.append("Version: ");
-        String version = ejbcaWS.getEjbcaVersion();
-        result.append(version).append('\n');
         try {
+            result.append("Version: ");
+            String version = ejbcaWS.getEjbcaVersion();
+            result.append(version).append('\n');
             Map<Integer, String> authorizedEEProfiles = ejbcaWS.getAuthorizedEndEntityProfiles().stream()
                     .collect(Collectors.toMap(NameAndId::getId, NameAndId::getName));
             for (Map.Entry<Integer, String> authorizedEEProfilesEntry : authorizedEEProfiles.entrySet()) {
@@ -277,6 +346,7 @@ public class CaServiceImpl implements CaService {
                         .append("CPs in profile: ").append(cpInProfile).append('\n');
             }
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getLocalizedMessage());
         }
         return result.toString();
@@ -288,6 +358,7 @@ public class CaServiceImpl implements CaService {
             crlBytes = ejbcaWS.getLatestCRL(caName, isDelta);
             return Optional.ofNullable(null != crlBytes ? getX509CRL(crlBytes) : null);
         } catch (CADoesntExistsException_Exception | EjbcaException_Exception | CertificateException | CRLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
     }
@@ -395,12 +466,12 @@ public class CaServiceImpl implements CaService {
     private EjbcaWS createWSBackend() {
         EjbcaWSService service;
         setNewDefaultSSLSocketFactory();
-        CryptoProviderTools.installBCProvider();
         QName Q_NAME = new QName("http://ws.protocol.core.ejbca.org/", "EjbcaWSService");
         String WSDL_LOCATION = "https://" + pkiHost.trim() + ':' + pkiPort + "/ejbca/ejbcaws/ejbcaws?wsdl";
         try {
             service = new EjbcaWSService(new URL(WSDL_LOCATION), Q_NAME);
         } catch (MalformedURLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
         return service.getEjbcaWSPort();
@@ -420,5 +491,11 @@ public class CaServiceImpl implements CaService {
         if (!configured) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR_NOT_CONFIGURED_PROPERLY);
         }
+        lazyInit();
+    }
+
+
+    public byte[] getPKCS7(byte[] pkcs7Data) {
+        return Base64.getDecoder().decode(pkcs7Data);
     }
 }

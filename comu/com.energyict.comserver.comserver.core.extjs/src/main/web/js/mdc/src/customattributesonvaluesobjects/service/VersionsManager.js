@@ -27,6 +27,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.VersionsManager', {
             }
             if (!record.get('endTime') && !record.get('startTime')) {
                 htmlString += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
+            }else{
+                htmlString = '<span data-qtip="' + Ext.String.htmlEncode(htmlString) + '">' + htmlString + '</span>';
             }
             propertyForm.loadRecord(record);
         } else {

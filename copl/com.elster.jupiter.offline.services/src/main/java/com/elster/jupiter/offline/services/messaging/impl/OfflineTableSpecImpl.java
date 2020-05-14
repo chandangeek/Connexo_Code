@@ -5,15 +5,15 @@
 package com.elster.jupiter.offline.services.messaging.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageSeeds;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 
@@ -27,6 +27,7 @@ public class OfflineTableSpecImpl implements QueueTableSpec {
     private boolean multiConsumer;
     private boolean active;
     private boolean isPrioritized;
+    private String storageClause;
 
     @SuppressWarnings("unused")
     private long version;
@@ -47,21 +48,22 @@ public class OfflineTableSpecImpl implements QueueTableSpec {
         this.thesaurus = thesaurus;
     }
 
-    OfflineTableSpecImpl init(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
+    public static OfflineTableSpecImpl from(DataModel dataModel, String name, String payloadType, String storageClause, boolean multiConsumer) {
+        return dataModel.getInstance(OfflineTableSpecImpl.class).init(name, payloadType, storageClause, multiConsumer, false);
+    }
+
+    public static OfflineTableSpecImpl from(DataModel dataModel, String name, String payloadType, String storageClause, boolean multiConsumer, boolean isPrioritized) {
+        return dataModel.getInstance(OfflineTableSpecImpl.class).init(name, payloadType, storageClause, multiConsumer, isPrioritized);
+    }
+
+    OfflineTableSpecImpl init(String name, String payloadType, String storageClause, boolean multiConsumer, boolean isPrioritized) {
         this.name = name;
         this.payloadType = payloadType;
+        this.storageClause = storageClause;
         this.multiConsumer = multiConsumer;
         this.isPrioritized = isPrioritized;
         this.fromDB = false;
         return this;
-    }
-
-    public static OfflineTableSpecImpl from(DataModel dataModel, String name, String payloadType, boolean multiConsumer) {
-        return dataModel.getInstance(OfflineTableSpecImpl.class).init(name, payloadType, multiConsumer, false);
-    }
-
-    public static OfflineTableSpecImpl from(DataModel dataModel, String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
-        return dataModel.getInstance(OfflineTableSpecImpl.class).init(name, payloadType, multiConsumer, isPrioritized);
     }
 
     @Override
@@ -122,14 +124,18 @@ public class OfflineTableSpecImpl implements QueueTableSpec {
     }
 
     @Override
+    public String getStorageClause() {
+        return storageClause;
+    }
+
+    @Override
     public boolean isActive() {
         return active;
     }
 
-    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
-        DestinationSpec spec = OfflineDestinationSpecImpl.from(dataModel,this, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled, isPrioritized);
-        spec.save();
-        return spec;
+    @Override
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName, isExtraQueueCreationEnabled, false);
     }
 
     @Override
@@ -137,16 +143,17 @@ public class OfflineTableSpecImpl implements QueueTableSpec {
         return createDestinationSpec(name, retryDelay, retries, false, isDefault, queueTypeName, isExtraQueueCreationEnabled, isPrioritized);
     }
 
-    @Override
-    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName, isExtraQueueCreationEnabled,false);
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
+        DestinationSpec spec = OfflineDestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled, isPrioritized);
+        spec.save();
+        return spec;
     }
 
     @Override
     public boolean isJms() {
         return false;
     }
-    
+
     @Override
     public void save() {
         if (fromDB) {

@@ -20,13 +20,18 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.identifiers.*;;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.remote.MapXmlMarshallAdapter;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import com.energyict.mdc.identifiers.DeviceIdentifierByDeviceName;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierByMRID;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
@@ -334,7 +339,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private List<OfflineDevice> convertToOfflineRtus(List<Device> downstreamRtus) {
         List<OfflineDevice> offlineSlaves = new ArrayList<>(downstreamRtus.size());
         for (Device downstreamRtu : downstreamRtus) {
-            OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), serviceProvider);
+            OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu,
+                    new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG, DeviceOfflineFlags.FIRMWARE_VERSIONS_FLAG),
+                    serviceProvider);
             offlineSlaves.add(offlineDevice);
 
             List<OfflineDevice> slaveDevices = offlineDevice
@@ -642,6 +649,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
+    }
+
+    @Override
+    public String getProtocolName() {
+        return ((DeviceProtocolPluggableClassImpl) deviceProtocolPluggableClass).getPluggableClass().getName();
     }
 
     @Override

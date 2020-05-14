@@ -37,6 +37,8 @@ import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.common.device.data.Channel;
@@ -89,6 +91,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -285,17 +288,18 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name, Instant startDate) {
         Device device = this.deviceDataModelService.dataModel()
                 .getInstance(DeviceImpl.class)
                 .initialize(deviceConfiguration, name, startDate);
+        device.setSerialNumber(serialNumber);
         device.save(); // always returns a persisted device
         return device;
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String batch, Instant startDate) {
-        Device device = newDevice(deviceConfiguration, name, startDate);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String serialNumber, String name, String batch, Instant startDate) {
+        Device device = newDevice(deviceConfiguration, serialNumber, name, startDate);
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }
@@ -498,10 +502,10 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
         Pair<Device, DeviceConfigChangeRequestImpl> lockResult = deviceDataModelService.getTransactionService().execute(() -> {
-            Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
             final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
                     .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
                     .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
+            Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
             final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel()
                     .getInstance(DeviceConfigChangeRequestImpl.class)
                     .init(deviceConfiguration);
@@ -519,7 +523,23 @@ class DeviceServiceImpl implements ServerDeviceService {
         } finally {
             deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
+
+        addConnectionTasksToDevice(modifiedDevice,modifiedDevice.getDeviceConfiguration());
+
         return modifiedDevice;
+    }
+
+    private void addConnectionTasksToDevice(Device device, DeviceConfiguration deviceConfiguration){
+        Set<Long> devPartialConnectionTasksIds = device.getConnectionTasks().stream().map(connectionTask -> connectionTask.getPartialConnectionTask().getId()).collect(Collectors.toSet());
+        deviceConfiguration.getPartialConnectionTasks().stream()
+                .filter(partialConnectionTask -> !devPartialConnectionTasksIds.contains(partialConnectionTask.getId()))
+                .forEach(partialConnectionTask -> {
+                    if(partialConnectionTask instanceof PartialInboundConnectionTask) {
+                        deviceDataModelService.getTransactionService().execute(() -> device.getInboundConnectionTaskBuilder((PartialInboundConnectionTask)partialConnectionTask).add());
+                    } else if(partialConnectionTask instanceof PartialScheduledConnectionTask) {
+                        deviceDataModelService.getTransactionService().execute(() -> device.getScheduledConnectionTaskBuilder((PartialScheduledConnectionTask)partialConnectionTask).add());
+                    }
+                });
     }
 
     @Override
@@ -528,7 +548,10 @@ class DeviceServiceImpl implements ServerDeviceService {
                 .getInstance(DeviceConfigChangeRequestImpl.class)
                 .init(destinationDeviceConfiguration);
         deviceConfigChangeRequest.save();
-        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceIds), devicesForConfigChangeSearch, deviceConfigChangeRequest
+
+        List<Long> ids = Arrays.asList(deviceIds);
+        ids.forEach(id -> findDeviceById(id).ifPresent(device -> addConnectionTasksToDevice(device, destinationDeviceConfiguration)));
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), ids, devicesForConfigChangeSearch, deviceConfigChangeRequest
                 .getId());
 
         DestinationSpec destinationSpec = deviceDataModelService.messageService()

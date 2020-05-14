@@ -75,6 +75,7 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
                             values.setProperty("deviceLocation", location.toString())
             );
             values.setProperty("pointOfDelivery", null);
+            values.setProperty("registered", false);
             this.customPropertySetService.setValuesFor(customPropertySet.get(), device, values);
         }
     }

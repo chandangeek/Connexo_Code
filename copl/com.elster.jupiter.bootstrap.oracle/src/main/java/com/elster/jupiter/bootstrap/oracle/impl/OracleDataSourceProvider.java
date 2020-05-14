@@ -23,7 +23,7 @@ public class OracleDataSourceProvider implements DataSourceProvider {
         source.setConnectionFactoryClassName("oracle.jdbc.replay.OracleDataSourceImpl");
         source.setURL(properties.jdbcUrl);
         source.setUser(properties.jdbcUser);
-        source.setPassword(getDecryptedPassword(properties.jdbcPassword, properties.keyFile));
+        source.setPassword(new PasswordDecryptServiceImpl().getDecryptPassword(properties.jdbcPassword, properties.keyFile));
         source.setConnectionPoolName(BootstrapService.CONNECTION_POOL_NAME);
         source.setMinPoolSize(3);
         source.setMaxPoolSize(properties.maxLimit);

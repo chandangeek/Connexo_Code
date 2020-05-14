@@ -171,14 +171,15 @@ public enum TableSpecs {
                     .installValue(String.valueOf(Instant.EPOCH.toEpochMilli()))
                     .add();
 
-            Column eventTypeRefColumn = table.column(DATACOLLECTION_COLUMN_EVENTTYPE).varChar(NAME_LENGTH).add();
+            Column eventTypeRefColumn = table.column(DATACOLLECTION_COLUMN_EVENTTYPE).varChar(NAME_LENGTH).map("eventType").add();
+
             Column deviceRefColumn = table.column(DATACOLLECTION_COLUMN_DEVICE).number().conversion(NUMBER2LONG).add();
 
             table.partitionOn(createdDateTimeColumn);
             table.primaryKey(pkKey).on(idColumn).add();
 
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
-            table.foreignKey(fkKeysIter.next()).on(eventTypeRefColumn).references(EventType.class).map(DataCollectionEventMetadataImpl.Fields.EVENTYPE.fieldName()).onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey(fkKeysIter.next()).on(eventTypeRefColumn).references(EventType.class).map("eventType").onDelete(DeleteRule.CASCADE).upTo(version(10, 8)).add();
             table.foreignKey(fkKeysIter.next()).on(deviceRefColumn).references(Device.class).map(DataCollectionEventMetadataImpl.Fields.DEVICE.fieldName()).onDelete(DeleteRule.CASCADE).add();
         }
     }

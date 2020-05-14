@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices;
 
 import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -15,8 +16,6 @@ import java.util.Optional;
 public interface SAPMeterReadingDocumentCollectionData {
 
     Integer getReadindCollectionInterval();
-
-    Integer getReadingDateWindow();
 
     Instant getScheduledReadingDate();
 

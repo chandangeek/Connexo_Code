@@ -1,16 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
-import com.energyict.mdc.upl.LoadProfileConfigurationException;
-import com.energyict.mdc.upl.issue.Issue;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -29,6 +19,15 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -49,7 +48,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_GAS_HOURLY_DUPLICATED_CHANNEL;
+import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_LP_DUPLICATED_CHANNEL;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_DAILY;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_HOURLY;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY;
 import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.setFieldAndGet;
 
 /**
@@ -69,6 +71,10 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
     protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.x.96.10.1.255");
 
     protected static final ObisCode EdpQuarterlyHourStatusObisCode = ObisCode.fromString("0.x.96.10.7.255");
+
+    public static final ObisCode MBUS_HOURLY_LP_OBISCODE = ObisCode.fromString("0.x.24.3.0.255");
+    public static final ObisCode MBUS_DAILY_LP_OBISCODE = ObisCode.fromString("1.x.99.2.0.255");
+    public static final ObisCode MBUS_MONTHLY_LP_OBISCODE = ObisCode.fromString("0.x.98.1.0.255");
 
     /**
      * Hardcoded ObisCode for the status of the daily profile
@@ -175,10 +181,12 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
                     List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
 
-                    if (lpc.getObisCode().equalsIgnoreBChannel(Dsmr40LoadProfileBuilder.MBUS_LP1_OBISCODE)) {
+                    if (lpc.getObisCode().equalsIgnoreBChannel(MBUS_HOURLY_LP_OBISCODE) ||
+                        lpc.getObisCode().equalsIgnoreBChannel(MBUS_DAILY_LP_OBISCODE) ||
+                        lpc.getObisCode().equalsIgnoreBChannel(MBUS_MONTHLY_LP_OBISCODE)) {
                         // remap duplicated 0.x.24.2.1.255 (timestamp) to 0.x.24.2.5.255
                         channelInfos.stream().filter(
-                                ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_GAS_HOURLY_DUPLICATED_CHANNEL) &&
+                                ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_LP_DUPLICATED_CHANNEL) &&
                                         ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                         ).forEach(
                                 ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
@@ -228,6 +236,16 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return validLoadProfileReaders;
     }
 
+    protected ObisCode fixObisCodeForSlaveLoadProfile( ObisCode obisCode )
+    {
+        // special case for combined load profile
+        if( obisCode.equalsIgnoreBChannel(MBUS_MONTHLY_LP_OBISCODE) || obisCode.equalsIgnoreBChannel(MBUS_DAILY_LP_OBISCODE) ) {
+            obisCode.setB(0);
+        }
+
+        return obisCode;
+    }
+
     /**
      * Construct a <CODE>ComposedCosemObject</CODE> which will allow to read all the expected LoadProfileIntervals and -CapturedObjects
      *
@@ -240,6 +258,9 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
             List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (LoadProfileReader lpReader : loadProfileReaders) {
                 ObisCode obisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpReader.getProfileObisCode(), lpReader.getMeterSerialNumber());
+
+                obisCode = fixObisCodeForSlaveLoadProfile( obisCode );
+
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
                 if (uo != null) {
                     ComposedProfileConfig cProfileConfig = new ComposedProfileConfig(
@@ -474,6 +495,28 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         } else {
             return false;
         }
+
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_HOURLY, serialNumber);
+        if (testObisCode != null) {
+            isStatusObisCode |= testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_DAILY, serialNumber);
+        if (testObisCode != null) {
+            isStatusObisCode |= testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY, serialNumber);
+        if (testObisCode != null) {
+            isStatusObisCode |= testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
         return isStatusObisCode;
     }
 
@@ -508,6 +551,8 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
 
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            lpObisCode = fixObisCodeForSlaveLoadProfile(lpObisCode);
+
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
 
@@ -555,9 +600,11 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
      * @return requested configuration
      */
     protected CollectedLoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
-        for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
-                return lpc;
+        if( this.loadProfileConfigurationList != null ) {
+            for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
+                if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+                    return lpc;
+                }
             }
         }
         return null;

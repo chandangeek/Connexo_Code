@@ -14,6 +14,7 @@ import com.elster.jupiter.util.conditions.Where;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -90,6 +91,8 @@ public interface DestinationSpec extends HasName {
 
     SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer, Condition filter);
 
+    SubscriberSpec subscribe(SubscriberSpec subscriberSpec);
+
     SubscriberSpec subscribeSystemManaged(String name);
 
     void save();
@@ -138,4 +141,7 @@ public interface DestinationSpec extends HasName {
 
     boolean isPrioritized();
 
+    default List<QueueStatus> getAllQueuesStatus() {
+        return Collections.<QueueStatus>emptyList();
+    }
 }

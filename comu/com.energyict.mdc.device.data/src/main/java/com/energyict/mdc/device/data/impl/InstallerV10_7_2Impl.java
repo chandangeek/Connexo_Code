@@ -80,7 +80,7 @@ public class InstallerV10_7_2Impl implements FullInstaller {
     private String getconnectionTypeHeatMapStatement(){
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" CREATE TABLE MV_ConnectionTypeHeatMap AS  ");
-        sqlBuilder.append(" select ct.*, failedTask.comSession failedTask_comSession  ");
+        sqlBuilder.append(" select ct.*, dev.devicetype, failedTask.comSession failedTask_comSession  ");
         sqlBuilder.append(" from DDC_CONNECTIONTASK ct  ");
         sqlBuilder.append(" LEFT JOIN  ");
         sqlBuilder.append(" (   select comsession from DDC_COMTASKEXECSESSION  ");
@@ -114,5 +114,12 @@ public class InstallerV10_7_2Impl implements FullInstaller {
     private String getRefreshMvCTLCSSucIndCountJobStatement(){
         return getRefreshJob("REF_MV_CTLCSSucIndCount", "MV_CTLCSSucIndCount",
                 getConnectionTaskLastComSessionSuccessIndicatorCountStatement(), 5);
+    }
+
+    public void upgradeConnectionTypeHeatMap(){
+        execute(dataModel, getDropJobStatement("REF_MV_ConnectionTypeHeatMap"));
+        execute(dataModel, "DROP TABLE MV_ConnectionTypeHeatMap");
+        execute(dataModel, getconnectionTypeHeatMapStatement());
+        execute(dataModel, getRefreshMvConnectionTypeHeatMapJobStatement());
     }
 }

@@ -128,6 +128,7 @@ public class ScheduledJobImplTest {
     private static final long CONNECTION_TASK_ID = COM_PORT_ID + 1;
     private static final long DEVICE_ID = CONNECTION_TASK_ID + 1;
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
+    private static final String DEVICE_SERIAL_NUMBER = "DEV1";
     @Mock
     public DeviceProtocolDialect deviceProtocolDialect;
     @Mock
@@ -658,12 +659,14 @@ public class ScheduledJobImplTest {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        when(device.getSerialNumber()).thenReturn(DEVICE_SERIAL_NUMBER);
         when(device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         return device;
     }
 
     private OfflineDevice createMockOfflineDevice() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getSerialNumber()).thenReturn(DEVICE_SERIAL_NUMBER);
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
         return offlineDevice;

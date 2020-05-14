@@ -1,7 +1,7 @@
 package com.energyict.mdc.issue.datacollection;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.events.EventType;
+
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.energyict.mdc.common.device.data.Device;
@@ -12,7 +12,7 @@ import java.time.Instant;
 @ProviderType
 public interface DataCollectionEventMetadata extends Entity {
 
-    EventType getEventType();
+    String getEventType();
 
     Device getDevice();
 
@@ -20,7 +20,7 @@ public interface DataCollectionEventMetadata extends Entity {
 
     Instant getCreateDateTime();
 
-    void setEventType(EventType eventType);
+    void setEventType(String eventType);
 
     void setDevice(Device device);
 

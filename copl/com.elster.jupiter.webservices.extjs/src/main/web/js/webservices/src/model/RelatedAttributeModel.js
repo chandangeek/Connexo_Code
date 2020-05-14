@@ -14,7 +14,7 @@ Ext.define('Wss.model.RelatedAttributeModel', {
         url: '/api/ws/occurrences/relatedattributes',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'relatedattributes'
         }
     }
 });

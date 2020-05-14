@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>3.0.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Hermes-SNAPSHOT</version>
 
     </parent>
     <artifactId>mdc.bpm</artifactId>
@@ -145,6 +145,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>rest.util</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -370,6 +375,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm.h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

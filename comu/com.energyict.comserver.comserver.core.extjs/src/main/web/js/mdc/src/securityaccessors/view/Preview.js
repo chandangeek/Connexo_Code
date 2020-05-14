@@ -9,7 +9,8 @@ Ext.define('Mdc.securityaccessors.view.Preview', {
 
     requires: [
         'Mdc.securityaccessors.view.PreviewForm',
-        'Mdc.securityaccessors.view.SecurityAccessorsActionMenu'
+        'Mdc.securityaccessors.view.SecurityAccessorsActionMenu',
+        'Mdc.securityaccessors.view.KeyRenewalOverviewProperties',
     ],
 
     initComponent: function () {
@@ -31,35 +32,6 @@ Ext.define('Mdc.securityaccessors.view.Preview', {
             {
                 xtype: 'devicetype-security-accessors-preview-form',
                 itemId: 'mdc-devicetype-security-accessors-preview-form'
-            },
-            {
-                xtype: 'displayfield',
-                margins: '7 0 10 0',
-                itemId: 'previewPropertiesHeader'
-            },
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                itemId: 'previewPropertiesPanel',
-                items: [
-                    {
-                        xtype: 'property-form',
-                        isEdit: false,
-                        defaults: {
-                            labelWidth: 200,
-                            columnWidth: 0.5
-                        }
-                    }
-                ]
-            },
-            {
-                xtype: 'displayfield',
-                itemId: 'previewNoProperties',
-                hidden: true,
-                fieldLabel: ' ',
-                renderer: function () {
-                    return '<span style="font-style:italic;color: grey;">' + Uni.I18n.translate('keyRenewal.properties.notAvailable', 'MDC', 'No attributes are available') + '</span>';
-                }
             }
         ];
         me.callParent(arguments);

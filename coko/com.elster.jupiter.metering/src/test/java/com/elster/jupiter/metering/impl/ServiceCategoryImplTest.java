@@ -184,8 +184,8 @@ public class ServiceCategoryImplTest {
         when(customPropertySet.getName()).thenReturn("domainExtensionName");
         when(customPropertySet.isRequired()).thenReturn(true);
         when(customPropertySet.isVersioned()).thenReturn(false);
-        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
-        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
+        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
+        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_1));
         when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
         return customPropertySet;
     }

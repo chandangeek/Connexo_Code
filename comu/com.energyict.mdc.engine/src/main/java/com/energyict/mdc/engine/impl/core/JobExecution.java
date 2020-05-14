@@ -262,9 +262,19 @@ public abstract class JobExecution implements ScheduledJob {
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions));
     }
 
+    protected CommandRoot prepareAll(CommandRoot commandRoot, final List<ComTaskExecution> comTaskExecutions) {
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, commandRoot, comTaskExecutions));
+    }
+
     protected CommandRoot prepareAll(final List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
         getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions, checkSecurity));
+    }
+
+    protected CommandRoot prepareAll(CommandRoot commandRoot, final List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, commandRoot, comTaskExecutions, checkSecurity));
     }
 
     public void connected(ComPortRelatedComChannel comChannel) {
@@ -336,7 +346,8 @@ public abstract class JobExecution implements ScheduledJob {
     private void addCompletionEvent() {
         ExecutionContext executionContext = this.getExecutionContext();
         if (executionContext != null && serviceProvider.engineService().isOnlineMode()) {
-            if (!executionContext.connectionFailed()) {
+            if (!(executionContext.connectionFailed()
+                    || onlyNotExecutedComTasks() && getSuccessIndicator().equals(ComSession.SuccessIndicator.Not_Executed))) {
                 executionContext.getStoreCommand().add(
                         new PublishConnectionCompletionEvent(
                                 getConnectionTask(),
@@ -353,6 +364,10 @@ public abstract class JobExecution implements ScheduledJob {
                     "Attempt to publish an event that a ConnectionTask has completed for OfflineEngine or no ExecutionContext!",
                     new Exception("For diagnostic purposes only"));
         }
+    }
+
+    private boolean onlyNotExecutedComTasks() {
+        return getSuccessfulComTaskExecutions().isEmpty() && getFailedComTaskExecutions().isEmpty() && !getNotExecutedComTaskExecutions().isEmpty();
     }
 
     protected void completeOutsideComWindow() {
@@ -379,8 +394,7 @@ public abstract class JobExecution implements ScheduledJob {
         return new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
     }
 
-    @Override
-    public void reschedule() {
+    private ComSession.SuccessIndicator getSuccessIndicator() {
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
         if (commandRoot.hasConnectionNotExecuted()) {
             successIndicator = ComSession.SuccessIndicator.Not_Executed;
@@ -393,6 +407,12 @@ public abstract class JobExecution implements ScheduledJob {
         } else if (commandRoot.hasConnectionBeenInterrupted()) {
             successIndicator = ComSession.SuccessIndicator.Interrupted;
         }
+        return successIndicator;
+    }
+
+    @Override
+    public void reschedule() {
+        ComSession.SuccessIndicator successIndicator = getSuccessIndicator();
 
         if (successIndicator.equals(ComSession.SuccessIndicator.Success) || successIndicator.equals(ComSession.SuccessIndicator.Not_Executed)) {
             rescheduleSuccess(successIndicator);
@@ -524,6 +544,16 @@ public abstract class JobExecution implements ScheduledJob {
             this.jobExecution = jobExecution;
             this.comTaskExecutions = comTaskExecutions;
             this.checkSecurity = checkSecurity;
+        }
+
+        private PrepareAllTransaction(JobExecution jobExecution, CommandRoot commandRoot, List<ComTaskExecution> comTaskExecutions) {
+            this(jobExecution, comTaskExecutions);
+            JobExecution.this.commandRoot = commandRoot;
+        }
+
+        private PrepareAllTransaction(JobExecution jobExecution, CommandRoot commandRoot, List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+            this(jobExecution, comTaskExecutions, checkSecurity);
+            JobExecution.this.commandRoot = commandRoot;
         }
 
         @Override

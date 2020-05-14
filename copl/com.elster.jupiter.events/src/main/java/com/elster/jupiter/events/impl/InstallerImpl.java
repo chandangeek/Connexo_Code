@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.events.EventService.JUPITER_EVENTS;
+import static com.elster.jupiter.messaging.MessageService.QueueTable.JUPITEREVENTS_RAW_QUEUE_TABLE;
 
 public class InstallerImpl implements FullInstaller {
 
@@ -46,6 +47,6 @@ public class InstallerImpl implements FullInstaller {
     }
 
     private QueueTableSpec getRawTopicTableSpec() {
-        return messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get();
+        return messageService.getQueueTableSpec(JUPITEREVENTS_RAW_QUEUE_TABLE.getQueueTableName()).get();
     }
 }

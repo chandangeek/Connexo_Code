@@ -11,6 +11,9 @@ import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -37,10 +40,11 @@ public class ComServerAliveLoopImpl implements Runnable, EngineService.Deactivat
         engineConfigurationService.findComServerBySystemName().ifPresent(
                 comServer -> {
                     ComServerStatus status = statusService.getStatus();
-                    if (status.isBlocked()) {
+                    Optional<Instant> blockTimestamp = Optional.ofNullable(status.getBlockTimestamp());
+                    if (blockTimestamp.isPresent()) {
                         engineConfigurationService.findOrCreateAliveStatus(comServer).update(clock.instant(),
                                 engineConfigurationService.getComServerStatusAliveFrequency(),
-                                status.getBlockTimestamp(), (int) status.getBlockTime().getSeconds());
+                                blockTimestamp.get(), Duration.between(blockTimestamp.get(), clock.instant()).getSeconds());
                     } else {
                         engineConfigurationService.findOrCreateAliveStatus(comServer).update(clock.instant(),
                                 engineConfigurationService.getComServerStatusAliveFrequency(),
@@ -54,10 +58,11 @@ public class ComServerAliveLoopImpl implements Runnable, EngineService.Deactivat
     public void run() {
         try (TransactionContext context = transactionService.getContext()) {
             updateStatus();
-            executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
             context.commit();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
         }
     }
 

@@ -120,14 +120,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
-    @Override
-    public void update() {
-        this.updateStrategy.prepare();
-        Save.UPDATE.save(this.getDataModel(), this, Save.Create.class, Save.Update.class);
-        this.updateStrategy.complete();
-        this.updateStrategy = new Noop();
-        this.getDataModel().touch(getDevice());
-    }
+//    @Override
+//    public void update() {
+//        this.updateStrategy.prepare();
+//        Save.UPDATE.save(this.getDataModel(), this, Save.Create.class, Save.Update.class);
+//        this.updateStrategy.complete();
+//        this.updateStrategy = new Noop();
+//        this.getDataModel().touch(getDevice());
+//    }
 
     @Override
     @XmlAttribute
@@ -299,7 +299,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             this.schedule(comTask.getNextExecutionTimestamp());
         }
         setExecutingComPort(null);
-        update();
+        update(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName(), ConnectionTaskFields.COM_PORT.fieldName());
     }
 
     @Override

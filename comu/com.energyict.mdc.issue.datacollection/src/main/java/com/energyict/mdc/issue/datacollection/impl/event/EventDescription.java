@@ -42,4 +42,6 @@ public interface EventDescription {
      * @return returnes topic of the event
      */
     String getTopic();
+
+    String getName();
 }

@@ -11,6 +11,9 @@ import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.common.masterdata.MeasurementType;
 
+import java.time.Instant;
+import java.util.Optional;
+
 /**
  * Add behavior to {@link ServerDeviceConfiguration} that is
  * specific to server side components.
@@ -52,6 +55,11 @@ interface ServerDeviceConfiguration extends DeviceConfiguration {
      */
     void prepareDelete();
 
+    boolean isObsolete();
+
+    Optional<Instant> getObsoleteDate();
+
+    void makeObsolete();
     /**
      * Clones the current DeviceConfiguration and sets the given 'nameOfClone' as name for the cloned DeviceConfiguration
      *

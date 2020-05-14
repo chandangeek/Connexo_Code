@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyPurpose;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
@@ -359,6 +360,17 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.empty());
         when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("SSM");
         when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
+        when(securityAccessorType.getKeyPurpose()).thenReturn(new KeyPurpose() {
+            @Override
+            public String getId() {
+                return "KEY";
+            }
+
+            @Override
+            public String getName() {
+                return "name";
+            }
+        });
         KeyType keyType = mock(KeyType.class);
         when(keyType.getId()).thenReturn(1L);
         when(keyType.getName()).thenReturn("Name of the keytype");
@@ -374,9 +386,21 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         DeviceSecurityAccessorType deviceSecurityAccessorType = mock(DeviceSecurityAccessorType.class);
         when(securityAccessorTypeOnDeviceType.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageSpecification()).thenReturn(Optional.empty());
+        when(securityAccessorTypeOnDeviceType.getServiceKeyRenewalDeviceMessageSpecification()).thenReturn(Optional.empty());
         when(deviceSecurityAccessorType.getWrappingSecurityAccessor()).thenReturn(Optional.of(securityAccessorType));
         when(securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType()).thenReturn(deviceSecurityAccessorType);
         when(deviceSecurityAccessorType.getSecurityAccessor()).thenReturn(securityAccessorType);
+        when(securityAccessorType.getKeyPurpose()).thenReturn(new KeyPurpose() {
+            @Override
+            public String getId() {
+                return "KEY";
+            }
+
+            @Override
+            public String getName() {
+                return "name";
+            }
+        });
         mockUserActions(securityAccessorType);
         return securityAccessorTypeOnDeviceType;
     }
@@ -396,6 +420,17 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(keyType.getName()).thenReturn("Certificate");
         when(keyType.getCryptographicType()).thenReturn(CryptographicType.TrustedCertificate);
         when(securityAccessorType.getKeyType()).thenReturn(keyType);
+        when(securityAccessorType.getKeyPurpose()).thenReturn(new KeyPurpose() {
+            @Override
+            public String getId() {
+                return "KEY";
+            }
+
+            @Override
+            public String getName() {
+                return "name";
+            }
+        });
         when(securityAccessorType.getDuration()).thenReturn(Optional.empty());
         return securityAccessorType;
     }

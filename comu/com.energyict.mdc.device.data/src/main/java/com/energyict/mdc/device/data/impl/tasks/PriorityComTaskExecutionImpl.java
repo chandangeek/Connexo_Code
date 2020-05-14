@@ -23,6 +23,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -88,6 +89,11 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     @Override
     public TaskStatus getStatus() {
         return comTaskExecution.getStatus();
+    }
+
+    @Override
+    public void setStatus(TaskStatus status) {
+        comTaskExecution.setStatus(status);
     }
 
     @Override
@@ -254,7 +260,8 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
 
     @Override
     public List<ComTaskExecutionTrigger> getComTaskExecutionTriggers() {
-        return comTaskExecution.getComTaskExecutionTriggers();
+        return comTaskExecution.isUsingComTaskExecutionTriggers()
+                ? comTaskExecution.getComTaskExecutionTriggers() : Collections.emptyList();
     }
 
     @Override
@@ -315,7 +322,8 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
             ((PriorityComTaskExecutionLinkImpl) comTaskExecutionLink).delete();
         } else {
             // execution attempt failed, will retry - should not delete yet the high-prio task
-            LOGGER.info("[high-prio] execution attempt failed, id=" + comTaskExecutionLink.getId()+ "; device: " + comTaskExecution.getDevice().getName() + "; rescheduled for " + comTaskExecution.getNextExecutionTimestamp());
+            LOGGER.info("[high-prio] execution attempt failed, id=" + comTaskExecutionLink.getId() + "; device: " + comTaskExecution.getDevice()
+                    .getName() + "; rescheduled for " + comTaskExecution.getNextExecutionTimestamp());
             comTaskExecutionLink.executionRescheduled(comTaskExecution.getNextExecutionTimestamp());
         }
     }
@@ -328,7 +336,7 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
             ((PriorityComTaskExecutionLinkImpl) comTaskExecutionLink).delete();
         } else {
             // execution attempt failed, will retry - should not delete yet the high-prio task
-            LOGGER.info("[high-prio] execution attempt failed, id=" + comTaskExecutionLink.getId()+ "; device: " + comTaskExecution.getDevice().getName() + "; rescheduled for " + rescheduleDate);
+            LOGGER.info("[high-prio] execution attempt failed, id=" + comTaskExecutionLink.getId() + "; device: " + comTaskExecution.getDevice().getName() + "; rescheduled for " + rescheduleDate);
             comTaskExecutionLink.executionRescheduled(rescheduleDate);
         }
     }
@@ -414,5 +422,10 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     @Override
     public void setXmlType(String ignore) {
         //Ignore, only used for JSON
+    }
+
+    @Override
+    public void removeSchedule() {
+        comTaskExecution.removeSchedule();
     }
 }
