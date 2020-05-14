@@ -152,35 +152,6 @@ public class DeviceLifeCycleIT {
     }
 
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "maximumPastEffectiveTimeShift")
-    @Test
-    public void createDeviceLifeCycleWithoutMaximumPastEffectiveTimeShift() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        String name = "createDeviceLifeCycleWithoutMaximumPastEffectiveTimeShift";
-        this.getTestService()
-                .newDeviceLifeCycleUsing(name, stateMachine)
-                .complete().save();
-
-        // Business method
-        DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(name, stateMachine).complete();
-        deviceLifeCycle.save();
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", property = "maximumPastEffectiveTimeShift")
-    @Test
-    public void createDeviceLifeCycleWithTooBigMaximumPastEffectiveTimeShift() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        String name = "createDeviceLifeCycleWithTooBigMaximumPastEffectiveTimeShift";
-
-        // Business method
-        DeviceLifeCycle deviceLifeCycle = this.getTestService()
-                .newDeviceLifeCycleUsing(name, stateMachine)
-                .complete();
-        deviceLifeCycle.save();
-    }
-
-    @Transactional
     @Test
     public void findNewEmptyDeviceLifeCycle() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();

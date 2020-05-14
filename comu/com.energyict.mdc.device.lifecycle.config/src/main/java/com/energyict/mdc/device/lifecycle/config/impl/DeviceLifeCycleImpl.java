@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
@@ -83,7 +82,6 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private Instant obsoleteTimestamp;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
-    private TimeDuration maximumFutureEffectiveTimeShift = EffectiveTimeShift.FUTURE.defaultValue();
     @Valid
     private List<AuthorizedAction> actions = new ArrayList<>();
     private List<AuthorizedActionImpl> updated = new ArrayList<>();

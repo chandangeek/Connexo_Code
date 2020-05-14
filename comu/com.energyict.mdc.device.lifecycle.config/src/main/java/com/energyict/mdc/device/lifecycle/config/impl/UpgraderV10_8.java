@@ -21,7 +21,7 @@ public class UpgraderV10_8 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 6));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         execute(dataModel, "alter table DLD_DEVICE_LIFE_CYCLE drop " +
                 "(MAXPASTEFFTIMESHIFTUNIT, MAXPASTEFFTIMESHIFTVALUE, MAXFUTUREEFFTIMESHIFTUNIT, MAXFUTUREEFFTIMESHIFTVALUE);");
     }
