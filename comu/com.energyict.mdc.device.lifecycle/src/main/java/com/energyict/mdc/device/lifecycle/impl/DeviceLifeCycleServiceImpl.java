@@ -492,8 +492,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private void effectiveTimestampIsInRange(Instant effectiveTimestamp, Device device, AuthorizedTransitionAction action, Optional<Instant> lastStateChangeTimestamp) {
         DeviceLifeCycle deviceLifeCycle = action.getDeviceLifeCycle();
-        Instant lowerBound = device.getLifecycleDates().getReceivedDate()
-                .orElse(deviceLifeCycle.getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).toInstant());
+        Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).toInstant();
         if (lastStateChangeTimestamp.isPresent() && lowerBound.isBefore(lastStateChangeTimestamp.get())) {
             lowerBound = lastStateChangeTimestamp.get();
         }
