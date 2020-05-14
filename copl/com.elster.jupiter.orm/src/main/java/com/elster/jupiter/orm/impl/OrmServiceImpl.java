@@ -307,7 +307,7 @@ public final class OrmServiceImpl implements OrmService {
     public void invalidateCache(String componentName, String tableName) {
         DataModelImpl dataModel = dataModels.get(componentName);
         if (dataModel != null) {
-        	dataModel.renewCache(tableName);
+            dataModel.renewCache(tableName);
         }
     }
 
@@ -353,54 +353,58 @@ public final class OrmServiceImpl implements OrmService {
                 if (table.hasJournal()) {
                     existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
                 }
-                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(), (existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null), processedTables, model.getTables());
+                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(),
+                        existingJournalTable.map(ExistingTable::getName).orElse(null),
+                        processedTables, model.getTables());
             }
         }
         return existingDataModel;
     }
 
-    private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName, Set<String> processedTables, List<? extends Table> tablesToBeProcessed) {
+    private void addTableToExistingModel(DataModelImpl existingModel,
+                                         DataModel databaseTablesModel,
+                                         String tableName,
+                                         String journalTableName,
+                                         Set<String> processedTables,
+                                         List<? extends Table> tablesToBeProcessed) {
         if (processedTables.add(tableName)) {
-            Optional<ExistingTable> existingTable = databaseTablesModel.mapper(ExistingTable.class).getEager(tableName);
-            if (existingTable.isPresent()) {
-                ExistingTable userTable = existingTable.get();
-
+            databaseTablesModel.mapper(ExistingTable.class).getEager(tableName).ifPresent(userTable -> {
                 userTable.addColumnsTo(existingModel, journalTableName);
-
-                for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
-                    if (existingConstraint.isForeignKey()) {
-                        String referencedTableName = existingConstraint.getReferencedTableName();
-                        if (!tableName.equalsIgnoreCase(referencedTableName) && existingModel.getTable(referencedTableName) == null) {
+                userTable.addIndexesTo(existingModel);
+                userTable.addLocalTableConstraintsTo(existingModel);
+                userTable.getConstraints().stream()
+                        .filter(ExistingConstraint::isForeignKey)
+                        .map(ExistingConstraint::getReferencedTableName)
+                        .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName)
+                                && existingModel.getTable(referencedTableName) == null)
+                        .forEach(referencedTableName -> {
                             String refJournalTableName = tablesToBeProcessed.stream()
                                     .filter(table -> table.getName().equals(referencedTableName))
                                     .map(Table::getJournalTableName)
                                     .filter(Objects::nonNull)
                                     .findAny()
                                     .orElse(null);
-
                             addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, refJournalTableName, processedTables, tablesToBeProcessed);
-                        }
-                    }
-                }
-                userTable.addConstraintsTo(existingModel);
-            }
+                        });
+                userTable.addForeignKeyConstraintsTo(existingModel);
+            });
         }
     }
 
-	@Override
-	public void dropJournal(Instant upTo, Logger logger) {
-		dataModels.values().forEach(dataModel -> dataModel.dropJournal(upTo, logger));
-	}
+    @Override
+    public void dropJournal(Instant upTo, Logger logger) {
+        dataModels.values().forEach(dataModel -> dataModel.dropJournal(upTo, logger));
+    }
 
-	@Override
-	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
-		dataModels.values().forEach(dataModel -> dataModel.dropAuto(lifeCycleClass, upTo, logger));
-	}
+    @Override
+    public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
+        dataModels.values().forEach(dataModel -> dataModel.dropAuto(lifeCycleClass, upTo, logger));
+    }
 
-	@Override
-	public void createPartitions(Instant upTo, Logger logger) {
-		dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
-	}
+    @Override
+    public void createPartitions(Instant upTo, Logger logger) {
+        dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
+    }
 
     @Override
     public DataModelUpgrader getDataModelUpgrader(Logger logger) {
