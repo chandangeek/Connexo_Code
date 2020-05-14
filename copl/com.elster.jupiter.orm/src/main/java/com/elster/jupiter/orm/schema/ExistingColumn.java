@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.orm.schema;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public interface ExistingColumn {
     String getName();
 

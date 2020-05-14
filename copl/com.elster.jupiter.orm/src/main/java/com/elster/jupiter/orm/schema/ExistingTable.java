@@ -6,8 +6,11 @@ package com.elster.jupiter.orm.schema;
 
 import com.elster.jupiter.orm.DataModel;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 
+@ConsumerType
 public interface ExistingTable {
     String getName();
 
@@ -19,10 +22,20 @@ public interface ExistingTable {
 
     default void addTo(DataModel existingDataModel, String journalTableName) {
         addColumnsTo(existingDataModel, journalTableName);
+        addIndexesTo(existingDataModel);
         addConstraintsTo(existingDataModel);
     }
 
     void addColumnsTo(DataModel existingDataModel, String journalTableName);
 
-    void addConstraintsTo(DataModel existingDataModel);
+    default void addConstraintsTo(DataModel existingDataModel) {
+        addLocalTableConstraintsTo(existingDataModel);
+        addForeignKeyConstraintsTo(existingDataModel);
+    }
+
+    void addLocalTableConstraintsTo(DataModel existingDataModel);
+
+    void addForeignKeyConstraintsTo(DataModel existingDataModel);
+
+    void addIndexesTo(DataModel existingDataModel);
 }
