@@ -91,4 +91,12 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
                     "H", HsmKeyImpl.class,
                     "P", PlaintextSymmetricKeyImpl.class);
 
+    @Override
+    public String toString() {
+        return "KeyImpl{" +
+                "id=" + id +
+                ", encryptedKey='" + encryptedKey + '\'' +
+                ", expirationTime=" + expirationTime +
+                '}';
+    }
 }

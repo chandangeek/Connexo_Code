@@ -7,6 +7,7 @@ package com.energyict.mdc.common.device.config;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.collections.KPermutation;
@@ -191,9 +192,17 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
      */
     void setDefaultStatus(boolean value);
 
+    /**
+     * Received key accessor type if configured.
+     *
+     * @param keyAccessorType
+     * @return
+     */
+    boolean isConfigured(SecurityAccessorType keyAccessorType);
+
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
-    public String getXmlType();
+    String getXmlType();
 
-    public void setXmlType(String ignore);
+    void setXmlType(String ignore);
 }

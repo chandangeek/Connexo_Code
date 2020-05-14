@@ -40,7 +40,7 @@ public class MappingException extends PersistenceException {
         return new MappingException(MessageSeeds.MAPPING_NO_DISCRIMINATOR_COLUMN);
     }
 
-    private MappingException(MessageSeed messageSeed, Object... args) {
+    public MappingException(MessageSeed messageSeed, Object... args) {
         super(messageSeed, args);
     }
 }
