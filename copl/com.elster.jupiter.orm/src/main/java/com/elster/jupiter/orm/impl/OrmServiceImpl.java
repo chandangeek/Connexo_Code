@@ -49,6 +49,7 @@ import java.sql.Statement;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,8 +66,8 @@ public final class OrmServiceImpl implements OrmService {
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
-    private volatile long evictionTime = 100L;
-    private volatile boolean cacheEnabled = false;
+    private volatile long evictionTime;
+    private volatile boolean cacheEnabled;
     private volatile FileSystem fileSystem;
     private volatile Publisher publisher;
     private volatile JsonService jsonService;
@@ -213,12 +214,41 @@ public final class OrmServiceImpl implements OrmService {
         this.transactionService = transactionService;
     }
 
-    private void setEvictionTime(Long evictionTime) {
-        this.evictionTime = evictionTime;
+    private void setEvictionTime(String evictionTime) {
+        String[] time = evictionTime.split(":");
+        long count = Long.valueOf(time[0]);
+        int timeUnitCode = Integer.valueOf(time[1]);
+        switch (timeUnitCode) {
+            case Calendar.MILLISECOND:
+                this.evictionTime = count;
+                break;
+            case Calendar.SECOND:
+                this.evictionTime = count * 1000;
+                break;
+            case Calendar.MINUTE:
+                this.evictionTime = count * 1000 * 60;
+                break;
+            case Calendar.HOUR:
+                this.evictionTime = count * 1000 * 60 * 60;
+                break;
+            case Calendar.DAY_OF_MONTH:
+                this.evictionTime = count * 1000 * 60 * 60 * 24;
+                break;
+            case Calendar.WEEK_OF_YEAR:
+                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7;
+                break;
+            case Calendar.MONTH:
+                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7 * 30;
+                break;
+            case Calendar.YEAR:
+                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7 * 365;
+                break;
+        }
     }
 
-    public void setCacheEnabled(boolean enableCache) {
-        this.cacheEnabled = enableCache;
+    public void setCacheEnabled(String enableCache) {
+        this.cacheEnabled = enableCache.equals("1") ? true: false;
+        return;
     }
 
     private DataModel createDataModel(boolean register) {
@@ -267,13 +297,11 @@ public final class OrmServiceImpl implements OrmService {
         }
 
 
-        String evictionTime = readSystemPropertyValue("evictiontime", Integer.toString(EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE));
-        String enablecache = readSystemPropertyValue("enablecache", Boolean.toString(ENABLE_CACHE_DEFAULT_VALUE));
+        String evictionTime = readSystemPropertyValue("evictiontime", EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE);
+        String enablecache = readSystemPropertyValue("enablecache", ENABLE_CACHE_DEFAULT_VALUE);
 
-        long evictionTimeMs = Long.valueOf(evictionTime);
-        setEvictionTime(evictionTimeMs);
-        boolean enableCacheBoolean = Boolean.valueOf(enablecache);
-        setCacheEnabled(enableCacheBoolean);
+        setEvictionTime(evictionTime);
+        setCacheEnabled(enablecache);
     }
 
     private String readSystemPropertyValue(String propertyName, String defaultValue) {
@@ -299,7 +327,7 @@ public final class OrmServiceImpl implements OrmService {
         String insertSystemPropertySql = "INSERT INTO SYP_PROP (KEY, VALUE) VALUES('" + key + "','" + value + "')";
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement()) {
-            statement.executeQuery(insertSystemPropertySql);
+            statement.execute(insertSystemPropertySql);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }

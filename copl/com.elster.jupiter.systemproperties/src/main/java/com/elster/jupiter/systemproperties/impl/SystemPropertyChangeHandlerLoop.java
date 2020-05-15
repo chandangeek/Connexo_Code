@@ -1,6 +1,7 @@
 package com.elster.jupiter.systemproperties.impl;
 
 import com.elster.jupiter.systemproperties.SystemPropertyService;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,9 @@ public class SystemPropertyChangeHandlerLoop implements Runnable {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            executor.schedule(this, Long.valueOf(systemPropertyService.getPropertyValue("evictiontime")), TimeUnit.SECONDS);
+            String[] value = systemPropertyService.getPropertyValue("evictiontime").split(":");
+            TimeDuration time = new TimeDuration(Integer.valueOf(value[0]), Integer.valueOf(value[1]));
+            executor.schedule(this, time.getSeconds(), TimeUnit.SECONDS);
         }
     }
 
