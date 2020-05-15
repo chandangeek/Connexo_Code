@@ -23,6 +23,8 @@ public class UpgraderV10_8 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
         execute(dataModel, "alter table DLD_DEVICE_LIFE_CYCLE drop " +
-                "(MAXPASTEFFTIMESHIFTUNIT, MAXPASTEFFTIMESHIFTVALUE, MAXFUTUREEFFTIMESHIFTUNIT, MAXFUTUREEFFTIMESHIFTVALUE);");
+                "(MAXPASTEFFTIMESHIFTUNIT, MAXPASTEFFTIMESHIFTVALUE, MAXFUTUREEFFTIMESHIFTUNIT, MAXFUTUREEFFTIMESHIFTVALUE);",
+                "alter table DLD_DEVICE_LIFE_CYCLEJRNL drop " +
+                        "(MAXPASTEFFTIMESHIFTUNIT, MAXPASTEFFTIMESHIFTVALUE, MAXFUTUREEFFTIMESHIFTUNIT, MAXFUTUREEFFTIMESHIFTVALUE);");
     }
 }
