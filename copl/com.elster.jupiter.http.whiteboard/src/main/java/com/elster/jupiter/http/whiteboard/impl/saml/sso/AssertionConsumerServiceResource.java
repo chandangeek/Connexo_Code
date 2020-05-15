@@ -88,7 +88,7 @@ public class AssertionConsumerServiceResource {
         }
 
         if (!StringUtils.isEmpty(token)) {
-            Cookie cookie = authenticationService.createTokenCookie(httpServletRequest.isSecure(),token, "/");
+            Cookie cookie = authenticationService.createTokenCookie(token, "/");
             httpServletResponse.addCookie(cookie);
         }
 
