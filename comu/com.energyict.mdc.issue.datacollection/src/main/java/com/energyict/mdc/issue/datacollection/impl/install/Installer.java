@@ -49,7 +49,6 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_M
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_WEEK;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_MONTH;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
-//import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.;
 
 
 public class Installer implements FullInstaller {
@@ -82,7 +81,7 @@ public class Installer implements FullInstaller {
             setDataCollectionReasons(issueType);
         }, "issue reasons and action types", logger);
         run(this::createRelativePeriodCategory, "create issue relative period category", logger);
-        run(this::createRelativePeriods, "Assign default relative periods to IDC category", logger);
+        run(this::assignRelativePeriods, "Assign default relative periods to IDC category", logger);
         run(this::publishEvents, "event publishing", logger);
         run(this::createEventTypes, "create event types", logger);
     }
@@ -166,7 +165,7 @@ public class Installer implements FullInstaller {
                 TranslationKeys.ISSUE_REASON_UNREGISTERED_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE);
     }
 
-    private void createRelativePeriods() {
+    private void assignRelativePeriods() {
         RelativePeriodCategory category = getCategory();
 
         EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY, YESTERDAY)

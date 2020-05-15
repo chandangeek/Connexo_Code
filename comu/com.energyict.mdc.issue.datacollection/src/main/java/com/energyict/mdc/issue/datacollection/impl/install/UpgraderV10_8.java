@@ -5,15 +5,20 @@ package com.energyict.mdc.issue.datacollection.impl.install;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -36,12 +41,14 @@ public class UpgraderV10_8 implements Upgrader {
     private final DataModel dataModel;
     private final Clock clock;
     private final IssueDataCollectionService issueDataCollectionService;
+    private final TimeService timeService;
 
     @Inject
-    UpgraderV10_8(DataModel dataModel, Clock clock, IssueDataCollectionService issueDataCollectionService) {
+    UpgraderV10_8(DataModel dataModel, Clock clock, IssueDataCollectionService issueDataCollectionService, TimeService timeService) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.issueDataCollectionService = issueDataCollectionService;
+        this.timeService = timeService;
     }
 
     @Override
@@ -54,6 +61,17 @@ public class UpgraderV10_8 implements Upgrader {
         }
 
         updateDataCollectionEventMetadata();
+        createAndAssignIssueRelativePeriodsCategory();
+    }
+
+    private void createAndAssignIssueRelativePeriodsCategory() {
+        RelativePeriodCategory category = timeService.createRelativePeriodCategory(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY);
+
+        EnumSet.allOf(DefaultRelativePeriodDefinition.class)
+                .forEach(definition -> {
+                    timeService.findRelativePeriodByName(definition.getPeriodName())
+                            .ifPresent(relativePeriod -> relativePeriod.addRelativePeriodCategory(category));
+                });
     }
 
     private void updateDataCollectionEventMetadata() {
