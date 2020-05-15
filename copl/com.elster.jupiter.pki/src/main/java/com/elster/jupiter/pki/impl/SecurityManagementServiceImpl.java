@@ -302,6 +302,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.queryService = queryService;
     }
 
+    @Override
     public DataModel getDataModel() {
         return dataModel;
     }

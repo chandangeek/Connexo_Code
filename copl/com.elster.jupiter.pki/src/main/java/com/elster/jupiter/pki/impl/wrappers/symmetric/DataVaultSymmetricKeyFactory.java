@@ -8,13 +8,12 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
-import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
 import com.elster.jupiter.pki.impl.wrappers.TableSpecs;
 import com.elster.jupiter.properties.Expiration;
@@ -32,8 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name="PlaintextSymmetricKeyFactory", service = SymmetricKeyFactory.class, immediate = true)
-public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSupport {
+@Component(name = "SymmetricKeyFactory", service = SymmetricKeyFactory.class, immediate = true)
+public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSupport<KeyImpl> {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
@@ -103,8 +102,8 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     }
 
     @Override
-    public List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when) {
-        List<SecurityValueWrapper> wrappers = new ArrayList<>();
+    public List<KeyImpl> findExpired(Expiration expiration, Instant when) {
+        List<KeyImpl> wrappers = new ArrayList<>();
         wrappers.addAll(dataModel.query(KeyImpl.class).select(expiration.isExpired("expirationTime", when)));
         return wrappers;
     }
