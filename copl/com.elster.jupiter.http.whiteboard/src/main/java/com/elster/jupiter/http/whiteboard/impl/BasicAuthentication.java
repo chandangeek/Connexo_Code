@@ -564,19 +564,21 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     @Override
-    public Cookie createTokenCookie(String cookieValue, String cookiePath) {
+    public Cookie createTokenCookie(boolean isSecure, String cookieValue, String cookiePath) {
         Cookie cookie = new Cookie(TOKEN_COOKIE_NAME, cookieValue);
         cookie.setPath(cookiePath);
         cookie.setMaxAge(tokenExpTime + timeoutFrameToRefreshToken);
         cookie.setHttpOnly(true);
+        cookie.setSecure(isSecure);
         return cookie;
     }
 
-    public Cookie createSessionCookie(String sessionId, String cookiePath) {
+    public Cookie createSessionCookie(boolean isSecure,String sessionId, String cookiePath) {
         Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
         sessionCookie.setPath(cookiePath);
         sessionCookie.setMaxAge(tokenExpTime + timeoutFrameToRefreshToken);
         sessionCookie.setHttpOnly(true);
+        sessionCookie.setSecure(isSecure);
         csrfFilterService.createCSRFToken(sessionId);
         return sessionCookie;
     }
@@ -597,7 +599,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private boolean handleTokenValidation(TokenValidation validation, String originalToken, HttpServletRequest request, HttpServletResponse response) {
         if (validation.isValid() && isAuthenticated(validation.getUser())) {
             if (!originalToken.equals(validation.getToken())) {
-                response.addCookie(createTokenCookie(validation.getToken(), "/"));
+                response.addCookie(createTokenCookie(request.isSecure(),validation.getToken(), "/"));
             }
             return allow(request, response, validation.getUser().get(), validation.getToken());
         } else {
@@ -649,8 +651,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 e.printStackTrace();
             }
             String token = Objects.requireNonNull(userJWT).getToken();
-            response.addCookie(createTokenCookie(token, "/"));
-            response.addCookie(createSessionCookie(Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes()), "/"));
+            response.addCookie(createTokenCookie(request.isSecure(), token, "/"));
+            response.addCookie(createSessionCookie(request.isSecure(),Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes()), "/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
