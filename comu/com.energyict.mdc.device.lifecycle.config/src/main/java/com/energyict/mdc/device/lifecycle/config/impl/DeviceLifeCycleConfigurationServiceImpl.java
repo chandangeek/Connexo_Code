@@ -41,7 +41,6 @@ import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.common.device.lifecycle.config.Constants;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
@@ -175,7 +174,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                         Version.version(10, 3), UpgraderV10_3.class,
                         Version.version(10, 4), UpgraderV10_4.class,
                         Version.version(10, 6), UpgraderV10_6.class,
-                        Version.version(10, 8), UpgraderV10_8.class));
+                        Version.version(10, 9), UpgraderV10_9.class));
 
         readProperties(bundleContext);
     }

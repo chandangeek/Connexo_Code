@@ -11,17 +11,17 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_8 implements Upgrader {
+public class UpgraderV10_9 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject
-    public UpgraderV10_8(DataModel dataModel) {
+    public UpgraderV10_9(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
         execute(dataModel, "alter table DLD_DEVICE_LIFE_CYCLE drop " +
                 "(MAXPASTEFFTIMESHIFTUNIT, MAXPASTEFFTIMESHIFTVALUE, MAXFUTUREEFFTIMESHIFTUNIT, MAXFUTUREEFFTIMESHIFTVALUE);",
                 "alter table DLD_DEVICE_LIFE_CYCLEJRNL drop " +

@@ -37,10 +37,10 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar().notNull().map(DeviceLifeCycleImpl.Fields.NAME.fieldName()).add();
             Column obsoleteTimestamp = table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
             Column stateMachine = table.column("FSM").number().notNull().add();
-            table.column("MAXFUTUREEFFTIMESHIFTVALUE").number().upTo(Version.version(10, 8)).add();
-            table.column("MAXFUTUREEFFTIMESHIFTUNIT").number().upTo(Version.version(10, 8)).add();
-            table.column("MAXPASTEFFTIMESHIFTVALUE").number().upTo(Version.version(10, 8)).add();
-            table.column("MAXPASTEFFTIMESHIFTUNIT").number().notNull().upTo(Version.version(10, 8)).add();
+            table.column("MAXFUTUREEFFTIMESHIFTVALUE").number().upTo(Version.version(10, 9)).add();
+            table.column("MAXFUTUREEFFTIMESHIFTUNIT").number().upTo(Version.version(10, 9)).add();
+            table.column("MAXPASTEFFTIMESHIFTVALUE").number().upTo(Version.version(10, 9)).add();
+            table.column("MAXPASTEFFTIMESHIFTUNIT").number().notNull().upTo(Version.version(10, 9)).add();
             table.primaryKey("PK_DLD_DEVICELIFECYCLE").on(id).add();
             table.unique("UK_DLD_DEVICELIFECYCLENAME").on(name, obsoleteTimestamp).add();
             table.foreignKey("FK_DLD_FSM")
