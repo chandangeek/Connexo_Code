@@ -94,6 +94,18 @@ public enum TableSpecs {
                     .map(KeyImpl.Fields.HSM_JSS_KEY_TYPE.fieldName())
                     .since(version(10,4,3))
                     .add();
+            table.column("SERVICEKEY")
+                    .bool()
+                    .map(KeyImpl.Fields.SERVICEKEY.fieldName())
+                    .since(version(10, 8))
+                    .installValue("'N'")
+                    .notNull(false)
+                    .add();
+            table.column("WRAPPED_KEY")
+                    .varChar(Table.MAX_STRING_LENGTH)
+                    .map(KeyImpl.Fields.WRAPPED_KEY.fieldName())
+                    .since(version(10, 8))
+                    .add();
             table.foreignKey("SSM_FK_SYMKEY_KT").on(keyTypeColumn)
                     .references(KeyType.class)
                     .map(PlaintextSymmetricKeyImpl.Fields.KEY_TYPE.fieldName())
