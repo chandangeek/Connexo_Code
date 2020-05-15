@@ -8,15 +8,15 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.CertificateDAO;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.CertificateRenewalService;
+import com.energyict.mdc.device.data.SecurityAccessorDAO;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.pki.tasks.command.CommandExecutorFactory;
 
 import com.google.inject.Inject;
 import org.osgi.framework.BundleContext;
@@ -27,6 +27,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory",
         service = {CertificateRenewalService.class, MessageHandlerFactory.class},
@@ -34,12 +35,12 @@ import java.util.Optional;
                 "destination=" + CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME},
         immediate = true)
 public class CertificateRenewalHandlerFactory implements CertificateRenewalService, MessageHandlerFactory {
+    private volatile EventService eventService;
     private volatile TaskService taskService;
     private volatile OrmService ormService;
+    private volatile CertificateDAO certificateDAO;
+    private volatile SecurityAccessorDAO securityAccessorDAO;
     private volatile BpmService bpmService;
-    private volatile NlsService nlsService;
-    private volatile EventService eventService;
-    private volatile Thesaurus thesaurus;
     private volatile Clock clock;
 
     // felix config properties
@@ -63,16 +64,11 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     public CertificateRenewalHandlerFactory(BundleContext bundleContext,
                                             TaskService taskService,
                                             OrmService ormService,
-                                            BpmService bpmService,
-                                            Clock clock,
-                                            NlsService nlsService, EventService eventService) {
+                                            BpmService bpmService) {
         this();
         setTaskService(taskService);
         setOrmService(ormService);
         setBpmService(bpmService);
-        setEventService(eventService);
-        setClock(clock);
-        setNlsService(nlsService);
         activate(bundleContext);
     }
 
@@ -105,8 +101,13 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     }
 
     @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
+    public void setCertificateDAO(CertificateDAO certificateDAO) {
+        this.certificateDAO = certificateDAO;
+    }
+
+    @Reference
+    public void setSecurityAccessorDAO(SecurityAccessorDAO securityAccessorDAO) {
+        this.securityAccessorDAO = securityAccessorDAO;
     }
 
     @Reference
@@ -115,9 +116,10 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
+
 
     @Activate
     public void activate(BundleContext bundleContext) {
@@ -133,8 +135,8 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CertificateRenewalTaskExecutor(ormService, bpmService, eventService, clock, certRenewalBpmProcessDefinitionId,
-                certRenewalExpitationDays));
+        return taskService.createMessageHandler(new CertificateRenewalTaskExecutor(certificateDAO, securityAccessorDAO, new CommandExecutorFactory(), clock, eventService, bpmService, certRenewalBpmProcessDefinitionId,
+                certRenewalExpitationDays, Logger.getAnonymousLogger()));
     }
 
     @Override
@@ -144,8 +146,8 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
 
     @Override
     public TaskOccurrence runNow() {
-        return getTask().runNow(new CertificateRenewalTaskExecutor(ormService, bpmService, eventService, clock, certRenewalBpmProcessDefinitionId,
-                certRenewalExpitationDays));
+        return getTask().runNow(new CertificateRenewalTaskExecutor(certificateDAO, securityAccessorDAO, new CommandExecutorFactory(), clock, eventService, bpmService, certRenewalBpmProcessDefinitionId,
+                certRenewalExpitationDays, Logger.getAnonymousLogger()));
     }
 
     private void getTaskProperties(BundleContext bundleContext) {

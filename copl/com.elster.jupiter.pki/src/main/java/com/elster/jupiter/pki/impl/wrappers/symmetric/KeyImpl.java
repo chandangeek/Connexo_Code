@@ -70,7 +70,9 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
         SMARTMETER_KEY("smartMeterKey"),
         KEY_TYPE("keyTypeReference"),
         EXPIRATION("expirationTime"),
-        HSM_JSS_KEY_TYPE("hsmJssKeyType");
+        HSM_JSS_KEY_TYPE("hsmJssKeyType"),
+        SERVICEKEY("serviceKey"),
+        WRAPPED_KEY("wrappedKey");
 
         private final String fieldName;
 
@@ -89,4 +91,12 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
                     "H", HsmKeyImpl.class,
                     "P", PlaintextSymmetricKeyImpl.class);
 
+    @Override
+    public String toString() {
+        return "KeyImpl{" +
+                "id=" + id +
+                ", encryptedKey='" + encryptedKey + '\'' +
+                ", expirationTime=" + expirationTime +
+                '}';
+    }
 }

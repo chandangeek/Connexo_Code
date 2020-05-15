@@ -68,8 +68,10 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
         readingTypes
                 .forEach(builder -> {
                     MeterReadingTypeConfigurationImpl config = MeterReadingTypeConfigurationImpl.from(meterConfiguration, (IReadingType) builder.measured);
-                    config.setOverflowValue(builder.overflowValue);
-                    config.setNumberOfFractionDigits(builder.numberOfFractionDigits);
+                    if (builder.overflowValue != null)
+                        config.setOverflowValue(builder.overflowValue);
+                    if (builder.numberOfFractionDigits != null)
+                        config.setNumberOfFractionDigits(builder.numberOfFractionDigits);
                     if (builder.calculated != null) {
                         config.setMultiplication((IReadingType) builder.calculated, builder.multiplierType);
                     }

@@ -22,8 +22,6 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.HsmException;
 import com.energyict.protocolimpl.base.CRCGenerator;
@@ -50,7 +48,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.getHexStringFromBytes;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.DEFAULT_KEY;
@@ -149,7 +146,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
                     .filter(slaveDevice -> slaveDevice.getSerialNumber().equals(slaveSerialNumber))
                     .findFirst()
                     .map(slaveDevice -> slaveDevice.getAllProperties().getTypedProperty(FUAK))
-                    .map(fuakProperty -> fuakProperty.toString())
+                    .map(Object::toString)
                     .orElseThrow(() -> new ConfigurationException("Property '" + FUAK + "' is not set"));
     }
 
@@ -247,7 +244,6 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-            collectedMessage.setDeviceProtocolInformation(getHexStringFromBytes(p2KeyData.getSmartMeterKey()));
             return collectedMessage;
         } catch (ConfigurationException | IOException e) {
             String msg = "doTransferMBusKeyCrypto exception:" + e.getCause() + " " + e.getMessage();
@@ -366,8 +362,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
         byte[] encryptedImage;
 
-        //ProtectedSessionKey protectedFUAK = EncryptedKeyPhase2.fromDataBaseString(fuakRaw).toProtectedSessionKey();
-        IrreversibleKey irreversibleFUAK = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(fuakRaw));
+        IrreversibleKey irreversibleFUAK = new IrreversibleKeyImpl(fuakRaw);
         journal(Level.INFO, "protectedFUAK value: " + irreversibleFUAK);
 
         MacResponse macResponse;

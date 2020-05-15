@@ -198,4 +198,6 @@ public interface OfflineDevice extends Offline {
      */
     List<OfflineDeviceMessage> getAllInvalidPendingDeviceMessages();
 
+    default String getProtocolName() { return ""; }
+
 }

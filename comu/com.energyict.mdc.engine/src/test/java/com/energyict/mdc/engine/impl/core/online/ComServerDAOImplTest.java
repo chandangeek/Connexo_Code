@@ -262,8 +262,8 @@ public class ComServerDAOImplTest {
         comServerDAO.releaseTimedOutTasks(comPort);
 
         // Asserts
-        verify(connectionTaskService).releaseTimedOutConnectionTasks(comPort);
-        verify(communicationTaskService).releaseTimedOutComTasks(comPort);
+        verify(connectionTaskService).findTimedOutConnectionTasksByComPort(comPort);
+        verify(communicationTaskService).findTimedOutComTasksByComPort(comPort);
     }
 
     @Test

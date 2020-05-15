@@ -24,10 +24,15 @@ import java.util.stream.Collectors;
 
 public class KeyRenewalCommand extends EndDeviceCommandImpl {
 
+    private boolean forServiceKey;
     private List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypes;
 
     public KeyRenewalCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         super(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+    }
+
+    public void setServiceKey(boolean serviceKey) {
+        forServiceKey = serviceKey;
     }
 
     @Override
@@ -67,7 +72,7 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
 
         //set all required commands attributes, but exclude the ones not filled in.
         //On security accessor all other properties are filled in except the ones referring to security accessor
-        securityAccessorTypeOnDeviceType.getKeyRenewalAttributes()
+        (forServiceKey ? securityAccessorTypeOnDeviceType.getServiceKeyRenewalAttributes() : securityAccessorTypeOnDeviceType.getKeyRenewalAttributes())
                 .stream()
                 .filter(securityAccessorTypeKeyRenewal -> securityAccessorTypeKeyRenewal.getValue() != null)
                 .forEach(securityAccessorTypeKeyRenewal -> setPropertyValue(securityAccessorTypeKeyRenewal.getSpecification(), securityAccessorTypeKeyRenewal.getValue()));
@@ -96,6 +101,11 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
     }
 
     private DeviceMessageId extractDeviceMessageId(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
+        if (forServiceKey) {
+            return securityAccessorTypeOnDeviceType.getServiceKeyRenewalDeviceMessageId()
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SERVICE_KEY_RENEWAL_COMMAND_CONFIGURED)
+                            .format(securityAccessorTypeOnDeviceType.getSecurityAccessorType().getName())));
+        }
         return securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageId()
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_KEY_RENEWAL_COMMAND_CONFIGURED)
                         .format(securityAccessorTypeOnDeviceType.getSecurityAccessorType().getName())));

@@ -817,8 +817,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(dataExportItem.getReadingContainer()).thenReturn(readingContainer);
         ReadingType readingType = mockReadingType();
         when(dataExportItem.getReadingType()).thenReturn(readingType);
-        when(dataExportItem.getLastExportedDate()).thenReturn(Optional.empty());
-        when(dataExportItem.getLastExportedPeriodEnd()).thenReturn(Optional.empty());
+        when(dataExportItem.getLastExportedChangedData()).thenReturn(Optional.empty());
+        when(dataExportItem.getLastExportedNewData()).thenReturn(Optional.empty());
         return dataExportItem;
     }
 

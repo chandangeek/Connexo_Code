@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -51,6 +52,7 @@ import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConfl
 
 import java.util.List;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -833,7 +835,7 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column originDeviceConfig = table.column("ORIGINDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column destinationDeviceConfig = table.column("DESTINATIONDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("SOLVED").type("char(1)").notNull().map(DeviceConfigConflictMappingImpl.Fields.SOLVED.fieldName()).conversion(ColumnConversion.CHAR2BOOLEAN).add();
+            table.column("SOLVED").type("char(1)").notNull().map(DeviceConfigConflictMappingImpl.Fields.SOLVED.fieldName()).conversion(CHAR2BOOLEAN).add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_CONFLMAP").on(id).add();
             table.foreignKey("FK_DTC_CONFLMAPDEVTYPE")
@@ -1037,6 +1039,7 @@ public enum TableSpecs {
                    .since(Version.version(10, 6))
                    .add();
             table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.KEYRENEWALMESSAGEID.name()).number().conversion(NUMBER2LONG).map("keyRenewalMessageIdIdDbValue").since(version(10, 7)).add();
+            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SERVICEKEYRENEWALMSGID.name()).number().conversion(NUMBER2LONG).map("serviceKeyRenewalMessageIdDbValue").since(version(10, 8)).add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
             table.addAuditColumns();
             table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
@@ -1070,10 +1073,17 @@ public enum TableSpecs {
             Column deviceType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.name()).number().notNull().add();
             Column secAccType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.name()).number().notNull().add();
             Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
+            Column servKey = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.name())
+                    .bool()
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SERVICEKEY.fieldName())
+                    .since(version(10, 8))
+                    .installValue("'N'")
+                    .add();
             table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
             table.addAuditColumns();
-            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).add();
+            PrimaryKeyConstraint previousConstraint = table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).upTo(version(10, 8)).add();
+            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name, servKey).since(version(10, 8)).previously(previousConstraint).add();
             table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_DT")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceType)
