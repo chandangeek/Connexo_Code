@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Path("/systemproperties")
@@ -40,12 +41,12 @@ public class SystemPropertyResource {
     public Response getSystemProperties() {
 
         List<SystemProperty> sysPropsList = systemPropertyService.getAllSystemProperties();
-
         List<PropertyInfo> propertyInfos = new ArrayList<>();
 
         for (SystemProperty sp : sysPropsList){
             SystemPropertySpec spec = systemPropertyService.findPropertySpec(sp.getKey()).get();
-            PropertyInfo info = spec.preparePropertyInfo(sp);
+            Object val = spec.getPropertySpec().getValueFactory().fromStringValue(sp.getValue());
+            PropertyInfo info = propertyValueInfoService.getPropertyInfo(spec.getPropertySpec(), key -> val);
             propertyInfos.add(info);
         }
 
@@ -65,7 +66,13 @@ public class SystemPropertyResource {
 
         for (PropertyInfo property : propertiesToUpdate) {
             SystemPropertySpec spec = systemPropertyService.findPropertySpec(property.key).get();
-            systemPropertyService.setPropertyValue(property.key, spec.convertValueToString(property));
+            List<PropertyInfo> propses = new ArrayList();
+            propses.add(property);
+            Object value = propertyValueInfoService.findPropertyValue(spec.getPropertySpec(), (Collection<PropertyInfo>) propses);
+
+            String valueStr =  spec.getPropertySpec().getValueFactory().toStringValue(value);
+
+            systemPropertyService.setPropertyValue(property.key, valueStr /*spec.convertValueToString(property)*/);
         }
 
         return Response.ok().build();

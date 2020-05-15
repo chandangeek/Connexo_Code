@@ -71,11 +71,6 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     }
 
     @Reference
-    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
-        this.propertyValueInfoService = propertyValueInfoService;
-    }
-
-    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -170,7 +165,6 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
-                bind(PropertyValueInfoService.class).toInstance(propertyValueInfoService);
             }
         };
     }

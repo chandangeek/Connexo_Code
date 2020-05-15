@@ -11,6 +11,5 @@ public interface SystemPropertySpec {
 
     String getKey();
     void actionOnChange(SystemProperty property);
-    PropertyInfo preparePropertyInfo(SystemProperty property);
-    String convertValueToString(PropertyInfo propertyInfo);
+    PropertySpec getPropertySpec();
 }
