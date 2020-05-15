@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.SecurityManagementService;
-
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -30,23 +29,25 @@ import org.ejbca.core.protocol.ws.RevokeStatus;
 import org.ejbca.core.protocol.ws.UserDataVOWS;
 import org.ejbca.core.protocol.ws.UserDoesntFullfillEndEntityProfile_Exception;
 import org.ejbca.core.protocol.ws.WaitingForApprovalException_Exception;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import org.osgi.framework.BundleContext;
 
 import javax.security.auth.x500.X500Principal;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,9 +68,6 @@ public class CaServiceImplTest {
     private static final String CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
     private static final String SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate";
     private static final String MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate";
-    private static final String CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
-    private static final String CERT_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
-    private static final String EE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
 
     private static final String PKI_HOST_PROPERTY_VALUE = "127.0.0.1";
     private static final String PKI_PORT_PROPERTY_VALUE = "8443";
@@ -102,6 +100,8 @@ public class CaServiceImplTest {
     @Mock
     private CertificateResponse certificateResponse;
 
+    private X509Certificate x509Certificate;
+
     @Mock
     private CertificateAuthoritySearchFilter certificateAuthoritySearchFilter;
     @Mock
@@ -109,6 +109,10 @@ public class CaServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
+
+        x509Certificate = (X509Certificate) CertificateFactory.getInstance("X.509")
+                .generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(demoCertificate)));
+
         when(bundleContext.getProperty(PKI_HOST_PROPERTY)).thenReturn(PKI_HOST_PROPERTY_VALUE);
         when(bundleContext.getProperty(PKI_PORT_PROPERTY)).thenReturn(PKI_PORT_PROPERTY_VALUE);
         when(bundleContext.getProperty(CXO_TRUSTSTORE_PROPERTY)).thenReturn(CXO_TRUSTSTORE_PROPERTY_VALUE);
@@ -116,9 +120,6 @@ public class CaServiceImplTest {
                 .thenReturn(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY_VALUE);
         when(bundleContext.getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY))
                 .thenReturn(MANAGEMENT_CLIENT_ALIAS_PROPERTY_VALUE);
-        when(bundleContext.getProperty(CA_NAME_PROPERTY)).thenReturn(CA_NAME_PROPERTY_VALUE);
-        when(bundleContext.getProperty(CERT_PROFILE_NAME_PROPERTY)).thenReturn(CERT_PROFILE_NAME_PROPERTY_VALUE);
-        when(bundleContext.getProperty(EE_PROFILE_NAME_PROPERTY)).thenReturn(EE_PROFILE_NAME_PROPERTY_VALUE);
         when(nlsService.getThesaurus(CaService.COMPONENTNAME, Layer.DOMAIN)).thenReturn(thesaurus);
         when(ejbcaWS.getEjbcaVersion()).thenReturn(PKI_VERSION);
         NameAndId nameAndId = new NameAndId();
@@ -131,7 +132,8 @@ public class CaServiceImplTest {
         when(ejbcaWS.getAvailableCAsInProfile(nameAndId.getId())).thenReturn(nameAndIds);
         when(ejbcaWS.getAvailableCertificateProfiles(nameAndId.getId())).thenReturn(nameAndIds);
 
-        when(certificateResponse.getData()).thenReturn(demoCertificate.getBytes());
+        when(certificateResponse.getData()).thenReturn(Base64.getEncoder().encode(x509Certificate.getEncoded()));
+        when(certificateResponse.getResponseType()).thenReturn("CERTIFICATE");
         when(ejbcaWS
                 .certificateRequest(any(UserDataVOWS.class), any(String.class), any(Integer.class), any(String.class), any(String.class)))
                 .thenReturn(certificateResponse);
@@ -178,21 +180,6 @@ public class CaServiceImplTest {
     @Test
     public void testGetManagementClientAliasProperty() {
         verify(bundleContext, times(1)).getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY);
-    }
-
-    @Test
-    public void testGetCaNameProperty() {
-        verify(bundleContext, times(1)).getProperty(CA_NAME_PROPERTY);
-    }
-
-    @Test
-    public void testGetCertProfileNameProperty() {
-        verify(bundleContext, times(1)).getProperty(CERT_PROFILE_NAME_PROPERTY);
-    }
-
-    @Test
-    public void testGetEndEntityProfileNameProperty() {
-        verify(bundleContext, times(1)).getProperty(EE_PROFILE_NAME_PROPERTY);
     }
 
     @Test

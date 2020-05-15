@@ -7,11 +7,13 @@ package com.energyict.mdc.device.data.importers.impl;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
+import com.energyict.mdc.device.data.importers.impl.devices.topology.DeviceTopologyImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.properties.DateFormatPropertySpec;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
@@ -106,8 +108,36 @@ public enum DeviceDataImporterProperty {
                 }
             }
         }
-    };
+    },
 
+    DEVICE_IDENTIFIER(TranslationKeys.DEVICE_TOPOLOGY_IMPORTER_DEVICE_IDENTIFIER, TranslationKeys.DEVICE_TOPOLOGY_IMPORTER_DEVICE_IDENTIFIER_DESCRIPTION) {
+        @Override
+        public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
+            return context.getPropertySpecService()
+                    .stringSpec()
+                    .named(this.getPropertyKey(), this.getNameTranslationKey())
+                    .describedAs(this.getDescriptionTranslationKey())
+                    .fromThesaurus(context.getThesaurus())
+                    .markRequired()
+                    .markExhaustive(PropertySelectionMode.COMBOBOX)
+                    .addValues( DeviceTopologyImporterFactory.DEVICE_IDENTIFIER_SERIAL, DeviceTopologyImporterFactory.DEVICE_IDENTIFIER_NAME)
+                    .setDefaultValue(DeviceTopologyImporterFactory.DEVICE_IDENTIFIER_SERIAL)
+                    .finish();
+        }
+    },
+
+    ALLOW_REASSIGNING(TranslationKeys.DEVICE_TOPOLOGY_IMPORTER_ALLOW_REASSIGNING, TranslationKeys.DEVICE_TOPOLOGY_IMPORTER_ALLOW_REASSIGNING_DESCRIPTION) {
+        @Override
+        public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
+            return context.getPropertySpecService()
+                    .booleanSpec()
+                    .named(this.getPropertyKey(), this.getNameTranslationKey())
+                    .describedAs(this.getDescriptionTranslationKey())
+                    .fromThesaurus(context.getThesaurus())
+                    .setDefaultValue(Boolean.FALSE)
+                    .finish();
+        }
+    };
     private final TranslationKeys nameTranslationKey;
     private final TranslationKeys descriptionTranslationKey;
 

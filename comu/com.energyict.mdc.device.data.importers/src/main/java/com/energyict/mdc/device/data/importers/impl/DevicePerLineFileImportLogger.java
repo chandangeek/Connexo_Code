@@ -4,51 +4,10 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
-
-public class DevicePerLineFileImportLogger extends FileImportLoggerImpl<FileImportRecord> {
-
-    private int linesWithError = 0;
-    private int linesProcessed = 0;
-    private int linesWithWarnings = 0;
-    private boolean hasWarnings = false;
+public class DevicePerLineFileImportLogger extends AbstractPerLineFileImportLogger {
 
     public DevicePerLineFileImportLogger(DeviceDataImporterContext context) {
         super(context);
-    }
-
-    @Override
-    public void warning(MessageSeed message, Object... arguments) {
-        super.warning(message, arguments);
-        hasWarnings = true;
-    }
-
-    @Override
-    public void warning(TranslationKey message, Object... arguments) {
-        super.warning(message, arguments);
-        hasWarnings = true;
-    }
-
-    @Override
-    public void importLineFinished(FileImportRecord data) {
-        super.importLineFinished(data);
-        linesProcessed++;
-        if (hasWarnings) {
-            linesWithWarnings++;
-        }
-    }
-
-    @Override
-    public void importLineFailed(FileImportRecord data, Exception exception) {
-        super.importLineFailed(data, exception);
-        this.linesWithError++;
-    }
-
-    @Override
-    public void importLineFailed(long lineNumber, Exception exception) {
-        super.importLineFailed(lineNumber, exception);
-        this.linesWithError++;
     }
 
     protected void summarizeFailedImport() {

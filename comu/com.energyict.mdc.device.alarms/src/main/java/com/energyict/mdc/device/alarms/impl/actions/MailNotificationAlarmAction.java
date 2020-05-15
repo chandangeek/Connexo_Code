@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.alarms.impl.actions;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -12,6 +13,7 @@ import com.elster.jupiter.properties.rest.MailPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmServiceImpl;
+import com.energyict.mdc.device.alarms.impl.event.IncompleteEmailConfigurationException;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +45,8 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     private Issue issue;
     private DeviceAlarmService deviceAlarmService;
+    private PasswordDecryptService passwordDecryptService;
+
     private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
     private static final String MAIL_SMTP_PORT_PROPERTY = "mail.smtp.port";
     private static final String MAIL_USER_PROPERTY = "mail.user";
@@ -50,14 +54,17 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
     private static final String MAIL_FROM_PROPERTY = "mail.from";
 
     private String smtpHost;
+    private String smtpPort;
     private String user;
     private String password;
     private String fromAddress;
     @Inject
-    public MailNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, com.energyict.mdc.dynamic.PropertySpecService propertySpecService, DeviceAlarmService deviceAlarmService)
+    public MailNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, com.energyict.mdc.dynamic.PropertySpecService propertySpecService,
+                                       DeviceAlarmService deviceAlarmService, PasswordDecryptService passwordDecryptService)
     {
         super(dataModel, thesaurus, propertySpecService);
         this.deviceAlarmService =deviceAlarmService ;
+        this.passwordDecryptService = passwordDecryptService;
     }
 
 
@@ -137,14 +144,38 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         Properties props = new Properties();
         BundleContext bundleContext = ((DeviceAlarmServiceImpl)deviceAlarmService).getBundleContext().get();
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
-        password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        String encryptedPassword = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        password = passwordDecryptService.getDecryptPassword(encryptedPassword, bundleContext.getProperty("com.elster.jupiter.datasource.keyfile"));
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
         smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
+        smtpPort = bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
+        validateMailProperties();
         props.put("mail.smtp.host", smtpHost);
-        props.put("mail.smtp.port", bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY));
+        props.put("mail.smtp.port", smtpPort);
         props.setProperty("mail.smtp.user", user);
         props.setProperty("mail.smtp.password", password);
+        props.setProperty("mail.smtp.from", fromAddress);
         return props;
+    }
+
+    private void validateMailProperty(String propertyName, String value, List<String> badPropertiesCollector){
+        if (value == null || value.isEmpty()){
+            badPropertiesCollector.add(propertyName);
+        }
+    }
+
+    private void validateMailProperties(){
+        List<String> badProperties = new ArrayList<>();
+        validateMailProperty(MAIL_SMTP_HOST_PROPERTY, this.smtpHost, badProperties);
+        validateMailProperty(MAIL_SMTP_PORT_PROPERTY, this.smtpPort, badProperties);
+        validateMailProperty(MAIL_FROM_PROPERTY, this.fromAddress, badProperties);
+        validateMailProperty(MAIL_USER_PROPERTY, this.user, badProperties);
+        /* password is not mandatory
+        validateMailProperty(MAIL_PASSWORD_PROPERTY, this.password, badProperties);
+        */
+        if (!badProperties.isEmpty()){
+            throw new IncompleteEmailConfigurationException(this.getThesaurus(), badProperties.toArray(new String[badProperties.size()]));
+        }
     }
 
     @SuppressWarnings("unchecked")

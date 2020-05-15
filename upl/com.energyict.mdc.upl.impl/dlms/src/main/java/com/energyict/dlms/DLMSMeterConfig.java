@@ -22,6 +22,7 @@ public class DLMSMeterConfig {
     /**
      * String indicator for the ActionResponse Fix
      */
+    @SuppressWarnings("unused")
     public final static String OLD = "OLD";
     /**
      * String indicator for the encrypted HLS step 3 and 4 Fix
@@ -31,8 +32,8 @@ public class DLMSMeterConfig {
     /**
      * A regular Expression for the splitting of the {@link #manuf} string
      */
-    private static String splitter = "::";
-    private static DLMSConfig config = DLMSConfig.getInstance();
+    private static final String splitter = "::";
+    private static final DLMSConfig config = DLMSConfig.getInstance();
     private UniversalObject[] IOL = null;
     /**
      * @return Value of property COL.
@@ -68,7 +69,7 @@ public class DLMSMeterConfig {
                 setExtra("");
             }
         } else {
-            setManufacturer(manuf);
+            setManufacturer(null);
             setExtra("");
         }
     }
@@ -85,9 +86,10 @@ public class DLMSMeterConfig {
         return new DLMSMeterConfig(manuf);
     }
 
+    @SuppressWarnings("unused")
     public void reportIOL() {
-        for (int i = 0; i < IOL.length; i++) {
-            System.out.println(IOL[i].toString());
+        for (UniversalObject universalObject : IOL) {
+            System.out.println(universalObject.toString());
         }
     }
 
@@ -137,9 +139,9 @@ public class DLMSMeterConfig {
 
     public UniversalObject findObject(ObisCode obisCode) throws NotInObjectListException {
         checkEmptyObjectList("DLMSMeterConfig, getSN, IOL empty!");
-        for (int i = 0; i < IOL.length; i++) {
-            if (IOL[i].equals(obisCode)) {
-                return IOL[i];
+        for (UniversalObject universalObject : IOL) {
+            if (universalObject.equals(obisCode)) {
+                return universalObject;
             }
         }
         throw new NotInObjectListException("DLMSMeterConfig, findObject, " + obisCode.toString() + " not found in meter's instantiated object list!");
@@ -149,20 +151,19 @@ public class DLMSMeterConfig {
      * Find the {@link ObisCode} in the {@link UniversalObject} list of the
      * meter, and return the BaseName (SN) of the DLMS object
      *
-     * @param obisCode
-     * @return
-     * @throws NotInObjectListException
+     * @param obisCode the ObisCode to check
+     * @return int the SN for the given ObisCode
+     * @throws NotInObjectListException when the ObisCode is not listed in the IOL
      */
     public int getSN(ObisCode obisCode) throws NotInObjectListException {
         checkEmptyObjectList("DLMSMeterConfig, getSN, IOL empty!");
-        for (int i = 0; i < IOL.length; i++) {
-            if (IOL[i].equals(obisCode)) {
-                return IOL[i].getBaseName();
+        for (UniversalObject universalObject : IOL) {
+            if (universalObject.equals(obisCode)) {
+                return universalObject.getBaseName();
             }
         }
         throw new NotInObjectListException("DLMSMeterConfig, getSN, " + obisCode.toString() + " not found in meter's instantiated object list!");
     }
-
 
     private void checkEmptyObjectList(String msg) {
         if (IOL == null) {
@@ -173,80 +174,85 @@ public class DLMSMeterConfig {
 
     public int getClassId(ObisCode obisCode) throws NotInObjectListException {
         checkEmptyObjectList("DLMSMeterConfig, getSN, IOL empty!");
-        for (int i = 0; i < IOL.length; i++) {
-            if (IOL[i].equals(obisCode)) {
-                int classId = IOL[i].getClassID();
-                return classId;
+        for (UniversalObject universalObject : IOL) {
+            if (universalObject.equals(obisCode)) {
+                return universalObject.getClassID();
             }
         }
         throw new NotInObjectListException("DLMSMeterConfig, getClassId, " + obisCode.toString() + " not found in meter's instantiated object list!");
     }
 
-    public int getProfileSN() throws NotInObjectListException {
+    public int getProfileSN() {
         return config.getProfileSN(IOL);
     }
 
-    public int getEventLogSN() throws NotInObjectListException {
-        return config.getEventLogSN(IOL);
+    @SuppressWarnings("unused")
+    public int getEventLogSN() {
+        return config.getEventLogSN(IOL, manuf);
     }
 
-    public int getHistoricValuesSN() throws NotInObjectListException {
+    public int getHistoricValuesSN() {
         return config.getHistoricValuesSN(IOL);
     }
 
-    public int getResetCounterSN() throws NotInObjectListException {
+    public int getResetCounterSN() {
         return config.getResetCounterSN(IOL);
     }
 
-    public int getClockSN() throws NotInObjectListException {
+    public int getClockSN() {
         return config.getClockSN(IOL);
     }
 
-    public int getConfigSN() throws NotInObjectListException {
+    @SuppressWarnings("unused")
+    public int getConfigSN() {
         return config.getConfigSN(IOL, manuf);
     }
 
-    public int getVersionSN() throws NotInObjectListException {
+    @SuppressWarnings("unused")
+    public int getVersionSN() {
         return config.getVersionSN(IOL, manuf);
     }
 
-    public int getSerialNumberSN() throws NotInObjectListException {
+    @SuppressWarnings("unused")
+    public int getSerialNumberSN() {
         return config.getSerialNumberSN(IOL, manuf);
     }
 
-    public int getIPv4SetupSN() throws NotInObjectListException {
+    public int getIPv4SetupSN() {
         return config.getIPv4SetupSN(IOL);
     }
 
-    public int getP3ImageTransferSN() throws NotInObjectListException {
+    public int getP3ImageTransferSN() {
         return config.getP3ImageTransferSN(IOL);
     }
 
-    public int getDisconnectorSN() throws NotInObjectListException {
+    public int getDisconnectorSN() {
         return config.getDisconnectorSN(IOL);
     }
 
-    public int getDisconnectorScriptTableSN() throws NotInObjectListException {
+    @SuppressWarnings("unused")
+    public int getDisconnectorScriptTableSN() {
         return config.getDisconnectorScriptTableSN(IOL);
     }
 
-    public int getLimiterSN() throws NotInObjectListException {
+    public int getLimiterSN() {
         return config.getLimiterSN(IOL);
     }
 
-    public int getPPPSetupSN() throws NotInObjectListException {
+    public int getPPPSetupSN() {
         return config.getPPPSetupSN(IOL);
     }
 
-    public int getGPRSModemSetupSN() throws NotInObjectListException {
+    public int getGPRSModemSetupSN() {
         return config.getGPRSModemSetupSN(IOL);
     }
 
-    public int getLTEModemSetupSN() throws NotInObjectListException {
+    public int getLTEModemSetupSN() {
         return config.getLTEModemSetupSN(IOL);
     }
 
-    public int getUSBSetupSN() throws NotInObjectListException {
+    @SuppressWarnings("unused")
+    public int getUSBSetupSN() {
         return config.getUSBSetupSN(IOL);
     }
 
@@ -262,10 +268,12 @@ public class DLMSMeterConfig {
         return config.getPowerFailureLog(IOL, manuf);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getCommunicationSessionLogObject() throws NotInObjectListException {
         return config.getCommunicationSessionLog(IOL, manuf);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getVoltageQualityLogObject() throws NotInObjectListException {
         return config.getVoltageQualityLog(IOL, manuf);
     }
@@ -278,14 +286,17 @@ public class DLMSMeterConfig {
         return config.getMbusEventLog(IOL, manuf);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getProfileObject() throws NotInObjectListException {
         return config.getProfileObject(IOL);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getDailyProfileObject() throws NotInObjectListException {
         return config.getDailyProfileObject(IOL, manuf);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getMonthlyProfileObject() throws NotInObjectListException {
         return config.getMonthlyProfileObject(IOL, manuf);
     }
@@ -294,6 +305,7 @@ public class DLMSMeterConfig {
         return config.getClockObject(IOL);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getStatusObject() throws NotInObjectListException {
         return config.getStatusObject(IOL, manuf);
     }
@@ -310,20 +322,22 @@ public class DLMSMeterConfig {
         return config.getSerialNumberObject(IOL, manuf);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getIPv4SetupObject() throws NotInObjectListException {
         return config.getIPv4SetupObject(IOL);
     }
 
     public UniversalObject getObject(DLMSObis dlmsObis) throws NotInObjectListException {
         checkEmptyObjectList("DLMSMeterConfig, objectlist (IOL) empty!");
-        for (int i = 0; i < IOL.length; i++) {
-            if (IOL[i].equals(dlmsObis)) {
-                return IOL[i];
+        for (UniversalObject universalObject : IOL) {
+            if (universalObject.equals(dlmsObis)) {
+                return universalObject;
             }
         }
         throw new NotInObjectListException("DLMSMeterConfig, dlmsObis " + dlmsObis + " not found in objectlist (IOL)!");
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getMeterReadingObject(int id, String deviceId) throws NotInObjectListException {
         return config.getMeterReadingObject(IOL, id, deviceId);
     }
@@ -333,10 +347,10 @@ public class DLMSMeterConfig {
      */
     public UniversalObject getChannelObject(int id) throws NotInObjectListException {
         int count = 0;
-        for (int i = 0; i < COL.length; i++) {
-            if (COL[i].isCapturedObjectNotAbstract()) {
+        for (UniversalObject universalObject : COL) {
+            if (universalObject.isCapturedObjectNotAbstract()) {
                 if (id == count) {
-                    return COL[i];
+                    return universalObject;
                 }
                 count++;
             }
@@ -350,14 +364,14 @@ public class DLMSMeterConfig {
      */
     public UniversalObject getMeterDemandObject(int id) throws NotInObjectListException {
         int count = 0;
-        for (int i = 0; i < COL.length; i++) {
+        for (UniversalObject object : COL) {
             // Changed KV 23022007 to allow also gas and water captured objects
             //if (COL[i].isCapturedObjectElectricity()) {
-            if (COL[i].isCapturedObjectNotAbstract()) {
+            if (object.isCapturedObjectNotAbstract()) {
                 if (id == count) {
-                    for (int t = 0; t < IOL.length; t++) {
-                        if (IOL[t].equals(COL[i])) {
-                            return IOL[t];
+                    for (UniversalObject universalObject : IOL) {
+                        if (universalObject.equals(object)) {
+                            return universalObject;
                         }
                     }
                 }
@@ -372,8 +386,8 @@ public class DLMSMeterConfig {
      */
     public int getNumberOfChannels() throws NotInObjectListException {
         int count = 0;
-        for (int i = 0; i < COL.length; i++) {
-            if (COL[i].isCapturedObjectNotAbstract()) {
+        for (UniversalObject universalObject : COL) {
+            if (universalObject.isCapturedObjectNotAbstract()) {
                 count++;
             }
         }
@@ -417,6 +431,7 @@ public class DLMSMeterConfig {
         return config.getMbusControlLog(IOL, manuf, physicalAddress);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getMbusDisconnectControlState(int physicalAddress) throws NotInObjectListException {
         return config.getMbusDisconnectControlState(IOL, manuf, physicalAddress);
     }
@@ -441,10 +456,12 @@ public class DLMSMeterConfig {
         return config.getDisconnectControlSchedule(IOL);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getMbusStatusObject(int physicalAddress) throws NotInObjectListException {
         return config.getMbusStatusObject(IOL, manuf, physicalAddress);
     }
 
+    @SuppressWarnings("unused")
     public UniversalObject getP3ImageTransfer() throws NotInObjectListException {
         return config.getP3ImageTransfer(IOL);
     }
@@ -493,21 +510,20 @@ public class DLMSMeterConfig {
      * Returns the MBus client for a provided 0-based physicalAddress
      *
      **/
-    public UniversalObject getMbusClient(int physicalAddress) throws NotInObjectListException {
-        return config.getMbusClient(IOL, manuf, physicalAddress);
+    public UniversalObject getMbusClient(int zeroBasedPhysicalAddress) throws NotInObjectListException {
+        return config.getMbusClient(IOL, manuf, zeroBasedPhysicalAddress);
     }
 
     /**
      * Check if a given obisCode exists in the object list of the device
      *
-     * @param obisCode
-     * @return
+     * @param obisCode the ObisCode to check
+     * @return boolean true when the ObisCode exists in the IOL
      */
     public boolean isObisCodeInObjectList(ObisCode obisCode) {
         UniversalObject[] objectList = getInstantiatedObjectList();
         if (objectList != null) {
-            for (int i = 0; i < objectList.length; i++) {
-                UniversalObject universalObject = objectList[i];
+            for (UniversalObject universalObject : objectList) {
                 if (universalObject != null && universalObject.getObisCode().equals(obisCode)) {
                     return true;
                 }
@@ -519,14 +535,13 @@ public class DLMSMeterConfig {
     /**
      * Check if a given obisCode exists in the object list of the device ignoring the B Channel
      *
-     * @param obisCode
-     * @return
+     * @param obisCode then ObisCode to check
+     * @return boolean true when then ObisCodes exists in the IOL (ignoring the B channel)
      */
     public boolean isObisCodeInObjectListIgnoreChannelB(ObisCode obisCode) {
         UniversalObject[] objectList = getInstantiatedObjectList();
         if (objectList != null) {
-            for (int i = 0; i < objectList.length; i++) {
-                UniversalObject universalObject = objectList[i];
+            for (UniversalObject universalObject : objectList) {
                 if (universalObject != null && universalObject.getObisCode().equalsIgnoreBChannel(obisCode)) {
                     return true;
                 }
@@ -540,8 +555,8 @@ public class DLMSMeterConfig {
      * Get the DLMSClassId for a given obisCode from the objectLst.
      * Return DLMSClassId.UNKNOWN is not found.
      *
-     * @param obisCode
-     * @return
+     * @param obisCode the ObisCode to search
+     * @return DLMSClassId the corresponding DLMSClassId or DLMSClassId.UNKNOWN when not found
      */
     public DLMSClassId getDLMSClassId(ObisCode obisCode) {
         for (UniversalObject uo : getInstantiatedObjectList()) {
@@ -573,11 +588,11 @@ public class DLMSMeterConfig {
         this.extra = extra;
     }
 
-    public int getImageTransferSN() throws NotInObjectListException {
+    public int getImageTransferSN() {
         return config.getImageTransferSN(IOL);
     }
 
-    public int getSFSKPhyMacSetupSN() throws NotInObjectListException {
+    public int getSFSKPhyMacSetupSN() {
         return config.getSFSKPhyMacSetupSN(IOL);
     }
 }

@@ -19,7 +19,10 @@ public class RelativePeriodCategoryInfo {
     private RelativePeriodCategoryInfo(Long id, String name, String key) {
         this();
         this.id = id;
-        this.name = name;
+        if(name.equals("relativeperiod.category.issue"))
+            this.name = "Issue";
+        else
+            this.name = name;
         this.key = key;
     }
 

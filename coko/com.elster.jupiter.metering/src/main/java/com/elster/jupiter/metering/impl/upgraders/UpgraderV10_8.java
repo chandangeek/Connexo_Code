@@ -39,5 +39,22 @@ public class UpgraderV10_8 implements Upgrader {
                             "ALTER TABLE " + tableName + " SET INTERVAL (" + PARTITIONSIZE + ")")
             );
         }
+        execute(dataModel, "begin \n " +
+                "  FOR CHANNEL IN (SELECT \n " +
+                "      MTR_CHANNEL.ID as CHANNELID,\n " +
+                "      MTR_CHANNEL.MAINDERIVATIONRULE as MAINDERIVATIONRULE,\n " +
+                "      MTR_CHANNEL.TIMESERIESID as TIMESERIESID,\n " +
+                "      IDS_TIMESERIES.RECORDSPECID as RECORDSPECID\n " +
+                "    FROM MTR_CHANNEL \n " +
+                "       INNER JOIN IDS_TIMESERIES ON IDS_TIMESERIES.ID = MTR_CHANNEL.TIMESERIESID\n " +
+                "       INNER JOIN MTR_READINGTYPEINCHANNEL ON MTR_READINGTYPEINCHANNEL.CHANNNELID = MTR_CHANNEL.ID)\n " +
+                "    loop\n " +
+                "       UPDATE MTR_CHANNEL SET MTR_CHANNEL.MAINDERIVATIONRULE = 1 WHERE  MTR_CHANNEL.ID = CHANNEL.CHANNELID;\n " +
+                "       COMMIT;\n " +
+                "       UPDATE IDS_TIMESERIES SET IDS_TIMESERIES.RECORDSPECID = 7 WHERE  IDS_TIMESERIES.ID = CHANNEL.TIMESERIESID;\n " +
+                "       COMMIT;\n " +
+                "    end loop;\n " +
+                "end;");
+
     }
 }

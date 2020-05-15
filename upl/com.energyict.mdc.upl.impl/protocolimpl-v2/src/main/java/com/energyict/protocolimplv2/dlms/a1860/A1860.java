@@ -83,7 +83,7 @@ public class A1860 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-03-20$";
+        return "$Date: 2020-04-12$";
     }
 
     @Override

@@ -49,6 +49,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED("IssueReasonSyncFailedDescription", "Time sync failed with {0}"),
     ISSUE_REASON_UNKNOWN("IssueReasonUnknown", "Issue Reason Unknown"),
     ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE("IssueReasonUnregisteredDeviceDescription", "Unregistered device {0}"),
+    ISSUE_RELATIVE_PERIOD_CATEGORY("relativeperiod.category.issue", "Issue"),
 
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
     ACTION_RETRY("ActionRetry", "Retry"),

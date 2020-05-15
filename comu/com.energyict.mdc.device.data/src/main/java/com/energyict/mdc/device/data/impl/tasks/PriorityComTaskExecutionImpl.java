@@ -421,4 +421,9 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     public void setXmlType(String ignore) {
         //Ignore, only used for JSON
     }
+
+    @Override
+    public void removeSchedule() {
+        comTaskExecution.removeSchedule();
+    }
 }

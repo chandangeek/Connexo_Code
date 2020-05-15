@@ -105,6 +105,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromD
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.mbusChannel;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
@@ -320,7 +321,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void mbusCommission(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
+        int installChannel = getIntegerAttribute(pendingMessage, mbusChannel);
         int mBusPhysicalAddress = getMBusPhysicalAddress(installChannel);
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (installChannel));
         getProtocol().journal("Installing slave on channel " + installChannel + " using M-Bus Client obis code "+mbusClientObisCode+" and physical address "+mBusPhysicalAddress);

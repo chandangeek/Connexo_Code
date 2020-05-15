@@ -25,7 +25,7 @@ public interface TokenService<T> {
     /**
      * Initialize Token Service with set of keys and lifecycle information
      */
-    void initialize(byte[] publicKey, byte[] privateKey, long tokenExpirationTime, long tokenRefreshThershold, long timeout);
+    void initialize(byte[] publicKey, byte[] privateKey, long tokenExpirationTime, long tokenRefreshThershold, long timeoutFrameToRefreshToken);
 
     /**
      * Creates a signed JWT (JSON Web Token) with expiration date time used
@@ -41,6 +41,11 @@ public interface TokenService<T> {
      * using OAuth 2.0 protocol
      */
     SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException;
+
+    /**
+     * Creates a permament signed JWT token (used by Flow)
+     */
+    SignedJWT createPermamentSignedJWT(User user) throws JOSEException;
 
     /**
      *
