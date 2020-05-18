@@ -40,7 +40,7 @@ public class Kaifa extends E350 {
 
     @Override
     public String getVersion() {
-        return "Kaifa protocol integration version 17.01.2019";
+        return "Kaifa protocol integration version 15.05.2020";
     }
 
     @Override
