@@ -341,10 +341,12 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
     private SubmitWUTrigger getParameters() throws ConnectionException {
         SubmitWUTrigger parameters = new SubmitWUTrigger();
+        boolean isVodafone = false;
 
         String provider = getDeviceCasGprsProvider();
         if (provider!=null) {
             parameters.setOperatorName(provider);
+            isVodafone = "VODAFONE".equals(provider.toUpperCase());
             log("Operator name (provider) is " + provider);
         } else {
             logError("No operator name (provider) found in CAS!");
@@ -355,7 +357,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
          * Others = ICCID
          */
         String deviceId;
-        if ("Vodafone".equals(provider)){
+        if (isVodafone){
             String imsi = getDeviceCasIMSI();
             log("Operator is Vodafone, using IMSI: "+imsi+" as deviceId");
             deviceId = imsi;

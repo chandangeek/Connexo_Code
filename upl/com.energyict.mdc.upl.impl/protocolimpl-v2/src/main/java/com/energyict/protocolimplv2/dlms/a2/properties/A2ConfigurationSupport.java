@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.a2.properties;
 
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;

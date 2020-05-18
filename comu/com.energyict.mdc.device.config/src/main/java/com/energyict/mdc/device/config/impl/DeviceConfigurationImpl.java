@@ -27,6 +27,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeleteEventType;
 import com.energyict.mdc.common.device.config.DeviceCommunicationFunction;
@@ -1625,6 +1626,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         this.isDefault = value;
         super.save();
+    }
+
+    @Override
+    public boolean isConfigured(SecurityAccessorType keyAccessorType) {
+        List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
+        getSecurityPropertySets().forEach(
+                securityPropertySet -> {
+                    List<ConfigurationSecurityProperty> properties = securityPropertySet.getConfigurationSecurityProperties();
+                    if (!properties.isEmpty()) {
+                        configurationSecurityProperties.addAll(properties);
+                    }
+                }
+        );
+        return configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == id);
     }
 
     private void clearOldDefault(){
