@@ -376,14 +376,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     public LoadProfileCommand getLoadProfileCommand(final LoadProfilesTask loadProfilesTask, final GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
-        if (checkIfCommandExists(ComCommandTypes.LOAD_PROFILE_COMMAND)) {
-            final LoadProfileCommand loadProfileCommand = (LoadProfileCommand) getComCommand(ComCommandTypes.LOAD_PROFILE_COMMAND);
-            loadProfileCommand.updateAccordingTo(loadProfilesTask, this, comTaskExecution);
-            getAlreadyExecutedCommand(groupedDeviceCommand, comTaskExecution, ComCommandTypes.LOAD_PROFILE_COMMAND);
-            return loadProfileCommand;
-        } else {
-            return createLoadProfileCommand(loadProfilesTask, groupedDeviceCommand, comTaskExecution);
-        }
+        return createLoadProfileCommand(loadProfilesTask, groupedDeviceCommand, comTaskExecution);
     }
 
     private LoadProfileCommand createLoadProfileCommand(LoadProfilesTask loadProfilesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
