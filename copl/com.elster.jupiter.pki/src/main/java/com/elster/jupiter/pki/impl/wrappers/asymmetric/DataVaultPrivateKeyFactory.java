@@ -10,10 +10,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
 import com.elster.jupiter.pki.impl.wrappers.TableSpecs;
 import com.elster.jupiter.properties.Expiration;
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(name="PlaintextPrivateKeyFactory", service = { PrivateKeyFactory.class }, immediate = true)
-public class DataVaultPrivateKeyFactory implements PrivateKeyFactory, ExpirationSupport {
+public class DataVaultPrivateKeyFactory implements PrivateKeyFactory, ExpirationSupport<AbstractPlaintextPrivateKeyWrapperImpl> {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
@@ -78,8 +77,8 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory, Expiration
     }
 
     @Override
-    public List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when) {
-        List<SecurityValueWrapper> wrappers = new ArrayList<>();
+    public List<AbstractPlaintextPrivateKeyWrapperImpl> findExpired(Expiration expiration, Instant when) {
+        List<AbstractPlaintextPrivateKeyWrapperImpl> wrappers = new ArrayList<>();
         wrappers.addAll(dataModel.query(AbstractPlaintextPrivateKeyWrapperImpl.class).select(expiration.isExpired("expirationTime", when)));
         return wrappers;
     }

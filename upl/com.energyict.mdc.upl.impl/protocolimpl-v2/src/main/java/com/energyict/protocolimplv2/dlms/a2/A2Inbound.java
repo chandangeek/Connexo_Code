@@ -8,7 +8,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ComChannelRemoteAddress;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDAO;
 import com.energyict.mdc.upl.InboundDiscoveryContext;

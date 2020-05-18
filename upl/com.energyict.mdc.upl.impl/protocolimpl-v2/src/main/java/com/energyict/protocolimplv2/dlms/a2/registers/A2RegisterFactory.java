@@ -4,7 +4,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;

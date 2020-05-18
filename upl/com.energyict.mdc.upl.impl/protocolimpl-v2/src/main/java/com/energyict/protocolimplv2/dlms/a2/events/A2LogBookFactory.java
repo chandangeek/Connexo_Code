@@ -12,7 +12,6 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -113,5 +112,9 @@ public class A2LogBookFactory implements DeviceLogBookSupport {
             }
         }
         return false;
+    }
+
+    public A2 getProtocol() {
+        return protocol;
     }
 }

@@ -21,10 +21,12 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.A2;
 import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -173,7 +175,10 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setValve(OfflineDeviceMessage pendingMessage, Unsigned16 scriptNr) throws IOException {
-        Long epoch = Long.valueOf(getDeviceMessageAttributeValue(pendingMessage, contactorActivationDateAttributeName));
+        String epochTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.contactorActivationDateAttributeName).getValue();
+        Calendar epochTimeCal = Calendar.getInstance(getProtocol().getTimeZone());
+        epochTimeCal.setTimeInMillis(Long.valueOf(epochTime));
+        Long epoch = epochTimeCal.getTimeInMillis();
 
         Structure scriptStructure = new Structure();
         scriptStructure.addDataType(OctetString.fromObisCode(DISCONNECT_CONTROL_SCRIPT_TABLE));

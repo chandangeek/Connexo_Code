@@ -12,9 +12,9 @@ import java.util.List;
  * Date: 11/10/2017
  * Time: 11:51
  */
-public interface ExpirationSupport {
+public interface ExpirationSupport<T> {
 
-    List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when);
+    List<T> findExpired(Expiration expiration, Instant when);
 
     Comparison isExpiredCondition(Expiration expiration, Instant when);
 }

@@ -45,10 +45,10 @@ public class IssueResourceUtilityImpl implements IssueResourceUtility {
                     users.add(((IssueAssignee) l.keySet().toArray()[i]).getUser());
                 }
                 long userUnassignedCount = users.stream().filter(item -> item == null).count();
-                Map<?, ? extends List<?>> map = users.stream().filter(item -> item != null).collect(Collectors.groupingBy(User::getDescription));
+                Map<?, ? extends List<?>> map = users.stream().filter(item -> item != null).collect(Collectors.groupingBy(User::getName));
                 for (int i = 0; i < map.keySet().size(); i++) {
                     long workGroupId = ((User)((List) (map.values().toArray()[i])).get(0)).getId();
-                    String description = (String) map.keySet().toArray()[0];
+                    String description = (String) map.keySet().toArray()[i];
                     infos.add(new IssueGroupInfo(workGroupId, description, ((List) (map.values().toArray()[i])).size()));
 
                 }
