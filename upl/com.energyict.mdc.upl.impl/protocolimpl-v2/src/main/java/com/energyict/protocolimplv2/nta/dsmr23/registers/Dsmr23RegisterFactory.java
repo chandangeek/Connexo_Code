@@ -156,6 +156,20 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 collectedRegisters.add(createIncompatibleRegister(register, e.getMessage()));
             }
         }
+
+        if( collectedRegisters.size() != 0 ) {
+            StringBuilder sb = new StringBuilder();
+            sb.append( "Read registers: " );
+            for ( CollectedRegister or : collectedRegisters ) {
+                sb.append( or.getRegisterIdentifier().toString() );
+                sb.append( "," );
+            }
+            protocol.journal( sb.substring( 0, sb.length() - 2 ) );
+        }
+        else {
+            protocol.journal( "No registers to request.");
+        }
+
         return collectedRegisters;
     }
 

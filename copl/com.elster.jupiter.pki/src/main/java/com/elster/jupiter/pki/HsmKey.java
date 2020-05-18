@@ -28,13 +28,37 @@ public interface HsmKey extends SymmetricKeyWrapper{
 
     /**
      *
+     * @return true in case of the key is a service key, otherwise false
+     */
+    boolean isServiceKey();
+
+    /**
+     *
+     * @return wrapped value for service key used in SKP/SKI process, if exists. otherwise null is returned (if this key does not exist)
+     */
+    byte[] getWrappedKey();
+
+    /**
+     *
      * @return HSM label
      */
     String getLabel();
 
     /**
      *
-     * @param value Base64 encoded ket value
+     * @param value to indicate service key
+     */
+    void setServiceKey(boolean value);
+
+    /**
+     *
+     * @param value Base64 encoded key value
+     */
+    void setWrappedKey(String value);
+
+    /**
+     *
+     * @param value Base64 encoded key value
      */
     void setSmartMeterKey(String value);
 

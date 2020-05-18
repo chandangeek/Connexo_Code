@@ -334,8 +334,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                 records.length == 0 && commandCombo.setVisible(false) && noCommand.setVisible(true);
                                 records.length != 0 && commandCombo.setVisible(true) && noCommand.setVisible(false);
                                 if (serviceKeyCommandCombo && serviceKeyNoCommand){
-                                    records.length == 0 && serviceKeyCommandCombo.setVisible(false) && serviceKeyNoCommand.setVisible(true);
-                                    records.length != 0 && serviceKeyCommandCombo.setVisible(true) && serviceKeyNoCommand.setVisible(false);
+                                    serviceKeyCommandCombo.setVisible(records.length) && serviceKeyNoCommand.setVisible(!records.length);
                                 }
                                 me.getApplication().fireEvent('changecontentevent', view);
                                 me.getApplication().fireEvent('configurekeyrenewal', securityAccessorRecord);
@@ -357,13 +356,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                         commandCombo.setValue(commandComboStore.getAt(0).data.id)
                                     }
                                }
-                               if (securityAccessorRecord.get('serviceKeyRenewalCommandSpecification')) {
-                                    serviceKeyCommandCombo.setValue(securityAccessorRecord.get('serviceKeyRenewalCommandSpecification').id);
+                               var serviceKeyRenewalCommandSpecification = securityAccessorRecord.get('serviceKeyRenewalCommandSpecification');
+                               if (serviceKeyRenewalCommandSpecification) {
+                                    serviceKeyCommandCombo.setValue(serviceKeyRenewalCommandSpecification.id);
                                     view.down('#service-key-renewal-property-form').loadRecord(securityAccessorRecord);
                                     var serviceKeyRenewalPropertyHeader = me.getServiceKeyRenewalPropertyHeader();
                                     if (securityAccessorRecord.serviceProperties() && (securityAccessorRecord.serviceProperties().getCount() > 0)) {
                                         serviceKeyRenewalPropertyHeader.show();
-                                        serviceKeyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', securityAccessorRecord.get('keyRenewalCommandSpecification').name) + '</h3>');
+                                        serviceKeyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', serviceKeyRenewalCommandSpecification.name) + '</h3>');
                                     } else {
                                         serviceKeyRenewalPropertyHeader.hide();
                                     }

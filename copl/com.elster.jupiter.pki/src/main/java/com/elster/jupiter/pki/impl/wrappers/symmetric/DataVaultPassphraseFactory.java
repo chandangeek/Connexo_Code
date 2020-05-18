@@ -8,14 +8,13 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.ExpirationSupport;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
 import com.elster.jupiter.pki.impl.wrappers.TableSpecs;
 import com.elster.jupiter.properties.Expiration;
@@ -34,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component(name="PlaintextPassphraseFactory", service = PassphraseFactory.class, immediate = true)
-public class DataVaultPassphraseFactory implements PassphraseFactory, ExpirationSupport {
+public class DataVaultPassphraseFactory implements PassphraseFactory, ExpirationSupport<PlaintextPassphrase> {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
@@ -88,8 +87,8 @@ public class DataVaultPassphraseFactory implements PassphraseFactory, Expiration
     }
 
     @Override
-    public List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when) {
-        List<SecurityValueWrapper> wrappers = new ArrayList<>();
+    public List<PlaintextPassphrase> findExpired(Expiration expiration, Instant when) {
+        List<PlaintextPassphrase> wrappers = new ArrayList<>();
         wrappers.addAll(dataModel.query(PlaintextPassphrase.class).select(expiration.isExpired("expirationTime", when)));
         return wrappers;
     }
