@@ -182,7 +182,7 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'fieldcontainer',
                 name: 'validationTimeout',
                 fieldLabel: Uni.I18n.translate('general.touTimeout', 'TOU', 'Timeout before validation'),
-                margin: '30 0 10 0',
+                margin: '10 0 10 0',
                 required: true,
                 layout: 'hbox',
                 hidden: true,
@@ -223,7 +223,7 @@ Ext.define('Tou.view.AddForm', {
                 queryMode: 'local',
                 displayField: 'name',
                 valueField: 'id',
-                margin: '30 0 10 0',
+                margin: '10 0 10 0',
                 hidden: true
             }, {
                 itemId: 'unique-calendar-name-field',
@@ -255,7 +255,7 @@ Ext.define('Tou.view.AddForm', {
                 queryMode: 'local',
                 displayField: 'name',
                 valueField: 'id',
-                margin: '30 0 10 0',
+                margin: '10 0 10 0',
                 hidden: true,
             },
             {
