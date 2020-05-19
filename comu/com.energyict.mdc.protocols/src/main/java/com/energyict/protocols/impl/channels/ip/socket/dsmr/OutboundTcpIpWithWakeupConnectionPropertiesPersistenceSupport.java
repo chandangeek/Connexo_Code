@@ -32,6 +32,14 @@ class OutboundTcpIpWithWakeupConnectionPropertiesPersistenceSupport
         return DeviceProtocolService.COMPONENT_NAME + "_IP_OUT_WKUP_CT";
     }
 
+    /** Because of frequent changes of IP on each wakeup, the journal table will grow uncontrolled.
+     * So we'll disable journal and versioning for this table, unless another signaling method is implemented.
+     */
+    @Override
+    public String journalTableName() {
+        return null;
+    }
+
     @Override
     public String domainFieldName() {
         return OutboundTcpIpWithWakeupConnectionProperties.Fields.CONNECTION_PROVIDER.javaName();

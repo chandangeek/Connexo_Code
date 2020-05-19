@@ -27,6 +27,15 @@ public class OutboundTcpIpWithWakeupCustomPropertySet
         return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.OUTBOUND_TCP_WAKEUP_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
+    /**
+     * We need this to be false, otherwise the table (and journal) will grow uncontrolled
+     * due to frequent change of "host" property, on each call.
+     */
+    @Override
+    public boolean isVersioned() {
+        return false;
+    }
+
     @Override
     public PersistenceSupport<ConnectionProvider, OutboundTcpIpWithWakeupConnectionProperties> getPersistenceSupport() {
         return new OutboundTcpIpWithWakeupConnectionPropertiesPersistenceSupport();
