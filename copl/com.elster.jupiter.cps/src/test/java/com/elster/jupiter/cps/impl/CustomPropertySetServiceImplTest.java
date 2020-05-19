@@ -98,7 +98,9 @@ public class CustomPropertySetServiceImplTest {
     private static final String VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID = "T03";
     private static final String VERSIONED_CUSTOM_PROPERTY_SET_ID = CUSTOM_PROPERTY_SET_ID + "_VERSIONED";
     private static final String VERSIONED_TABLE_NAME = TABLE_NAME + "_VERSIONED";
+    private static final String JOURNAL_TABLE_NAME = VERSIONED_TABLE_NAME + "JRNL";
     private static final String VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME = TABLE_NAME + "_ADD_VERSIONED";
+    private static final String VERSIONED_WITH_ADDITIONAL_KEY__JOURNAL_TABLE_NAME = VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME + "JRNL";
 
     @Mock
     private TransactionService transactionService;
@@ -217,6 +219,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedPersistenceSupport.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID);
         when(this.versionedPersistenceSupport.tableName()).thenReturn(VERSIONED_TABLE_NAME);
+        when(this.versionedPersistenceSupport.journalTableName()).thenReturn(JOURNAL_TABLE_NAME);
         when(this.versionedPersistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
         when(this.versionedPersistenceSupport.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
         when(this.versionedPersistenceSupport.persistenceClass()).thenReturn(VersionedDomainExtensionForTestingPurposes.class);
@@ -226,6 +229,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.application()).thenReturn("Example");
         when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID);
         when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.tableName()).thenReturn(VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.journalTableName()).thenReturn(VERSIONED_WITH_ADDITIONAL_KEY__JOURNAL_TABLE_NAME);
         when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
         when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
         when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.addCustomPropertyPrimaryKeyColumnsTo(versionedWithAdditionalPrimaryKeyTable)).thenReturn(Collections.singletonList(additionalPrimaryKeyColumn));
