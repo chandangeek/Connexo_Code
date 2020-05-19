@@ -174,7 +174,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                         Version.version(10, 3), UpgraderV10_3.class,
                         Version.version(10, 4), UpgraderV10_4.class,
                         Version.version(10, 6), UpgraderV10_6.class,
-                        Version.version(10, 9), UpgraderV10_9.class));
+                        Version.version(10, 8), UpgraderV10_8.class));
 
         readProperties(bundleContext);
     }
