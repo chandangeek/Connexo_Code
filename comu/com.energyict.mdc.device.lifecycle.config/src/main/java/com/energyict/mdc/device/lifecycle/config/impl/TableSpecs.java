@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
@@ -36,10 +37,10 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar().notNull().map(DeviceLifeCycleImpl.Fields.NAME.fieldName()).add();
             Column obsoleteTimestamp = table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
             Column stateMachine = table.column("FSM").number().notNull().add();
-            table.column("MAXFUTUREEFFTIMESHIFTVALUE").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_FUTURE_EFFECTIVE_TIME_SHIFT.fieldName() + ".count").add();
-            table.column("MAXFUTUREEFFTIMESHIFTUNIT").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_FUTURE_EFFECTIVE_TIME_SHIFT.fieldName() + ".timeUnitCode").add();
-            table.column("MAXPASTEFFTIMESHIFTVALUE").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_PAST_EFFECTIVE_TIME_SHIFT.fieldName() + ".count").add();
-            table.column("MAXPASTEFFTIMESHIFTUNIT").number().notNull().conversion(NUMBER2INT).map(DeviceLifeCycleImpl.Fields.MAX_PAST_EFFECTIVE_TIME_SHIFT.fieldName() + ".timeUnitCode").add();
+            table.column("MAXFUTUREEFFTIMESHIFTVALUE").number().upTo(Version.version(10, 9)).add();
+            table.column("MAXFUTUREEFFTIMESHIFTUNIT").number().upTo(Version.version(10, 9)).add();
+            table.column("MAXPASTEFFTIMESHIFTVALUE").number().upTo(Version.version(10, 9)).add();
+            table.column("MAXPASTEFFTIMESHIFTUNIT").number().notNull().upTo(Version.version(10, 9)).add();
             table.primaryKey("PK_DLD_DEVICELIFECYCLE").on(id).add();
             table.unique("UK_DLD_DEVICELIFECYCLENAME").on(name, obsoleteTimestamp).add();
             table.foreignKey("FK_DLD_FSM")
@@ -73,7 +74,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
-            table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(AuthorizedActionImpl.Fields.LEVELS.fieldName()).add();
+            table.column("LEVELBITS").number().notNull().conversion(NUMBER2INT).map(AuthorizedActionImpl.Fields.LEVELS.fieldName()).add();
             // AuthorizedTransitionAction
             table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).upTo(version(10, 6)).add();
             table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
