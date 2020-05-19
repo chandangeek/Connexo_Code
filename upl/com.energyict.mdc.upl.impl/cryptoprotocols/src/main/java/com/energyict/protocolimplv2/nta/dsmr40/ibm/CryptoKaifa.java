@@ -36,7 +36,7 @@ public class CryptoKaifa extends Kaifa {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2020-01-02";
+        return "Crypto version: 2020-05-15";
     }
 
     @Override
