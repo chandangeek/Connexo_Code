@@ -14,7 +14,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolcommon.Password;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
@@ -23,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayProfileXmlUserFileAttributeName;
 
 public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
@@ -96,6 +93,8 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             return ((Password) messageAttribute).getValue();
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName))
             return this.messageFileExtractor.contents((DeviceMessageFile) messageAttribute);
+        if (propertySpec.getName().equals(DeviceMessageConstants.contactorActivationDateAttributeName))
+            return String.valueOf(((Date) messageAttribute).getTime());
         return messageAttribute.toString();
     }
 

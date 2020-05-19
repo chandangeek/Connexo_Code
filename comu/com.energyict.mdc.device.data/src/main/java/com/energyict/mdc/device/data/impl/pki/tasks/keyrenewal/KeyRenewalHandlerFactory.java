@@ -8,15 +8,13 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SymmetricKeyWrapperDAO;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.KeyRenewalService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.SecurityAccessorDAO;
+import com.energyict.mdc.device.data.impl.pki.tasks.command.CommandExecutorFactory;
 
 import com.google.inject.Inject;
 import org.osgi.framework.BundleContext;
@@ -27,6 +25,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory",
         service = {KeyRenewalService.class, MessageHandlerFactory.class},
@@ -34,25 +33,25 @@ import java.util.Optional;
                 "destination=" + KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME},
         immediate = true)
 public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandlerFactory {
-    private volatile TaskService taskService;
-    private volatile OrmService ormService;
-    private volatile BpmService bpmService;
-    private volatile NlsService nlsService;
-    private volatile Thesaurus thesaurus;
-    private volatile EventService eventService;
-    private volatile Clock clock;
 
-    // felix config properties
+    private volatile EventService eventService;
+    private volatile TaskService taskService;
+    private volatile BpmService bpmService;
+    private volatile Clock clock;
+    private volatile SymmetricKeyWrapperDAO symemtricKeyWrapperDAO;
+    private volatile SecurityAccessorDAO securityAccessorDAO;
+
+
     private static final String KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY = "com.energyict.mdc.device.data.pki.keyrenewal.bpmprocess";
     private static final String KEY_DAYS_TILL_EXPIRATION_PROPERTY = "com.energyict.mdc.device.data.pki.keyrenewal.expirationdays";
-
     public static final String KEY_RENEWAL_TASK_SUBSCRIBER = "KeyRenewalSubscriber";
+
     public static final String KEY_RENEWAL_TASK_NAME = "Key Renewal Task";
     public static final String KEY_RENEWAL_TASK_CRON_STRING = "0 0 11 1/1 * ? *"; // every day 11AM
     public static final String KEY_RENEWAL_TASK_DESTINATION_NAME = "KeyRenewal";
     public static final String KEY_RENEWAL_DISPLAY_NAME = "Handle expired keys";
-
     private String keyRenewalBpmProcessDefinitionId;
+
     private Integer keyRenewalExpitationDays;
 
     public KeyRenewalHandlerFactory() {
@@ -61,41 +60,17 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     @Inject
     public KeyRenewalHandlerFactory(BundleContext bundleContext,
                                     TaskService taskService,
-                                    OrmService ormService,
-                                    BpmService bpmService,
-                                    Clock clock,
-                                    NlsService nlsService, EventService eventService) {
+                                    BpmService bpmService) {
         this();
         setTaskService(taskService);
-        setOrmService(ormService);
         setBpmService(bpmService);
-        setEventService(eventService);
-        setClock(clock);
-        setNlsService(nlsService);
         activate(bundleContext);
     }
 
-    public String getKeyRenewalBpmProcessDefinitionId() {
-        return keyRenewalBpmProcessDefinitionId;
-    }
-
-    public Integer getKeyRenewalExpitationDays() {
-        return keyRenewalExpitationDays;
-    }
 
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        this.ormService = ormService;
-    }
-
-    @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        // depends on DDC data model
     }
 
     @Reference
@@ -109,8 +84,13 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+    public void setSymemtricKeyWrapperDAO(SymmetricKeyWrapperDAO symemtricKeyWrapperDAO) {
+        this.symemtricKeyWrapperDAO = symemtricKeyWrapperDAO;
+    }
+
+    @Reference
+    public void setSecurityAccessorDAO(SecurityAccessorDAO securityAccessorDAO) {
+        this.securityAccessorDAO = securityAccessorDAO;
     }
 
     @Reference
@@ -132,8 +112,8 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new KeyRenewalTaskExecutor(ormService, bpmService, eventService, clock, keyRenewalBpmProcessDefinitionId,
-                keyRenewalExpitationDays));
+        return taskService.createMessageHandler(new KeyRenewalTaskExecutor(eventService, bpmService, clock, symemtricKeyWrapperDAO, securityAccessorDAO, new CommandExecutorFactory(), keyRenewalBpmProcessDefinitionId, keyRenewalExpitationDays, Logger
+                .getAnonymousLogger()));
     }
 
     @Override
@@ -143,8 +123,8 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
 
     @Override
     public TaskOccurrence runNow() {
-        return getTask().runNow(new KeyRenewalTaskExecutor(ormService, bpmService, eventService, clock, keyRenewalBpmProcessDefinitionId,
-                keyRenewalExpitationDays));
+        return getTask().runNow(new KeyRenewalTaskExecutor(eventService, bpmService, clock, symemtricKeyWrapperDAO, securityAccessorDAO, new CommandExecutorFactory(), keyRenewalBpmProcessDefinitionId, keyRenewalExpitationDays, Logger
+                .getAnonymousLogger()));
     }
 
     private void getTaskProperties(BundleContext bundleContext) {

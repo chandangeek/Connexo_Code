@@ -15,8 +15,8 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.KeyAccessorStatus;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
-
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 
@@ -174,5 +174,18 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     @Override
     public boolean isServiceKey() {
         return this.serviceKey;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Abstract device security accessor identified by:");
+        sb.append(" mod time").append(getModTime());
+        if (deviceReference.isPresent()) {
+            sb.append(" device:").append(deviceReference.get().getId());
+        }
+        if (keyAccessorTypeReference.isPresent()) {
+            sb.append(" accessor type:").append(keyAccessorTypeReference.get().getName());
+        }
+        return sb.toString();
     }
 }
