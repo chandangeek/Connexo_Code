@@ -233,7 +233,8 @@ Ext.define('Tou.view.AddForm', {
                     'TOU',
                     'Upload with unique calendar name'
                 ),
-                name: 'withUniqueCalendarName'
+                name: 'withUniqueCalendarName',
+                margin: '-5 0 0 0'
             }, {
                 xtype: 'combobox',
                 itemId: 'tou-campaign-allowed-comtask',

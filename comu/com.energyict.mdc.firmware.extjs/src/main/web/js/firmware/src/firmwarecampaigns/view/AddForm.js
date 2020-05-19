@@ -227,7 +227,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     'FWC',
                     'Upload with unique firmware version'
                 ),
-                name: 'withUniqueFirmwareVersion'
+                name: 'withUniqueFirmwareVersion',
+                margin: '-5 0 0 0'
             },
             {
                 xtype: 'combobox',
