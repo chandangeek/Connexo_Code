@@ -62,7 +62,7 @@ public class ComTaskExecutionFilterSpecification {
      * The Set of {@link CompletionCode}s.
      * Note that using <strong>ALL</strong> enum values is equal to using none.
      */
-    public Set<CompletionCode> latestResults = EnumSet.noneOf(CompletionCode.class);
+    public Set<CompletionCode> latestResults = new HashSet<>(); //EnumSet.noneOf(CompletionCode.class);
 
     /**
      * The Interval in which the start time of the last session is expected

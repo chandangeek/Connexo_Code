@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -64,6 +65,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCal
 import com.energyict.mdc.device.data.impl.audit.AuditTranslationKeys;
 import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
+import com.energyict.mdc.device.data.impl.events.ComTaskExecutionCreationEventHandler;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -184,6 +186,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private BundleContext bundleContext;
     private ConfigPropertiesService configPropertiesService;
+    private ComTaskExecutionCreationEventHandler comTaskExecutionCreationEventHandler;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -722,9 +725,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         batchService = new BatchServiceImpl(this);
         deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
         crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
+        comTaskExecutionCreationEventHandler = new ComTaskExecutionCreationEventHandler();
     }
 
     private void registerRealServices(BundleContext bundleContext) {
+        serviceRegistrations.add(bundleContext.registerService(Subscriber.class, this.comTaskExecutionCreationEventHandler, null));
         registerConnectionTaskService(bundleContext);
         registerConnectionTaskReportService(bundleContext);
         registerPriorityComTaskService(bundleContext);

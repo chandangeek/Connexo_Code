@@ -72,25 +72,28 @@ public class DashboardFieldResource extends FieldResource {
         this.schedulingService = schedulingService;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/breakdown")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getBreakdownValues() {
         return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", BREAKDOWN_OPTION_ADAPTER.getClientSideValues());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/taskstatus")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getTaskStatusValues() {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", this.taskStatusClientSideValues());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/connectionstatuses")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTaskStatusValues() {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", this.taskStatusesWithoutPrio());
@@ -104,9 +107,10 @@ public class DashboardFieldResource extends FieldResource {
         return TaskStatus.withoutPrio().stream().map(TaskStatus::name).collect(Collectors.toList());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/comsessionsuccessindicators")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComSessionSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", this.comSessionSuccessIndicatorClientSideValues());
@@ -116,9 +120,10 @@ public class DashboardFieldResource extends FieldResource {
         return Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).map(ComSessionSuccessIndicatorTranslationKeys::getKey).collect(Collectors.toList());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/connectiontasksuccessindicators")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTaskSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", connectionTaskSuccessIndicatorClientSideValues());
@@ -128,76 +133,86 @@ public class DashboardFieldResource extends FieldResource {
         return Stream.of(ConnectionTask.SuccessIndicator.values()).map(Enum::name).collect(Collectors.toList());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/lifecyclestatus")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getLifecycleStatus() {
         return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdapter().getClientSideValues());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/completioncodes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getCompletionCodes() {
         return asJsonArrayObjectWithTranslation("completionCodes", "completionCode", this.completionCodeClientSideValues());
     }
 
     private List<String> completionCodeClientSideValues() {
-        return Stream.of(CompletionCode.values()).map(Enum::name).collect(Collectors.toList());
+        List<String> completionCodes = Stream.of(CompletionCode.values()).map(Enum::name).collect(Collectors.toList());
+        completionCodes.add(TranslationKeys.NEVER_STARTED_COMPLETION_CODE.getKey());
+        return completionCodes;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/devicetypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getDeviceTypes() {
         return Response.ok(asInfoMap("deviceTypes", deviceConfigurationService.findAllDeviceTypes().find())).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/comportpools")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComPortPools() {
         return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools().stream().collect(Collectors.toList()))).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/comtasks")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComTasks() {
         return Response.ok(asInfoMap("comTasks", taskService.findAllComTasks().find())).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/comschedules")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Object getComSchedules() {
         return Response.ok(asInfoMap("comSchedules", schedulingService.getAllSchedules())).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/connectiontypepluggableclasses")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTypeValues() {
         return Response.ok(asInfoMap("connectiontypepluggableclasses", protocolPluggableService.findAllConnectionTypePluggableClasses())).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/device/{name}/connectionmethods")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionMethods(@PathParam("name") String deviceName) {
         Optional<Device> deviceByName = deviceService.findDeviceByName(deviceName);
         List<ConnectionTask<?, ?>> connectionTasks = new ArrayList<>();
-        if(deviceByName.isPresent()) {
+        if (deviceByName.isPresent()) {
             Device device = deviceByName.get();
-            if(device.getDeviceConfiguration().isDirectlyAddressable()) {
+            if (device.getDeviceConfiguration().isDirectlyAddressable()) {
                 connectionTasks = device.getConnectionTasks();
             }
         }
