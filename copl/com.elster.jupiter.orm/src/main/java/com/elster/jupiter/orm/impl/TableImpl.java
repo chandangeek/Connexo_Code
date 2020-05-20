@@ -858,6 +858,7 @@ public class TableImpl<T> implements Table<T> {
                 }
             }
         } else {
+
             if (hasJournal()) {
                 fail("can''t journal table without primary key.");
             }
