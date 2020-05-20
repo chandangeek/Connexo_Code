@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.dlms.acud;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
@@ -9,8 +10,12 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 public class AcudElectricRegisterFactory extends AcudRegisterFactory {
+
+    public final static ObisCode LOAD_LIMIT = ObisCode.fromString("0.0.94.20.66.255");
+
 
     public AcudElectricRegisterFactory(Acud protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -32,7 +37,20 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
             highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
             lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
             description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingTimeHighDefaultTranslation, DeviceMessageConstants.remainingTimeLowDefaultTranslation);
+        } else if (obisCode.equals(LOAD_LIMIT)) {
+            description = readLoadLimits(structure.getDataType(0).getArray());
         } else return super.readStructure(obisCode, structure);
         return new RegisterValue(obisCode, description);
+    }
+
+    protected String readLoadLimits(Array array) {
+        StringBuffer buff = new StringBuffer("{");
+        for(Iterator<AbstractDataType> it = array.iterator();it.hasNext();) {
+            Structure limit = (Structure)it.next();
+            buff.append(limit.getDataType(2).getUnsigned16().getValue());
+            buff.append(", ");
+        }
+        buff.append("}");
+        return buff.toString();
     }
 }
