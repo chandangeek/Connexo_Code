@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;

@@ -8,11 +8,11 @@ import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_8 implements Upgrader {
+public class UpgraderV10_9 implements Upgrader {
     private final UserService userService;
 
     @Inject
-    public UpgraderV10_8(UserService userService) {
+    public UpgraderV10_9(UserService userService) {
         this.userService = userService;
     }
 
