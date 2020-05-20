@@ -22,7 +22,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.app.SysAppService;
@@ -128,7 +127,7 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
                     ImmutableMap.of(
                             version(10, 2), Installer.class,
                             version(10, 3), Installer.class,
-                            version(10, 8), UpgraderV10_8.class
+                            version(10, 9), UpgraderV10_9.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();
