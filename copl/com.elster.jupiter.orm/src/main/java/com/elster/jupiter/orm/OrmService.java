@@ -31,9 +31,9 @@ public interface OrmService {
 
     public static final String EXISTING_TABLES_DATA_MODEL = "ORA";
 
-    public static final String EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE = "300:13";
+    public static final int EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE = 300;
 
-    public static final String ENABLE_CACHE_DEFAULT_VALUE = "1";
+    public static final boolean ENABLE_CACHE_DEFAULT_VALUE = true;
 
     /*
      * creates a new Data Model with the given name and description

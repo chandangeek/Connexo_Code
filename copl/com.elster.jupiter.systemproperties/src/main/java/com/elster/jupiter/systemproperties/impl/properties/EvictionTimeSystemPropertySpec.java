@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.systemproperties.SystemProperty;
-import com.elster.jupiter.systemproperties.SystemPropertySpec;
+import com.elster.jupiter.systemproperties.impl.SystemPropertySpec;
 import com.elster.jupiter.systemproperties.impl.SystemPropertyTranslationKeys;
 import com.elster.jupiter.time.TimeDuration;
 
@@ -26,8 +26,6 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
     public EvictionTimeSystemPropertySpec(OrmService ormService,
                                           PropertySpecService propertySpecService,
                                           Thesaurus thesaurus) {
-        String[] defaultValue = OrmService.EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE.split(":");
-        int defaultValueSeconds = Integer.valueOf(defaultValue[0]);
         this.ormService = ormService;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -35,7 +33,7 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
                 .named(SystemPropertyTranslationKeys.EVICTION_TIME)
                 .describedAs(SystemPropertyTranslationKeys.EVICTION_TIME_DESCRIPTION)
                 .fromThesaurus(thesaurus)
-                .setDefaultValue(TimeDuration.seconds(defaultValueSeconds))
+                .setDefaultValue(TimeDuration.seconds(OrmService.EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE))
                 .markRequired()
                 .finish();
     }
@@ -47,7 +45,7 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
 
     @Override
     public void actionOnChange(SystemProperty property) {
-        TimeDuration timeDuration = (TimeDuration) propertySpec.getValueFactory().fromStringValue(property.getValue());
+        TimeDuration timeDuration = (TimeDuration)property.getValueObject();
         long evictionTime = timeDuration.getMilliSeconds();
         List<DataModel> datamodels = ormService.getDataModels();
         for (DataModel dataModel : datamodels) {

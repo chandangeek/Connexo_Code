@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.systemproperties.SystemProperty;
-import com.elster.jupiter.systemproperties.SystemPropertySpec;
+import com.elster.jupiter.systemproperties.impl.SystemPropertySpec;
 import com.elster.jupiter.systemproperties.impl.SystemPropertyTranslationKeys;
 
 import javax.inject.Inject;
@@ -30,7 +30,7 @@ public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
                 .named(SystemPropertyTranslationKeys.ENABLE_CACHE)
                 .describedAs(SystemPropertyTranslationKeys.ENABLE_CACHE_DESCRIPTION)
                 .fromThesaurus(thesaurus)
-                .setDefaultValue(true)
+                .setDefaultValue(OrmService.ENABLE_CACHE_DEFAULT_VALUE)
                 .finish();
     }
 
@@ -42,7 +42,7 @@ public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
     @Override
     public void actionOnChange(SystemProperty property) {
         //recreate all caches
-        boolean cacheEnabled = property.getValue().equals("1") ? true : false;
+        boolean cacheEnabled = (Boolean) property.getValueObject();
         List<DataModel> datamodels = ormService.getDataModels();
         for (DataModel dataModel : datamodels) {
             for (Table table : dataModel.getTables()) {
