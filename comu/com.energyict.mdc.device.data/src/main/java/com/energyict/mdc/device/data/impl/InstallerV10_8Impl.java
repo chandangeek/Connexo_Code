@@ -350,18 +350,17 @@ public class InstallerV10_8Impl implements FullInstaller {
                 getConnectionTasksBreakDownStatement(), 5);
     }
 
-    private String getRefreshMvCommunicationTasksBreakDownJobStatement(){
+    private String getRefreshMvCommunicationTasksBreakDownJobStatement() {
         return getRefreshJob("REF_MV_COMTASKBREAKDOWN", "MV_COMTASKBREAKDOWN",
                 getCommunicationTasksBreakDownStatement(), 5);
     }
 
-    private String getRefreshMvComTaskDTHeatMapJobStatement(){
+    private String getRefreshMvComTaskDTHeatMapJobStatement() {
         return getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
                 getComTaskDTHeatMapStatement(), 5);
-
     }
 
-    private String getRefreshMvComTaskExWithDevStsJobStatement(){
+    private String getRefreshMvComTaskExWithDevStsJobStatement() {
         return getRefreshJob("REF_MV_COMTASKEXWITHDEVSTS", "MV_COMTASKEXWITHDEVSTS",
                 getComTaskExWithDevStsStatement(), 5);
     }

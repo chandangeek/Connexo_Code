@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
-import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -83,11 +82,11 @@ public class ColumnImpl implements Column {
 
     private ColumnImpl init(TableImpl<?> table, String name) {
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name
+            this.logAndThrowIllegalTableMappingException("Table " + table.getName() + ": column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + ", actual length is " + name
                     .length() + ".");
         }
         if (ReservedWord.isReserved(name)) {
-            this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is a reserved word and cannot be used as the name of a column.");
+            this.logAndThrowIllegalTableMappingException("Table " + table.getName() + ": column name '" + name + "' is a reserved word and can't be used as the name of a column.");
         }
         this.table.set(table);
         this.name = name;
@@ -106,18 +105,18 @@ public class ColumnImpl implements Column {
         Objects.requireNonNull(name);
         if (!isVirtual()) {
             if (dbType == null) {
-                this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " was not assigned a DB type.");
+                this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + ": column " + getName() + " hasn't been assigned a DB type.");
             }
             Objects.requireNonNull(conversion);
             if (ColumnConversionImpl.BLOB2SQLBLOB.equals(conversion)) {
                 Class<?> type = getTable().getMapperType().getType(getFieldName());
-                if (!LazyLoadingBlob.class.isAssignableFrom(type) && !Blob.class.isAssignableFrom(type)){
-                    this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " : blob() column must map a Blob field");
+                if (!Blob.class.isAssignableFrom(type)){
+                    this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + ": column " + getName() + ": blob() column must map a Blob field.");
                 }
             }
         }
         if (skipOnUpdate && updateValue != null) {
-            this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : field " + getName() + " : updateValue must be null if skipOnUpdate");
+            this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + ": field " + getName() + ": updateValue must be null if skipOnUpdate.");
         }
     }
 

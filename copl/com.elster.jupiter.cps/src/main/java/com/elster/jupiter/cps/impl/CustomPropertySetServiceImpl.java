@@ -1113,7 +1113,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             this.tableNameFor(this.customPropertySet),
                             this.customPropertySet.getPersistenceSupport().persistenceClass());
             this.underConstruction.map(this.customPropertySet.getPersistenceSupport().persistenceClass());
-            this.underConstruction.setJournalTableName(this.customPropertySet().getPersistenceSupport().journalTableName());
+            String journalTableName = this.customPropertySet().getPersistenceSupport().journalTableName();
+            if (journalTableName != null) {
+                this.underConstruction.setJournalTableName(journalTableName);
+            }
         }
 
         private void addColumns() {

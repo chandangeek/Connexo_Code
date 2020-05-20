@@ -9,10 +9,10 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -70,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -680,8 +679,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
+        try {
+            getServerComTaskExecution(comTaskExecution).setLockedComPort(null);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
+        }
     }
 
     @Override
@@ -1024,29 +1026,46 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void executionCompletedFor(ComTaskExecution comTaskExecution) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).executionCompleted();
+        try {
+            getServerComTaskExecution(comTaskExecution).executionCompleted();
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionCompleted();
+        }
     }
 
     @Override
     public void executionFailedFor(ComTaskExecution comTaskExecution) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).executionFailed();
+        try {
+            getServerComTaskExecution(comTaskExecution).executionFailed();
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionFailed();
+        }
     }
 
     @Override
     public void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).executionStarted(comPort);
+        try {
+            getServerComTaskExecution(comTaskExecution).executionStarted(comPort);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionStarted(comPort);
+        }
     }
 
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
-        refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+        try {
+            getServerComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+        }
     }
 
     public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
-        refreshComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+        try {
+            getServerComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+        }
     }
 
     @Override

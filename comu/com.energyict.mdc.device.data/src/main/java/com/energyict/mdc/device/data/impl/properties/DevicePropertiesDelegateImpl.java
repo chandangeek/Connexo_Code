@@ -96,8 +96,12 @@ public class DevicePropertiesDelegateImpl implements DevicePropertiesDelegate{
 
         // get the current set of values (general of deviceType and customized ones)
         // if we don't do this, we'll end up with the defaults from all the others
-        CustomPropertySetValues values = customPropertySetService
-                .getUniqueValuesFor(customPropertySet.get(), connectionProvider.get(), Instant.now());
+        CustomPropertySetValues values;
+        if (customPropertySet.get().isVersioned()) {
+            values = customPropertySetService.getUniqueValuesFor(customPropertySet.get(), connectionProvider.get(), Instant.now());
+        } else {
+            values = customPropertySetService.getUniqueValuesFor(customPropertySet.get(), connectionProvider.get());
+        }
 
         // write the value we're trying to set
         values.setProperty(propertyName, value);
@@ -105,7 +109,11 @@ public class DevicePropertiesDelegateImpl implements DevicePropertiesDelegate{
         // execute the writing in a transaction!
         try {
             transactionService.execute(() -> {
-                customPropertySetService.setValuesFor(customPropertySet.get(), connectionProvider.get(), values, Instant.now());
+                if (customPropertySet.get().isVersioned()) {
+                    customPropertySetService.setValuesFor(customPropertySet.get(), connectionProvider.get(), values, Instant.now());
+                } else {
+                    customPropertySetService.setValuesFor(customPropertySet.get(), connectionProvider.get(), values);
+                }
                 return null;
             });
         } catch (Exception ex){
@@ -147,9 +155,14 @@ public class DevicePropertiesDelegateImpl implements DevicePropertiesDelegate{
         }
 
         // finally get the values
-        CustomPropertySetValues valuesSet = customPropertySetService
-                .getUniqueValuesFor(customPropertySet.get(), connectionProvider.get(), Instant.now());
-
+        CustomPropertySetValues valuesSet;
+        if (customPropertySet.get().isVersioned()) {
+            valuesSet = customPropertySetService
+                    .getUniqueValuesFor(customPropertySet.get(), connectionProvider.get(), Instant.now());
+        } else {
+            valuesSet = customPropertySetService
+                    .getUniqueValuesFor(customPropertySet.get(), connectionProvider.get());
+        }
         Map<String, Object> allResults = new HashMap<>();
 
         valuesSet.propertyNames()

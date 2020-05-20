@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.protocolimplv2.dlms.a2.A2DlmsSession;
 import com.energyict.protocolimplv2.dlms.a2.A2Inbound;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7DlmsProperties;

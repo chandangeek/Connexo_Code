@@ -12,10 +12,8 @@ import javax.inject.Inject;
 import java.util.logging.Logger;
 
 public class UpgraderV10_7_2 implements Upgrader {
-
     private final DataModel dataModel;
     private final InstallerV10_7_2Impl installerV10_7_2;
-
 
     @Inject
     public UpgraderV10_7_2(DataModel dataModel, InstallerV10_7_2Impl installerV10_7_2) {

@@ -166,8 +166,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
                 .of(ComTaskExecutionJournalEntry.class,
                         where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
                                 .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))), this.dataModel)
-                .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false)
-                .sorted("id", false);
+                .sorted(ComTaskExecutionJournalEntryImpl.Fields.TIMESTAMP.fieldName(), false)
+                .sorted(ComTaskExecutionJournalEntryImpl.Fields.POSITION.fieldName(), false);
     }
 
     @Override

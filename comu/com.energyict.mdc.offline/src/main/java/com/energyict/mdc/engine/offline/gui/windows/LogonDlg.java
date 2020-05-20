@@ -344,20 +344,6 @@ public class LogonDlg extends EisDialog {
         } // end of while
     }
 
-    private byte[] hash(String password, int salt, boolean useShaHashingMechanism) {
-        MessageDigest md;
-        try {
-            if (useShaHashingMechanism)
-                md = MessageDigest.getInstance(SHA_PASSWORD_HASHING_MECHANISM);
-            else
-                md = MessageDigest.getInstance(DEFAULT_PASSWORD_HASHING_MECHANISM);
-        } catch (NoSuchAlgorithmException ex) {
-            throw new ApplicationException(ex);
-        }
-        String source = "" + (salt / 3) + password + salt;
-        return md.digest(source.getBytes());
-    }
-
     protected void okButtonActionPerformed() {
         this.prevCursor = getCursor();
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

@@ -7,6 +7,7 @@ package com.elster.jupiter.pki;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
@@ -33,6 +34,8 @@ public interface SecurityManagementService {
     }
 
     String COMPONENTNAME = "PKI";
+
+    DataModel getDataModel();
 
     /**
      * Creates a new, empty trust store in Connexo.
@@ -578,13 +581,13 @@ public interface SecurityManagementService {
         ClientCertificateWrapper add();
     }
 
-    public interface KeypairWrapperBuilder {
+    interface KeypairWrapperBuilder {
         KeypairWrapperBuilder alias(String alias);
 
         KeypairWrapper add();
     }
 
-    public interface CertificateTypeBuilder {
+    interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);
 
         KeyType add();
