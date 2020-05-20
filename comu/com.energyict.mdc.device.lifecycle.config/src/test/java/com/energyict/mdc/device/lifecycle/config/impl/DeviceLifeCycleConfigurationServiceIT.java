@@ -181,16 +181,6 @@ public class DeviceLifeCycleConfigurationServiceIT {
         assertThat(timeShift).isNotNull();
     }
 
-    @Test
-    public void defaultFutureEffectiveTimeShiftIsNotNull() {
-        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
-
-        // Business method
-        TimeDuration timeShift = service.getDefaultFutureEffectiveTimeShift();
-
-        // Asserts
-        assertThat(timeShift).isNotNull();
-    }
 
     @Test
     public void maximumPastEffectiveTimeShiftIsNotNull() {
@@ -198,17 +188,6 @@ public class DeviceLifeCycleConfigurationServiceIT {
 
         // Business method
         TimeDuration timeShift = service.getMaximumPastEffectiveTimeShift();
-
-        // Asserts
-        assertThat(timeShift).isNotNull();
-    }
-
-    @Test
-    public void defaultPastEffectiveTimeShiftIsNotNull() {
-        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
-
-        // Business method
-        TimeDuration timeShift = service.getDefaultPastEffectiveTimeShift();
 
         // Asserts
         assertThat(timeShift).isNotNull();

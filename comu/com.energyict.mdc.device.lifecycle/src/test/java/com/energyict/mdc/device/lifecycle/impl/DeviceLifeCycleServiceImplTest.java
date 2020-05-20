@@ -40,6 +40,7 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
@@ -208,6 +209,9 @@ public class DeviceLifeCycleServiceImplTest {
         when(timeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
+        CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
+        when(lifecycleDates.getReceivedDate()).thenReturn(Optional.empty());
+        when(this.device.getLifecycleDates()).thenReturn(lifecycleDates);
         when(this.stateTransition.getEventType()).thenReturn(this.eventType);
         when(this.user.getName()).thenReturn(DeviceLifeCycleServiceImplTest.class.getSimpleName());
         when(user.getLocale()).thenReturn(Optional.empty());

@@ -166,7 +166,8 @@ Ext.define('Mtr.controller.BulkAction', {
 
     saveReadingType: function () {
         var me = this, jsonData = {}, params = '', listOfReadingTypes = [],
-            url = '/api/mtr/readingtypes/activate';
+            url = '/api/mtr/readingtypes/activate',
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
         switch (me.operation) {
             case 'activate':
@@ -187,16 +188,19 @@ Ext.define('Mtr.controller.BulkAction', {
             params = me.getStore('Mtr.store.ReadingTypesBulk').getProxy().extraParams;
         }
 
+        viewport.setLoading(true);
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
             params: params,
             jsonData: jsonData,
             success: function (response) {
+                viewport.setLoading(false);
                 me.getWizard().down('#reading-types-bulk-finish').hide();
                 me.goNextStep();
             },
             failure: function (response, request) {
+                viewport.setLoading(false);
                 me.getStatusPage().down('#step5-error-panel').show();
                 me.getStatusPage().down('#step5-success-panel').hide();
                 me.getWizard().down('#failure-reading-types-bulk-finish').show();

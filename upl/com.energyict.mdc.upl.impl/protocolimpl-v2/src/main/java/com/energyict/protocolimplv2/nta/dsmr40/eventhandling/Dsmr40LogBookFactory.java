@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
@@ -16,9 +17,6 @@ import com.energyict.protocolimplv2.nta.esmr50.common.events.ESMR50Communication
 
 import java.util.Collections;
 import java.util.List;
-
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.MASTER;
-import static com.energyict.protocolimplv2.nta.abstractnta.profiles.AbstractNtaLogBookFactory.MeterType.SLAVE;
 
 public class Dsmr40LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmartNtaProtocol> {
 
@@ -69,14 +67,18 @@ public class Dsmr40LogBookFactory extends AbstractNtaLogBookFactory<AbstractSmar
         return new MbusControlLog(dataContainer).getMeterEvents();
     }
 
-    @Override
-    protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException {
+    private List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException {
         DSMR40MbusEventLog mbusEventLog = new DSMR40MbusEventLog(dataContainer, channel);
         List <MeterEvent> meterEvents = mbusEventLog.getMeterEvents();
         if (mbusEventLog.getIgnoredEvents() > 0 ) {
             getProtocol().journal("WARNING: There are " + mbusEventLog.getIgnoredEvents() + " ignored events on MBus event log on channel " + channel);
         }
         return meterEvents;
+    }
+
+    @Override
+    protected List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel, LogBookReader logBookReader) throws ProtocolException {
+        return parseMBUSEventLog(dataContainer, channel);
     }
 
     @Override

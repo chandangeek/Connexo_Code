@@ -46,6 +46,8 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     private String label;
     private String smartMeterKey;
     private HsmJssKeyType hsmJssKeyType;
+    private boolean serviceKey;
+    private String wrappedKey;
 
     @Inject
     HsmKeyImpl(PropertySpecService propertySpecService,
@@ -160,6 +162,30 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
             return null;
         }
         return Base64.getDecoder().decode(smartMeterKey);
+    }
+
+    @Override
+    public boolean isServiceKey() {
+        return serviceKey;
+    }
+
+    @Override
+    public byte[] getWrappedKey() {
+        if (wrappedKey == null || wrappedKey.isEmpty()) {
+            return null;
+        }
+        return Base64.getDecoder().decode(wrappedKey);
+    }
+
+    @Override
+    public void setServiceKey(boolean serviceKey) {
+        this.serviceKey = serviceKey;
+    }
+
+    @Override
+    public void setWrappedKey(String value) {
+        this.wrappedKey = value;
+        this.save();
     }
 
     public void setSmartMeterKey(byte[] smartMeterKey) {

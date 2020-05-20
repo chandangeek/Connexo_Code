@@ -131,7 +131,7 @@ public abstract class AbstractNtaLogBookFactory<T extends AbstractSmartNtaProtoc
         }  else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus event log on channel " + channel);
-            meterEvents = parseMBUSEventLog(dataContainer, channel);
+            meterEvents = parseMBUSEventLog( dataContainer, channel, logBookReader );
         } else {
             getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();
@@ -171,11 +171,8 @@ public abstract class AbstractNtaLogBookFactory<T extends AbstractSmartNtaProtoc
     protected abstract List<MeterEvent> parseFraudDetectionLog(DataContainer dataContainer) throws ProtocolException;
     protected abstract List<MeterEvent> parseCommunicationLogEventLog(DataContainer dataContainer) throws ProtocolException;
     protected abstract List<MeterEvent> parseMBUSControlLog(DataContainer dataContainer, int channel) throws ProtocolException;
-    protected abstract List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel) throws ProtocolException;
+    protected abstract List<MeterEvent> parseMBUSEventLog(DataContainer dataContainer, int channel, LogBookReader logBookReader) throws ProtocolException;
     protected abstract List<MeterEvent> parseVoltageQualityLog(DataContainer dataContainer) throws ProtocolException;
     protected abstract ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String meterSerialNumber);
-
     protected abstract boolean isSupported(ObisCode obisCode, MeterType meterType);
-
-
 }
