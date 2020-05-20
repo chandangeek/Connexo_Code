@@ -6,7 +6,6 @@ package com.energyict.mdc.common.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -53,38 +52,12 @@ public interface DeviceLifeCycle extends HasId, HasName {
     long getVersion();
 
     /**
-     * Gets the maximum time shift in the future
-     * that can be used for the effective timestamp
-     * of a device life cycle transition.
-     * Any attempt to set the effective timestamp
-     * beyond this time shift constraint will result
-     * in a business exception, failing the execution
-     * of the transition.
-     *
-     * @return The maximum time shift
-     */
-    TimeDuration getMaximumFutureEffectiveTimeShift();
-
-    /**
      * Gets the maximum value for the effective timestamp property
      * when executing a device life cycle transition.
      *
      * @return The maximum value
      */
     Instant getMaximumFutureEffectiveTimestamp();
-
-    /**
-     * Gets the maximum time shift in the past
-     * that can be used for the effective timestamp
-     * of a device life cycle transition.
-     * Any attempt to set the effective timestamp
-     * beyond this time shift constraint will result
-     * in a business exception, failing the execution
-     * of the transition.
-     *
-     * @return The maximum time shift
-     */
-    TimeDuration getMaximumPastEffectiveTimeShift();
 
     /**
      * Gets the maximum value for the effective timestamp property

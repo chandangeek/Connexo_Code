@@ -70,6 +70,7 @@ public class OfflineLogBookImplTest {
         when(logBook.getLogBookType()).thenReturn(logBookType);
         when(logBook.getDevice()).thenReturn(device);
         when(logBook.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK));
+        when(logBook.getLatestEventAdditionDate()).thenReturn(Optional.of(LAST_LOGBOOK));
         return logBook;
     }
 
