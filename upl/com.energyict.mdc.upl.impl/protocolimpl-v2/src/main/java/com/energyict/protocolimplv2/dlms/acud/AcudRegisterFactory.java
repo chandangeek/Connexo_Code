@@ -5,11 +5,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
@@ -67,23 +63,21 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             }
 
             RegisterValue registerValue = null;
-
             if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
                 final Data register = protocol.getDlmsSession().getCosemObjectFactory().getData(obisCode);
                 AbstractDataType attribute = register.getValueAttr();
                 if (attribute.isStructure()) {
                     registerValue = readStructure(obisCode, (Structure) attribute);
+                } else if (attribute.isVisibleString()) {
+                    registerValue = new RegisterValue(obisCode, attribute.getVisibleString().getStr());
                 } else if (attribute.isOctetString() && attribute.getOctetString() != null) {
                     registerValue = new RegisterValue(obisCode, attribute.getOctetString().stringValue());
                 } else if (attribute.isBitString() && attribute.getBitString() != null) {
-                    registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit
-                            .get("")));
-                } else if (attribute.isInteger64() && attribute.getInteger64() != null) {
-                    registerValue = new RegisterValue(obisCode, new Quantity(attribute.getInteger64().longValue(), Unit.get("")));
+                    registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit.get("")));
                 } else {
-                    Unsigned32 value = register.getValueAttr().getUnsigned32();
+                    Number value = register.getValueAttr().toBigDecimal();
                     if (value != null) {
-                        registerValue = new RegisterValue(obisCode, new Quantity(value.getValue(), Unit.get("")));
+                        registerValue = new RegisterValue(obisCode, new Quantity(value, Unit.get("")));
                     } else {
                         return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                     }
@@ -101,6 +95,10 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                     Quantity quantity = new Quantity(valueAttr.toBigDecimal(), register.getScalerUnit().getEisUnit());
                     registerValue = new RegisterValue(obisCode, quantity, register.getCaptureTime());
                 }
+            } else if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
+                CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(obisCode);
+                int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
+                registerValue = new RegisterValue(obisCode, new Quantity(amount, Unit.get("")));
             } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             }
