@@ -861,7 +861,7 @@ public class TableImpl<T> implements Table<T> {
             if (hasJournal()) {
                 fail("can''t journal table without primary key.");
             }
-            if (isCached()) {
+            if (cacheType != CacheType.NO_CACHE) {
                 fail("can''t cache table without primary key.");
             }
             getRealColumns().forEach(column -> {

@@ -46,7 +46,8 @@ Ext.define('MdcApp.controller.Main', {
         'Cfg.privileges.Audit',
         'Tou.privileges.TouCampaign',
         'Itk.privileges.Task',
-        'Wss.privileges.Webservices'
+        'Wss.privileges.Webservices',
+        'Sam.privileges.SystemProperties'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
