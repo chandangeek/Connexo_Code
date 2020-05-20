@@ -9,6 +9,9 @@ import com.elster.jupiter.rest.util.impl.MessageSeeds;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.google.common.collect.Range;
 
 import javax.ws.rs.QueryParam;
@@ -64,7 +67,14 @@ public class JsonQueryFilter {
     public JsonQueryFilter(@QueryParam("filter") String source) {
         try {
             if (source != null) {
-                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
+                PolymorphicTypeValidator ptv =
+                        BasicPolymorphicTypeValidator.builder()
+                                .allowIfBaseType(JsonNode.class)
+                                .build();
+                ObjectMapper mapper = JsonMapper.builder()
+                        .polymorphicTypeValidator(ptv)
+                        .build();
+                JsonNode node = mapper.readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
                         JsonNode property = singleFilter.get(PROPERTY);
