@@ -60,6 +60,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -608,6 +609,59 @@ public class DeviceReadingsImporterFactoryTest {
     }
 
     @Test
+    public void testMoreThenYearImport() {
+        String deviceName = "Dataimporttest";
+        ZonedDateTime readingDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationStartDate = ZonedDateTime.of(2015, 7, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationEndDate1 = ZonedDateTime.of(2015, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationEndDate2 = ZonedDateTime.of(2018, 6, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime lastReadingDate = ZonedDateTime.of(2016, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+        String readingType = "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0";
+        long value = 1;
+        long rows = 0;
+        StringBuilder csv = new StringBuilder("Device name;Reading date;Reading type MRID;Reading Value;;\n");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm");
+        boolean increment = true;
+        while (readingDate.isBefore(lastReadingDate)) {
+            csv.append(deviceName).append(";")
+                    .append(readingDate.format(dateTimeFormatter)).append(";")
+                    .append(readingType).append(";")
+                    .append(value).append("\n");
+            //avoid overflow
+            if (increment) {
+                value++;
+                increment = value != 999L;
+            } else {
+                value--;
+                increment = value == 0L;
+            }
+            readingDate = readingDate.plusMinutes(15);
+            rows++;
+        }
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv.toString());
+        Device device = mockDevice("Dataimporttest");
+        mockChannel(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        MeterActivation meterActivation1 = mockMeterActivation(Range.closedOpen(meterActivationStartDate.toInstant(), meterActivationEndDate1.toInstant()));
+        MeterActivation meterActivation2 = mockMeterActivation(Range.closedOpen(meterActivationEndDate1.toInstant(), meterActivationEndDate2.toInstant()));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation2, meterActivation1));
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS).format(rows, 1));
+        ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
+        verify(device).store(readingArgumentCaptor.capture());
+
+        List<IntervalBlock> intervalBlocks = readingArgumentCaptor.getValue().getIntervalBlocks();
+        assertThat(intervalBlocks).hasSize(1);
+        assertThat(intervalBlocks.get(0).getReadingTypeCode()).isEqualTo("11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        List<IntervalReading> intervals = intervalBlocks.get(0).getIntervals();
+        assertThat(intervals).hasSize((int) rows);
+
+    }
+
+    @Test
     public void testSuccessImport() {
         ZonedDateTime readingDate1 = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
         ZonedDateTime readingDate2 = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
@@ -1129,7 +1183,7 @@ public class DeviceReadingsImporterFactoryTest {
     }
 
     private Device mockDeviceInState(String deviceName, String mRID, DefaultState state) {
-        Device device = mock(Device.class);
+        Device device = spy(Device.class);
         when(device.getName()).thenReturn(deviceName);
         when(device.getmRID()).thenReturn(mRID);
         State deviceState = mock(State.class);

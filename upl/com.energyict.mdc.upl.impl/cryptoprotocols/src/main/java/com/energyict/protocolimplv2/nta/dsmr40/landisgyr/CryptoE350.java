@@ -37,7 +37,7 @@ public class CryptoE350 extends E350 {
 
     @Override
     public String getVersion() {
-        return  "2020-04-09";
+        return  "2020-05-15";
     }
 
     @Override

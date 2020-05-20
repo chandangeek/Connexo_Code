@@ -5,10 +5,10 @@ package com.energyict.mdc.issue.datacollection.impl.install;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -18,7 +18,6 @@ import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMe
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.EnumSet;
 import java.util.List;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -65,13 +64,13 @@ public class UpgraderV10_8 implements Upgrader {
     }
 
     private void createAndAssignIssueRelativePeriodsCategory() {
-        RelativePeriodCategory category = timeService.createRelativePeriodCategory(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY);
+        if (!timeService.findRelativePeriodCategoryByName(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY).isPresent()) {
+            RelativePeriodCategory category = timeService.createRelativePeriodCategory(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY);
 
-        EnumSet.allOf(DefaultRelativePeriodDefinition.class)
-                .forEach(definition -> {
-                    timeService.findRelativePeriodByName(definition.getPeriodName())
-                            .ifPresent(relativePeriod -> relativePeriod.addRelativePeriodCategory(category));
-                });
+            timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
+                    .isEqualTo("relativeperiod.category.deviceAlarm"))
+                    .forEach(relativePeriod -> relativePeriod.addRelativePeriodCategory(category));
+        }
     }
 
     private void updateDataCollectionEventMetadata() {

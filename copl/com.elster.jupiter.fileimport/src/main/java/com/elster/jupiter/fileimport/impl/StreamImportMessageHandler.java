@@ -66,6 +66,7 @@ class StreamImportMessageHandler implements MessageHandler {
                         throw ex;
                     } finally {
                         fileImportOccurrence.save();
+                        connection.close();
                     }
                 } else {
                     this.fileImportOccurrence = fileImportOccurrence;
