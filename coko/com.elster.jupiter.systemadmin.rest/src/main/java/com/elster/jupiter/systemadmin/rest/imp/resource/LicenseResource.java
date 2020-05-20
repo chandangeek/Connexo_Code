@@ -108,6 +108,10 @@ public class LicenseResource {
                 info = addLicense(signedObject);
             }
         }
+        if(null != info ) {
+            info = new ActionInfo();
+            info.setFailure("Error while reading input");
+        }
         return Response.ok().entity(jsonService.serialize(info)).build();
     }
 
