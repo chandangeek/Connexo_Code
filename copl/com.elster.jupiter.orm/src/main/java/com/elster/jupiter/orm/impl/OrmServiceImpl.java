@@ -246,7 +246,7 @@ public final class OrmServiceImpl implements OrmService {
         }
     }
 
-    public void setCacheEnabled(String enableCache) {
+    private void setCacheEnabled(String enableCache) {
         this.cacheEnabled = enableCache.equals("1") ? true: false;
         return;
     }
@@ -281,7 +281,7 @@ public final class OrmServiceImpl implements OrmService {
                 " VERSIONCOUNT number DEFAULT 1 NOT NULL,"+
                 " CREATETIME number DEFAULT 0 NOT NULL,"+
                 " MODTIME number DEFAULT 0 NOT NULL,"+
-                " USERNAME varchar2(" + Table.NAME_LENGTH + ") NULL,"+
+                " USERNAME varchar2(" + Table.NAME_LENGTH + ") DEFAULT ('install/upgrade') NOT NULL,"+
                 " VALUE varchar2(" + Table.NAME_LENGTH + ")  NOT NULL," +
                 "CONSTRAINT PK_SYP_PROP PRIMARY KEY (KEY))";
 
@@ -297,8 +297,8 @@ public final class OrmServiceImpl implements OrmService {
         }
 
 
-        String evictionTime = readSystemPropertyValue("evictiontime", EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE);
-        String enablecache = readSystemPropertyValue("enablecache", ENABLE_CACHE_DEFAULT_VALUE);
+        String evictionTime = readSystemPropertyValue("evictiontime", "300:13");
+        String enablecache = readSystemPropertyValue("enablecache", "1");
 
         setEvictionTime(evictionTime);
         setCacheEnabled(enablecache);

@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 public class SystemPropertyChangeHandlerLoop implements Runnable {
 
     private final ScheduledThreadPoolExecutor executor;
-    private final SystemPropertyService systemPropertyService;
+    private final SystemPropertyServiceImpl systemPropertyService;
     private static final Logger LOGGER = Logger.getLogger(SystemPropertyChangeHandlerLoop.class.getName());
 
-    SystemPropertyChangeHandlerLoop(SystemPropertyService systemPropertyService) {
+    SystemPropertyChangeHandlerLoop(SystemPropertyServiceImpl systemPropertyService) {
         executor = new ScheduledThreadPoolExecutor(1);
         this.systemPropertyService = systemPropertyService;
     }
@@ -35,8 +35,7 @@ public class SystemPropertyChangeHandlerLoop implements Runnable {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            String[] value = systemPropertyService.getPropertyValue("evictiontime").split(":");
-            TimeDuration time = new TimeDuration(Integer.valueOf(value[0]), Integer.valueOf(value[1]));
+            TimeDuration time = (TimeDuration)systemPropertyService.getPropertyValue(SystemPropertyTranslationKeys.EVICTION_TIME.getKey());
             executor.schedule(this, time.getSeconds(), TimeUnit.SECONDS);
         }
     }

@@ -1,5 +1,7 @@
 package com.elster.jupiter.systemproperties;
 
+import com.elster.jupiter.properties.PropertySpec;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
@@ -14,13 +16,9 @@ public interface SystemPropertyService {
 
     Optional<SystemProperty> findSystemPropertyByKey(String key);
 
-    Optional<SystemPropertySpec> findPropertySpec(String key);
+    PropertySpec findPropertySpec(String key);
 
-    String getPropertyValue(String key);
+    Object getPropertyValue(String key);
 
-    void actionOnPropertyChange(SystemProperty systemProperty);
-
-    void readAndProcessUpdatedProperties();
-
-    void setPropertyValue(String key, String value);
+    void setPropertyValue(String key, Object value);
 }

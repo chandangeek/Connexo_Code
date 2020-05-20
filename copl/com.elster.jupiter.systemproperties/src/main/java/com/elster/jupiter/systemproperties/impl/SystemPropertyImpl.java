@@ -3,7 +3,9 @@ package com.elster.jupiter.systemproperties.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.systemproperties.SystemProperty;
+import com.elster.jupiter.systemproperties.SystemPropertyService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -27,10 +29,14 @@ public class SystemPropertyImpl implements SystemProperty {
     private long version;
 
     private final transient DataModel dataModel;
+    private final transient SystemPropertyService systemPropertyService;
+    private PropertySpec propertySpec = null;
 
     @Inject
-    public SystemPropertyImpl(DataModel dataModel) {
+    public SystemPropertyImpl(DataModel dataModel,
+                              SystemPropertyService systemPropertyService) {
         this.dataModel = dataModel;
+        this.systemPropertyService = systemPropertyService;
     }
 
     @Override
@@ -39,13 +45,21 @@ public class SystemPropertyImpl implements SystemProperty {
     }
 
     @Override
-    public String getValue() {
-        return value;
+    public Object getValueObject() {
+        return getPropertySpec().getValueFactory().fromStringValue(value);
     }
 
     @Override
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(){
+        if (propertySpec == null){
+            propertySpec = systemPropertyService.findPropertySpec(key);
+        }
+        return propertySpec;
     }
 
     @Override

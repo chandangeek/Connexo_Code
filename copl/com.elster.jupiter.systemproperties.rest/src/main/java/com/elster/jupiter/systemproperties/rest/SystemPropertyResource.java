@@ -1,11 +1,11 @@
 package com.elster.jupiter.systemproperties.rest;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.systemproperties.SystemProperty;
 import com.elster.jupiter.systemproperties.SystemPropertyService;
-import com.elster.jupiter.systemproperties.SystemPropertySpec;
 import com.elster.jupiter.systemproperties.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -44,9 +44,7 @@ public class SystemPropertyResource {
         List<PropertyInfo> propertyInfos = new ArrayList<>();
 
         for (SystemProperty sp : sysPropsList){
-            SystemPropertySpec spec = systemPropertyService.findPropertySpec(sp.getKey()).get();
-            Object val = spec.getPropertySpec().getValueFactory().fromStringValue(sp.getValue());
-            PropertyInfo info = propertyValueInfoService.getPropertyInfo(spec.getPropertySpec(), key -> val);
+            PropertyInfo info = propertyValueInfoService.getPropertyInfo(sp.getPropertySpec(), key -> sp.getValueObject());
             propertyInfos.add(info);
         }
 
@@ -65,14 +63,11 @@ public class SystemPropertyResource {
         List<PropertyInfo> propertiesToUpdate = propertiesInfo.properties;
 
         for (PropertyInfo property : propertiesToUpdate) {
-            SystemPropertySpec spec = systemPropertyService.findPropertySpec(property.key).get();
+            PropertySpec propertySpec = systemPropertyService.findPropertySpec(property.key);
             List<PropertyInfo> propses = new ArrayList();
             propses.add(property);
-            Object value = propertyValueInfoService.findPropertyValue(spec.getPropertySpec(), (Collection<PropertyInfo>) propses);
-
-            String valueStr =  spec.getPropertySpec().getValueFactory().toStringValue(value);
-
-            systemPropertyService.setPropertyValue(property.key, valueStr /*spec.convertValueToString(property)*/);
+            Object value = propertyValueInfoService.findPropertyValue(propertySpec, (Collection<PropertyInfo>) propses);
+            systemPropertyService.setPropertyValue(property.key, value);
         }
 
         return Response.ok().build();

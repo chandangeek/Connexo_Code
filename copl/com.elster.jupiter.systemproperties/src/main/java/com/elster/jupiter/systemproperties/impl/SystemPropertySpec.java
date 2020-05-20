@@ -1,8 +1,7 @@
-package com.elster.jupiter.systemproperties;
+package com.elster.jupiter.systemproperties.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyType;
+import com.elster.jupiter.systemproperties.SystemProperty;
 
 import aQute.bnd.annotation.ProviderType;
 
