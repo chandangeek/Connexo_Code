@@ -845,7 +845,7 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
-    void prepare(long evictionTime, boolean enableCache) {
+    public void prepare(long evictionTime, boolean enableCache) {
         checkActiveBuilder();
         checkMapperTypeIsSet();
         getMapperType().validate();
@@ -858,6 +858,7 @@ public class TableImpl<T> implements Table<T> {
                 }
             }
         } else {
+
             if (hasJournal()) {
                 fail("can''t journal table without primary key.");
             }
