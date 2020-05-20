@@ -85,7 +85,7 @@ mvn:com.google.protobuf/protobuf-java/2.6.0
 mvn:com.sun.xml.bind/jaxb-xjc/2.2.11
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/3.5_1
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/1.4.3_3
-mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
+mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/2.1.3_1
 mvn:org.slf4j/slf4j-jdk14/1.6.0
 mvn:org.eclipse.jdt/com.springsource.org.eclipse.jdt.core.compiler.batch/3.6.1
 mvn:com.elster.jupiter/jupiter-oracle/1.11.2.03
