@@ -19,21 +19,21 @@ import java.util.Optional;
 
 public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
 
-    public String name;
-    public DeviceType deviceType;
-    public String deviceGroup;
-    public Instant activationStart;
-    public Instant activationEnd;
-    public Calendar calendar;
-    public String activationOption;
-    public Instant activationDate;
-    public String updateType;
-    public Long validationTimeout;
-    public boolean withUniqueCalendarName;
-    public Long calendarUploadComTaskId;
-    public Long validationComTaskId;
-    public ConnectionStrategy calendarUploadConnectionStrategy;
-    public ConnectionStrategy validationConnectionStrategy;
+    private String name;
+    private DeviceType deviceType;
+    private String deviceGroup;
+    private Instant activationStart;
+    private Instant activationEnd;
+    private Calendar calendar;
+    private String activationOption;
+    private Instant activationDate;
+    private String updateType;
+    private Long validationTimeout;
+    private boolean withUniqueCalendarName;
+    private Long calendarUploadComTaskId;
+    private Long validationComTaskId;
+    private ConnectionStrategy calendarUploadConnectionStrategy;
+    private ConnectionStrategy validationConnectionStrategy;
 
     private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private final DataModel dataModel;
@@ -75,8 +75,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy){
-        if(calendarUploadConnectionStrategy == null){
+    public TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy) {
+        if (calendarUploadConnectionStrategy == null) {
             this.calendarUploadConnectionStrategy = null;
             return this;
         }
@@ -85,8 +85,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withValidationConnectionStrategy(String validationConnectionStrategy){
-        if(validationConnectionStrategy == null){
+    public TimeOfUseCampaignBuilder withValidationConnectionStrategy(String validationConnectionStrategy) {
+        if (validationConnectionStrategy == null) {
             this.validationConnectionStrategy = null;
             return this;
         }

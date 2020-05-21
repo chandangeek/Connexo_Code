@@ -328,9 +328,13 @@ public class A2 extends AbstractDlmsProtocol {
 
     private DeviceLogBookSupport getLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new A2LogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
+            logBookFactory = createLogBookFactory();
         }
         return logBookFactory;
+    }
+
+    protected A2LogBookFactory createLogBookFactory() {
+        return new A2LogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
     }
 
     public Converter getConverter() {
@@ -403,9 +407,13 @@ public class A2 extends AbstractDlmsProtocol {
 
     protected A2Messaging getProtocolMessaging() {
         if (messaging == null) {
-            messaging = new A2Messaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
+            messaging = createMessaging();
         }
         return messaging;
+    }
+
+    protected A2Messaging createMessaging() {
+        return new A2Messaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
     }
 
     @Override

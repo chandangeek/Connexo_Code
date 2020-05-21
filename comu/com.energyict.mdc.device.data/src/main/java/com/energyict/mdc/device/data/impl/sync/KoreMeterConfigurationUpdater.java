@@ -69,21 +69,6 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
                 .ifPresent(meterConfiguration -> readingTypeConfigs.addAll(meterConfiguration.getReadingTypeConfigs()));
 
         endCurrentMeterConfigurationIfPresent();
-
-        /*device.getChannels().stream()
-                .forEach(channel -> {
-                    readingTypeConfigs.stream()
-                            .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().getMRID().compareToIgnoreCase(channel.getReadingType().getMRID())==0)
-                            .forEach(meterReadingTypeConfiguration -> {
-                                Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
-                                meterReadingTypeConfiguration.getOverflowValue().ifPresent(value -> channelUpdater.setOverflowValue(value));
-                                meterReadingTypeConfiguration.getNumberOfFractionDigits().ifPresent(value -> channelUpdater.setNumberOfFractionDigits(value));
-                                channelUpdater.update();
-                            });
-
-                });*/
-
-
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = meterConfigurationBuilderProvider.apply(null);
         device.getChannels().stream()
                 .forEach(channel -> {
@@ -91,13 +76,20 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
                             .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().getMRID().compareToIgnoreCase(channel.getReadingType().getMRID())==0)
                             .forEach(meterReadingTypeConfiguration -> {
                                 if (this.readingType.getMRID().compareToIgnoreCase(channel.getReadingType().getMRID())!=0) {
-                                    /*configureReadingType(
-                                            meterConfigurationBuilder,
-                                            channel.getReadingType(),
-                                            meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt(),
-                                            meterReadingTypeConfiguration.getOverflowValue(),
-                                            null);*/
                                     Meter.MeterReadingTypeConfigurationBuilder builder = meterConfigurationBuilder.configureReadingType(channel.getReadingType());
+                                    meterReadingTypeConfiguration.getOverflowValue().ifPresent(overruledOverflowValue -> builder.withOverflowValue(overruledOverflowValue));
+                                    meterReadingTypeConfiguration.getNumberOfFractionDigits().ifPresent(numberOfFractionDigits -> builder.withNumberOfFractionDigits(numberOfFractionDigits));
+                                }
+                            });
+                });
+
+        device.getRegisters().stream()
+                .forEach(register -> {
+                    readingTypeConfigs.stream()
+                            .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().getMRID().compareToIgnoreCase(register.getReadingType().getMRID())==0)
+                            .forEach(meterReadingTypeConfiguration -> {
+                                if (this.readingType.getMRID().compareToIgnoreCase(register.getReadingType().getMRID())!=0) {
+                                    Meter.MeterReadingTypeConfigurationBuilder builder = meterConfigurationBuilder.configureReadingType(register.getReadingType());
                                     meterReadingTypeConfiguration.getOverflowValue().ifPresent(overruledOverflowValue -> builder.withOverflowValue(overruledOverflowValue));
                                     meterReadingTypeConfiguration.getNumberOfFractionDigits().ifPresent(numberOfFractionDigits -> builder.withNumberOfFractionDigits(numberOfFractionDigits));
                                 }
@@ -105,25 +97,15 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
 
                 });
 
-        /*readingTypeConfigs.stream()
-                .forEach(meterReadingTypeConfiguration -> {
-                            Meter.MeterReadingTypeConfigurationBuilder builder = meterConfigurationBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured().);
-                            meterReadingTypeConfiguration.getOverflowValue().ifPresent(overruledOverflowValue -> builder.withOverflowValue(overruledOverflowValue));
-                            meterReadingTypeConfiguration.getNumberOfFractionDigits().ifPresent(numberOfFractionDigits -> builder.withNumberOfFractionDigits(numberOfFractionDigits));
-                            builder.create();
-                        }
-                    );*/
-
-        if (overruledNbrOfFractionDigits != null && overruledOverflowValue != null) {
-            meterConfigurationBuilder.configureReadingType(this.readingType)
-                    .withOverflowValue(overruledOverflowValue)
-                    .withNumberOfFractionDigits(overruledNbrOfFractionDigits).create();
-        } else if (overruledNbrOfFractionDigits == null) {
-            meterConfigurationBuilder.configureReadingType(this.readingType)
-                    .withOverflowValue(overruledOverflowValue).create();
-        } else {
-            meterConfigurationBuilder.configureReadingType(this.readingType)
-                    .withNumberOfFractionDigits(overruledNbrOfFractionDigits).create();
+        if (overruledNbrOfFractionDigits != null || overruledOverflowValue != null) {
+            Meter.MeterReadingTypeConfigurationBuilder buider = meterConfigurationBuilder.configureReadingType(this.readingType);
+            if (overruledOverflowValue != null) {
+                buider.withOverflowValue(overruledOverflowValue);
+            }
+            if (overruledNbrOfFractionDigits != null) {
+                buider.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+            }
+            buider.create();
         }
     }
 

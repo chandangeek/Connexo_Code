@@ -183,7 +183,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'fieldcontainer',
                 name: 'recurrenceValues',
                 fieldLabel: Uni.I18n.translate('general.firmwareTimeout', 'FWC', 'Timeout before validation'),
-                margin: '30 0 10 0',
+                margin: '10 0 10 0',
                 hidden: true,
                 required: true,
                 layout: 'hbox',
@@ -220,6 +220,17 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 width: 1000
             },
             {
+                itemId: 'fwc-campaign-unique-firmware-version-field',
+                xtype: 'checkbox',
+                fieldLabel: Uni.I18n.translate(
+                    'general.uniqueFirmwareVersion',
+                    'FWC',
+                    'Upload with unique firmware version'
+                ),
+                name: 'withUniqueFirmwareVersion',
+                margin: '-5 0 0 0'
+            },
+            {
                 xtype: 'combobox',
                 itemId: 'fwc-campaign-allowed-comtask',
                 name: 'calendarUploadComTask',
@@ -240,7 +251,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 queryMode: 'local',
                 displayField: 'name',
                 valueField: 'id',
-                margin: '30 0 10 0',
+                margin: '10 0 10 0',
                 hidden: true,
                 width: 650,
             },
@@ -617,6 +628,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
                 me.down('#fwc-campaign-allowed-comtask').setDisabled(true);
                 me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
+                me.down('#fwc-campaign-unique-firmware-version-field').setDisabled(true);
 
                 var firmvareVersionsView = me.down('#firmware-version-options');
                 var firmvareVersionsStore = firmvareVersionsView.store;

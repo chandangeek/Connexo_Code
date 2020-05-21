@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -78,6 +79,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.time.Clock;
@@ -696,12 +698,13 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * Create an event for a Failed Transition.<br>
      * We don't want to do rollbacks before saving the failure message into DB, otherwise we'll get a
      * TransactionRequiredException
-     *  @param action the authorize action
+     *
+     * @param action the authorize action
      * @param device the device
-     * @param cause the cause
+     * @param cause  the cause
      */
     private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause) {
-        if(transactionService.isInTransaction()){
+        if (transactionService.isInTransaction()) {
             this.rollback();
         }
         eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
@@ -721,24 +724,26 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return this.thesaurus.getSimpleFormat(seed);
     }
 
-    private void setSavepoint(){
+    private void setSavepoint() {
         savepoint = Optional.empty();
-        try {
-            if (transactionService.isInTransaction()) {
-                savepoint = Optional.of(dataModel.getConnection(false).setSavepoint());
+        if (transactionService.isInTransaction()) {
+            try (Connection connection = dataModel.getConnection(false)) {
+                savepoint = Optional.of(connection.setSavepoint());
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
             }
-        } catch (SQLException e) {
         }
     }
 
-    private void rollback(){
-        try {
-            if (transactionService.isInTransaction() && savepoint.isPresent()) {
-                dataModel.getConnection(false).rollback(savepoint.get());
+    private void rollback() {
+        if (transactionService.isInTransaction() && savepoint.isPresent()) {
+            try (Connection connection = dataModel.getConnection(false)) {
+                connection.rollback(savepoint.get());
                 savepoint = Optional.empty();
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
             }
-        } catch (SQLException e) {
-        }
 
+        }
     }
 }

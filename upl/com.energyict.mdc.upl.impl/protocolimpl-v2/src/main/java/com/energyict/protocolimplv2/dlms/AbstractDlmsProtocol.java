@@ -108,6 +108,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
     @Override
     public void setTime(Date timeToSet) {
+        journal( "Set new date: " + timeToSet.toString() + "." );
         try {
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet, getTimeZone()));
         } catch (IOException e) {

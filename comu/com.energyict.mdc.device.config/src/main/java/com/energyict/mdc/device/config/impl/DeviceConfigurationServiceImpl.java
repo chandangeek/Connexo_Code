@@ -139,6 +139,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1130,11 +1131,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return query.select(ListOperator.IN.contains("id", deviceConfigIds));
     }
 
-    private List<DeviceLifeCycleInDeviceTypeInfo> deviceLifeCycleInDeviceTypes = new ArrayList<>();
+    private List<DeviceLifeCycleInDeviceTypeInfo> deviceLifeCycleInDeviceTypes = new CopyOnWriteArrayList<>();
 
     @Override
     public DeviceLifeCycleInDeviceTypeInfo[] getDeviceLifeCycleInDeviceTypeInfoPossibleValues() {
-        //TODO: this chaange was a quick fix before release but we should device if we move this code back to templates to we keep it here and we find another way to not reload the data from DB each time, but only when needed
+        //TODO: CONM-923. This change was a quick fix before release but we should device if we move this code back to templates to we keep it here
+        //and we find another way to not reload the data from DB each time, but only when needed.
+        //Fix for following issue: Device type in Issue/alarm creation rules is not updated when a new device type is added or removed
         clearAndRecalculateCache();
         return deviceLifeCycleInDeviceTypes.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
     }
