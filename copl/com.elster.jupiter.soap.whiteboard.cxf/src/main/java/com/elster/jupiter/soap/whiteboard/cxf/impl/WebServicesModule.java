@@ -8,7 +8,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.CxfSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesDataModelService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import com.google.inject.AbstractModule;

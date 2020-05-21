@@ -37,7 +37,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesDataModelService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -49,6 +48,7 @@ import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.osgi.BundleWaiter;
 import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableList;
@@ -96,7 +96,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
         service = {AppService.class, IAppService.class, Subscriber.class, TopicHandler.class},
         property = {"name=" + AppService.COMPONENT_NAME},
         immediate = true)
-public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler {
+public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler, BundleWaiter.Startable {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -133,7 +133,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     private Set<ImportSchedule> servedImportSchedules = new HashSet<>();
     private final Object reconfigureLock = new Object();
     private final DelayedRegistrationHandler delayedNotifications = new DelayedRegistrationHandler();
-    private volatile ServiceRegistration<TopicHandler> registration;
+    private volatile List<ServiceRegistration> registrations = new ArrayList<>();;
 
     public AppServiceImpl() {
         threadGroup = new ThreadGroup("AppServer message listeners");
@@ -170,6 +170,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         LOGGER.info(() -> "Activating " + this.toString() + " from thread " + Thread.currentThread().getName());
         try {
             this.context = context;
+            BundleWaiter.wait(this, context, "com.elster.jupiter.soap.webservices.installer");
 
             webServiceRegistrationTopicHandler = new WebServiceRegistrationTopicHandler(this, webServicesService);
             dataModel.register(new AbstractModule() {
@@ -198,7 +199,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
 
             upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
 
-            registration = context.registerService(TopicHandler.class, webServiceRegistrationTopicHandler, new Hashtable<>());
+            registrations.add(context.registerService(TopicHandler.class, webServiceRegistrationTopicHandler, new Hashtable<>()));
 
             tryActivate(context);
             delayedNotifications.ready();
@@ -212,9 +213,10 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     @Deactivate
     public void deactivate() {
         LOGGER.info(() -> "Deactivating " + this.toString() + " from thread " + Thread.currentThread().getName());
-        registration.unregister();
         this.context = null;
         stopAppServer();
+        registrations.forEach(ServiceRegistration::unregister);
+        registrations.clear();
     }
 
     private void tryActivate(BundleContext context) {
@@ -588,11 +590,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
-    @Reference
-    public void setWebServicesDataModelService(WebServicesDataModelService webServicesDataModelService) {
-        // wait for initialization of webservice
-    }
-
     private class CommandHandler implements MessageHandler {
 
         @Override
@@ -730,6 +727,11 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     @Override
     public String getTopicMatcher() {
         return "com/elster/jupiter/fileimport/importschedule/UPDATED";
+    }
+
+    @Override
+    public void start(BundleContext context) {
+        registrations.add(context.registerService(AppService.class, this, null));
     }
 
     @Override
