@@ -143,7 +143,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.appendWhereOrAnd();
             this.append("(");
             boolean notFirst = false;
-            boolean nullExist = false;
+            boolean nullRequested = false;
             for (CompletionCode completionCode : this.completionCodes) {
                 if (completionCode != null) {
                     if (notFirst) {
@@ -154,16 +154,16 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
                     this.addInt(completionCode.dbValue());
                     notFirst = true;
                 } else {
-                    nullExist = true;
+                    nullRequested = true;
                 }
             }
             if (notFirst) {
                 this.append(")");
-                if (nullExist) {
+                if (nullRequested) {
                     this.append(" OR ");
                 }
             }
-            if (nullExist) {
+            if (nullRequested) {
                 this.append("cte.lastsess_highestpriocomplcode IS NULL");
             }
             this.append(")");
