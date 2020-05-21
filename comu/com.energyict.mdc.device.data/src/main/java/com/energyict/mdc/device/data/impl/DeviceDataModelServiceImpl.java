@@ -725,7 +725,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         batchService = new BatchServiceImpl(this);
         deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
         crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
-        comTaskExecutionCreatorEventHandler = new ComTaskExecutionCreatorEventHandler();
+        comTaskExecutionCreatorEventHandler = new ComTaskExecutionCreatorEventHandler(deviceService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
