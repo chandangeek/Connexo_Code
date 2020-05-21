@@ -42,15 +42,19 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARES_BELOW_MINIMUM_LEVEL(34, "FirmwareBelowMinimumLevel", "Firmware of the following types is below the minimum level: {0}.", Level.WARNING),
 
 
-    DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1001, "DevicesWerentAddedBecausePartOtherCampaign", "''{0}'' devices weren''t added to the campaign because they are a part of another ongoing campaign.", Level.INFO),
+    DEVICES_HAVENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1001, "DevicesHaventAddedBecausePartOtherCampaign", "''{0}'' devices haven''t been added to the campaign because they are part of another ongoing campaign.", Level.INFO),
     DEVICE_WAS_ADDED(1002, "DeviceWasAdded", "Device was added", Level.INFO),
-    DEVICES_WERENT_ADDED_BECAUSE_DIFFERENT_TYPE(1003, "DevicesWerentAddedBecauseDifferentType", "''{0}'' devices weren''t added to the campaign because they are of a different type.", Level.INFO),
-    DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND(1004, "DevicesWithGroupAndTypeNotFound", "Devices with group ''{0}'' and type ''{1}'' weren''t found.", Level.INFO),
+    DEVICES_HAVENT_ADDED_BECAUSE_DIFFERENT_TYPE(1003, "DevicesHaventAddedBecauseDifferentType", "''{0}'' devices haven''t been added to the campaign because they are of a different type.", Level.INFO),
+    DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND(1004, "DevicesWithGroupAndTypeNotFound", "Devices with group ''{0}'' and type ''{1}'' haven''t been found.", Level.INFO),
     CAMPAIGN_WAS_CANCELED_BECAUSE_DIDNT_RECEIVE_DEVICES(1005, "CampaignWasCancelledBecauseDidNotReceiveDevices", "Campaign was cancelled because it didn''t receive devices.", Level.INFO),
     DEVICE_GROUP_ISNT_FOUND(1006, "DeviceGroupIsntFound", "Device group ''{0}'' isn''t found.", Level.WARNING),
     COULDNT_FIND_SERVICE_CALL_TYPE(1007, "CouldntFindServiceCallType", "Couldn''t find a service call type {0} with version {1}.", Level.WARNING),
     DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND(1008, "DefaultFirmwareManagementTaskCanNotBeFound", "The default firmware management communication task can''t be found", Level.WARNING),
     DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE(1009, "DefaultFirmwareManagementTaskIsNotActive", "Firmware version cannot be changed because Firmware management communication task isn''t active on device configuration", Level.WARNING),
+    DEVICES_HAVENT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION(1010, "DevicesHaventAddedBecauseHaveThisFirmwareVersion", "''{0}'' devices haven''t been added to the campaign because they already have this firmware version.", Level.INFO),
+    DEVICE_HASNT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1011, "DeviceHasntAddedBecausePartOtherCampaign", "1 device hasn''t been added to the campaign because it is part of another ongoing campaign.", Level.INFO),
+    DEVICE_HASNT_ADDED_BECAUSE_DIFFERENT_TYPE(1012, "DeviceHasntAddedBecauseDifferentType", "1 device hasn''t been added to the campaign because it is of a different type.", Level.INFO),
+    DEVICE_HASNT_ADDED_BECAUSE_HAVE_THIS_FIRMWARE_VERSION(1013, "DeviceHasntAddedBecauseHaveThisFirmwareVersion", "1 device hasn''t been added to the campaign because it already has this firmware version.", Level.INFO),
 
     CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user.", Level.INFO),
     RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.", Level.INFO),

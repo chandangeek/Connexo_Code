@@ -16,22 +16,20 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.EventType;
-import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumFutureEffectiveTimeShiftInRange;
-import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumPastEffectiveTimeShiftInRange;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -48,9 +46,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:30)
  */
-@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
-@MaximumFutureEffectiveTimeShiftInRange(message = "{" + MessageSeeds.Keys.MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", groups = { Save.Create.class, Save.Update.class })
-@MaximumPastEffectiveTimeShiftInRange(message = "{" + MessageSeeds.Keys.MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", groups = { Save.Create.class, Save.Update.class })
+@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME + "}", groups = {Save.Create.class, Save.Update.class})
 @XmlRootElement
 public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
@@ -58,8 +54,6 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         NAME("name"),
         OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
         STATE_MACHINE("stateMachine"),
-        MAX_FUTURE_EFFECTIVE_TIME_SHIFT("maximumFutureEffectiveTimeShift"),
-        MAX_PAST_EFFECTIVE_TIME_SHIFT("maximumPastEffectiveTimeShift"),
         ACTIONS("actions");
 
         private final String javaFieldName;
@@ -77,20 +71,17 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final EventService eventService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @SuppressWarnings("unused")
     private long id;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @SuppressWarnings("unused")
     private Instant obsoleteTimestamp;
-    @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
+    @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
-    @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
-    private TimeDuration maximumFutureEffectiveTimeShift = EffectiveTimeShift.FUTURE.defaultValue();
-    @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
-    private TimeDuration maximumPastEffectiveTimeShift = EffectiveTimeShift.PAST.defaultValue();
     @Valid
     private List<AuthorizedAction> actions = new ArrayList<>();
     private List<AuthorizedActionImpl> updated = new ArrayList<>();
@@ -104,11 +95,13 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private Instant modTime;
 
     @Inject
-    public DeviceLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock, EventService eventService) {
+    public DeviceLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock, EventService eventService,
+                               DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.eventService = eventService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public DeviceLifeCycleImpl initialize(String name, FiniteStateMachine stateMachine) {
@@ -124,14 +117,14 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public String getName() {
-        if (DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey().equals(this.name)){
+        if (DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey().equals(this.name)) {
             return this.thesaurus.getFormat(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME).format();
         }
         return this.name;
     }
 
     void setName(String name) {
-        if (!Checks.is(name).emptyOrOnlyWhiteSpace()){
+        if (!Checks.is(name).emptyOrOnlyWhiteSpace()) {
             this.name = name.trim();
         } else {
             this.name = null;
@@ -156,31 +149,13 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     @Override
-    public TimeDuration getMaximumFutureEffectiveTimeShift() {
-        return this.maximumFutureEffectiveTimeShift;
-    }
-
-    void setMaximumFutureEffectiveTimeShift(TimeDuration maximumFutureEffectiveTimeShift) {
-        this.maximumFutureEffectiveTimeShift = maximumFutureEffectiveTimeShift;
-    }
-
-    @Override
     public Instant getMaximumFutureEffectiveTimestamp() {
-        return this.clock.instant().plusMillis(this.getMaximumFutureEffectiveTimeShift().getMilliSeconds());
-    }
-
-    @Override
-    public TimeDuration getMaximumPastEffectiveTimeShift() {
-        return this.maximumPastEffectiveTimeShift;
-    }
-
-    void setMaximumPastEffectiveTimeShift(TimeDuration maximumPastEffectiveTimeShift) {
-        this.maximumPastEffectiveTimeShift = maximumPastEffectiveTimeShift;
+        return this.clock.instant().plusMillis(deviceLifeCycleConfigurationService.getMaximumFutureEffectiveTimeShift().getMilliSeconds());
     }
 
     @Override
     public Instant getMaximumPastEffectiveTimestamp() {
-        return this.clock.instant().minusMillis(this.getMaximumPastEffectiveTimeShift().getMilliSeconds());
+        return this.clock.instant().minusMillis(deviceLifeCycleConfigurationService.getMaximumPastEffectiveTimeShift().getMilliSeconds());
     }
 
     @Override
@@ -225,8 +200,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
             this.updated.forEach(AuthorizedActionImpl::save);
             Save.action(this.id).save(this.dataModel, this);
             eventService.postEvent(EventType.DEVICE_LIFECYCLE_UPDATE.topic(), this);
-        }
-        finally {
+        } finally {
             this.updated = new ArrayList<>();
         }
     }

@@ -114,6 +114,21 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         }
                     },
                     {
+                        itemId: 'fwc-campaign-unique-firmware-version-field',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.uniqueFirmwareVersion',
+                            'FWC',
+                            'Upload with unique firmware version'
+                        ),
+                        name: 'withUniqueFirmwareVersion',
+                        renderer: function (item) {
+                            return item
+                                ? Uni.I18n.translate('general.yes', 'FWC', 'Yes')
+                                : Uni.I18n.translate('general.no', 'FWC', 'No');
+                        },
+                    },
+                    {
                         itemId: 'fwc-campaign-allowed-comtask',
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate(

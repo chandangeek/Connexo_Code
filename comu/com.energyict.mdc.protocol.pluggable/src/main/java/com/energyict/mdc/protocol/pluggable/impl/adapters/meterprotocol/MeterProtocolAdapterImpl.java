@@ -250,10 +250,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     private void doInit(ComChannel comChannel) {
-        try {
+        try( ComChannelInputStreamAdapter comChannelInputStreamAdapter = new ComChannelInputStreamAdapter(comChannel);
+             ComChannelOutputStreamAdapter comChannelOutputStreamAdapter = new ComChannelOutputStreamAdapter(comChannel)) {
             this.meterProtocol.init(
-                    new ComChannelInputStreamAdapter(comChannel),
-                    new ComChannelOutputStreamAdapter(comChannel),
+                    comChannelInputStreamAdapter,
+                    comChannelOutputStreamAdapter,
                     this.getDeviceTimeZoneFromProperties(),
                     this.protocolLogger);
         } catch (IOException e) {

@@ -21,16 +21,16 @@ Ext.define('Dxp.view.datasources.Grid', {
             flex: 2
         },
         {
-            header: Uni.I18n.translate('general.lastExportedChangedData', 'DES', 'Last exported changed data'),
-            dataIndex: 'lastExportedChangedData',
+            header: Uni.I18n.translate('general.lastExportedNewData', 'DES', 'Last exported new data'),
+            dataIndex: 'lastExportedNewData',
             renderer: function (value) {
                 return value ? Uni.DateTime.formatDateTimeShort(value) : Uni.I18n.translate('general.neverExported', 'DES', 'Never exported');
             },
             flex: 1
         },
         {
-            header: Uni.I18n.translate('general.lastExportedNewData', 'DES', 'Last exported new data'),
-            dataIndex: 'lastExportedNewData',
+            header: Uni.I18n.translate('general.lastExportedChangedData', 'DES', 'Last exported changed data'),
+            dataIndex: 'lastExportedChangedData',
             renderer: function (value) {
                 return value ? Uni.DateTime.formatDateTimeShort(value) : Uni.I18n.translate('general.neverExported', 'DES', 'Never exported');
             },
