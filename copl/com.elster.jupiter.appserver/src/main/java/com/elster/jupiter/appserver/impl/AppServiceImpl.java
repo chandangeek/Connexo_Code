@@ -133,7 +133,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     private Set<ImportSchedule> servedImportSchedules = new HashSet<>();
     private final Object reconfigureLock = new Object();
     private final DelayedRegistrationHandler delayedNotifications = new DelayedRegistrationHandler();
-    private volatile List<ServiceRegistration> registrations = new ArrayList<>();;
+    private volatile List<ServiceRegistration> registrations = new ArrayList<>();
 
     public AppServiceImpl() {
         threadGroup = new ThreadGroup("AppServer message listeners");
