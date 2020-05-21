@@ -26,6 +26,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeTypeProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesDataModelService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -72,7 +73,7 @@ import java.util.stream.Stream;
  * Created by bvn on 5/4/16.
  */
 @Component(name = "com.elster.jupiter.soap.webservices.installer",
-        service = {WebServicesDataModelService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + WebServicesService.COMPONENT_NAME,
         immediate = true)
 public class WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageSeedProvider, TranslationKeyProvider, BundleWaiter.Startable {
@@ -287,10 +288,10 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     @Override
     public void start(BundleContext context) {
-        registrations.add(bundleContext.registerService(WebServicesDataModelService.class, this, new Hashtable<>()));
         registrations.add(bundleContext.registerService(EndPointConfigurationService.class, endPointConfigurationService, new Hashtable<>()));
-        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
         registrations.add(bundleContext.registerService(WebServiceCallOccurrenceService.class, webServiceCallOccurrenceService, new Hashtable<>()));
+        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
+        registrations.add(bundleContext.registerService(WebServicesDataModelService.class, this, new Hashtable<>()));
     }
 
     @Deactivate
