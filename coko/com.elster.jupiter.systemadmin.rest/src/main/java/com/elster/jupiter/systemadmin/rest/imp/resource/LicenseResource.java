@@ -108,7 +108,7 @@ public class LicenseResource {
                 info = addLicense(signedObject);
             }
         }
-        if(null != info ) {
+        if(null == info ) {
             info = new ActionInfo();
             info.setFailure("Error while reading input");
         }
