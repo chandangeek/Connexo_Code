@@ -38,45 +38,44 @@ public class ComTaskExecutionCreatorEventHandler extends EventHandler<LocalEvent
             List<ComTaskEnablement> comTasksWithoutExecutions = device.getDeviceConfiguration().getComTaskEnablements().stream()
                     .filter(comTaskEnablement -> !comTaskIdsWithExecution.contains(comTaskEnablement.getComTask().getId()))
                     .collect(Collectors.toList());
-            comTasksWithoutExecutions.stream().filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks()
-                    .stream().noneMatch(protocolTask -> protocolTask instanceof FirmwareManagementTask)).forEach(cte ->
-            {
-                if (cte.hasPartialConnectionTask()) {
-                    device.getConnectionTasks().stream()
-                            .filter(connectionTask -> connectionTask.getPartialConnectionTask()
-                                    .getId() == cte.getPartialConnectionTask().get().getId())
-                            .findFirst()
-                            .ifPresent(connectionTask -> device.newAdHocComTaskExecution(cte).connectionTask(connectionTask).add());
-                } else {
-                    device.newAdHocComTaskExecution(cte).add();
-                }
-            });
-            comTasksWithoutExecutions.stream().filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks()
-                    .stream().anyMatch(protocolTask -> protocolTask instanceof FirmwareManagementTask)).forEach(cte ->
-            {
-                if (cte.hasPartialConnectionTask()) {
-                    device.getConnectionTasks().stream()
-                            .filter(connectionTask -> connectionTask.getPartialConnectionTask()
-                                    .getId() == cte.getPartialConnectionTask().get().getId())
-                            .findFirst()
-                            .ifPresent(connectionTask -> device.newFirmwareComTaskExecution(cte).connectionTask(connectionTask).add());
-                } else {
-                    device.newFirmwareComTaskExecution(cte).add();
-                }
-            });
+            comTasksWithoutExecutions.forEach(cte -> createNewComTaskExecution(cte, device));
         } else if (topic.equals(COMTASKENABLEMENT_CREATED)) {
             ComTaskEnablement comTaskEnablement = (ComTaskEnablement) event.getSource();
             deviceService.findDevicesByDeviceConfiguration(comTaskEnablement.getDeviceConfiguration()).stream().forEach(device -> {
-                if (comTaskEnablement.hasPartialConnectionTask()) {
-                    device.getConnectionTasks().stream()
-                            .filter(connectionTask -> connectionTask.getPartialConnectionTask()
-                                    .getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                            .findFirst()
-                            .ifPresent(connectionTask -> device.newAdHocComTaskExecution(comTaskEnablement).connectionTask(connectionTask).add());
-                } else {
-                    device.newAdHocComTaskExecution(comTaskEnablement).add();
-                }
+                createNewComTaskExecution(comTaskEnablement, device);
             });
+        }
+    }
+
+    private void createNewComTaskExecution(ComTaskEnablement comTaskEnablement, Device device) {
+        if (comTaskEnablement.getComTask().getProtocolTasks().stream().anyMatch(protocolTask -> protocolTask instanceof FirmwareManagementTask)) {
+            createNewFirmwareComTaskExecution(comTaskEnablement, device);
+        } else {
+            createNewAdHocComTaskExecution(comTaskEnablement, device);
+        }
+    }
+
+    private void createNewFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement, Device device) {
+        if (comTaskEnablement.hasPartialConnectionTask()) {
+            device.getConnectionTasks().stream()
+                    .filter(connectionTask -> connectionTask.getPartialConnectionTask()
+                            .getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                    .findFirst()
+                    .ifPresent(connectionTask -> device.newFirmwareComTaskExecution(comTaskEnablement).connectionTask(connectionTask).add());
+        } else {
+            device.newFirmwareComTaskExecution(comTaskEnablement).add();
+        }
+    }
+
+    private void createNewAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, Device device) {
+        if (comTaskEnablement.hasPartialConnectionTask()) {
+            device.getConnectionTasks().stream()
+                    .filter(connectionTask -> connectionTask.getPartialConnectionTask()
+                            .getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                    .findFirst()
+                    .ifPresent(connectionTask -> device.newAdHocComTaskExecution(comTaskEnablement).connectionTask(connectionTask).add());
+        } else {
+            device.newAdHocComTaskExecution(comTaskEnablement).add();
         }
     }
 }
