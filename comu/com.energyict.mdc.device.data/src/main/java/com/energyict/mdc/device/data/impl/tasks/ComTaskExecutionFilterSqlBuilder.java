@@ -48,7 +48,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         super(clock, filterSpecification, queryExecutor);
         this.validate(filterSpecification);
         this.copyTaskStatuses(filterSpecification);
-        this.completionCodes = EnumSet.noneOf(CompletionCode.class);
+        this.completionCodes = new HashSet<>();
         this.completionCodes.addAll(filterSpecification.latestResults);
         this.lastSessionStart = filterSpecification.lastSessionStart;
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
@@ -71,12 +71,12 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
      * @throws IllegalArgumentException Thrown when the specifications are not valid
      */
     protected void validate(ComTaskExecutionFilterSpecification filterSpecification) throws IllegalArgumentException {
-        if (   !filterSpecification.latestResults.isEmpty()
-            && !this.isNull(filterSpecification.lastSessionEnd)) {
+        if (!filterSpecification.latestResults.isEmpty()
+                && !this.isNull(filterSpecification.lastSessionEnd)) {
             throw new IllegalArgumentException("Latest result and last session end in interval cannot be combined");
         }
-        if (   !filterSpecification.comTasks.isEmpty()
-            && !filterSpecification.comSchedules.isEmpty()) {
+        if (!filterSpecification.comTasks.isEmpty()
+                && !filterSpecification.comSchedules.isEmpty()) {
             throw new IllegalArgumentException("Communication tasks and communication schedules cannot be combined");
         }
     }
@@ -103,9 +103,9 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
-        if(!this.connectionTasksIds.isEmpty()){
+        if (!this.connectionTasksIds.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",","")) + ")");
+            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",", "")) + ")");
         }
         this.appendWhereOrAnd();
         this.append("obsolete_date is null");
@@ -141,14 +141,30 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     private void appendCompletionCodeClause() {
         if (this.requiresCompletionCodeClause()) {
             this.appendWhereOrAnd();
-            this.append("cte.lastsess_highestpriocomplcode in (");
+            this.append("(");
             boolean notFirst = false;
+            boolean nullRequested = false;
             for (CompletionCode completionCode : this.completionCodes) {
-                if (notFirst) {
-                    this.append(",");
+                if (completionCode != null) {
+                    if (notFirst) {
+                        this.append(",");
+                    } else {
+                        this.append("cte.lastsess_highestpriocomplcode in (");
+                    }
+                    this.addInt(completionCode.dbValue());
+                    notFirst = true;
+                } else {
+                    nullRequested = true;
                 }
-                this.addInt(completionCode.dbValue());
-                notFirst = true;
+            }
+            if (notFirst) {
+                this.append(")");
+                if (nullRequested) {
+                    this.append(" OR ");
+                }
+            }
+            if (nullRequested) {
+                this.append("cte.lastsess_highestpriocomplcode IS NULL");
             }
             this.append(")");
         }
@@ -199,7 +215,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     private boolean isNull(Interval interval) {
         return interval == null
-            || (   (interval.getStart() == null)
+                || ((interval.getStart() == null)
                 && (interval.getEnd() == null));
     }
 

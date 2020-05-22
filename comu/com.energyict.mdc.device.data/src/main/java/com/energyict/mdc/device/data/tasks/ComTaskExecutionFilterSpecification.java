@@ -4,12 +4,10 @@
 
 package com.energyict.mdc.device.data.tasks;
 
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTask;
@@ -19,7 +17,6 @@ import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -61,8 +58,9 @@ public class ComTaskExecutionFilterSpecification {
     /**
      * The Set of {@link CompletionCode}s.
      * Note that using <strong>ALL</strong> enum values is equal to using none.
+     * The set supports null element; it means the case where communication task has never started and has no latestResult.
      */
-    public Set<CompletionCode> latestResults = EnumSet.noneOf(CompletionCode.class);
+    public Set<CompletionCode> latestResults = new HashSet<>();
 
     /**
      * The Interval in which the start time of the last session is expected
