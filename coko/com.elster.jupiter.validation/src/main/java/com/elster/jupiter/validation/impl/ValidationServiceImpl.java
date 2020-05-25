@@ -169,7 +169,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        LOGGER.log(Level.INFO, "Validation service: set orm service" );
         dataModel = ormService.newDataModel(ValidationService.COMPONENTNAME, "Validation");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -178,73 +177,61 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Reference
     public void setKpiService(KpiService kpiService) {
-        LOGGER.log(Level.INFO, "Validation service: set kpi service" );
         this.kpiService = kpiService;
     }
 
     @Reference
     public void setEventService(EventService eventService) {
-        LOGGER.log(Level.INFO, "Validation service: set event service" );
         this.eventService = eventService;
     }
 
     @Reference
     public void setTaskService(TaskService taskService) {
-        LOGGER.log(Level.INFO, "Validation service: set task service" );
         this.taskService = taskService;
     }
 
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        LOGGER.log(Level.INFO, "Validation service: set metering groups service" );
         this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
-        LOGGER.log(Level.INFO, "Validation service: set metering service" );
         this.meteringService = meteringService;
     }
 
     @Reference
     public void setClock(Clock clock) {
-        LOGGER.log(Level.INFO, "Validation service: set clock" );
         this.clock = clock;
     }
 
     @Reference
     public void setQueryService(QueryService queryService) {
-        LOGGER.log(Level.INFO, "Validation service: set query service" );
         this.queryService = queryService;
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        LOGGER.log(Level.INFO, "Validation service: set nls service" );
         this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Reference
     public void setUserService(UserService userService) {
-        LOGGER.log(Level.INFO, "Validation service: set user service" );
         this.userService = userService;
     }
 
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
-        LOGGER.log(Level.INFO, "Validation service: set upgrade service" );
         this.upgradeService = upgradeService;
     }
 
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        LOGGER.log(Level.INFO, "Validation service: set metrology configuration service" );
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
     public void setSearchService(SearchService searchService) {
-        LOGGER.log(Level.INFO, "Validation service: set search service" );
         this.searchService = searchService;
     }
 
@@ -262,12 +249,10 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Reference
     public void setMessageService(MessageService messageService) {
-        LOGGER.log(Level.INFO, "Validation service: set message service" );
         this.messageService = messageService;
     }
 
     private DestinationSpec getDestination() {
-        LOGGER.log(Level.INFO, "Validation service: set destination" );
         if (destinationSpec == null) {
             destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME).orElse(null);
         }
@@ -827,7 +812,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addValidationRuleSetResolver(ValidationRuleSetResolver resolver) {
-        LOGGER.log(Level.INFO, "Validation service: add validation rule set resolver" );
         ruleSetResolvers.add(resolver);
     }
 

@@ -51,7 +51,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public static final String MAIN_CHECK_VALIDATOR = MainCheckValidator.class.getName();
     public static final String REFERENCE_COMPARISON_VALIDATOR = ReferenceComparisonValidator.class.getName();
     public static final String CONSECUTIVE_ZEROS_VALIDATOR = ConsecutiveZerosValidator.class.getName();
-    public static final Logger LOGGER = Logger.getLogger(ValidatorFactory.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(DefaultValidatorFactory.class.getName());
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -83,7 +83,6 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
-        LOGGER.log(Level.INFO, "Default validation factory: set metering service");
         this.meteringService = meteringService;
     }
 
@@ -94,31 +93,27 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     }
 
     public void unsetValidationService(ValidationService validationService) {
-        LOGGER.log(Level.INFO, "Default validation factory: set validation service");
+        LOGGER.log(Level.INFO, "Default validation factory: unset validation service");
         this.validationService = null;
     }
 
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        LOGGER.log(Level.INFO, "Default validation factory: set metrology configuration service");
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        LOGGER.log(Level.INFO, "Default validation factory: set nls service");
         thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-        LOGGER.log(Level.INFO, "Default validation factory: set property spec service");
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
-        LOGGER.log(Level.INFO, "Default validation factory: set property value info service");
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
