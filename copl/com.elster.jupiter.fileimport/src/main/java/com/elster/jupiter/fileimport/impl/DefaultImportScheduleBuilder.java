@@ -9,6 +9,7 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.nio.file.Path;
@@ -70,6 +71,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     @Override
     public ImportScheduleBuilder setImportDirectory(Path directory) {
+        PathVerification.validatePathForFolders(directory.toString());
         this.importDirectory = directory;
         return this;
     }
@@ -82,18 +84,21 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     @Override
     public ImportScheduleBuilder setProcessingDirectory(Path directory) {
+        PathVerification.validatePathForFolders(directory.toString());
         this.inProcessDirectory = directory;
         return this;
     }
 
     @Override
     public ImportScheduleBuilder setSuccessDirectory(Path directory) {
+        PathVerification.validatePathForFolders(directory.toString());
         this.successDirectory = directory;
         return this;
     }
 
     @Override
     public ImportScheduleBuilder setFailureDirectory(Path directory) {
+        PathVerification.validatePathForFolders(directory.toString());
         this.failureDirectory = directory;
         return this;
     }

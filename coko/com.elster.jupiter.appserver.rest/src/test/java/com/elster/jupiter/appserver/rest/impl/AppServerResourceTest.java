@@ -190,10 +190,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(false);
         UriInfo uriInfo = mockUriInfo();
-        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus, webServicesService, uriInfo, propertyValueInfoService);
+        AppServerInfo info = new AppServerInfo(appServer, "c:\\import", "c:\\export", thesaurus, webServicesService, uriInfo, propertyValueInfoService);
         info.active = true;
-        info.exportDirectory = "c:\\export";
-        info.importDirectory = "c:\\import";
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver/APPSERVER").request().put(json);
@@ -207,10 +205,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(true);
         UriInfo uriInfo = mockUriInfo();
-        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus, webServicesService, uriInfo, propertyValueInfoService);
+        AppServerInfo info = new AppServerInfo(appServer, "c:\\import", "c:\\export", thesaurus, webServicesService, uriInfo, propertyValueInfoService);
         info.active = false;
-        info.exportDirectory = "c:\\export";
-        info.importDirectory = "c:\\import";
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver/APPSERVER").request().put(json);
