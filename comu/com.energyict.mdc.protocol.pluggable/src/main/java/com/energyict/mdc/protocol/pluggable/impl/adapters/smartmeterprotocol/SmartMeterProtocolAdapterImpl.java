@@ -174,7 +174,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapterImpl(){
+    public SmartMeterProtocolAdapterImpl() {
     }
 
     public SmartMeterProtocolAdapterImpl(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IdentificationService identificationService, Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
@@ -245,10 +245,11 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     private void doInit(com.energyict.mdc.protocol.ComChannel comChannel) {
-        try {
+        try (ComChannelInputStreamAdapter comChannelInputStreamAdapter = new ComChannelInputStreamAdapter(comChannel);
+             ComChannelOutputStreamAdapter comChannelOutputStreamAdapter = new ComChannelOutputStreamAdapter(comChannel)) {
             this.meterProtocol.init(
-                    new ComChannelInputStreamAdapter(comChannel),
-                    new ComChannelOutputStreamAdapter(comChannel),
+                    comChannelInputStreamAdapter,
+                    comChannelOutputStreamAdapter,
                     this.getDeviceTimeZoneFromProperties(),
                     this.protocolLogger);
         } catch (IOException e) {

@@ -46,6 +46,9 @@ import com.energyict.mdc.upl.TypedProperties;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -463,7 +466,14 @@ public class ConnectionResource {
 
     private List<ConnectionTypePluggableClass> getPluggableClassesFromConnectionQueryString(String connectionsQueryParam) throws IOException {
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>();
-        JsonNode node = new ObjectMapper().readValue(connectionsQueryParam, JsonNode.class);
+        PolymorphicTypeValidator ptv =
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(JsonNode.class)
+                        .build();
+        ObjectMapper mapper = JsonMapper.builder()
+                .polymorphicTypeValidator(ptv)
+                .build();
+        JsonNode node = mapper.readValue(connectionsQueryParam, JsonNode.class);
         if (node != null && node.isArray()) {
             List<Long> connectionTaskIds = new ArrayList<>();
             for (JsonNode singleFilter : node) {

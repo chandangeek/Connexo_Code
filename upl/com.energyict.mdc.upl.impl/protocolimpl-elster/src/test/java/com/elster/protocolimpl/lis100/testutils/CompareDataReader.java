@@ -31,11 +31,6 @@ public class CompareDataReader {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
         //sdf.set2DigitYearStart();
-
-        InputStream stream = CompareDataReader.class.getResourceAsStream(file);
-
-        BufferedReader data = new BufferedReader(new InputStreamReader(stream));
-
         int i;
         String line;
         String[] lineData;
@@ -43,7 +38,8 @@ public class CompareDataReader {
         double val;
         long l;
         BigDecimal bdval;
-        try {
+        try (InputStream stream = CompareDataReader.class.getResourceAsStream(file);
+             BufferedReader data = new BufferedReader(new InputStreamReader(stream))) {
             do {
                 line = data.readLine();
                 if (line == null) {
