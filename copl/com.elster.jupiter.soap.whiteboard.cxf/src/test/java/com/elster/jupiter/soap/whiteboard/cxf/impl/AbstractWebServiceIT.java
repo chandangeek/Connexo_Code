@@ -80,7 +80,7 @@ public abstract class AbstractWebServiceIT {
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
-            bind(DataModel.class).toProvider(()-> dataModel);
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
 
