@@ -116,8 +116,6 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
     @Override
     public String getContent() {
         return "package com.energyict.mdc.issue.datavalidation\n" +
-                "import com.energyict.mdc.issue.datavalidation.impl.event.CannotEstimateDataEvent;\n" +
-                "import com.energyict.mdc.issue.datavalidation.impl.event.SuspectDeletedEvent;\n" +
                 "import com.energyict.mdc.issue.datavalidation.impl.event.SuspectValueCreatedEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +

@@ -4,17 +4,28 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -97,10 +108,12 @@ class ChannelsContainerValidationList {
 
         eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), validationScope);
 
-        final List<ReadingQualityRecord> listOfSuspectReadings = validationScope.getChannelsContainer().getChannels().stream()
-                .filter(channel -> Objects.nonNull(channel.findReadingQualities()))
-                .map(channel -> channel.findReadingQualities().collect().stream().filter(ReadingQualityRecord::isSuspect).collect(Collectors.toList()))
-                .flatMap(Collection::stream)
+        // FIXME! CXO-12226
+        final List<ReadingQualityRecord> listOfSuspectReadings = validationScopeByChannelMap.entrySet().stream()
+                .flatMap(channelAndRange -> channelAndRange.getKey().findReadingQualities()
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(channelAndRange.getValue())
+                        .stream())
                 .collect(Collectors.toList());
 
         validationService.postSuspectCreatedEvents(listOfSuspectReadings);

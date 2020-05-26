@@ -28,8 +28,14 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -94,13 +100,12 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
             return false;
         }
 
-        final Range<Instant> timeRange = getTimeRange(relativePeriodWithCount)
-                .getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now()));
+        final Range<Instant> timeRange = getTimeRange(relativePeriodWithCount);
 
-        final List<Long> validationRulesId = Arrays.stream(validationRules.split(";"))
+        final Set<Long> validationRulesId = Arrays.stream(validationRules.split(";"))
                 .map(String::trim)
                 .map(Long::parseLong)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         ReadingType readingType = findReadingType().get();
         Channel coreChannel = findChannel().get();
@@ -135,11 +140,9 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        if (offendedValidationRules.isEmpty()) {
-            return false;
-        }
+        return !offendedValidationRules.isEmpty()
+                && validationRulesId.containsAll(offendedValidationRules.stream().map(ValidationRule::getId).collect(Collectors.toList()));
 
-        return validationRulesId.containsAll(offendedValidationRules.stream().map(ValidationRule::getId).collect(Collectors.toList()));
     }
 
     private boolean containsReadingQualityRecord(final Map.Entry<com.energyict.mdc.common.device.data.Channel, DataValidationStatus> entry) {
@@ -152,8 +155,8 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
     public boolean checkOccurrenceConditions(final String relativePeriodWithCount) {
         final List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount);
         final int eventCountThreshold = Integer.parseInt(relativePeriodWithCountValues.get(0));
-        final Range<ZonedDateTime> timeRange = getTimeRange(relativePeriodWithCount).getClosedZonedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now()));
-        final List<ReadingQualityRecord> suspects = findSuspectsWithinZonedDateTimeInterval(timeRange);
+        final Range<Instant> timeRange = getTimeRange(relativePeriodWithCount);
+        final List<ReadingQualityRecord> suspects = findSuspects(timeRange);
 
         totalOccurrencesNumber = suspects.size();
 
@@ -167,7 +170,7 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
         return true;
     }
 
-    private RelativePeriod getTimeRange(final String relativePeriodWithCount) {
+    private Range<Instant> getTimeRange(final String relativePeriodWithCount) {
         final List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount);
         final Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(Long.parseLong(relativePeriodWithCountValues.get(1)));
 
@@ -184,27 +187,24 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
                     relativePeriodWithCountValues.get(1));
         }
 
-        return relativePeriod.get();
+        return relativePeriod.get().getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now(clock)));
     }
 
     private List<String> parseRawInputToList(String rawInput) {
         return Arrays.stream(rawInput.split(":")).map(String::trim).collect(Collectors.toList());
     }
 
-    private List<ReadingQualityRecord> findSuspectsWithinZonedDateTimeInterval(final Range<ZonedDateTime> timeRange) {
+    private List<ReadingQualityRecord> findSuspects(final Range<Instant> timeRange) {
+        // FIXME! CXO-12226
         return findChannelsContainer()
                 .map(channelsContainer -> channelsContainer.getChannels().stream()
-                        .filter(channel -> Objects.nonNull(channel.findReadingQualities()))
-                        .map(channel -> channel.findReadingQualities().collect().stream().filter(ReadingQualityRecord::isSuspect).collect(Collectors.toList()))
-                        .flatMap(Collection::stream)
-                        .filter(suspect -> filterSuspectWithinZonedDateTimeRange(suspect, timeRange))
+                        .flatMap(channel -> channel.findReadingQualities()
+                                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                                .inTimeInterval(timeRange)
+                                .stream())
                         .sorted(this::sortSuspectsByDateAscOrder)
                         .collect(Collectors.toList()))
-                .orElse(new ArrayList<>());
-    }
-
-    private boolean filterSuspectWithinZonedDateTimeRange(final ReadingQualityRecord suspect, final Range<ZonedDateTime> timeRange) {
-        return timeRange.contains(suspect.getTimestamp().atZone(clock.getZone()));
+                .orElseGet(Collections::emptyList);
     }
 
     private int sortSuspectsByDateAscOrder(final ReadingQualityRecord first, final ReadingQualityRecord second) {
