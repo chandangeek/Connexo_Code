@@ -390,6 +390,7 @@ public enum TableSpecs {
             table.unique("U_DTC_REGISTERTYPE_IN_CONFIG")
                     .on(deviceConfiguration, registerType)
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -417,6 +418,7 @@ public enum TableSpecs {
                     .references(LogBookType.class)
                     .map("logBookType")
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
