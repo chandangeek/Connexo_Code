@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 import java.util.Collections;
@@ -31,6 +33,8 @@ public class LogConfiguratorTest {
 
     @Mock
     private LogService logService;
+    @Mock
+    private BundleContext bundleContext;
 
     @Before
     public void setUp() {
@@ -53,7 +57,7 @@ public class LogConfiguratorTest {
 
     @Test
     public void testNoPropsUsesDefaultFormat() {
-        logConfigurator.activate(Collections.<String, Object>emptyMap());
+        logConfigurator.activate(bundleContext, Collections.<String, Object>emptyMap());
 
         Logger.getLogger(LogConfiguratorTest.class.getName()).log(Level.SEVERE, MY_MESSAGE);
 
