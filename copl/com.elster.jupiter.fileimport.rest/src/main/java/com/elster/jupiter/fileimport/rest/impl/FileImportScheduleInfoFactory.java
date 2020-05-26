@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -41,9 +42,14 @@ public class FileImportScheduleInfoFactory {
         info.active = importSchedule.isActive();
         info.name = importSchedule.getName();
         info.logLevel = importSchedule.getLogLevel();
+
+        PathVerification.validatePathForFolders(importSchedule.getImportDirectory().toString());
         info.importDirectory = importSchedule.getImportDirectory().toString();
+        PathVerification.validatePathForFolders(importSchedule.getInProcessDirectory().toString());
         info.inProcessDirectory = importSchedule.getInProcessDirectory().toString();
+        PathVerification.validatePathForFolders(importSchedule.getSuccessDirectory().toString());
         info.successDirectory = importSchedule.getSuccessDirectory().toString();
+        PathVerification.validatePathForFolders(importSchedule.getFailureDirectory().toString());
         info.failureDirectory = importSchedule.getFailureDirectory().toString();
         info.pathMatcher = importSchedule.getPathMatcher();
         info.importerName = importSchedule.getImporterName();
