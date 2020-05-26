@@ -3,8 +3,10 @@ package com.energyict.protocolimplv2.dlms.acud.messages;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ChargeSetup;
 import com.energyict.dlms.cosem.CreditSetup;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
 import com.energyict.dlms.cosem.methods.CreditSetupMethods;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -20,10 +22,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
-import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
@@ -32,6 +31,8 @@ import java.util.Calendar;
 import java.util.List;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
+
+    public final static ObisCode CREDIT_DAYS_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
 
     private static final ObisCode CHARGE_TOU_IMPORT = ObisCode.fromString("0.0.19.20.0.255");
     private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
@@ -79,9 +80,10 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
             upgradeFirmware(pendingMessage);
-            // clock
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_AMOUNT)) {
             updateCreditAmount(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_DAYS_LIMIT)) {
+            updateCreditDaysLimit(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.ACTIVATE_PASSIVE_UNIT_CHARGE)) {
             activatePassiveUnitCharge(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION)) {
@@ -94,6 +96,10 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             changeChargePeriod(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION)) {
             changeChargeProportion(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
+            getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
+            getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteReconnect();
         } else {   //Unsupported message
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -131,6 +137,15 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         CreditSetup chargeSetup = getCosemObjectFactory().getCreditSetup(chargeObisCode);
         Integer creditAmount = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditAmount));
         chargeSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Integer32(creditAmount));
+    }
+
+    private void updateCreditDaysLimit(OfflineDeviceMessage pendingMessage) throws IOException {
+        Integer creditDaysLimitFirst = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditDaysLimitFirst));
+        Integer creditDaysLimitScnd = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditDaysLimitScnd));
+        Structure creditDaysLimit = new Structure();
+        creditDaysLimit.addDataType(new Unsigned16(creditDaysLimitFirst));
+        creditDaysLimit.addDataType(new Unsigned16(creditDaysLimitScnd));
+        getCosemObjectFactory().writeObject(CREDIT_DAYS_LIMIT, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), creditDaysLimit.getBEREncodedByteArray());
     }
 
     private void activatePassiveUnitCharge(OfflineDeviceMessage pendingMessage) throws IOException {

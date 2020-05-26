@@ -4,7 +4,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimplv2.edp.CX20009;
-import com.energyict.protocolimplv2.edp.registers.DisconnectControlState;
+import com.energyict.protocolimplv2.common.DisconnectControlState;
 
 import java.util.HashMap;
 import java.util.Map;

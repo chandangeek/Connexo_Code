@@ -61,6 +61,15 @@ public enum CreditDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.remainingTimeLow, DeviceMessageConstants.remainingTimeLowDefaultTranslation)
             );
         }
+    },
+    UPDATE_CREDIT_DAYS_LIMIT(40014, "Update credit days limit") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.creditDaysLimitFirst, DeviceMessageConstants.creditDaysLimitFirstDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.creditDaysLimitScnd, DeviceMessageConstants.creditDaysLimitScndDefaultTranslation)
+            );
+        }
     }
    ;
     private final long id;

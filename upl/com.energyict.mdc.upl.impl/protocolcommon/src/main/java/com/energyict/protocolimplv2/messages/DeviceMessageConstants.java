@@ -1883,6 +1883,9 @@ public final class DeviceMessageConstants {
     public static final String consumedCreditHighDefaultTranslation = "Consumed Credit High Threshold";
     public static final String remainingTimeHigh = "remainingTimeHigh";
     public static final String remainingTimeHighDefaultTranslation = "Remaining Time High Threshold (hours)";
+    public static final String creditDaysLimitFirst = "creditDaysLimitFirst";
+    public static final String creditDaysLimitFirstDefaultTranslation = "Grace period before warning (days)";
+
 
     public static final String remainingCreditLow = "remainingCreditLow";
     public static final String remainingCreditLowDefaultTranslation = "Remaining Credit Low Threshold";
@@ -1890,6 +1893,8 @@ public final class DeviceMessageConstants {
     public static final String consumedCreditLowDefaultTranslation = "Consumed Credit Low Threshold";
     public static final String remainingTimeLow = "remainingTimeLow";
     public static final String remainingTimeLowDefaultTranslation = "Remaining Time Low Threshold (hours)";
+    public static final String creditDaysLimitScnd = "creditDaysLimitScnd";
+    public static final String creditDaysLimitScndDefaultTranslation = "Grace period before relay shall be opened (days)";
 
     public static final String passiveImmediateActivation = "passiveImmediateActivation";
     public static final String passiveImmediateActivationDefaultTranslation = "Immediate Activation";

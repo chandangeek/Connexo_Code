@@ -18,6 +18,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimplv2.common.DisconnectControlState;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
@@ -95,6 +96,9 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                     Quantity quantity = new Quantity(valueAttr.toBigDecimal(), register.getScalerUnit().getEisUnit());
                     registerValue = new RegisterValue(obisCode, quantity, register.getCaptureTime());
                 }
+            } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
+                int value = protocol.getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode).getControlState().getValue();
+                registerValue = new RegisterValue(obisCode, DisconnectControlState.fromValue(value).getDescription());
             } else if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
                 CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(obisCode);
                 int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
