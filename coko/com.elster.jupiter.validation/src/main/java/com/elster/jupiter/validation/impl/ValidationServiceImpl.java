@@ -52,6 +52,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -123,6 +124,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Activate
     public final void activate(BundleContext context) {
+        LOGGER.log(Level.INFO, "Validation service activated" );
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -162,6 +164,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Deactivate
     public void deactivate() {
+        LOGGER.log(Level.INFO, "Validation service deactivated" );
     }
 
     @Reference
@@ -743,10 +746,12 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(ValidatorFactory validatorfactory) {
+        LOGGER.log(Level.INFO, "Validation service: add factory " + String.valueOf(validatorfactory));
         validatorFactories.add(validatorfactory);
     }
 
     void removeResource(ValidatorFactory validatorfactory) {
+        LOGGER.log(Level.INFO, "Validation service: remove factory " + String.valueOf(validatorfactory));
         validatorFactories.remove(validatorfactory);
     }
 
