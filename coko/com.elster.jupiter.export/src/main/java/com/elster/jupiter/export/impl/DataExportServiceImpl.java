@@ -69,6 +69,7 @@ import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -586,6 +587,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public void setExportDirectory(AppServer appServer, Path path) {
         DirectoryForAppServer directoryForAppServer = dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName()).orElseGet(() -> DirectoryForAppServer.from(dataModel, appServer));
+        PathVerification.validatePathForFolders(path.toString());
         directoryForAppServer.setPath(path);
         directoryForAppServer.save();
     }
