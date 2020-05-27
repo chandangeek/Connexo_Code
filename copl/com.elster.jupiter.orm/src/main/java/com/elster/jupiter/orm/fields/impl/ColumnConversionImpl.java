@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.IOResource;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
@@ -321,6 +322,7 @@ public enum ColumnConversionImpl {
     CHAR2FILE {
         @Override
         public Object convert(ColumnImpl column, String in) {
+			PathVerification.validatePathForFolders(in);
             return new File(in);
         }
 

@@ -159,6 +159,10 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         info.id = 1;
         info.scanFrequency = 0;
         info.version = 1;
+        info.importDirectory = "import";
+        info.failureDirectory = "failure";
+        info.successDirectory = "success";
+        info.inProcessDirectory = "progress";
         Entity<FileImportScheduleInfo> json = Entity.json(info);
 
         when(fileImportService.findAndLockImportScheduleByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());

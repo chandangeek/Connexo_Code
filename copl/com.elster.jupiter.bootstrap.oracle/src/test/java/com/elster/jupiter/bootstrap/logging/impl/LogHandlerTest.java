@@ -10,8 +10,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.log.LogService;
 
-import com.elster.jupiter.bootstrap.logging.impl.LogHandler;
-
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
@@ -29,7 +27,9 @@ public class LogHandlerTest {
     public void testPropagationToOsgiLogService() {
         LogHandler logHandler = new LogHandler(logService, "%5$s");
 
-        logHandler.publish(new LogRecord(Level.INFO, "message"));
+        LogRecord logRecord = new LogRecord(Level.INFO, "message");
+        logRecord.setLoggerName("TestLoggerName");
+        logHandler.publish(logRecord);
 
         verify(logService).log(LogService.LOG_INFO, "message", null);
     }
@@ -40,10 +40,10 @@ public class LogHandlerTest {
 
         LogRecord logRecord = new LogRecord(Level.INFO, "message");
         logRecord.setThrown(runtimeException);
+        logRecord.setLoggerName("TestLoggerName");
         logHandler.publish(logRecord);
 
         verify(logService).log(LogService.LOG_INFO, "message", runtimeException);
     }
-
 }
 
