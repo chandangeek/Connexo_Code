@@ -137,6 +137,7 @@ public enum TableSpecs {
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             table.unique("UK_MDS_LOGBOOKTYPE").on(name).add();
             table.primaryKey("PK_MDS_LOGBOOKTYPE").on(id).add();
+            table.cacheWholeTable(true);
         }
     };
 

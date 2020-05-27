@@ -27,6 +27,5 @@ public class InstallerV10_7_1Impl implements FullInstaller {
             return;
         }
         execute(dataModel, "ALTER INDEX PK_DDC_COMTASKEXECSESSION REBUILD REVERSE");
-        execute(dataModel, "ALTER INDEX FK_DDC_COMTASKJENTRY_SESSION REBUILD REVERSE");
     }
 }
