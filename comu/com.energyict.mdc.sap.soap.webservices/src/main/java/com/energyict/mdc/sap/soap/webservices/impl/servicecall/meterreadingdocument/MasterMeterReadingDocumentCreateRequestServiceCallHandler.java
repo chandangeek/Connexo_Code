@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -25,15 +26,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
@@ -52,9 +50,6 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     private volatile WebServiceActivator webServiceActivator;
     private volatile Clock clock;
 
-    private Map<Long, List<ServiceCall>> immediately = new HashMap<>();
-    private Map<Long, List<ServiceCall>> scheduled = new HashMap<>();
-
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
@@ -65,8 +60,6 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
                 masterExtension.setAttemptNumber(masterExtension.getAttemptNumber().add(BigDecimal.ONE));
                 serviceCall.update(masterExtension);
-                immediately.remove(serviceCall.getId());
-                scheduled.remove(serviceCall.getId());
                 serviceCall.findChildren().stream().forEach(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
                 break;
             case ONGOING:
@@ -92,14 +85,8 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 if (allChildrenCancelledBySap(serviceCall)) {
                     serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
                 } else {
-                    //if not continue to create result service call
-                    if (immediately.get(serviceCall.getId()) != null) {
-                        createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(serviceCall);
-                    }
-
-                    if (scheduled.get(serviceCall.getId()) != null) {
-                        createMasterMeterReadingDocumentResultServiceCallForScheduling(serviceCall);
-                    }
+                    //if not continue to create result service calls
+                    createResultServiceCalls(serviceCall);
                 }
                 break;
             case SCHEDULED:
@@ -117,17 +104,6 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         switch (newState) {
             case SUCCESSFUL:
-                if (requestDomainExtension.isFutureCase()) {
-                    scheduled.merge(parentServiceCall.getId(), Collections.singletonList(childServiceCall), (list1, list2) ->
-                            Stream.of(list1, list2)
-                                    .flatMap(Collection::stream)
-                                    .collect(Collectors.toList()));
-                } else {
-                    immediately.merge(parentServiceCall.getId(), Collections.singletonList(childServiceCall), (list1, list2) ->
-                            Stream.of(list1, list2)
-                                    .flatMap(Collection::stream)
-                                    .collect(Collectors.toList()));
-                }
                 resultTransition(parentServiceCall);
                 break;
             case CANCELLED:
@@ -209,10 +185,35 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         }
     }
 
-    private void createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(ServiceCall serviceCall) {
+    private void createResultServiceCalls(ServiceCall serviceCall) {
+        Set<ServiceCall> immediately = new HashSet<>();
+        Set<ServiceCall> scheduled = new HashSet<>();
+        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
+
+        serviceCallFilter.states.add(DefaultState.SUCCESSFUL.name());
+        serviceCall.findChildren(serviceCallFilter).stream().forEach(childServiceCall -> {
+            MeterReadingDocumentCreateRequestDomainExtension requestDomainExtension = childServiceCall.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class)
+                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+            if (requestDomainExtension.isFutureCase()) {
+                scheduled.add(childServiceCall);
+            } else {
+                immediately.add(childServiceCall);
+            }
+        });
+
+        if (!immediately.isEmpty()) {
+            createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(serviceCall, immediately);
+        }
+
+        if (!scheduled.isEmpty()) {
+            createMasterMeterReadingDocumentResultServiceCallForScheduling(serviceCall, scheduled);
+        }
+    }
+
+    private void createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(ServiceCall serviceCall, Set<ServiceCall> immediately) {
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.PENDING);
-        immediately.get(serviceCall.getId()).forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
+        immediately.forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
                 .ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.PENDING))
         );
 
@@ -222,10 +223,10 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         }
     }
 
-    private void createMasterMeterReadingDocumentResultServiceCallForScheduling(ServiceCall serviceCall) {
+    private void createMasterMeterReadingDocumentResultServiceCallForScheduling(ServiceCall serviceCall, Set<ServiceCall> scheduled) {
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.SCHEDULED);
-        scheduled.get(serviceCall.getId()).forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
+        scheduled.forEach(call -> createMeterReadingDocumentResultServiceCall(parentServiceCall, call)
                 .ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.SCHEDULED))
         );
 
