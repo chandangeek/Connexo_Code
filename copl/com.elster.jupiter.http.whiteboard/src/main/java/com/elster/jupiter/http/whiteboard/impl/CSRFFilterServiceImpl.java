@@ -41,6 +41,8 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     private static final String POST = "POST";
     private static final String PUT = "PUT";
     private static final String DELETE = "DELETE";
+    private static final String FLOW_CSRF_HEADER= "BFlowProcess";
+    private static final String FLOW_PROCESS_KEY = "BPMconnexoflowProcess";
 
     private static final String[] RESOURCES_THAT_ARE_EXCLUDED_FROM_CSRF_FILTER = {
             "/api/apps/security/acs",
@@ -100,6 +102,11 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     }
 
     private boolean validCSRFRequest(HttpServletRequest request) {
+        // assumption that these requests are automated and will trigger very frequently.
+        if(null != request.getHeader(FLOW_CSRF_HEADER) &&
+                FLOW_PROCESS_KEY.equals(new String(Base64.getDecoder().decode(request.getHeader(FLOW_CSRF_HEADER))))) {
+            return true;
+        }
         Optional<Cookie> sessionId =  getCookie(request, USER_SESSIONID);
         if(sessionId.isPresent()){
             String csrfToken = request.getHeader(X_CSRF_TOKEN);

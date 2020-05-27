@@ -80,10 +80,10 @@ public class DefaultImportScheduleBuilderTest {
     @Before
     public void setUp() {
         testFileSystem = Jimfs.newFileSystem(Configuration.unix());
-        PROCESSING_DIRECTORY = testFileSystem.getPath("./processing");
-        IMPORT_DIRECTORY = testFileSystem.getPath("./import");
-        SUCCESS_DIRECTORY = testFileSystem.getPath("./success");
-        FAILURE_DIRECTORY = testFileSystem.getPath("./failure");
+        PROCESSING_DIRECTORY = testFileSystem.getPath("/processing");
+        IMPORT_DIRECTORY = testFileSystem.getPath("/import");
+        SUCCESS_DIRECTORY = testFileSystem.getPath("/success");
+        FAILURE_DIRECTORY = testFileSystem.getPath("/failure");
         BASE_PATH = testFileSystem.getPath("/");
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImportService.getBasePath()).thenReturn(BASE_PATH);

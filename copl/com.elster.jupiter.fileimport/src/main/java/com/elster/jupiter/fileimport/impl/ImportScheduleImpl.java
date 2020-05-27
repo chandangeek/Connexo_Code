@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
@@ -349,21 +350,25 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @Override
     public void setImportDirectory(Path importDirectory) {
+        PathVerification.validatePathForFolders(importDirectory.toString());
         this.importDirectory = importDirectory;
     }
 
     @Override
     public void setFailureDirectory(Path failureDirectory) {
+        PathVerification.validatePathForFolders(failureDirectory.toString());
         this.failureDirectory = failureDirectory;
     }
 
     @Override
     public void setSuccessDirectory(Path successDirectory) {
+        PathVerification.validatePathForFolders(successDirectory.toString());
         this.successDirectory = successDirectory;
     }
 
     @Override
     public void setProcessingDirectory(Path inProcessDirectory) {
+        PathVerification.validatePathForFolders(inProcessDirectory.toString());
         this.inProcessDirectory = inProcessDirectory;
     }
 

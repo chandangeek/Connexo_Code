@@ -7,6 +7,7 @@ package com.elster.jupiter.appserver.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.ImportFolderForAppServer;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.PathVerification;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
@@ -32,6 +33,7 @@ public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {
     }
 
     ImportFolderForAppServerImpl init(Path importFolderPath, AppServer appServer) {
+        PathVerification.validatePathForFolders(importFolderPath.toString());
         this.importFolderPath = importFolderPath;
         this.appServerName = appServer.getName();
         this.appServer = appServer;
@@ -55,6 +57,7 @@ public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {
 
     @Override
     public void setImportFolder(Path path) {
+        PathVerification.validatePathForFolders(path.toString());
         this.importFolderPath = path;
     }
 
