@@ -197,7 +197,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
-        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
+        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet(), threadPrincipalService);
         try {
             httpService.registerServlet("/soap", servlet, null, null);
         } catch (NamespaceException | ServletException ex) {

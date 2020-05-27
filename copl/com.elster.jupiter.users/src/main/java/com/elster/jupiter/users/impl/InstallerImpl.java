@@ -55,6 +55,11 @@ public class InstallerImpl implements FullInstaller {
                 logger
         );
         doTry(
+                "Create provisioning group",
+                () -> createProvisioningRole(logger),
+                logger
+        );
+        doTry(
                 "Install User privileges.",
                 this::installPrivileges,
                 logger
@@ -91,6 +96,13 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
+    private Group createProvisioningRole(Logger logger) {
+        return doTry(
+                "Create " + UserService.PROVISIONING_ROLE + " user group.",
+                () -> userService.createGroup(UserService.PROVISIONING_ROLE, UserService.PROVISIONING_ROLE_DESCRIPTION),
+                logger
+        );
+    }
 
     private void createMasterData(String adminPassword, Logger logger) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) userService.findUserDirectory(userService.getRealm())
@@ -119,7 +131,26 @@ public class InstallerImpl implements FullInstaller {
         if (!userService.findUser("admin").isPresent()) {
             doTry(
                     "Create administrator user.",
+                    // TODO: Why do we systemAdmins group is not used here? It was overriden by previous commit
                     () -> createAdministratorUser(directory, new GroupImpl[]{installers}, adminPassword),
+                    logger
+            );
+        }
+
+        GroupImpl provisioningRole = (GroupImpl) userService.findGroup(UserService.PROVISIONING_ROLE)
+                .orElseGet(() -> createProvisioningRole(logger));
+
+        doTry(
+                "Grant provisioning privileges to " + UserService.DEFAULT_INSTALLER_ROLE,
+                () -> grantProvisioningPrivileges(provisioningRole),
+                logger
+        );
+
+
+        if (!userService.findUser("provisioning").isPresent()) {
+            doTry(
+                    "Create provisioning user.",
+                    () -> createSCIMUser(directory, new GroupImpl[]{provisioningRole, administrators}),
                     logger
             );
         }
@@ -170,7 +201,28 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
+    // A default user for provisioning purposes over scim protocol
+    private void createSCIMUser(InternalDirectoryImpl directory, GroupImpl[] roles) {
+        UserImpl user = directory.newUser("provisioning", "System for User and Group provisining over SCIM 2.0 protocol", false, true);
+        user.setLocale(Locale.ENGLISH);;
+        user.update();
+        for (GroupImpl role : roles) {
+            user.join(role);
+        }
+    }
+
     private void grantSystemAdministratorPrivileges(GroupImpl group) {
+        Field[] fields = Privileges.Constants.class.getFields();
+        for (Field each : fields) {
+            try {
+                group.grant("SYS", (String) each.get(null));
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void grantProvisioningPrivileges(GroupImpl group) {
         Field[] fields = Privileges.Constants.class.getFields();
         for (Field each : fields) {
             try {
