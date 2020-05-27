@@ -292,17 +292,19 @@ public class FerrantiProfile extends VDEWProfile {
     
     
     static public void main(String[] args) {
-        try {
+        try (FileInputStream fis = new FileInputStream(getFile())){
             FerrantiProfile fp = new FerrantiProfile(null,null,null);
-            File file = new File("FerrantiProfile.txt");
-            byte[] data = new byte[(int)file.length()];
-            FileInputStream fis = new FileInputStream(file);
-            fis.read(data,0,(int)file.length());
+            byte[] data = new byte[(int)getFile().length()];
+            fis.read(data,0,(int) getFile().length());
             System.out.println(fp.buildProfileData(data, 3).toString());
         }
         catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static File getFile() {
+        return new File("FerrantiProfile.txt");
     }
     
 } // FerrantiProfile
