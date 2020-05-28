@@ -4,8 +4,14 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.metering.MeteringTranslationService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attributes;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttributes;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
@@ -16,14 +22,18 @@ import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -43,8 +53,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,6 +90,9 @@ public class DeviceBuilderTest {
 	private static final String SYMMETRIC_KEY = "SYMMETRIC_KEY";
 	private static final String SECURITY_ACCESSOR_NAME = "SECURITY_ACCESSOR_NAME";
 	private static final String SECURITY_ACCESSOR_KEY = "SECURITY_ACCESSOR_KEY";
+	private static final String CONNECTION_METHOD = "CONNECTION_METHOD";
+
+	private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
 	@Mock
 	private BatchService batchService;
@@ -98,6 +114,15 @@ public class DeviceBuilderTest {
 
 	@Mock
 	private DeviceConfiguration deviceConfiguration, otherDeviceConfiguration;
+
+	@Mock
+	private ConnectionTask<?, ?> connectionTask;
+
+	@Mock
+	private ConnectionTypePluggableClass pluggableClass;
+
+	@Mock
+	private PropertySpec propertySpec;
 
 	@Mock
 	private Device device, otherDevice;
@@ -183,6 +208,19 @@ public class DeviceBuilderTest {
 		securityKeyInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY.getBytes());
 		securityInfo.setSecurityKeys(Arrays.asList(securityKeyInfo));
 		meterInfo.setSecurityInfo(securityInfo);
+		ConnectionAttributes attribute = new ConnectionAttributes();
+		Attributes attribute1 = new Attributes();
+		attribute1.setName("host");
+		attribute1.setValue("hostName1");
+		Attributes attribute2 = new Attributes();
+		attribute2.setName("portNumber");
+		attribute2.setValue("4059");
+		Attributes attribute3 = new Attributes();
+		attribute3.setName("connectionTimeout");
+		attribute3.setValue("1:12");
+		attribute.setAttributes(Arrays.asList(attribute1, attribute2, attribute3));
+		attribute.setConnectionMethod(CONNECTION_METHOD);
+		meterInfo.setConnectionAttributes(Arrays.asList(attribute));
 		when(device.getId()).thenReturn(ID);
 		when(device.getmRID()).thenReturn(DEVICE_MRID);
 		when(device.getState()).thenReturn(status);
@@ -192,6 +230,11 @@ public class DeviceBuilderTest {
 		when(batchService.findOrCreateBatch(BATCH)).thenReturn(batch);
 		when(device.getDeviceType()).thenReturn(deviceType);
 		when(device.getLifecycleDates()).thenReturn(lifecycleDates);
+		when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
+		when(propertySpec.getValueFactory()).thenReturn(mock(ValueFactory.class));
+		when(pluggableClass.getPropertySpec(anyString())).thenReturn(Optional.of(propertySpec));
+		when(connectionTask.getName()).thenReturn(CONNECTION_METHOD);
+		when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 		when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(Arrays.asList(executableAction));
 		when(executableAction.getAction()).thenReturn(authorizedTransitionAction);
 		when(authorizedTransitionAction.getStateTransition()).thenReturn(stateTransition);
@@ -484,5 +527,60 @@ public class DeviceBuilderTest {
 		} catch (FaultMessage e) {
 		}
 		verify(faultMessageFactory).meterConfigFaultMessageSupplier(null, MessageSeeds.NAME_MUST_BE_UNIQUE);
+	}
+
+	@Test
+	public void testPrepareCreateFrom_NoConnectionMethodWithName() throws FaultMessage {
+		when(connectionTask.getName()).thenReturn("Another name");
+		when(deviceBuilder.create()).thenReturn(device);
+		when(device.getName()).thenReturn(DEVICE_NAME);
+		try {
+			testable.prepareCreateFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_CONNECTION_METHOD_WITH_NAME,
+				CONNECTION_METHOD);
+	}
+
+	@Test
+	public void testPrepareCreateFrom_NoConnectionMethods() throws FaultMessage {
+		ConnectionAttributes attribute = new ConnectionAttributes();
+		Attributes attribute1 = new Attributes();
+		attribute1.setName("host");
+		attribute1.setValue("hostName1");
+		Attributes attribute2 = new Attributes();
+		attribute2.setName("portNumber");
+		attribute2.setValue("4059");
+		Attributes attribute3 = new Attributes();
+		attribute3.setName("connectionTimeout");
+		attribute3.setValue("1:12");
+		attribute.setAttributes(Arrays.asList(attribute1, attribute2, attribute3));
+		attribute.setConnectionMethod(null);
+		meterInfo.setConnectionAttributes(Arrays.asList(attribute));
+		when(device.getConnectionTasks()).thenReturn(new ArrayList<>());
+		when(device.getName()).thenReturn(DEVICE_NAME);
+		when(deviceBuilder.create()).thenReturn(device);
+		try {
+			testable.prepareCreateFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_CONNECTION_METHODS);
+	}
+
+	@Test
+	public void testPrepareCreateFrom_NoConnectionAttribute() throws FaultMessage {
+		when(pluggableClass.getPropertySpec(anyString())).thenReturn(Optional.empty());
+		when(deviceBuilder.create()).thenReturn(device);
+		when(connectionTask.getDevice()).thenReturn(device);
+		when(device.getName()).thenReturn(DEVICE_NAME);
+		try {
+			testable.prepareCreateFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_CONNECTION_ATTRIBUTE,
+				"host", CONNECTION_METHOD);
 	}
 }

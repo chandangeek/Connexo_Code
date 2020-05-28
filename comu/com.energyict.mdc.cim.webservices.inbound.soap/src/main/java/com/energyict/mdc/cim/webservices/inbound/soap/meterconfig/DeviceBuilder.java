@@ -7,22 +7,24 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attributes;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttributes;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
-import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import com.google.common.collect.ArrayListMultimap;
@@ -83,7 +85,9 @@ public class DeviceBuilder {
             Multimap<String, String> mapZones = ArrayListMultimap.create();
             meter.getZones().forEach(zone -> mapZones.put(zone.getZoneName(), zone.getZoneType()));
             deviceBuilder.withZones(mapZones);
-            return deviceBuilder.create();
+            Device device = deviceBuilder.create();
+            setConnectionAttributes(device, meter.getConnectionAttributes());
+            return device;
         };
     }
 
@@ -194,6 +198,7 @@ public class DeviceBuilder {
                 changedDevice = deviceService.findDeviceByMrid(changedDevice.getmRID()).get();
             }
 
+            setConnectionAttributes(changedDevice, meter.getConnectionAttributes());
             return changedDevice;
         };
     }
@@ -274,4 +279,38 @@ public class DeviceBuilder {
         return deviceService.findAllDevices(condition).paged(0, 10).find();
     }
 
+    private void setConnectionAttributes(Device device, List<ConnectionAttributes> connectionAttributes) throws FaultMessage {
+        for (ConnectionAttributes connAttribute : connectionAttributes) {
+            if (connAttribute.getConnectionMethod() != null) {
+                Optional<ConnectionTask<?, ?>> connTask = device.getConnectionTasks().stream()
+                        .filter(connectionTask -> connectionTask.getName().equals(connAttribute.getConnectionMethod()))
+                        .findFirst();
+                if (connTask.isPresent()) {
+                    setConnectionTaskProperties(connTask.get(), connAttribute);
+                } else {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(), MessageSeeds.NO_CONNECTION_METHOD_WITH_NAME, connAttribute.getConnectionMethod()).get();
+                }
+            } else {
+                if (!device.getConnectionTasks().isEmpty()) {
+                    for (ConnectionTask<?, ?> task : device.getConnectionTasks()) {
+                        setConnectionTaskProperties(task, connAttribute);
+                    }
+                } else {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(), MessageSeeds.NO_CONNECTION_METHODS).get();
+                }
+            }
+        }
+    }
+
+    private void setConnectionTaskProperties(ConnectionTask<?, ?> deviceConnectionTask, ConnectionAttributes connAttribute) throws FaultMessage {
+        for (Attributes attribute : connAttribute.getAttributes()) {
+            Optional<PropertySpec> propertySpecOptional = deviceConnectionTask.getPluggableClass().getPropertySpec(attribute.getName());
+            if (propertySpecOptional.isPresent()) {
+                deviceConnectionTask.setProperty(attribute.getName(), propertySpecOptional.get().getValueFactory().fromStringValue(attribute.getValue()));
+            } else {
+                throw faultMessageFactory.meterConfigFaultMessageSupplier(deviceConnectionTask.getDevice().getName(), MessageSeeds.NO_CONNECTION_ATTRIBUTE, attribute.getName(), deviceConnectionTask.getName()).get();
+            }
+        }
+        deviceConnectionTask.saveAllProperties();
+    }
 }

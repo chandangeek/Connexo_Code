@@ -242,6 +242,18 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ElectronicAddress.web"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="attribute" sawsdl:modelReference="">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" sawsdl:modelReference=""/>
+            <xs:element name="value" type="xs:string" sawsdl:modelReference=""/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ConnectionAttributes" sawsdl:modelReference="">
+        <xs:sequence>
+            <xs:element name="attribute" type="m:attribute" maxOccurs="unbounded" sawsdl:modelReference=""/>
+            <xs:element name="connectionMethod" type="xs:string" minOccurs="0" sawsdl:modelReference=""/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="EndDeviceCapability"
                     sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#EndDeviceCapability">
         <xs:sequence>
@@ -404,6 +416,8 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Asset.status"/>
             <!-- Below elements added for Connexo -->
             <xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"
+                        maxOccurs="unbounded"/>
+            <xs:element name="ConnectionAttributes" type="m:ConnectionAttributes" minOccurs="0"
                         maxOccurs="unbounded"/>
 	    <xs:element name="SecurityKeys" type="sec:SecurityKeys" minOccurs="0" maxOccurs="1" />
             <xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">

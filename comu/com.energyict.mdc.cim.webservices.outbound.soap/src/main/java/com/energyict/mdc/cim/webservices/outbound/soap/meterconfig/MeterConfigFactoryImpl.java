@@ -18,8 +18,11 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.Device;
 import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.pluggable.PluggableClassUsageProperty;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.upl.TypedProperties;
 
+import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
 import ch.iec.tc57._2011.meterconfig.Manufacturer;
 import ch.iec.tc57._2011.meterconfig.Meter;
@@ -99,6 +102,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
             }
             Meter.SimpleEndDeviceFunction endDeviceFunctionRef = createEndDeviceFunctionRef(deviceConfigRef);
             meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction().add(endDeviceFunctionRef);
+            device.getConnectionTasks().forEach(connTask -> meter.getConnectionAttributes().add(getConnectionAttribute(connTask)));
         });
         return meterConfig;
     }
@@ -228,7 +232,28 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                 .map(registeredCustomPropertySet -> convertToCustomAttributeSet(registeredCustomPropertySet, device))
                 .collect(Collectors.toList());
         meter.getMeterCustomAttributeSet().addAll(customList);
+
+        device.getConnectionTasks().forEach(connTask -> meter.getConnectionAttributes().add(getConnectionAttribute(connTask)));
         return meter;
+    }
+
+    private ConnectionAttributes getConnectionAttribute(ConnectionTask<?, ?> connTask) {
+        ConnectionAttributes attr = new ConnectionAttributes();
+        attr.setConnectionMethod(connTask.getName());
+        for (PropertySpec propertySpec : connTask.getPluggableClass().getPropertySpecs()) {
+            ch.iec.tc57._2011.meterconfig.Attribute attribute = new ch.iec.tc57._2011.meterconfig.Attribute();
+            attribute.setName(propertySpec.getName());
+            PluggableClassUsageProperty property = connTask.getProperty(propertySpec.getName());
+            Object value;
+            if (property != null && !property.isInherited()) {
+                value = property.getValue();
+            } else {
+                value = connTask.getTypedProperties().getInheritedValue(propertySpec.getName());
+            }
+            attribute.setValue(convertPropertyValue(propertySpec, value));
+            attr.getAttribute().add(attribute);
+        }
+        return attr;
     }
 
     private Object getPropertyValue(PropertySpec propertySpec, TypedProperties deviceProperties) {
