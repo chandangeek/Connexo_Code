@@ -29,6 +29,7 @@ public class BaseAuthenticationTest {
 
     protected static final String SSO_ENABLED_PROPERTY = "sso.enabled";
     protected static final String SSO_IDP_ENDPOINT_PROPERTY = "sso.idp.endpoint";
+    protected static final String SSO_SP_ISSUER_ID = "sso.sp.issuer.id";
     protected static final String SSO_ACS_ENDPOINT_PROPERTY = "sso.acs.endpoint";
     protected static final String INSTALL_DIR_PROPERTY = "install.dir";
     protected static final String LOGIN_URL = "/apps/login/";
@@ -67,6 +68,7 @@ public class BaseAuthenticationTest {
         when(context.getProperty(SSO_ENABLED_PROPERTY)).thenReturn("true");
         when(context.getProperty(SSO_ACS_ENDPOINT_PROPERTY)).thenReturn("/security/acs");
         when(context.getProperty(SSO_IDP_ENDPOINT_PROPERTY)).thenReturn("http://idp.connexo.com/saml2/http-post/sso/973243");
+        when(context.getProperty(SSO_SP_ISSUER_ID)).thenReturn("http://sp.connexo.com/saml2");
         when(context.getProperty(INSTALL_DIR_PROPERTY)).thenReturn(anyString());
 
         when(dataModel.mapper(KeyStoreImpl.class)).thenReturn(keyStoreDataMapper);

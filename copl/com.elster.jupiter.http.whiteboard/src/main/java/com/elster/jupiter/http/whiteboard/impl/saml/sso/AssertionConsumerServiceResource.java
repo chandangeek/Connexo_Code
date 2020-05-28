@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.xmlsec.signature.Signature;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -21,6 +22,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -53,19 +56,20 @@ public class AssertionConsumerServiceResource {
     @POST
     @Path("acs")
     @Transactional
-    public void handleSAMLResponse(@Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) throws IOException, ServletException {
+    public void handleSAMLResponse(@Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) throws IOException {
 
         String token = null;
-        String samlResponse = httpServletRequest.getParameter("SAMLResponse");
-        String relayState = httpServletRequest.getParameter("RelayState");
-        org.opensaml.saml.saml2.core.Response response = samlResponseService.createSamlResponse(samlResponse);
+        final String samlResponse = httpServletRequest.getParameter("SAMLResponse");
+        final String relayState = httpServletRequest.getParameter("RelayState");
+        final org.opensaml.saml.saml2.core.Response response = samlResponseService.createSamlResponse(samlResponse);
 
         try {
+            final Signature signature = extractSignatureFromSAMLResponse(response);
 
-            samlResponseService.validateSignature(response.getSignature(), authenticationService.getSsoX509Certificate());
+            samlResponseService.validateSignature(signature, authenticationService.getSsoX509Certificate());
 
-            Assertion assertion = samlResponseService.getCheckedAssertion(response);
-            String authenticationName = samlResponseService.getSubjectNameId(assertion);
+            final Assertion assertion = samlResponseService.getCheckedAssertion(response);
+            final String authenticationName = samlResponseService.getSubjectNameId(assertion);
 
             Optional<User> user = userService.findUser(authenticationName);
             if (user.isPresent()) {
@@ -80,7 +84,6 @@ public class AssertionConsumerServiceResource {
                             .entity(thesaurus.getFormat((TranslationKey) MessageSeeds.SSO_ACCESS_PERMISION_FORBIDDEN).format(relayState))
                             .build());
                 }
-
             }
         } catch (SAMLException | JOSEException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -121,5 +124,19 @@ public class AssertionConsumerServiceResource {
                 .filter(privilege -> (privilege.getName().contains("privilege.design.bpm"))).findAny();
 
         return flowPrivilegeOptional.isPresent();
+    }
+
+    private Signature extractSignatureFromSAMLResponse(final org.opensaml.saml.saml2.core.Response samlResponse) {
+        if (Objects.nonNull(samlResponse.getSignature())) {
+            return samlResponse.getSignature();
+        }
+
+        return samlResponse
+                .getAssertions()
+                .stream()
+                .filter(assertion -> Objects.nonNull(assertion.getSignature()))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Can not obtain signature of SAML Response"))
+                .getSignature();
     }
 }

@@ -19,6 +19,6 @@ public interface SamlRequestService {
 
     String convertXmlObjectToString(XMLObject xmlObject) throws SAMLException;
 
-    Optional<String> createSSOAuthenticationRequest(HttpServletRequest request, HttpServletResponse response, String acsEndpoint);
+    Optional<String> createSSOAuthenticationRequest(HttpServletRequest request, HttpServletResponse response, String acsEndpoint, String s);
 
 }
