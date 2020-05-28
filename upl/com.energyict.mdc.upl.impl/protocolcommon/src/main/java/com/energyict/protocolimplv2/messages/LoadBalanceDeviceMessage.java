@@ -391,6 +391,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpecBuilder(service, DeviceMessageConstants.LiPfUnderLimitTimeThresholdAttributeName, DeviceMessageConstants.LiPfUnderLimitTimeThresholdAttributeDefaultTranslation).setDefaultValue(new BigDecimal(1)).finish()
             );
         }
+    },
+    UPDATE_LOAD_LIMITS(12030, "Update the load limits") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(this.stringSpecBuilder(service, DeviceMessageConstants.loadLimitArray, DeviceMessageConstants.loadLimitArrayDefaultTranslation).finish()
+            );
+        }
     };
 
     private final long id;

@@ -15,6 +15,8 @@ import java.util.Iterator;
 public class AcudElectricRegisterFactory extends AcudRegisterFactory {
 
     public final static ObisCode LOAD_LIMIT = ObisCode.fromString("0.0.94.20.66.255");
+    public static final String LIMIT_SEPARATOR = ";";
+    public static final String VALUE_SEPARATOR = ",";
 
 
     public AcudElectricRegisterFactory(Acud protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
@@ -47,8 +49,12 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
         StringBuffer buff = new StringBuffer("{");
         for(Iterator<AbstractDataType> it = array.iterator();it.hasNext();) {
             Structure limit = (Structure)it.next();
+            buff.append(limit.getDataType(0).getUnsigned16().getValue());
+            buff.append(VALUE_SEPARATOR);
+            buff.append(limit.getDataType(1).getUnsigned16().getValue());
+            buff.append(VALUE_SEPARATOR);
             buff.append(limit.getDataType(2).getUnsigned16().getValue());
-            buff.append(", ");
+            buff.append(LIMIT_SEPARATOR);
         }
         buff.append("}");
         return buff.toString();

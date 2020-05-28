@@ -1470,6 +1470,8 @@ public final class DeviceMessageConstants {
     public static final String outputIdDefaultTranslation = "Output ID";
     public static final String newState = "OutputConfigurationMessage.newState";
     public static final String newStateDefaultTranslation = "New state";
+    public static final String loadLimitArray = "loadLimitArray";
+    public static final String loadLimitArrayDefaultTranslation = "Array of min. 4 load limits (start, stop, limit;...)";
 
     public static final String EnableDLMS = "FirewallConfigurationMessage.enableDLMS";
     public static final String EnableDLMSDefaultTranslation = "Enable DLMS";

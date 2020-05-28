@@ -29,6 +29,10 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     private static final ObisCode LIPF_UNDER_LIMIT_THRESHOLD = ObisCode.fromString("1.0.13.31.0.255");
     private static final ObisCode LIPF_UNDER_LIMIT_TIME_THRESHOLD = ObisCode.fromString("1.0.13.45.0.255");
 
+    public final static ObisCode LOAD_LIMIT = ObisCode.fromString("0.0.94.20.66.255");
+    public static final String LIMIT_SEPARATOR = ";";
+    public static final String VALUE_SEPARATOR = ",";
+
     public AcudElectricMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
     }
@@ -40,6 +44,8 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
             updateConsumptionCreditThreshold(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD)) {
             updateTimeCreditThreshold(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_LOAD_LIMITS)) {
+            updateLoadLimits(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.SET_CURRENT_OVER_LIMIT_THRESHOLD)) {
             setCurrentOverLimitThreshold(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.SET_CURRENT_OVER_LIMIT_TIME_THRESHOLD)) {
@@ -84,6 +90,23 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
         thresholdStructure.addDataType(new Unsigned16(remainingTimeHigh));
         thresholdStructure.addDataType(new Unsigned16(remainingTimeLow));
         getCosemObjectFactory().writeObject(TIME_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
+    }
+
+    private void updateLoadLimits(OfflineDeviceMessage pendingMessage) throws IOException {
+        Array limits = new Array();
+        String limitArray = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.loadLimitArray);
+        for (String limitItem : limitArray.trim().split(LIMIT_SEPARATOR)) {
+            Structure limit = new Structure();
+            String[] limitItemArray = limitItem.trim().split(VALUE_SEPARATOR);
+            Integer startValue = Integer.parseInt(limitItemArray[0].trim());
+            Integer stopValue = Integer.parseInt(limitItemArray[1].trim());
+            Integer limitValue = Integer.parseInt(limitItemArray[2].trim());
+            limit.addDataType(new Unsigned16( startValue));
+            limit.addDataType(new Unsigned16( stopValue));
+            limit.addDataType(new Unsigned16( limitValue));
+            limits.addDataType(limit);
+        }
+        getCosemObjectFactory().writeObject(LOAD_LIMIT, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), limits.getBEREncodedByteArray());
     }
 
     private void setCurrentOverLimitThreshold(OfflineDeviceMessage pendingMessage) throws IOException {

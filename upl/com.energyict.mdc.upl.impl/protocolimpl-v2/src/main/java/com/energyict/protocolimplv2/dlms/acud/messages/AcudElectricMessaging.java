@@ -26,6 +26,7 @@ public class AcudElectricMessaging extends AcudMessaging {
                 CreditDeviceMessage.UPDATE_MONEY_CREDIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
                 CreditDeviceMessage.UPDATE_CONSUMPTION_CREDIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
                 CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
+                LoadBalanceDeviceMessage.UPDATE_LOAD_LIMITS.get(getPropertySpecService(), getNlsService(), getConverter()),
                 LoadBalanceDeviceMessage.SET_CURRENT_OVER_LIMIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
                 LoadBalanceDeviceMessage.SET_CURRENT_OVER_LIMIT_TIME_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
                 LoadBalanceDeviceMessage.SET_VOLTAGE_UNDER_LIMIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
