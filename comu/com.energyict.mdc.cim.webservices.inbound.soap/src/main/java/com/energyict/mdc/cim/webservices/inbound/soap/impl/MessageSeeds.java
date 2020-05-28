@@ -88,6 +88,9 @@ public enum MessageSeeds implements MessageSeed {
     NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
     ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY(5002, "ElementByRefNotFoundOrEmpty", "Element by reference ''{0}'' not found or has an empty value"),
     IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES(5003, "DuplicatedZoneType", "Is not allowed to send the same zone type more than once, a device can be assigned to only one zone from a zone type"),
+    NO_CONNECTION_METHOD_WITH_NAME(5004, "NoConnectionMethodWithName", "No connection method ''{0}''."),
+    NO_CONNECTION_METHODS(5005, "NoConnectionMethods", "No connection methods are found."),
+    NO_CONNECTION_ATTRIBUTE(5006, "NoConnectionAttribute", "Attribute ''{0}'' isn''t found on connection method ''{1}''."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(6001, "UnableToGetReadings", "Unable to get readings."),

@@ -4,6 +4,10 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.metering.MeteringTranslationService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -16,14 +20,17 @@ import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.meterconfig.Attribute;
+import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -45,6 +52,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,6 +85,12 @@ public class DeviceBuilderTest {
 	private static final String SYMMETRIC_KEY = "SYMMETRIC_KEY";
 	private static final String SECURITY_ACCESSOR_NAME = "SECURITY_ACCESSOR_NAME";
 	private static final String SECURITY_ACCESSOR_KEY = "SECURITY_ACCESSOR_KEY";
+	private static final String CONNECTION_METHOD = "CONNECTION_METHOD";
+	private static final String CONNECTION_ATTRIBUTE_NAME1 = "host";
+	private static final String CONNECTION_ATTRIBUTE_NAME2 = "portNumber";
+	private static final String CONNECTION_ATTRIBUTE_NAME3 = "connectionTimeout";
+
+	private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
 	@Mock
 	private BatchService batchService;
@@ -98,6 +112,15 @@ public class DeviceBuilderTest {
 
 	@Mock
 	private DeviceConfiguration deviceConfiguration, otherDeviceConfiguration;
+
+	@Mock
+	private ConnectionTask<?, ?> connectionTask;
+
+	@Mock
+	private ConnectionTypePluggableClass pluggableClass;
+
+	@Mock
+	private PropertySpec propertySpec;
 
 	@Mock
 	private Device device, otherDevice;
@@ -136,6 +159,8 @@ public class DeviceBuilderTest {
 	private CIMLifecycleDates lifecycleDates;
 
 	private MeterInfo meterInfo;
+
+	private ConnectionAttributes attributes;
 
 	private DeviceBuilder testable;
 
@@ -183,6 +208,19 @@ public class DeviceBuilderTest {
 		securityKeyInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY.getBytes());
 		securityInfo.setSecurityKeys(Arrays.asList(securityKeyInfo));
 		meterInfo.setSecurityInfo(securityInfo);
+		attributes = new ConnectionAttributes();
+		Attribute attribute1 = new Attribute();
+		attribute1.setName(CONNECTION_ATTRIBUTE_NAME1);
+		attribute1.setValue("hostName1");
+		Attribute attribute2 = new Attribute();
+		attribute2.setName(CONNECTION_ATTRIBUTE_NAME2);
+		attribute2.setValue("4059");
+		Attribute attribute3 = new Attribute();
+		attribute3.setName(CONNECTION_ATTRIBUTE_NAME3);
+		attribute3.setValue("1:12");
+		attributes.getAttribute().addAll(Arrays.asList(attribute1, attribute2, attribute3));
+		attributes.setConnectionMethod(CONNECTION_METHOD);
+		meterInfo.setConnectionAttributes(Collections.singletonList(attributes));
 		when(device.getId()).thenReturn(ID);
 		when(device.getmRID()).thenReturn(DEVICE_MRID);
 		when(device.getState()).thenReturn(status);
@@ -192,6 +230,12 @@ public class DeviceBuilderTest {
 		when(batchService.findOrCreateBatch(BATCH)).thenReturn(batch);
 		when(device.getDeviceType()).thenReturn(deviceType);
 		when(device.getLifecycleDates()).thenReturn(lifecycleDates);
+		when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
+		when(propertySpec.getValueFactory()).thenReturn(mock(ValueFactory.class));
+		when(propertySpec.getName()).thenReturn(CONNECTION_ATTRIBUTE_NAME1, CONNECTION_ATTRIBUTE_NAME2, CONNECTION_ATTRIBUTE_NAME3);
+		when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec, propertySpec, propertySpec));
+		when(connectionTask.getName()).thenReturn(CONNECTION_METHOD);
+		when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 		when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(Arrays.asList(executableAction));
 		when(executableAction.getAction()).thenReturn(authorizedTransitionAction);
 		when(authorizedTransitionAction.getStateTransition()).thenReturn(stateTransition);
@@ -484,5 +528,49 @@ public class DeviceBuilderTest {
 		} catch (FaultMessage e) {
 		}
 		verify(faultMessageFactory).meterConfigFaultMessageSupplier(null, MessageSeeds.NAME_MUST_BE_UNIQUE);
+	}
+
+	@Test
+	public void testPrepareCreateFrom_NoConnectionMethodWithName() throws FaultMessage {
+		when(connectionTask.getName()).thenReturn("Another name");
+		when(deviceBuilder.create()).thenReturn(device);
+		when(device.getName()).thenReturn(DEVICE_NAME);
+		try {
+			testable.prepareCreateFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_CONNECTION_METHOD_WITH_NAME,
+				CONNECTION_METHOD);
+	}
+
+	@Test
+	public void testPrepareCreateFrom_NoConnectionMethods() throws FaultMessage {
+		attributes.setConnectionMethod(null);
+		meterInfo.setConnectionAttributes(Collections.singletonList(attributes));
+		when(device.getConnectionTasks()).thenReturn(new ArrayList<>());
+		when(device.getName()).thenReturn(DEVICE_NAME);
+		when(deviceBuilder.create()).thenReturn(device);
+		try {
+			testable.prepareCreateFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_CONNECTION_METHODS);
+	}
+
+	@Test
+	public void testPrepareCreateFrom_NoConnectionAttribute() throws FaultMessage {
+		when(pluggableClass.getPropertySpecs()).thenReturn(new ArrayList<>());
+		when(deviceBuilder.create()).thenReturn(device);
+		when(connectionTask.getDevice()).thenReturn(device);
+		when(device.getName()).thenReturn(DEVICE_NAME);
+		try {
+			testable.prepareCreateFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_CONNECTION_ATTRIBUTE,
+				CONNECTION_ATTRIBUTE_NAME1, CONNECTION_METHOD);
 	}
 }
