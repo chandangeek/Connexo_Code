@@ -9,10 +9,12 @@ import java.util.logging.Logger;
 public class CommandExecutorFactory {
 
     public CommandExecutor renewal(CommandErrorHandler commandErrorHandler, BpmService bpmService, String bpmProcessId, Instant aTime, Logger logger) {
-        SecAccFilter secAccFilter = new SecAccFilter(aTime, logger);
+        SecAccFilter secAccFilter = new SecAccFilter();
+        DeviceFilter deviceFilter = new DeviceFilter(aTime);
+        DeviceSecurityAccessorFilter deviceSecurityAccessorFilter = new DeviceSecurityAccessorFilter();
         CheckSecuritySets checkSecuritySets = new CheckSecuritySets(logger);
         TriggerBpm triggerBpm = new TriggerBpm(bpmService, new BpmProcessResolver(bpmService, logger), bpmProcessId, logger);
-        return new CommandExecutor(commandErrorHandler, secAccFilter, checkSecuritySets, triggerBpm);
+        return new CommandExecutor(commandErrorHandler, secAccFilter, deviceFilter, deviceSecurityAccessorFilter, checkSecuritySets, triggerBpm);
     }
 
 }

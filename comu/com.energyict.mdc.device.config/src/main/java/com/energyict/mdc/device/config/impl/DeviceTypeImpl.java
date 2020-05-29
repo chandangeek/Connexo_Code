@@ -407,6 +407,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public Optional<SecurityAccessorTypeOnDeviceType> getSecurityAccessor(SecurityAccessorType keyAccessorType) {
+        for (SecurityAccessorTypeOnDeviceTypeImpl f : securityAccessorTypes) {
+            if (f.getSecurityAccessorType().getId() == keyAccessorType.getId()) {
+                return Optional.of(f);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public boolean removeDeviceSecurityAccessorType(DeviceSecurityAccessorType securityAccessorType) {
         Stream<SecurityAccessorType> securityAccessorTypeStream = securityAccessorTypes.stream()
                 .map(f -> f.getDeviceSecurityAccessorType().getWrappingSecurityAccessor())

@@ -175,6 +175,12 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
+    public boolean isRenewalConfigured() {
+        // not sure about this ... hell knows
+        return keyRenewalMessageIdIdDbValue != 0;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return this == obj
                 || obj instanceof SecurityAccessorTypeOnDeviceTypeImpl

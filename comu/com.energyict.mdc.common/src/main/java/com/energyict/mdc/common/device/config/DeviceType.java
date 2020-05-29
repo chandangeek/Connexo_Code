@@ -312,6 +312,8 @@ public interface DeviceType extends HasId, HasName {
 
     public void setXmlType(String ignore);
 
+    Optional<SecurityAccessorTypeOnDeviceType> getSecurityAccessor(SecurityAccessorType keyAccessorTypeReference);
+
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);
 
