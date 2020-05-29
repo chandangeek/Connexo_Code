@@ -232,8 +232,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.appendPropertyToMessage(builder, property.getName(), property.getValue());
     }
 
-    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
-        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(getComServerDAO(), connectionTask, comTaskExecution);
+    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask) {
+        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(connectionTask);
         if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
             currentTaskExecutionBuilder.ifPresent(b -> b.addComTaskExecutionMessageJournalEntry(now(), ComServer.LogLevel.INFO, asString(protocolDialectTypedProperties), ""));
         }
@@ -427,7 +427,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTask(), now()));
         initializeJournalist();
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
-            this.addProtocolDialectPropertiesAsJournalEntries(getConnectionTask(), comTaskExecution);
+            this.addProtocolDialectPropertiesAsJournalEntries(getConnectionTask());
         }
     }
 
