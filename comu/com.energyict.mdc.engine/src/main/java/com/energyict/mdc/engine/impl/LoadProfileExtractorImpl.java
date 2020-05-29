@@ -143,7 +143,7 @@ public class LoadProfileExtractorImpl implements LoadProfileExtractor {
 
         @Override
         public String unit() {
-            return readingTypeUtilService.getMdcUnitsFor(this.channel.getChannelSpec().getReadingType()).get(0).toString();//todo else?
+            return readingTypeUtilService.getMdcUnitsFor(this.channel.getChannelSpec().getReadingType()).get(0).toString();
         }
 
         @Override

@@ -66,7 +66,7 @@ public class PreStoreRegistersTest extends AbstractCollectedDataIntegrationTest 
 
     @Test
     @Transactional
-    public void scalertest() {
+    public void scalerTestFoMultipleCIMUnit() {
         int scale = -4;
         BigDecimal amount = BigDecimal.valueOf(100500);
         getMeteringService().createReadingType("0.0.0.12.1.2.38.0.0.0.0.0.0.0.0.0.0.0", "type");
@@ -91,6 +91,32 @@ public class PreStoreRegistersTest extends AbstractCollectedDataIntegrationTest 
         assertThat(preStoreReading.get(deviceIdentifier).get(0).getValue()).isEqualTo(amount.scaleByPowerOfTen(scale));
     }
 
+    @Test
+    @Transactional
+    public void scalerTestFoSingleCIMUnit() {
+        int scale = -4;
+        BigDecimal amount = BigDecimal.valueOf(100500);
+        getMeteringService().createReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "type");
+        OfflineRegister offlineRegister = mock(OfflineRegister.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineRegister.getReadingTypeMRID()).thenReturn("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        when(this.comServerDAO.findOfflineRegister(any(), any())).thenReturn(Optional.of(offlineRegister));
+        PreStoreRegisters preStoreRegisters = new PreStoreRegisters(getMdcReadingTypeUtilService(), comServerDAO);
+        CollectedRegisterList collectedRegisterList = mock(CollectedRegisterList.class);
+        CollectedRegister collectedRegister = mock(CollectedRegister.class);
+        Quantity quantity = mock(Quantity.class);
+        Unit unit = Unit.get(BaseUnit.WATTHOUR, scale);
+        when(collectedRegisterList.getCollectedRegisters()).thenReturn(Collections.singletonList(collectedRegister));
+        when(collectedRegister.getResultType()).thenReturn(ResultType.Supported);
+        when(collectedRegister.isTextRegister()).thenReturn(false);
+        when(collectedRegister.getCollectedQuantity()).thenReturn(quantity);
+        when(collectedRegister.getReadTime()).thenReturn(fromClock);
+        when(quantity.getAmount()).thenReturn(amount);
+        when(quantity.getUnit()).thenReturn(unit);
+        Map<DeviceIdentifier, List<Reading>> preStoreReading = preStoreRegisters.preStore(collectedRegisterList);
+        assertThat(preStoreReading.get(deviceIdentifier).get(0).getValue()).isEqualTo(amount.scaleByPowerOfTen(scale));
+    }
 }
 
 

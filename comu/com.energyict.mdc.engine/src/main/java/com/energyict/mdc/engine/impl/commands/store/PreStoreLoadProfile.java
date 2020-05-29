@@ -174,8 +174,8 @@ public class PreStoreLoadProfile {
                 return processingBlock;
             }
 
-            List<Unit> configuredUnit = mdcReadingTypeUtilService.getMdcUnitsFor(readingTypeMRID);
-            int scaler = getScaler(unit, configuredUnit);
+            List<Unit> configuredUnits = mdcReadingTypeUtilService.getMdcUnitsFor(readingTypeMRID);
+            int scaler = getScaler(unit, configuredUnits);
             IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
             intervalBlock.getIntervals().stream().filter(intervalReading -> rangeToProcess.contains(intervalReading.getTimeStamp())).forEach(intervalReading -> {
                 IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
