@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
-public class Attributes {
+public class Attribute {
     private String name;
     private String value;
 

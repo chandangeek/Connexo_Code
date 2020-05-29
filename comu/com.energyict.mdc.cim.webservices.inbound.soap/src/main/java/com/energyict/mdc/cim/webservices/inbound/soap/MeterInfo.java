@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttributes;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttribute;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 
@@ -40,7 +40,7 @@ public class MeterInfo {
     private List<Zone> zones = Collections.emptyList();
     private List<CasInfo> customAttributeSets;
     private SecurityInfo securityInfo;
-    private List<ConnectionAttributes> connectionAttributes;
+    private List<ConnectionAttribute> connectionAttributes;
 
     public MeterInfo() {
     }
@@ -238,11 +238,11 @@ public class MeterInfo {
         this.securityInfo = securityInfo;
     }
 
-    public List<ConnectionAttributes> getConnectionAttributes() {
+    public List<ConnectionAttribute> getConnectionAttributes() {
         return connectionAttributes;
     }
 
-    public void setConnectionAttributes(List<ConnectionAttributes> connectionAttributes) {
+    public void setConnectionAttributes(List<ConnectionAttribute> connectionAttributes) {
         this.connectionAttributes = connectionAttributes;
     }
 }

@@ -11,8 +11,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attributes;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttributes;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attribute;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttribute;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -279,8 +279,8 @@ public class DeviceBuilder {
         return deviceService.findAllDevices(condition).paged(0, 10).find();
     }
 
-    private void setConnectionAttributes(Device device, List<ConnectionAttributes> connectionAttributes) throws FaultMessage {
-        for (ConnectionAttributes connAttribute : connectionAttributes) {
+    private void setConnectionAttributes(Device device, List<ConnectionAttribute> connectionAttributes) throws FaultMessage {
+        for (ConnectionAttribute connAttribute : connectionAttributes) {
             if (connAttribute.getConnectionMethod() != null) {
                 Optional<ConnectionTask<?, ?>> connTask = device.getConnectionTasks().stream()
                         .filter(connectionTask -> connectionTask.getName().equals(connAttribute.getConnectionMethod()))
@@ -302,8 +302,8 @@ public class DeviceBuilder {
         }
     }
 
-    private void setConnectionTaskProperties(ConnectionTask<?, ?> deviceConnectionTask, ConnectionAttributes connAttribute) throws FaultMessage {
-        for (Attributes attribute : connAttribute.getAttributes()) {
+    private void setConnectionTaskProperties(ConnectionTask<?, ?> deviceConnectionTask, ConnectionAttribute connAttribute) throws FaultMessage {
+        for (Attribute attribute : connAttribute.getAttributes()) {
             Optional<PropertySpec> propertySpecOptional = deviceConnectionTask.getPluggableClass().getPropertySpec(attribute.getName());
             if (propertySpecOptional.isPresent()) {
                 deviceConnectionTask.setProperty(attribute.getName(), propertySpecOptional.get().getValueFactory().fromStringValue(attribute.getValue()));

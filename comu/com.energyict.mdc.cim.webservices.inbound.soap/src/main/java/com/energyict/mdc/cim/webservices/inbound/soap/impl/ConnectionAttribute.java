@@ -6,15 +6,15 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import java.util.List;
 
-public class ConnectionAttributes {
-    private List<Attributes> attributes;
+public class ConnectionAttribute {
+    private List<Attribute> attributes;
     private String connectionMethod;
 
-    public List<Attributes> getAttributes() {
+    public List<Attribute> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(List<Attributes> attributes) {
+    public void setAttributes(List<Attribute> attributes) {
         this.attributes = attributes;
     }
 
