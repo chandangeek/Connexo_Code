@@ -53,14 +53,14 @@ public class BasicAuthenticationSSOTest extends BaseAuthenticationTest{
         final String requestUrl = "/apps/admin/";
         when(httpServletRequest.getRequestURL()).thenReturn(new StringBuffer(requestUrl));
         when(httpServletRequest.getRequestURI()).thenReturn(requestUrl);
-        when(samlRequestService.createSSOAuthenticationRequest(any(), any(), anyString())).thenReturn(Optional.of(anyString()));
+        when(samlRequestService.createSSOAuthenticationRequest(any(), any(), anyString(), anyString())).thenReturn(Optional.of(anyString()));
 
         boolean result = httpAuthenticationService.handleSecurity(httpServletRequest, httpServletResponse);
 
         assertTrue(result);
         verify(this.httpServletRequest, times(2)).getRequestURI();
         verify(this.httpServletRequest, times(2)).getRequestURL();
-        verify(this.samlRequestService).createSSOAuthenticationRequest(any(), any(), anyString());
+        verify(this.samlRequestService).createSSOAuthenticationRequest(any(), any(), anyString(), anyString());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class BasicAuthenticationSSOTest extends BaseAuthenticationTest{
         when(httpServletRequest.getRequestURL()).thenReturn(new StringBuffer(LOGIN_URL));
         when(httpServletRequest.getRequestURI()).thenReturn(LOGIN_URL);
         when(httpServletRequest.getParameter("page")).thenReturn("redirectPage");
-        when(samlRequestService.createSSOAuthenticationRequest(any(), any(), anyString())).thenReturn(Optional.of(anyString()));
+        when(samlRequestService.createSSOAuthenticationRequest(any(), any(), anyString(), anyString())).thenReturn(Optional.of(anyString()));
 
         boolean result = httpAuthenticationService.handleSecurity(httpServletRequest, httpServletResponse);
 
@@ -76,7 +76,7 @@ public class BasicAuthenticationSSOTest extends BaseAuthenticationTest{
         verify(this.httpServletRequest, times(2)).getRequestURI();
         verify(this.httpServletRequest).getRequestURL();
         verify(this.httpServletRequest, times(3)).getParameter("page");
-        verify(this.samlRequestService).createSSOAuthenticationRequest(any(), any(), anyString());
+        verify(this.samlRequestService).createSSOAuthenticationRequest(any(), any(), anyString(), anyString());
     }
 
     @Test
