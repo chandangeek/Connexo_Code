@@ -10,8 +10,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attributes;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttributes;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attribute;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttribute;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
@@ -31,9 +31,6 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
-import ch.iec.tc57._2011.schema.message.ErrorType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -208,14 +205,14 @@ public class DeviceBuilderTest {
 		securityKeyInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY.getBytes());
 		securityInfo.setSecurityKeys(Arrays.asList(securityKeyInfo));
 		meterInfo.setSecurityInfo(securityInfo);
-		ConnectionAttributes attribute = new ConnectionAttributes();
-		Attributes attribute1 = new Attributes();
+		ConnectionAttribute attribute = new ConnectionAttribute();
+		Attribute attribute1 = new Attribute();
 		attribute1.setName("host");
 		attribute1.setValue("hostName1");
-		Attributes attribute2 = new Attributes();
+		Attribute attribute2 = new Attribute();
 		attribute2.setName("portNumber");
 		attribute2.setValue("4059");
-		Attributes attribute3 = new Attributes();
+		Attribute attribute3 = new Attribute();
 		attribute3.setName("connectionTimeout");
 		attribute3.setValue("1:12");
 		attribute.setAttributes(Arrays.asList(attribute1, attribute2, attribute3));
@@ -545,14 +542,14 @@ public class DeviceBuilderTest {
 
 	@Test
 	public void testPrepareCreateFrom_NoConnectionMethods() throws FaultMessage {
-		ConnectionAttributes attribute = new ConnectionAttributes();
-		Attributes attribute1 = new Attributes();
+		ConnectionAttribute attribute = new ConnectionAttribute();
+		Attribute attribute1 = new Attribute();
 		attribute1.setName("host");
 		attribute1.setValue("hostName1");
-		Attributes attribute2 = new Attributes();
+		Attribute attribute2 = new Attribute();
 		attribute2.setName("portNumber");
 		attribute2.setValue("4059");
-		Attributes attribute3 = new Attributes();
+		Attribute attribute3 = new Attribute();
 		attribute3.setName("connectionTimeout");
 		attribute3.setValue("1:12");
 		attribute.setAttributes(Arrays.asList(attribute1, attribute2, attribute3));
