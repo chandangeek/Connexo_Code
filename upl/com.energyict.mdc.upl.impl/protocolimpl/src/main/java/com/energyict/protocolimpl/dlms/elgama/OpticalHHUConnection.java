@@ -73,27 +73,29 @@ public class OpticalHHUConnection implements HHUSignOn {
     }
 
     private String readLine() throws IOException {
-        StringBuilder sb = new StringBuilder();
-        long endTime = System.currentTimeMillis() + TIMEOUT;
-        while (true) {
-            if (getInputStream().available() > 0) {
-                int byteIn = getInputStream().read();
-                if (byteIn != -1) {
-                    byteIn &= 0x07F;
-                    if (byteIn == 0x0A) {
-                        break;
-                    } else if (byteIn != 0x0D) {
-                        sb.append((char) byteIn);
+        try (InputStream inputStream = getInputStream()) {
+            StringBuilder sb = new StringBuilder();
+            long endTime = System.currentTimeMillis() + TIMEOUT;
+            while (true) {
+                if (inputStream.available() > 0) {
+                    int byteIn = inputStream.read();
+                    if (byteIn != -1) {
+                        byteIn &= 0x07F;
+                        if (byteIn == 0x0A) {
+                            break;
+                        } else if (byteIn != 0x0D) {
+                            sb.append((char) byteIn);
+                        }
                     }
+                } else {
+                    if (System.currentTimeMillis() > endTime) {
+                        throw new IOException("Timeout");
+                    }
+                    ProtocolTools.delay(10);
                 }
-            } else {
-                if (System.currentTimeMillis() > endTime) {
-                    throw new IOException("Timeout");
-                }
-                ProtocolTools.delay(10);
             }
+            return sb.toString();
         }
-        return sb.toString();
     }
 
     private void set7E1(int baudrate) throws IOException {
@@ -148,14 +150,16 @@ public class OpticalHHUConnection implements HHUSignOn {
     }
 
     private void writeRawData(byte[] bytes) throws IOException {
-        byte[] bytesToWrite = bytes.clone();
-        for (int i = 0; i < bytesToWrite.length; i++) {
-            if (isOddParity(bytesToWrite[i])) {
-                bytesToWrite[i] |= 0x080;
+        try (OutputStream outputStream = getOutputStream()) {
+            byte[] bytesToWrite = bytes.clone();
+            for (int i = 0; i < bytesToWrite.length; i++) {
+                if (isOddParity(bytesToWrite[i])) {
+                    bytesToWrite[i] |= 0x080;
+                }
             }
+            outputStream.write(bytesToWrite);
+            outputStream.flush();
         }
-        getOutputStream().write(bytesToWrite);
-        getOutputStream().flush();
     }
 
     public static boolean isOddParity(final byte b) {

@@ -636,12 +636,13 @@ public class DataExportTaskResource {
         dataExportService.findExportTask(historyInfo.task.id)
                 .ifPresent(exportTask ->
                 {
-                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
-                            .setId(historyId).stream()
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
-
-                    exportTask.retryNow(dataExportOccurrence);
+                    try(QueryStream<DataExportOccurrence> dataExportOccurrenceStream = exportTask.getOccurrencesFinder()
+                                .setId(historyId).stream()) {
+                        DataExportOccurrence dataExportOccurrence = dataExportOccurrenceStream
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
+                        exportTask.retryNow(dataExportOccurrence);
+                    }
                 });
         return Response.status(Response.Status.OK).build();
     }
