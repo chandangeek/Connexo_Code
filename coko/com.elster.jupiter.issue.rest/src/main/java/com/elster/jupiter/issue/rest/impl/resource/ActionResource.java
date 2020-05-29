@@ -67,7 +67,7 @@ public class ActionResource extends BaseResource {
         // Fix for CX
         IssueActionTypeInfo objectToRemove = null;
         boolean foundObject = false;
-        if (phaseParam.equals("OVERDUE")) {
+        if (phaseParam != null && phaseParam.equals("OVERDUE")) {
             for (IssueActionTypeInfo issueActionTypeInfo : ruleActionTypes) {
                 if (issueActionTypeInfo.name.equals("Close issue")) {
                     foundObject = true;

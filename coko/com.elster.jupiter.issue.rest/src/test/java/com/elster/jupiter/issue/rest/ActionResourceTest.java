@@ -47,7 +47,6 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore
     public void testGetAllActionTypesWOIssueType() {
         @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
@@ -62,7 +61,6 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore
     public void testGetAllActionTypesWithUnexistingIssueType() {
         IssueType issueType = mockIssueType("unexisting", "name");
         @SuppressWarnings("unchecked")
@@ -80,7 +78,6 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore
     public void testGetAllActionTypesWithWrongIssueType() {
         IssueType issueType = mockIssueType("some", "name");
         @SuppressWarnings("unchecked")
@@ -99,7 +96,6 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore
     public void testGetAllActionTypes() {
         IssueType issueType = getDefaultIssueType();
         List<IssueActionType> actionTypes = Arrays.asList(
@@ -126,7 +122,6 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore
     public void testGetActionsThatCanBeInstantiated() {
         IssueType issueType = getDefaultIssueType();
         List<IssueActionType> actionTypes = Arrays.asList(
