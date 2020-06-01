@@ -56,8 +56,8 @@ public class PreStoreRegisters {
                     String readingTypeMRID = offlineRegister.get().getReadingTypeMRID();
                     Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister, readingTypeMRID);
                     if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
-                        Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
-                        int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
+                        List<Unit> configuredUnits = this.mdcReadingTypeUtilService.getMdcUnitsFor(readingTypeMRID);
+                        int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnits);
                         Reading scaledReading = getScaledReading(scaler, reading);
                         addProcessedReadingFor(processedReadings, deviceIdentifier, scaledReading);
                     } else {
@@ -76,7 +76,7 @@ public class PreStoreRegisters {
     }
 
     private boolean addProcessedReadingFor(Map<DeviceIdentifier, List<Reading>> allProcessedReadings, DeviceIdentifier deviceIdentifier, Reading newReading) {
-        if(!allProcessedReadings.containsKey(deviceIdentifier)){
+        if (!allProcessedReadings.containsKey(deviceIdentifier)) {
             allProcessedReadings.put(deviceIdentifier, new ArrayList<>());
         }
         return allProcessedReadings.get(deviceIdentifier).add(newReading);
@@ -91,11 +91,12 @@ public class PreStoreRegisters {
         }
     }
 
-    private int getScaler(Unit fromUnit, Unit toUnit) {
-        if (fromUnit != null && toUnit != null && fromUnit.equalBaseUnit(toUnit)) {
-            return fromUnit.getScale() - toUnit.getScale();
-        } else {
-            return 0;
+    private int getScaler(Unit fromUnit, List<Unit> toUnits) {
+        for (Unit toUnit : toUnits) {
+            if (fromUnit != null && toUnit != null && fromUnit.equalBaseUnit(toUnit)) {
+                return fromUnit.getScale() - toUnit.getScale();
+            }
         }
+        return 0;
     }
 }

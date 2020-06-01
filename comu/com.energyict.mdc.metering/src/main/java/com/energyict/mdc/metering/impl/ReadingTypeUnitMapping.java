@@ -7,13 +7,17 @@ package com.energyict.mdc.metering.impl;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.Pair;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.metering.impl.matchers.CompositeMatcher;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+
+import java.util.ArrayList;
+import java.util.List;
 
 enum ReadingTypeUnitMapping {
 
@@ -82,7 +86,7 @@ enum ReadingTypeUnitMapping {
     TESLA(BaseUnit.TESLA, ReadingTypeUnit.TESLA, Matcher.DONT_CARE),
     AMPEREPERMETER(BaseUnit.AMPEREPERMETER, ReadingTypeUnit.AMPEREPERMETER, Matcher.DONT_CARE),
     HENRY(BaseUnit.HENRY, ReadingTypeUnit.HENRY, Matcher.DONT_CARE),
-    HERTZ(BaseUnit.HERTZ, ReadingTypeUnit.HERTZ, ItemMatcher.itemMatcherFor(14,34,54,74)),
+    HERTZ(BaseUnit.HERTZ, ReadingTypeUnit.HERTZ, ItemMatcher.itemMatcherFor(14, 34, 54, 74)),
     VOLTSQUAREDHOUR(BaseUnit.VOLTSQUAREHOUR, ReadingTypeUnit.VOLTSQUAREDHOUR, ItemMatcher.itemMatcherFor(89)),
     AMPERESQUAREDHOUR(BaseUnit.AMPERESQUAREHOUR, ReadingTypeUnit.AMPERESQUAREDHOUR, ItemMatcher.itemMatcherFor(88)),
     SIEMENS(BaseUnit.SIEMENS, ReadingTypeUnit.SIEMENS, Matcher.DONT_CARE),
@@ -149,13 +153,17 @@ enum ReadingTypeUnitMapping {
         return NO_CIM_UNIT_FOUND;
     }
 
-    public static Unit getMdcUnitFor(ReadingTypeUnit readingTypeUnit, MetricMultiplier metricMultiplier){
+    public static List<Unit> getMdcUnitsFor(ReadingTypeUnit readingTypeUnit, MetricMultiplier metricMultiplier) {
+        List<Unit> units = new ArrayList<>();
         for (ReadingTypeUnitMapping readingTypeUnitMapping : values()) {
-            if(readingTypeUnitMapping.cimUnit.equals(readingTypeUnit)){
-                return Unit.get(readingTypeUnitMapping.mdcUnit, metricMultiplier.getMultiplier());
+            if (readingTypeUnitMapping.cimUnit.equals(readingTypeUnit)) {
+                units.add(Unit.get(readingTypeUnitMapping.mdcUnit, metricMultiplier.getMultiplier()));
             }
         }
-        return Unit.getUndefined();
+        if (units.isEmpty()) {
+            units.add(Unit.getUndefined());
+        }
+        return units;
     }
 
     private static MetricMultiplier getCombinedMultiplier(Unit unit, ReadingTypeUnitMapping readingTypeUnitMapping) {

@@ -19,6 +19,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -26,7 +28,7 @@ import java.util.logging.Logger;
         property = {"osgi.command.scope=mdc.metering",
                 "osgi.command.function=getReadingTypeInformation",
                 "osgi.command.function=readingTypeHelp",
-                "osgi.command.function=getReadingTypeFrom"},  immediate = true)
+                "osgi.command.function=getReadingTypeFrom"}, immediate = true)
 public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService {
 
     private volatile MeteringService meteringService;
@@ -43,7 +45,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @SuppressWarnings("unused")
-    public void readingTypeHelp(){
+    public void readingTypeHelp() {
         logger.info("- Use getReadingTypeInformation(readingType) to print the ObisCode/Unit and interval of a given 18 digit ReadingType.");
         logger.info("- The getReadingTypeFrom takes two or three arguments:");
         logger.info("\t- Obiscode and Unit.");
@@ -59,11 +61,11 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         });
     }
 
-    public void getReadingTypeFrom(String... arguments){
+    public void getReadingTypeFrom(String... arguments) {
         try {
             if (arguments.length == 2) {
                 logger.info("ReadingType : " + getReadingTypeMridFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1])));
-            } else if (arguments.length == 3){
+            } else if (arguments.length == 3) {
                 logger.info("ReadingType : " + getReadingTypeFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1]), new TimeDuration(Integer.valueOf(arguments[2]))));
             } else {
                 logger.info("Sorry, you provided an incorrect amount of arguments.");
@@ -75,29 +77,29 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
 
     @Override
     @Deprecated
-    public ReadingTypeInformation getReadingTypeInformationFor(String readingType){
+    public ReadingTypeInformation getReadingTypeInformationFor(String readingType) {
         return getReadingTypeInformationFrom(readingType).orElse(null);
     }
 
     @Override
     @Deprecated
-    public ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType){
+    public ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType) {
         return getReadingTypeInformationFrom(readingType.getMRID()).orElse(null);
     }
 
 
     @Override
-    public Optional<ReadingTypeInformation> getReadingTypeInformationFrom(String readingType){
+    public Optional<ReadingTypeInformation> getReadingTypeInformationFrom(String readingType) {
         return ReadingTypeToObisCodeFactory.from(readingType);
     }
 
     @Override
-    public Optional<ReadingTypeInformation> getReadingTypeInformationFrom(ReadingType readingType){
+    public Optional<ReadingTypeInformation> getReadingTypeInformationFrom(ReadingType readingType) {
         return ReadingTypeToObisCodeFactory.from(readingType.getMRID());
     }
 
     @Override
-    public String getReadingTypeMridFrom(ObisCode obisCode, Unit unit){
+    public String getReadingTypeMridFrom(ObisCode obisCode, Unit unit) {
         return ObisCodeToReadingTypeFactory.createMRIDFromObisCodeAndUnit(obisCode, unit);
     }
 
@@ -108,7 +110,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval){
+    public String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval) {
         return ObisCodeToReadingTypeFactory.createMRIDFromObisCodeUnitAndInterval(obisCode, unit, interval);
     }
 
@@ -158,16 +160,16 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public Unit getMdcUnitFor(String readingTypeStr) {
+    public List<Unit> getMdcUnitsFor(String readingTypeStr) {
         return this.meteringService
-                    .getReadingType(readingTypeStr)
-                    .map(this::getMdcUnitFor)
-                    .orElseGet(Unit::getUndefined);
+                .getReadingType(readingTypeStr)
+                .map(this::getMdcUnitsFor)
+                .orElseGet(() -> Collections.singletonList(Unit.getUndefined()));
     }
 
     @Override
-    public Unit getMdcUnitFor(ReadingType readingType) {
-        return ReadingTypeUnitMapping.getMdcUnitFor(readingType.getUnit(), readingType.getMultiplier());
+    public List<Unit> getMdcUnitsFor(ReadingType readingType) {
+        return ReadingTypeUnitMapping.getMdcUnitsFor(readingType.getUnit(), readingType.getMultiplier());
     }
 
     @Override
@@ -195,7 +197,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public String getReadingTypeFilterFrom(ObisCode obisCode){
+    public String getReadingTypeFilterFrom(ObisCode obisCode) {
         return ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(obisCode);
     }
 }
