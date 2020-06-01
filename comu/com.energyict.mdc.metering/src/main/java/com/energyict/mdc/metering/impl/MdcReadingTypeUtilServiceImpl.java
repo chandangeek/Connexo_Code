@@ -164,7 +164,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         return this.meteringService
                 .getReadingType(readingTypeStr)
                 .map(this::getMdcUnitsFor)
-                .orElse(Collections.singletonList(Unit.getUndefined()));
+                .orElseGet(() -> Collections.singletonList(Unit.getUndefined()));
     }
 
     @Override

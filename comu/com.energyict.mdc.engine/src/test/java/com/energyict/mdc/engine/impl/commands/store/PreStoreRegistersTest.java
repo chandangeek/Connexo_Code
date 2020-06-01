@@ -6,12 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -31,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -46,23 +40,9 @@ import static org.mockito.Mockito.when;
 public class PreStoreRegistersTest extends AbstractCollectedDataIntegrationTest {
 
     @Mock
-    private DeviceService deviceService;
-    @Mock
-    private IdentificationService identificationService;
-    @Mock
-    private ComServerDAOImpl.ServiceProvider serviceProvider;
-    @Mock
-    private User comServerUser;
-    @Mock
     private ComServerDAO comServerDAO;
 
     Date fromClock = new DateTime(2013, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC).toDate();
-    DeviceCreator deviceCreator;
-
-    @Before
-    public void setUp() {
-
-    }
 
     @Test
     @Transactional
