@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.osgi.goodies;
 
+import com.elster.jupiter.util.PathVerification;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,6 +65,7 @@ public class EventResource {
 	@Path("/cimfiles/{name}")
 	@Produces(MediaType.APPLICATION_XML)
 	public String getFile(@PathParam("name") String name) throws IOException {
+		PathVerification.validatePathForFolders(name);
 		try (BufferedReader reader = new BufferedReader(new FileReader("./" + name))) {
 			StringBuffer buffer = new StringBuffer();
 			String line = reader.readLine();

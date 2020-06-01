@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.a1860.registers;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
@@ -28,6 +29,7 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dlms.a1860.A1860;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,8 +153,15 @@ public class A1860RegisterFactory implements DeviceRegisterSupport {
                 }
             } else if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
                 final Register register = protocol.getDlmsSession().getCosemObjectFactory().getRegister(obisCode);
-                Quantity quantity = new Quantity(register.getValueAttr().toBigDecimal(), register.getScalerUnit().getEisUnit());
+                BigDecimal value = register.getValueAttr().toBigDecimal();
+                Unit unit = register.getScalerUnit().getEisUnit();
+                if (register.getScalerUnit().getUnitCode()== BaseUnit.UNITLESS) {
+                    value = value.scaleByPowerOfTen(register.getScalerUnit().getScaler());
+                    unit = Unit.get(BaseUnit.UNITLESS, 0);
+                }
+                Quantity quantity = new Quantity(value, unit);
                 registerValue = new RegisterValue(obisCode, quantity);
+
             } else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
                 final ExtendedRegister register = protocol.getDlmsSession().getCosemObjectFactory().getExtendedRegister(obisCode);
                 AbstractDataType valueAttr = register.getValueAttr();
