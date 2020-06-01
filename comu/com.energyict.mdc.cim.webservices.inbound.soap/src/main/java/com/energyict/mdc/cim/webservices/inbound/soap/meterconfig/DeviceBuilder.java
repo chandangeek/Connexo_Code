@@ -8,6 +8,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
@@ -282,7 +283,7 @@ public class DeviceBuilder {
 
     private void setConnectionAttributes(Device device, List<ConnectionAttributes> connectionAttributes) throws FaultMessage {
         for (ConnectionAttributes connAttribute : connectionAttributes) {
-            if (connAttribute.getConnectionMethod() != null && !connAttribute.getConnectionMethod().isEmpty()) {
+            if (!Checks.is(connAttribute.getConnectionMethod()).empty()) {
                 Optional<ConnectionTask<?, ?>> connTask = device.getConnectionTasks().stream()
                         .filter(connectionTask -> connectionTask.getName().equals(connAttribute.getConnectionMethod()))
                         .findFirst();
