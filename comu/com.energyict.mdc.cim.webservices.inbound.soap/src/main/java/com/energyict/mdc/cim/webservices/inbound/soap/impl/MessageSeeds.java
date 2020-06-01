@@ -68,6 +68,7 @@ public enum MessageSeeds implements MessageSeed {
     END_DEVICE_IDENTIFIER_MISSING(2002, "EndDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
     INVALID_OR_EMPTY_TIME_PERIOD(2003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
+    DEVICE_OR_GROUP_IDENTIFIER_MISSING(2004, "deviceOrGroupIdentifierMissing", "At least one of the values should be specified: ''mRID''/''Name'' of a device or ''Name'' of a device group."),
 
     // created/closed end device events
     INVALID_CREATED_END_DEVICE_EVENTS(3001, "InvalidCreatedEndDeviceEvents", "Invalid CreatedEndDeviceEvents is received"),

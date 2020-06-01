@@ -24,11 +24,6 @@ import static com.elster.jupiter.util.HolderBuilder.first;
 
 public final class EndDeviceEventTypeImpl implements EndDeviceEventType, PersistenceAware {
 
-    private static final int MRID_FIELD_COUNT = 4;
-    private static final int TYPE_INDEX = 0;
-    private static final int DOMAIN_INDEX = 1;
-    private static final int SUBDOMAIN_INDEX = 2;
-    private static final int EVENT_OR_ACTION = 3;
     private String mRID;
     private String description;
     private String aliasName;
@@ -140,7 +135,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
             type = EndDeviceType.get(Integer.parseInt(parts[TYPE_INDEX]));
             domain = EndDeviceDomain.get(Integer.parseInt(parts[DOMAIN_INDEX]));
             subDomain = EndDeviceSubDomain.get(Integer.parseInt(parts[SUBDOMAIN_INDEX]));
-            eventOrAction = EndDeviceEventOrAction.get(Integer.parseInt(parts[EVENT_OR_ACTION]));
+            eventOrAction = EndDeviceEventOrAction.get(Integer.parseInt(parts[EVENT_OR_ACTION_INDEX]));
         } catch (IllegalEnumValueException e) {
             throw new IllegalMRIDFormatException(mRID, e, thesaurus);
         }
