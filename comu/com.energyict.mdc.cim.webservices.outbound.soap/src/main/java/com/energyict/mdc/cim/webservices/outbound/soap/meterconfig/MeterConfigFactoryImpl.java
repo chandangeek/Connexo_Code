@@ -239,19 +239,17 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     private ConnectionAttributes getConnectionAttribute(ConnectionTask<?, ?> connTask) {
-        Map<String, PropertySpec> propertySpecMap = connTask.getPluggableClass().getPropertySpecs()
-                .stream().collect(Collectors.toMap(PropertySpec::getName, item ->item));
         TypedProperties typedProperties = connTask.getTypedProperties();
         ConnectionAttributes attr = new ConnectionAttributes();
         attr.setConnectionMethod(connTask.getName());
-        for (Map.Entry<String, PropertySpec> propertySpecEntry : propertySpecMap.entrySet()) {
+        for (PropertySpec propertySpec : connTask.getPluggableClass().getPropertySpecs()) {
             ch.iec.tc57._2011.meterconfig.Attribute attribute = new ch.iec.tc57._2011.meterconfig.Attribute();
-            attribute.setName(propertySpecEntry.getKey());
-            Object value = typedProperties.getLocalValue(propertySpecEntry.getKey());
+            attribute.setName(propertySpec.getName());
+            Object value = typedProperties.getLocalValue(propertySpec.getName());
             if (value == null) {
-                value = typedProperties.getInheritedValue(propertySpecEntry.getKey());
+                value = typedProperties.getInheritedValue(propertySpec.getName());
             }
-            attribute.setValue(convertPropertyValue(propertySpecEntry.getValue(), value));
+            attribute.setValue(convertPropertyValue(propertySpec, value));
             attr.getAttribute().add(attribute);
         }
         return attr;
