@@ -9,8 +9,6 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Functions;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attribute;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttribute;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -114,7 +112,7 @@ public class MeterConfigParser {
         meterInfo.setCustomAttributeSets(extractCustomPropertySets(meter));
         meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
         meterInfo.setSecurityInfo(extractSecurityInfo(meter));
-        meterInfo.setConnectionAttributes(extractConnectionAttributes(meter));
+        meterInfo.setConnectionAttributes(meter.getConnectionAttributes());
         return meterInfo;
     }
 
@@ -398,24 +396,6 @@ public class MeterConfigParser {
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meterName,
                         MessageSeeds.MISSING_ELEMENT, METER_CONFIG_CUSTOM_ATTRIBUTE_SET_PREFIX + customPropertySetIndex
                                 + "].Attribute[" + attributeIndex + "].value"));
-    }
-
-    private List<ConnectionAttribute> extractConnectionAttributes(Meter meter) {
-        return meter.getConnectionAttributes().stream().map(attr -> convertConnectionAttribute(attr)).collect(Collectors.toList());
-    }
-
-    private ConnectionAttribute convertConnectionAttribute(ch.iec.tc57._2011.meterconfig.ConnectionAttributes attr) {
-        ConnectionAttribute attribute = new ConnectionAttribute();
-        attribute.setAttributes(attr.getAttribute().stream().map(a -> convertAttribute(a)).collect(Collectors.toList()));
-        attribute.setConnectionMethod(attr.getConnectionMethod());
-        return attribute;
-    }
-
-    private Attribute convertAttribute(ch.iec.tc57._2011.meterconfig.Attribute attr) {
-        Attribute attribute = new Attribute();
-        attribute.setName(attr.getName());
-        attribute.setValue(attr.getValue());
-        return attribute;
     }
 
     private String getMeterName(Meter meter) {

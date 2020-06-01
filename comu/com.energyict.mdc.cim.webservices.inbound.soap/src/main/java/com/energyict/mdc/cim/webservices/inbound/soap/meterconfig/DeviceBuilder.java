@@ -11,8 +11,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attribute;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttribute;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -27,6 +25,8 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.meterconfig.Attribute;
+import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeviceBuilder {
     private static final String METER_CONFIG_MULTIPLIER_ITEM = "MeterConfig.Meter.multiplier";
@@ -279,9 +280,9 @@ public class DeviceBuilder {
         return deviceService.findAllDevices(condition).paged(0, 10).find();
     }
 
-    private void setConnectionAttributes(Device device, List<ConnectionAttribute> connectionAttributes) throws FaultMessage {
-        for (ConnectionAttribute connAttribute : connectionAttributes) {
-            if (connAttribute.getConnectionMethod() != null) {
+    private void setConnectionAttributes(Device device, List<ConnectionAttributes> connectionAttributes) throws FaultMessage {
+        for (ConnectionAttributes connAttribute : connectionAttributes) {
+            if (connAttribute.getConnectionMethod() != null && !connAttribute.getConnectionMethod().isEmpty()) {
                 Optional<ConnectionTask<?, ?>> connTask = device.getConnectionTasks().stream()
                         .filter(connectionTask -> connectionTask.getName().equals(connAttribute.getConnectionMethod()))
                         .findFirst();
@@ -302,11 +303,13 @@ public class DeviceBuilder {
         }
     }
 
-    private void setConnectionTaskProperties(ConnectionTask<?, ?> deviceConnectionTask, ConnectionAttribute connAttribute) throws FaultMessage {
-        for (Attribute attribute : connAttribute.getAttributes()) {
-            Optional<PropertySpec> propertySpecOptional = deviceConnectionTask.getPluggableClass().getPropertySpec(attribute.getName());
-            if (propertySpecOptional.isPresent()) {
-                deviceConnectionTask.setProperty(attribute.getName(), propertySpecOptional.get().getValueFactory().fromStringValue(attribute.getValue()));
+    private void setConnectionTaskProperties(ConnectionTask<?, ?> deviceConnectionTask, ConnectionAttributes connAttribute) throws FaultMessage {
+        Map<String, PropertySpec> propertySpecMap = deviceConnectionTask.getPluggableClass().getPropertySpecs()
+                .stream().collect(Collectors.toMap(PropertySpec::getName, item -> item));
+        for (Attribute attribute : connAttribute.getAttribute()) {
+            PropertySpec propertySpec = propertySpecMap.get(attribute.getName());
+            if (propertySpec != null) {
+                deviceConnectionTask.setProperty(attribute.getName(), propertySpec.getValueFactory().fromStringValue(attribute.getValue()));
             } else {
                 throw faultMessageFactory.meterConfigFaultMessageSupplier(deviceConnectionTask.getDevice().getName(), MessageSeeds.NO_CONNECTION_ATTRIBUTE, attribute.getName(), deviceConnectionTask.getName()).get();
             }

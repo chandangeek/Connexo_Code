@@ -242,16 +242,17 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ElectronicAddress.web"/>
         </xs:sequence>
     </xs:complexType>
-    <xs:complexType name="attribute" sawsdl:modelReference="">
+    <!-- These attributes aren't part of the CIM specification and were added to modify connection methods in Connexo. -->
+    <xs:complexType name="Attribute">
         <xs:sequence>
-            <xs:element name="name" type="xs:string" sawsdl:modelReference=""/>
-            <xs:element name="value" type="xs:string" sawsdl:modelReference=""/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
-    <xs:complexType name="ConnectionAttributes" sawsdl:modelReference="">
+    <xs:complexType name="ConnectionAttributes">
         <xs:sequence>
-            <xs:element name="attribute" type="m:attribute" maxOccurs="unbounded" sawsdl:modelReference=""/>
-            <xs:element name="connectionMethod" type="xs:string" minOccurs="0" sawsdl:modelReference=""/>
+            <xs:element name="Attribute" type="m:Attribute" maxOccurs="unbounded"/>
+            <xs:element name="connectionMethod" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="EndDeviceCapability"

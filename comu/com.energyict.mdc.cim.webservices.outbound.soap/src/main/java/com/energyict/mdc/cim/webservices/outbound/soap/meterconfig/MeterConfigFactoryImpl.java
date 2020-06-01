@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -238,19 +239,19 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     private ConnectionAttributes getConnectionAttribute(ConnectionTask<?, ?> connTask) {
+        Map<String, PropertySpec> propertySpecMap = connTask.getPluggableClass().getPropertySpecs()
+                .stream().collect(Collectors.toMap(PropertySpec::getName, item ->item));
+        TypedProperties typedProperties = connTask.getTypedProperties();
         ConnectionAttributes attr = new ConnectionAttributes();
         attr.setConnectionMethod(connTask.getName());
-        for (PropertySpec propertySpec : connTask.getPluggableClass().getPropertySpecs()) {
+        for (Map.Entry<String, PropertySpec> propertySpecEntry : propertySpecMap.entrySet()) {
             ch.iec.tc57._2011.meterconfig.Attribute attribute = new ch.iec.tc57._2011.meterconfig.Attribute();
-            attribute.setName(propertySpec.getName());
-            PluggableClassUsageProperty property = connTask.getProperty(propertySpec.getName());
-            Object value;
-            if (property != null && !property.isInherited()) {
-                value = property.getValue();
-            } else {
-                value = connTask.getTypedProperties().getInheritedValue(propertySpec.getName());
+            attribute.setName(propertySpecEntry.getKey());
+            Object value = typedProperties.getLocalValue(propertySpecEntry.getKey());
+            if (value == null) {
+                value = typedProperties.getInheritedValue(propertySpecEntry.getKey());
             }
-            attribute.setValue(convertPropertyValue(propertySpec, value));
+            attribute.setValue(convertPropertyValue(propertySpecEntry.getValue(), value));
             attr.getAttribute().add(attribute);
         }
         return attr;

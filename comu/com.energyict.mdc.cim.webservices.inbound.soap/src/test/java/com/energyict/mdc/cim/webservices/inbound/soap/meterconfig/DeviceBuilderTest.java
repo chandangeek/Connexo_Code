@@ -10,8 +10,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.Attribute;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ConnectionAttribute;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
@@ -31,6 +29,8 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.meterconfig.Attribute;
+import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -50,10 +50,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,6 +86,9 @@ public class DeviceBuilderTest {
 	private static final String SECURITY_ACCESSOR_NAME = "SECURITY_ACCESSOR_NAME";
 	private static final String SECURITY_ACCESSOR_KEY = "SECURITY_ACCESSOR_KEY";
 	private static final String CONNECTION_METHOD = "CONNECTION_METHOD";
+	private static final String CONNECTION_ATTRIBUTE_NAME1 = "host";
+	private static final String CONNECTION_ATTRIBUTE_NAME2 = "portNumber";
+	private static final String CONNECTION_ATTRIBUTE_NAME3 = "connectionTimeout";
 
 	private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
@@ -159,6 +160,8 @@ public class DeviceBuilderTest {
 
 	private MeterInfo meterInfo;
 
+	private ConnectionAttributes attributes;
+
 	private DeviceBuilder testable;
 
 	@Before
@@ -205,19 +208,19 @@ public class DeviceBuilderTest {
 		securityKeyInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY.getBytes());
 		securityInfo.setSecurityKeys(Arrays.asList(securityKeyInfo));
 		meterInfo.setSecurityInfo(securityInfo);
-		ConnectionAttribute attribute = new ConnectionAttribute();
+		attributes = new ConnectionAttributes();
 		Attribute attribute1 = new Attribute();
-		attribute1.setName("host");
+		attribute1.setName(CONNECTION_ATTRIBUTE_NAME1);
 		attribute1.setValue("hostName1");
 		Attribute attribute2 = new Attribute();
-		attribute2.setName("portNumber");
+		attribute2.setName(CONNECTION_ATTRIBUTE_NAME2);
 		attribute2.setValue("4059");
 		Attribute attribute3 = new Attribute();
-		attribute3.setName("connectionTimeout");
+		attribute3.setName(CONNECTION_ATTRIBUTE_NAME3);
 		attribute3.setValue("1:12");
-		attribute.setAttributes(Arrays.asList(attribute1, attribute2, attribute3));
-		attribute.setConnectionMethod(CONNECTION_METHOD);
-		meterInfo.setConnectionAttributes(Arrays.asList(attribute));
+		attributes.getAttribute().addAll(Arrays.asList(attribute1, attribute2, attribute3));
+		attributes.setConnectionMethod(CONNECTION_METHOD);
+		meterInfo.setConnectionAttributes(Collections.singletonList(attributes));
 		when(device.getId()).thenReturn(ID);
 		when(device.getmRID()).thenReturn(DEVICE_MRID);
 		when(device.getState()).thenReturn(status);
@@ -229,7 +232,8 @@ public class DeviceBuilderTest {
 		when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 		when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
 		when(propertySpec.getValueFactory()).thenReturn(mock(ValueFactory.class));
-		when(pluggableClass.getPropertySpec(anyString())).thenReturn(Optional.of(propertySpec));
+		when(propertySpec.getName()).thenReturn(CONNECTION_ATTRIBUTE_NAME1, CONNECTION_ATTRIBUTE_NAME2, CONNECTION_ATTRIBUTE_NAME3);
+		when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec, propertySpec, propertySpec));
 		when(connectionTask.getName()).thenReturn(CONNECTION_METHOD);
 		when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 		when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(Arrays.asList(executableAction));
@@ -542,19 +546,8 @@ public class DeviceBuilderTest {
 
 	@Test
 	public void testPrepareCreateFrom_NoConnectionMethods() throws FaultMessage {
-		ConnectionAttribute attribute = new ConnectionAttribute();
-		Attribute attribute1 = new Attribute();
-		attribute1.setName("host");
-		attribute1.setValue("hostName1");
-		Attribute attribute2 = new Attribute();
-		attribute2.setName("portNumber");
-		attribute2.setValue("4059");
-		Attribute attribute3 = new Attribute();
-		attribute3.setName("connectionTimeout");
-		attribute3.setValue("1:12");
-		attribute.setAttributes(Arrays.asList(attribute1, attribute2, attribute3));
-		attribute.setConnectionMethod(null);
-		meterInfo.setConnectionAttributes(Arrays.asList(attribute));
+		attributes.setConnectionMethod(null);
+		meterInfo.setConnectionAttributes(Collections.singletonList(attributes));
 		when(device.getConnectionTasks()).thenReturn(new ArrayList<>());
 		when(device.getName()).thenReturn(DEVICE_NAME);
 		when(deviceBuilder.create()).thenReturn(device);
@@ -568,7 +561,7 @@ public class DeviceBuilderTest {
 
 	@Test
 	public void testPrepareCreateFrom_NoConnectionAttribute() throws FaultMessage {
-		when(pluggableClass.getPropertySpec(anyString())).thenReturn(Optional.empty());
+		when(pluggableClass.getPropertySpecs()).thenReturn(new ArrayList<>());
 		when(deviceBuilder.create()).thenReturn(device);
 		when(connectionTask.getDevice()).thenReturn(device);
 		when(device.getName()).thenReturn(DEVICE_NAME);
@@ -578,6 +571,6 @@ public class DeviceBuilderTest {
 		} catch (FaultMessage e) {
 		}
 		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_CONNECTION_ATTRIBUTE,
-				"host", CONNECTION_METHOD);
+				CONNECTION_ATTRIBUTE_NAME1, CONNECTION_METHOD);
 	}
 }
