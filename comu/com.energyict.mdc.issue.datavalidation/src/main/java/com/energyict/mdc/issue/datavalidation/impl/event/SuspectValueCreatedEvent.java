@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -197,17 +198,12 @@ public class SuspectValueCreatedEvent extends DataValidationEvent {
     private List<ReadingQualityRecord> findSuspects(final Range<Instant> timeRange) {
         // FIXME! CXO-12226
         return findChannelsContainer()
-                .map(channelsContainer -> channelsContainer.getChannels().stream()
-                        .flatMap(channel -> channel.findReadingQualities()
-                                .ofQualityIndex(QualityCodeIndex.SUSPECT)
-                                .inTimeInterval(timeRange)
-                                .stream())
-                        .sorted(this::sortSuspectsByDateAscOrder)
-                        .collect(Collectors.toList()))
+                .flatMap(ChannelsContainer::getMeter)
+                .map(meter -> meter.findReadingQualities()
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(timeRange)
+                        .sorted()
+                        .collect())
                 .orElseGet(Collections::emptyList);
-    }
-
-    private int sortSuspectsByDateAscOrder(final ReadingQualityRecord first, final ReadingQualityRecord second) {
-        return first.getReadingTimestamp().compareTo(second.getReadingTimestamp());
     }
 }

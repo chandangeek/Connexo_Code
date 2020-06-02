@@ -62,6 +62,8 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     List<? extends ReadingQualityRecord> getReadingQualities(Range<Instant> range);
 
+    ReadingQualityFetcher findReadingQualities();
+
     List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournal(Range<Instant> range, List<ReadingType> readingTypes, List<Channel> channels);
 
     MeterConfigurationBuilder startingConfigurationOn(Instant startTime);
