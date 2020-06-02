@@ -18,10 +18,6 @@
     <packaging>bundle</packaging>
     <name>[MDC] mdc.sap.rest</name>
 
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <profiles>
         <profile>
             <id>restdoc</id>
