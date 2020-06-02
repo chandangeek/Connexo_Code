@@ -284,6 +284,38 @@
                             <wsdlLocation>wsdl/meterconfig/ReplyMeterConfig.wsdl</wsdlLocation>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>g6</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlDirectory>src/main/resources</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>wsdl/enddevicecontrols/ExecuteEndDeviceControls.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+                            <keep>true</keep>
+                            <wsdlLocation>/wsdl/enddevicecontrols/ExecuteEndDeviceControls.wsdl</wsdlLocation>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>g7</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlDirectory>src/main/resources</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>wsdl/enddevicecontrols/ReplyEndDeviceControls.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+                            <keep>true</keep>
+                            <wsdlLocation>/wsdl/enddevicecontrols/ReplyEndDeviceControls.wsdl</wsdlLocation>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
