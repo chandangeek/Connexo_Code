@@ -72,7 +72,7 @@ import java.util.stream.Stream;
  * Created by bvn on 5/4/16.
  */
 @Component(name = "com.elster.jupiter.soap.webservices.installer",
-        service = {WebServicesDataModelService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + WebServicesService.COMPONENT_NAME,
         immediate = true)
 public class WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageSeedProvider, TranslationKeyProvider, BundleWaiter.Startable {
@@ -197,12 +197,6 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
-        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
-        try {
-            httpService.registerServlet("/soap", servlet, null, null);
-        } catch (NamespaceException | ServletException ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     @Reference
@@ -264,6 +258,14 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         if (!logDirectory.endsWith(File.separator)) {
             logDirectory = logDirectory + File.separator;
         }
+
+        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet(), threadPrincipalService);
+        try {
+            httpService.registerServlet("/soap", servlet, null, null);
+        } catch (NamespaceException | ServletException ex) {
+            throw new RuntimeException(ex);
+        }
+
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
         webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, nlsService);
         webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, endPointConfigurationService, webServiceCallOccurrenceService);
@@ -289,8 +291,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     public void start(BundleContext context) {
         registrations.add(bundleContext.registerService(WebServicesDataModelService.class, this, new Hashtable<>()));
         registrations.add(bundleContext.registerService(EndPointConfigurationService.class, endPointConfigurationService, new Hashtable<>()));
-        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
         registrations.add(bundleContext.registerService(WebServiceCallOccurrenceService.class, webServiceCallOccurrenceService, new Hashtable<>()));
+        registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
     }
 
     @Deactivate

@@ -11,12 +11,8 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Hermes-SNAPSHOT</version>
+        <version>1.0.0-Kratos-SNAPSHOT</version>
     </parent>
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <artifactId>webservice.inbound.rest.scim</artifactId>
     <packaging>bundle</packaging>

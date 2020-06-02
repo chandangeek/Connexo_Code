@@ -805,27 +805,26 @@ class Profile extends VDEWProfile {
             public boolean isRequestHeader() { return false;
             }}, null);
 
-
+        //don't repeat yourself ???
         File f = new File( DBG_PROFILE_DMP );
-        FileInputStream fis = new FileInputStream(f);
+        try(FileInputStream fis = new FileInputStream(f)){
+            byte [] data = new byte[(int)f.length()];
+            fis.read(data);
 
-        byte [] data = new byte[(int)f.length()];
-        fis.read(data);
+            System.out.println(p.buildProfileData(data));
+        }
 
-        System.out.println(p.buildProfileData(data));
+
 //
 //        System.out.println( "------------------------" );
 //
         f = new File( DBG_EVENT_DMP );
-        fis = new FileInputStream(f);
-
-        data = new byte[(int)f.length()];
+        try(FileInputStream fis = new FileInputStream(f)){
+            byte [] data = new byte[(int)f.length()];
         fis.read(data);
 
         p.buildMeterEvents(data);
-
-
-
+        }
     }
 
 }

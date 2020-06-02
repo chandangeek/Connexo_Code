@@ -1112,31 +1112,37 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         }
     }
 
+    //TODO refactor as nested try blocks are messy
     private String doGetIResponse(SerialCommunicationChannel commChannel) throws IOException {
-        commChannel.getOutputStream().write('I');
-        int count = 0;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        while (true) {
-            if (commChannel.getInputStream().available() != 0) {
-                baos.write(commChannel.getInputStream().read());
-            } else {
-                try {
-                    Thread.sleep(100);
-                    //if (count++>=(ProtocolMeterDiscover.IDISCOVER_WAIT*10))
-                    if (count++ >= (5 * 10)) // KV tricky change because don't want to depend on core code changes...
-                    {
-                        break;
+        try (OutputStream commChannelOutputStream =commChannel.getOutputStream();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             InputStream inputStream = commChannel.getInputStream()) {
+            commChannelOutputStream.write('I');
+            int count = 0;
+            while (true) {
+                if (inputStream.available() != 0) {
+                    baos.write(inputStream.read());
+                } else {
+                    try {
+                        Thread.sleep(100);
+                        //if (count++>=(ProtocolMeterDiscover.IDISCOVER_WAIT*10))
+                        if (count++ >= (5 * 10)) // KV tricky change because don't want to depend on core code changes...
+                        {
+                            break;
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw ConnectionCommunicationException.communicationInterruptedException(e);
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
-        }
-        if (baos.size() == 0) {
-            return null;
-        } else {
-            return new String(baos.toByteArray());
+            if (baos.size() == 0) {
+                return null;
+            } else {
+                return new String(baos.toByteArray());
+            }
+        } catch (IOException ex) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(ex);
         }
     }
 

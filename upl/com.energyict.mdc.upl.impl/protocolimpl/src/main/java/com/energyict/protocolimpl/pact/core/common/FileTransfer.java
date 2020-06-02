@@ -62,16 +62,18 @@ public class FileTransfer {
     } // public String getDecryptedFileName()
 
     public byte[] getDecryptedData() throws NestedIOException {
-        try {
-            File file = new File(getDecryptedFileName());
-            FileInputStream fis = new FileInputStream(file);
-            byte[] data = new byte[(int)file.length()];
+        try(FileInputStream fis = new FileInputStream(getFile())) {
+            byte[] data = new byte[(int)getFile().length()];
             fis.read(data);
             return data;
         }
         catch(IOException e) {
             throw new NestedIOException(e);
         }
+    }
+
+    private File getFile() {
+        return new File(getDecryptedFileName());
     }
 
     public byte[] getDecryptedReadingsData() throws IOException {

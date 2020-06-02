@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.impl.EventType;
@@ -299,12 +300,14 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         if (securityManagementService.isUsedByCertificateAccessors(this)) {
             throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_ON_SECURITY_ACCESSOR);
         }
-        if (securityManagementService.streamDirectoryCertificateUsages()
-                .filter(Where.where("certificate").isEqualTo(this))
-                .findAny()
-                .isPresent()) {
-            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY);
+        try(QueryStream<DirectoryCertificateUsage> queryStream = securityManagementService.streamDirectoryCertificateUsages()) {
+            if ( queryStream.filter(Where.where("certificate").isEqualTo(this))
+                    .findAny()
+                    .isPresent()) {
+                throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY);
+            }
         }
+
         this.eventService.postEvent(EventType.CERTIFICATE_VALIDATE_DELETE.topic(), this);
         dataModel.remove(this);
         this.eventService.postEvent(EventType.CERTIFICATE_DELETED.topic(), this);

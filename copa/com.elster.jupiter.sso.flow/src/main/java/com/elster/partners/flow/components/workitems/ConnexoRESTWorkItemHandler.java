@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Veto
 public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
@@ -23,7 +24,11 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
     private String user;
     private String password;
     private URI connexoURI;
-
+    private static final String POST = "POST";
+    private static final String PUT = "PUT";
+    private static final String DELETE = "DELETE";
+    private static final String FLOW_CSRF_HEADER= "BFlowProcess";
+    private static final String FLOW_PROCESS_KEY = "BPMconnexoflowProcess";
     @Override
     protected HttpResponse doRequestWithAuthorization(HttpClient httpclient, RequestBuilder requestBuilder, Map<String, Object> params, AuthenticationType type) {
         loadConfiguration();
@@ -45,8 +50,10 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
                         .encodeToString((this.user + ":" + this.password).getBytes()));
             }
         }
-
         try {
+            if(isFormSubmitRequest(request)) {
+                request.addHeader(FLOW_CSRF_HEADER, Base64.getEncoder().encodeToString(FLOW_PROCESS_KEY.getBytes()));
+            }
             return httpclient.execute(request);
         } catch (IOException e) {
             throw new RuntimeException("Could not execute request on Connexo REST API!", e);
@@ -73,5 +80,9 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
         if (password == null) {
             this.password = System.getProperty("com.elster.jupiter.password");
         }
+    }
+
+    private boolean isFormSubmitRequest(HttpUriRequest request){
+        return Stream.of(POST, PUT, DELETE).anyMatch(request.getMethod()::equalsIgnoreCase);
     }
 }
