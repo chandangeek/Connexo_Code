@@ -3,7 +3,13 @@ package com.energyict.mdc.engine.offline;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -14,9 +20,12 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionType;
-import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
@@ -53,11 +62,21 @@ import com.energyict.mdc.upl.io.ModemType;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.io.SocketService;
 import com.energyict.mdc.upl.meterdata.LogBook;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -65,7 +84,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -211,7 +234,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     @Override
     public List<TranslationKey> getKeys() {
         try {
-            return SimpleTranslationKey.loadFromInputStream(this.getClass().getClassLoader().getResourceAsStream("i18n.properties"));
+            return SimpleTranslationKey.loadFromInputStream(this.getClass().getClassLoader().getResourceAsStream("gui.properties"));
         } catch (IOException e) {
             LOGGER.severe("Failed to load translations for the '" + COMPONENTNAME + "' component bundle.");
         }
