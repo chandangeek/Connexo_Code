@@ -108,19 +108,18 @@ class ChannelsContainerValidationList {
 
         eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), validationScope);
 
-        // FIXME! CXO-12226
-        final List<ReadingQualityRecord> listOfSuspectReadings = validationScopeByChannelMap.entrySet().stream()
-                .flatMap(channelAndRange -> channelAndRange.getKey().findReadingQualities()
-                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
-                        .inTimeInterval(channelAndRange.getValue())
-                        .stream())
-                .collect(Collectors.toList());
-
-        validationService.postSuspectCreatedEvents(listOfSuspectReadings);
+        channelsContainer.getMeter().ifPresent(meter -> {
+            // FIXME! CXO-12226
+            List<ReadingQualityRecord> listOfSuspectReadings = meter.findReadingQualities()
+                    .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                    .inScope(validationScopeByChannelMap)
+                    .collect();
+            validationService.postSuspectCreatedEvents(listOfSuspectReadings);
+        });
     }
 
     private Range<Instant> getValidationScope(Channel channel) {
-        return Range.greaterThan(getLastChecked(channel).orElse(channelsContainer.getStart()));
+        return Range.greaterThan(getLastChecked(channel).orElseGet(channelsContainer::getStart));
     }
 
     /**

@@ -17,6 +17,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -46,9 +47,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
@@ -108,14 +107,13 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationOnStoreIT {
-
     private static final String MIN_MAX = "minMax";
     private static final String CONSECUTIVE_ZEROES = "consecutiveZeroes";
     private static final String MY_RULE_SET = "MyRuleSet";
     private static final String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
     private static final String MIN = "min";
     private static final String MAX = "max";
-    public static final ZonedDateTime ZONED_DATE_TIME = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault());
+    private static final ZonedDateTime ZONED_DATE_TIME = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault());
     private static final Instant date1 = ZONED_DATE_TIME.toInstant();
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -144,7 +142,6 @@ public class ValidationOnStoreIT {
     private ValidationRule zeroesRule;
 
     private class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
@@ -152,6 +149,7 @@ public class ValidationOnStoreIT {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 
@@ -213,65 +211,61 @@ public class ValidationOnStoreIT {
         when(conZero.getValueFactory()).thenReturn(valueFactory);
 
         transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(AuditService.class);
-                injector.getInstance(FiniteStateMachineService.class);
-                MeteringService meteringService = injector.getInstance(MeteringService.class);
-                deltaReadingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                bulkReadingType = meteringService.getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                meter = amrSystem.newMeter("2331", "myName").create();
-                meterActivation = meter.activate(date1);
-                meterActivation.getChannelsContainer().createChannel(bulkReadingType);
+        transactionService.run(() -> {
+            injector.getInstance(AuditService.class);
+            injector.getInstance(FiniteStateMachineService.class);
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            deltaReadingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+            bulkReadingType = meteringService.getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            meter = amrSystem.newMeter("2331", "myName").create();
+            meterActivation = meter.activate(date1);
+            meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
-                ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
-                validationService.addResource(validatorFactory);
+            ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
+            validationService.addResource(validatorFactory);
 
-                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
-                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-                zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros")
-                        .withReadingType(deltaReadingType)
-                        .withReadingType(bulkReadingType)
-                        .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
-                        .active(true)
-                        .create();
-                minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax")
-                        .withReadingType(bulkReadingType)
-                        .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
-                        .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
-                        .active(true)
-                        .create();
+            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
+            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
+            zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros")
+                    .withReadingType(deltaReadingType)
+                    .withReadingType(bulkReadingType)
+                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                    .active(true)
+                    .create();
+            minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax")
+                    .withReadingType(bulkReadingType)
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                    .active(true)
+                    .create();
 
-                validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
-                    @Override
-                    public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
-                        RangeSet<Instant> rangeSet = TreeRangeSet.create();
-                        rangeSet.add(Range.atLeast(date1));
-                        return Collections.singletonMap(validationRuleSet, rangeSet);
-                    }
+            validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
+                @Override
+                public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                    RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                    rangeSet.add(Range.atLeast(date1));
+                    return Collections.singletonMap(validationRuleSet, rangeSet);
+                }
 
-                    @Override
-                    public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
-                        return false;
-                    }
+                @Override
+                public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+                    return false;
+                }
 
-                    @Override
-                    public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
-                        return true;
-                    }
+                @Override
+                public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
+                    return true;
+                }
 
-                    @Override
-                    public boolean canHandleRuleSetStatus() {
-                        return true;
-                    }
-                });
+                @Override
+                public boolean canHandleRuleSetStatus() {
+                    return true;
+                }
+            });
 
-                validationService.activateValidation(meter);
-                validationService.enableValidationOnStorage(meter);
-                return null;
-            }
+            validationService.activateValidation(meter);
+            validationService.enableValidationOnStorage(meter);
         });
     }
 
@@ -282,14 +276,14 @@ public class ValidationOnStoreIT {
 
     @Test
     public void testValidationFailsOnMinMax() {
-        transactionService.execute(VoidTransaction.of(() -> {
+        transactionService.run(() -> {
             IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), Collections.emptySet());
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
             intervalBlock.addIntervalReading(intervalReading);
             meterReading.addIntervalBlock(intervalBlock);
             meter.store(QualityCodeSystem.MDC, meterReading);
-        }));
+        });
 
         List<ReadingQualityType> readingQualityTypes = meter.getReadingQualities(Range.singleton(ZONED_DATE_TIME.plusHours(1).toInstant())).stream()
                 .map(ReadingQualityRecord::getType)

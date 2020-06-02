@@ -7,16 +7,19 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityIndexFilter;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityTypeFilter;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
+import com.elster.jupiter.metering.ReadingType;
 
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -127,6 +130,30 @@ class ReadingQualityWithTypeFetcherImpl implements ReadingQualityWithTypeFetcher
     @Override
     public ReadingQualityFetcher sorted() {
         filter.sorted();
+        return this;
+    }
+
+    @Override
+    public ReadingQualityFetcher forReadingType(ReadingType readingType) {
+        filter.forReadingType(readingType);
+        return this;
+    }
+
+    @Override
+    public ReadingQualityFetcher forReadingTypes(Set<ReadingType> readingTypes) {
+        filter.forReadingTypes(readingTypes);
+        return this;
+    }
+
+    @Override
+    public ReadingQualityFetcher inChannels(Set<Channel> channels) {
+        filter.inChannels(channels);
+        return this;
+    }
+
+    @Override
+    public ReadingQualityFetcher inScope(Map<Channel, Range<Instant>> scope) {
+        filter.inScope(scope);
         return this;
     }
 
