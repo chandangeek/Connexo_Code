@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -155,7 +156,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         sqlBuilder.append(" select * from  MV_COMTASKDTHEATMAP cte where 1=1 ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(") group by devicetype, lastsess_highestpriocomplcode");
-        Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
+        Map<Long, Map<String, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters);
     }
 
@@ -198,8 +199,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             if (sqlBuilder == null) {
                 sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
@@ -240,8 +240,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
                                 this.deviceDataModelService.clock().instant());
                 WithClauses.BUSY_CONNECTION_TASK.appendTo(sqlBuilder, BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
             }
@@ -299,7 +298,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         return this.getComTasksDeviceTypeHeatMap(null);
     }
 
-    private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<CompletionCode, Long>> partialCounters) {
+    private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<String, Long>> partialCounters) {
         Map<Long, DeviceType> deviceTypes =
                 this.deviceDataModelService
                         .deviceConfigurationService()
@@ -321,18 +320,21 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     }
 
     private List<Long> missingCompletionCodeCounters(DeviceType deviceType) {
-        return Stream.of(CompletionCode.values()).map(code -> 0L).collect(Collectors.toList());
-    }
-
-    private List<Long> orderedCompletionCodeCounters(Map<CompletionCode, Long> completionCodeCounters) {
-        List<Long> counters = new ArrayList<>(CompletionCode.values().length);
-        for (CompletionCode completionCode : CompletionCode.values()) {
-            counters.add(completionCodeCounters.get(completionCode));
-        }
+        List<Long> counters = Stream.of(CompletionCode.values()).map(code -> 0L).collect(Collectors.toList());
+        counters.add(0L);
         return counters;
     }
 
-    private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
+    private List<Long> orderedCompletionCodeCounters(Map<String, Long> completionCodeCounters) {
+        List<Long> counters = new ArrayList<>(CompletionCode.values().length + 1);
+        for (CompletionCode completionCode : CompletionCode.values()) {
+            counters.add(completionCodeCounters.get(completionCode.name()));
+        }
+        counters.add(completionCodeCounters.get("NeverStarted"));
+        return counters;
+    }
+
+    private Map<Long, Map<String, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
         try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement stmnt = builder.prepare(connection)) {
             return this.fetchComTaskHeatMapCounters(stmnt);
@@ -341,28 +343,29 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         }
     }
 
-    private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(PreparedStatement statement) throws SQLException {
-        Map<Long, Map<CompletionCode, Long>> counters = new HashMap<>();
+    private Map<Long, Map<String, Long>> fetchComTaskHeatMapCounters(PreparedStatement statement) throws SQLException {
+        Map<Long, Map<String, Long>> counters = new HashMap<>();
         try (ResultSet resultSet = statement.executeQuery()) {
             resultSet.setFetchSize(SqlBuilder.FETCH_SIZE);
             while (resultSet.next()) {
                 long businessObjectId = resultSet.getLong(1);
-                int completionCodeOrdinal = resultSet.getInt(2);
+                BigDecimal completionCodeOrdinal = (BigDecimal) resultSet.getObject(2);
                 long counter = resultSet.getLong(3);
-                Map<CompletionCode, Long> successIndicatorCounters = this.getOrPutCompletionCodeCounters(businessObjectId, counters);
-                successIndicatorCounters.put(CompletionCode.fromDBValue(completionCodeOrdinal), counter);
+                Map<String, Long> successIndicatorCounters = this.getOrPutCompletionCodeCounters(businessObjectId, counters);
+                successIndicatorCounters.put(completionCodeOrdinal == null ? "NeverStarted" : CompletionCode.fromDBValue(completionCodeOrdinal.intValue()).name(), counter);
             }
         }
         return counters;
     }
 
-    private Map<CompletionCode, Long> getOrPutCompletionCodeCounters(long businessObjectId, Map<Long, Map<CompletionCode, Long>> counters) {
-        Map<CompletionCode, Long> completionCodeCounters = counters.get(businessObjectId);
+    private Map<String, Long> getOrPutCompletionCodeCounters(long businessObjectId, Map<Long, Map<String, Long>> counters) {
+        Map<String, Long> completionCodeCounters = counters.get(businessObjectId);
         if (completionCodeCounters == null) {
             completionCodeCounters = new HashMap<>();
             for (CompletionCode missing : EnumSet.allOf(CompletionCode.class)) {
-                completionCodeCounters.put(missing, 0L);
+                completionCodeCounters.put(missing.name(), 0L);
             }
+            completionCodeCounters.put("NeverStarted", 0L);
             counters.put(businessObjectId, completionCodeCounters);
         }
         return completionCodeCounters;
@@ -389,7 +392,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         if (deviceGroup != null) {
             sqlBuilder.append(" and cte.device in (");
             if (deviceGroup instanceof QueryEndDeviceGroup) {
-                sqlBuilder.add(((QueryEndDeviceGroup)deviceGroup).toFragment());
+                sqlBuilder.add(((QueryEndDeviceGroup) deviceGroup).toFragment());
             } else {
                 sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(getMdcAmrSystem().get()).toFragment());
             }
