@@ -10,6 +10,6 @@ public interface SystemProperty {
     String getKey();
     Object getValueObject();
     PropertySpec getPropertySpec();
-    void setValue(String value);
+    void setValue(Object value);
     void update();
 }

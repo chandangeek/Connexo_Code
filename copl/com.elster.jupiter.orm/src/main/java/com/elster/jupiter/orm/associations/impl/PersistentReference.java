@@ -7,7 +7,6 @@ package com.elster.jupiter.orm.associations.impl;
 
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.KeyValue;

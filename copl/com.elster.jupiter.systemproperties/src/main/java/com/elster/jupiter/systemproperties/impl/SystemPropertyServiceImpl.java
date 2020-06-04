@@ -102,8 +102,8 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     @Deactivate
     public void deactivate() {
         sysLoop.shutDown();
-        specs.clear();
         props.clear();
+        specs.clear();
     }
 
     private void initSystemPropertySpecs() {
@@ -119,14 +119,20 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
 
     @Override
     public PropertySpec findPropertySpec(String key) {
-        return specs.get(key).getPropertySpec();
+        PropertySpec spec = specs.get(key).getPropertySpec();
+
+        if (spec == null) {
+            throw new IllegalStateException("There is no property spec for key: " + key);
+        }
+
+        return spec;
     }
 
     @Override
     public Object getPropertyValue(String key) {
         Object value = props.get(key);
         if (value == null) {
-            value = specs.get(key).getPropertySpec().getPossibleValues().getDefault();
+            value = findPropertySpec(key).getPossibleValues().getDefault();
         }
         return value;
     }
@@ -150,8 +156,7 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
         SystemProperty sysprop = findSystemPropertyByKey(key).get();
         //Update system property if value changed.
         if (!newValue.equals(sysprop.getValueObject())) {
-            String newValueStr = sysprop.getPropertySpec().getValueFactory().toStringValue(newValue);
-            sysprop.setValue(newValueStr);
+            sysprop.setValue(newValue);
             actionOnPropertyChange(sysprop);
         }
     }

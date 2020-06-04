@@ -37,7 +37,7 @@ public class CorruptedOrmMappingTest {
     private static final String TABLE_NAME = "TABLE_NAME";
     private static final String TABLE_NAME2 = TABLE_NAME + "2";
     private static final long EVICTION_TIME = 300;
-    private static final boolean CACHE_IS_ENABLED = true;
+    private static final boolean CACHE_IS_ENABLED = false;
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
 
