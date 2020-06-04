@@ -21,7 +21,8 @@ Ext.define('Sam.controller.Main', {
         'Sam.controller.history.About',
         'Sam.controller.about.About',
         'Sam.controller.componentslist.ComponentsList',
-        'Sam.controller.systeminfo.SystemInfo'
+        'Sam.controller.systeminfo.SystemInfo',
+        'Sam.controller.systemprops.SystemProps'
     ],
 
     stores: [
