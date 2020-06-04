@@ -197,12 +197,6 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
-        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
-        try {
-            httpService.registerServlet("/soap", servlet, null, null);
-        } catch (NamespaceException | ServletException ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     @Reference
@@ -264,6 +258,14 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         if (!logDirectory.endsWith(File.separator)) {
             logDirectory = logDirectory + File.separator;
         }
+
+        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet(), threadPrincipalService);
+        try {
+            httpService.registerServlet("/soap", servlet, null, null);
+        } catch (NamespaceException | ServletException ex) {
+            throw new RuntimeException(ex);
+        }
+
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
         webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, nlsService);
         webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, endPointConfigurationService, webServiceCallOccurrenceService);

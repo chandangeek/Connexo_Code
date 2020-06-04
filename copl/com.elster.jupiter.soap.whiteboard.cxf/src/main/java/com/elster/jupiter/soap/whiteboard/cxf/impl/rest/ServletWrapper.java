@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 
@@ -14,18 +17,21 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ServletWrapper extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private final CXFNonSpringServlet servlet;
 
-	public ServletWrapper(CXFNonSpringServlet servlet) {
+	private static final long serialVersionUID = 1L;
+
+	private final HttpServlet servlet;
+	private final ThreadPrincipalService threadPrincipalService;
+
+	public ServletWrapper(HttpServlet servlet, ThreadPrincipalService threadPrincipalService) {
 		this.servlet = servlet;
+		this.threadPrincipalService = threadPrincipalService;
 	}
 	
 	@Override
 	public void init() throws ServletException {
 		super.init();
 		servlet.init(getServletConfig());
-		BusFactory.setDefaultBus(servlet.getBus());
 	}
 	
 	public void destroy() {
@@ -34,7 +40,16 @@ public class ServletWrapper extends HttpServlet {
 	}
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		servlet.service(request,response);
+		threadPrincipalService.set(getPrincipal(request));
+		try {
+			servlet.service(request,response);
+		}finally {
+			threadPrincipalService.clear();
+		}
 	}
-	
+
+	private User getPrincipal(final HttpServletRequest request){
+		return (User) request.getAttribute(HttpAuthenticationService.USERPRINCIPAL);
+	}
+
 }

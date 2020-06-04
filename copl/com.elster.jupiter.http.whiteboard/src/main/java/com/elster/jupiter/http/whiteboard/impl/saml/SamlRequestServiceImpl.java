@@ -93,9 +93,10 @@ public class SamlRequestServiceImpl implements SamlRequestService {
     }
 
     @Override
-    public Optional<String> createSSOAuthenticationRequest(HttpServletRequest request, HttpServletResponse response, String acsEndpoint) {
+    public Optional<String> createSSOAuthenticationRequest(HttpServletRequest request, HttpServletResponse response, String acsEndpoint, String issueId) {
         try {
-            AuthnRequest authnRequest = this.createAuthnRequest(acsEndpoint, UUID.randomUUID().toString(), DateTime.now(), request.getRequestURL().toString());
+            final String requestId = "id" + UUID.randomUUID().toString().replace("-", "");
+            AuthnRequest authnRequest = this.createAuthnRequest(acsEndpoint, requestId, DateTime.now(), issueId);
             String convertedAuthnRequest = this.convertXmlObjectToString(authnRequest);
             return Optional.of(Base64.encodeBase64String(CompressionUtils.deflate(samlUtilities.getBytesWithCatch(convertedAuthnRequest, samlUtilities.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64))));
         } catch (SAMLException e) {

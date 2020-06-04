@@ -29,10 +29,12 @@ public class CommandExecutorFactoryTest {
         CommandExecutor renewal = new CommandExecutorFactory().renewal(commandErrorHandler, bpmService, bpmProcessId, Instant.now(), logger);
         Assert.assertNotNull(renewal);
         Command[] commands = renewal.getCommands();
-        Assert.assertEquals(3, commands.length);
+        Assert.assertEquals(5, commands.length);
         Assert.assertEquals(SecAccFilter.class, commands[0].getClass());
-        Assert.assertEquals(CheckSecuritySets.class, commands[1].getClass());
-        Assert.assertEquals(TriggerBpm.class, commands[2].getClass());
+        Assert.assertEquals(DeviceFilter.class, commands[1].getClass());
+        Assert.assertEquals(DeviceSecurityAccessorFilter.class, commands[2].getClass());
+        Assert.assertEquals(CheckSecuritySets.class, commands[3].getClass());
+        Assert.assertEquals(TriggerBpm.class, commands[4].getClass());
     }
 
 }

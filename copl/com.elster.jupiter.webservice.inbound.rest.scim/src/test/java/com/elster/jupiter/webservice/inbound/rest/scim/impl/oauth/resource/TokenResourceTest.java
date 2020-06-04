@@ -22,7 +22,7 @@ public class TokenResourceTest extends OAuthBaseTest {
 
     @Test
     public void shouldReturnToken() throws ParseException, JOSEException {
-        when(tokenService.createServiceSignedJWT(any(), any(), any(), any()))
+        when(tokenService.createServiceSignedJWT(any(), any(), any(), any(), any()))
                 .thenReturn(createServiceSignedJWT(30 * 60 * 1000, "enexis", "connexo", new HashMap<>()));
 
         final Response httpResponse = target(TOKEN_RESOURCE_PATH)

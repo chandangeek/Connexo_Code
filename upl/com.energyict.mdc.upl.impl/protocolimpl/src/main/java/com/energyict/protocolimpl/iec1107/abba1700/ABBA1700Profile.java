@@ -25,6 +25,7 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -575,17 +576,21 @@ public class ABBA1700Profile {
    } // private void doLogMeterDataCollection(ProfileData profileData)  throws ProtocolReaderException
 
    static public void main(String[] args) {
-       try {
-           ABBA1700Profile p = new ABBA1700Profile(null,null);
-           File file = new File("rawdata_1200326721707.bin");
-           byte[] data = new byte[(int)file.length()];
-           FileInputStream fis = new FileInputStream(file);
-           fis.read(data);
-           System.out.println(p.parse(new ByteArrayInputStream(data),2));
-       }
-       catch(Exception e) {
+       try (FileInputStream fis = new FileInputStream(getFile());
+            ByteArrayInputStream bais = new ByteArrayInputStream(getData())){
+           ABBA1700Profile p = new ABBA1700Profile(null, null);
+           fis.read(getData());
+           System.out.println(p.parse(bais, 2));
+       } catch (Exception e) {
            e.printStackTrace();
        }
    }
 
+    private static File getFile() {
+        return new File("rawdata_1200326721707.bin");
+    }
+
+    private static byte[] getData() throws FileNotFoundException{
+        return new byte[(int) getFile().length()];
+    }
 }
