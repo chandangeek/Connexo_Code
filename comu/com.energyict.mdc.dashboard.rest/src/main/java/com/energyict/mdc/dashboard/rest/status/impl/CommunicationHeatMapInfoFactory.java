@@ -54,12 +54,11 @@ public class CommunicationHeatMapInfoFactory {
                         if (completionCodeCounter.getCountTarget() == null) {
                             taskCounterInfo.id = TranslationKeys.NEVER_STARTED_COMPLETION_CODE.getKey();
                             taskCounterInfo.displayName = thesaurus.getFormat(TranslationKeys.NEVER_STARTED_COMPLETION_CODE).format();
-                            taskCounterInfo.count = completionCodeCounter.getCount();
                         } else {
                             taskCounterInfo.id = completionCodeCounter.getCountTarget().name();
                             taskCounterInfo.displayName = CompletionCodeTranslationKeys.translationFor(completionCodeCounter.getCountTarget(), thesaurus);
-                            taskCounterInfo.count = completionCodeCounter.getCount();
                         }
+                        taskCounterInfo.count = completionCodeCounter.getCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }
                     Collections.sort(heatMapRowInfo.data, completionCodeTaskCounterInfoComparator);

@@ -156,7 +156,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         sqlBuilder.append(" select * from  MV_COMTASKDTHEATMAP cte where 1=1 ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(") group by devicetype, lastsess_highestpriocomplcode");
-        Map<Long, Map<String, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
+        Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters);
     }
 
@@ -298,7 +298,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         return this.getComTasksDeviceTypeHeatMap(null);
     }
 
-    private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<String, Long>> partialCounters) {
+    private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<CompletionCode, Long>> partialCounters) {
         Map<Long, DeviceType> deviceTypes =
                 this.deviceDataModelService
                         .deviceConfigurationService()
@@ -325,16 +325,16 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         return counters;
     }
 
-    private List<Long> orderedCompletionCodeCounters(Map<String, Long> completionCodeCounters) {
+    private List<Long> orderedCompletionCodeCounters(Map<CompletionCode, Long> completionCodeCounters) {
         List<Long> counters = new ArrayList<>(CompletionCode.values().length + 1);
         for (CompletionCode completionCode : CompletionCode.values()) {
-            counters.add(completionCodeCounters.get(completionCode.name()));
+            counters.add(completionCodeCounters.get(completionCode));
         }
-        counters.add(completionCodeCounters.get("NeverStarted"));
+        counters.add(completionCodeCounters.get(null));
         return counters;
     }
 
-    private Map<Long, Map<String, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
+    private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
         try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement stmnt = builder.prepare(connection)) {
             return this.fetchComTaskHeatMapCounters(stmnt);
@@ -343,29 +343,29 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         }
     }
 
-    private Map<Long, Map<String, Long>> fetchComTaskHeatMapCounters(PreparedStatement statement) throws SQLException {
-        Map<Long, Map<String, Long>> counters = new HashMap<>();
+    private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(PreparedStatement statement) throws SQLException {
+        Map<Long, Map<CompletionCode, Long>> counters = new HashMap<>();
         try (ResultSet resultSet = statement.executeQuery()) {
             resultSet.setFetchSize(SqlBuilder.FETCH_SIZE);
             while (resultSet.next()) {
                 long businessObjectId = resultSet.getLong(1);
                 BigDecimal completionCodeOrdinal = (BigDecimal) resultSet.getObject(2);
                 long counter = resultSet.getLong(3);
-                Map<String, Long> successIndicatorCounters = this.getOrPutCompletionCodeCounters(businessObjectId, counters);
-                successIndicatorCounters.put(completionCodeOrdinal == null ? "NeverStarted" : CompletionCode.fromDBValue(completionCodeOrdinal.intValue()).name(), counter);
+                Map<CompletionCode, Long> successIndicatorCounters = this.getOrPutCompletionCodeCounters(businessObjectId, counters);
+                successIndicatorCounters.put(completionCodeOrdinal == null ? null : CompletionCode.fromDBValue(completionCodeOrdinal.intValue()), counter);
             }
         }
         return counters;
     }
 
-    private Map<String, Long> getOrPutCompletionCodeCounters(long businessObjectId, Map<Long, Map<String, Long>> counters) {
-        Map<String, Long> completionCodeCounters = counters.get(businessObjectId);
+    private Map<CompletionCode, Long> getOrPutCompletionCodeCounters(long businessObjectId, Map<Long, Map<CompletionCode, Long>> counters) {
+        Map<CompletionCode, Long> completionCodeCounters = counters.get(businessObjectId);
         if (completionCodeCounters == null) {
             completionCodeCounters = new HashMap<>();
             for (CompletionCode missing : EnumSet.allOf(CompletionCode.class)) {
-                completionCodeCounters.put(missing.name(), 0L);
+                completionCodeCounters.put(missing, 0L);
             }
-            completionCodeCounters.put("NeverStarted", 0L);
+            completionCodeCounters.put(null, 0L);
             counters.put(businessObjectId, completionCodeCounters);
         }
         return completionCodeCounters;
