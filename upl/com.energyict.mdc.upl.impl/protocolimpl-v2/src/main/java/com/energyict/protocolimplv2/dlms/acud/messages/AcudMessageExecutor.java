@@ -78,7 +78,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
+        if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
             upgradeFirmware(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_AMOUNT)) {
             updateCreditAmount(pendingMessage);
@@ -242,10 +242,13 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
         String path = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
         byte[] binaryImage = TempFileLoader.loadTempFile(path);
+        // Will return empty string if the MessageAttribute could not be found
+        String id = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName);
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         imageTransfer.setVerifyImage(true);
         imageTransfer.setActivateImage(true);
-        imageTransfer.setUsePollingVerifyAndActivate(true);     //Use polling to check the result of the image verification
-        imageTransfer.upgrade(binaryImage, false);
+        //Use polling to check the result of the image verification
+        imageTransfer.setUsePollingVerifyAndActivate(true);
+        imageTransfer.upgrade(binaryImage, false, id, false);
     }
 }
