@@ -64,7 +64,7 @@ public class JsonQueryParameters implements QueryParameters {
         this.limit = limit;
         queryParameters = new MultivaluedHashMap<>();
         queryParameters.add("start",start.toString());
-        queryParameters.add("limit",limit.toString());
+        queryParameters.add("limit", (limit != null ? limit.toString() : null) );
     }
     /**
      * @summary Paging parameter denoting the index of the first element in the total list to be returned in the answer.
