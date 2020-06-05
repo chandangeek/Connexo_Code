@@ -171,8 +171,10 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
 
         @Override
         public LogBook.LogBookUpdater setLastReading(Instant createTime) {
-            this.logBook.latestEventAddition = createTime;
-            warnIfInFuture(createTime, "creation");
+            if (createTime != null ) {
+                this.logBook.latestEventAddition = createTime;
+                warnIfInFuture(createTime, "creation");
+            }
             return this;
         }
 
