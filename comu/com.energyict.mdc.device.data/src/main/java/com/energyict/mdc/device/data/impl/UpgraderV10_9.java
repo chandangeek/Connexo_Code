@@ -104,7 +104,7 @@ public class UpgraderV10_9 implements Upgrader {
         return query;
     }
 
-    private String insertRowSql(ComTaskEnablement comTaskEnablement, int descriminator, Long connectiontaskid, long deviceid) {
+    private String insertRowSql(ComTaskEnablement comTaskEnablement, int discriminator, Long connectiontaskid, long deviceid) {
         StringBuilder query = new StringBuilder();
         query.append(" INTO ")
                 .append(TABLE)
@@ -114,7 +114,7 @@ public class UpgraderV10_9 implements Upgrader {
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")
                 .append("'").append("root").append("', ")
-                .append("'").append(descriminator).append("', ")
+                .append("'").append(discriminator).append("', ")
                 .append("'").append(deviceid).append("', ")
                 .append("'").append(comTaskEnablement.getComTask().getId()).append("', ")
                 .append("null, ")
