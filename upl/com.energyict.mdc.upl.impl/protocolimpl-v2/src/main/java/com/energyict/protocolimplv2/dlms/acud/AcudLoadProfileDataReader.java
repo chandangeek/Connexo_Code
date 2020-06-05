@@ -21,9 +21,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.dlms.DLMSDefaultProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
@@ -37,14 +35,6 @@ public class AcudLoadProfileDataReader {
     private final CollectedDataFactory collectedDataFactory;
     private List<CollectedLoadProfileConfiguration> loadProfileConfigs;
     /**
-     * Keep track of a list of statusMask per LoadProfileReader
-     */
-    private Map<LoadProfileReader, Integer> statusMasksMap;
-    /**
-     * Keep track of a list of channelMask per LoadProfileReader
-     */
-    protected Map<LoadProfileReader, Integer> channelMaskMap;
-    /**
      * Keeps track of the link between a LoadProfileReader and channel lists
      */
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
@@ -54,6 +44,26 @@ public class AcudLoadProfileDataReader {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.offlineDevice = offlineDevice;
+    }
+
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
+        this.loadProfileConfigs = new ArrayList<>();
+        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+            try {
+                CollectedLoadProfileConfiguration loadProfileConfiguration = collectedDataFactory
+                        .createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
+                ProfileGeneric profileGeneric = this.protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(loadProfileReader.getProfileObisCode());
+                List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
+                List<ChannelInfo>  channelInfos = getChannelInfo(captureObjects, loadProfileConfiguration.getMeterSerialNumber());
+                getChannelInfosMap().put(loadProfileReader, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
+                loadProfileConfiguration.setChannelInfos(channelInfos);
+                loadProfileConfiguration.setSupportedByMeter(true);
+                this.loadProfileConfigs.add(loadProfileConfiguration);
+            } catch (IOException e) {   //Object not found in IOL, should never happen
+                throw DLMSIOExceptionHandler.handle(e, this.protocol.getDlmsSessionProperties().getRetries() + 1);
+            }
+        }
+        return this.loadProfileConfigs;
     }
 
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReders) {
@@ -73,9 +83,7 @@ public class AcudLoadProfileDataReader {
                     fromCalendar.setTime(loadProfileReader.getStartReadingTime());
                     Calendar toCalendar = Calendar.getInstance(this.protocol.getTimeZone());
                     toCalendar.setTime(loadProfileReader.getEndReadingTime());
-                    DLMSProfileIntervals intervals = new DLMSProfileIntervals(
-                            profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
-                            getStatusMasksMap().get(loadProfileReader), getChannelMaskMap().get(loadProfileReader), getIntervalStatusBits());
+                    DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask, 0, -1, null);
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(loadProfileConfig.getProfileInterval());
                     this.protocol.journal(" > load profile intervals parsed: " + collectedIntervalData.size());
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
@@ -94,28 +102,6 @@ public class AcudLoadProfileDataReader {
         return collectedLoadProfiles;
     }
 
-    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
-        this.loadProfileConfigs = new ArrayList<>();
-        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
-            try {
-                CollectedLoadProfileConfiguration loadProfileConfiguration = collectedDataFactory
-                        .createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
-                ProfileGeneric profileGeneric = this.protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(loadProfileReader.getProfileObisCode());
-                List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
-                List<ChannelInfo>  channelInfos = getChannelInfo(captureObjects, loadProfileConfiguration.getMeterSerialNumber());
-                getStatusMasksMap().put(loadProfileReader, constructStatusMask(captureObjects));
-                getChannelMaskMap().put(loadProfileReader, constructChannelMask(captureObjects));
-                getChannelInfosMap().put(loadProfileReader, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
-                loadProfileConfiguration.setChannelInfos(channelInfos);
-                loadProfileConfiguration.setSupportedByMeter(true);
-                this.loadProfileConfigs.add(loadProfileConfiguration);
-            } catch (IOException e) {   //Object not found in IOL, should never happen
-                throw DLMSIOExceptionHandler.handle(e, this.protocol.getDlmsSessionProperties().getRetries() + 1);
-            }
-        }
-        return this.loadProfileConfigs;
-    }
-
     /**
      * Look for the <CODE>DeviceLoadProfileConfiguration</CODE> in the previously build up list
      *
@@ -131,10 +117,6 @@ public class AcudLoadProfileDataReader {
             }
         }
         return null;
-    }
-
-    protected ProfileIntervalStatusBits getIntervalStatusBits() {
-        return new DLMSDefaultProfileIntervalStatusBits();
     }
 
     private List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber) throws IOException {
@@ -207,12 +189,7 @@ public class AcudLoadProfileDataReader {
             default: {
                 return Unit.getUndefined();
             }
-
         }
-    }
-
-    private boolean isCumulative(ObisCode obisCode) {
-        return ParseUtils.isObisCodeCumulative(obisCode);
     }
 
     private Map<LoadProfileReader, List<ChannelInfo>> getChannelInfosMap() {
@@ -220,42 +197,6 @@ public class AcudLoadProfileDataReader {
             channelInfosMap = new HashMap<>();
         }
         return channelInfosMap;
-    }
-
-    public Map<LoadProfileReader, Integer> getStatusMasksMap() {
-        if(statusMasksMap == null)
-            statusMasksMap = new HashMap<LoadProfileReader, Integer>();
-        return statusMasksMap;
-    }
-
-    public Map<LoadProfileReader, Integer> getChannelMaskMap() {
-        if(channelMaskMap == null)
-            channelMaskMap = new HashMap<LoadProfileReader, Integer>();
-        return channelMaskMap;
-    }
-
-    private int constructStatusMask(List<CapturedObject> capturedObjects) {
-        int statusMask = 0;
-        int counter = 0;
-        for (CapturedObject object : capturedObjects) {
-            if (isStatusObisCode(object)) {
-                statusMask |= (int) Math.pow(2, counter);
-            }
-            counter++;
-        }
-        return statusMask;
-    }
-
-    private int constructChannelMask(List<CapturedObject> capturedObjects) {
-        int channelMask = 0;
-        int counter = 0;
-        for (CapturedObject registerUnit : capturedObjects) {
-            if (isRealChannelData(registerUnit)) {
-                channelMask |= (int) Math.pow(2, counter);
-            }
-            counter++;
-        }
-        return channelMask;
     }
 
     /**
@@ -270,8 +211,7 @@ public class AcudLoadProfileDataReader {
         return classId != DLMSClassId.CLOCK && classId != DLMSClassId.DATA;
     }
 
-    protected boolean isStatusObisCode(CapturedObject capturedObject) {
-        boolean isStatusObisCode = false;
-        return isStatusObisCode;
+    private boolean isCumulative(ObisCode obisCode) {
+        return ParseUtils.isObisCodeCumulative(obisCode);
     }
 }
