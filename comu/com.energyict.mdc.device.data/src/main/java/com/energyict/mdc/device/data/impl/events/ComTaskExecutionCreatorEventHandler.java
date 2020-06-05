@@ -12,6 +12,7 @@ import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.EventType;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class ComTaskExecutionCreatorEventHandler extends EventHandler<LocalEvent
 
     private DeviceService deviceService;
 
+    @Inject
     public ComTaskExecutionCreatorEventHandler(DeviceService deviceService) {
         super(LocalEvent.class);
         this.deviceService = deviceService;
@@ -33,18 +35,21 @@ public class ComTaskExecutionCreatorEventHandler extends EventHandler<LocalEvent
     protected void onEvent(LocalEvent event, Object... eventDetails) {
         String topic = event.getType().getTopic();
         if (topic.equals(DEVICE_CREATED) || topic.equals(DEVICE_UPDATED)) {
-            Device device = (Device) event.getSource();
-            Set<Long> comTaskIdsWithExecution = device.getComTaskExecutions().stream().map(comTaskExecution -> comTaskExecution.getComTask().getId()).collect(Collectors.toSet());
-            List<ComTaskEnablement> comTasksWithoutExecutions = device.getDeviceConfiguration().getComTaskEnablements().stream()
-                    .filter(comTaskEnablement -> !comTaskIdsWithExecution.contains(comTaskEnablement.getComTask().getId()))
-                    .collect(Collectors.toList());
-            comTasksWithoutExecutions.forEach(cte -> createNewComTaskExecution(cte, device));
+            createComTaskExecutionsForDevice((Device) event.getSource());
         } else if (topic.equals(COMTASKENABLEMENT_CREATED)) {
             ComTaskEnablement comTaskEnablement = (ComTaskEnablement) event.getSource();
             deviceService.findDevicesByDeviceConfiguration(comTaskEnablement.getDeviceConfiguration()).stream().forEach(device -> {
                 createNewComTaskExecution(comTaskEnablement, device);
             });
         }
+    }
+
+    public void createComTaskExecutionsForDevice(Device device) {
+        Set<Long> comTaskIdsWithExecution = device.getComTaskExecutions().stream().map(comTaskExecution -> comTaskExecution.getComTask().getId()).collect(Collectors.toSet());
+        List<ComTaskEnablement> comTasksWithoutExecutions = device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> !comTaskIdsWithExecution.contains(comTaskEnablement.getComTask().getId()))
+                .collect(Collectors.toList());
+        comTasksWithoutExecutions.forEach(cte -> createNewComTaskExecution(cte, device));
     }
 
     private void createNewComTaskExecution(ComTaskEnablement comTaskEnablement, Device device) {
