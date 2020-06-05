@@ -114,18 +114,18 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     }
 
     private void initSystemProperties() {
-        getAllSystemProperties().stream().forEach(x -> props.put(x.getKey(), x.getValueObject()));
+        getAllSystemProperties().stream().forEach(x -> props.put(x.getKey(), x.getValue()));
     }
 
     @Override
     public PropertySpec findPropertySpec(String key) {
-        PropertySpec spec = specs.get(key).getPropertySpec();
 
-        if (spec == null) {
+        SystemPropertySpec systemPropertySpec = specs.get(key);
+        if (systemPropertySpec == null) {
             throw new IllegalStateException("There is no property spec for key: " + key);
         }
 
-        return spec;
+        return systemPropertySpec.getPropertySpec();
     }
 
     @Override
@@ -155,7 +155,7 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     public void setPropertyValue(String key, Object newValue){
         SystemProperty sysprop = findSystemPropertyByKey(key).get();
         //Update system property if value changed.
-        if (!newValue.equals(sysprop.getValueObject())) {
+        if (!newValue.equals(sysprop.getValue())) {
             sysprop.setValue(newValue);
             actionOnPropertyChange(sysprop);
         }
@@ -178,7 +178,7 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     public synchronized void readAndProcessUpdatedProperties() {
         List<SystemProperty> newprops = getAllSystemProperties();
         for (SystemProperty prop : newprops) {
-            if (!props.put(prop.getKey(), prop.getValueObject()).equals(prop.getValueObject())) {
+            if (!props.put(prop.getKey(), prop.getValue()).equals(prop.getValue())) {
                 specs.get(prop.getKey()).actionOnChange(prop);
             }
         }
@@ -186,7 +186,7 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
 
     public synchronized void actionOnPropertyChange(SystemProperty systemProperty) {
         systemProperty.update();
-        props.put(systemProperty.getKey(), systemProperty.getValueObject());
+        props.put(systemProperty.getKey(), systemProperty.getValue());
         specs.get(systemProperty.getKey()).actionOnChange(systemProperty);
     }
 
@@ -213,5 +213,3 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
         return Arrays.asList(MessageSeeds.values());
     }
 }
-
-

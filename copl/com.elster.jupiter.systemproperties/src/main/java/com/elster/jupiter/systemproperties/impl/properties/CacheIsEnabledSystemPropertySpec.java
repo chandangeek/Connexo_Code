@@ -42,7 +42,7 @@ public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
     @Override
     public void actionOnChange(SystemProperty property) {
         //recreate all caches
-        boolean cacheEnabled = (Boolean) property.getValueObject();
+        boolean cacheEnabled = (Boolean) property.getValue();
         List<DataModel> datamodels = ormService.getDataModels();
         for (DataModel dataModel : datamodels) {
             for (Table table : dataModel.getTables()) {

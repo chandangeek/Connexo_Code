@@ -45,7 +45,7 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
 
     @Override
     public void actionOnChange(SystemProperty property) {
-        TimeDuration timeDuration = (TimeDuration)property.getValueObject();
+        TimeDuration timeDuration = (TimeDuration)property.getValue();
         long evictionTime = timeDuration.getMilliSeconds();
         List<DataModel> datamodels = ormService.getDataModels();
         for (DataModel dataModel : datamodels) {

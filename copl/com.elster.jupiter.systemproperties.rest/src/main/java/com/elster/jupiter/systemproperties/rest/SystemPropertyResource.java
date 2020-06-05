@@ -44,7 +44,7 @@ public class SystemPropertyResource {
         List<PropertyInfo> propertyInfos = new ArrayList<>();
 
         for (SystemProperty sp : sysPropsList){
-            PropertyInfo info = propertyValueInfoService.getPropertyInfo(sp.getPropertySpec(), key -> sp.getValueObject());
+            PropertyInfo info = propertyValueInfoService.getPropertyInfo(sp.getPropertySpec(), key -> sp.getValue());
             propertyInfos.add(info);
         }
 
