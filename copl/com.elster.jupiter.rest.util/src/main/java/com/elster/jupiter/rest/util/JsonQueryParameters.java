@@ -63,7 +63,7 @@ public class JsonQueryParameters implements QueryParameters {
         this.start = start;
         this.limit = limit;
         queryParameters = new MultivaluedHashMap<>();
-        queryParameters.add("start",start.toString());
+        queryParameters.add("start", (start != null ? start.toString() : null) );
         queryParameters.add("limit", (limit != null ? limit.toString() : null) );
     }
     /**

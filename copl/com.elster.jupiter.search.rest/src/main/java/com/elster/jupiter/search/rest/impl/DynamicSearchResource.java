@@ -233,7 +233,7 @@ public class DynamicSearchResource {
                 orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_SEARCH_DOMAIN, org.apache.commons.text.StringEscapeUtils.escapeHtml4(domainId)));
     }
 
-    @POST
+    @GET
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}/searchcriteria/{property}")
@@ -241,7 +241,7 @@ public class DynamicSearchResource {
                                         @PathParam("property") String property,
                                         @BeanParam JsonQueryParameters jsonQueryParameters,
                                         @BeanParam JsonQueryFilter jsonQueryFilter,
-                                        @Context UriInfo uriInfo) throws InvalidValueException {
+                                        @BeanParam UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))
