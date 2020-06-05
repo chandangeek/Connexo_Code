@@ -45,13 +45,13 @@ public class SystemPropertyImpl implements SystemProperty {
     }
 
     @Override
-    public Object getValueObject() {
+    public Object getValue() {
         return getPropertySpec().getValueFactory().fromStringValue(value);
     }
 
     @Override
     public void setValue(Object newValue) {
-        this.value = getPropertySpec().getValueFactory().toStringValue(newValue);;
+        this.value = getPropertySpec().getValueFactory().toStringValue(newValue);
     }
 
     @Override

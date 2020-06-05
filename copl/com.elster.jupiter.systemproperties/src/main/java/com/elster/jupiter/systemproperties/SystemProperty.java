@@ -8,7 +8,7 @@ import aQute.bnd.annotation.ProviderType;
 public interface SystemProperty {
 
     String getKey();
-    Object getValueObject();
+    Object getValue();
     PropertySpec getPropertySpec();
     void setValue(Object value);
     void update();
