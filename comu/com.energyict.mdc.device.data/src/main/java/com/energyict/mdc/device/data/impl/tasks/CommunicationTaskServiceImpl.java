@@ -802,7 +802,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .and(
                                 where(ComTaskExecutionFields.ONHOLD.fieldName()).isNull()
                                         .or
-                                (where(ComTaskExecutionFields.ONHOLD.fieldName()).isEqualTo(0)))
+                                (where(ComTaskExecutionFields.ONHOLD.fieldName()).isEqualTo(false)))
                         .and(where(connectionTask + "comWindow.start.millis").isNull().or(where(connectionTask + "comWindow.start.millis").isLessThanOrEqual(msSinceMidnight)))
                         .and(where(connectionTask + "comWindow.end.millis").isNull().or(where(connectionTask + "comWindow.end.millis").isLessThanOrEqual(msSinceMidnight)))
                 );
