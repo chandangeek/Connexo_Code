@@ -43,10 +43,13 @@ import javax.validation.ValidationProviderResolver;
 import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,6 +66,8 @@ public final class OrmServiceImpl implements OrmService {
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private volatile long evictionTime;
+    private volatile boolean cacheEnabled;
     private volatile FileSystem fileSystem;
     private volatile Publisher publisher;
     private volatile JsonService jsonService;
@@ -152,6 +157,14 @@ public final class OrmServiceImpl implements OrmService {
         return enablePartition;
     }
 
+    public long getEvictionTime() {
+        return evictionTime;
+    }
+
+    public boolean isCacheEnabled() {
+        return cacheEnabled;
+    }
+
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
@@ -201,6 +214,43 @@ public final class OrmServiceImpl implements OrmService {
         this.transactionService = transactionService;
     }
 
+    private void setEvictionTime(String evictionTime) {
+        String[] time = evictionTime.split(":");
+        long count = Long.valueOf(time[0]);
+        int timeUnitCode = Integer.valueOf(time[1]);
+        switch (timeUnitCode) {
+            case Calendar.MILLISECOND:
+                this.evictionTime = count;
+                break;
+            case Calendar.SECOND:
+                this.evictionTime = count * 1000;
+                break;
+            case Calendar.MINUTE:
+                this.evictionTime = count * 1000 * 60;
+                break;
+            case Calendar.HOUR:
+                this.evictionTime = count * 1000 * 60 * 60;
+                break;
+            case Calendar.DAY_OF_MONTH:
+                this.evictionTime = count * 1000 * 60 * 60 * 24;
+                break;
+            case Calendar.WEEK_OF_YEAR:
+                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7;
+                break;
+            case Calendar.MONTH:
+                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7 * 30;
+                break;
+            case Calendar.YEAR:
+                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7 * 365;
+                break;
+        }
+    }
+
+    private void setCacheEnabled(String enableCache) {
+        this.cacheEnabled = enableCache.equals("1") ? true: false;
+        return;
+    }
+
     private DataModel createDataModel(boolean register) {
         DataModelImpl result = newDataModel(OrmService.COMPONENTNAME, "Object Relational Mapper");
         for (TableSpecs spec : TableSpecs.values()) {
@@ -220,6 +270,67 @@ public final class OrmServiceImpl implements OrmService {
         createExistingTableDataModel();
         clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());
         this.bundleContext = context;
+        prepareSysProperties();
+    }
+
+
+    private void prepareSysProperties() {
+
+        String createTableStatement = "CREATE TABLE SYP_PROP " +
+                "( KEY varchar2(" + Table.NAME_LENGTH + ") NOT NULL," +
+                " VERSIONCOUNT number DEFAULT 1 NOT NULL,"+
+                " CREATETIME number DEFAULT 0 NOT NULL,"+
+                " MODTIME number DEFAULT 0 NOT NULL,"+
+                " USERNAME varchar2(" + Table.NAME_LENGTH + ") DEFAULT ('install/upgrade') NOT NULL,"+
+                " VALUE varchar2(" + Table.NAME_LENGTH + ")  NOT NULL," +
+                "CONSTRAINT PK_SYP_PROP PRIMARY KEY (KEY))";
+
+
+        try (Connection connection = getConnection(false)) {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(createTableStatement);
+            } catch (SQLException e) {
+                //Catch exception ORA-00955: name is already used by an existing object.
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+
+
+        String evictionTime = readSystemPropertyValue("evictiontime", "300:13");
+        String enablecache = readSystemPropertyValue("enablecache", "1");
+
+        setEvictionTime(evictionTime);
+        setCacheEnabled(enablecache);
+    }
+
+    private String readSystemPropertyValue(String propertyName, String defaultValue) {
+        String getSystemPropertySql = "SELECT VALUE FROM SYP_PROP WHERE KEY='" + propertyName + "'";
+        String systemPropertyValue = "";
+        try (Connection connection = getConnection(false);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(getSystemPropertySql)) {
+            if (resultSet.next()) {
+                systemPropertyValue = resultSet.getString("VALUE");
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        if (systemPropertyValue.isEmpty()) {
+            setSystemPropertyValue(propertyName, defaultValue);
+            systemPropertyValue = defaultValue;
+        }
+        return systemPropertyValue;
+    }
+
+    private void setSystemPropertyValue(String key, String value) {
+        String insertSystemPropertySql = "INSERT INTO SYP_PROP (KEY, VALUE) VALUES('" + key + "','" + value + "')";
+        try (Connection connection = getConnection(false);
+             Statement statement = connection.createStatement()) {
+            statement.execute(insertSystemPropertySql);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     @Deactivate

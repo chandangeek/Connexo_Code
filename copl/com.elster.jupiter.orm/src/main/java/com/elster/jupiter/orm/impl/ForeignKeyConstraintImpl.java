@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
@@ -189,6 +190,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         /*if (!getTable().hasForceJournal() && !deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
             throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journaled table can't have a foreign key with cascade or set null delete rule.");
         }*/
+        
         if (isActual() && !getReferencedTable().getPrimaryKeyConstraint().isPresent()) {
             throw new IllegalTableMappingException("Foreign key " + getName() + " on table " + getTable().getName() + " can't reference a table without primary key.");
         }
@@ -196,7 +198,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
             throw new IllegalTableMappingException("Foreign key " + getName() + " on table "
                     + getTable().getName() + ": the referenced object doesn't have a field named " + reverseFieldName + ".");
         }
-        if (getReferencedTable().isCached() && forwardEagers.length > 0) {
+        if (getReferencedTable().getCacheType() != Table.CacheType.NO_CACHE && forwardEagers.length > 0) {
             throw new IllegalTableMappingException("Table " + getTable().getName() + ": don't specify eager mapping when referencing cached table " + getReferencedTable().getName() + '.');
         }
     }

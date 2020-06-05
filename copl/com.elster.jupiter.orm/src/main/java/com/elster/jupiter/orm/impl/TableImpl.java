@@ -123,6 +123,9 @@ public class TableImpl<T> implements Table<T> {
     private List<TableAudit> tableAuditList = new ArrayList<>();
     private boolean hasAudit = false;
 
+    private CacheType cacheType = CacheType.NO_CACHE;
+
+
     private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
@@ -221,11 +224,10 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cache(long cacheTtl, long maximumSize, boolean recordStat) {
-        this.cached = true;
         this.cacheTtl = cacheTtl;
         this.cacheMaximumSize = maximumSize;
         this.cacheRecordStat = recordStat;
-        this.cacheWholeTable = false;
+        this.cacheType = CacheType.TUPLE_CACHE;
     }
 
     @Override
@@ -235,10 +237,9 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cacheWholeTable(boolean recordStat, long cacheTtl) {
-        this.cached = true;
-        this.cacheWholeTable = true;
         this.cacheRecordStat = recordStat;
         this.cacheTtl = cacheTtl;
+        this.cacheType =  CacheType.WHOLE_TABLE_CACHE;
     }
 
     @Override
@@ -844,7 +845,7 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
-    public void prepare() {
+    public void prepare(long evictionTime, boolean enableCache) {
         checkActiveBuilder();
         checkMapperTypeIsSet();
         getMapperType().validate();
@@ -857,10 +858,11 @@ public class TableImpl<T> implements Table<T> {
                 }
             }
         } else {
+
             if (hasJournal()) {
                 fail("can''t journal table without primary key.");
             }
-            if (isCached()) {
+            if (cacheType != CacheType.NO_CACHE) {
                 fail("can''t cache table without primary key.");
             }
             getRealColumns().forEach(column -> {
@@ -873,10 +875,57 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
+        cacheTtl = evictionTime;
+
+        if (enableCache) {
+            switch (cacheType) {
+                case WHOLE_TABLE_CACHE:
+                    cached = true;
+                    cacheWholeTable = true;
+                    cache = new TableCache.WholeTableCache<>(this, evictionTime, cacheRecordStat);
+                    break;
+                case TUPLE_CACHE:
+                    cached = true;
+                    cacheWholeTable = false;
+                    cache = new TableCache.TupleCache<>(this, evictionTime, cacheMaximumSize, cacheRecordStat);
+                    break;
+                default:
+                    disableCache();
+            }
+        } else {
+            disableCache();
+        }
+    }
+
+    public void changeEvictionTime(long cacheTtl){
+        this.cacheTtl = cacheTtl;
         if (isWholeTableCached()) {
             cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
-        } else {
-            cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+        } else if(isCached()){
+            cache =  new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
+        }
+    }
+
+    @Override
+    public synchronized void disableCache(){
+        cached = false;
+        cacheWholeTable = false;
+        cache = new TableCache.NoCache<>();
+    }
+
+    @Override
+    public synchronized void enableCache(){
+        switch (cacheType) {
+            case WHOLE_TABLE_CACHE:
+                cached = true;
+                cacheWholeTable = true;
+                cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
+                return;
+            case TUPLE_CACHE:
+                cached = true;
+                cacheWholeTable = false;
+                cache = new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
+                return;
         }
     }
 
@@ -987,7 +1036,7 @@ public class TableImpl<T> implements Table<T> {
         return false;
     }
 
-    TableCache<T> getCache() {
+    synchronized TableCache<T> getCache() {
         return cache;
     }
 
@@ -1322,5 +1371,9 @@ public class TableImpl<T> implements Table<T> {
             journalNameHistory.clear();
             Stream.of(ranges).forEach(range -> journalNameHistory.put(range, this.tableName));
         }
+    }
+    @Override
+    public CacheType getCacheType(){
+        return cacheType;
     }
 }
