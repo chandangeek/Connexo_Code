@@ -241,7 +241,7 @@ public class DynamicSearchResource {
                                         @PathParam("property") String property,
                                         @BeanParam JsonQueryParameters jsonQueryParameters,
                                         @BeanParam JsonQueryFilter jsonQueryFilter,
-                                        @BeanParam UriInfo uriInfo) throws InvalidValueException {
+                                        @BeanParam UriInfo uriInfo){
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))

@@ -171,7 +171,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
     @Test
     public void testGetDomainProperties() throws Exception {
         Form input = new Form();
-        input.param("start", "0");
+        input.param("start", null);
         input.param("limit", null);
         input.param("filter", null);
         Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
