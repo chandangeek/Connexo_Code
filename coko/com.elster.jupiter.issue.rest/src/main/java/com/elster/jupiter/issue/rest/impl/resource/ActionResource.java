@@ -64,7 +64,7 @@ public class ActionResource extends BaseResource {
                 .filter(item -> (!((item.name).equals("Email") && issueTypeParam.equals("usagepointdatavalidation"))))
                 .sorted(Comparator.comparing(a -> a.name))
                 .collect(Collectors.toList());
-        // Fix for CX
+        // Fix for CXO-11797
         IssueActionTypeInfo objectToRemove = null;
         boolean foundObject = false;
         if (phaseParam != null && phaseParam.equals("OVERDUE")) {
