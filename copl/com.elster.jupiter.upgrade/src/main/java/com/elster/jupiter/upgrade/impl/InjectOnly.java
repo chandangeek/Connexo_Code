@@ -178,4 +178,9 @@ public class InjectOnly implements DataModel {
     public SortedSet<Version> changeVersions() {
         return ImmutableSortedSet.of();
     }
+
+    @Override
+    public String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval) {
+        throw new UnsupportedOperationException();
+    }
 }

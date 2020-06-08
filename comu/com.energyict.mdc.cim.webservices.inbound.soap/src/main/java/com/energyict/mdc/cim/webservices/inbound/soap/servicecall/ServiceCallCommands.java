@@ -46,6 +46,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
+
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -57,6 +62,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import java.util.List;
+import java.util.Set;
 
 public class ServiceCallCommands {
 
@@ -195,19 +202,21 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createGetEndDeviceEventsMasterServiceCall(List<ch.iec.tc57._2011.getenddeviceevents.Meter> meters,
+                                                                 List<ch.iec.tc57._2011.getenddeviceevents.EndDeviceGroup> deviceGroups,
+                                                                 List<ch.iec.tc57._2011.getenddeviceevents.EndDeviceEventType> eventTypes,
                                                                  Range<Instant> interval, EndPointConfiguration outboundEndPointConfiguration,
                                                                  String correlationId)
             throws ch.iec.tc57._2011.getenddeviceevents.FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.GET_END_DEVICE_EVENTS);
 
+        Set<String> meterIdentifiers = endDeviceEventsBuilder.getMeterIdentifiers(meters);
+        Set<String> deviceGroupIdentifiers = endDeviceEventsBuilder.getDeviceGroupIdentifiers(deviceGroups);
+        endDeviceEventsBuilder.checkDeviceIdentifiersPresentOrThrowException(meterIdentifiers, deviceGroupIdentifiers);
+
         GetEndDeviceEventsDomainExtension domainExtension = new GetEndDeviceEventsDomainExtension();
-
-        String meterIdentifiers = "";
-        for (String identifier : endDeviceEventsBuilder.getMeterIdentifiers(meters)) {
-            meterIdentifiers = identifier + "," + meterIdentifiers;
-        }
-
-        domainExtension.setMeter(meterIdentifiers);
+        domainExtension.setMeters(String.join(", ", meterIdentifiers));
+        domainExtension.setDeviceGroups(String.join(", ", deviceGroupIdentifiers));
+        domainExtension.setEventTypes(String.join(", ", endDeviceEventsBuilder.getEventTypeIdentifiers(eventTypes)));
         domainExtension.setFromDate(interval.lowerEndpoint());
         domainExtension.setToDate(interval.upperEndpoint());
         domainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());

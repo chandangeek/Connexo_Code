@@ -20,8 +20,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
+import ch.iec.tc57._2011.getenddeviceevents.EndDeviceEventType;
+import ch.iec.tc57._2011.getenddeviceevents.EndDeviceGroup;
 import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEvents;
 import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEventsPort;
@@ -45,6 +51,7 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
 
     private static final String GET_END_DEVICE_EVENTS = "GetEndDeviceEvents";
     private static final String METERS_ITEM = GET_END_DEVICE_EVENTS + ".Meters";
+    private static final String METERS_AND_DEVICE_GROUPS_ITEM = METERS_ITEM + "/" + GET_END_DEVICE_EVENTS + ".EndDeviceGroups";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -102,20 +109,28 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
                 GetEndDeviceEvents getEndDeviceEvents = Optional.ofNullable(requestMessage.getRequest().getGetEndDeviceEvents())
                         .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_END_DEVICE_EVENTS));
                 List<Meter> meters = getEndDeviceEvents.getMeter();
+                List<EndDeviceGroup> deviceGroups = getEndDeviceEvents.getEndDeviceGroup();
+                List<EndDeviceEventType> eventTypes = getEndDeviceEvents.getEndDeviceEventType();
+
                 String correlationId = requestMessage.getHeader() == null ? null : requestMessage.getHeader().getCorrelationID();
-                if (meters.isEmpty()) {
-                    throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
-                }
-                if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
+                Boolean asyncReplyFlag = requestMessage.getHeader() == null ? null : requestMessage.getHeader().isAsyncReplyFlag();
+
+                if (Boolean.TRUE.equals(asyncReplyFlag)) {
                     // call asynchronously
+                    if (deviceGroups.isEmpty() && meters.isEmpty()) {
+                        throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_AND_DEVICE_GROUPS_ITEM).get();
+                    }
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
-                    createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, correlationId);
+                    createServiceCallAndTransition(meters, deviceGroups, eventTypes, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, correlationId);
                     return createQuickResponseMessage(correlationId);
-                } else if (meters.size() > 1) {
+                } else if (meters.size() > 1 || !deviceGroups.isEmpty()) {
                     throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
                 } else {
                     // call synchronously
-                    EndDeviceEvents endDeviceEvents = endDeviceBuilder.prepareGetFrom(meters, getEndDeviceEvents.getTimeSchedule()).build();
+                    if (meters.isEmpty()) {
+                        throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
+                    }
+                    EndDeviceEvents endDeviceEvents = endDeviceBuilder.prepareGetFrom(meters, getEndDeviceEvents.getTimeSchedule()).setEndDeviceEventTypeFilters(eventTypes).build();
                     return createResponseMessage(endDeviceEvents, correlationId);
                 }
             } catch (VerboseConstraintViolationException e) {
@@ -151,8 +166,9 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
         return endPointConfig;
     }
 
-    private ServiceCall createServiceCallAndTransition(List<Meter> meters, Range<Instant> interval, EndPointConfiguration endPointConfiguration, String correlationId) throws FaultMessage {
-        ServiceCall serviceCall = serviceCallCommands.createGetEndDeviceEventsMasterServiceCall(meters, interval, endPointConfiguration, correlationId);
+    private ServiceCall createServiceCallAndTransition(List<Meter> meters,List<EndDeviceGroup> deviceGroups, List<EndDeviceEventType> eventTypes,
+                                                       Range<Instant> interval, EndPointConfiguration endPointConfiguration, String correlationId) throws FaultMessage {
+        ServiceCall serviceCall = serviceCallCommands.createGetEndDeviceEventsMasterServiceCall(meters, deviceGroups, eventTypes, interval, endPointConfiguration, correlationId);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         return serviceCall;
     }

@@ -330,7 +330,7 @@ public class DataModelImpl implements DataModel {
         }
         try (Statement statement = connection.createStatement()) {
             try (ResultSet resultSet = statement.executeQuery("SELECT version FROM PRODUCT_COMPONENT_VERSION WHERE product LIKE 'Oracle Database%'")) {
-                if(!isPartitionEnabledInOracleVersion(resultSet)) {
+                if (!isPartitionEnabledInOracleVersion(resultSet)) {
                     LOGGER.warning("Partitioning is not enabled in Oracle versions before 12.2");
                     return false;
                 }
@@ -346,16 +346,16 @@ public class DataModelImpl implements DataModel {
         }
     }
 
-    private boolean isPartitionEnabledInOracleVersion(ResultSet resultSet) throws SQLException{
-        if(!resultSet.next()) {
+    private boolean isPartitionEnabledInOracleVersion(ResultSet resultSet) throws SQLException {
+        if (!resultSet.next()) {
             return false;
         }
         String[] oracleVersion = resultSet.getString("version").split("\\.");
-        if(oracleVersion.length < 2) {
+        if (oracleVersion.length < 2) {
             return false;
         }
         //The Oracle version should be higher than 12.2...
-        if(Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2) {
+        if (Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2) {
             return false;
         }
         return true;
@@ -628,8 +628,8 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public DataDropper dataDropper(String tableName, Logger logger) {
-        return getSqlDialect().hasPartitioning() ? new PartitionDataDropperImpl(this, tableName, logger):
-            new DataDropperImpl(this, tableName, logger);
+        return getSqlDialect().hasPartitioning() ? new PartitionDataDropperImpl(this, tableName, logger) :
+                new DataDropperImpl(this, tableName, logger);
     }
 
     @Override
@@ -639,5 +639,38 @@ public class DataModelImpl implements DataModel {
 
     void addAllTables(DataModelImpl other) {
         other.getTables().forEach(this::add);
+    }
+
+    @Override
+    public String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" BEGIN ");
+        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
+        sqlBuilder.append(" ( ");
+        sqlBuilder.append(" JOB_NAME            => '").append(jobName).append("', ");
+        sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
+        sqlBuilder.append(" JOB_ACTION          => ' ");
+        sqlBuilder.append(" BEGIN ");
+        sqlBuilder.append(" execute immediate ''DROP TABLE ").append(tableName).append("''; ");
+        sqlBuilder.append(" execute immediate ");
+        sqlBuilder.append(" ''");
+        sqlBuilder.append(createTableStatement.replace("'", "''''"));
+        sqlBuilder.append(" ''; ");
+        sqlBuilder.append(" EXCEPTION ");
+        sqlBuilder.append("    WHEN OTHERS THEN ");
+        sqlBuilder.append(" 	  IF SQLCODE != -942 THEN ");
+        sqlBuilder.append(" 		 RAISE; ");
+        sqlBuilder.append(" 	  END IF; ");
+        sqlBuilder.append(" END;', ");
+        sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
+        sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
+        sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=").append(minRefreshInterval).append("', ");
+        sqlBuilder.append(" END_DATE            => NULL, ");
+        sqlBuilder.append(" ENABLED             => TRUE, ");
+        sqlBuilder.append(" AUTO_DROP           => FALSE, ");
+        sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
+        sqlBuilder.append(" ); ");
+        sqlBuilder.append(" END;");
+        return sqlBuilder.toString();
     }
 }

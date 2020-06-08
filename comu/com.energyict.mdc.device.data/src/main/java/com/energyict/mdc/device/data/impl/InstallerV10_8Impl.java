@@ -176,7 +176,7 @@ public class InstallerV10_8Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private String getComTaskDTHeatMapStatement() {
+    static String getComTaskDTHeatMapStatement() {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" CREATE TABLE MV_COMTASKDTHEATMAP");
         sqlBuilder.append(" AS select ");
@@ -218,7 +218,6 @@ public class InstallerV10_8Impl implements FullInstaller {
         sqlBuilder.append("   left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
         sqlBuilder.append(" where ");
         sqlBuilder.append("   cte.obsolete_date       is null ");
-        sqlBuilder.append("   and cte.lastsession is not null");
         return sqlBuilder.toString();
     }
 
@@ -261,24 +260,24 @@ public class InstallerV10_8Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private String getRefreshMvConnectionTasksBreakDownJobStatement(){
-        return getRefreshJob("REF_MV_CONTASKBREAKDOWN", "MV_CONTASKBREAKDOWN",
+    private String getRefreshMvConnectionTasksBreakDownJobStatement() {
+        return dataModel.getRefreshJob("REF_MV_CONTASKBREAKDOWN", "MV_CONTASKBREAKDOWN",
                 getConnectionTasksBreakDownStatement(), 5);
     }
 
-    private String getRefreshMvCommunicationTasksBreakDownJobStatement(){
-        return getRefreshJob("REF_MV_COMTASKBREAKDOWN", "MV_COMTASKBREAKDOWN",
+    private String getRefreshMvCommunicationTasksBreakDownJobStatement() {
+        return dataModel.getRefreshJob("REF_MV_COMTASKBREAKDOWN", "MV_COMTASKBREAKDOWN",
                 getCommunicationTasksBreakDownStatement(), 5);
     }
 
-    private String getRefreshMvComTaskDTHeatMapJobStatement(){
-        return getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
+    private String getRefreshMvComTaskDTHeatMapJobStatement() {
+        return dataModel.getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
                 getComTaskDTHeatMapStatement(), 5);
 
     }
 
-    private String getRefreshMvComTaskExWithDevStsJobStatement(){
-        return getRefreshJob("REF_MV_COMTASKEXWITHDEVSTS", "MV_COMTASKEXWITHDEVSTS",
+    private String getRefreshMvComTaskExWithDevStsJobStatement() {
+        return dataModel.getRefreshJob("REF_MV_COMTASKEXWITHDEVSTS", "MV_COMTASKEXWITHDEVSTS",
                 getComTaskExWithDevStsStatement(), 5);
     }
 }
