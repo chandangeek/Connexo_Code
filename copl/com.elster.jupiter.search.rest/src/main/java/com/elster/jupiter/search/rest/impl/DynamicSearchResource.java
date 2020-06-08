@@ -85,15 +85,20 @@ public class DynamicSearchResource {
         return Response.ok().entity(pagedInfoList).build();
     }
 
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}/searchcriteria")
     public Response getSearchablePropertiesForDomain(@PathParam("domain") String domainId,
-                                                     @BeanParam JsonQueryFilter jsonQueryFilter,
-                                                     @BeanParam JsonQueryParameters jsonQueryParameters,
-                                                     @BeanParam UriInfo uriInfo) throws InvalidValueException {
+                                                     @FormParam("filter") String filter,
+                                                     @FormParam("start") Integer start,
+                                                     @FormParam("limit") Integer limit,
+                                                     @Context UriInfo uriInfo) throws InvalidValueException {
+
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
+        JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start, limit);
+
         Stream<SearchableProperty> propertyStream = getSearchableProperties(searchDomain, jsonQueryFilter);
         List<PropertyInfo> propertyList = propertyStream
                 .map(p -> searchCriterionInfoFactory.asListObject(p, uriInfo))
@@ -236,7 +241,7 @@ public class DynamicSearchResource {
                                         @PathParam("property") String property,
                                         @BeanParam JsonQueryParameters jsonQueryParameters,
                                         @BeanParam JsonQueryFilter jsonQueryFilter,
-                                        @BeanParam UriInfo uriInfo) {
+                                        @BeanParam UriInfo uriInfo){
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))
