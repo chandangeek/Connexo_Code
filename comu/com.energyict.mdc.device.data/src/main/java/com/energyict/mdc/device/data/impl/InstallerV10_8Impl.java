@@ -176,7 +176,7 @@ public class InstallerV10_8Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private String getComTaskDTHeatMapStatement() {
+    static String getComTaskDTHeatMapStatement() {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" CREATE TABLE MV_COMTASKDTHEATMAP");
         sqlBuilder.append(" AS select ");
@@ -261,23 +261,23 @@ public class InstallerV10_8Impl implements FullInstaller {
     }
 
     private String getRefreshMvConnectionTasksBreakDownJobStatement() {
-        return getRefreshJob("REF_MV_CONTASKBREAKDOWN", "MV_CONTASKBREAKDOWN",
+        return dataModel.getRefreshJob("REF_MV_CONTASKBREAKDOWN", "MV_CONTASKBREAKDOWN",
                 getConnectionTasksBreakDownStatement(), 5);
     }
 
     private String getRefreshMvCommunicationTasksBreakDownJobStatement() {
-        return getRefreshJob("REF_MV_COMTASKBREAKDOWN", "MV_COMTASKBREAKDOWN",
+        return dataModel.getRefreshJob("REF_MV_COMTASKBREAKDOWN", "MV_COMTASKBREAKDOWN",
                 getCommunicationTasksBreakDownStatement(), 5);
     }
 
     private String getRefreshMvComTaskDTHeatMapJobStatement() {
-        return getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
+        return dataModel.getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
                 getComTaskDTHeatMapStatement(), 5);
 
     }
 
     private String getRefreshMvComTaskExWithDevStsJobStatement() {
-        return getRefreshJob("REF_MV_COMTASKEXWITHDEVSTS", "MV_COMTASKEXWITHDEVSTS",
+        return dataModel.getRefreshJob("REF_MV_COMTASKEXWITHDEVSTS", "MV_COMTASKEXWITHDEVSTS",
                 getComTaskExWithDevStsStatement(), 5);
     }
 }

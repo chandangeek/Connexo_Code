@@ -80,7 +80,7 @@ class CommunicationTaskHeatMapImpl implements CommunicationTaskHeatMap {
     }
 
     private Map<CompletionCode, Long> completionCodeMapWithAllZeros() {
-        return Stream.concat(Arrays.stream(CompletionCode.values()), Stream.of(null))
+        return Stream.concat(Arrays.stream(CompletionCode.values()), Stream.of((CompletionCode) null))
                 .collect(Collectors.toMap(
                         Function.identity(),
                         completionCode -> 0L));
