@@ -35,7 +35,7 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET(115, Keys.FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET, "Failed to fetch the device owning security property set {0}", Level.SEVERE),
     JSON_PARSING_ERROR(116, Keys.JSON_PARSING_ERROR, "Unexpected JSON Object parsing error\\: {0}", Level.SEVERE),
     UNEXPECTED_WEBSOCKET_ERROR(117, Keys.UNEXPECTED_WEBSOCKET_ERROR, "Unexpected websocket exception\\: {0}", Level.SEVERE),
-    WEBSOCKET_CLOSED(118, Keys.UNEXPECTED_WEBSOCKET_ERROR, "Websocket closed. Reconnect, please", Level.WARNING);
+    WEBSOCKET_CLOSED(118, Keys.UNEXPECTED_WEBSOCKET_ERROR, "Websocket closed. Reconnect, please.", Level.SEVERE);
 
     private final int number;
     private final String key;
