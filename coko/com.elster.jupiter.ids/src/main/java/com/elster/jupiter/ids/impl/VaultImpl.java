@@ -37,11 +37,13 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -388,7 +390,7 @@ public final class VaultImpl implements IVault {
         return builder.toString();
     }
 
-    SqlBuilder journalSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
+    private SqlBuilder journalSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
         SqlBuilder builder = new SqlBuilder(baseJournalSql(timeSeries.getRecordSpec()).toString());
         builder.add(new SqlFragment() {
             @Override
@@ -434,24 +436,15 @@ public final class VaultImpl implements IVault {
     public List<TimeSeriesEntry> getEntries(List<Pair<TimeSeries, Instant>> scope) {
         try (Connection connection = getConnection(false)) {
             Map<Long, TimeSeriesImpl> timeSeriesById = new HashMap<>();
-            return scope.stream()
+            Map<List<String>, Map<Instant, Set<TimeSeriesImpl>>> timeSeriesByInstantsByRecordSpecColumnsMap = scope.stream()
                     .map(pair -> pair.withFirst(TimeSeriesImpl.class::cast))
                     .peek(timeSeriesAndInstant -> timeSeriesById.put(timeSeriesAndInstant.getFirst().getId(), timeSeriesAndInstant.getFirst()))
-                    .collect(Collectors.groupingBy(timeSeriesAndInstant -> timeSeriesAndInstant.getFirst().getRecordSpec().columnNames()))
-                    .entrySet()
+                    .collect(Collectors.groupingBy(timeSeriesAndInstant -> timeSeriesAndInstant.getFirst().getRecordSpec().columnNames(),
+                            Collectors.groupingBy(Pair::getLast,
+                                    Collectors.mapping(Pair::getFirst, Collectors.toSet()))));
+            return timeSeriesByInstantsByRecordSpecColumnsMap.entrySet()
                     .stream()
-                    .map(columnsWithTimeSeriesAndInstants -> {
-                        SqlBuilder builder = selectSql(columnsWithTimeSeriesAndInstants.getKey());
-                        Holder<String> joiner = HolderBuilder.first(" ").andThen(" or ");
-                        columnsWithTimeSeriesAndInstants.getValue().forEach(timeSeriesAndInstant -> {
-                            builder.append(joiner.get());
-                            builder.append("TIMESERIESID = ");
-                            builder.addLong(timeSeriesAndInstant.getFirst().getId());
-                            builder.append(" and UTCSTAMP = ");
-                            builder.addLong(timeSeriesAndInstant.getLast().toEpochMilli());
-                        });
-                        return builder;
-                    })
+                    .map(columnsWithTimeSeriesByInstants -> sqlBuilderFor(columnsWithTimeSeriesByInstants.getKey(), columnsWithTimeSeriesByInstants.getValue()))
                     .flatMap(builder -> {
                         List<TimeSeriesEntry> result = new ArrayList<>();
                         try (PreparedStatement statement = builder.prepare(connection);
@@ -470,6 +463,25 @@ public final class VaultImpl implements IVault {
         }
     }
 
+    private SqlBuilder sqlBuilderFor(List<String> recordSpecColumnNames, Map<Instant, Set<TimeSeriesImpl>> scope) {
+        SqlBuilder builder = selectSql(recordSpecColumnNames);
+        Holder<String> fragmentJoiner = HolderBuilder.first(" ").andThen(" or ");
+        scope.entrySet().stream()
+                .sorted(Comparator.comparing((Map.Entry<Instant, Set<TimeSeriesImpl>> entry) -> entry.getValue().size()).reversed())
+                .forEach(timestampAndTimeSeriesList -> {
+            builder.append(fragmentJoiner.get());
+            builder.append("TIMESERIESID in (");
+            Holder<String> valueJoiner = HolderBuilder.first("").andThen(",");
+            timestampAndTimeSeriesList.getValue().forEach(value -> {
+                builder.append(valueJoiner.get());
+                builder.addLong(value.getId());
+            });
+            builder.append(") and UTCSTAMP = ");
+            builder.addLong(timestampAndTimeSeriesList.getKey().toEpochMilli());
+        });
+        return builder;
+    }
+
     @Override
     public List<TimeSeriesJournalEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
         try {
@@ -480,7 +492,8 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
-    public SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
+    @SafeVarargs
+    public final SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
         return this.rangeSql(timeSeries, interval, Arrays.asList(fieldSpecAndAliasNames));
     }
 
@@ -636,7 +649,7 @@ public final class VaultImpl implements IVault {
         return this.selectSql(recordSpec.columnNames());
     }
 
-    SqlBuilder selectSql(List<String> recordSpecColumnNames) {
+    private SqlBuilder selectSql(List<String> recordSpecColumnNames) {
         SqlBuilder builder = new SqlBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
         for (String column : recordSpecColumnNames) {
             builder.append(",");
@@ -648,7 +661,7 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    SqlBuilder selectJournalSql(RecordSpecImpl recordSpec) {
+    private SqlBuilder selectJournalSql(RecordSpecImpl recordSpec) {
         SqlBuilder builder = new SqlBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
         for (String column : recordSpec.columnNames()) {
             builder.append(",");
@@ -660,13 +673,10 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval) {
-        String columnNames = "";
-        for (String column : timeSeries.getRecordSpec().columnNames()) {
-            columnNames += ", " + column;
-        }
+    private SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval) {
+        String columnNames = timeSeries.getRecordSpec().columnNames().stream().collect(Collectors.joining(", "));
 
-        SqlBuilder builder = new SqlBuilder("select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME " + columnNames + ", JOURNALTIME, USERNAME, ISACTIVE  from ");
+        SqlBuilder builder = new SqlBuilder("select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, " + columnNames + ", JOURNALTIME, USERNAME, ISACTIVE from ");
         builder.append(" ( ");
 
         builder.append("select R1.TIMESERIESID, R1.UTCSTAMP, R1.VERSIONCOUNT, R1.RECORDTIME, R1.ISACTIVE, R1.JOURNALTIME, R2.USERNAME ");
@@ -676,23 +686,23 @@ public final class VaultImpl implements IVault {
         }
         builder.append(" FROM ");
         builder.append(" ( ");
-        builder.append("    select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, ISACTIVE " + columnNames + "  from ");
+        builder.append("    select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, ISACTIVE, " + columnNames + " from ");
         builder.append("    ( ");
-        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, 0 JOURNALTIME, '' USERNAME, 1 ISACTIVE " + columnNames + "  from " + getTableName());
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, 0 JOURNALTIME, '' USERNAME, 1 ISACTIVE, " + columnNames + " from " + getTableName());
         builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
         builder.append("        union all ");
-        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, 0 ISACTIVE " + columnNames + "  from " + getJournalTableName());
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, 0 ISACTIVE, " + columnNames + " from " + getJournalTableName());
         builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
         builder.append("    ) ");
         builder.append(" ) R1 ");
         builder.append(" LEFT JOIN ");
         builder.append(" ( ");
-        builder.append("    select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME,  JOURNALTIME, USERNAME, ISACTIVE " + columnNames + "  from ");
+        builder.append("    select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME,  JOURNALTIME, USERNAME, ISACTIVE, " + columnNames + " from ");
         builder.append("    ( ");
-        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, 0 JOURNALTIME, '' USERNAME, 1 ISACTIVE " + columnNames + "  from " + getTableName());
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, 0 JOURNALTIME, '' USERNAME, 1 ISACTIVE, " + columnNames + " from " + getTableName());
         builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
         builder.append("        union all ");
-        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, 0 ISACTIVE " + columnNames + "  from " + getJournalTableName());
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, 0 ISACTIVE, " + columnNames + " from " + getJournalTableName());
         builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
         builder.append("    ) ");
         builder.append(" ) R2 ");
@@ -816,7 +826,7 @@ public final class VaultImpl implements IVault {
         }
     }
 
-    SqlBuilder deleteSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
+    private SqlBuilder deleteSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
         SqlBuilder builder = new SqlBuilder("DELETE FROM ");
         builder.append(getTableName());
         builder.append(" WHERE TIMESERIESID = ");
