@@ -5,7 +5,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
-import static com.elster.jupiter.orm.Version.version;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
@@ -43,13 +42,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_5SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_9SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
@@ -105,6 +100,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.orm.Version.version;
 
 
 @Singleton
@@ -289,12 +286,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(version(10, 4, 9), V10_4_9SimpleUpgrader.class)
-                        .put(version(10, 5), V10_5SimpleUpgrader.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), UpgraderV10_7.class)
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
-                        .put(version(10, 9), V10_9SimpleUpgrader.class)
                         .build());
 
         setActualRecurrentTaskFrequency();
