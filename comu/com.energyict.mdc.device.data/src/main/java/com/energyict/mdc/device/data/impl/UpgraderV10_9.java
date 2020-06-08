@@ -107,7 +107,7 @@ public class UpgraderV10_9 implements Upgrader {
                     .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
                     .map(HasId::getId)
                     .findFirst()
-                    .orElseGet(() -> null);
+                    .orElse(null);
         } else if (comTaskEnablement.usesDefaultConnectionTask()) {
             Optional<ConnectionTask<?, ?>> connectionTask = device.getConnectionTasks().stream().filter(ConnectionTask::isDefault).findFirst();
             connectiontaskid = connectionTask.isPresent() ? connectionTask.get().getId() : null;
