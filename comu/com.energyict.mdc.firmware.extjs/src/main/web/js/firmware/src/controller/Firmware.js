@@ -195,7 +195,7 @@ Ext.define('Fwc.controller.Firmware', {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.remove', 'FWC', 'Remove')
         }).show({
-            msg: Uni.I18n.translate('firmware.remove.msg', 'FWC', 'This firmware won\'t be visible on related pages on device(s) and campaign(s)'),
+            msg: Uni.I18n.translate('firmware.remove.msg', 'FWC', 'This firmware won\'t be visible on related pages on device(s) and campaign(s).'),
             title: Uni.I18n.translate('firmware.remove.title', 'FWC', "Remove '{0}'?",[firmware.get('firmwareVersion')]),
             fn: function (btn) {
                 if (btn === 'confirm') {
