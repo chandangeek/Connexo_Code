@@ -60,12 +60,12 @@ public class UpgraderV10_9 implements Upgrader {
             do {
                 devices = deviceService.findAllDevices(Condition.TRUE).paged(from, SIZE).find();
                 String querySQL = createExecutionsList(devices);
-                from += SIZE;
+                from += SIZE + 1;
                 if (!querySQL.equals("")) {
                     execute(statement, querySQL);
                 }
             }
-            while (!devices.isEmpty());
+            while (devices.size() > SIZE);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
