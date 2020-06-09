@@ -21,8 +21,9 @@ public class CompletionCodeTaskCounterInfoComparator implements Comparator<TaskC
 
     public CompletionCodeTaskCounterInfoComparator() {
         Stream
-            .of(CompletionCode.values())
-            .forEach(completionCode -> completionCodeSortingOrder.put(completionCode.name(), completionCode.ordinal()));
+                .of(CompletionCode.values())
+                .forEach(completionCode -> completionCodeSortingOrder.put(completionCode.name(), completionCode.ordinal()));
+        completionCodeSortingOrder.put(TranslationKeys.NEVER_STARTED_COMPLETION_CODE.getKey(), CompletionCode.values().length);
     }
 
     @Override

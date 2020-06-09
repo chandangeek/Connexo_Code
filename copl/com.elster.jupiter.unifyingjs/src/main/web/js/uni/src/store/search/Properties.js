@@ -22,6 +22,12 @@ Ext.define('Uni.store.search.Properties', {
         reader: {
             type: 'json',
             root: 'properties'
+        },
+        actionMethods: {
+            create: 'POST',
+            read: 'POST',
+            update: 'PUT',
+            destroy: 'DELETE'
         }
     },
 

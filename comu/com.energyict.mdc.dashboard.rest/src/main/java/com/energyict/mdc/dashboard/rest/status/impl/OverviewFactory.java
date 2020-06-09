@@ -41,8 +41,14 @@ public class OverviewFactory {
         info.counters = new ArrayList<>();
         for (Counter<C> taskStatusCounter : dashboardCounters) {
             TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-            taskCounterInfo.id = taskStatusCounter.getCountTarget().name();
-            taskCounterInfo.displayName = adapter.translationFor(taskStatusCounter.getCountTarget(), thesaurus);
+            C countTarget = taskStatusCounter.getCountTarget();
+            if (countTarget == null) {
+                taskCounterInfo.id = TranslationKeys.NEVER_STARTED_COMPLETION_CODE.getKey();
+                taskCounterInfo.displayName = thesaurus.getFormat(TranslationKeys.NEVER_STARTED_COMPLETION_CODE).format();
+            } else {
+                taskCounterInfo.id = countTarget.name();
+                taskCounterInfo.displayName = adapter.translationFor(taskStatusCounter.getCountTarget(), thesaurus);
+            }
             taskCounterInfo.count = taskStatusCounter.getCount();
             info.total += taskCounterInfo.count;
             info.counters.add(taskCounterInfo);
@@ -52,6 +58,6 @@ public class OverviewFactory {
     }
 
     public void sortAllOverviews(List<TaskSummaryInfo> overviews) {
-        overviews.stream().forEach(overview->Collections.sort(overview.counters, (o1, o2) -> -Long.valueOf(o1.count).compareTo(o2.count)));
+        overviews.stream().forEach(overview -> Collections.sort(overview.counters, (o1, o2) -> -Long.valueOf(o1.count).compareTo(o2.count)));
     }
 }

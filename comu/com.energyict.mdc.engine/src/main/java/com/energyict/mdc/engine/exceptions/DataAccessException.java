@@ -31,6 +31,10 @@ import java.util.concurrent.TimeoutException;
  */
 public class DataAccessException extends ComServerRuntimeException {
 
+    public DataAccessException(MessageSeed messageSeed) {
+        super(messageSeed);
+    }
+
     public DataAccessException(ClassNotFoundException cause, MessageSeed messageSeed) {
         super(cause, messageSeed);
     }
