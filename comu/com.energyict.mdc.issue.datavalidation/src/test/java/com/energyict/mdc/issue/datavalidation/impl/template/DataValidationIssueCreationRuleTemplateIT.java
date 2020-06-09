@@ -4,13 +4,21 @@
 
 package com.energyict.mdc.issue.datavalidation.impl.template;
 
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -20,7 +28,14 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -51,9 +66,6 @@ import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHand
 import com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.mockito.Matchers;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -61,8 +73,23 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.Matchers;
 
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,13 +97,12 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DataValidationIssueCreationRuleTemplateTest {
-
+public class DataValidationIssueCreationRuleTemplateIT {
     protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     private static final Instant fixedTime = LocalDateTime.of(2015, 6, 16, 0, 0).toInstant(ZoneOffset.UTC);
     public static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
-    public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateTest.getTransactionService());
+    public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateIT.getTransactionService());
 
     private DataValidationIssueCreationRuleTemplate template;
     private IssueService issueService;
@@ -116,7 +142,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void setUp() throws Exception {
         issueService = inMemoryPersistence.getService(IssueService.class);
         template = inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
-        ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
+        issueService.addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
         issueDataValidationService = inMemoryPersistence.getService(IssueDataValidationService.class);
         messageHandler = inMemoryPersistence.getService(DataValidationEventHandlerFactory.class).newMessageHandler();

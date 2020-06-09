@@ -19,7 +19,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-import com.energyict.mdc.issue.datavalidation.impl.BaseTest;
+import com.energyict.mdc.issue.datavalidation.impl.BaseIT;
 
 import com.google.common.collect.Range;
 
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RetryEstimationActionTest extends BaseTest {
+public class RetryEstimationActionIT extends BaseIT {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datavalidation";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
 
