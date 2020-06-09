@@ -36,13 +36,13 @@ import java.util.Set;
 public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
     private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
-
     private Set<ServerComTaskStatus> taskStatuses;
     private Set<CompletionCode> completionCodes;
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
     private final Set<ConnectionTypePluggableClass> connectionTypes;
     private List<Long> connectionTasksIds;
+    private final Long locationId;
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock, filterSpecification, queryExecutor);
@@ -54,6 +54,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
         this.connectionTasksIds = filterSpecification.connectionMethods;
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
+        this.locationId = filterSpecification.locationId;
     }
 
     private void copyTaskStatuses(ComTaskExecutionFilterSpecification filterSpecification) {
@@ -90,6 +91,9 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
         actualBuilder.append(sqlBuilder);
         this.appendDeviceStateJoinClauses(communicationTaskAliasName);
+        if (this.locationId != null) {
+            this.appendLocationId(locationId);
+        }
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         while (statusIterator.hasNext()) {

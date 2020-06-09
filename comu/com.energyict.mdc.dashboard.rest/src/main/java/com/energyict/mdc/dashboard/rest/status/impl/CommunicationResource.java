@@ -337,6 +337,10 @@ public class CommunicationResource {
             filter.connectionMethods = jsonQueryFilter.getLongList(FilterOption.connectionMethods.name());
         }
 
+        if (jsonQueryFilter.hasProperty(FilterOption.location.name())) {
+            filter.locationId = jsonQueryFilter.getLong(FilterOption.location.name());
+        }
+
         filter.showSlaveComTaskExecutions = true;
         return filter;
     }

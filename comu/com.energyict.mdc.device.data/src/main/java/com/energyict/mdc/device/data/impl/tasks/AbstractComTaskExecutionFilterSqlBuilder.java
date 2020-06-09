@@ -128,4 +128,9 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         }
     }
 
+    protected void appendLocationId(Long locationId) {
+        this.append("join MTR_ENDDEVICE ed on dev.id = ed.id");
+        this.appendWhereOrAnd();
+        this.append("ed.locationid = " + locationId);
+    }
 }

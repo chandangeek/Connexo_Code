@@ -135,6 +135,20 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 dataIndexTo: 'finishIntervalTo',
                 text: Uni.I18n.translate('communications.widget.topfilter.finishedBetween', 'DSH', 'Finished between'),
                 itemId: 'finish-interval-filter'
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'location',
+                emptyText: Uni.I18n.translate('connection.widget.filter.location', 'DSH', 'Location'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Dsh.store.filter.Locations',
+                queryMode: 'remote',
+                queryParam: 'like',
+                minChars: 0,
+                matchFieldWidth: false,
+                width: 377,
+                itemId: 'location-filter'
             }
         ];
         me.callParent(arguments);
