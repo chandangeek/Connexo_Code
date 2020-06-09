@@ -102,17 +102,17 @@ public class InstallerV10_7_2Impl implements FullInstaller {
     }
 
     private String getRefreshMvConnectionTypeHeatMapJobStatement(){
-        return getRefreshJob("REF_MV_ConnectionTypeHeatMap", "MV_CONNECTIONTYPEHEATMAP",
+        return dataModel.getRefreshJob("REF_MV_ConnectionTypeHeatMap", "MV_CONNECTIONTYPEHEATMAP",
                 getconnectionTypeHeatMapStatement(), 5);
     }
 
     private String getRefreshMvCTLCSWithAtLstOneFTJobStatement(){
-        return getRefreshJob("REF_MV_CTLCSWithAtLstOneFT", "MV_CTLCSWithAtLstOneFT",
+        return dataModel.getRefreshJob("REF_MV_CTLCSWithAtLstOneFT", "MV_CTLCSWithAtLstOneFT",
                 getConnectionTasksLastComSessionsWithAtLeastOneFailedTaskViewStatement(), 5);
     }
 
     private String getRefreshMvCTLCSSucIndCountJobStatement(){
-        return getRefreshJob("REF_MV_CTLCSSucIndCount", "MV_CTLCSSucIndCount",
+        return dataModel.getRefreshJob("REF_MV_CTLCSSucIndCount", "MV_CTLCSSucIndCount",
                 getConnectionTaskLastComSessionSuccessIndicatorCountStatement(), 5);
     }
 }

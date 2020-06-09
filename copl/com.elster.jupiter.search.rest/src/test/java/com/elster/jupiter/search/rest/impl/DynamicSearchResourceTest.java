@@ -170,7 +170,12 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomainProperties() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria").request().accept("application/json").get();
+        Form input = new Form();
+        input.param("start", null);
+        input.param("limit", null);
+        input.param("filter", null);
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        Response response = target("/search/com.devices/searchcriteria").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
         assertThat(model.<List>get("$.properties")).hasSize(3);
@@ -193,7 +198,13 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testRestictedDomainProperties() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", URLEncoder.encode("[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":\"13\"}]}]", "UTF-8")).request().accept("application/json").get();
+        Form input = new Form();
+        input.param("start", "0");
+        input.param("limit", null);
+        input.param("filter", "[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":\"13\"}]}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+
+        Response response = target("/search/com.devices/searchcriteria").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<List> constrictions = ArgumentCaptor.forClass(List.class);
         verify(devicesDomain).getPropertiesWithConstrictions(constrictions.capture());

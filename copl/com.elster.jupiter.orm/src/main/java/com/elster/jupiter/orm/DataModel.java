@@ -77,8 +77,8 @@ public interface DataModel {
     Table<?> getTable(String tableName, Version version);
 
     /*
-         * Adds a table in the default schema of the database user to the DataModel that maps to the type specified by the second argument
-         */
+     * Adds a table in the default schema of the database user to the DataModel that maps to the type specified by the second argument
+     */
     <T> Table<T> addTable(String name, Class<T> api);
 
     /*
@@ -179,4 +179,6 @@ public interface DataModel {
             throw new UnderlyingSQLFailedException(e);
         }
     }
+
+    String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval);
 }

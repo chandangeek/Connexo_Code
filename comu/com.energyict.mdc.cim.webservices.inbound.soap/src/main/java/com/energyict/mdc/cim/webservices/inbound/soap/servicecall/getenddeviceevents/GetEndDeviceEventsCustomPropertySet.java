@@ -25,6 +25,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
+import com.google.common.collect.Range;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -71,7 +72,6 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
     @Reference
     @SuppressWarnings("unused") // For OSGi framework
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -125,8 +125,17 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(GetEndDeviceEventsDomainExtension.FieldNames.METER.javaName(), TranslationKeys.METER_CONFIG)
-                        .describedAs(TranslationKeys.METER_CONFIG)
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.METERS.javaName(), TranslationKeys.METERS)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.DEVICE_GROUPS.javaName(), TranslationKeys.DEVICE_GROUPS)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.EVENT_TYPES.javaName(), TranslationKeys.EVENT_TYPES)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -204,10 +213,51 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(GetEndDeviceEventsDomainExtension.FieldNames.METER.databaseName())
+            Column meter1 = table.column(GetEndDeviceEventsDomainExtension.FieldNames.METERS.databaseName())
                     .varChar()
-                    .map(GetEndDeviceEventsDomainExtension.FieldNames.METER.javaName())
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.METERS.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 4, 9))
+                    .add();
+            Column meter2 = table.column(GetEndDeviceEventsDomainExtension.FieldNames.METERS.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.METERS.javaName())
+                    .during(Range.closedOpen(Version.version(10, 4, 9), Version.version(10, 5)))
+                    .previously(meter1)
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.DEVICE_GROUPS.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.DEVICE_GROUPS.javaName())
+                    .during(Range.closedOpen(Version.version(10, 4, 9), Version.version(10, 5)))
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.EVENT_TYPES.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.EVENT_TYPES.javaName())
+                    .during(Range.closedOpen(Version.version(10, 4, 9), Version.version(10, 5)))
+                    .add();
+            Column meter3 = table.column(GetEndDeviceEventsDomainExtension.FieldNames.METERS.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.METERS.javaName())
+                    .notNull()
+                    .installValue("")
+                    .during(Range.closedOpen(Version.version(10, 5), Version.version(10, 9)))
+                    .previously(meter2)
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.METERS.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.METERS.javaName())
+                    .since(Version.version(10, 9))
+                    .previously(meter3)
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.DEVICE_GROUPS.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.DEVICE_GROUPS.javaName())
+                    .since(Version.version(10, 9))
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.EVENT_TYPES.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.EVENT_TYPES.javaName())
+                    .since(Version.version(10, 9))
                     .add();
             table.column(GetEndDeviceEventsDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
                     .varChar()
@@ -232,7 +282,7 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
                     .varChar()
                     .map(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.javaName())
                     .notNull(false)
-                    .since(Version.version(10,7))
+                    .since(Version.version(10, 7))
                     .add();
         }
 
