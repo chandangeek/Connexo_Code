@@ -859,6 +859,18 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>systemproperties</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>systemproperties.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks.rest</artifactId>
@@ -1199,7 +1211,7 @@
             <groupId>biz.aQute.bnd</groupId>
             <artifactId>bndlib</artifactId>
         </dependency>
-    </dependencies>
+	</dependencies>
 
 
     <properties>
@@ -1275,10 +1287,12 @@
         <module>com.elster.jupiter.servicecall.extjs</module>
         <module>com.elster.jupiter.servicecall.rest</module>
         <module>com.elster.jupiter.servicecalltype.extjs</module>
-        <module>com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
-        <module>com.elster.jupiter.system</module>
+		<module>com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
+		<module>com.elster.jupiter.system</module>
 		<!-- todo rename to license -->
 		<module>com.elster.jupiter.systemadmin</module>
+		<module>com.elster.jupiter.systemproperties</module>
+		<module>com.elster.jupiter.systemproperties.rest</module>
 		<module>com.elster.jupiter.tasks</module>
 		<module>com.elster.jupiter.tasks.rest</module>
 		<module>com.elster.jupiter.theme.skyline</module>

@@ -525,39 +525,43 @@ class DestinationSpecImpl implements DestinationSpec {
     private String getQueuesStatusStatement(QueueTableSpec queueTableSpec) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" SELECT  ");
-        sqlBuilder.append("   	NAME ");
-        sqlBuilder.append("   , QUEUETABLENAME  ");
-        sqlBuilder.append("   ,CASE ");
-        sqlBuilder.append(" 	 WHEN UPPER(t.QUEUE) = UPPER(ds.NAME) THEN 1 ");
-        sqlBuilder.append(" 	 ELSE 0 ");
-        sqlBuilder.append("   END messages,  ");
-        sqlBuilder.append("   CASE ");
-        sqlBuilder.append(" 	 WHEN UPPER(t.ORIGINAL_QUEUE_NAME) = UPPER(ds.NAME) THEN 1 ");
-        sqlBuilder.append(" 	 ELSE 0 ");
-        sqlBuilder.append("   END errors ");
-        sqlBuilder.append(" FROM MSG_DESTINATIONSPEC ds  left join AQ$");
+        sqlBuilder.append("   	Q_NAME name ");
+        sqlBuilder.append("     , count(CASE WHEN Q_NAME IS NOT NULL THEN 1 END) messages  ");
+        sqlBuilder.append("     , count(CASE WHEN EXCEPTION_QUEUE = Q_NAME THEN 1 END) errors  ");
+        sqlBuilder.append(" FROM ");
         sqlBuilder.append(queueTableSpec.getName());
-        sqlBuilder.append(" t  ");
-        sqlBuilder.append(" ON UPPER(ds.name) = UPPER(t.QUEUE) OR UPPER(ds.name) = UPPER(t.ORIGINAL_QUEUE_NAME) ");
-        sqlBuilder.append(" WHERE ds.QUEUETABLENAME = '");
-        sqlBuilder.append(queueTableSpec.getName());
-        sqlBuilder.append("' ");
+        sqlBuilder.append(" group by Q_NAME ");
         return sqlBuilder.toString();
+    }
+
+    private String getQueuesStatusQueryPrefix() {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" SELECT  ");
+        sqlBuilder.append("   	ds.name ");
+        sqlBuilder.append("   , messages  ");
+        sqlBuilder.append("   , errors  ");
+        sqlBuilder.append(" FROM MSG_DESTINATIONSPEC ds  LEFT JOIN (");
+        return sqlBuilder.toString();
+    }
+
+    private String getQueuesStatusQuerySufix() {
+        return " ) q on UPPER(ds.name)=UPPER(q.name)";
     }
 
     @Override
     public List<QueueStatus> getAllQueuesStatus() {
         List<QueueStatus> statuses = Lists.newArrayList();
 
+
         String sqlStatement = DefaultFinder.of(QueueTableSpec.class, dataModel).find().stream()
                 .map(this::getQueuesStatusStatement)
-                .collect(Collectors.joining(" UNION ALL ", "SELECT name, sum(messages), sum(errors) FROM(", ") GROUP BY name"));
+                .collect(Collectors.joining(" UNION ALL ", getQueuesStatusQueryPrefix(), getQueuesStatusQuerySufix()));
         try {
             try (Connection connection = dataModel.getConnection(false)) {
                 try (Statement statement = connection.createStatement()) {
                     try (ResultSet resultSet = statement.executeQuery(sqlStatement)) {
                         while (resultSet.next()) {
-                            statuses.add(new QueueStatus(resultSet.getString(1), resultSet.getLong(2), resultSet.getLong(3)));
+                            statuses.add(new QueueStatus(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)));
                         }
                     }
                 }

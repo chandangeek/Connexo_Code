@@ -273,6 +273,7 @@ public enum TableSpecs {
                     .add();
             table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).upTo(Version.version(10,8)).add();
             table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn, obsoleteDate).since(Version.version(10,8)).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -385,6 +386,7 @@ public enum TableSpecs {
             table.unique("U_DTC_REGISTERTYPE_IN_CONFIG")
                     .on(deviceConfiguration, registerType)
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -412,6 +414,7 @@ public enum TableSpecs {
                     .references(LogBookType.class)
                     .map("logBookType")
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 

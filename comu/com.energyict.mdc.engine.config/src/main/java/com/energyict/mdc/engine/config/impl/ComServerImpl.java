@@ -488,7 +488,6 @@ public abstract class ComServerImpl implements ComServer {
     public void setActive(boolean active) {
         this.active = active;
         LOGGER.info("ComServer " + name + " status set to " + active);
-        Thread.dumpStack();
     }
 
     public void setServerLogLevel(LogLevel serverLogLevel) {
