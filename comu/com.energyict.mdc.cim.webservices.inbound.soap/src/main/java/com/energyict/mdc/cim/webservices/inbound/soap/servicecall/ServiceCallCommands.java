@@ -174,7 +174,7 @@ public class ServiceCallCommands {
         MeterConfigDomainExtension meterConfigDomainExtension = new MeterConfigDomainExtension();
         meterConfigDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
         MeterInfo meterInfo;
-        if (OperationEnum.GET.equals(operation)) {
+        if (OperationEnum.GET.equals(operation) || OperationEnum.DELETE.equals(operation)) {
             meterInfo = meterConfigParser.asMeterInfo(meter);
             meterConfigDomainExtension.setMeter(null);
         } else {

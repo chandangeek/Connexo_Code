@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /*
@@ -98,6 +97,10 @@ public class MeterConfigParser {
                             .meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.DEVICE_IDENTIFIER_MISSING)
                             .get();
                 }
+                break;
+            case DELETE:
+                meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
+                meterInfo.setmRID(extractMrid(meter).orElse(null));
                 break;
             default:
                 break;

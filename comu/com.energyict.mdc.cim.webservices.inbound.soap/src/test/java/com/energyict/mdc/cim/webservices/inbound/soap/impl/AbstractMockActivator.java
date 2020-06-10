@@ -53,6 +53,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -165,6 +166,8 @@ public abstract class AbstractMockActivator {
     protected CommunicationTaskService communicationTaskService;
     @Mock
     protected MeteringTranslationService meteringTranslationService;
+    @Mock
+    protected TopologyService topologyService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -238,6 +241,7 @@ public abstract class AbstractMockActivator {
         activator.setMasterDataService(masterDataService);
         activator.setCommunicationTaskService(communicationTaskService);
         activator.setMeteringTranslationService(meteringTranslationService);
+        activator.setTopologyService(topologyService);
         activator.activate(mock(BundleContext.class));
     }
 
