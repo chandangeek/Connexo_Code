@@ -103,6 +103,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
         verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+        verify(device).delete();
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.DELETED);
@@ -172,6 +173,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
         verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+        verify(device).delete();
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.DELETED);
@@ -234,6 +236,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
         verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         verify(topologyService).clearPhysicalGateway(device);
+        verify(device).delete();
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.DELETED);

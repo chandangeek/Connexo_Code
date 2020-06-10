@@ -38,7 +38,6 @@ public class DeviceDeleter {
         checkUsagePointGapsAllowed(device);
         checkMaster(device);
         unlinkSlaveIfExists(device);
-        unlinkUsagePointIfExists(device);
         device.delete();
     }
 
@@ -62,23 +61,6 @@ public class DeviceDeleter {
     }
 
     private void unlinkSlaveIfExists(Device device) {
-        Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
-        if (physicalGateway.isPresent()) {
-            topologyService.clearPhysicalGateway(device);
-        }
-    }
-
-    private void unlinkUsagePointIfExists(Device device) {
-        Optional<UsagePoint> usagePoint = device.getUsagePoint();
-        if (usagePoint.isPresent()) {
-            Instant instant = clock.instant();
-            for (MeterActivation activation : usagePoint.get().getMeterActivations(instant)) {
-                Optional<Meter> linkedMeter = activation.getMeter();
-                if (linkedMeter.isPresent() && linkedMeter.get().equals(device.getMeter())) {
-                    usagePoint.get().linkMeters().clear(instant, activation.getMeterRole().get()).complete();
-                    return;
-                }
-            }
-        }
+        topologyService.clearPhysicalGateway(device);
     }
 }

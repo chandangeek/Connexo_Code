@@ -250,9 +250,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
         // set payload
         MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        if (meterConfig != null) {
-            payloadType.setMeterConfig(meterConfig);
-        }
+        payloadType.setMeterConfig(meterConfig);
         meterConfigEventMessageType.setPayload(payloadType);
 
         // set errors

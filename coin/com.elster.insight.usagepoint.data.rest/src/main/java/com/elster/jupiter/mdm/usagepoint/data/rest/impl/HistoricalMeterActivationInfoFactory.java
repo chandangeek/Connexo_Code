@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import javax.inject.Inject;
 import java.net.URL;
 import java.time.Clock;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class HistoricalMeterActivationInfoFactory {
@@ -33,7 +34,13 @@ public class HistoricalMeterActivationInfoFactory {
         meterActivation.getMeter().ifPresent(meter -> {
             info.meter = meter.getName();
             info.url = meter.getHeadEndInterface()
-                    .flatMap(he -> he.getURLForEndDevice(meter))
+                    .flatMap(he -> {
+                        try {
+                            return he.getURLForEndDevice(meter);
+                        } catch (Exception e) {
+                            return Optional.empty();
+                        }
+                    })
                     .map(URL::toString)
                     .orElse(null);
             String correlationId = usagePoint.getMRID() + ":processOnLinkedMeter:" + meter.getMRID();
