@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.time.TemporalExpression;
@@ -84,7 +85,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(deviceType1, deviceType2, deviceType3));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("deviceTypes", Arrays.asList(201l, 301l, 101l))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("deviceTypes", Arrays.asList(201l, 301l, 101l)))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -94,7 +99,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testCurrentStateAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("currentStates", Arrays.asList("Busy", "OnHold", "Retrying"))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("currentStates", Arrays.asList("Busy", "OnHold", "Retrying")))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -104,7 +113,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testLatestResultsAddedToFilter() throws Exception {
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("latestResults", Arrays.asList("TimeError", "ProtocolError"))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("latestResults", Arrays.asList("TimeError", "ProtocolError")))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -118,7 +131,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         QueryEndDeviceGroup queryEndDeviceGroup2 = mock(QueryEndDeviceGroup.class);
         when(meteringGroupsService.findEndDeviceGroup(112)).thenReturn(Optional.of(queryEndDeviceGroup2));
 
-        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceGroups", Arrays.asList(111L, 112L))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceGroups", Arrays.asList(111L, 112L)))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
@@ -137,7 +154,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comSchedule3.getId()).thenReturn(103L);
         when(schedulingService.getAllSchedules()).thenReturn(Arrays.asList(comSchedule1, comSchedule2, comSchedule3));
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comSchedules", Arrays.asList(103l, 102l))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comSchedules", Arrays.asList(103l, 102l)))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -155,7 +176,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(comTask1, comTask2, comTask3));
         when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comTasks", Arrays.asList(13l, 12l))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comTasks", Arrays.asList(13l, 12l)))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -171,7 +196,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testStartIntervalFromAddedToFilter() throws Exception {
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalFrom", 1407916436000L)).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalFrom", 1407916436000L))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -183,7 +212,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testStartIntervalToAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalTo", 1407916436000L)).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalTo", 1407916436000L))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -211,7 +244,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testEndIntervalFromAddedToFilter() throws Exception {
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalFrom", 1407916436000L)).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalFrom", 1407916436000L))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -223,7 +260,11 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testEndIntervalToAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalTo", 1407916436000L)).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalTo", 1407916436000L))
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -235,7 +276,10 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testEndIntervalFromAndToAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter().property("finishIntervalFrom", 1407916436000L).property("finishIntervalTo", 1407916784000L).create()).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter()
+                .property("finishIntervalFrom", 1407916436000L)
+                .property("finishIntervalTo", 1407916784000L)
+                .create()).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -271,6 +315,10 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
         Device device = mock(Device.class);
+        Location location = mock(Location.class);
+        when(location.getId()).thenReturn(1L);
+        when(location.format()).thenReturn(Arrays.asList(Arrays.asList("NY", "100500")));
+        when(device.getLocation()).thenReturn(Optional.of(location));
         when(device.getmRID()).thenReturn("1234-5678-9012");
         when(device.getName()).thenReturn("some device");
         DeviceType deviceType = mock(DeviceType.class);
@@ -300,7 +348,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(window.getEnd()).thenReturn(PartialTime.fromHours(17));
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getName()).thenReturn("Weekly billing");
-        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS),new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
+        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS), new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
         when(comTaskExecution1.getComSchedule()).thenReturn(Optional.of(comSchedule));
         when(comTaskExecution1.usesSharedSchedule()).thenReturn(true);
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
@@ -394,7 +442,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getName()).thenReturn("Weekly billing");
-        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS),new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
+        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS), new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
         when(comTaskExecution1.getComSchedule()).thenReturn(Optional.of(comSchedule));
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(Instant.now());
@@ -457,7 +505,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     }
 
     @Test
-    public void testRunComTaskkExecutionBadVersion(){
+    public void testRunComTaskkExecutionBadVersion() {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(1L);
         when(comTaskExecution.getVersion()).thenReturn(11L);
@@ -474,7 +522,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     }
 
     @Test
-    public void testRunNowComTaskkExecutionBadVersion(){
+    public void testRunNowComTaskkExecutionBadVersion() {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(1L);
         when(comTaskExecution.getVersion()).thenReturn(11L);
