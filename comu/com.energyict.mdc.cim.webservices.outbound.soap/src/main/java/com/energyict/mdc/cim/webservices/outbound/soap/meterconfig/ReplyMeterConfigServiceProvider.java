@@ -164,6 +164,10 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 method = "replyMeterConfig";
                 message = createInfoResponseMessage(getMeterConfig(successfulDevices), HeaderType.Verb.REPLY, correlationId);
                 break;
+            case DELETE:
+                method = "deletedMeterConfig";
+                message = createStatusResponseMessage(null, failedDevices, expectedNumberOfCalls, HeaderType.Verb.DELETED, correlationId);
+                break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
@@ -246,7 +250,9 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
         // set payload
         MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        payloadType.setMeterConfig(meterConfig);
+        if (meterConfig != null) {
+            payloadType.setMeterConfig(meterConfig);
+        }
         meterConfigEventMessageType.setPayload(payloadType);
 
         // set errors
