@@ -73,6 +73,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -164,6 +165,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile MasterDataService masterDataService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile MeteringTranslationService meteringTranslationService;
+    private volatile TopologyService topologyService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -190,7 +192,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          DeviceMessageSpecificationService deviceMessageSpecificationService,
                                          MasterDataService masterDataService,
                                          CommunicationTaskService communicationTaskService,
-                                         MeteringTranslationService meteringTranslationService) {
+                                         MeteringTranslationService meteringTranslationService,
+                                         TopologyService topologyService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -225,6 +228,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setMasterDataService(masterDataService);
         setCommunicationTaskService(communicationTaskService);
         setMeteringTranslationService(meteringTranslationService);
+        setTopologyService(topologyService);
     }
 
     private Module getModule() {
@@ -268,6 +272,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(TopologyService.class).toInstance(topologyService);
             }
         };
     }
@@ -541,6 +546,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
         this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     @Reference

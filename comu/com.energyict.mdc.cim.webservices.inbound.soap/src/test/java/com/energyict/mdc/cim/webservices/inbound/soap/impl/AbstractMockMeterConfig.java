@@ -157,6 +157,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(device.getModelNumber()).thenReturn(MODEL_NUMBER);
         when(device.getModelVersion()).thenReturn(MODEL_VERSION);
         when(device.getBatch()).thenReturn(Optional.of(batch));
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         when(batch.getName()).thenReturn(BATCH);
         when(device.getMultiplier()).thenReturn(BigDecimal.valueOf(MULTIPLIER));
         when(device.getState()).thenReturn(state);
