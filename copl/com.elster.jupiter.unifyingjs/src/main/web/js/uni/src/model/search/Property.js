@@ -68,6 +68,18 @@ Ext.define('Uni.model.search.Property', {
             }
         }
     },
+    proxy: {
+        type: 'ajax',
+        actionMethods: {
+             create: 'POST',
+             read: 'POST',
+             update: 'PUT',
+             destroy: 'DELETE'
+        },
+		headers : {
+			'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+		}
+    },
 
     refresh: function(callback) {
         var me = this,

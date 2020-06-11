@@ -177,7 +177,10 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     }
 
     private void signalTopologyChangedEvent(ComServerDAO comServerDAO) {
-        if (this.topologyChanged && isVerifyTopologyAction()) {
+        /*
+        CXO-12225 - as per request from product management and project team
+         */
+        if (this.topologyChanged && (isVerifyTopologyAction() || isUpdateTopologyAction())) {
             DeviceIdentifier deviceFinder = deviceTopology.getDeviceIdentifier();
             comServerDAO.signalEvent(EventType.DEVICE_TOPOLOGY_CHANGED.topic(), new DeviceTopologyChangedEvent(deviceFinder, deviceTopology.getSlaveDeviceIdentifiers().keySet()));
         }
@@ -205,6 +208,10 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
 
     private boolean isVerifyTopologyAction() {
         return this.deviceTopology.getTopologyAction().equals(TopologyAction.VERIFY);
+    }
+
+    private boolean isUpdateTopologyAction() {
+        return this.deviceTopology.getTopologyAction().equals(TopologyAction.UPDATE);
     }
 
     private String getSerialNumbersAsString(List<String> allSerials) {
