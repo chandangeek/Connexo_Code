@@ -1115,7 +1115,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, Instant stopDate, final ComSession.SuccessIndicator successIndicator) {
         builder.injectServices(serviceProvider.ormService().getDataModel(DeviceDataServices.COMPONENT_NAME).get(), serviceProvider.connectionTaskService(), serviceProvider.thesaurus());
-        //set correctly injected connection task
+        //update connection task to one with correctly injected services
         serviceProvider.connectionTaskService().findConnectionTask(builder.getConnectionTask().getId()).ifPresent(builder::setConnectionTask);
         return builder.endSession(stopDate, successIndicator).create();
     }
