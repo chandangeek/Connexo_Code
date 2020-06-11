@@ -79,7 +79,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 width: 120,
                 privileges: Tou.privileges.TouCampaign.administrate,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
-                    if (me.manuallyCancelled || !me.campaignIsOngoing) {
+                    if (!me.campaignIsOngoing || me.manuallyCancelled) {
                         return true;
                     }
                     switch (record.get('status')) { // current device status
@@ -87,7 +87,7 @@ Ext.define('Tou.view.DevicesGrid', {
                     case 'Cancelled':
                     case 'Failed':
                     case 'Configuration error':
-                        return false; // because the device can be retried
+                        return false; // because the device can be retried or cancelled
                     default:
                         return true;
                     }

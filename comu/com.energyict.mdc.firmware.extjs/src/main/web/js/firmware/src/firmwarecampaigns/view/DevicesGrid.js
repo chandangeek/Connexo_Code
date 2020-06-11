@@ -83,7 +83,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    if (me.manuallyCancelled || !me.campaignIsOngoing) {
+                    if (!me.campaignIsOngoing || me.manuallyCancelled) {
                         return true;
                     }
                     switch (record.get('status').id) { // current device status
@@ -91,7 +91,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                         case 'CANCELLED':
                         case 'FAILED':
                         case 'REJECTED':
-                            return false; // because the device can be retried
+                            return false; // because the device can be retried or cancelled
                         default:
                             return true;
                     }
