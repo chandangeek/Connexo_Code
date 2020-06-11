@@ -166,7 +166,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 break;
             case DELETE:
                 method = "deletedMeterConfig";
-                message = createStatusResponseMessage(null, failedDevices, expectedNumberOfCalls, HeaderType.Verb.DELETED, correlationId);
+                message = createStatusResponseMessage(getEmptyMeterConfig(), failedDevices, expectedNumberOfCalls, HeaderType.Verb.DELETED, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
@@ -212,6 +212,10 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         getMeterConfigExtendedDataFactories()
                 .forEach(meterConfigExtendedDataFactory -> meterConfigExtendedDataFactory.extendData(devices, meterConfig));
         return meterConfig;
+    }
+
+    private MeterConfig getEmptyMeterConfig() {
+        return new MeterConfig();
     }
 
     private MeterConfig getMeterConfig(List<Device> devices) {

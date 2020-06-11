@@ -262,11 +262,13 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         responseMessage.setReply(replyTypeFactory.okReplyType());
 
         // set payload
+        MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
         if(device != null) {
-            MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
             meterConfigPayload.setMeterConfig(Verb.REPLY.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
-            responseMessage.setPayload(meterConfigPayload);
+        } else {
+            meterConfigPayload.setMeterConfig(new MeterConfig());
         }
+        responseMessage.setPayload(meterConfigPayload);
 
         return responseMessage;
     }

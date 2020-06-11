@@ -312,7 +312,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     private DeviceDeleter getDeviceDeleter() {
         if (deviceDeleter == null) {
-            deviceDeleter = new DeviceDeleter(topologyService, getMessageFactory(), clock);
+            deviceDeleter = new DeviceDeleter(topologyService, getMessageFactory());
         }
         return deviceDeleter;
     }

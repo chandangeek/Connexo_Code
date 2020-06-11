@@ -133,7 +133,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.METROLOGY_CONFIG_NOT_ALLOW_GAPS.translate(thesaurus, DEVICE_NAME, USAGE_POINT_NAME));
+                    .isEqualTo(MessageSeeds.METROLOGY_CONFIG_NOT_ALLOW_GAPS.translate(thesaurus, DEVICE_NAME, SERIAL_NUMBER, USAGE_POINT_NAME));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -142,7 +142,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode())
                     .isEqualTo(MessageSeeds.METROLOGY_CONFIG_NOT_ALLOW_GAPS.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.METROLOGY_CONFIG_NOT_ALLOW_GAPS
-                    .translate(thesaurus, DEVICE_NAME, USAGE_POINT_NAME));
+                    .translate(thesaurus, DEVICE_NAME, SERIAL_NUMBER, USAGE_POINT_NAME));
             SetMultimap<String, String> values = HashMultimap.create();
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
