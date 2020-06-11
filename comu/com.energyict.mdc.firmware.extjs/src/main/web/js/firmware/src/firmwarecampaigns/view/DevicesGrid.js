@@ -83,7 +83,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    if (me.manuallyCancelled) {
+                    if (me.manuallyCancelled || !me.campaignIsOngoing) {
                         return true;
                     }
                     switch (record.get('status').id) { // current device status

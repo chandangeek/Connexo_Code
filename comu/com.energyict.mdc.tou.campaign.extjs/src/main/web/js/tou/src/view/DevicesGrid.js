@@ -79,7 +79,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 width: 120,
                 privileges: Tou.privileges.TouCampaign.administrate,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
-                    if (me.manuallyCancelled) {
+                    if (me.manuallyCancelled || !me.campaignIsOngoing) {
                         return true;
                     }
                     switch (record.get('status')) { // current device status
