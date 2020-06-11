@@ -9,14 +9,14 @@ import com.elster.jupiter.util.LongCounter;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
-
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
+
 import com.google.common.collect.Range;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -215,16 +215,85 @@ public class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessi
         return this.comTaskExecution.getId() == comTaskExecution.getId();
     }
 
-    private interface JournalEntryBuilder {
-        ComTaskExecutionJournalEntry build(ComTaskExecutionSession session);
+    public List<JournalEntryBuilder> getJournalEntryBuilders() {
+        return journalEntryBuilders;
     }
 
-    private class ComCommandJournalEntryBuilder implements JournalEntryBuilder {
+    public void setJournalEntryBuilders(List<JournalEntryBuilder> journalEntryBuilders) {
+        this.journalEntryBuilders = journalEntryBuilders;
+    }
 
-        private final Instant timestamp;
-        private final CompletionCode completionCode;
-        private final String errorDescription;
-        private final String commandDescription;
+    public static class JournalEntryBuilder {
+
+        public JournalEntryBuilder() {
+        }
+
+        protected Instant timestamp;
+        protected CompletionCode completionCode;
+        protected String errorDescription;
+        protected String commandDescription;
+
+        protected ComServer.LogLevel logLevel;
+        protected String message;
+
+        public Instant getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(Instant timestamp) {
+            this.timestamp = timestamp;
+        }
+
+        public CompletionCode getCompletionCode() {
+            return completionCode;
+        }
+
+        public void setCompletionCode(CompletionCode completionCode) {
+            this.completionCode = completionCode;
+        }
+
+        public String getErrorDescription() {
+            return errorDescription;
+        }
+
+        public void setErrorDescription(String errorDescription) {
+            this.errorDescription = errorDescription;
+        }
+
+        public String getCommandDescription() {
+            return commandDescription;
+        }
+
+        public void setCommandDescription(String commandDescription) {
+            this.commandDescription = commandDescription;
+        }
+
+        public ComServer.LogLevel getLogLevel() {
+            return logLevel;
+        }
+
+        public void setLogLevel(ComServer.LogLevel logLevel) {
+            this.logLevel = logLevel;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        ComTaskExecutionJournalEntry build(ComTaskExecutionSession session) {
+            if (completionCode != null) {
+                return session.createComCommandJournalEntry(timestamp, completionCode, errorDescription, commandDescription);
+            } else {
+                return session.createComTaskExecutionMessageJournalEntry(this.timestamp, this.logLevel, this.message, this.errorDescription);
+            }
+        }
+    }
+
+    private class ComCommandJournalEntryBuilder extends JournalEntryBuilder {
 
         private ComCommandJournalEntryBuilder(Instant timestamp, CompletionCode completionCode, String commandDescription) {
             this.timestamp = timestamp;
@@ -246,12 +315,7 @@ public class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessi
         }
     }
 
-    private class ComTaskExecutionMessageJournalEntryBuilder implements JournalEntryBuilder {
-
-        private final Instant timestamp;
-        private final ComServer.LogLevel logLevel;
-        private final String message;
-        private final String errorDescription;
+    private class ComTaskExecutionMessageJournalEntryBuilder extends JournalEntryBuilder {
 
         private ComTaskExecutionMessageJournalEntryBuilder(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
             this.timestamp = timestamp;
