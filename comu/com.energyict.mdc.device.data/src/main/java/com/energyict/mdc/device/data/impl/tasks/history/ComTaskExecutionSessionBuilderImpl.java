@@ -9,18 +9,32 @@ import com.elster.jupiter.util.LongCounter;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
-
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.util.StdConverter;
 import com.google.common.collect.Range;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +51,19 @@ public class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessi
     private ComTaskExecutionSession.SuccessIndicator successIndicator;
     @XmlTransient
     private ComSessionBuilder parentBuilder;
+    @JsonDeserialize(converter = StringToLocalDatetimeConverter.class)
     private List<JournalEntryBuilder> journalEntryBuilders = new ArrayList<>();
 
     public ComTaskExecutionSessionBuilderImpl() {
         super();
+    }
+
+    public class StringToLocalDatetimeConverter extends StdConverter<String, JournalEntryBuilder> {
+
+        @Override
+        public JournalEntryBuilder convert(String s) {
+            return null;
+        }
     }
 
     ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, ComTask comTask, Instant startDate) {
@@ -215,16 +238,70 @@ public class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessi
         return this.comTaskExecution.getId() == comTaskExecution.getId();
     }
 
-    private interface JournalEntryBuilder {
-        ComTaskExecutionJournalEntry build(ComTaskExecutionSession session);
+    //    @JsonSerialize(using = JournalEntryBuilderSerializer.class)
+    public List<JournalEntryBuilder> getJournalEntryBuilders() {
+        return journalEntryBuilders;
     }
 
-    private class ComCommandJournalEntryBuilder implements JournalEntryBuilder {
+    @JsonDeserialize(using = JournalEntryBuilderDeserializer.class)
+    public void setJournalEntryBuilders(List<JournalEntryBuilder> journalEntryBuilders) {
+        this.journalEntryBuilders = journalEntryBuilders;
+    }
 
-        private final Instant timestamp;
-        private final CompletionCode completionCode;
-        private final String errorDescription;
-        private final String commandDescription;
+    @XmlRootElement
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "JournalEntryBuilder")
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = ComCommandJournalEntryBuilder.class, name = "ComCmd"),
+            @JsonSubTypes.Type(value = ComTaskExecutionMessageJournalEntryBuilder.class, name = "ComTsk")})
+    public abstract class JournalEntryBuilder {
+        public JournalEntryBuilder() {
+        }
+
+        abstract ComTaskExecutionJournalEntry build(ComTaskExecutionSession session);
+    }
+
+    public class JournalEntryAdapter extends XmlAdapter<String, JournalEntryBuilder> {
+
+        public JournalEntryAdapter() {
+        }
+
+        @Override
+        public JournalEntryBuilder unmarshal(String v) throws Exception {
+            return null;
+        }
+
+        @Override
+        public String marshal(JournalEntryBuilder v) throws Exception {
+            return null;
+        }
+    }
+
+    public class JournalEntryBuilderDeserializer extends JsonDeserializer<JournalEntryBuilder> {
+
+        @Override
+        public JournalEntryBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+            return null;
+        }
+    }
+
+    public class JournalEntryBuilderSerializer extends JsonSerializer<JournalEntryBuilder> {
+
+        @Override
+        public void serialize(JournalEntryBuilder journalEntryBuilder, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            journalEntryBuilder.toString();
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "JournalEntryBuilder")
+    public class ComCommandJournalEntryBuilder extends JournalEntryBuilder {
+
+        public ComCommandJournalEntryBuilder() {
+        }
+
+        private Instant timestamp;
+        private CompletionCode completionCode;
+        private String errorDescription;
+        private String commandDescription;
 
         private ComCommandJournalEntryBuilder(Instant timestamp, CompletionCode completionCode, String commandDescription) {
             this.timestamp = timestamp;
@@ -240,23 +317,90 @@ public class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessi
             this.commandDescription = commandDescription;
         }
 
+        public Instant getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(Instant timestamp) {
+            this.timestamp = timestamp;
+        }
+
+        public CompletionCode getCompletionCode() {
+            return completionCode;
+        }
+
+        public void setCompletionCode(CompletionCode completionCode) {
+            this.completionCode = completionCode;
+        }
+
+        public String getErrorDescription() {
+            return errorDescription;
+        }
+
+        public void setErrorDescription(String errorDescription) {
+            this.errorDescription = errorDescription;
+        }
+
+        public String getCommandDescription() {
+            return commandDescription;
+        }
+
+        public void setCommandDescription(String commandDescription) {
+            this.commandDescription = commandDescription;
+        }
+
         @Override
         public ComTaskExecutionJournalEntry build(ComTaskExecutionSession session) {
             return session.createComCommandJournalEntry(timestamp, completionCode, errorDescription, commandDescription);
         }
     }
 
-    private class ComTaskExecutionMessageJournalEntryBuilder implements JournalEntryBuilder {
+    public class ComTaskExecutionMessageJournalEntryBuilder extends JournalEntryBuilder {
 
-        private final Instant timestamp;
-        private final ComServer.LogLevel logLevel;
-        private final String message;
-        private final String errorDescription;
+        public ComTaskExecutionMessageJournalEntryBuilder() {
+        }
+
+        private Instant timestamp;
+        private ComServer.LogLevel logLevel;
+        private String message;
+        private String errorDescription;
 
         private ComTaskExecutionMessageJournalEntryBuilder(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
             this.timestamp = timestamp;
             this.logLevel = logLevel;
             this.message = message;
+            this.errorDescription = errorDescription;
+        }
+
+        public Instant getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(Instant timestamp) {
+            this.timestamp = timestamp;
+        }
+
+        public ComServer.LogLevel getLogLevel() {
+            return logLevel;
+        }
+
+        public void setLogLevel(ComServer.LogLevel logLevel) {
+            this.logLevel = logLevel;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getErrorDescription() {
+            return errorDescription;
+        }
+
+        public void setErrorDescription(String errorDescription) {
             this.errorDescription = errorDescription;
         }
 
