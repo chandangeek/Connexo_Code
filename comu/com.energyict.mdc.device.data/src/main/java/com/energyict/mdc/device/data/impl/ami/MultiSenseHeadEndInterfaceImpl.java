@@ -192,10 +192,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         } else {
             if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
                 Optional<Device> device = findOptionalDeviceForEndDevice(endDevice);
-                if (!device.isPresent()) {
-                    return Optional.empty();
-                }
-                if (multiSenseUrl.isPresent()) {
+                if (multiSenseUrl.isPresent() && device.isPresent()) {
                     String urlText = multiSenseUrl.get().trim();
                     if (!urlText.endsWith("#")) {
                         urlText = urlText + "#";
