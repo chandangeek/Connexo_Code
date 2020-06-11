@@ -12,7 +12,6 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import javax.inject.Inject;
 import java.net.URL;
 import java.time.Clock;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class HistoricalMeterActivationInfoFactory {
