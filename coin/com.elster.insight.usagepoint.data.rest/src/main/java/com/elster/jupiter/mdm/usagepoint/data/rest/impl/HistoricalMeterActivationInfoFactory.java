@@ -34,13 +34,7 @@ public class HistoricalMeterActivationInfoFactory {
         meterActivation.getMeter().ifPresent(meter -> {
             info.meter = meter.getName();
             info.url = meter.getHeadEndInterface()
-                    .flatMap(he -> {
-                        try {
-                            return he.getURLForEndDevice(meter);
-                        } catch (Exception e) {
-                            return Optional.empty();
-                        }
-                    })
+                    .flatMap(he -> he.getURLForEndDevice(meter))
                     .map(URL::toString)
                     .orElse(null);
             String correlationId = usagePoint.getMRID() + ":processOnLinkedMeter:" + meter.getMRID();

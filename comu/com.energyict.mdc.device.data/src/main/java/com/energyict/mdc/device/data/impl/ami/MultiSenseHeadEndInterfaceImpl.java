@@ -191,7 +191,10 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             return Optional.empty();
         } else {
             if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
-                Device device = findDeviceForEndDevice(endDevice);
+                Device device = findDeviceForEndDeviceOrNull(endDevice);
+                if (device == null) {
+                    return Optional.empty();
+                }
                 if (multiSenseUrl.isPresent()) {
                     String urlText = multiSenseUrl.get().trim();
                     if (!urlText.endsWith("#")) {
@@ -510,6 +513,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
+    }
+
+    private Device findDeviceForEndDeviceOrNull(EndDevice endDevice) {
+        long deviceId = Long.parseLong(endDevice.getAmrId());
+        return deviceService.findDeviceById(deviceId).orElse(null);
     }
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {
