@@ -324,50 +324,54 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     public MeterConfigResponseMessageType deleteMeterConfig(
             MeterConfigRequestMessageType deleteMeterConfigRequestMessageType) throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
-            MeterConfig meterConfig = deleteMeterConfigRequestMessageType.getPayload().getMeterConfig();
-            SetMultimap<String, String> values = HashMultimap.create();
+            try {
+                MeterConfig meterConfig = deleteMeterConfigRequestMessageType.getPayload().getMeterConfig();
+                SetMultimap<String, String> values = HashMultimap.create();
 
-            meterConfig.getMeter().stream().forEach(meter -> {
-                if (!meter.getNames().isEmpty()){
-                    values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                }
-                if (meter.getMRID() != null){
-                    values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                }
-            });
-            saveRelatedAttributes(values);
-
-            //get mrid or name of device
-            if (Boolean.TRUE.equals(deleteMeterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
-                // call asynchronously
-                List<FaultMessage> faultMessages = new ArrayList<>();
-                meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo ->  {
-                    try {
-                        deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-                    } catch (FaultMessage e) {
-                        faultMessages.add(e);
+                meterConfig.getMeter().stream().forEach(meter -> {
+                    if (!meter.getNames().isEmpty()) {
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    }
+                    if (meter.getMRID() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     }
                 });
-                if (meterConfig.getMeter().size() == faultMessages.size()) {
-                    throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.FAILED);
-                } else {
-                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(deleteMeterConfigRequestMessageType.getHeader().getReplyAddress());
-                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.DELETE, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
-                    if (faultMessages.isEmpty()) {
-                        return createQuickResponseMessage(Verb.REPLY, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
-                    } else  {
-                        return createResponseMessageCustomPayload(Verb.REPLY, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID(),
-                                faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.PARTIAL).getFaultInfo().getReply());
+                saveRelatedAttributes(values);
+
+                //get mrid or name of device
+                if (Boolean.TRUE.equals(deleteMeterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
+                    // call asynchronously
+                    List<FaultMessage> faultMessages = new ArrayList<>();
+                    meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo -> {
+                        try {
+                            deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                        } catch (FaultMessage e) {
+                            faultMessages.add(e);
+                        }
+                    });
+                    if (meterConfig.getMeter().size() == faultMessages.size()) {
+                        throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.FAILED);
+                    } else {
+                        EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(deleteMeterConfigRequestMessageType.getHeader().getReplyAddress());
+                        createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.DELETE, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
+                        if (faultMessages.isEmpty()) {
+                            return createQuickResponseMessage(Verb.REPLY, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
+                        } else {
+                            return createResponseMessageCustomPayload(Verb.REPLY, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID(),
+                                    faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.PARTIAL).getFaultInfo().getReply());
+                        }
                     }
+                } else {
+                    // call synchronously
+                    Meter meter = meterConfig.getMeter().stream().findFirst()
+                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
+                    MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
+                    Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                    deviceDeleter.delete(device);
+                    return createResponseMessage(null, Verb.DELETED, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
-            } else {
-                // call synchronously
-                Meter meter = meterConfig.getMeter().stream().findFirst()
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
-                MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
-                Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-                deviceDeleter.delete(device);
-                return createResponseMessage(null, Verb.DELETED, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
+            } catch (LocalizedException e) {
+                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE, e.getLocalizedMessage());
             }
         });
     }
