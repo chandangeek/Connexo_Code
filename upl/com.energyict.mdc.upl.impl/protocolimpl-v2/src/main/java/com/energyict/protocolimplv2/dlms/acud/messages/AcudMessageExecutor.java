@@ -32,7 +32,10 @@ import java.util.List;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
 
-    public final static ObisCode CREDIT_DAYS_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
+    public static final ObisCode CREDIT_DAYS_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
+    public static final ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
+    public static final ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
+    public static final ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
 
     private static final ObisCode CHARGE_TOU_IMPORT = ObisCode.fromString("0.0.19.20.0.255");
     private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
@@ -80,6 +83,12 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
             upgradeFirmware(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_MONEY_CREDIT_THRESHOLD)) {
+            updateMoneyCreditThreshold(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CONSUMPTION_CREDIT_THRESHOLD)) {
+            updateConsumptionCreditThreshold(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD)) {
+            updateTimeCreditThreshold(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_AMOUNT)) {
             updateCreditAmount(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_DAYS_LIMIT)) {
@@ -130,6 +139,33 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             default:
                 return CHARGE_CONSUMPTION_TAX;
         }
+    }
+
+    protected void updateMoneyCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
+        Integer remainingCreditHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditHigh));
+        Integer remainingCreditLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditLow));
+        Structure thresholdStructure = new Structure();
+        thresholdStructure.addDataType(new Integer32(remainingCreditHigh));
+        thresholdStructure.addDataType(new Integer32(remainingCreditLow));
+        getCosemObjectFactory().writeObject(MONEY_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
+    }
+
+    protected void updateConsumptionCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
+        Integer consumedCreditHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumedCreditHigh));
+        Integer consumedCreditLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumedCreditLow));
+        Structure thresholdStructure = new Structure();
+        thresholdStructure.addDataType(new Unsigned16(consumedCreditHigh));
+        thresholdStructure.addDataType(new Unsigned16(consumedCreditLow));
+        getCosemObjectFactory().writeObject(CONSUMPTION_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
+    }
+
+    protected void updateTimeCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
+        Integer remainingTimeHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeHigh));
+        Integer remainingTimeLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeLow));
+        Structure thresholdStructure = new Structure();
+        thresholdStructure.addDataType(new Unsigned8(remainingTimeHigh));
+        thresholdStructure.addDataType(new Unsigned8(remainingTimeLow));
+        getCosemObjectFactory().writeObject(TIME_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
     }
 
     private void updateCreditAmount(OfflineDeviceMessage pendingMessage) throws IOException {

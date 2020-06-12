@@ -4,6 +4,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -31,6 +32,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
     public final static ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
     public final static ObisCode CREDIT_DAY_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
+    public final static ObisCode ACTIVE_FIRMWARE = ObisCode.fromString("0.0.0.2.0.255");
 
 
     private final Acud protocol;
@@ -69,6 +71,8 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                 AbstractDataType attribute = register.getValueAttr();
                 if (attribute.isStructure()) {
                     registerValue = readStructure(obisCode, (Structure) attribute);
+                } else if (attribute.isArray()) {
+                    registerValue = readArray(obisCode, (Array) attribute);
                 } else if (attribute.isVisibleString()) {
                     registerValue = new RegisterValue(obisCode, attribute.getVisibleString().getStr());
                 } else if (attribute.isOctetString() && attribute.getOctetString() != null) {
@@ -137,9 +141,18 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
             lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
             description = formatDescr(highThreshold, lowThreshold, "Days Limit1", "Days Limit2");
+        } else if (obisCode.equals(ACTIVE_FIRMWARE)) {
+            String model = structure.getDataType(0).getVisibleString().getStr();
+            String version = structure.getDataType(1).getVisibleString().getStr();
+            String crc = structure.getDataType(2).getVisibleString().getStr();
+            description = "Model=" +model + ", Firmware Version=" + version + ", Firmware CRC=" + crc;
         } else
             throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
         return new RegisterValue(obisCode, description);
+    }
+
+    protected RegisterValue readArray(ObisCode obisCode, Array array) throws IOException {
+        throw new ProtocolException("Cannot decode the array data for the obis code: " + obisCode);
     }
 
     protected String formatDescr(String highThreshold, String lowThreshold, String highDefaultTranslation, String lowDefaultTranslation) {

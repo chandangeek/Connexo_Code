@@ -10,17 +10,12 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 
 import java.io.IOException;
 
 public class AcudElectricMessageExecutor extends AcudMessageExecutor {
-
-    private static final ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
-    private static final ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
-    private static final ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
 
     private static final ObisCode CURRENT_OVER_LIMIT_THRESHOLD = ObisCode.fromString("1.0.11.35.0.255");
     private static final ObisCode CURRENT_OVER_LIMIT_TIME_THRESHOLD = ObisCode.fromString("1.0.11.44.0.255");
@@ -38,13 +33,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     }
 
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_MONEY_CREDIT_THRESHOLD)) {
-            updateMoneyCreditThreshold(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CONSUMPTION_CREDIT_THRESHOLD)) {
-            updateConsumptionCreditThreshold(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD)) {
-            updateTimeCreditThreshold(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_LOAD_LIMITS)) {
+        if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_LOAD_LIMITS)) {
             updateLoadLimits(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.SET_CURRENT_OVER_LIMIT_THRESHOLD)) {
             setCurrentOverLimitThreshold(pendingMessage);
@@ -63,7 +52,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
         return collectedMessage;
     }
 
-    private void updateMoneyCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void updateMoneyCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
         String currency = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditHigh);
         Integer remainingCreditHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditHigh));
         Integer remainingCreditLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditLow));
@@ -74,7 +63,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
         getCosemObjectFactory().writeObject(MONEY_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
     }
 
-    private void updateConsumptionCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void updateConsumptionCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
         Integer consumedCreditHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumedCreditHigh));
         Integer consumedCreditLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumedCreditLow));
         Structure thresholdStructure = new Structure();
@@ -83,7 +72,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
         getCosemObjectFactory().writeObject(CONSUMPTION_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
     }
 
-    private void updateTimeCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void updateTimeCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
         Integer remainingTimeHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeHigh));
         Integer remainingTimeLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingTimeLow));
         Structure thresholdStructure = new Structure();

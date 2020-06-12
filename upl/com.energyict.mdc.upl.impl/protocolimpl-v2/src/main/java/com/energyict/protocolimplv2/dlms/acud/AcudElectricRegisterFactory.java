@@ -39,9 +39,15 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
             highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
             lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
             description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingTimeHighDefaultTranslation, DeviceMessageConstants.remainingTimeLowDefaultTranslation);
-        } else if (obisCode.equals(LOAD_LIMIT)) {
-            description = readLoadLimits(structure.getDataType(0).getArray());
         } else return super.readStructure(obisCode, structure);
+        return new RegisterValue(obisCode, description);
+    }
+
+    protected RegisterValue readArray(ObisCode obisCode, Array array) throws IOException {
+        String description;
+        if (obisCode.equals(LOAD_LIMIT)) {
+            description = readLoadLimits(array);
+        } else return super.readArray(obisCode, array);
         return new RegisterValue(obisCode, description);
     }
 
