@@ -26,6 +26,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
@@ -92,13 +93,13 @@ import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.commands.store.PreStoreLoadProfile;
 import com.energyict.mdc.engine.impl.commands.store.PreStoreLogBook;
+import com.energyict.mdc.engine.impl.core.AdaptiveQueryTuner;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.engine.impl.core.FixedQueryTuner;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
-import com.energyict.mdc.engine.impl.core.AdaptiveQueryTuner;
 import com.energyict.mdc.engine.impl.core.QueryTuner;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
@@ -296,26 +297,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private Optional<ConnectionTask> refreshConnectionTask(ConnectionTask connectionTask) {
         Optional<ConnectionTask> reloaded = getConnectionTaskService().findConnectionTask(connectionTask.getId());
-        if (reloaded.isPresent()) {
-            if (reloaded.get().getVersion() == connectionTask.getVersion()) {
-                reloaded = Optional.of(connectionTask);
-            }
-            if (reloaded.get().isObsolete()) {
-                reloaded = Optional.empty();
-            }
-        }
-        return reloaded;
+        return reloaded.filter(Predicates.not(ConnectionTask::isObsolete));
     }
 
     private Optional<ConnectionTask> lockConnectionTask(ConnectionTask connectionTask) {
         ConnectionTask reloaded = getConnectionTaskService().attemptLockConnectionTask(connectionTask.getId());
-        if (reloaded != null) {
-            if (reloaded.getVersion() == connectionTask.getVersion()) {
-                return Optional.of(connectionTask);
-            }
-            return Optional.of(reloaded);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(reloaded);
     }
 
     private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {
@@ -421,9 +408,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComTaskEnablement findComTaskEnablementByDeviceAndComTask(DeviceIdentifier deviceIdentifier, long comTaskId) {
         Device device = this.findDevice(deviceIdentifier);
-            for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
+        for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
             if (comTaskEnablement.getComTask().getId() == comTaskId) {
-                    return comTaskEnablement;
+                return comTaskEnablement;
             }
         }
         return null;
@@ -434,7 +421,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         Device device = this.findDevice(deviceIdentifier);
         List<SecurityPropertySet> allSecurityPropertySet = new ArrayList<SecurityPropertySet>();
         for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
-            allSecurityPropertySet.add( comTaskEnablement.getSecurityPropertySet());
+            allSecurityPropertySet.add(comTaskEnablement.getSecurityPropertySet());
         }
         return allSecurityPropertySet;
     }
@@ -453,9 +440,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                     Optional<ProtocolDialectProperties> protocolDialectProperties = masterDevice.getProtocolDialectProperties(dialectName);
                     if (protocolDialectProperties.isPresent()) {
                         return protocolDialectProperties.get().getTypedProperties();
+                    }
                 }
             }
-        }
         }
         return null;
     }
@@ -638,7 +625,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (propertyValue instanceof CollectedCertificateWrapper) {
             // If the property value is a CollectedCertificateWrapper then add the certificate in the trust store.
             this.addTrustedCertificates(Collections.singletonList((CollectedCertificateWrapper) propertyValue));
-            throw new UnsupportedOperationException("Not supported to automatically update the security accessor value models a certificate, but the certificate was saved in following trust store " + ((CollectedCertificateWrapper) propertyValue).getTrustStoreName());
+            throw new UnsupportedOperationException("Not supported to automatically update the security accessor value models a certificate, but the certificate was saved in following trust store " + ((CollectedCertificateWrapper) propertyValue)
+                    .getTrustStoreName());
         }
     }
 
@@ -715,13 +703,14 @@ public class ComServerDAOImpl implements ComServerDAO {
                 .findFirst()
                 .map(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType())
                 .map(securityAccessorType -> device.getSecurityAccessor(securityAccessorType).orElseGet(() -> device.newSecurityAccessor(securityAccessorType)))
-                .ifPresent( securityAccessor -> {
+                .ifPresent(securityAccessor -> {
                     HsmKey hsmKey = (HsmKey) getServiceProvider().securityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
                     byte[] key = DatatypeConverter.parseHexBinary(newKey.split(":")[1]);
-                    String label =  new String(DatatypeConverter.parseHexBinary(newKey.split(":")[0]));
+                    String label = new String(DatatypeConverter.parseHexBinary(newKey.split(":")[0]));
                     hsmKey.setKey(key, label);
                     securityAccessor.setActualPassphraseWrapperReference(hsmKey);
-                    securityAccessor.save();});
+                    securityAccessor.save();
+                });
     }
 
     /**
@@ -742,7 +731,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     /**
      * This method should be used when we try to renew the actual security accessor value and we already have a passive key generated
-     *  @param deviceIdentifier
+     *
+     * @param deviceIdentifier
      * @param propertyName
      * @param comTaskExecution
      */
@@ -759,9 +749,11 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
                 Object actualValue = securityAccessor.getActualPassphraseWrapperReference().get();
                 if (actualValue instanceof PlaintextSymmetricKey) {
-                    if(((PlaintextSymmetricKey) actualValue).getKey().isPresent()) { //we need an actual key to be present in order to know what algorithm to choose for the the new key
+                    if (((PlaintextSymmetricKey) actualValue).getKey().isPresent()) { //we need an actual key to be present in order to know what algorithm to choose for the the new key
                         SymmetricKeyWrapper symmetricKeyWrapper = getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
-                        ((PlaintextSymmetricKey) symmetricKeyWrapper).setKey(new SecretKeySpec(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((PlaintextSymmetricKey) actualValue).getKey().get().getAlgorithm()));
+                        ((PlaintextSymmetricKey) symmetricKeyWrapper).setKey(new SecretKeySpec(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((PlaintextSymmetricKey) actualValue).getKey()
+                                .get()
+                                .getAlgorithm()));
                         updateSecurityAccessorActualKeyValue(securityAccessor, symmetricKeyWrapper);
 
                     }
@@ -792,7 +784,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private void swapTempAndActualKeys(SecurityAccessor securityAccessor) {
-        if(securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getTempValue().isPresent()) {
+        if (securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getTempValue().isPresent()) {
             securityAccessor.swapValues();
             securityAccessor.clearTempValue();
             securityAccessor.save();
@@ -807,7 +799,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Unable to find " + propertyName + " property"));
         SecurityAccessorType securityAccessorType = configurationSecurityProperty.getSecurityAccessorType();
-        return device.getSecurityAccessorByName(securityAccessorType.getName()).orElseThrow(() -> new NotFoundException("Unable to find security accessor with name: " + securityAccessorType.getName()));
+        return device.getSecurityAccessorByName(securityAccessorType.getName())
+                .orElseThrow(() -> new NotFoundException("Unable to find security accessor with name: " + securityAccessorType.getName()));
     }
 
     @Override
@@ -1122,6 +1115,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, Instant stopDate, final ComSession.SuccessIndicator successIndicator) {
         builder.injectServices(serviceProvider.ormService().getDataModel(DeviceDataServices.COMPONENT_NAME).get(), serviceProvider.connectionTaskService(), serviceProvider.thesaurus());
+        //update connection task to one with correctly injected services
+        serviceProvider.connectionTaskService().findConnectionTask(builder.getConnectionTask().getId()).ifPresent(builder::setConnectionTask);
         return builder.endSession(stopDate, successIndicator).create();
     }
 
@@ -1373,7 +1368,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public List<DeviceMasterDataExtractor.SecurityProperty> getPropertiesFromSecurityPropertySet(DeviceIdentifier deviceIdentifier, Long securityPropertySetId) {
         Device device = this.findDevice(deviceIdentifier);
-        Optional<SecurityPropertySet> securityPropertySet  = this.serviceProvider.deviceConfigurationService().findSecurityPropertySet(securityPropertySetId);
+        Optional<SecurityPropertySet> securityPropertySet = this.serviceProvider.deviceConfigurationService().findSecurityPropertySet(securityPropertySetId);
         if (securityPropertySet.isPresent()) {
             com.energyict.mdc.upl.properties.TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet.get());
             return securityProperties.propertyNames().stream()
@@ -1450,8 +1445,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     private ComTaskExecution getFirstComTaskExecution(InboundConnectionTask connectionTask, long id) {
         List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().findComTaskExecutionsByConnectionTask(connectionTask).find();
         if (!comTaskExecutions.isEmpty()) {
-            for(ComTaskExecution comTaskExecution: comTaskExecutions) {
-                if(comTaskExecution.getDevice().getId() == id) {
+            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                if (comTaskExecution.getDevice().getId() == id) {
                     return comTaskExecution;
                 }
             }
@@ -1700,11 +1695,13 @@ public class ComServerDAOImpl implements ComServerDAO {
                         topologyPathSegment.getCost()
                 );
             }
-            if(source.isPresent())
+            if (source.isPresent()) {
                 serviceProvider.topologyService().clearOldCommunicationPathSegments(source.get(), Instant.now());
+            }
 
-            if(target.isPresent())
+            if (target.isPresent()) {
                 serviceProvider.topologyService().clearOldCommunicationPathSegments(target.get(), Instant.now());
+            }
         });
         g3CommunicationPathSegmentBuilder.complete();
     }
@@ -1733,8 +1730,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                 g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
                 g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
                 java.util.Date last_path_request = topologyNeighbour.getLastPathRequest();
-                if( last_path_request != null )
+                if (last_path_request != null) {
                     g3NeighborBuilder.lastPathRequest(last_path_request.toInstant());
+                }
                 g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                 g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
             } else {
@@ -1778,8 +1776,9 @@ public class ComServerDAOImpl implements ComServerDAO {
                             g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
                             g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
                             java.util.Date last_path_request = topologyNeighbour.getLastPathRequest();
-                            if( last_path_request != null )
+                            if (last_path_request != null) {
                                 g3NeighborBuilder.lastPathRequest(last_path_request.toInstant());
+                            }
                             g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                             g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
                         }

@@ -29,12 +29,12 @@ public enum EffectiveTimeShift {
     PAST {
         @Override
         public TimeDuration maximumValue() {
-            return TimeDuration.days(30);
+            return TimeDuration.days(730);
         }
 
         @Override
         public TimeDuration defaultValue() {
-            return TimeDuration.days(30);
+            return TimeDuration.days(730);
         }
     };
 

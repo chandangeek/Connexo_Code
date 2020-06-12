@@ -73,7 +73,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                         data: [
                             {
                                 link: Uni.I18n.translate('communication.widget.quicklinks.viewAll', 'DSH', 'View all communications'),
-                                href: me.router.getRoute('workspace/communications/details').buildUrl(null, me.router.queryParams)
+                                href: me.router.getRoute('workspace/communications/details').buildUrl(null, Ext.apply({latestResults: ['ConfigurationError', 'ConfigurationWarning', 'ConnectionError', 'IOError', 'InitError', 'NotExecuted', 'Ok', 'ProtocolError', 'Rescheduled', 'TimeError', 'TimeoutError', 'UnexpectedError']}, me.router.queryParams))
                             },
                             {
                                 link: me.router.getRoute('workspace/connections').title,

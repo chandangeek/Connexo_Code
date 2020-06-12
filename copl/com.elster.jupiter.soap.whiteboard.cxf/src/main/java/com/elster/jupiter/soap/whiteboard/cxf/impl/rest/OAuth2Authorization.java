@@ -4,6 +4,8 @@ import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.TokenValidation;
 import com.elster.jupiter.rest.util.MimeTypesExt;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import org.osgi.service.http.HttpContext;
@@ -18,6 +20,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Performs client credentials flow authentication and jwt token authorization according
@@ -25,12 +28,15 @@ import java.util.Objects;
  */
 public class OAuth2Authorization implements HttpContext {
 
+    private final TokenService tokenService;
+    private final UserService userService;
+
     private InboundEndPointConfiguration endPointConfiguration;
-    private TokenService tokenService;
 
     @Inject
-    public OAuth2Authorization(TokenService tokenService) {
+    public OAuth2Authorization(TokenService tokenService, UserService userService) {
         this.tokenService = tokenService;
+        this.userService = userService;
     }
 
     public OAuth2Authorization init(InboundEndPointConfiguration endPointConfiguration) {
@@ -49,20 +55,29 @@ public class OAuth2Authorization implements HttpContext {
 
         if (authorizationHeader.startsWith("Basic ")) {
             final byte[] clientCredentials = Base64.getDecoder().decode(authorizationHeader.substring(6).getBytes());
-            return validateClientCredentials(clientCredentials);
-        } else if (authorizationHeader.startsWith("Bearer ")) {
+            return allow(validateClientCredentials(clientCredentials), request);
+        }
 
+        if (authorizationHeader.startsWith("Bearer ")) {
             TokenValidation tokenValidation = null;
             try {
                 tokenValidation = tokenService.validateServiceSignedJWT(SignedJWT.parse(authorizationHeader.substring(7)));
             } catch (JOSEException | ParseException e) {
                 e.printStackTrace();
             }
-
-            return Objects.requireNonNull(tokenValidation).isValid();
+            return allow(Objects.requireNonNull(tokenValidation).isValid(), request);
         }
 
-        return true;
+        return allow(true, request);
+    }
+
+    protected boolean allow(final boolean authenticationResult, final HttpServletRequest request ){
+        final Optional<User> provisioning = userService.findUser("provisioning");
+        provisioning.ifPresent(user -> {
+            request.setAttribute("com.elster.jupiter.userprincipal", user);
+            request.setAttribute(HttpContext.REMOTE_USER, user.getName());
+        });
+        return authenticationResult;
     }
 
     @Override

@@ -564,7 +564,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         device.getMessagesByState(DeviceMessageStatus.PENDING)
                 .stream()
                 .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
-                .forEach(x -> this.resume(device, x));
+                .forEach(deviceMessage -> {
+                    this.resume(device, deviceMessage);
+                    deviceMessage.updateDeviceMessageStatus(DeviceMessageStatus.CANCELED);
+                });
     }
 
     private void resume(Device device, DeviceMessage deviceMessage) {

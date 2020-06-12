@@ -49,6 +49,7 @@ public class FirmwareCampaignInfo {
 
     public EnumMap<FirmwareCheckManagementOption, CheckManagementOptionInfo> checkOptions;
     public boolean manuallyCancelled;
+    public boolean withUniqueFirmwareVersion;
 
     public Optional<PropertyInfo> getPropertyInfo(String key) {
         return this.properties.stream().filter(y -> y.key.equals(key)).findFirst();

@@ -344,7 +344,7 @@ Ext.define('Uni.service.Search', {
                 Ext.Ajax.request({
                     url: me.getSearchResultsStore().getProxy().url + '/count',
                     timeout: 120000,
-                    method: 'GET',
+                    method: 'POST',
                     params: {
                         filter: me.previouslyAppliedFiltersAsString
                     },

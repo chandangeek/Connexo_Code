@@ -36,6 +36,7 @@ import static org.mockito.Mockito.verify;
 public class SamlRequestServiceImplTest extends BaseAuthenticationTest {
 
     private static final String ACS_ENDPONT = "https://connexo/security/acs";
+    private static final String ISSUER_ID = "https://connexo/SAML2";
     private DateTime ISSUE_INSTANT = DateTime.now().withZone(DateTimeZone.UTC);
 
     private SamlRequestService samlRequestService;
@@ -88,7 +89,7 @@ public class SamlRequestServiceImplTest extends BaseAuthenticationTest {
     public void createSSOAuthenticationRequest() throws SAMLException {
         when(httpServletRequest.getRequestURL()).thenReturn(new StringBuffer("/request/url"));
 
-        Optional<String> samlRequest = samlRequestService.createSSOAuthenticationRequest(httpServletRequest, httpServletResponse, ACS_ENDPONT);
+        Optional<String> samlRequest = samlRequestService.createSSOAuthenticationRequest(httpServletRequest, httpServletResponse, ACS_ENDPONT, ISSUER_ID);
 
         assertTrue(samlRequest.isPresent());
     }

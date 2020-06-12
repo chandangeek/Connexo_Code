@@ -83,7 +83,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(endPointInitializer.initializeInboundEndPoint(implementor, endPointConfiguration));
             if (endPointConfiguration.isTracing()) {
-                tracingFeature = new TracingFeature(logDirectory, endPointConfiguration.getTraceFile());
+                tracingFeature = new TracingFeature(logDirectory, endPointConfiguration);
                 svrFactory.getFeatures().add(tracingFeature);
             }
             if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {

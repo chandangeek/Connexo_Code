@@ -99,9 +99,19 @@ public class LicenseResource {
     @RolesAllowed(Privileges.Constants.UPLOAD_LICENSE)
     public Response uploadLicense(@FormDataParam("uploadField") InputStream inputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
-        byte[] bytes = loadLicenseFile(inputStream);
-        SignedObject signedObject = readLicense(bytes);
-        ActionInfo info = addLicense(signedObject);
+
+        ActionInfo info = null;
+        if(inputStream != null && contentDispositionHeader != null) {
+            byte[] bytes = loadLicenseFile(inputStream);
+            if(bytes.length > 0) {
+                SignedObject signedObject = readLicense(bytes);
+                info = addLicense(signedObject);
+            }
+        }
+        if(null == info ) {
+            info = new ActionInfo();
+            info.setFailure("Error while reading input");
+        }
         return Response.ok().entity(jsonService.serialize(info)).build();
     }
 
@@ -149,4 +159,5 @@ public class LicenseResource {
             throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService.serialize(info)).build());
         }
     }
+
 }

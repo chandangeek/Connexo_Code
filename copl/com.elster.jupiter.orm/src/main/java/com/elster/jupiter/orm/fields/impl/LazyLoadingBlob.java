@@ -262,7 +262,11 @@ public final class LazyLoadingBlob implements Blob, IOResource {
                 if (this.databaseBlob != null) {
                     this.databaseBlob.truncate(0);
                 } else {
-                    this.databaseBlob = dataModel.getConnection(true).createBlob();
+                    //TODO cleanup refactor nested try blocks
+                    //lazy init
+                    try(Connection connection = dataModel.getConnection(true)) {
+                        this.databaseBlob = connection.createBlob();
+                    }//catch by parent
                 }
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);

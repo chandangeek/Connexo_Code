@@ -117,8 +117,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
                 } else
                     Transport.send(msg, msg.getAllRecipients());
             } catch (MessagingException e) {
-                rootException = e;
-                throw new RuntimeException(e);
+                throw new IncompleteEmailConfigurationException(getThesaurus(), e.getLocalizedMessage());
             } finally {
                 if (transport != null) {
                     try {

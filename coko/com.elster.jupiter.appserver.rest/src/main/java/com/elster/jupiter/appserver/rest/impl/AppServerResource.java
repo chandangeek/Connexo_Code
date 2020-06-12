@@ -28,6 +28,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.collections.Zipper;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -152,6 +153,9 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info, @Context UriInfo uriInfo) {
+        if (info == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
         validatePath(info.exportDirectory, "exportDirectory");
         validatePath(info.importDirectory, "importDirectory");
         AppServer appServer;
@@ -208,6 +212,9 @@ public class AppServerResource {
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info, @Context UriInfo uriInfo) {
+        if (info == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
         validatePath(info.exportDirectory, "exportDirectory");
         validatePath(info.importDirectory, "importDirectory");
         AppServer appServer;
@@ -516,6 +523,7 @@ public class AppServerResource {
     }
 
     private void validatePath(String path, String field) {
+        PathVerification.validatePathForFolders(path);
         Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=@\\s]");
         Matcher m = p.matcher(path);
         if (m.find()) {

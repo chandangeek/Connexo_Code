@@ -168,7 +168,7 @@ public class FirmwareCampaignServiceIT {
 
     @Test
     @Transactional
-    public void touBuilderTest() {
+    public void campaignBuilderTest() {
         FirmwareType firmwareType = FirmwareType.METER;
         DeviceType deviceType1 = deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass);
         String name = "camp-01";
@@ -184,6 +184,7 @@ public class FirmwareCampaignServiceIT {
                 .withManagementOption(activationOption)
                 .withValidationTimeout(timeValidation)
                 .withDeviceType(deviceType1)
+                .withUniqueFirmwareVersion(false)
                 .create();
         assertThat(firmwareCampaign1.getName()).isEqualTo(name);
         assertThat(firmwareCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);

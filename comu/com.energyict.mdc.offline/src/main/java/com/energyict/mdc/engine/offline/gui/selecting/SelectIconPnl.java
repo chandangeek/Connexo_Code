@@ -96,13 +96,12 @@ public class SelectIconPnl extends EisPropsPnl {
 
     private DefaultListModel getIconListModel() {
         // Fill up the list with possible icons
-        InputStream inputStream =
-                SelectIconPnl.class.getResourceAsStream("/mdw/icons/icons.txt");
-        BufferedReader reader =
-                new BufferedReader(new InputStreamReader(inputStream));
 
         DefaultListModel model = new DefaultListModel();
-        try {
+        try (InputStream inputStream =
+                     SelectIconPnl.class.getResourceAsStream("/mdw/icons/icons.txt");
+             BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(inputStream))) {
             String line = reader.readLine();
             while (line != null) {
                 model.addElement(line.trim());

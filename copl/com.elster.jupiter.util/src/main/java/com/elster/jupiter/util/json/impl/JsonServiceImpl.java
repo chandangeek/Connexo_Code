@@ -9,6 +9,9 @@ import com.elster.jupiter.util.json.JsonSerializeException;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import org.osgi.service.component.annotations.Component;
 
@@ -39,7 +42,14 @@ public class JsonServiceImpl implements JsonService {
     @Override
     public <T> T deserialize(byte[] json, Class<T> clazz) {
         try {
-            return objectMapper.readValue(json, clazz);
+            PolymorphicTypeValidator ptv =
+                    BasicPolymorphicTypeValidator.builder()
+                            .allowIfBaseType(clazz)
+                            .build();
+            ObjectMapper mapper = JsonMapper.builder()
+                    .polymorphicTypeValidator(ptv)
+                    .build();
+            return mapper.readValue(json, clazz);
         } catch (IOException e) {
             throw new JsonDeserializeException(e, new String(json), clazz);
         }

@@ -11,7 +11,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
@@ -119,15 +118,6 @@ public interface DeviceLifeCycleConfigurationService {
     TimeDuration getMaximumFutureEffectiveTimeShift();
 
     /**
-     * Gets the system wide default time shift in the future
-     * that can be used for the effective timestamp of a
-     * device life cycle transition.
-     *
-     * @return The default time shift
-     */
-    TimeDuration getDefaultFutureEffectiveTimeShift();
-
-    /**
      * Gets the system wide maximum time shift in the past
      * that can be used for the effective timestamp of a
      * device life cycle transition.
@@ -138,15 +128,6 @@ public interface DeviceLifeCycleConfigurationService {
      * @return The maximum time shift
      */
     TimeDuration getMaximumPastEffectiveTimeShift();
-
-    /**
-     * Gets the system wide default time shift in the past
-     * that can be used for the effective timestamp of a
-     * device life cycle transition.
-     *
-     * @return The default time shift
-     */
-    TimeDuration getDefaultPastEffectiveTimeShift();
 
     /**
      * Finds all the {@link TransitionBusinessProcess}es.

@@ -40,7 +40,7 @@ public interface TokenService<T> {
      * Creates a signed JWT (JSON Web Token) for third party services that authorize
      * using OAuth 2.0 protocol
      */
-    SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException;
+    SignedJWT createServiceSignedJWT(User user, long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException;
 
     /**
      * Creates a permament signed JWT token (used by Flow)

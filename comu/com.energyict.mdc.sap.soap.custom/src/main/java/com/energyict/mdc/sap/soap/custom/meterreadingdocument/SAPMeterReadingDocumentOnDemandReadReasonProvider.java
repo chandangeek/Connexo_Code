@@ -64,11 +64,9 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private void initReasonCodes(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_ONDEMAND);
-        if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
-            codes = Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE);
-        } else {
-            codes = Arrays.asList((valueCodes.split(",")));
-        }
+        codes = Checks.is(valueCodes).emptyOrOnlyWhiteSpace() ?
+                Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE) :
+                Arrays.asList(valueCodes.split(","));
     }
 
     private void initDateShift(BundleContext bundleContext) {
@@ -79,13 +77,15 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     private void initSkipCommunicationWaterMeters(BundleContext bundleContext) {
         try {
             String value = bundleContext.getProperty(ONDEMAND_SKIP_COMMUNICATION);
-            skipCommunicationPatterns = Arrays.stream(value.split(","))
-                    .map(String::trim)
-                    .map(item -> {
-                        String[] codes = item.split("\\.");
-                        return CIMCodePattern.parseFromString(codes);
-                    })
-                    .collect(Collectors.toList());
+            skipCommunicationPatterns = Checks.is(value).emptyOrOnlyWhiteSpace() ?
+                    Collections.emptyList() :
+                    Arrays.stream(value.split(","))
+                            .map(String::trim)
+                            .map(item -> {
+                                String[] codes = item.split("\\.");
+                                return CIMCodePattern.parseFromString(codes);
+                            })
+                            .collect(Collectors.toList());
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error while loading property " + ONDEMAND_SKIP_COMMUNICATION +
                     ": " + ex.getLocalizedMessage());

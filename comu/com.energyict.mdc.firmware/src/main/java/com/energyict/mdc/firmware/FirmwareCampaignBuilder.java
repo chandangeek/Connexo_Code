@@ -38,5 +38,7 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaign create();
 
+    FirmwareCampaignBuilder withUniqueFirmwareVersion(boolean withUniqueFirmwareVersion);
+
     FirmwareCampaignBuilder addProperty(PropertySpec propertySpec, Object propertyValue);
 }

@@ -37,13 +37,10 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        /**
-         * this csrf check commented as its affecting flow process, its disabled to continue test.
-         */
-        //boolean authorize = csrfFilterService.handleCSRFSecurity(request, response);
-        //if(authorize) {
-          boolean  authorize = authorization.handleSecurity(request, response);
-        //}
+        boolean authorize = csrfFilterService.handleCSRFSecurity(request, response);
+        if(authorize) {
+             authorize = authorization.handleSecurity(request, response);
+        }
         if(!authorize && request.getHeader("referer") != null){
             response.setHeader("WWW-Authenticate","Custom");
         }

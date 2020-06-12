@@ -46,6 +46,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasId;
@@ -2325,7 +2326,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
                         while (channelContainerInterval.contains(requestStart.toInstant())) {
                             ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                            readingTimestamp = readingTimestamp.plusSeconds(requestStart.getOffset().getTotalSeconds()-readingTimestamp.getOffset().getTotalSeconds());
+                            // we should handle dst difference for all hours load profiles except 1-hour
+                            TimeDuration interval = loadProfile.getInterval();
+                            if (interval.getTimeUnit() == TimeDuration.TimeUnit.HOURS && interval.getCount() > 1) {
+                                readingTimestamp = readingTimestamp.plusSeconds(requestStart.getOffset().getTotalSeconds() - readingTimestamp.getOffset().getTotalSeconds());
+                            }
+
                             if (requestedInterval.contains(readingTimestamp.toInstant())) {
                                 LoadProfileReadingImpl value = new LoadProfileReadingImpl();
                                 value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));

@@ -8,12 +8,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>upl</artifactId>
-        <version>1.0.0-Hermes-SNAPSHOT</version>
+        <version>1.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.upl</artifactId>
-    <version>1.0.0-Hermes-SNAPSHOT</version>
+    <version>1.0.0-Kratos-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] com.energyict.mdc.upl</name>
     <description>

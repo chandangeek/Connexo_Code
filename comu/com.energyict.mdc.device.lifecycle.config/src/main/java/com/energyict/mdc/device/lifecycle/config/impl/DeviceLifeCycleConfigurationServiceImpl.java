@@ -41,7 +41,6 @@ import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.common.device.lifecycle.config.Constants;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
@@ -55,6 +54,7 @@ import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProces
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -91,6 +91,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator {
 
     private static final Logger LOGGER = Logger.getLogger(DeviceLifeCycleConfigurationServiceImpl.class.getName());
+    public final static String MAX_LIMIT_IN_THE_PAST_DAYS = "com.energyict.mdc.device.lifecycle.limit.past.days";
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -103,6 +104,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
+    private TimeDuration maximumPastEffectiveTimeShift = EffectiveTimeShift.PAST.maximumValue();
+
     private List<DeviceMicroCheckFactory> microCheckFactories = new CopyOnWriteArrayList<>();
 
     // For OSGi purposes
@@ -114,7 +117,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Inject
     public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService,
                                                    FiniteStateMachineService stateMachineService, EventService eventService,
-                                                   UpgradeService upgradeService, MeteringService meteringService) {
+                                                   UpgradeService upgradeService, MeteringService meteringService, BundleContext bundleContext) {
         this();
         setOrmService(ormService);
         setUserService(userService);
@@ -123,7 +126,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         setEventService(eventService);
         setUpgradeService(upgradeService);
         setMeteringService(meteringService);
-        activate();
+        activate(bundleContext);
         initializeTestPrivileges();
     }
 
@@ -162,7 +165,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
         dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleConfigurationService.COMPONENT_NAME),
                 dataModel, Installer.class,
@@ -170,7 +173,21 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                         Version.version(10, 2), UpgraderV10_2.class,
                         Version.version(10, 3), UpgraderV10_3.class,
                         Version.version(10, 4), UpgraderV10_4.class,
-                        Version.version(10, 6), UpgraderV10_6.class));
+                        Version.version(10, 6), UpgraderV10_6.class,
+                        Version.version(10, 8), UpgraderV10_8.class));
+
+        readProperties(bundleContext);
+    }
+
+    private void readProperties(BundleContext bundleContext){
+        try {
+            String val = bundleContext.getProperty(MAX_LIMIT_IN_THE_PAST_DAYS);
+            if (val != null) {
+                maximumPastEffectiveTimeShift = TimeDuration.days(Integer.valueOf(val));
+            }
+        } catch (NumberFormatException e) {
+            //nothing to do
+        }
     }
 
     // For integration testing components only
@@ -360,18 +377,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    public TimeDuration getDefaultFutureEffectiveTimeShift() {
-        return EffectiveTimeShift.FUTURE.defaultValue();
-    }
-
-    @Override
     public TimeDuration getMaximumPastEffectiveTimeShift() {
-        return EffectiveTimeShift.PAST.maximumValue();
-    }
-
-    @Override
-    public TimeDuration getDefaultPastEffectiveTimeShift() {
-        return EffectiveTimeShift.PAST.defaultValue();
+        return maximumPastEffectiveTimeShift;
     }
 
     @Override

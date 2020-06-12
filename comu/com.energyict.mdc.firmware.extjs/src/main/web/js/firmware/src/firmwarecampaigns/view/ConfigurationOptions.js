@@ -66,7 +66,7 @@ Ext.define('Fwc.firmwarecampaigns.view.ConfigurationOptions', {
                                     router: me.router,
                                     scroll: 'vertical',
                                     maxHeight:402,
-                                    width: 1331,
+                                   // width: 1331,
                                     autoHeight: true,
                                     autoWidth: true,
                                     isFirmwareCampaignVersions: true,

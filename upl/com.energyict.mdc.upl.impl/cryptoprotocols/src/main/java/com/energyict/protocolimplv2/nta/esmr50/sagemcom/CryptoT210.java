@@ -47,7 +47,7 @@ public class CryptoT210 extends T210 {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2020-05-03";
+        return "Crypto version: 2020-05-18";
     }
 
     @Override

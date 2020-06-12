@@ -471,7 +471,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     serviceKeyRenewalOverviewPropertiesForm = previewForm.down('#serviceKeyRenewalOverviewProperties');
 
                 var keyRenewalCommandSpecification = recordParam.get('keyRenewalCommandSpecification');
-                if (keyRenewalCommandSpecification.name) {
+                if (keyRenewalCommandSpecification && keyRenewalCommandSpecification.name) {
                     previewForm.down('#previewPropertiesCommandName').setValue(keyRenewalCommandSpecification.name);
                 } else {
                     previewForm.down('#previewPropertiesCommandName').setVisible(false);
@@ -492,7 +492,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     keyRenewalOverviewPropertiesForm.hide();
                 }
                 var serviceKeyRenewalCommandSpecification = recordParam.get('serviceKeyRenewalCommandSpecification');
-                if (serviceKeyRenewalCommandSpecification.name) {
+                if (serviceKeyRenewalCommandSpecification && serviceKeyRenewalCommandSpecification.name) {
                     previewForm.down('#previewPropertiesServiceKeyCommandName').setValue(serviceKeyRenewalCommandSpecification.name);
                 } else {
                     previewForm.down('#previewPropertiesServiceKeyCommandName').setVisible(false);
@@ -1077,7 +1077,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
             keySizeInput = form.down('#mdc-security-accessor-key-size');
-        isReversibleCheckBox = form.down('#mdc-security-accessor-isReversible-checkbox'),
+            isReversibleCheckBox = form.down('#mdc-security-accessor-isReversible-checkbox'),
             isWrapper = form.down('#mdc-security-accessor-isWrapper-checkbox'),
 
             requiresDuration = newValue && newValue.requiresDuration,
@@ -1086,19 +1086,29 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         validityPeriod.setVisible(requiresDuration);
         if (newValue && newValue.name == 'HSM Key') {
             hsmJssKeyTypeCombo.setVisible(true);
+            hsmJssKeyTypeCombo.allowBlank = false;
             importCapabiltyCombo.setVisible(true);
+            importCapabiltyCombo.allowBlank = false;
             renewCapabiltyCombo.setVisible(true);
+            renewCapabiltyCombo.allowBlank = false;
             labelEndPointCombo.setVisible(true);
+            labelEndPointCombo.allowBlank = false;
             isReversibleCheckBox.setVisible(true);
             keySizeInput.setVisible(true);
+            keySizeInput.allowBlank = false;
         }
         else {
             hsmJssKeyTypeCombo.setVisible(false);
+            hsmJssKeyTypeCombo.allowBlank = true;
             importCapabiltyCombo.setVisible(false);
+            importCapabiltyCombo.allowBlank = true;
             renewCapabiltyCombo.setVisible(false);
+            renewCapabiltyCombo.allowBlank = true;
             labelEndPointCombo.setVisible(false);
+            labelEndPointCombo.allowBlank = true;
             isReversibleCheckBox.setVisible(false);
             keySizeInput.setVisible(false);
+            keySizeInput.allowBlank = true;;
         }
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);

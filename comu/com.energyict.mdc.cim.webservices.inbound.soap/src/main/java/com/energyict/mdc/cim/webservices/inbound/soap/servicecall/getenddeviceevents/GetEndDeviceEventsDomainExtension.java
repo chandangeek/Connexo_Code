@@ -20,7 +20,9 @@ import java.time.Instant;
 public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
-        METER("meter", "meter"),
+        METERS("meters", "METER"),
+        DEVICE_GROUPS("deviceGroups", "DEVICE_GROUPS"),
+        EVENT_TYPES("eventTypes", "EVENT_TYPES"),
         FROM_DATE("fromDate", "fromDate"),
         TO_DATE("toDate", "toDate"),
         ERROR_MESSAGE("errorMessage", "errorMessage"),
@@ -47,7 +49,11 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String meter;
+    private String meters;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String deviceGroups;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String eventTypes;
     private Instant fromDate;
     private Instant toDate;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -63,12 +69,28 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
         super();
     }
 
-    public String getMeter() {
-        return meter;
+    public String getMeters() {
+        return meters;
     }
 
-    public void setMeter(String meter) {
-        this.meter = meter;
+    public void setMeters(String meters) {
+        this.meters = meters;
+    }
+
+    public String getDeviceGroups() {
+        return deviceGroups;
+    }
+
+    public void setDeviceGroups(String deviceGroups) {
+        this.deviceGroups = deviceGroups;
+    }
+
+    public String getEventTypes() {
+        return eventTypes;
+    }
+
+    public void setEventTypes(String eventTypes) {
+        this.eventTypes = eventTypes;
     }
 
     public Instant getFromDate() {
@@ -115,7 +137,9 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setMeter((String) propertyValues.getProperty(FieldNames.METER.javaName()));
+        this.setMeters((String) propertyValues.getProperty(FieldNames.METERS.javaName()));
+        this.setDeviceGroups((String) propertyValues.getProperty(FieldNames.DEVICE_GROUPS.javaName()));
+        this.setEventTypes((String) propertyValues.getProperty(FieldNames.EVENT_TYPES.javaName()));
         this.setFromDate((Instant) propertyValues.getProperty(FieldNames.FROM_DATE.javaName()));
         this.setToDate((Instant) propertyValues.getProperty(FieldNames.TO_DATE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
@@ -125,7 +149,9 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.METER.javaName(), this.getMeter());
+        propertySetValues.setProperty(FieldNames.METERS.javaName(), this.getMeters());
+        propertySetValues.setProperty(FieldNames.DEVICE_GROUPS.javaName(), this.getDeviceGroups());
+        propertySetValues.setProperty(FieldNames.EVENT_TYPES.javaName(), this.getEventTypes());
         propertySetValues.setProperty(FieldNames.FROM_DATE.javaName(), this.getFromDate());
         propertySetValues.setProperty(FieldNames.TO_DATE.javaName(), this.getToDate());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());

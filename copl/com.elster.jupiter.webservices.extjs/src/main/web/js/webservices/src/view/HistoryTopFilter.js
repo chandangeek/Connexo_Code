@@ -105,7 +105,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 queryCaching: false,
                 minChars: 0,
                 loadStore: false,
-                forceSelection: true,
+                forceSelection: false,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification

@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     static final String TYPE_IDENTIFIER = "APD";
     private static final Logger LOGGER = Logger.getLogger(ApacheDirectoryImpl.class.getSimpleName());
-    private static final String[] CN_ARRAY = { CN };
+    private static final String[] CN_ARRAY = {CN};
 
     @Inject
     ApacheDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
@@ -104,12 +104,40 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             name = "";
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         }
-        NamingEnumeration<SearchResult> answer = context.search(name, "(&(objectClass=person)(uid=" + userName + "))",
+        NamingEnumeration<SearchResult> answer = context.search(name, escapeCharactersInFilter("(&(objectClass=person)(uid=" + userName + "))"),
                 controls);
         if (answer.hasMore()) {
             return answer.next();
         }
         return null;
+    }
+
+    //As per OWASP recommendations
+    public static final String escapeCharactersInFilter(String filter) {
+        StringBuilder strBuilder = new StringBuilder();
+        for (int i = 0; i < filter.length(); i++) {
+            char currentChar = filter.charAt(i);
+            switch (currentChar) {
+                case '\\':
+                    strBuilder.append("\\5c");
+                    break;
+                case '*':
+                    strBuilder.append("\\2a");
+                    break;
+                case '(':
+                    strBuilder.append("\\28");
+                    break;
+                case ')':
+                    strBuilder.append("\\29");
+                    break;
+                case '\u0000':
+                    strBuilder.append("\\00");
+                    break;
+                default:
+                    strBuilder.append(currentChar);
+            }
+        }
+        return strBuilder.toString();
     }
 
     @Override
@@ -132,7 +160,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSimple(String name, String password, List<String> urls, boolean isDn,
-            String userName) {
+                                              String userName) {
         LOGGER.info("AUTH: No security applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -180,7 +208,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSSL(String name, String password, List<String> urls,
-            SslSecurityProperties sslSecurityProperties, boolean isDn, String userName) {
+                                           SslSecurityProperties sslSecurityProperties, boolean isDn, String userName) {
         LOGGER.info("AUTH: SSL applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -216,7 +244,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateTLS(String name, String password, List<String> urls,
-            SslSecurityProperties sslSecurityProperties, boolean isDn, String userName) {
+                                           SslSecurityProperties sslSecurityProperties, boolean isDn, String userName) {
         LOGGER.info("AUTH: TLS applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -431,7 +459,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
     @Override
     protected Pair<LdapContext, StartTlsResponse> createDirContextTls(String url,
-            SslSecurityProperties sslSecurityProperties) throws NamingException, IOException {
+                                                                      SslSecurityProperties sslSecurityProperties) throws NamingException, IOException {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, url);
