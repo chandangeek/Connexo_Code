@@ -22,7 +22,7 @@ public class ActiveDeviceCalendarSearchableProperty extends AbstractDeviceCalend
 
     @Inject
     public ActiveDeviceCalendarSearchableProperty(CalendarService calendarService, PropertySpecService mdcPropertySpecService,
-            Thesaurus thesaurus) {
+                                                  Thesaurus thesaurus) {
         super(calendarService, mdcPropertySpecService, thesaurus);
     }
 
@@ -39,7 +39,11 @@ public class ActiveDeviceCalendarSearchableProperty extends AbstractDeviceCalend
         sqlBuilder.openBracket();
         sqlBuilder.append(" SELECT actcal.device FROM ddc_active_calendar actcal ");
         sqlBuilder.append(" JOIN dtc_devicetypecalendarusage cusage ON cusage.id = actcal.allowed_calendar ");
-        sqlBuilder.append("WHERE ");
+        sqlBuilder.append("AND actcal.starttime < ");
+        sqlBuilder.addLong(now.toEpochMilli());
+        sqlBuilder.append(" AND actcal.endtime > ");
+        sqlBuilder.addLong(now.toEpochMilli());
+        sqlBuilder.append(" WHERE ");
         sqlBuilder.add(this.toSqlFragment("cusage.calendar", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
