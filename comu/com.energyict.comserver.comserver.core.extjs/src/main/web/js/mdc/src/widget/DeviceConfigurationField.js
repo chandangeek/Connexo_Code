@@ -13,8 +13,8 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
     },
     deviceTypeStore: undefined,
     queryMode: 'local',
-    fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
-    labelAlign: 'right',
+    fieldLabel: Uni.I18n.translate('general.deviceTypeAndConfiguration', 'MDC', 'Device type and configuration'),
+    //labelAlign: 'right',
     required: true,
     allowBlank: true,
     extraConfigListener: null,
@@ -97,7 +97,10 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
                 allowBlank: me.allowBlank,
                 autoSelect: true,
                 enabled: false,
-                labelAlign: 'right',
+                //fieldLabel: 'Device configuration25',
+                //labelAlign: 'left',
+                //labelAlign: 'right',
+               // fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                 emptyText: Uni.I18n.translate('deviceAdd.config.value', 'MDC', 'Select a device configuration...'),
                 afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'
                 + Uni.I18n.translate('deviceAdd.firstSelectDeviceType', 'MDC', 'First select a device type.')
