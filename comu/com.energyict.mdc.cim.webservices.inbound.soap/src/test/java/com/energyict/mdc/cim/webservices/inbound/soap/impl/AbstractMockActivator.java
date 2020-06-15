@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
@@ -74,7 +75,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -168,6 +168,8 @@ public abstract class AbstractMockActivator {
     protected MeteringTranslationService meteringTranslationService;
     @Mock
     protected TopologyService topologyService;
+    @Mock
+    protected ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -242,6 +244,7 @@ public abstract class AbstractMockActivator {
         activator.setCommunicationTaskService(communicationTaskService);
         activator.setMeteringTranslationService(meteringTranslationService);
         activator.setTopologyService(topologyService);
+        activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.activate(mock(BundleContext.class));
     }
 
