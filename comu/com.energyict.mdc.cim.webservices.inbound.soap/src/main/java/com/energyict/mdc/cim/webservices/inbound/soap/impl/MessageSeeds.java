@@ -14,13 +14,13 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    EMPTY_LIST(1, "NoElementsInList", "The list of ''{0}'' cannot be empty"),
+    EMPTY_LIST(1, "NoElementsInList", "The list of ''{0}'' cannot be empty."),
     UNSUPPORTED_BULK_OPERATION(2, "UnsupportedBulkOperation", "Bulk operation is not supported on ''{0}'', only first element is processed", Level.WARNING),
-    MISSING_ELEMENT(3, "NoRequiredElement", "Element ''{0}'' is required"),
+    MISSING_ELEMENT(3, "NoRequiredElement", "Element ''{0}'' is required."),
     ELEMENT_BY_REFERENCE_NOT_FOUND(4, "ElementByRefNotFound", "Element by reference ''{0}'' is not found in ''{1}''"),
     UNSUPPORTED_LIST_SIZE(5, "UnsupportedListSize", "The list of ''{0}'' has unsupported size. Must be of size {1}"),
     EMPTY_ELEMENT(6, "EmptyElement", "Element ''{0}'' is empty or contains only white spaces"),
-    MISSING_MRID_OR_NAME_FOR_ELEMENT(7, "MissingMridOrNameForElement", "Either element ''mRID'' or ''Names'' is required under ''{0}'' for identification purpose"),
+    MISSING_MRID_OR_NAME_FOR_ELEMENT(7, "MissingMridOrNameForElement", "Either element ''mRID'' or ''Names'' is required under ''{0}'' for identification purpose."),
     MISSING_MRID_OR_NAME_WITH_TYPE_FOR_ELEMENT(8, "MissingMridOrNameWithTypeForElement",
             "Either element ''mRID'' or ''Names'' with ''NameType.name'' = ''{0}'' is required under ''{1}'' for identification purpose"),
     UNSUPPORTED_ELEMENT(9, "UnsupportedElement", "Element ''{0}'' under ''{1}'' is not supported"),
@@ -65,6 +65,10 @@ public enum MessageSeeds implements MessageSeed {
     METROLOGY_CONFIG_NOT_ALLOW_GAPS(1035, "MetrologyConfigurationDoesntAllowGaps", "Meter ''{0}'' (serial number ''{1}'') is linked to usage point ''{2}'' with metrology configuration that doesn''t allow gaps so the meter can''t be deleted."),
     CANT_REMOVE_GATEWAY(1036, "CantRemoveGateway", "Meter ''{0}'' (serial number ''{1}'') can''t be removed while it''s still used as a gateway."),
     UNABLE_TO_DELETE_DEVICE(1037, "UnableToDeleteDevice", "Unable to delete device"),
+    NO_METER_WITH_MRID(1038, "NoMeterWithMRID", "No meter is found by MRID ''{0}''."),
+    NO_METER_WITH_NAME(1039, "NoMeterWithName", "No meter is found by name ''{0}''."),
+    NO_END_DEVICE_WITH_MRID(1040, "NoEndDeviceWithMRID", "No end device is found by MRID ''{0}''."),
+    NO_END_DEVICE_WITH_NAME(1041, "NoEndDeviceWithName", "No end device is found by name ''{0}''."),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
@@ -81,6 +85,15 @@ public enum MessageSeeds implements MessageSeed {
     NO_OBIS_CODE_CONFIGURED(3006, "NoObisCodeConfigured", "Obis code is not configured for the web service end point"),
     NO_END_POINT_WITH_WEBSERVICE_NAME(3007, "NoEndPointConfigured", "No end point configuration is found by web service name ''{0}''."),
 
+    // master data linkage
+    UNABLE_TO_LINK_METER(3008, "UnableToLinkMeter", "Unable to link meter to usage point"),
+    UNABLE_TO_UNLINK_METER(3009, "UnableToUnlinkMeter", "Unable to unlink meter from usage point"),
+    SAME_USAGE_POINT_ALREADY_LINKED(3010, "SameUsagePointAlreadyLinked",
+            "Meter ''{0}'' is already linked to usage point ''{1}'' at the given time ''{2}''."),
+    METER_AND_USAGE_POINT_NOT_LINKED(3011, "MeterAndUsagePointNotLinked",
+            "Meter ''{0}'' is not linked to usage point ''{1}'' at the given time ''{2}''."),
+    NO_METER_ROLE_WITH_KEY(3012, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
+
     // async
     COULD_NOT_FIND_SERVICE_CALL_TYPE(4001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),
     NO_REPLY_ADDRESS(4002, "NoReplyAddress", "Reply address is required"),
@@ -94,6 +107,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CONNECTION_METHOD_WITH_NAME(5004, "NoConnectionMethodWithName", "No connection method ''{0}''."),
     NO_CONNECTION_METHODS(5005, "NoConnectionMethods", "No connection methods are found."),
     NO_CONNECTION_ATTRIBUTE(5006, "NoConnectionAttribute", "Attribute ''{0}'' isn''t found on connection method ''{1}''."),
+    DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS(5007, "DifferentNumberOfMetersAndUsagePoints", "Number of meters should be equal to number of usage points. Currently: {0} and {1}"),
 
     // meter readings
     UNABLE_TO_GET_READINGS(6001, "UnableToGetReadings", "Unable to get readings."),

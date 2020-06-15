@@ -932,7 +932,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'GetMeterReadings' is required");
+                "Element 'GetMeterReadings' is required.");
     }
 
     @Test
@@ -952,7 +952,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'GetMeterReadings.Header.ReplyAddress' is required");
+                "Element 'GetMeterReadings.Header.ReplyAddress' is required.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -1277,7 +1277,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'GetMeterReadings.Reading.source' is required");
+                "Element 'GetMeterReadings.Reading.source' is required.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -1348,7 +1348,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
-                "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.EndDevice[0]' for identification purpose");
+                "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.EndDevice[0]' for identification purpose.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -2237,7 +2237,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.EMPTY_LIST.getErrorCode(),
-                "The list of 'GetMeterReadings.UsagePoint' cannot be empty");
+                "The list of 'GetMeterReadings.UsagePoint' cannot be empty.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -2419,7 +2419,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
-                "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.ReadingType[3]' for identification purpose");
+                "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.ReadingType[3]' for identification purpose.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -2434,7 +2434,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.EMPTY_LIST.getErrorCode(),
-                "The list of 'GetMeterReadings.Reading' cannot be empty");
+                "The list of 'GetMeterReadings.Reading' cannot be empty.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -2455,7 +2455,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'GetMeterReadings.Reading[0].timePeriod' is required");
+                "Element 'GetMeterReadings.Reading[0].timePeriod' is required.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -2475,7 +2475,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'GetMeterReadings.Reading[1].timePeriod.start' is required");
+                "Element 'GetMeterReadings.Reading[1].timePeriod.start' is required.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 

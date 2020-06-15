@@ -137,22 +137,6 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>g2</id>
-						<goals>
-							<goal>wsimport</goal>
-						</goals>
-						<configuration>
-							<wsdlDirectory>src/main/resources/</wsdlDirectory>
-							<wsdlFiles>
-								<wsdlFile>wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlFile>
-							</wsdlFiles>
-							<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-							<bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
-							<keep>true</keep>
-							<wsdlLocation>wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlLocation>
-						</configuration>
-					</execution>
-					<execution>
 						<id>g3</id>
 						<goals>
 							<goal>wsimport</goal>

@@ -43,8 +43,11 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -168,6 +171,12 @@ public abstract class AbstractMockActivator {
     protected MeteringTranslationService meteringTranslationService;
     @Mock
     protected TopologyService topologyService;
+    @Mock
+    protected ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
+    @Mock
+    protected MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
+    @Mock
+    protected MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -242,6 +251,9 @@ public abstract class AbstractMockActivator {
         activator.setCommunicationTaskService(communicationTaskService);
         activator.setMeteringTranslationService(meteringTranslationService);
         activator.setTopologyService(topologyService);
+        activator.addReplyMasterDataLinkageConfigWebServiceClient(replyMasterDataLinkageConfigWebService);
+        activator.setMasterDataLinkageConfigCustomPropertySet(masterDataLinkageConfigCustomPropertySet);
+        activator.setMasterDataLinkageConfigMasterCustomPropertySet(masterDataLinkageConfigMasterCustomPropertySet);
         activator.activate(mock(BundleContext.class));
     }
 

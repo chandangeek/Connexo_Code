@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:usag="http://iec.ch/TC57/2011/UsagePointConfigMessage" xmlns:mes="http://iec.ch/TC57/2011/schema/message"
+                  xmlns:usag1="http://iec.ch/TC57/2011/UsagePointConfig#" xmlns:cus="http://connexo.elster.com/2017/schema/customattributes">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <usag:GetUsagePointConfig>
+            <usag:Header>
+                <mes:Verb>get</mes:Verb>
+                <mes:Noun>UsagePointConfig</mes:Noun>
+                <mes:Timestamp>2017-07-07T15:15:00+03:00</mes:Timestamp>
+                <!--You may enter ANY elements at this point-->
+            </usag:Header>
+            <usag:Payload>
+                <usag1:UsagePointConfig>
+                    <!-- Required -->
+                    <usag1:UsagePoint>
+                        <!-- Optional -->
+                        <!-- MRID is present => identification by MRID -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <usag1:mRID>00000000-0000-0000-0000-0000000000ff</usag1:mRID>
+                        <!-- Optional -->
+                        <!-- MRID is present => identification by MRID -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <usag1:Names>
+                            <usag1:name>K@#Ø%!</usag1:name>
+                        </usag1:Names>
+                        <!--You may enter ANY elements at this point-->
+                    </usag1:UsagePoint>
+                </usag1:UsagePointConfig>
+            </usag:Payload>
+        </usag:GetUsagePointConfig>
+    </soapenv:Body>
+</soapenv:Envelope>
