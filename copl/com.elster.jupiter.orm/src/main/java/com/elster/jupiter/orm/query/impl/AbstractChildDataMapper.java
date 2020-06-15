@@ -100,6 +100,4 @@ abstract class AbstractChildDataMapper<T> extends JoinDataMapper<T> {
     final String getName() {
         return constraint.getReverseFieldName();
     }
-
-
 }
