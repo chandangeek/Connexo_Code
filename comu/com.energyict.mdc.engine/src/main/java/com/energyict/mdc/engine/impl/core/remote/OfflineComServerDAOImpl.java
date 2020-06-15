@@ -435,7 +435,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TimeDuration releaseTimedOutTasks (ComPort comPort) {
-        return new TimeDuration(0);
+        return null;
     }
 
     @Override
