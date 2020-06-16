@@ -114,6 +114,7 @@ public class ComTaskExecutionFilterSpecification {
      */
     public Set<String> restrictedDeviceStages = new HashSet<>();
 
+    public Long locationId;
 
     public boolean showSlaveComTaskExecutions;
 }
