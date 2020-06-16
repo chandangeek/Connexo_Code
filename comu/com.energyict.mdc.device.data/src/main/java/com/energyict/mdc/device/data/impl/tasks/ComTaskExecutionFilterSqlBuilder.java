@@ -92,7 +92,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         actualBuilder.append(sqlBuilder);
         this.appendDeviceStateJoinClauses(communicationTaskAliasName);
         if (this.locationId != null) {
-            this.appendLocationId(locationId);
+            this.appendLocationIdCondition(locationId);
         }
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();

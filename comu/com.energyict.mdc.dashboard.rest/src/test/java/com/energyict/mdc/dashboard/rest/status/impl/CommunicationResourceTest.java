@@ -49,6 +49,7 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -384,7 +385,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
                 .containsKey("id")
                 .containsKey("version")
                 .hasSize(18);
-
+        assertThat((LinkedHashMap) communicationTaskMap.get("device"))
+                .containsKey("location");
 
     }
 
