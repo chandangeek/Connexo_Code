@@ -98,7 +98,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private final PriorityComTaskService priorityComTaskService;
     private final ConfigPropertiesService configPropertiesService;
     private final BundleContext bundleContext;
-    private final ComTaskExecutionBalancing comTaskExecutionBalancing = new ComTaskExecutionBalancing();
+    private boolean isTrueMinimizedOn;
+    private boolean isRandomizationOn;
 
     @Inject
     public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, ConfigPropertiesService configPropertiesService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
@@ -802,9 +803,47 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         if (factor > 0) {
             comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
         }
-        return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
-                getOrderForPlannedComTaskExecutionsList(comTaskExecutionBalancing.getBalancingOrder(comPortPools, comPort)))
+        initCommunicationParameters();
+        return sortComTaskExecutions(connectionTask, comTasks);
+    }
+
+    private void initCommunicationParameters() {
+        isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
+        isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
+    }
+
+    private List<ComTaskExecution> sortComTaskExecutions(String connectionTask, QueryStream<ComTaskExecution> comTasks) {
+        long start = System.currentTimeMillis();
+        List<ComTaskExecution> comTaskExecutions = comTasks.sorted(Order.ascending(connectionTask + ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()),
+                getOrderForPlannedComTaskExecutionsList(connectionTask))
                 .select();
+        long queryDuration = System.currentTimeMillis() - start;
+
+        start = System.currentTimeMillis();
+        comTaskExecutions.sort((cte1, cte2) -> {
+            int result = cte1.getNextExecutionTimestamp().compareTo(cte2.getNextExecutionTimestamp());
+            if (result != 0)
+                return result;
+
+            if (isRandomizationOn) {
+                if (cte1.getConnectionTaskId() % 100 < cte2.getConnectionTaskId() % 100)
+                    return -1;
+                if (cte1.getConnectionTaskId() % 100 > cte2.getConnectionTaskId() % 100)
+                    return 1;
+            }
+
+            if (isTrueMinimizedOn) {
+                if (cte1.getConnectionTaskId() < cte2.getConnectionTaskId())
+                    return -1;
+                if (cte1.getConnectionTaskId() > cte2.getConnectionTaskId())
+                    return 1;
+            }
+
+            return cte1.getPlannedPriority() - cte2.getPlannedPriority();
+        });
+        long sortDuration = System.currentTimeMillis() - start;
+        LOGGER.warning("perf - pendingQuery: " + queryDuration + " ms; sort: " + sortDuration + " ms");
+        return comTaskExecutions;
     }
 
     private List<ComTaskExecution> getPendingComTaskExecutions(ComServer comServer, List<OutboundComPortPool> comPortPools, Instant timeInSeconds, long limit, long skip) {
@@ -819,8 +858,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         }
         List<ComServer> comServers = this.deviceDataModelService
                 .engineConfigurationService().findAllComServers().sorted("id", true).find();
+        initCommunicationParameters();
         return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
-                getOrderForPlannedComTaskExecutionsList(comTaskExecutionBalancing.getBalancingOrder(comServers, comServer)))
+                getOrderForPlannedComTaskExecutionsList(connectionTask))
                 .select();
     }
 
@@ -836,10 +876,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
         List<OutboundComPort> comPorts = this.deviceDataModelService
                 .engineConfigurationService().findAllOutboundComPorts();
+        initCommunicationParameters();
         return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
                 .limit(comPort.getNumberOfSimultaneousConnections() * 2)
                 .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
-                        getOrderForPlannedComTaskExecutionsList(comTaskExecutionBalancing.getBalancingOrder(comPortPools, comPort)))
+                        getOrderForPlannedComTaskExecutionsList(connectionTask))
                 .select();
     }
 
@@ -859,20 +900,15 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 );
     }
 
-    private Order[] getOrderForPlannedComTaskExecutionsList(Order balancingOrder) {
+    private Order[] getOrderForPlannedComTaskExecutionsList(String connectionTask) {
         List<Order> orderList = new ArrayList<>(3);
-        boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
-        boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
         if (isRandomizationOn) {
-            orderList.add(Order.ascending("mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ",100)"));
+            // the ORM can't resolve the table alias from a field inside a function - providing it hardcoded (ct)
+            orderList.add(Order.ascending("mod(ct." + ConnectionTaskFields.ID.fieldName() + ",100)"));
         }
         if (isTrueMinimizedOn) {
-            orderList.add(balancingOrder);
-            orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
-        } else {
-            orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
-            orderList.add(balancingOrder);
+            orderList.add(Order.ascending(connectionTask + ConnectionTaskFields.ID.fieldName()));
         }
         return orderList.toArray(new Order[orderList.size()]);
     }
