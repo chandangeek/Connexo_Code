@@ -472,7 +472,7 @@ public enum TableSpecs {
                     .map(ComTaskExecutionFields.DEVICE.fieldName())
                     .reverseMap("comTaskExecutions").composition()
                     .add();
-            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
+            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add().upTo(version(10, 8, 1));
             table.audit(DDC_COMTASKEXEC.name())
                     .domainContext(AuditDomainContextType.DEVICE_COMTASKS.domainContextId())
                     .domainReferences("FK_DDC_COMTASKEXEC_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
