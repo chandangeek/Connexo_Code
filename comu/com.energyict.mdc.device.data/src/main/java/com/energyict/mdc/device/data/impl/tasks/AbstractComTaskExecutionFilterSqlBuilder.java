@@ -130,7 +130,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
 
     protected void appendLocationIdCondition(Long locationId) {
         if (locationId != null) {
-            this.append("join MTR_ENDDEVICE ed on dev.meterid = ed.amrid");
+            this.append("join MTR_ENDDEVICE ed on dev.meterid = ed.id");
             this.appendWhereOrAnd();
             this.append("ed.locationid = ");
             this.addLong(locationId);
