@@ -39,7 +39,7 @@ public class ActiveDeviceCalendarSearchableProperty extends AbstractDeviceCalend
         sqlBuilder.openBracket();
         sqlBuilder.append(" SELECT actcal.device FROM ddc_active_calendar actcal ");
         sqlBuilder.append(" JOIN dtc_devicetypecalendarusage cusage ON cusage.id = actcal.allowed_calendar ");
-        sqlBuilder.append("AND actcal.starttime < ");
+        sqlBuilder.append("AND actcal.starttime <= ");
         sqlBuilder.addLong(now.toEpochMilli());
         sqlBuilder.append(" AND actcal.endtime > ");
         sqlBuilder.addLong(now.toEpochMilli());
