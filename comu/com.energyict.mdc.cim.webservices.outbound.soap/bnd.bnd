@@ -24,6 +24,7 @@ Export-Package: com.energyict.mdc.cim.webservices.outbound.soap,\
                 ch.iec.tc57._2011.sendmeterconfig,\
                 ch.iec.tc57._2011.executemasterdatalinkageconfig,\
                 ch.iec.tc57._2011.masterdatalinkageconfigmessage,\
+                ch.iec.tc57._2011.masterdatalinkageconfig,\
                 com.elster.connexo._2018*,\
                 org.w3._2000*,\
                 org.w3._2001._04*
