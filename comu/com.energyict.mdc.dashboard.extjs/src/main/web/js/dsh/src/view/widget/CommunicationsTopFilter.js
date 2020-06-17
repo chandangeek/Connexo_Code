@@ -16,7 +16,8 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         'Dsh.store.filter.DeviceGroup',
         'Dsh.store.filter.CompletionCodes',
         'Dsh.store.filter.CurrentState',
-        'Dsh.store.filter.CommunicationSchedule'
+        'Dsh.store.filter.CommunicationSchedule',
+        'Dsh.store.filter.Locations'
     ],
 
     initComponent: function () {
