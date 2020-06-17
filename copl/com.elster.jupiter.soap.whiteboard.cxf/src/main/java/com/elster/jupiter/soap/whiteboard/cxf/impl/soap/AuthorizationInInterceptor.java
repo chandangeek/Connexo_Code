@@ -50,7 +50,7 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                                       WebServicesService webServicesService,
                                       ThreadPrincipalService threadPrincipalService,
                                       EventService eventService) {
-        super(Phase.PRE_INVOKE);
+        super(Phase.PRE_STREAM);
         this.userService = userService;
         this.webServicesService = webServicesService;
         this.threadPrincipalService = threadPrincipalService;
