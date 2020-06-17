@@ -87,6 +87,8 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
     @Override
     public boolean handleCSRFSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        //this need to refactored.
         if(Arrays.stream(RESOURCES_THAT_ARE_EXCLUDED_FROM_CSRF_FILTER).anyMatch(request.getRequestURI()::contains)){
             return true;
         }
