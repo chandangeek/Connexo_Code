@@ -5,12 +5,15 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ObjectHolder;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.parent.AbstractMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.LinkageOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -40,16 +43,18 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
 
     private final JsonService jsonService;
     private final MeteringService meteringService;
+    private final DeviceService deviceService;
 
     @Inject
     public MasterDataLinkageConfigMasterServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
             ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder,
-            JsonService jsonService, MeteringService meteringService, Thesaurus thesaurus,
+            JsonService jsonService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus,
             WebServicesService webServicesService) {
         super(MasterDataLinkageConfigMasterDomainExtension.class, replyMasterDataLinkageConfigWebServiceHolder,
                 endPointConfigurationService, thesaurus, webServicesService);
         this.jsonService = jsonService;
         this.meteringService = meteringService;
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -83,11 +88,25 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
     }
 
     private Optional<UsagePoint> findUsagePoint(MasterDataLinkageConfigDomainExtension extension) {
-        UsagePointInfo usagePointInfo = jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
+        UsagePointInfo usagePointInfo = (extension.getUsagePoint() == null) ? null : jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
+        if (usagePointInfo == null) {
+            return Optional.empty();
+        }
         if (usagePointInfo.getMrid() != null) {
             return meteringService.findUsagePointByMRID(usagePointInfo.getMrid());
         }
         return meteringService.findUsagePointByName(usagePointInfo.getName());
+    }
+
+    private Optional<Device> findEndDevice(MasterDataLinkageConfigDomainExtension extension) {
+        EndDeviceInfo endDeviceInfo = (extension.getEndDevice() == null) ? null : jsonService.deserialize(extension.getEndDevice(), EndDeviceInfo.class);
+        if (endDeviceInfo == null) {
+            return Optional.empty();
+        }
+        if (endDeviceInfo.getMrid() != null) {
+            return deviceService.findDeviceByMrid(endDeviceInfo.getMrid());
+        }
+        return deviceService.findDeviceByName(endDeviceInfo.getName());
     }
 
     private FailedLinkageOperation createLinkageOperation(ServiceCall child, DefaultState state){
@@ -95,6 +114,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
         MasterDataLinkageConfigDomainExtension extension = child.getExtension(MasterDataLinkageConfigDomainExtension.class).get();
         Optional<Meter> meter = findMeter(extension);
         Optional<UsagePoint> usagePoint = findUsagePoint(extension);
+        Optional<Device> endDevice = findEndDevice(extension);
         FailedLinkageOperation linkageOperation = new FailedLinkageOperation();
 
         if(state.equals(DefaultState.FAILED)){
@@ -108,6 +128,10 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
         if(usagePoint.isPresent()){
             linkageOperation.setUsagePointMrid(usagePoint.get().getMRID());
             linkageOperation.setUsagePointName(usagePoint.get().getName());
+        }
+        if(endDevice.isPresent()){
+            linkageOperation.setEndDeviceMrid(endDevice.get().getmRID());
+            linkageOperation.setEndDeviceName(endDevice.get().getName());
         }
 
         return linkageOperation;

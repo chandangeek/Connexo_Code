@@ -11,6 +11,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalink
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.LinkageOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -102,6 +103,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     @Mock
     private MeteringService meterService;
     @Mock
+    private DeviceService deviceService;
+    @Mock
     private Meter meter;
     @Mock
     private UsagePoint usagePoint;
@@ -115,7 +118,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
         replyMasterDataLinkageConfigWebServiceHolder.setObject(replyMasterDataLinkageConfigWebService);
         handler = new MasterDataLinkageConfigMasterServiceCallHandler(endPointConfigurationService,
-                replyMasterDataLinkageConfigWebServiceHolder, jsonService, meterService, thesaurus, webServicesService);
+                replyMasterDataLinkageConfigWebServiceHolder, jsonService, meterService, deviceService, thesaurus, webServicesService);
 
         when(endPointConfigurationService.findEndPointConfigurations().find().stream())
                 .thenReturn(Stream.of(endPointConfiguration));
