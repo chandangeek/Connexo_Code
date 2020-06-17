@@ -21,18 +21,27 @@ import com.energyict.mdc.engine.impl.core.remote.RemoteJSONTypeMapperProvider;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.impl.tools.ProtocolUtils;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -122,6 +131,11 @@ public class WebSocketQueryApiService {
             executeQuery(jsonQuery, queryMethodName, queryId);
         }
 
+    }
+
+    @OnWebSocketError
+    public void onError(Throwable e) {
+        sendMessage(ERROR_PREFIX + MESSAGE_NOT_UNDERSTOOD + e.getMessage());
     }
 
     private void executeQuery(JSONObject jsonQuery, String queryMethodName, String queryId) {
