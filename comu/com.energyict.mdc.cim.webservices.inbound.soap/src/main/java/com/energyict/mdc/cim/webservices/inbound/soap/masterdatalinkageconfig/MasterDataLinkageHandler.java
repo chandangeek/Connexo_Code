@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class MasterDataLinkageHandler {
+    private static final String END_DEVICE_AND_USAGE_POINT = "End device and Usage point nodes";
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final MetrologyConfigurationService metrologyConfService;
@@ -95,23 +96,29 @@ public class MasterDataLinkageHandler {
     public MasterDataLinkageConfigResponseMessageType createLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CREATE;
         if (shouldCreateResponse()) {
+            if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()){
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+            }
             if (!usagePointNodes.isEmpty()) {
                 linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
                         transform(usagePointNodes.get(0)), configurationEventNode.getCreatedDateTime());
-            } else if (!endDeviceNodes.isEmpty()) {
+            }
+            if (!endDeviceNodes.isEmpty()) {
                 linkGatewayToDevice(transformToDevice(meterNodes.get(0)), transform(endDeviceNodes.get(0)));
-            } else {
-                // TODO error ?
             }
             return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED, correlationId);
         } else {
+            if (usagePoint == null && endDevice == null) {
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+            }
             if (usagePoint != null) {
                 linkMeterToUsagePoint(transform(meter), getMeterRoleForKey(meter.getRole()), transform(usagePoint),
                         configurationEvent.getCreatedDateTime());
-            } else if (endDevice != null) {
+            }
+            if (endDevice != null) {
                 linkGatewayToDevice(transformToDevice(meter), transform(endDevice));
-            } else {
-                // TODO error ?
             }
             return null;
         }
@@ -120,23 +127,29 @@ public class MasterDataLinkageHandler {
     public MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CLOSE;
         if (shouldCreateResponse()) {
+            if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()) {
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+            }
             if (!usagePointNodes.isEmpty()) {
                 unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
                         configurationEventNode.getEffectiveDateTime());
-            } else if (!endDeviceNodes.isEmpty()){
+            }
+            if (!endDeviceNodes.isEmpty()){
                 unlinkDeviceFromGateway(transformToDevice(meterNodes.get(0)), transform(endDeviceNodes.get(0)));
-            } else {
-                // TODO error ?
             }
             return createSuccessfulResponseWithVerb(HeaderType.Verb.CLOSED, correlationId);
         } else {
+            if (usagePoint == null && endDevice == null) {
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+            }
             if (usagePoint != null) {
                 unlinkMeterFromUsagePoint(transform(meter), transform(usagePoint),
                         configurationEvent.getEffectiveDateTime());
-            } else if (endDevice != null){
+            }
+            if (endDevice != null){
                 unlinkDeviceFromGateway(transformToDevice(meter), transform(endDevice));
-            } else {
-                // TODO error ?
             }
             return null;
         }
@@ -168,15 +181,23 @@ public class MasterDataLinkageHandler {
 
     private void linkGatewayToDevice(Device gateway, Device slave)
             throws FaultMessage {
-        // TODO check gateway supports gateways (gateway=yes)
-        if (slave.equals(gateway)) {
-            // TODO error equals
+        if (!gateway.getDeviceConfiguration().canActAsGateway()) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.NOT_SUPPORTED_MASTER, gateway.getName(), gateway.getSerialNumber());
         }
-        // TODO check slave directly addressable = no
+        if (slave.equals(gateway)) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.CAN_NOT_BE_GATEWAY_TO_ITSELF, slave.getName(), slave.getSerialNumber());
+        }
+        if (slave.getDeviceConfiguration().isDirectlyAddressable()) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.NOT_SUPPORTED_SLAVE, slave.getName(), slave.getSerialNumber());
+        }
         Optional<Device> currentGateway = topologyService.getPhysicalGateway(slave);
         if (currentGateway.isPresent()) {
             if (currentGateway.get().equals(gateway)) {
-                // TODO error already linked
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE, slave.getName(), slave.getSerialNumber(), gateway.getName(), gateway.getSerialNumber());
             } else {
                 topologyService.clearPhysicalGateway(slave);
             }
@@ -186,18 +207,24 @@ public class MasterDataLinkageHandler {
 
     private void unlinkDeviceFromGateway(Device gateway, Device slave) throws FaultMessage {
         if (slave.equals(gateway)) {
-            // TODO error equals
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.CAN_NOT_UNLINK_ITSELF, slave.getName(), slave.getSerialNumber());
         }
-        // TODO check slave directly addressable = no
+        if (slave.getDeviceConfiguration().isDirectlyAddressable()) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.NOT_SUPPORTED_SLAVE, slave.getName(), slave.getSerialNumber());
+        }
         Optional<Device> currentGateway = topologyService.getPhysicalGateway(slave);
         if (currentGateway.isPresent()) {
             if (!currentGateway.get().equals(gateway)) {
-                // TODO error linked to another gateway
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE, slave.getName(), slave.getSerialNumber(), currentGateway.get().getName(), currentGateway.get().getSerialNumber());
             } else {
                 topologyService.clearPhysicalGateway(slave);
             }
         } else {
-            // TODO error not linked
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.END_DEVICE_IS_NOT_LINKED, slave.getName(), slave.getSerialNumber(), gateway.getName(), gateway.getSerialNumber());
         }
     }
 

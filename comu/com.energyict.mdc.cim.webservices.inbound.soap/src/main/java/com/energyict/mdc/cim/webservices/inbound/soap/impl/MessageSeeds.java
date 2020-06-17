@@ -65,8 +65,8 @@ public enum MessageSeeds implements MessageSeed {
     METROLOGY_CONFIG_NOT_ALLOW_GAPS(1035, "MetrologyConfigurationDoesntAllowGaps", "Meter ''{0}'' (serial number ''{1}'') is linked to usage point ''{2}'' with metrology configuration that doesn''t allow gaps so the meter can''t be deleted."),
     CANT_REMOVE_GATEWAY(1036, "CantRemoveGateway", "Meter ''{0}'' (serial number ''{1}'') can''t be removed while it''s still used as a gateway."),
     UNABLE_TO_DELETE_DEVICE(1037, "UnableToDeleteDevice", "Unable to delete device"),
-    NO_METER_WITH_MRID(1038, "NoMeterWithMRID", "No meter is found by MRID ''{0}''."),
-    NO_METER_WITH_NAME(1039, "NoMeterWithName", "No meter is found by name ''{0}''."),
+    NO_METER_WITH_MRID(1038, "NoMeterWithMRID", "No meter or gateway is found by MRID ''{0}''."),
+    NO_METER_WITH_NAME(1039, "NoMeterWithName", "No meter or gateway is found by name ''{0}''."),
     NO_END_DEVICE_WITH_MRID(1040, "NoEndDeviceWithMRID", "No end device is found by MRID ''{0}''."),
     NO_END_DEVICE_WITH_NAME(1041, "NoEndDeviceWithName", "No end device is found by name ''{0}''."),
 
@@ -93,6 +93,12 @@ public enum MessageSeeds implements MessageSeed {
     METER_AND_USAGE_POINT_NOT_LINKED(3011, "MeterAndUsagePointNotLinked",
             "Meter ''{0}'' is not linked to usage point ''{1}'' at the given time ''{2}''."),
     NO_METER_ROLE_WITH_KEY(3012, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
+    NOT_SUPPORTED_MASTER(3013, "NotSupportedMaster", "Device ''{0}'' (serial number ''{1}'') not configured to act as gateway."),
+    NOT_SUPPORTED_SLAVE(3014, "NotSupportedSlave","Device ''{0}'' (serial number ''{1}'') not configured to act as end device."),
+    CAN_NOT_BE_GATEWAY_TO_ITSELF(3015, "CanNotBeGatewayToItself", "Device ''{0}'' (serial number ''{1}'') can''t be its own gateway."),
+    CAN_NOT_UNLINK_ITSELF(3016, "CanNotUnlinkItself", "Device ''{0}'' (serial number ''{1}'') can''t be unlinked from itself."),
+    METER_ALREADY_LINKED_TO_END_DEVICE(3017, "MeterAlreadyLinkedToEndDevice", "End device ''{0}'' (serial number ''{1}'') already linked to gateway ''{2}'' (serial number ''{3}'')."),
+    END_DEVICE_IS_NOT_LINKED(3018, "EndDeviceIsNotLinked", "End device ''{0}'' (serial number ''{1}'') not linked to gateway ''{2}'' (serial number ''{3}'')."),
 
     // async
     COULD_NOT_FIND_SERVICE_CALL_TYPE(4001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),

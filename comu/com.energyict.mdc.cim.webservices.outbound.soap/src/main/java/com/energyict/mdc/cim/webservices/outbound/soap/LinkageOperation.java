@@ -9,6 +9,8 @@ public class LinkageOperation {
 	private String meterName;
 	private String usagePointMrid;
 	private String usagePointName;
+	private String endDeviceMrid;
+	private String endDeviceName;
 
 	public String getMeterMrid() {
 		return meterMrid;
@@ -42,4 +44,19 @@ public class LinkageOperation {
 		this.usagePointName = usagePointName;
 	}
 
+	public String getEndDeviceMrid() {
+		return endDeviceMrid;
+	}
+
+	public void setEndDeviceMrid(String endDeviceMrid) {
+		this.endDeviceMrid = endDeviceMrid;
+	}
+
+	public String getEndDeviceName() {
+		return endDeviceName;
+	}
+
+	public void setEndDeviceName(String endDeviceName) {
+		this.endDeviceName = endDeviceName;
+	}
 }

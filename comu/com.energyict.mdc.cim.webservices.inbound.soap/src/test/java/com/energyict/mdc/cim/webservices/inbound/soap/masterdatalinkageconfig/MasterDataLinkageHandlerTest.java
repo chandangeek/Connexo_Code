@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
@@ -54,7 +56,11 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     private static final String USAGE_POINT_MRID = "usagePointMRID";
     private static final String METER_NAME = "meterName";
     private static final String METER_MRID = "meterMRID";
+    private static final String END_DEVICE_NAME = "endDeviceName";
+    private static final String END_DEVICE_MRID = "endDeviceMRID";
     private static final String METER_ROLE = "meter.role.check";
+    private static final String METER_SERIAL_NUMBER = "meterSerialNumber";
+    private static final String END_DEVICE_SERIAL_NUMBER = "endDeviceSerialNumber";
 
     private static final Instant CREATED_DATE_TIME = LocalDate.of(2017, Month.JULY, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     private static final Instant EFFECTIVE_DATE_TIME = LocalDate.of(2017, Month.JULY, 5).atStartOfDay().toInstant(ZoneOffset.UTC);
@@ -64,11 +70,17 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     @Mock
     private UsagePoint usagePoint;
     @Mock
+    private Device meterDevice;
+    @Mock
+    private Device endDevice;
+    @Mock
     private MeterRole meterRole;
     @Mock
     private UsagePointMeterActivator usagePointMeterActivator;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private DeviceConfiguration deviceConfiguration1, deviceConfiguration2;
 
 
     @Before
@@ -95,7 +107,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     @Test
     public void testCreateLinkage_byMRID() throws Exception {
         //Prepare
-        MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .eraseEndDeviceList()
+                .build();
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
         when(meteringService.findUsagePointByMRID(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(metrologyConfigurationService.findMeterRole(METER_ROLE)).thenReturn(Optional.of(meterRole));
@@ -120,6 +134,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
                 .withMeterMRID(null)
                 .withUsagePointMRID(null)
+                .eraseEndDeviceList()
                 .build();
         when(meteringService.findMeterByName(METER_NAME)).thenReturn(Optional.of(meter));
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
@@ -140,9 +155,134 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     }
 
     @Test
+    public void testCreateEndDeviceLinkage_byMRID() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
+
+        //Verify
+        verify(usagePoint, never()).linkMeters();
+        verify(usagePointMeterActivator, never()).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator, never()).complete();
+        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
+    }
+
+    @Test
+    public void testCreateEndDeviceLinkage_byName() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(null)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
+
+        //Verify
+        verify(usagePoint, never()).linkMeters();
+        verify(usagePointMeterActivator, never()).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator, never()).complete();
+        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
+    }
+
+    @Test
+    public void testCreateEndDeviceAndUsagePointLinkage_byMRID() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .build();
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
+        when(meteringService.findUsagePointByMRID(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
+        when(metrologyConfigurationService.findMeterRole(METER_ROLE)).thenReturn(Optional.of(meterRole));
+        when(meter.getUsagePoint(CREATED_DATE_TIME)).thenReturn(Optional.empty());
+        when(usagePoint.linkMeters()).thenReturn(usagePointMeterActivator);
+        when(usagePointMeterActivator.activate(CREATED_DATE_TIME, meter, meterRole)).thenReturn(usagePointMeterActivator);
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
+
+        //Verify
+        verify(usagePoint, times(1)).linkMeters();
+        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator, times(1)).complete();
+        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
+    }
+
+    @Test
+    public void testCreateEndDeviceAndUsagePointLinkage_byName() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withMeterMRID(null)
+                .withUsagePointMRID(null)
+                .withEndDeviceMRID(null)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .build();
+        when(meteringService.findMeterByName(METER_NAME)).thenReturn(Optional.of(meter));
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
+        when(metrologyConfigurationService.findMeterRole(METER_ROLE)).thenReturn(Optional.of(meterRole));
+        when(meter.getUsagePoint(CREATED_DATE_TIME)).thenReturn(Optional.empty());
+        when(usagePoint.linkMeters()).thenReturn(usagePointMeterActivator);
+        when(usagePointMeterActivator.activate(CREATED_DATE_TIME, meter, meterRole)).thenReturn(usagePointMeterActivator);
+        when(deviceService.findDeviceByName(METER_NAME)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
+
+        //Verify
+        verify(usagePoint, times(1)).linkMeters();
+        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator, times(1)).complete();
+        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
+    }
+
+    @Test
     public void testCreateLinkage_roleNotSpecified() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .eraseEndDeviceList()
                 .withMeterRole(null)
                 .build();
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
@@ -189,6 +329,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     public void testCreateLinkage_bulkReceived() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .eraseEndDeviceList()
                 .spawnLists()
                 .build();
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
@@ -226,7 +367,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NO_METER_WITH_MRID.getErrorCode(),
-                    "No meter is found by MRID 'meterMRID'.");
+                    "No meter or gateway is found by MRID 'meterMRID'.");
             verify(usagePoint, never()).linkMeters();
         }
     }
@@ -246,7 +387,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NO_METER_WITH_NAME.getErrorCode(),
-                    "No meter is found by name 'meterName'.");
+                    "No meter or gateway is found by name 'meterName'.");
             verify(usagePoint, never()).linkMeters();
         }
     }
@@ -294,6 +435,51 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     }
 
     @Test
+    public void testCreateLinkage_EndDeviceNotFoundByMRID() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.createLinkage();
+            failNoException();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NO_END_DEVICE_WITH_MRID.getErrorCode(),
+                    "No end device is found by MRID 'endDeviceMRID'.");
+            verify(topologyService, never()).setPhysicalGateway(endDevice, meterDevice);
+        }
+    }
+
+    @Test
+    public void testCreateLinkage_EndDeviceNotFoundByName() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(null)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.createLinkage();
+            failNoException();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NO_END_DEVICE_WITH_NAME.getErrorCode(),
+                    "No end device is found by name 'endDeviceName'.");
+            verify(topologyService, never()).setPhysicalGateway(endDevice, meterDevice);
+        }
+    }
+
+    @Test
     public void testCreateLinkage_meterAndUsagePointAlreadyLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -315,13 +501,124 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             verify(usagePoint, never()).linkMeters();
         }
     }
+
+    @Test
+    public void testCreateLinkage_MeterAndEndDeviceAlreadyLinked() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+        when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(meterDevice.getName()).thenReturn(METER_NAME);
+        when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
+        when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.createLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE.getErrorCode(),
+                    "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') already linked to gateway 'meterName' (serial number 'meterSerialNumber').");
+            verify(topologyService, never()).setPhysicalGateway(endDevice, meterDevice);
+        }
+    }
+
+    @Test
+    public void testCreateLinkage_MeterAndEndDeviceAreTheSame() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(METER_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(meterDevice.getName()).thenReturn(METER_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.createLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.CAN_NOT_BE_GATEWAY_TO_ITSELF.getErrorCode(),
+                    "Device 'meterName' (serial number 'meterSerialNumber') can't be its own gateway.");
+            verify(topologyService, never()).setPhysicalGateway(meterDevice, meterDevice);
+        }
+    }
+
+    @Test
+    public void testCreateLinkage_MeterAndEndDeviceNotSupportedMaster() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(false);
+        when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(meterDevice.getName()).thenReturn(METER_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.createLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NOT_SUPPORTED_MASTER.getErrorCode(),
+                    "Device 'meterName' (serial number 'meterSerialNumber') not configured to act as gateway.");
+            verify(topologyService, never()).setPhysicalGateway(meterDevice, meterDevice);
+        }
+    }
+
+    @Test
+    public void testCreateLinkage_MeterAndEndDeviceNotSupportedSlave() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(true);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+        when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(meterDevice.getName()).thenReturn(METER_NAME);
+        when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
+        when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.createLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NOT_SUPPORTED_SLAVE.getErrorCode(),
+                    "Device 'endDeviceName' (serial number 'endDeviceSerialNumber') not configured to act as end device.");
+            verify(topologyService, never()).setPhysicalGateway(endDevice, meterDevice);
+        }
+    }
     //</editor-fold>
 
     //<editor-fold desc="Close linkage">
     @Test
     public void testCloseLinkage_byMRID() throws Exception {
         //Prepare
-        MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .eraseEndDeviceList()
+                .build();
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
         when(meteringService.findUsagePointByMRID(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getMeterActivations(EFFECTIVE_DATE_TIME)).thenReturn(Collections.singletonList(meterActivation));
@@ -347,6 +644,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
                 .withUsagePointMRID(null)
                 .withMeterMRID(null)
+                .eraseEndDeviceList()
                 .build();
         when(meteringService.findMeterByName(METER_NAME)).thenReturn(Optional.of(meter));
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
@@ -368,6 +666,130 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     }
 
     @Test
+    public void testCloseEndDeviceLinkage_byMRID() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
+
+        //Verify
+        verify(usagePoint, never()).linkMeters();
+        verify(usagePointMeterActivator, never()).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator, never()).complete();
+        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
+    }
+
+    @Test
+    public void testCloseEndDeviceLinkage_byName() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(null)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
+
+        //Verify
+        verify(usagePoint, never()).linkMeters();
+        verify(usagePointMeterActivator, never()).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator, never()).complete();
+        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
+    }
+
+    @Test
+    public void testCloseEndDeviceAndUsagePointLinkage_byMRID() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
+        when(meteringService.findUsagePointByMRID(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getMeterActivations(EFFECTIVE_DATE_TIME)).thenReturn(Collections.singletonList(meterActivation));
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
+        when(usagePoint.linkMeters()).thenReturn(usagePointMeterActivator);
+        when(usagePointMeterActivator.clear(EFFECTIVE_DATE_TIME, meterRole)).thenReturn(usagePointMeterActivator);
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
+
+        //Verify
+        verify(usagePoint, times(1)).linkMeters();
+        verify(usagePointMeterActivator, times(1)).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator, times(1)).complete();
+        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
+    }
+
+    @Test
+    public void testCloseEndDeviceAndUsagePointLinkage_byName() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withUsagePointMRID(null)
+                .withMeterMRID(null)
+                .withEndDeviceMRID(null)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .build();
+        when(deviceService.findDeviceByName(METER_NAME)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
+        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
+        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
+        when(meteringService.findMeterByName(METER_NAME)).thenReturn(Optional.of(meter));
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getMeterActivations(EFFECTIVE_DATE_TIME)).thenReturn(Collections.singletonList(meterActivation));
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
+        when(usagePoint.linkMeters()).thenReturn(usagePointMeterActivator);
+        when(usagePointMeterActivator.clear(EFFECTIVE_DATE_TIME, meterRole)).thenReturn(usagePointMeterActivator);
+
+        //Act
+        linkageHandler.forMessage(message);
+        MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
+
+        //Verify
+        verify(usagePoint, times(1)).linkMeters();
+        verify(usagePointMeterActivator, times(1)).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator, times(1)).complete();
+        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
+    }
+
+    @Test
     public void testCloseLinkage_meterNotFoundByMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -380,7 +802,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.NO_METER_WITH_MRID.getErrorCode(),
-                    "No meter is found by MRID 'meterMRID'.");
+                    "No meter or gateway is found by MRID 'meterMRID'.");
             verify(usagePoint, never()).linkMeters();
         }
     }
@@ -400,7 +822,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.NO_METER_WITH_NAME.getErrorCode(),
-                    "No meter is found by name 'meterName'.");
+                    "No meter or gateway is found by name 'meterName'.");
             verify(usagePoint, never()).linkMeters();
         }
     }
@@ -446,6 +868,51 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     }
 
     @Test
+    public void testCloseLinkage_EndDeviceNotFoundByMRID() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.closeLinkage();
+            failNoException();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.NO_END_DEVICE_WITH_MRID.getErrorCode(),
+                    "No end device is found by MRID 'endDeviceMRID'.");
+            verify(topologyService, never()).setPhysicalGateway(endDevice, meterDevice);
+        }
+    }
+
+    @Test
+    public void testCloseLinkage_EndDeviceNotFoundByName() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(null)
+                .withEndDeviceName(END_DEVICE_NAME)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.closeLinkage();
+            failNoException();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.NO_END_DEVICE_WITH_NAME.getErrorCode(),
+                    "No end device is found by name 'endDeviceName'.");
+            verify(topologyService, never()).setPhysicalGateway(endDevice, meterDevice);
+        }
+    }
+
+    @Test
     public void testCloseLinkage_meterAndUsagePointNotLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -463,6 +930,109 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.METER_AND_USAGE_POINT_NOT_LINKED.getErrorCode(),
                     "Meter 'meterName' is not linked to usage point 'usagePointName' at the given time '2017-07-05T12:00:00+12:00'.");
             verify(usagePoint, never()).linkMeters();
+        }
+    }
+
+    @Test
+    public void testCloseLinkage_meterAndEndDeviceNotLinked() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+        when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(meterDevice.getName()).thenReturn(METER_NAME);
+        when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
+        when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.closeLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.END_DEVICE_IS_NOT_LINKED.getErrorCode(),
+                    "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') not linked to gateway 'meterName' (serial number 'meterSerialNumber').");
+            verify(topologyService, never()).clearPhysicalGateway(endDevice);
+        }
+    }
+
+    @Test
+    public void testCloseLinkage_meterAndEndDeviceAreTheSame() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(METER_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(meterDevice.getName()).thenReturn(METER_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.closeLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.CAN_NOT_UNLINK_ITSELF.getErrorCode(),
+                    "Device 'meterName' (serial number 'meterSerialNumber') can't be unlinked from itself.");
+            verify(topologyService, never()).clearPhysicalGateway(endDevice);
+        }
+    }
+
+    @Test
+    public void testCloseLinkage_meterAndEndDeviceNotSupportedSlave() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(true);
+        when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
+        when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.closeLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.NOT_SUPPORTED_SLAVE.getErrorCode(),
+                    "Device 'endDeviceName' (serial number 'endDeviceSerialNumber') not configured to act as end device.");
+            verify(topologyService, never()).clearPhysicalGateway(endDevice);
+        }
+    }
+
+    @Test
+    public void testCloseLinkage_meterAndEndDevicAlreadyLinked() throws Exception {
+        //Prepare
+        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
+                .withEndDeviceMRID(END_DEVICE_MRID)
+                .eraseUsagePointList()
+                .build();
+        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
+        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
+        when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(meterDevice.getName()).thenReturn(METER_NAME);
+        when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
+        when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
+
+        //Act and verify
+        try {
+            linkageHandler.forMessage(message);
+            linkageHandler.closeLinkage();
+        } catch (FaultMessage e) {
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE.getErrorCode(),
+                    "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') already linked to gateway 'meterName' (serial number 'meterSerialNumber').");
+            verify(topologyService, never()).clearPhysicalGateway(endDevice);
         }
     }
     //</editor-fold>

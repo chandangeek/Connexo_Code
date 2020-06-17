@@ -5,6 +5,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalin
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedLinkageOperation;
@@ -93,6 +94,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     @Mock
     private UsagePointInfo usagePointInfo;
     @Mock
+    private EndDeviceInfo endDeviceInfo;
+    @Mock
     private MeterInfo meterInfo;
     @Mock
     private MasterDataLinkageConfigDomainExtension masterDataLinkageConfigDomainExtension;
@@ -134,6 +137,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)).thenReturn(true);
 
         when(jsonService.deserialize(anyString(), eq(UsagePointInfo.class))).thenReturn(usagePointInfo);
+        when(jsonService.deserialize(anyString(), eq(EndDeviceInfo.class))).thenReturn(endDeviceInfo);
         when(jsonService.deserialize(anyString(), eq(MeterInfo.class))).thenReturn(meterInfo);
 
         when(serviceCall.findChildren()).thenReturn(finder);

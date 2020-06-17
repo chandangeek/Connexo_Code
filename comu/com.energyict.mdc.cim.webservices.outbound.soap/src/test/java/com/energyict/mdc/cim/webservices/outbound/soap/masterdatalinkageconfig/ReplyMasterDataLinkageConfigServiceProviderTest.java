@@ -17,6 +17,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.LinkageOperation;
 
+import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
@@ -62,6 +63,10 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     private static final String ERROR_CODE = "my error code";
     private static final String ERROR_MESSAGE = "my error message";
     private static final String CORRELATION_ID = "CorrelationID";
+    private static final String FAILURE_END_DEVICE_MRID = "my failure end device mrid";
+    private static final String FAILURE_END_DEVICE_NAME = "my failure end device name";
+    private static final String SUCCESS_END_DEVICE_MRID = "my success end device mrid";
+    private static final String SUCCESS_END_DEVICE_NAME = "my success end device name";
     private ReplyMasterDataLinkageConfigServiceProvider provider;
     @Mock
     private EndPointConfiguration endPointConfiguration;
@@ -100,9 +105,13 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         Mockito.when(failedLinkage.getErrorMessage()).thenReturn(ERROR_MESSAGE);
         Mockito.when(failedLinkage.getMeterMrid()).thenReturn(FAILURE_METER_MRID);
         Mockito.when(failedLinkage.getMeterName()).thenReturn(FAILURE_METER_NAME);
+        Mockito.when(failedLinkage.getEndDeviceMrid()).thenReturn(FAILURE_END_DEVICE_MRID);
+        Mockito.when(failedLinkage.getEndDeviceName()).thenReturn(FAILURE_END_DEVICE_NAME);
 
         Mockito.when(successfulLinkage.getMeterMrid()).thenReturn(SUCCESS_METER_MRID);
         Mockito.when(successfulLinkage.getMeterName()).thenReturn(SUCCESS_METER_NAME);
+        Mockito.when(successfulLinkage.getEndDeviceMrid()).thenReturn(SUCCESS_END_DEVICE_MRID);
+        Mockito.when(successfulLinkage.getEndDeviceName()).thenReturn(SUCCESS_END_DEVICE_NAME);
         Mockito.when(successfulLinkage.getUsagePointMrid()).thenReturn(SUCCESS_USAGE_POINT_MRID);
         Mockito.when(successfulLinkage.getUsagePointName()).thenReturn(SUCCESS_USAGE_POINT_NAME);
     }
@@ -132,11 +141,14 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 Assert.assertNotNull(config);
                                 List<Meter> meters = config.getMeter();
                                 List<UsagePoint> usagePoints = config.getUsagePoint();
+                                List<EndDevice> endDevices = config.getEndDevice();
                                 Assert.assertEquals(1, meters.size());
                                 Assert.assertEquals(1, usagePoints.size());
+                                Assert.assertEquals(1, endDevices.size());
                                 Meter meter = meters.get(0);
                                 UsagePoint usagePoint = usagePoints.get(0);
-                                verifyLinkage(meter, usagePoint);
+                                EndDevice endDevice = endDevices.get(0);
+                                verifyLinkage(meter, usagePoint, endDevice);
                                 Assert.assertEquals(CORRELATION_ID, message.getHeader().getCorrelationID());
                                 return null;
                             }
@@ -149,6 +161,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         successfulLinkages.forEach(link->{
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
         });
@@ -156,6 +170,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         failedLinkages.forEach(link->{
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
         });
@@ -197,6 +213,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         successfulLinkages.forEach(link->{
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
         });
@@ -204,6 +222,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         failedLinkages.forEach(link->{
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
         });
@@ -241,11 +261,12 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 MasterDataLinkageConfig config = payload.getMasterDataLinkageConfig();
                                 Assert.assertNotNull(config);
                                 List<Meter> meters = config.getMeter();
+                                List<EndDevice> endDevices = config.getEndDevice();
                                 List<UsagePoint> usagePoints = config.getUsagePoint();
                                 Assert.assertEquals(successfulLinkages.size(), meters.size());
                                 Assert.assertEquals(successfulLinkages.size(), usagePoints.size());
                                 for (int index = 0; index < successfulLinkages.size(); index++) {
-                                    verifyLinkage(meters.get(index), usagePoints.get(index));
+                                    verifyLinkage(meters.get(index), usagePoints.get(index), endDevices.get(index));
                                 }
 
                                 Assert.assertEquals(CORRELATION_ID, message.getHeader().getCorrelationID());
@@ -260,6 +281,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         successfulLinkages.forEach(link->{
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
         });
@@ -267,6 +290,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         failedLinkages.forEach(link->{
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
         });
@@ -290,7 +315,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         Assert.assertEquals("Meter", failureObject.getObjectType());
     }
 
-    private void verifyLinkage(Meter meter, UsagePoint usagePoint) {
+    private void verifyLinkage(Meter meter, UsagePoint usagePoint, EndDevice endDevice) {
         {
             Assert.assertNotNull(meter);
             Assert.assertEquals(SUCCESS_METER_MRID, meter.getMRID());
@@ -300,7 +325,14 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
             Assert.assertEquals(SUCCESS_METER_NAME, names.get(0).getName());
         }
         {
-
+            Assert.assertNotNull(endDevice);
+            Assert.assertEquals(SUCCESS_END_DEVICE_MRID, endDevice.getMRID());
+            List<ch.iec.tc57._2011.masterdatalinkageconfig.Name> names = endDevice.getNames();
+            Assert.assertNotNull(names);
+            Assert.assertEquals(1, names.size());
+            Assert.assertEquals(SUCCESS_END_DEVICE_NAME, names.get(0).getName());
+        }
+        {
             Assert.assertNotNull(usagePoint);
             Assert.assertEquals(SUCCESS_USAGE_POINT_MRID, usagePoint.getMRID());
             List<ch.iec.tc57._2011.masterdatalinkageconfig.Name> names = usagePoint.getNames();

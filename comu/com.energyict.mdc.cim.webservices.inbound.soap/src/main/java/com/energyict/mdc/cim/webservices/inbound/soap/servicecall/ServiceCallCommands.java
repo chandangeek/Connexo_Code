@@ -101,6 +101,9 @@ import java.util.stream.Collectors;
 
 public class ServiceCallCommands {
 
+    private static final String END_DEVICE_AND_USAGE_POINT = "End device and Usage point nodes";
+    private static final String METER = "Meter";
+
     public enum ServiceCallTypes {
         MASTER_METER_CONFIG(MeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigMasterServiceCallHandler.VERSION, MeterConfigMasterServiceCallHandler.APPLICATION, MeterConfigMasterCustomPropertySet.class
                 .getName()),
@@ -366,10 +369,12 @@ public class ServiceCallCommands {
                 .getMasterDataLinkageConfig().getMeter();
         final ConfigurationEvent configurationEvent = config.getPayload().getMasterDataLinkageConfig().getConfigurationEvent();
         if (endDevices.isEmpty() && usagePoints.isEmpty()) {
-            // TODO exception WS10007
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
         }
         if (meters.isEmpty()) {
-            // TODO exception MissingMridOrNameForElementMeter
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, METER);
         }
         if (!usagePoints.isEmpty() && usagePoints.size() != meters.size()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,

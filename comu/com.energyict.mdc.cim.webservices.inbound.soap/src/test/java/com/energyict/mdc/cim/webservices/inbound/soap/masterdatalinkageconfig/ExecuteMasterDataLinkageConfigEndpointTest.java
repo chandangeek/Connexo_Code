@@ -129,6 +129,25 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     }
 
     @Test
+    public void testCreateMasterDataLinkageConfigEndDevice() throws Exception {
+        // Prepare
+        when(linkageHandler.createLinkage()).thenReturn(response);
+        message = getValidMessage()
+                .withEndDeviceMRID("edmr")
+                .withEndDeviceName("ednm")
+                .build();
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), "ednm");
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), "edmr");
+
+        // Act
+        MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.createMasterDataLinkageConfig(message);
+
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+        // Verify
+        assertThat(actualResponse).isNotNull().isSameAs(response);
+        verify(linkageHandler).forMessage(message);
+    }
+    @Test
     public void testCreateMasterDataLinkageConfig_verboseConstraintViolationException() throws Exception {
         // Prepare
         doThrow(violationException).when(linkageHandler).createLinkage();
@@ -165,6 +184,26 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     public void testCloseMasterDataLinkageConfig() throws Exception {
         // Prepare
         when(linkageHandler.closeLinkage()).thenReturn(response);
+
+        // Act
+        MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.closeMasterDataLinkageConfig(message);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+
+        // Verify
+        assertThat(actualResponse).isNotNull().isSameAs(response);
+        verify(linkageHandler).forMessage(message);
+    }
+
+    @Test
+    public void testCloseMasterDataLinkageConfigEndDevice() throws Exception {
+        // Prepare
+        when(linkageHandler.closeLinkage()).thenReturn(response);
+        message = getValidMessage()
+                .withEndDeviceMRID("edmr")
+                .withEndDeviceName("ednm")
+                .build();
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), "ednm");
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), "edmr");
 
         // Act
         MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.closeMasterDataLinkageConfig(message);

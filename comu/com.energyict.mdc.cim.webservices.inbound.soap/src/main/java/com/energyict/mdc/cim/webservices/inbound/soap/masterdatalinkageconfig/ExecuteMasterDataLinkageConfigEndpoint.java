@@ -97,6 +97,15 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
                             }
                 });
                 message.getPayload()
+                        .getMasterDataLinkageConfig().getEndDevice().stream().forEach(endDevice ->{
+                    if (!endDevice.getNames().isEmpty()) {
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), endDevice.getNames().get(0).getName());
+                    }
+                    if (endDevice.getMRID()!= null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), endDevice.getMRID());
+                    }
+                });
+                message.getPayload()
                         .getMasterDataLinkageConfig().getUsagePoint().stream().forEach(usagePoint ->{
                     if (!usagePoint.getNames().isEmpty()) {
                         values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());

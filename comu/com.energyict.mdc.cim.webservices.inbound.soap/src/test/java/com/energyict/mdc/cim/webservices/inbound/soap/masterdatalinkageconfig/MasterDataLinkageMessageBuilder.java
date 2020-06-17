@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
+import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Name;
@@ -20,10 +21,13 @@ public class MasterDataLinkageMessageBuilder {
     private String meterRole;
     private String usagePointName;
     private String usagePointMRID;
+    private String endDeviceName;
+    private String endDeviceMRID;
     private Instant createdDateTime;
     private Instant effectiveDateTime;
     private boolean eraseMeterList = false;
     private boolean eraseUsagePointList = false;
+    private boolean eraseEndDeviceList = false;
     private boolean spawnLists = false;
     private boolean dropPayload = false;
     private boolean dropConfigEvent = false;
@@ -74,6 +78,18 @@ public class MasterDataLinkageMessageBuilder {
         return this;
     }
 
+    MasterDataLinkageMessageBuilder withEndDeviceMRID(String endDeviceMRID) {
+        this.endDeviceMRID = endDeviceMRID;
+        eraseEndDeviceList = false;
+        return this;
+    }
+
+    MasterDataLinkageMessageBuilder withEndDeviceName(String endDeviceName) {
+        this.endDeviceName = endDeviceName;
+        eraseEndDeviceList = false;
+        return this;
+    }
+
     MasterDataLinkageMessageBuilder withCreatedDateTime(Instant createdDateTime) {
         this.createdDateTime = createdDateTime;
         return this;
@@ -91,6 +107,11 @@ public class MasterDataLinkageMessageBuilder {
 
     MasterDataLinkageMessageBuilder eraseUsagePointList() {
         eraseUsagePointList = true;
+        return this;
+    }
+
+    MasterDataLinkageMessageBuilder eraseEndDeviceList() {
+        eraseEndDeviceList = true;
         return this;
     }
 
@@ -139,8 +160,22 @@ public class MasterDataLinkageMessageBuilder {
             configNode.getUsagePoint().add(usagePointNode);
         }
 
+        if (!eraseEndDeviceList) {
+            EndDevice endDeviceNode = contentFactory.createEndDevice();
+            endDeviceNode.setMRID(endDeviceMRID);
+            if (endDeviceName != null) {
+                Name endDeviceNameNode = contentFactory.createName();
+                endDeviceNameNode.setName(endDeviceName);
+                endDeviceNode.getNames().add(endDeviceNameNode);
+            }
+            configNode.getEndDevice().add(endDeviceNode);
+        }
+
         if (spawnLists && !eraseUsagePointList) {
             configNode.getUsagePoint().add(configNode.getUsagePoint().get(0));
+        }
+        if (spawnLists && !eraseEndDeviceList) {
+            configNode.getEndDevice().add(configNode.getEndDevice().get(0));
         }
         if (spawnLists && !eraseMeterList) {
             configNode.getMeter().add(configNode.getMeter().get(0));
