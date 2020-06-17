@@ -135,7 +135,7 @@ public class WebSocketQueryApiService {
 
     @OnWebSocketError
     public void onError(Throwable e) {
-        sendMessage(ERROR_PREFIX + MESSAGE_NOT_UNDERSTOOD + e.getMessage());
+        sendMessage(ERROR_PREFIX + e.getLocalizedMessage());
     }
 
     private void executeQuery(JSONObject jsonQuery, String queryMethodName, String queryId) {
