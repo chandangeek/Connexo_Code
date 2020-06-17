@@ -139,24 +139,28 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	private MasterDataLinkageConfig createMasterDataLinkageConfig(List<LinkageOperation> successfulLinkageOperations) {
 		MasterDataLinkageConfig config = new MasterDataLinkageConfig();
 		successfulLinkageOperations.forEach(linkage -> {
-			UsagePoint usagePoint = new UsagePoint();
-			usagePoint.setMRID(linkage.getUsagePointMrid());
-			ch.iec.tc57._2011.masterdatalinkageconfig.Name upName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
-			upName.setName(linkage.getUsagePointName());
-			usagePoint.getNames().add(upName);
-			config.getUsagePoint().add(usagePoint);
+			if (linkage.getUsagePointMrid() != null || linkage.getUsagePointName() != null) {
+				UsagePoint usagePoint = new UsagePoint();
+				usagePoint.setMRID(linkage.getUsagePointMrid());
+				ch.iec.tc57._2011.masterdatalinkageconfig.Name upName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
+				upName.setName(linkage.getUsagePointName());
+				usagePoint.getNames().add(upName);
+				config.getUsagePoint().add(usagePoint);
+			}
 			Meter meter = new Meter();
 			meter.setMRID(linkage.getMeterMrid());
 			ch.iec.tc57._2011.masterdatalinkageconfig.Name meterName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
 			meterName.setName(linkage.getMeterName());
 			meter.getNames().add(meterName);
 			config.getMeter().add(meter);
-			EndDevice endDevice = new EndDevice();
-			endDevice.setMRID(linkage.getEndDeviceMrid());
-			ch.iec.tc57._2011.masterdatalinkageconfig.Name endDeviceName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
-			endDeviceName.setName(linkage.getEndDeviceName());
-			endDevice.getNames().add(endDeviceName);
-			config.getEndDevice().add(endDevice);
+			if (linkage.getEndDeviceMrid() != null || linkage.getEndDeviceName() != null) {
+				EndDevice endDevice = new EndDevice();
+				endDevice.setMRID(linkage.getEndDeviceMrid());
+				ch.iec.tc57._2011.masterdatalinkageconfig.Name endDeviceName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
+				endDeviceName.setName(linkage.getEndDeviceName());
+				endDevice.getNames().add(endDeviceName);
+				config.getEndDevice().add(endDevice);
+			}
 
 		});
 		return config;
