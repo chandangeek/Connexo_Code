@@ -5,8 +5,15 @@
 package com.elster.jupiter.orm.h2;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.h2.H2OrmModule;
+import com.elster.jupiter.orm.Blob;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.FileBlob;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.SimpleBlob;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -18,7 +25,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import org.assertj.core.api.Assertions;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
@@ -36,6 +42,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.logging.Logger;
 
+import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -57,7 +64,7 @@ public class LobTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
-//    private static OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
+    //    private static OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
     private static BundleContext bundleContext;
     private static Principal principal;
     private static FileSystem fileSystem;
@@ -68,28 +75,28 @@ public class LobTest {
         bundleContext = mock(BundleContext.class);
         principal = mock(Principal.class);
 // Uncomment to work with OracleBootstrapModule
-//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
-//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
-//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
-    	Module module = new AbstractModule() {
-    		@Override
-    		public void configure() {
-    			this.bind(BundleContext.class).toInstance(bundleContext);
-    		}
+//        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
+//        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
+//        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
+        Module module = new AbstractModule() {
+            @Override
+            public void configure() {
+                this.bind(BundleContext.class).toInstance(bundleContext);
+            }
         };
         injector = Guice.createInjector(
-        			module,
-					bootstrapModule,
-        			new UtilModule(),
-        			new ThreadSecurityModule(principal),
-        			new PubSubModule(),
-        			new TransactionModule(false),
-        			new H2OrmModule());
+                module,
+                bootstrapModule,
+                new UtilModule(),
+                new ThreadSecurityModule(principal),
+                new PubSubModule(),
+                new TransactionModule(false),
+                new H2OrmModule());
 // Uncomment to work with OracleBootstrapModule
-//        			new OrmModule(new OracleSchemaInfo()));
+//                    new OrmModule(new OracleSchemaInfo()));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	injector.getInstance(OrmService.class);
-        	ctx.commit();
+            injector.getInstance(OrmService.class);
+            ctx.commit();
         }
         fileSystem = mock(FileSystem.class);
         fileSystemProvider = mock(FileSystemProvider.class);
@@ -99,7 +106,7 @@ public class LobTest {
     @AfterClass
     public static void tearDown() throws SQLException {
         dropTables();
-    	bootstrapModule.deactivate();
+        bootstrapModule.deactivate();
     }
 
     private static void dropTables() throws SQLException {
@@ -126,57 +133,57 @@ public class LobTest {
 
     @Test
     public void testInsert() throws SQLException {
-    	OrmService service = injector.getInstance(OrmService.class);
-    	DataModel dataModel = findOrCreateDataModel(service);
-    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		LobTestTuple tuple = new LobTestTuple(dataModel);
-    		for (int i = 0 ; i < LOB_LENGTH ; i++) {
-    			tuple.charLob += "x";
-    		}
-    		tuple.byteLob = tuple.charLob.getBytes();
-    		tuple.realBlob = SimpleBlob.fromString(tuple.charLob);
-    		// round to second
-    		Instant now = Instant.ofEpochSecond(System.currentTimeMillis()/1000L);
-    		tuple.realDate = now;
-    		dataModel.persist(tuple);
+        OrmService service = injector.getInstance(OrmService.class);
+        DataModel dataModel = findOrCreateDataModel(service);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            LobTestTuple tuple = new LobTestTuple(dataModel);
+            for (int i = 0; i < LOB_LENGTH; i++) {
+                tuple.charLob += "x";
+            }
+            tuple.byteLob = tuple.charLob.getBytes();
+            tuple.realBlob = SimpleBlob.fromString(tuple.charLob);
+            // round to second
+            Instant now = Instant.ofEpochSecond(System.currentTimeMillis() / 1000L);
+            tuple.realDate = now;
+            dataModel.persist(tuple);
 
-    		LobTestTuple alias = dataModel.mapper(LobTestTuple.class).getExisting(tuple.id);
-    		assertThat(alias.charLob).isEqualTo(tuple.charLob);
-    		assertThat(alias.byteLob).isEqualTo(tuple.byteLob);
-    		Assertions.assertThat(alias.realBlob).isNotNull();
-    		Assertions.assertThat(alias.realBlob.length()).isEqualTo(LOB_LENGTH);
-    		assertThat(alias.realDate).isEqualTo(now);
-    		assertThat(alias.nullDate).isNull();
-    		ctx.commit();
-    	}
+            LobTestTuple alias = dataModel.mapper(LobTestTuple.class).getExisting(tuple.id);
+            assertThat(alias.charLob).isEqualTo(tuple.charLob);
+            assertThat(alias.byteLob).isEqualTo(tuple.byteLob);
+            Assertions.assertThat(alias.realBlob).isNotNull();
+            Assertions.assertThat(alias.realBlob.length()).isEqualTo(LOB_LENGTH);
+            assertThat(alias.realDate).isEqualTo(now);
+            assertThat(alias.nullDate).isNull();
+            ctx.commit();
+        }
     }
 
     @Test
     public void testInsertNull() throws SQLException {
-    	OrmService service = injector.getInstance(OrmService.class);
-    	DataModel dataModel = findOrCreateDataModel(service);
-    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		LobTestTuple tuple = new LobTestTuple(dataModel);
-    		// round to second
-    		Instant now = Instant.ofEpochSecond(System.currentTimeMillis()/1000L);
-    		tuple.realDate = now;
-    		dataModel.persist(tuple);
+        OrmService service = injector.getInstance(OrmService.class);
+        DataModel dataModel = findOrCreateDataModel(service);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            LobTestTuple tuple = new LobTestTuple(dataModel);
+            // round to second
+            Instant now = Instant.ofEpochSecond(System.currentTimeMillis() / 1000L);
+            tuple.realDate = now;
+            dataModel.persist(tuple);
 
-    		LobTestTuple alias = dataModel.mapper(LobTestTuple.class).getExisting(tuple.id);
-    		assertThat(alias.charLob).isNullOrEmpty();
-    		assertThat(alias.byteLob).isNullOrEmpty();
-    		Assertions.assertThat(alias.realBlob).isNotNull();
-    		Assertions.assertThat(alias.realBlob.length()).isZero();
-    		assertThat(alias.realDate).isEqualTo(now);
-    		assertThat(alias.nullDate).isNull();
-    		ctx.commit();
-    	}
+            LobTestTuple alias = dataModel.mapper(LobTestTuple.class).getExisting(tuple.id);
+            assertThat(alias.charLob).isNullOrEmpty();
+            assertThat(alias.byteLob).isNullOrEmpty();
+            Assertions.assertThat(alias.realBlob).isNotNull();
+            Assertions.assertThat(alias.realBlob.length()).isZero();
+            assertThat(alias.realDate).isEqualTo(now);
+            assertThat(alias.nullDate).isNull();
+            ctx.commit();
+        }
     }
 
     @Test
     public void testInsertFromFileClosesFileInputStream() throws SQLException, IOException {
-    	OrmService service = injector.getInstance(OrmService.class);
-    	DataModel dataModel = findOrCreateDataModel(service);
+        OrmService service = injector.getInstance(OrmService.class);
+        DataModel dataModel = findOrCreateDataModel(service);
         Path path = mock(Path.class);
         when(path.getFileSystem()).thenReturn(fileSystem);
         InputStream pathIS = mock(InputStream.class);
@@ -185,18 +192,18 @@ public class LobTest {
         when(pathIS.read(any(byte[].class))).thenReturn(-1);
         when(pathIS.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
         when(fileSystemProvider.newInputStream(path)).thenReturn(pathIS);
-    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		LobTestTuple tuple = new LobTestTuple(dataModel, path);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            LobTestTuple tuple = new LobTestTuple(dataModel, path);
             tuple.charLob = "testInsertFromFileClosesFileInputStream";
             tuple.byteLob = tuple.charLob.getBytes();
-    		tuple.realDate = Instant.now();
+            tuple.realDate = Instant.now();
 
             // Business method
             dataModel.persist(tuple);
 
             // Asserts
-    		verify(pathIS).close();
-    	}
+            verify(pathIS).close();
+        }
     }
 
     // Ignore when working with InMemoryBootstrapModule because H2 does not have support for updating BLOB columns
@@ -208,7 +215,7 @@ public class LobTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             LobTestTuple tuple = new LobTestTuple(dataModel);
             // round to second
-            Instant now = Instant.ofEpochSecond(System.currentTimeMillis()/1000L);
+            Instant now = Instant.ofEpochSecond(System.currentTimeMillis() / 1000L);
             tuple.realDate = now;
             dataModel.persist(tuple);
 
@@ -226,28 +233,28 @@ public class LobTest {
     @Ignore
     @Test
     public void testUpdate() throws IOException {
-    	OrmService service = injector.getInstance(OrmService.class);
+        OrmService service = injector.getInstance(OrmService.class);
         DataModel dataModel = findOrCreateDataModel(service);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             LobTestTuple tuple = new LobTestTuple(dataModel);
-    		for (int i = 0 ; i < LOB_LENGTH ; i++) {
-    			tuple.charLob += "x";
-    		}
-    		tuple.byteLob = tuple.charLob.getBytes();
-    		tuple.realBlob = SimpleBlob.fromString(tuple.charLob);
-    		// round to second
-    		Instant now = Instant.ofEpochSecond(System.currentTimeMillis()/1000L);
-    		tuple.realDate = now;
-    		dataModel.persist(tuple);
+            for (int i = 0; i < LOB_LENGTH; i++) {
+                tuple.charLob += "x";
+            }
+            tuple.byteLob = tuple.charLob.getBytes();
+            tuple.realBlob = SimpleBlob.fromString(tuple.charLob);
+            // round to second
+            Instant now = Instant.ofEpochSecond(System.currentTimeMillis() / 1000L);
+            tuple.realDate = now;
+            dataModel.persist(tuple);
 
-    		LobTestTuple forUpdatePurposes = dataModel.mapper(LobTestTuple.class).getExisting(tuple.id);
+            LobTestTuple forUpdatePurposes = dataModel.mapper(LobTestTuple.class).getExisting(tuple.id);
             forUpdatePurposes.updateRealBlob("Hello world!");
 
             LobTestTuple loadedAfterUpdate = dataModel.mapper(LobTestTuple.class).getExisting(tuple.id);
-    		Assertions.assertThat(loadedAfterUpdate.realBlob).isNotNull();
-    		Assertions.assertThat(loadedAfterUpdate.realBlob.length()).isEqualTo(12L);
-    		ctx.commit();
-    	}
+            Assertions.assertThat(loadedAfterUpdate.realBlob).isNotNull();
+            Assertions.assertThat(loadedAfterUpdate.realBlob.length()).isEqualTo(12L);
+            ctx.commit();
+        }
     }
 
     private static DataModel findOrCreateDataModel(OrmService service) {
@@ -275,13 +282,13 @@ public class LobTest {
     private static class LobTestTuple {
         private final DataModel dataModel;
 
-    	@SuppressWarnings("unused")
-		private long id;
-    	private String charLob = "";
-    	private byte[] byteLob;
-    	private Blob realBlob = SimpleBlob.empty();
-    	private Instant realDate;
-    	private Instant nullDate;
+        @SuppressWarnings("unused")
+        private long id;
+        private String charLob = "";
+        private byte[] byteLob;
+        private Blob realBlob = SimpleBlob.empty();
+        private Instant realDate;
+        private Instant nullDate;
 
         @Inject
         private LobTestTuple(DataModel dataModel) {
