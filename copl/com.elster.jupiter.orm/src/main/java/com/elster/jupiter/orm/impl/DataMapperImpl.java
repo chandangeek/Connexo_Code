@@ -197,7 +197,8 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
          * In no , it means that cache was invalidated or eviction time was expired. In both cases we have to load table to cache again.*/
         if (cache.reloadCacheIfNeeded(cacheVersion, (Finder)this, keyValue)){
             cacheVersion = cache.get(keyValue);
-        }        if (cacheVersion != null) {
+        }
+        if (cacheVersion != null) {
             if (api.isInstance(cacheVersion)) {
                 return Optional.of(api.cast(cacheVersion));
             } else {

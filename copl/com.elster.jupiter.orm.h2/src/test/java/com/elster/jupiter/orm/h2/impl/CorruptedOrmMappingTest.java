@@ -198,15 +198,14 @@ public class CorruptedOrmMappingTest {
         table.prepare();
     }
 
-    // TODO: uncomment when caching whole tables is available
-//    @Test
-//    @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": can't cache table without primary key.")
-//    public void testCannotCacheWholeTableWithoutPrimaryKey() {
-//        table.map(Dummy.class);
-//        table.column("ONE").number().map("field").add();
-//        table.cacheWholeTable(false);
-//        table.prepare();
-//    }
+    @Test
+    @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": can't cache table without primary key.")
+    public void testCannotCacheWholeTableWithoutPrimaryKey() {
+        table.map(Dummy.class);
+        table.column("ONE").number().map("field").add();
+        table.cacheWholeTable(false);
+        table.prepare();
+    }
 
     @Test
     @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": ColumnConversion.BLOB2SQLBLOB can't be used for table without primary key.")

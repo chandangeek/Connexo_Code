@@ -40,7 +40,6 @@ import com.google.common.collect.TreeRangeMap;
 import com.google.common.collect.TreeRangeSet;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -83,8 +82,8 @@ public class TableImpl<T> implements Table<T> {
     private String name;
     @SuppressWarnings("unused")
     private int position;
-    private boolean cached;
     private boolean cacheWholeTable = false;
+    private boolean cached;
     private Long cacheTtl;
     private long cacheMaximumSize;
     private boolean cacheRecordStat;
@@ -231,7 +230,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void cacheWholeTable(boolean recordStat) {
-     cacheWholeTable(recordStat, 600000L);
+        cacheWholeTable(recordStat, 600000L);
     }
 
     @Override
