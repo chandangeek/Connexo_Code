@@ -93,7 +93,15 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
                         fieldLabel: Uni.I18n.translate('comPortPool.preview.communicationPorts', 'MDC', 'Communication ports'),
                         htmlEncode: false,
                         name: 'comportslink'
-                    }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comportpool.taskExecutionTimeout', 'MDC', 'Task Execution Timeout'),
+                        name: 'taskExecutionTimeout',
+                        renderer: function (val) {
+                            val ? val = val.count + ' ' + val.timeUnit : null;
+                            return val;
+                        }
+                    },
                 ]
             }
         ]

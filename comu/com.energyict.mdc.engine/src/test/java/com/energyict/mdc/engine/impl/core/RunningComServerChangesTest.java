@@ -295,9 +295,9 @@ public class RunningComServerChangesTest {
         this.waitForComServerToPickupChanges(runningComServer);
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
-        verify(firstScheduledComPort, times(1)).shutdown();
+        verify(firstScheduledComPort, times(0)).shutdown();
         verify(secondScheduledComPort, times(0)).shutdown();
-        verify(firstScheduledComPortAfterChanges, times(1)).start();
+        verify(firstScheduledComPortAfterChanges, times(0)).start();
 
         when(firstScheduledComPort.getStatus()).thenReturn(ServerProcessStatus.SHUTDOWN);
         when(secondScheduledComPort.getStatus()).thenReturn(ServerProcessStatus.SHUTDOWN);

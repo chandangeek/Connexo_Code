@@ -669,7 +669,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public boolean attemptUnlockComTaskExecution(ComTaskExecution comTaskExecution) {
         Optional<ComTaskExecution> lockResult = deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockNoWait(comTaskExecution.getId());
         if (lockResult.isPresent()) {
-            getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            //getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            unlockComTaskExecution(comTaskExecution);
             return true;
         }
 

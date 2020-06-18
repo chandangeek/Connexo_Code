@@ -22,7 +22,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -626,6 +625,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     // ComServer is no longer active, shutdown
                     shutdown();
                 } else {
+                    if(newVersion instanceof OutboundCapableComServer) {
+                        shutdownTimeOutMonitor(true);
+                    }
                     comPortPoolsComPortBelongsToCache = new HashMap<>(); // Flush the cache
                     resetLoggerHolder(newVersion);
                     applyChanges((InboundCapable) newVersion);
@@ -637,6 +639,10 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     if (!oldComServerName.equals(newVersion.getName())) {
                         // Name changed, notify the ManagementBeanFactory
                         serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
+                    }
+                    if(newVersion instanceof OutboundCapableComServer) {
+                        initializeTimeoutMonitor((OutboundCapableComServer) comServer);
+                        timeOutMonitor.start();
                     }
                 }
             }
@@ -702,7 +708,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private void applyChanges(OutboundCapable newVersion) {
         this.shutdownAndRemoveOldOutboundComPorts(newVersion);
-        this.restartChangedOutboundComPorts(newVersion);
+        this.refreshChangedOutboundComPorts(newVersion);
         this.addAndStartNewOutboundComPorts(newVersion);
         if (newVersion instanceof OnlineComServer) {
             OnlineComServer onlineComServer = (OnlineComServer) newVersion;
@@ -839,6 +845,12 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         for (OutboundComPort changedComPort : this.changedOutboundComPortsIn(newVersion)) {
             this.getSchedulerFor(changedComPort).ifPresent(this::shutdownAndRemove);
             this.add(changedComPort).ifPresent(ScheduledComPort::start);
+        }
+    }
+
+    private void refreshChangedOutboundComPorts(OutboundCapable newVersion) {
+        for (OutboundComPort changedComPort : this.changedOutboundComPortsIn(newVersion)) {
+            this.getSchedulerFor(changedComPort).ifPresent(scp -> scp.reload(changedComPort));
         }
     }
 

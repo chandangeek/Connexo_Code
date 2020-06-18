@@ -227,6 +227,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         status = ServerProcessStatus.SHUTDOWN;
     }
 
+    @Override
+    public void reload(OutboundComPort comPort) {
+    }
+
     private void cleanupBusyTasks() {
         try {
             comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
