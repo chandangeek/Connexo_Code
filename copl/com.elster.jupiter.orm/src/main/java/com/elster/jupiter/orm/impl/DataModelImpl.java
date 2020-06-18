@@ -169,7 +169,7 @@ public class DataModelImpl implements DataModel {
         checkNotRegistered();
         checkActiveBuilder();
         if (getTable(tableName) != null) {
-            throw new IllegalArgumentException("Component has already table " + tableName);
+            throw new IllegalArgumentException("Component already has table " + tableName);
         }
         TableImpl<T> table = TableImpl.from(this, schema, tableName, api);
         add(table);
@@ -625,7 +625,6 @@ public class DataModelImpl implements DataModel {
         }
     }
 
-
     @Override
     public DataDropper dataDropper(String tableName, Logger logger) {
         return getSqlDialect().hasPartitioning() ? new PartitionDataDropperImpl(this, tableName, logger) :
@@ -658,9 +657,9 @@ public class DataModelImpl implements DataModel {
         sqlBuilder.append(" ''; ");
         sqlBuilder.append(" EXCEPTION ");
         sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append(" 	  IF SQLCODE != -942 THEN ");
-        sqlBuilder.append(" 		 RAISE; ");
-        sqlBuilder.append(" 	  END IF; ");
+        sqlBuilder.append("       IF SQLCODE != -942 THEN ");
+        sqlBuilder.append("          RAISE; ");
+        sqlBuilder.append("       END IF; ");
         sqlBuilder.append(" END;', ");
         sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
         sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");

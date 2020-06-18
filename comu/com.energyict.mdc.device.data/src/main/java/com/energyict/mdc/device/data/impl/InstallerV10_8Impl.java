@@ -273,7 +273,6 @@ public class InstallerV10_8Impl implements FullInstaller {
     private String getRefreshMvComTaskDTHeatMapJobStatement() {
         return dataModel.getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
                 getComTaskDTHeatMapStatement(), 5);
-
     }
 
     private String getRefreshMvComTaskExWithDevStsJobStatement() {
