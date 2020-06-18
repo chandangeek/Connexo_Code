@@ -154,8 +154,13 @@ public class SystemPropertyServiceImpl implements SystemPropertyService, Transla
     @Override
     public void setPropertyValue(String key, Object newValue){
         SystemProperty sysprop = findSystemPropertyByKey(key).get();
-        //Update system property if value changed.
-        if (!newValue.equals(sysprop.getValue())) {
+        /* Update system property if value changed.
+        It is needed to convert value to string representation because if property value is
+        TimeUnit in milliseconds, then during comparison of objects milliseconds truncated to seconds
+        and objects are compared incorrectly.*/
+        String newValueStr = sysprop.getPropertySpec().getValueFactory().toStringValue(newValue);
+        String oldValueStr = sysprop.getPropertySpec().getValueFactory().toStringValue(sysprop.getValue());
+        if (!newValueStr.equals(oldValueStr)) {
             sysprop.setValue(newValue);
             actionOnPropertyChange(sysprop);
         }
