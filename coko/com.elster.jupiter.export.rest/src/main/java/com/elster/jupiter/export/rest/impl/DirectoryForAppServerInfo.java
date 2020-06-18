@@ -5,6 +5,8 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.util.PathVerification;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,8 +25,9 @@ public class DirectoryForAppServerInfo {
 
     public DirectoryForAppServerInfo(AppServer appServer, Path path) {
         appServerName = appServer.getName();
-        directory = path.toString();
         version = appServer.getVersion();
+        PathVerification.validatePathForFolders(path.toString());
+        directory = path.toString();
     }
 
     @JsonIgnore

@@ -17,7 +17,7 @@ mvn:org.apache.felix/org.apache.felix.log/1.2.0
 mvn:org.apache.felix/org.apache.felix.eventadmin/1.5.0
 mvn:org.apache.felix/org.apache.felix.configadmin/1.9.14
 mvn:org.apache.felix/org.apache.felix.metatype/1.2.2
-mvn:org.apache.felix/org.apache.felix.http.jetty/4.0.14
+mvn:org.apache.felix/org.apache.felix.http.jetty/4.0.18
 mvn:org.apache.felix/org.apache.felix.webconsole.all/4.2.0//all
 mvn:org.apache.felix/org.apache.felix.webconsole.plugins.ds/1.0.0
 mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.4

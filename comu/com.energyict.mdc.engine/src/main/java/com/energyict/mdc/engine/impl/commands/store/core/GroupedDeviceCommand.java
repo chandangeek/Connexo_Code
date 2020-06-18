@@ -515,21 +515,14 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     public MessagesCommand getMessagesCommand(MessagesTask messagesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
-        if (checkIfCommandExists(ComCommandTypes.MESSAGES_COMMAND)) {
-            MessagesCommand messagesCommand = (MessagesCommand) getComCommand(ComCommandTypes.MESSAGES_COMMAND);
-            messagesCommand.updateAccordingTo(messagesTask, this, comTaskExecution);
-            getAlreadyExecutedCommand(groupedDeviceCommand, comTaskExecution, ComCommandTypes.MESSAGES_COMMAND);
-            return messagesCommand;
-        } else {
-            try {
-                return createMessagesCommand(messagesTask, groupedDeviceCommand, comTaskExecution);
-            } catch (MacException e) {
-                ComTaskExecutionComCommandImpl comTaskRoot = groupedDeviceCommand.getComTaskRoot(comTaskExecution);
-                Problem problem = getServiceProvider().issueService().newProblem(this, MessageSeeds.MAC_CHECK_FAILURE);
-                comTaskRoot.addIssue(problem, CompletionCode.NotExecuted);
-                comTaskRoot.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
-                return null;
-            }
+        try {
+            return createMessagesCommand(messagesTask, groupedDeviceCommand, comTaskExecution);
+        } catch (MacException e) {
+            ComTaskExecutionComCommandImpl comTaskRoot = groupedDeviceCommand.getComTaskRoot(comTaskExecution);
+            Problem problem = getServiceProvider().issueService().newProblem(this, MessageSeeds.MAC_CHECK_FAILURE);
+            comTaskRoot.addIssue(problem, CompletionCode.NotExecuted);
+            comTaskRoot.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
+            return null;
         }
     }
 

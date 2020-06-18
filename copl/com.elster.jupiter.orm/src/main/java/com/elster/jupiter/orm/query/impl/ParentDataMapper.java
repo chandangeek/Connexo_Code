@@ -77,11 +77,11 @@ class ParentDataMapper<T> extends JoinDataMapper<T> {
 
     @Override
     public boolean isReachable() {
-		return getTable().getCacheType() == Table.CacheType.NO_CACHE;
+        return getTable().getCacheType() == Table.CacheType.NO_CACHE;
     }
 
     boolean skipFetch(boolean marked, boolean anyChildMarked) {
-		return getTable().getCacheType() != Table.CacheType.NO_CACHE;
+        return getTable().getCacheType() != Table.CacheType.NO_CACHE;
     }
 
     @Override

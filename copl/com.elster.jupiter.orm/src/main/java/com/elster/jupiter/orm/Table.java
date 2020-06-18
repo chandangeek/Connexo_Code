@@ -29,7 +29,7 @@ public interface Table<T> {
     int SHORT_DESCRIPTION_LENGTH = 256;
     int MAX_STRING_LENGTH = 4000;
     int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
-    int UUID_LENGHT = 36; // Any UUID is 36 characters long
+    int UUID_LENGTH = 36; // Any UUID is 36 characters long
 
     public enum CacheType {
         NO_CACHE,

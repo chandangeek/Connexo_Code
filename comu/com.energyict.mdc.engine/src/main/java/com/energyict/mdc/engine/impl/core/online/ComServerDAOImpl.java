@@ -26,6 +26,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
@@ -297,26 +298,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private Optional<ConnectionTask> refreshConnectionTask(ConnectionTask connectionTask) {
         Optional<ConnectionTask> reloaded = getConnectionTaskService().findConnectionTask(connectionTask.getId());
-        if (reloaded.isPresent()) {
-            if (reloaded.get().getVersion() == connectionTask.getVersion()) {
-                reloaded = Optional.of(connectionTask);
-            }
-            if (reloaded.get().isObsolete()) {
-                reloaded = Optional.empty();
-            }
-        }
-        return reloaded;
+        return reloaded.filter(Predicates.not(ConnectionTask::isObsolete));
     }
 
     private Optional<ConnectionTask> lockConnectionTask(ConnectionTask connectionTask) {
         ConnectionTask reloaded = getConnectionTaskService().attemptLockConnectionTask(connectionTask.getId());
-        if (reloaded != null) {
-            if (reloaded.getVersion() == connectionTask.getVersion()) {
-                return Optional.of(connectionTask);
-            }
-            return Optional.of(reloaded);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(reloaded);
     }
 
     private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {

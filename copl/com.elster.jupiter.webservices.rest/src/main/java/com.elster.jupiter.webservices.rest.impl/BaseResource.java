@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.webservices.rest.impl;
 
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -105,8 +106,8 @@ public abstract class BaseResource {
     }
 
     protected List<WebServiceCallOccurrence> getWebServiceCallOccurrences(JsonQueryParameters queryParameters,
-                                                                        JsonQueryFilter filter,
-                                                                        Set<String> applicationNames) {
+                                                                          JsonQueryFilter filter,
+                                                                          Set<String> applicationNames) {
         WebServiceCallOccurrenceFinderBuilder finderBuilder = webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder();
 
         if (applicationNames != null && !applicationNames.isEmpty()) {
@@ -133,10 +134,10 @@ public abstract class BaseResource {
         }
         /* Find endpoints by ID */
         if (filter.hasProperty("webServiceEndPoint")) {
-            Set<EndPointConfiguration> epcSet = endPointConfigurationService.streamEndPointConfigurations()
-                    .filter(where("id").in(filter.getLongList("webServiceEndPoint")))
-                    .collect(Collectors.toSet());
-            finderBuilder.withEndPointConfigurations(epcSet);
+            try (QueryStream<EndPointConfiguration> epcSet = endPointConfigurationService.streamEndPointConfigurations()
+                    .filter(where("id").in(filter.getLongList("webServiceEndPoint")))) {
+                finderBuilder.withEndPointConfigurations(epcSet.collect(Collectors.toSet()));
+            }
         }
 
         if (filter.hasProperty("status")) {
@@ -167,7 +168,7 @@ public abstract class BaseResource {
                 try {
                     objectId = Long.parseLong(objectIdStr);
                     objectIdStr = null;
-                }catch(NumberFormatException ex){
+                } catch (NumberFormatException ex) {
                     objectId = -1;
                 }
             }

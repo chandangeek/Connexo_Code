@@ -12,28 +12,19 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import javax.inject.Inject;
 
 /**
  * When a web service (EndPointProvider) is registered on the dashboard (WebServiceServiceImpl), the AppServer is notified
  */
-@Component(name = "com.elster.jupiter.webservices.registration.eventhandler", service = TopicHandler.class, immediate = true)
 public class WebServiceRegistrationTopicHandler implements TopicHandler {
 
-    private volatile AppService appService;
-    private volatile WebServicesService webServicesService;
+    private final AppService appService;
+    private final WebServicesService webServicesService;
 
-    public WebServiceRegistrationTopicHandler() {
-    }
-
-    @Reference
-    public void setAppService(AppService appService) {
+    @Inject
+    public WebServiceRegistrationTopicHandler(AppService appService, WebServicesService webServicesService) {
         this.appService = appService;
-    }
-
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
     }
 
@@ -43,11 +34,11 @@ public class WebServiceRegistrationTopicHandler implements TopicHandler {
         appService.getAppServer()
                 .filter(AppServer::isActive)
                 .ifPresent(as -> as.supportedEndPoints()
-                .stream()
-                .filter(EndPointConfiguration::isActive)
-                .filter(epc -> epc.getWebServiceName().equals(webServiceName))
+                        .stream()
+                        .filter(EndPointConfiguration::isActive)
+                        .filter(epc -> epc.getWebServiceName().equals(webServiceName))
                         .filter(epc -> !webServicesService.isPublished(epc))
-                .forEach(webServicesService::publishEndPoint));
+                        .forEach(webServicesService::publishEndPoint));
     }
 
     @Override

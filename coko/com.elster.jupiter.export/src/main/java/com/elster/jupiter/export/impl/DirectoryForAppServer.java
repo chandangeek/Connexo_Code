@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.PathVerification;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
@@ -42,6 +43,7 @@ class DirectoryForAppServer {
     }
 
     void setPath(Path path) {
+        PathVerification.validatePathForFolders(path.toString());
         this.pathString = path.toString();
         this.path = path;
     }

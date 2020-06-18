@@ -10,17 +10,17 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_9 implements Upgrader {
+public class UpgraderV10_8_1 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject
-    public UpgraderV10_9(DataModel dataModel) {
+    public UpgraderV10_8_1(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 8, 1));
         execute(dataModel,
                 "merge into " + TableSpecs.DDC_COMTASKEXECJOURNALENTRY.name() + " ctej" +
                         " using (" +

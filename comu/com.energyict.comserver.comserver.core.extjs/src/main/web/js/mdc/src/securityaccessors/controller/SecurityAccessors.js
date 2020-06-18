@@ -471,7 +471,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     serviceKeyRenewalOverviewPropertiesForm = previewForm.down('#serviceKeyRenewalOverviewProperties');
 
                 var keyRenewalCommandSpecification = recordParam.get('keyRenewalCommandSpecification');
-                if (keyRenewalCommandSpecification.name) {
+                if (keyRenewalCommandSpecification && keyRenewalCommandSpecification.name) {
                     previewForm.down('#previewPropertiesCommandName').setValue(keyRenewalCommandSpecification.name);
                 } else {
                     previewForm.down('#previewPropertiesCommandName').setVisible(false);
@@ -492,7 +492,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     keyRenewalOverviewPropertiesForm.hide();
                 }
                 var serviceKeyRenewalCommandSpecification = recordParam.get('serviceKeyRenewalCommandSpecification');
-                if (serviceKeyRenewalCommandSpecification.name) {
+                if (serviceKeyRenewalCommandSpecification && serviceKeyRenewalCommandSpecification.name) {
                     previewForm.down('#previewPropertiesServiceKeyCommandName').setValue(serviceKeyRenewalCommandSpecification.name);
                 } else {
                     previewForm.down('#previewPropertiesServiceKeyCommandName').setVisible(false);

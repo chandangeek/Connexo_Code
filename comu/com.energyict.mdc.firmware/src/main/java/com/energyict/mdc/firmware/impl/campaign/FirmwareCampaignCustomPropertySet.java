@@ -147,6 +147,11 @@ public class FirmwareCampaignCustomPropertySet implements CustomPropertySet<Serv
                         .booleanSpec()
                         .named(FirmwareCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName(), TranslationKeys.MANUALLY_CANCELLED)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .booleanSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.WITH_UNIQUE_FIRMWARE_VERSION.javaName(), TranslationKeys.WITH_UNIQUE_FIRMWARE_VERSION)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }

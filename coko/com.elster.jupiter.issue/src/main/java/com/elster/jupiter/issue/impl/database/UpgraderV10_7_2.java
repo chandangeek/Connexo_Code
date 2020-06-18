@@ -39,7 +39,6 @@ public class UpgraderV10_7_2 implements Upgrader {
     private static final String START_PROCESSS_SERVICE_CALL_PROPERTY_NAME = "servicecall.issue.action.process";
 
 
-
     @Inject
     UpgraderV10_7_2(DataModel dataModel, IssueActionService issueActionService) {
         this.dataModel = dataModel;
@@ -76,7 +75,11 @@ public class UpgraderV10_7_2 implements Upgrader {
     private void deleteIssueAction(Connection connection, Long actionTypeIdToKeep, List<PhaseContent> contentList) throws SQLException {
         for (PhaseContent content : contentList) {
             if (content.actionTypeId != actionTypeIdToKeep) {
-                connection.createStatement().execute(String.format("delete from ISU_CREATIONRULEACTION where id = %s", content.actionId));
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute(String.format("delete from ISU_CREATIONRULEACTION where id = %s", content.actionId));
+                } catch (SQLException e) {
+                    throw new UnderlyingSQLFailedException(e);
+                }
             }
         }
     }
@@ -84,14 +87,22 @@ public class UpgraderV10_7_2 implements Upgrader {
     private void updateIssueAction(Connection connection, Long actionTypeIdToKeep, List<PhaseContent> contentList) throws SQLException {
         for (PhaseContent content : contentList) {
             if (content.actionTypeId != actionTypeIdToKeep) {
-                connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
-                connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = '%s' where CREATIONRULEACTION = %s and ( NAME = '%s' or NAME = '%s')" ,START_PROCESS_PROPERTY_NAME, content.actionId, START_PROCESS_WEBSERVICE_PROPERTY_NAME, START_PROCESSS_SERVICE_CALL_PROPERTY_NAME));
+                try (Statement actionStatement = connection.createStatement();
+                     Statement actionPropsStatement = connection.createStatement()) {
+                    actionStatement.execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
+                    actionPropsStatement.execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = '%s' where CREATIONRULEACTION = %s and ( NAME = '%s' or NAME = '%s')", START_PROCESS_PROPERTY_NAME, content.actionId, START_PROCESS_WEBSERVICE_PROPERTY_NAME, START_PROCESSS_SERVICE_CALL_PROPERTY_NAME));
+                } catch (SQLException e) {
+                    throw new UnderlyingSQLFailedException(e);
+                }
             }
         }
     }
 
-    private Map<Long, RuleContent> getIssueActionIdAndRuleId(Connection connection, IssueActionType ...issueActionTypes) throws SQLException {
-        String query = "select ID, RULE, PHASE, ACTIONTYPE from ISU_CREATIONRULEACTION where ACTIONTYPE in " + Arrays.stream(issueActionTypes).map(IssueActionType::getId).map(String::valueOf).collect(Collectors.joining(", ", "(", ")"));
+    private Map<Long, RuleContent> getIssueActionIdAndRuleId(Connection connection, IssueActionType... issueActionTypes) throws SQLException {
+        String query = "select ID, RULE, PHASE, ACTIONTYPE from ISU_CREATIONRULEACTION where ACTIONTYPE in " + Arrays.stream(issueActionTypes)
+                .map(IssueActionType::getId)
+                .map(String::valueOf)
+                .collect(Collectors.joining(", ", "(", ")"));
         try (Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(query)) {
             Map<Long, RuleContent> rulesContents = new HashMap<>();
@@ -121,7 +132,7 @@ public class UpgraderV10_7_2 implements Upgrader {
         }
     }
 
-    private class RuleContent extends HashMap <Long, List<PhaseContent>> {
+    private class RuleContent extends HashMap<Long, List<PhaseContent>> {
 
         RuleContent(long phase, long actionTypeId, long actionId) {
             computeIfAbsent(phase, Long -> new ArrayList<>()).add(new PhaseContent(actionTypeId, actionId));

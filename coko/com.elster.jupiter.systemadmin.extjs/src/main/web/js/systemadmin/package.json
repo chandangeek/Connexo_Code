@@ -1,14 +1,14 @@
 {
-  "compatVersion": "10.8",
+  "compatVersion": "10.8.1",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.systemadmin.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.8"
+    "com.elster.jupiter.unifyingjs@10.8.1"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version": "10.8"
+  "version": "10.8.1"
 }

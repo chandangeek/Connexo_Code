@@ -32,6 +32,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -164,10 +165,11 @@ public class FileImportScheduleResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.IMPORT_SERVICE_NOT_FOUND, importScheduleId));
 
         AppServer appServer = findAppServerWithImportSchedule(importSchedule);
-
-        String importFolder = String.valueOf(appServer.getImportDirectory().get().toAbsolutePath()
-                .resolve(importSchedule.getImportDirectory()));
-        String fileName = contentDispositionHeader.getFileName();
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setFileName(contentDispositionHeader);
+        fileInfo.setImportFolder(appServer, importSchedule);
+        String fileName = fileInfo.getFileName();
+        String importFolder = fileInfo.getImportFolder();
 
         if (fileName == null || fileName.isEmpty()) {
             throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService
@@ -184,6 +186,14 @@ public class FileImportScheduleResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES})
     @Transactional
     public Response addImportSchedule(FileImportScheduleInfo info) {
+        if (info == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        PathVerification.validatePathForFolders(info.importDirectory);
+        PathVerification.validatePathForFolders(info.successDirectory);
+        PathVerification.validatePathForFolders(info.inProcessDirectory);
+        PathVerification.validatePathForFolders(info.failureDirectory);
+
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
@@ -248,6 +258,14 @@ public class FileImportScheduleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES})
     public Response updateImportSchedule(@PathParam("id") long id, FileImportScheduleInfo info) {
+        if (info == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        PathVerification.validatePathForFolders(info.importDirectory);
+        PathVerification.validatePathForFolders(info.successDirectory);
+        PathVerification.validatePathForFolders(info.inProcessDirectory);
+        PathVerification.validatePathForFolders(info.failureDirectory);
+
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
@@ -427,7 +445,8 @@ public class FileImportScheduleResource {
 
     private void loadFile(InputStream inputStream, String fileName, String importFolder, String appServerName) {
         File copiedFile = new File(importFolder + File.separator + FilenameUtils.getBaseName(fileName) + ".tmp");
-        try (FileOutputStream outputStream = new FileOutputStream(copiedFile.getPath()); InputStream ins = inputStream) {
+        PathVerification.validatePathForFolders(copiedFile.toPath().normalize().toString());
+        try (FileOutputStream outputStream = new FileOutputStream(copiedFile.getCanonicalPath()); InputStream ins = inputStream) {
             byte[] buffer = new byte[1024];
             int length;
             while ((length = ins.read(buffer)) != -1) {
@@ -462,5 +481,26 @@ public class FileImportScheduleResource {
         fileImportHistoryBuilder.setUploadTime(clock.instant());
         return fileImportHistoryBuilder.create();
     }
+    private class FileInfo {
 
+        private String importFolder;
+        private String fileName;
+
+        void setImportFolder(AppServer appServer, ImportSchedule importSchedule) {
+            this.importFolder = String.valueOf(appServer.getImportDirectory().get().toAbsolutePath()
+                    .resolve(importSchedule.getImportDirectory()));
+        }
+
+        String getImportFolder() {
+            return importFolder;
+        }
+
+        String getFileName() {
+            return fileName;
+        }
+
+        void setFileName(FormDataContentDisposition fileName) {
+            this.fileName = fileName.getFileName();
+        }
+    }
 }

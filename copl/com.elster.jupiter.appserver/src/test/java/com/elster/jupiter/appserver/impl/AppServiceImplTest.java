@@ -45,6 +45,7 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceRegistration;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -52,6 +53,7 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -160,6 +162,8 @@ public class AppServiceImplTest {
     private EndPointConfigurationService endPointConfigurationService;
     @Mock
     private EventService eventService;
+    @Mock
+    private ServiceRegistration registration;
 
     @SuppressWarnings("unchecked")
 	@Before
@@ -195,6 +199,9 @@ public class AppServiceImplTest {
         when(schedule2.isObsolete()).thenReturn(false);
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
+        when(bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(registration);
+        when(context.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(registration);
+
 
         appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(),
                 jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService,

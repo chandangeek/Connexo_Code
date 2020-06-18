@@ -11,16 +11,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Hermes-SNAPSHOT</version>
+        <version>2.0.0-Hermes-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.sap.rest</artifactId>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.sap.rest</name>
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <profiles>
         <profile>

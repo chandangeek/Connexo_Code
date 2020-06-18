@@ -117,6 +117,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withDeviceGroup("gr")
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
+                .withUniqueFirmwareVersion(false)
                 .create();
     }
 
@@ -131,6 +132,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withDeviceGroup(null)
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
+                .withUniqueFirmwareVersion(false)
                 .create();
     }
 
@@ -145,6 +147,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withDeviceGroup("gt")
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(null, null)
+                .withUniqueFirmwareVersion(false)
                 .create();
     }
 
@@ -180,6 +183,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withDeviceGroup("gt")
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
+                .withUniqueFirmwareVersion(false)
                 .create();
     }
 
@@ -194,6 +198,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
                 .withValidationTimeout(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES))
+                .withUniqueFirmwareVersion(false)
                 .create();
         FirmwareCampaign firmwareCampaign = firmwareService.getFirmwareCampaignService().streamAllCampaigns().findFirst().get();
         assertThat(firmwareCampaign.getServiceCall().getState()).isEqualTo(DefaultState.ONGOING);
@@ -210,6 +215,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withDeviceGroup("gr")
                 .withManagementOption(null)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
+                .withUniqueFirmwareVersion(false)
                 .create();
     }
 
@@ -225,6 +231,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
                 .withValidationTimeout(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES))
+                .withUniqueFirmwareVersion(false)
                 .create();
     }
 
@@ -244,6 +251,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
                 .withValidationTimeout(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES))
+                .withUniqueFirmwareVersion(false)
                 .addProperty(propertySpec, "50")
                 .create();
         FirmwareCampaignProperty firmwareCampaignProperty = inMemoryPersistence.get(DataModel.class).mapper(FirmwareCampaignProperty.class).find().get(0);
@@ -262,6 +270,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
                 .withValidationTimeout(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES))
+                .withUniqueFirmwareVersion(false)
                 .create();
         firmwareCampaign.cancel();
         assertThat(serviceCallService.getServiceCallFinder().find().get(0).getLogs().find().contains("campaign cancelled by user"));
@@ -279,6 +288,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
                 .withValidationTimeout(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES))
+                .withUniqueFirmwareVersion(false)
                 .create();
         firmwareCampaign.delete();
         // assert no errors
@@ -295,6 +305,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)
                 .withUploadTimeBoundaries(Instant.now(), Instant.now())
                 .withValidationTimeout(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES))
+                .withUniqueFirmwareVersion(false)
                 .create();
         firmwareCampaign.cancel();
         firmwareCampaign.delete();

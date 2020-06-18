@@ -212,8 +212,10 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
     }
 
     @Override
-    public SignedJWT createServiceSignedJWT(long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException {
+    public SignedJWT createServiceSignedJWT(User user, long expiresIn, String subject, String issuer, Map<String, Object> customClaims) throws JOSEException, ParseException {
         final UUID jwtId = UUID.randomUUID();
+        final Map<String, Object> userSpecificClaims = createUserSpecificClaims(user, 0);
+        userSpecificClaims.putAll(customClaims);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setJWTID(jwtId.toString());
@@ -221,12 +223,12 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         claimsSet.setIssuer(issuer);
         claimsSet.setIssueTime(new Date());
         claimsSet.setExpirationTime(new Date(expiresIn));
-        claimsSet.setCustomClaims(customClaims);
+        claimsSet.setCustomClaims(userSpecificClaims);
 
         final SignedJWT signedJWT = createAndSignSignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
         final UserJWT userJWT = dataModel.getInstance(UserJWT.class)
-                .init(jwtId.toString(), null, signedJWT.serialize(), Instant.ofEpochMilli(expiresIn));
+                .init(jwtId.toString(), BigDecimal.valueOf(user.getId()), signedJWT.serialize(), Instant.ofEpochMilli(expiresIn));
 
         userJWT.save();
 
@@ -376,7 +378,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         List<RoleClaimInfo> roles = new ArrayList<>();
         List<String> privileges = new ArrayList<>();
 
-        if(!userGroups.isEmpty()){
+        if (!userGroups.isEmpty()) {
             privileges.add("privilege.public.api.rest");
             privileges.add("privilege.pulse.public.api.rest");
             privileges.add("privilege.view.userAndRole");

@@ -6,7 +6,6 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
@@ -42,18 +41,6 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
 
     protected DeviceLifeCycleImpl getUnderConstruction() {
         return underConstruction;
-    }
-
-    @Override
-    public DeviceLifeCycleBuilder maximumFutureEffectiveTimeShift(TimeDuration timeDuration) {
-        this.underConstruction.setMaximumFutureEffectiveTimeShift(timeDuration);
-        return this;
-    }
-
-    @Override
-    public DeviceLifeCycleBuilder maximumPastEffectiveTimeShift(TimeDuration timeDuration) {
-        this.underConstruction.setMaximumPastEffectiveTimeShift(timeDuration);
-        return this;
     }
 
     @Override

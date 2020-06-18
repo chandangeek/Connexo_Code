@@ -6,6 +6,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 import com.elster.jupiter.rest.util.MimeTypesExt;
 import com.elster.jupiter.rest.util.TransactionWrapper;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
@@ -15,6 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import com.fasterxml.jackson.jaxrs.base.JsonMappingExceptionMapper;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -25,6 +27,7 @@ import org.osgi.service.http.HttpService;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
@@ -45,6 +48,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
     private final Provider<GZIPFeature> gzipFeatureProvider;
     private final Provider<TracingFeature> tracingFeatureProvider;
+    private final ThreadPrincipalService threadPrincipalService;
 
     private InboundRestEndPointProvider endPointProvider;
     private InboundEndPointConfiguration endPointConfiguration;
@@ -58,7 +62,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService,
                                HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider,
                                Provider<OAuth2Authorization> oAuth2AuthorizationProvider, Provider<AccessLogFeature> accessLogFeatureProvider, Provider<GZIPFeature> gzipFeatureProvider,
-                               Provider<TracingFeature> tracingFeatureProvider) {
+                               Provider<TracingFeature> tracingFeatureProvider, ThreadPrincipalService threadPrincipalService) {
         this.logDirectory = logDirectory;
         this.transactionService = transactionService;
         this.httpService = httpService;
@@ -67,6 +71,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         this.accessLogFeatureProvider = accessLogFeatureProvider;
         this.gzipFeatureProvider = gzipFeatureProvider;
         this.tracingFeatureProvider = tracingFeatureProvider;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     InboundRestEndPoint init(InboundRestEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -92,9 +97,16 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         secureConfig.register(new TransactionWrapper(transactionService));
         tracingFeature = tracingFeatureProvider.get().init(logDirectory, endPointConfiguration);
         secureConfig.register(tracingFeature);
+        secureConfig.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(threadPrincipalService).to(ThreadPrincipalService.class);
+            }
+        });
 
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
+            HttpServlet wrapper = new ServletWrapper(container, threadPrincipalService);
             HttpContext httpContext = null;
             if(EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())){
                 httpContext = basicAuthenticationProvider.get().init(endPointConfiguration);
@@ -103,7 +115,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
             } else {
                 httpContext = new NoAuthentication();
             }
-            httpService.registerServlet(alias, container, null, httpContext);
+            httpService.registerServlet(alias, wrapper, null, httpContext);
         } catch (Exception e) {
             endPointConfiguration.log("Error while registering " + alias + ": " + e.getMessage(), e);
         }

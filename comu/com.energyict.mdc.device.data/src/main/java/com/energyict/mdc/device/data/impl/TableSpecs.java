@@ -112,7 +112,6 @@ import static com.elster.jupiter.orm.Version.version;
  * @since 2014-03-07 (14:28)
  */
 public enum TableSpecs {
-
     DDC_BATCH {
         void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<Batch> table = dataModel.addTable(name(), Batch.class);
@@ -652,8 +651,8 @@ public enum TableSpecs {
             Table<ComTaskExecutionJournalEntry> table = dataModel.addTable(name(), ComTaskExecutionJournalEntry.class);
             table.map(ComTaskExecutionJournalEntryImpl.IMPLEMENTERS);
             Column comTaskExecSession = table.column("COMTASKEXECSESSION").number().notNull().add();
-            Column position = table.addPositionColumn().since(version(10, 9));
-            Column id = table.addAutoIdColumn().upTo(version(10, 9));
+            Column position = table.addPositionColumn().since(version(10, 8, 1));
+            Column id = table.addAutoIdColumn().upTo(version(10, 8, 1));
             table.addDiscriminatorColumn("DISCRIMINATOR", "varchar2(1 char)");
             Column timestamp = table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("LOGLEVEL").number().notNull().conversion(NUMBER2ENUM).map("logLevel").add();
@@ -661,7 +660,7 @@ public enum TableSpecs {
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
             table.column("COMMANDDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("commandDescription").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).upTo(version(10, 9)).add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).upTo(version(10, 8, 1)).add();
             table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION")
                     .on(comTaskExecSession)
                     .references(DDC_COMTASKEXECSESSION.name())
@@ -673,11 +672,11 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("PK_DDC_COMTASKJOURNALENTRY")
                     .on(id)
-                    .upTo(version(10, 9))
+                    .upTo(version(10, 8, 1))
                     .add();
             table.primaryKey("PK_DDC_COMTASKJOURNALENTRY")
                     .on(comTaskExecSession, position)
-                    .since(version(10, 9))
+                    .since(version(10, 8, 1))
                     .noDdl() // directly added in installer & upgrader
                     .add();
             table.autoPartitionOn(timestamp, LifeCycleClass.LOGGING);

@@ -64,11 +64,13 @@ public class UpgraderV10_8 implements Upgrader {
     }
 
     private void createAndAssignIssueRelativePeriodsCategory() {
-        RelativePeriodCategory category = timeService.createRelativePeriodCategory(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY);
+        if (!timeService.findRelativePeriodCategoryByName(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY).isPresent()) {
+            RelativePeriodCategory category = timeService.createRelativePeriodCategory(ModuleConstants.ISSUE_RELATIVE_PERIOD_CATEGORY);
 
-        timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
-                .isEqualTo("relativeperiod.category.deviceAlarm"))
-                .forEach(relativePeriod -> relativePeriod.addRelativePeriodCategory(category));
+            timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
+                    .isEqualTo("relativeperiod.category.deviceAlarm"))
+                    .forEach(relativePeriod -> relativePeriod.addRelativePeriodCategory(category));
+        }
     }
 
     private void updateDataCollectionEventMetadata() {

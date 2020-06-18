@@ -14,30 +14,34 @@ import java.util.logging.LogRecord;
 
 class LogHandler extends Handler {
 
-	private final LogService logService;
+    private final LogService logService;
     private final String format;
 
     LogHandler(LogService logService, String format) {
         this.format = format;
-		this.logService = logService;
-	}
-	
-	@Override
-	public void close() {
-	}
+        this.logService = logService;
+    }
 
-	@Override
-	public void flush() {
-	}
+    @Override
+    public void close() {
+    }
 
-	@Override
-	public void publish(LogRecord logRecord) {
-		if (!isLoggable(logRecord)) {
-			return;
-		}
-		int osgiLevel = mapLevel(logRecord.getLevel());
-		logService.log(osgiLevel, format(logRecord) , logRecord.getThrown());
-	}
+    @Override
+    public void flush() {
+    }
+
+    @Override
+    public void publish(LogRecord logRecord) {
+        if (!isOsgiLog(logRecord) && isLoggable(logRecord)) {
+            int osgiLevel = mapLevel(logRecord.getLevel());
+            logService.log(osgiLevel, format(logRecord), logRecord.getThrown());
+        }
+    }
+
+    private boolean isOsgiLog(LogRecord logRecord){
+        String loggerName = logRecord.getLoggerName();
+        return loggerName != null && loggerName.equals(CustomOsgiLogListener.class.getName());
+    }
 
     private String format(LogRecord record) {
         return String.format(format,
