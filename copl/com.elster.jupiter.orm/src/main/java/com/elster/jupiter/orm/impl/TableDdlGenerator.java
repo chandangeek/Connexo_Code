@@ -229,10 +229,10 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         sb.append(separator);
         sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
         sb.append(" NUMBER NOT NULL");
-        TableConstraintImpl constraint = table.getPrimaryKeyConstraint(version);
-        if (constraint != null) {
+        Optional<PrimaryKeyConstraintImpl> constraint = table.getPrimaryKeyConstraint(version);
+        if (constraint.isPresent()) {
             sb.append(separator);
-            sb.append(getJournalConstraint(constraint));
+            sb.append(getJournalConstraint(constraint.get()));
         }
         sb.append(")");
         if (dialect.hasPartitioning()) {
