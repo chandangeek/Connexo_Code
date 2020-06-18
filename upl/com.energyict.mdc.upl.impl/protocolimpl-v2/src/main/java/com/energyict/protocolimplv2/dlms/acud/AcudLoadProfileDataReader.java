@@ -84,7 +84,7 @@ public class AcudLoadProfileDataReader {
                     Calendar toCalendar = Calendar.getInstance(this.protocol.getTimeZone());
                     toCalendar.setTime(loadProfileReader.getEndReadingTime());
                     DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask, 0, -1, null);
-                    List<IntervalData> collectedIntervalData = intervals.parseIntervals(loadProfileConfig.getProfileInterval());
+                    List<IntervalData> collectedIntervalData = intervals.parseIntervals(loadProfileConfig.getProfileInterval(), protocol.getTimeZone());
                     this.protocol.journal(" > load profile intervals parsed: " + collectedIntervalData.size());
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
