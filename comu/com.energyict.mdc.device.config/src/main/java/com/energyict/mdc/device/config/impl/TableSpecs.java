@@ -788,12 +788,7 @@ public enum TableSpecs {
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
-            table.column("POSITION")
-                    .number()
-                    .notNull()
-                    .conversion(NUMBER2INT)
-                    .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName())
-                    .add();
+            table.addPositionColumn();
             table.column("IS_RULE_SET_ACTIVE")
                     .number().installValue("0")
                     .notNull()

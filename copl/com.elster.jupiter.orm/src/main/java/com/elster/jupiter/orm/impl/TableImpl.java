@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableAudit;
 import com.elster.jupiter.orm.TableConstraint;
@@ -29,7 +30,6 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 
-import com.google.common.base.Joiner;
 import com.google.common.cache.CacheStats;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
@@ -45,6 +45,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -241,8 +242,8 @@ public class TableImpl<T> implements Table<T> {
             for (ColumnImpl existing : columns) {
                 if (is(existing.getFieldName()).equalTo(column.getFieldName()) && !intersection(existing.versions(), column
                         .versions()).isEmpty()) {
-                    throw new IllegalTableMappingException("Table " + getName() + ", column " + column.getName() + " : column " + existing
-                            .getName() + " already maps to field " + existing.getFieldName());
+                    throw new IllegalTableMappingException("Table " + getName() + ": column " + column.getName() + ": column " + existing
+                            .getName() + " already maps to field " + existing.getFieldName() + '.');
                 }
             }
         }
@@ -260,23 +261,21 @@ public class TableImpl<T> implements Table<T> {
     }
 
     @Override
-    public PrimaryKeyConstraintImpl getPrimaryKeyConstraint() {
+    public Optional<PrimaryKeyConstraintImpl> getPrimaryKeyConstraint() {
         return getConstraints()
                 .stream()
                 .filter(TableConstraint::isPrimaryKey)
                 .map(PrimaryKeyConstraintImpl.class::cast)
-                .findAny()
-                .orElse(null);
+                .findAny();
     }
 
     @Override
-    public PrimaryKeyConstraintImpl getPrimaryKeyConstraint(Version version) {
+    public Optional<PrimaryKeyConstraintImpl> getPrimaryKeyConstraint(Version version) {
         return getConstraints(version)
                 .stream()
                 .filter(TableConstraint::isPrimaryKey)
                 .map(PrimaryKeyConstraintImpl.class::cast)
-                .findAny()
-                .orElse(null);
+                .findAny();
     }
 
     @Override
@@ -304,16 +303,17 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public List<ColumnImpl> getPrimaryKeyColumns() {
-        PrimaryKeyConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
-        return primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns()
-                .stream()
-                .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
-                .collect(Collectors.toList());
+        return getPrimaryKeyConstraint()
+                .map(pk -> pk.getColumns().stream()
+                        .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
+                        .collect(Collectors.toList()))
+                .orElseGet(Collections::emptyList);
     }
 
     boolean isPrimaryKeyColumn(Column column) {
-        TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
-        return primaryKeyConstraint != null && primaryKeyConstraint.getColumns().contains(column);
+        return getPrimaryKeyConstraint()
+                .filter((PrimaryKeyConstraint pk) -> pk.getColumns().contains(column))
+                .isPresent();
     }
 
     public ColumnImpl[] getVersionColumns() {
@@ -410,7 +410,7 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public Table<T> alsoReferredToAs(Class<? super T> alternativeApi) {
         if (!alternativeApi.isAssignableFrom(this.api)) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : alternative api " + alternativeApi + " is not a super class of " + api);
+            throw new IllegalTableMappingException("Table " + getName() + ": alternative api " + alternativeApi + " isn't a super class of " + api + '.');
         }
         this.alternativeApis.add(alternativeApi);
         return this;
@@ -419,12 +419,12 @@ public class TableImpl<T> implements Table<T> {
     @SuppressWarnings("unchecked")
     <S> DataMapperImpl<S> getDataMapper(Class<S> api) {
         if (getMapperType().getInjector() == null) {
-            throw new IllegalStateException("Datamodel not registered");
+            throw new IllegalStateException("Data model isn't registered.");
         }
         if (maps(api)) {
             return new DataMapperImpl<>(api, (TableImpl<? super S>) this);
         } else {
-            throw new IllegalArgumentException("Table " + getName() + " does not map " + api);
+            throw new IllegalArgumentException("Table " + getName() + " doesn't map " + api + '.');
         }
     }
 
@@ -438,8 +438,8 @@ public class TableImpl<T> implements Table<T> {
                 .reduce((imp1, imp2) -> api)
                 .map(resultApi -> new DataMapperImpl<>(resultApi, this))
                 .orElseThrow(() -> new IllegalArgumentException("Table " + getName()
-                        + " does not map any implementation extending all of the classes: "
-                        + apiFragments.stream().map(Class::toString).collect(Collectors.joining(", "))));
+                        + " doesn't map any implementation extending all of the classes: "
+                        + apiFragments.stream().map(Class::getName).collect(Collectors.joining(", "))));
     }
 
     <S extends T> QueryExecutorImpl<S> getQuery(Class<S> type) {
@@ -499,7 +499,7 @@ public class TableImpl<T> implements Table<T> {
     public JournalTableVersionOptions setJournalTableName(String journalTableName, boolean forceJournal) {
         this.forceJournal = forceJournal;
         if (!forceJournal && hasAutoChange()) {
-            throw new IllegalStateException(" A table with foreign key using cascading or set null delete rule cannot have a journal table ");
+            throw new IllegalTableMappingException("Table " + getName() + " with foreign key using cascading or set null delete rule can't have a journal table.");
         }
         this.journalNameHistory.put(Range.all(), journalTableName);
         return new JournalTableVersionOptionsImpl(journalTableName);
@@ -524,10 +524,11 @@ public class TableImpl<T> implements Table<T> {
     public Column addAutoIdColumn() {
         String sequence = name + "ID";
         if (sequence.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            throw new IllegalStateException("Name " + sequence + " too long");
+            fail("sequence name {0} is too long.", sequence);
         }
         return column("ID").number()
                 .notNull()
+                .installValue("0")
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .sequence(sequence)
                 .skipOnUpdate()
@@ -537,13 +538,18 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public Column addPositionColumn() {
-        return column("POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
+        return column("POSITION").number()
+                .notNull()
+                .installValue("0")
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map("position")
+                .add();
     }
 
     @Override
     public Column addMessageAuthenticationCodeColumn(Encrypter encrypter) {
         if (this.encrypter != null) {
-            throw new IllegalStateException("Table " + getName() + " : already has a MAC column.");
+            throw new IllegalTableMappingException("Table " + getName() + " already has a MAC column.");
         }
         this.encrypter = Objects.requireNonNull(encrypter);
         return column("MAC")
@@ -633,11 +639,11 @@ public class TableImpl<T> implements Table<T> {
     public Column.Builder column(String name) {
         checkActiveBuilder();
         if (name == null) {
-            throw new IllegalTableMappingException("Table " + getName() + " : column names cannot be null.");
+            throw new IllegalTableMappingException("Table " + getName() + ": column names can't be null.");
         }
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name
-                    .length() + ".");
+            throw new IllegalTableMappingException("Table " + getName() + ": column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT
+                    + ", actual length is " + name.length() + '.');
         }
         activeBuilder = true;
         return new ColumnImpl.BuilderImpl(ColumnImpl.from(this, name));
@@ -682,11 +688,9 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public KeyValue getPrimaryKey(Object value) {
-        TableConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
-        if (primaryKeyConstraint == null) {
-            throw new IllegalStateException("Table has no primary key");
-        }
-        return primaryKeyConstraint.getColumnValues(value);
+        return getPrimaryKeyConstraint()
+                .map(pk -> pk.getColumnValues(value))
+                .orElse(KeyValue.NO_KEY);
     }
 
     public FieldType getFieldType(String fieldName) {
@@ -697,7 +701,7 @@ public class TableImpl<T> implements Table<T> {
             if (fieldName.equals(each.getFieldName())) {
                 return FieldType.SIMPLE;
             }
-            if (each.getFieldName().startsWith(fieldName + ".")) {
+            if (each.getFieldName().startsWith(fieldName + '.')) {
                 return FieldType.COMPLEX;
             }
         }
@@ -794,7 +798,7 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public TableImpl<T> map(Class<? extends T> implementation) {
         if (this.mapperType != null) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
+            fail("implementer(s) already specified.");
         }
         checkCompatibleImplementation(implementation);
         this.mapperType = new SingleDataMapperType<>(this, implementation);
@@ -804,10 +808,10 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public TableImpl<T> map(Map<String, Class<? extends T>> implementations) {
         if (this.mapperType != null) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
+            fail("implementer(s) already specified.");
         }
         if (Objects.requireNonNull(implementations).isEmpty()) {
-            throw new IllegalArgumentException("Table : " + getName() + " : Empty map of implementors");
+            fail("empty map of implementers.");
         }
         implementations.values().forEach(this::checkCompatibleImplementation);
         this.mapperType = new InheritanceDataMapperType<>(this, implementations);
@@ -816,26 +820,44 @@ public class TableImpl<T> implements Table<T> {
 
     private void checkCompatibleImplementation(Class<?> implementation) {
         if (!api.isAssignableFrom(implementation)) {
-            throw new IllegalTableMappingException("Table : " + getName() + " : " + implementation + " does not implement " + api);
+            fail("{0} doesn''t implement {1}.", implementation, api);
         }
     }
 
-    void prepare() {
+    public void prepare() {
         checkActiveBuilder();
         checkMapperTypeIsSet();
         getMapperType().validate();
-        PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(), "Table '" + getName() + "' : No primary key defined");
-        List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
-        for (int i = 0; i < primaryKeyColumns.size(); i++) {
-            if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-                throw new IllegalStateException(MessageFormat.format("Table ''{0}'' : Primary key columns must be defined first and in order", getName()));
+        Optional<PrimaryKeyConstraintImpl> primaryKey = getPrimaryKeyConstraint();
+        if (primaryKey.isPresent()) {
+            List<ColumnImpl> primaryKeyColumns = primaryKey.get().getColumns();
+            for (int i = 0; i < primaryKeyColumns.size(); i++) {
+                if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
+                    fail("primary key columns must be defined first and in order.");
+                }
             }
+        } else {
+            if (hasJournal()) {
+                fail("can''t journal table without primary key.");
+            }
+            if (isCached()) {
+                fail("can''t cache table without primary key.");
+            }
+            getRealColumns().forEach(column -> {
+                if (column.getConversion() == ColumnConversion.BLOB2SQLBLOB) {
+                    fail("{0}.{1} can''t be used for table without primary key.", ColumnConversion.class.getSimpleName(), ColumnConversion.BLOB2SQLBLOB.name());
+                }
+            });
         }
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         this.getRealColumns().forEach(this::checkMapped);
         cache = isCached() ? new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat) : new TableCache.NoCache<>();
+    }
+
+    private void fail(String template, Object... arguments) {
+        throw new IllegalTableMappingException("Table " + getName() + ": " + MessageFormat.format(template, arguments));
     }
 
     private void checkMapped(Column column) {
@@ -848,18 +870,15 @@ public class TableImpl<T> implements Table<T> {
         } else {
             try {
                 if (getMapperType().getType(column.getFieldName()) == null) {
-                    throw new IllegalStateException(
-                            Joiner.on(" ").
-                                    join("Table " + getName() + " : No field available for column", column.getName(), "mapped by", column
-                                            .getFieldName()));
+                    fail("No field available for column {0} mapped by {1}.", column.getName(), column.getFieldName());
                 } else {
                     return;
                 }
             } catch (MappingException e) {
-                throw new IllegalStateException("Table " + getName() + " Column " + column.getName() + " : " + e.toString(), e);
+                throw new IllegalStateException("Table " + getName() + ": column " + column.getName() + ": " + e.toString(), e);
             }
         }
-        throw new IllegalTableMappingException("Table " + getName() + " : Column " + column.getName() + " has no mapping");
+        throw new IllegalTableMappingException("Table " + getName() + ": column " + column.getName() + " has no mapping.");
     }
 
     private void buildReferenceConstraints() {
@@ -876,13 +895,11 @@ public class TableImpl<T> implements Table<T> {
     private List<ForeignKeyConstraintImpl> getReverseConstraints() {
         ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
         for (TableImpl<?> table : getDataModel().getTables()) {
-            //if (!table.equals(this)) {
             for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
                 if (each.getReferencedTable().equals(this)) {
                     builder.add(each);
                 }
             }
-            //}
         }
         return builder.build();
     }
@@ -965,7 +982,7 @@ public class TableImpl<T> implements Table<T> {
 
     private void checkMapperTypeIsSet() {
         if (mapperType == null) {
-            throw new IllegalTableMappingException("Table : " + getName() + " Implementation class not (yet?) specified");
+            throw new IllegalTableMappingException("Table " + getName() + ": implementation class hasn't been specified (yet?)");
         }
     }
 
@@ -1137,10 +1154,6 @@ public class TableImpl<T> implements Table<T> {
         return !Ranges.intersection(this.versions, versions).isEmpty();
     }
 
-    private boolean intersects(RangeSet<Version> versions) {
-        return Ranges.intersection(this.versions, versions).isEmpty();
-    }
-
     public RangeSet<Version> getVersions() {
         return versions;
     }
@@ -1215,10 +1228,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     Set<String> getJournalTableNames() {
-        return journalNameHistory.asMapOfRanges()
-                .values()
-                .stream()
-                .collect(Collectors.toSet());
+        return new HashSet<>(journalNameHistory.asMapOfRanges().values());
     }
 
     Encrypter getEncrypter() {
@@ -1259,10 +1269,8 @@ public class TableImpl<T> implements Table<T> {
                 .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() > 0)
                 .findFirst();
 
-        if (findOnlyByDomain.isPresent()) {
-            return findOnlyByDomain.get();
-        }
-        return tableAuditList.get(0); //this is not correct, but should not happened
+        return findOnlyByDomain
+                .orElseGet(() -> tableAuditList.get(0)); // this is not correct, but should not happen
     }
 
     private class JournalTableVersionOptionsImpl implements JournalTableVersionOptions {
@@ -1290,9 +1298,5 @@ public class TableImpl<T> implements Table<T> {
             journalNameHistory.clear();
             Stream.of(ranges).forEach(range -> journalNameHistory.put(range, this.tableName));
         }
-
     }
-
 }
-
-
