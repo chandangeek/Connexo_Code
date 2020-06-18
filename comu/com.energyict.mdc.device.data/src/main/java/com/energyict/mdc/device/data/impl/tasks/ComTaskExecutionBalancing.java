@@ -71,9 +71,13 @@ public class ComTaskExecutionBalancing {
     }
 
     public Order getBalancingOrder(List<OutboundComPortPool> comPortPools, OutboundComPort comPort) {
-        int orderingIndicator = getOrderingIndicator(getComPortIndexes(comPortPools, comPort));
-        boolean isAsc = (orderingIndicator >= 0) && ((orderingIndicator != 0) || Math.random() < 0.5);
+        boolean isAsc = isAscending(comPortPools, comPort);
         return isAsc ? Order.ascending(FIELD) : Order.descending(FIELD);
+    }
+
+    public boolean isAscending(List<OutboundComPortPool> comPortPools, OutboundComPort comPort) {
+        int orderingIndicator = getOrderingIndicator(getComPortIndexes(comPortPools, comPort));
+        return (orderingIndicator >= 0) && ((orderingIndicator != 0) || Math.random() < 0.5);
     }
 
     public Order getBalancingOrder(List<ComServer> comServers, ComServer comServer) {
