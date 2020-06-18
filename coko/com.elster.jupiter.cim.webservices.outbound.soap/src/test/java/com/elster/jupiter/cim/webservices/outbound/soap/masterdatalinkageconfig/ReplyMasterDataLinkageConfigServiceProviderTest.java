@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.cim.webservices.outbound.soap.masterdatalinkageconfig;
+package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -13,9 +15,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import com.energyict.mdc.cim.webservices.outbound.soap.FailedLinkageOperation;
-import com.energyict.mdc.cim.webservices.outbound.soap.LinkageOperation;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;

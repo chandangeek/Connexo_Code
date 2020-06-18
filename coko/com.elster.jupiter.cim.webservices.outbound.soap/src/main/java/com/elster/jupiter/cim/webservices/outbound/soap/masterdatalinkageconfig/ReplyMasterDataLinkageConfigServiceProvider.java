@@ -1,8 +1,11 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.cim.webservices.outbound.soap.masterdatalinkageconfig;
+package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
@@ -10,10 +13,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-
-import com.energyict.mdc.cim.webservices.outbound.soap.FailedLinkageOperation;
-import com.energyict.mdc.cim.webservices.outbound.soap.LinkageOperation;
-import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
@@ -42,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymasterdatalinkageconfig.provider", service = {
+@Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replymasterdatalinkageconfig.provider", service = {
 		ReplyMasterDataLinkageConfigWebService.class,
 		OutboundSoapEndPointProvider.class }, immediate = true, property = {
 				"name=" + ReplyMasterDataLinkageConfigWebService.NAME })

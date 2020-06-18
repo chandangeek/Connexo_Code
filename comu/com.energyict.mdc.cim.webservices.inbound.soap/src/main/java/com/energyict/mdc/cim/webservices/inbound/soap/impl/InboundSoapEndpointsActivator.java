@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import static com.elster.jupiter.orm.Version.version;
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -50,6 +51,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndD
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7_2;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
@@ -70,7 +72,6 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.Me
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
-import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -176,7 +177,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile TopologyService topologyService;
     private volatile MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
     private volatile MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
-    private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
+    private volatile ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -246,7 +247,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setTopologyService(topologyService);
         setMasterDataLinkageConfigMasterCustomPropertySet(masterDataLinkageConfigMasterCustomPropertySet);
         setMasterDataLinkageConfigCustomPropertySet(masterDataLinkageConfigCustomPropertySet);
-        addReplyMasterDataLinkageConfigWebServiceClient(replyMasterDataLinkageConfigWebService);
+        addReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
     }
 
     private Module getModule() {
@@ -293,9 +294,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(MasterDataLinkageConfigMasterCustomPropertySet.class).toInstance(masterDataLinkageConfigMasterCustomPropertySet);
                 bind(MasterDataLinkageConfigCustomPropertySet.class).toInstance(masterDataLinkageConfigCustomPropertySet);
-                TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>> replyMasterDataLinkageHolder = new TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>>() {
-                };
-                bind(replyMasterDataLinkageHolder).toInstance(replyMasterDataLinkageConfigWebServiceHolder);
+                bind(ReplyMasterDataLinkageConfigWebService.class).toInstance(replyMasterDataLinkageConfigWebService);
             }
         };
     }
@@ -309,7 +308,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
                                 version(10, 7), UpgraderV10_7.class,
-                                version(10, 7, 2), UpgraderV10_7_2.class));
+                                version(10, 7, 2), UpgraderV10_7_2.class,
+                                version(10,9), UpgraderV10_9.class));
         setActualRecurrentTaskFrequency();
         setActualRecurrentTaskReadOutDelay();
         createOrUpdateFutureComTasksExecutionTask();
@@ -626,13 +626,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         this.communicationTaskService = communicationTaskService;
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void addReplyMasterDataLinkageConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) {
-        replyMasterDataLinkageConfigWebServiceHolder.setObject(webService);
-    }
-
-    public void removeReplyMasterDataLinkageConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) { // NOSONAR we cannot remove this parameter
-        replyMasterDataLinkageConfigWebServiceHolder.unsetObject();
+    @Reference
+    public void addReplyMasterDataLinkageConfigWebService(ReplyMasterDataLinkageConfigWebService webService) {
+        replyMasterDataLinkageConfigWebService = webService;
     }
 
     @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")

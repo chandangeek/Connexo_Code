@@ -34,12 +34,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MasterDataLinkageConfigCustomPropertySet", service = CustomPropertySet.class, property = "name="
+@Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageConfigCustomPropertySet", service = CustomPropertySet.class, property = "name="
         + MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
 public class MasterDataLinkageConfigCustomPropertySet
         implements CustomPropertySet<ServiceCall, MasterDataLinkageConfigDomainExtension> {
 
     public static final String CUSTOM_PROPERTY_SET_NAME = "MasterDataLinkageConfigCustomPropertySet";
+    public static final String CUSTOM_PROPERTY_SET_ID = MasterDataLinkageConfigCustomPropertySet.class.getName();
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;

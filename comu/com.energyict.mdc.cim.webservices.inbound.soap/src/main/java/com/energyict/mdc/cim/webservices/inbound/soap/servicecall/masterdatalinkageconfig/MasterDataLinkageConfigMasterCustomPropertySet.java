@@ -29,6 +29,7 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
         implements CustomPropertySet<ServiceCall, MasterDataLinkageConfigMasterDomainExtension> {
 
     public static final String CUSTOM_PROPERTY_SET_NAME = "MasterDataLinkageConfigMasterCustomPropertySet";
+    public static final String CUSTOM_PROPERTY_SET_ID = MasterDataLinkageConfigMasterCustomPropertySet.class.getName();
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;

@@ -369,6 +369,10 @@ public class MasterDataLinkageHandler {
             warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
                     MasterDataLinkageMessageValidator.USAGE_POINT_LIST_ELEMENT));
         }
+        if (endDeviceNodes.size() > 1) {
+            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
+                    MasterDataLinkageMessageValidator.END_DEVICE_LIST_ELEMENT));
+        }
         return warnings;
     }
 }

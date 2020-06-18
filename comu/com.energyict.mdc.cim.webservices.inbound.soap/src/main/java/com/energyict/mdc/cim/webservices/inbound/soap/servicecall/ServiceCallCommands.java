@@ -353,7 +353,8 @@ public class ServiceCallCommands {
         domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
-                BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()));
+                BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()
+                + config.getPayload().getMasterDataLinkageConfig().getEndDevice().size()));
         String correlationId = config.getHeader() == null ? null : config.getHeader().getCorrelationID();
         domainExtension.setCorrelationId(correlationId);
 

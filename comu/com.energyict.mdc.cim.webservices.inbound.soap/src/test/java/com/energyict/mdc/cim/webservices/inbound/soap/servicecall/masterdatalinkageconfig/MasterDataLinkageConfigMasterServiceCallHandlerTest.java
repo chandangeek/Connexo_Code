@@ -8,10 +8,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.Ma
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
-import com.energyict.mdc.cim.webservices.outbound.soap.FailedLinkageOperation;
-import com.energyict.mdc.cim.webservices.outbound.soap.LinkageOperation;
-import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;

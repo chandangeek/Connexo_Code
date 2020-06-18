@@ -288,38 +288,6 @@
                             <wsdlLocation>wsdl/meterconfig/ReplyMeterConfig.wsdl</wsdlLocation>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>g6</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <wsdlDirectory>src/main/resources/</wsdlDirectory>
-                            <wsdlFiles>
-                                <wsdlFile>wsdl/masterdatalinkageconfig/ExecuteMasterDataLinkageConfig.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
-                            <keep>true</keep>
-                            <wsdlLocation>wsdl/masterdatalinkageconfig/ExecuteMasterDataLinkageConfig.wsdl</wsdlLocation>
-                        </configuration>
-                    </execution>
-					<execution>
-						<id>g7</id>
-						<goals>
-							<goal>wsimport</goal>
-						</goals>
-						<configuration>
-							<wsdlDirectory>src/main/resources/</wsdlDirectory>
-							<wsdlFiles>
-								<wsdlFile>wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlFile>
-							</wsdlFiles>
-							<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-							<bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
-							<keep>true</keep>
-							<wsdlLocation>wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlLocation>
-						</configuration>
-					</execution>
                 </executions>
             </plugin>
         </plugins>

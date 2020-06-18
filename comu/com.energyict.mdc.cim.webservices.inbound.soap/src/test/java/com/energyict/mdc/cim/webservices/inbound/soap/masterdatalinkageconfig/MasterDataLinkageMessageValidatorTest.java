@@ -105,9 +105,9 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
     }
 
     @Test
-    public void testValidate_createLinkage_emptyUsagePointList() throws Exception {
+    public void testValidate_createLinkage_emptyUsagePointAndEndDeviceList() throws Exception {
         // Prepare
-        message = getValidMessage().eraseUsagePointList().build();
+        message = getValidMessage().eraseUsagePointList().eraseEndDeviceList().build();
 
         // Act and verify
         try {
@@ -115,14 +115,14 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.UsagePoint' cannot be empty.");
+                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' cannot be empty.");
         }
     }
 
     @Test
-    public void testValidate_closeLinkage_emptyUsagePointList() throws Exception {
+    public void testValidate_closeLinkage_emptyUsagePointAndEndDeviceList() throws Exception {
         // Prepare
-        message = getValidMessage().eraseUsagePointList().build();
+        message = getValidMessage().eraseUsagePointList().eraseEndDeviceList().build();
 
         // Act and verify
         try {
@@ -130,14 +130,14 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.UsagePoint' cannot be empty.");
+                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' cannot be empty.");
         }
     }
 
     @Test
     public void testValidate_createLinkage_createdDateTimeIsMissing() throws Exception {
         // Prepare
-        message = getValidMessage().withCreatedDateTime(null).build();
+        message = getValidMessage().withCreatedDateTime(null).eraseEndDeviceList().build();
 
         // Act and verify
         try {
@@ -152,7 +152,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
     @Test
     public void testValidate_closeLinkage_createdDateTimeIsMissing() throws Exception {
         // Prepare
-        message = getValidMessage().withCreatedDateTime(null).build();
+        message = getValidMessage().withCreatedDateTime(null).eraseEndDeviceList().build();
 
         // Act and verify no exceptions
         getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
@@ -161,7 +161,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
     @Test
     public void testValidate_createLinkage_effectiveDateTimeIsMissing() throws Exception {
         // Prepare
-        message = getValidMessage().withEffectiveDateTime(null).build();
+        message = getValidMessage().withEffectiveDateTime(null).eraseEndDeviceList().build();
 
         // Act and verify no exceptions
         getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
