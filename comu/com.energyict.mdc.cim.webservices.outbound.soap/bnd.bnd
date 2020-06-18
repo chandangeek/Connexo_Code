@@ -4,7 +4,8 @@
 Private-Package: com.energyict.mdc.cim.webservices.outbound.soap.impl,\
                  com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents,\
                  com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents,\
-                 com.energyict.mdc.cim.webservices.outbound.soap.meterconfig
+                 com.energyict.mdc.cim.webservices.outbound.soap.meterconfig,\
+                 com.energyict.mdc.cim.webservices.outbound.soap.masterdatalinkageconfig,\
                  com.elster.connexo._2017.schema.customattributes.*,\
                  ch.iec.tc57._2011.schema.message.*,\
 
