@@ -155,7 +155,6 @@ public class WebSocketQueryApiService {
         } catch (Throwable e) {     //This causes the connection to close, so only severe exceptions should end up in this catch clause.
             e.printStackTrace(System.err);
             sendSerializedErrorMessage("unhandled exception: ", e, queryId);
-            throw e;    //Note that this will cause the connection to be closed. The websocket is still open though, so new clients can connect.
         }
     }
 
