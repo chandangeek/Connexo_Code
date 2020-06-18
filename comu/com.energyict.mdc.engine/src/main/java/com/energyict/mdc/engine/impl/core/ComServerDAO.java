@@ -479,6 +479,18 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
   */
  void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate);
 
+    /**
+     * Stores the collected {@link ProfileData} in the {@link LoadProfile}
+     * which is specified by the given {@link LoadProfileIdentifier}
+     *
+     * @param offlineLoadProfile   The OfflineLoadProfile
+     * @param collectedLoadProfile The collectedLoadProfile, containing the collected ProfileData
+     * @param currentDate
+     */
+    default void storeLoadProfile(Optional<OfflineLoadProfile> offlineLoadProfile, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
+        storeLoadProfile(collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, currentDate);
+    }
+
  /**
   * Stores the {@link CollectedLogBook} in the specified {@link  LogBook}
   * which is uniquely identified by the given {@link LogBookIdentifier}

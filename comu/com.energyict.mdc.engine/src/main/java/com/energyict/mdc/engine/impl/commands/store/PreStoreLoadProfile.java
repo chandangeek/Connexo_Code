@@ -86,6 +86,14 @@ public class PreStoreLoadProfile {
         }
     }
 
+    public PreStoredLoadProfile preStore(Optional<OfflineLoadProfile> offlineLoadProfile, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
+        if (!collectedLoadProfile.getCollectedIntervalData().isEmpty()) {
+            return new CompositePreStoredLoadProfile(mdcReadingTypeUtilService, this.comServerDAO, offlineLoadProfile).preprocess(collectedLoadProfile, currentDate);
+        } else {
+            return PreStoredLoadProfile.forLoadProfileDataNotCollected();
+        }
+    }
+
     /**
      * ValueObject representing a LoadProfile which was prepared before storing
      */
@@ -276,15 +284,20 @@ public class PreStoreLoadProfile {
             this.comServerDAO = comServerDAO;
         }
 
+        CompositePreStoredLoadProfile(MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO, Optional<OfflineLoadProfile> offlineLoadProfile) {
+            super(mdcReadingTypeUtilService, offlineLoadProfile);
+            this.comServerDAO = comServerDAO;
+        }
+
         public PreStoredLoadProfile preprocess(CollectedLoadProfile collectedLoadProfile, Instant intervalStorageEnd) {
             for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
                 IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
                 ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
                 //filter out channels without readingTypeMRID. We consider them as not confingured in our system so those will be dropped.
                 if (channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty()) {
+                    DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
                     comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
                         IntervalBlock processed = null;
-                        DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
                         Device device = comServerDAO.getDeviceFor(deviceIdentifier)
                                 .orElseThrow(() -> new IllegalArgumentException("Could not resolve device identifier: '" + deviceIdentifier.toString() + "'"));
                         ZoneId zone = device.getZone();
