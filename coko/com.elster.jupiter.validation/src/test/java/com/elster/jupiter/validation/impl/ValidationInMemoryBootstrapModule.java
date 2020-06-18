@@ -13,6 +13,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -108,7 +109,6 @@ public class ValidationInMemoryBootstrapModule {
                 new NlsModule(),
                 new DataVaultModule(),
                 new CustomPropertySetsModule(),
-                new UserModule(),
                 new AuditServiceModule(),
                 new WebServicesModule()
         );
@@ -138,6 +138,7 @@ public class ValidationInMemoryBootstrapModule {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 }

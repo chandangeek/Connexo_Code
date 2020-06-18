@@ -635,8 +635,9 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(ComTaskExecutionFields.LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE.fieldName())
+                    .notAudited()
                     .add();
-            table.column("LASTSESS_SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName()).add();
+            table.column("LASTSESS_SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName()).notAudited().add();
             table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS").
                     on(lastSession).
                     references(DDC_COMTASKEXECSESSION.name()).

@@ -15,7 +15,12 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.LdapUserDirectory;
@@ -23,21 +28,27 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.impl.BaseTest;
+import com.energyict.mdc.issue.datavalidation.impl.BaseIT;
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.time.Instant;
-import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CloseIssueActionTest extends BaseTest {
+public class CloseIssueActionIT extends BaseIT {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datavalidation";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
     public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
@@ -57,7 +68,6 @@ public class CloseIssueActionTest extends BaseTest {
     @Before
     public void setUp() throws Exception {
         action = getDefaultActionsFactory().createIssueAction(com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction.class.getName());
-
     }
 
     private CreationRuleTemplate mockCreationRuleTemplate() {
@@ -65,7 +75,7 @@ public class CloseIssueActionTest extends BaseTest {
         when(creationRuleTemplate.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(creationRuleTemplate.getName()).thenReturn("Template");
         when(creationRuleTemplate.getContent()).thenReturn("Content");
-        ((IssueServiceImpl) getIssueService()).addCreationRuleTemplate(creationRuleTemplate);
+        getIssueService().addCreationRuleTemplate(creationRuleTemplate);
         return creationRuleTemplate;
     }
 

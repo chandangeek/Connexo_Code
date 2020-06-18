@@ -4,47 +4,14 @@
 
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.audit.impl.AuditServiceModule;
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.h2.H2OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.impl.SearchModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
@@ -54,24 +21,18 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.http.HttpService;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,198 +42,120 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRuleSetImplIT {
+    private static final String CONSEC_ZEROS_VALIDATOR_CLASS = "com.elster.jupiter.validators.ConsecutiveZerosValidator";
+    private static final String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
+    private static final String MIN_MAX = "minMax";
+    private static final String MIN = "min";
+    private static final String MAX = "max";
 
-    public static final String CONSEC_ZEROS_VALIDATOR_CLASS = "com.elster.jupiter.validators.ConsecutiveZerosValidator";
-    private Injector injector;
+    private static ValidationInMemoryBootstrapModule inMemoryBootstrapModule = new ValidationInMemoryBootstrapModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    private static ValidationService validationService;
+    private static ReadingType readingType;
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private ValidatorFactory validatorFactory;
-    @Mock
-    private Validator minMax, consecZero;
-    @Mock
-    private PropertySpec min, max, consZero;
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.get(TransactionService.class));
 
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
-    private String MIN_MAX = "minMax";
-    private String MIN = "min";
-    private String MAX = "max";
-    private ReadingType readingType;
-    private BigDecimalFactory valueFactory = new BigDecimalFactory();
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(mock(HttpService.class));
-        }
-    }
-
-    @Before
-    public void setUp() throws SQLException {
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new IdsModule(),
-                    new UserModule(),
-                    new BpmModule(),
-                    new FiniteStateMachineModule(),
-                    new UsagePointLifeCycleConfigurationModule(),
-                    new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
-                    new BasicPropertiesModule(),
-                    new TimeModule(),
-                    new MeteringGroupsModule(),
-                    new SearchModule(),
-                    new TaskModule(),
-                    new PartyModule(),
-                    new EventsModule(),
-                    new DomainUtilModule(),
-                    new H2OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new KpiModule(),
-                    new ValidationModule(),
-                    new NlsModule(),
-                    new CalendarModule(),
-                    new DataVaultModule(),
-                    new CustomPropertySetsModule(),
-                    new AuditServiceModule(),
-                    new WebServicesModule()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @BeforeClass
+    public static void classSetUp() throws SQLException {
+        inMemoryBootstrapModule.activate();
+        validationService = inMemoryBootstrapModule.get(ValidationService.class);
+        ValidatorFactory validatorFactory = mock(ValidatorFactory.class);
+        Validator minMax = mock(Validator.class);
+        Validator consecZero = mock(Validator.class);
+        PropertySpec min = mock(PropertySpec.class);
+        PropertySpec max = mock(PropertySpec.class);
+        PropertySpec consZero = mock(PropertySpec.class);
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, CONSEC_ZEROS_VALIDATOR_CLASS));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.createTemplate(eq(CONSEC_ZEROS_VALIDATOR_CLASS))).thenReturn(consecZero);
+        validationService.addValidatorFactory(validatorFactory);
+        BigDecimalFactory valueFactory = new BigDecimalFactory();
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
         when(minMax.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(min, max));
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);
         when(max.getName()).thenReturn(MAX);
         when(max.getValueFactory()).thenReturn(valueFactory);
-        when(consecZero.getPropertySpecs()).thenReturn(Arrays.asList(consZero));
-        when(consecZero.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(consZero));
+        when(consecZero.getPropertySpecs()).thenReturn(Collections.singletonList(consZero));
+        when(consecZero.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Collections.singletonList(consZero));
         when(consZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(consZero.getValueFactory()).thenReturn(valueFactory);
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(FiniteStateMachineService.class);
-                ValidationServiceImpl instance = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
-                instance.addResource(validatorFactory);
-                return null;
-            }
-        });
+        readingType = inMemoryBootstrapModule.get(MeteringService.class)
+                .getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
     }
 
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testPersist() {
-        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
-                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-                ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
-                        .withReadingType(readingType)
-                        .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
-                        .active(true)
-                        .create();
-                ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
-                        .withReadingType(readingType)
-                        .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
-                        .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
-                        .active(true)
-                        .create();
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
+        ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
+        validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
+                .withReadingType(readingType)
+                .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                .active(true)
+                .create();
+        validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                .withReadingType(readingType)
+                .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                .active(true)
+                .create();
 
-                Optional<? extends ValidationRuleSet> found = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId());
-                assertThat(found.isPresent()).isTrue();
-                assertThat(found.get().getRuleSetVersions().get(0).getRules()).hasSize(2);
-            }
-        });
+        Optional<? extends ValidationRuleSet> found = validationService.getValidationRuleSet(validationRuleSet.getId());
+        assertThat(found.isPresent()).isTrue();
+        assertThat(found.get().getRuleSetVersions().get(0).getRules()).hasSize(2);
     }
 
     @Test
-    public void testAddSecondRuleSeeIfReadingTypesArentLost() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
+    @Transactional
+    public void testAddSecondRuleSeeIfReadingTypesAreNotLost() {
         ValidationRuleSet validationRuleSet;
-        try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
-            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-            ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
-                    .withReadingType(readingType)
-                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
-                    .active(true)
-                    .create();
-            context.commit();
-        }
-        try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
-            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.getRuleSetVersions().get(0);
-            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
-                    .withReadingType(readingType)
-                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
-                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
-                    .active(true)
-                    .create();
-            context.commit();
-        }
-        validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
+        validationRuleSet = validationService.createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
+        ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
+        validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
+                .withReadingType(readingType)
+                .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                .active(true)
+                .create();
+        validationRuleSet = validationService.getValidationRuleSet(validationRuleSet.getId()).get();
+        validationRuleSetVersion = validationRuleSet.getRuleSetVersions().get(0);
+        validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                .withReadingType(readingType)
+                .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                .active(true)
+                .create();
+        validationRuleSet = validationService.getValidationRuleSet(validationRuleSet.getId()).get();
         assertThat(validationRuleSet.getRuleSetVersions().get(0).getRules()).hasSize(2);
         ValidationRule validationRule = validationRuleSet.getRuleSetVersions().get(0).getRules().get(0);
         assertThat(validationRule.getReadingTypes()).hasSize(1);
     }
 
     @Test
-    public void testAddSecondRuleSeeIfPropertiesArentLost() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
+    @Transactional
+    public void testAddSecondRuleSeeIfPropertiesAreNotLost() {
         ValidationRuleSet validationRuleSet;
-        try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
-            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-            ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
-                    .withReadingType(readingType)
-                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
-                    .active(true)
-                    .create();
-            context.commit();
-        }
-        try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
-            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.getRuleSetVersions().get(0);
-            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
-                    .withReadingType(readingType)
-                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
-                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
-                    .active(true)
-                    .create();
-            context.commit();
-        }
-        validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
+        validationRuleSet = validationService.createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
+        ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
+        validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
+                .withReadingType(readingType)
+                .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                .active(true)
+                .create();
+        validationRuleSet = validationService.getValidationRuleSet(validationRuleSet.getId()).get();
+        validationRuleSetVersion = validationRuleSet.getRuleSetVersions().get(0);
+        validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
+                .withReadingType(readingType)
+                .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                .active(true)
+                .create();
+        validationRuleSet = validationService.getValidationRuleSet(validationRuleSet.getId()).get();
         assertThat(validationRuleSet.getRuleSetVersions().get(0).getRules()).hasSize(2);
         ValidationRule validationRule = validationRuleSet.getRuleSetVersions().get(0).getRules().get(0);
         assertThat(validationRule.getProperties()).hasSize(1);
