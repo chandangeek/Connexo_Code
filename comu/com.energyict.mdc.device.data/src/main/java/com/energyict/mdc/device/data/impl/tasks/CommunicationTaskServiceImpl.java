@@ -97,6 +97,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private final PriorityComTaskService priorityComTaskService;
     private final ConfigPropertiesService configPropertiesService;
     private final BundleContext bundleContext;
+    private final ComTaskExecutionBalancing comTaskExecutionBalancing = new ComTaskExecutionBalancing();
     private boolean isTrueMinimizedOn;
     private boolean isRandomizationOn;
 
@@ -778,6 +779,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask);
         if (factor > 0) {
             comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
+            // one comport is starting at row 1, the other at limit + 1
+            if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
+                comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
+            }
         }
         initCommunicationParameters();
         return sortComTaskExecutions(connectionTask, comTasks);
