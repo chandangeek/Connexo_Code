@@ -34,13 +34,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageConfigCustomPropertySet", service = CustomPropertySet.class, property = "name="
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MasterDataLinkageConfigCustomPropertySet", service = CustomPropertySet.class, property = "name="
         + MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
 public class MasterDataLinkageConfigCustomPropertySet
         implements CustomPropertySet<ServiceCall, MasterDataLinkageConfigDomainExtension> {
 
     public static final String CUSTOM_PROPERTY_SET_NAME = "MasterDataLinkageConfigCustomPropertySet";
-    public static final String CUSTOM_PROPERTY_SET_ID = MasterDataLinkageConfigCustomPropertySet.class.getName();
+    public static final String CUSTOM_PROPERTY_SET_ID = MasterDataLinkageConfigDomainExtension.class.getName();
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -204,8 +204,11 @@ public class MasterDataLinkageConfigCustomPropertySet
                     .map(MasterDataLinkageConfigDomainExtension.FieldNames.USAGE_POINT.javaName()).notNull().upTo(Version.version(10, 9)).add();
             table.column(MasterDataLinkageConfigDomainExtension.FieldNames.USAGE_POINT.databaseName()).varChar()
                     .map(MasterDataLinkageConfigDomainExtension.FieldNames.USAGE_POINT.javaName()).since(Version.version(10, 9)).previously(oldUsagePoint).add();
+            Column oldConfigurationEvent = table.column(MasterDataLinkageConfigDomainExtension.FieldNames.CONFIGURATION_EVENT.databaseName()).varChar()
+                    .map(MasterDataLinkageConfigDomainExtension.FieldNames.CONFIGURATION_EVENT.javaName()).notNull().upTo(Version.version(10, 9))
+                    .add();
             table.column(MasterDataLinkageConfigDomainExtension.FieldNames.CONFIGURATION_EVENT.databaseName()).varChar()
-                    .map(MasterDataLinkageConfigDomainExtension.FieldNames.CONFIGURATION_EVENT.javaName()).notNull()
+                    .map(MasterDataLinkageConfigDomainExtension.FieldNames.CONFIGURATION_EVENT.javaName()).since(Version.version(10, 9)).previously(oldConfigurationEvent)
                     .add();
             table.column(MasterDataLinkageConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName()).number()
                     .map(MasterDataLinkageConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName()).notNull()

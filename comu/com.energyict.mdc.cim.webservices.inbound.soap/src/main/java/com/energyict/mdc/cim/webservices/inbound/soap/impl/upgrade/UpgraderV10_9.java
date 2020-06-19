@@ -65,34 +65,18 @@ public class UpgraderV10_9 implements Upgrader {
     }
 
     private void migrateSql() {
-        String FK1 = "FK_CPS_" + Math.abs("com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension".hashCode());
         String sql1 =
                 "BEGIN " +
-                        "  BEGIN " +
-                        "   EXECUTE IMMEDIATE 'ALTER TABLE DLP_MSC_WS1 DROP CONSTRAINT " + FK1 + "'; " +
-                        "   EXECUTE IMMEDIATE 'ALTER TABLE DLP_MSC_WS1 ADD CONSTRAINT " + FK1 + " FOREIGN KEY (CPS) REFERENCES CPS_REGISTERED_CUSTOMPROPSET(ID) ON DELETE CASCADE'; " +
-                        "  EXCEPTION " +
-                        "   WHEN OTHERS THEN " +
-                        "       IF SQLCODE != -942 THEN " +
-                        "               RAISE; " +
-                        "       END IF; " +
-                        "  END; "+
-                        "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension'; "+
+                        "  DELETE FROM DLP_MSC_WS1; " +
+                        "  DELETE FROM DLP_MSC_WS1JRNL; " +
+                        "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension'; " +
                         "END; ";
 
-        String FK2 = "FK_CPS_" + Math.abs("com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension".hashCode());
         String sql2 =
                 "BEGIN " +
-                        "  BEGIN " +
-                        "   EXECUTE IMMEDIATE 'ALTER TABLE DLP_CSC_WS1 DROP CONSTRAINT " + FK2 + "'; " +
-                        "   EXECUTE IMMEDIATE 'ALTER TABLE DLP_CSC_WS1 ADD CONSTRAINT " + FK2 + " FOREIGN KEY (CPS) REFERENCES CPS_REGISTERED_CUSTOMPROPSET(ID) ON DELETE CASCADE'; " +
-                        "  EXCEPTION " +
-                        "   WHEN OTHERS THEN " +
-                        "       IF SQLCODE != -942 THEN " +
-                        "               RAISE; " +
-                        "       END IF; " +
-                        "  END; "+
-                        "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension'; "+
+                        "  DELETE FROM DLP_CSC_WS1; " +
+                        "  DELETE FROM DLP_CSC_WS1JRNL; " +
+                        "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension'; " +
                         "END; ";
 
         dataModel.useConnectionRequiringTransaction(connection -> {

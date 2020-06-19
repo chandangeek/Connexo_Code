@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MasterDataLinkageConfig
  */
 public class MasterDataLinkageConfigMasterServiceCallHandler extends
-        AbstractMasterServiceCallHandler<MasterDataLinkageConfigMasterDomainExtension, ReplyMasterDataLinkageConfigWebService> {
+        AbstractMasterServiceCallHandler<MasterDataLinkageConfigMasterDomainExtension> {
     public static final String SERVICE_CALL_HANDLER_NAME = "MasterDataLinkageConfigMasterServiceCallHandler";
     public static final String APPLICATION = "MDC";
     public static final String VERSION = "v1.0";
@@ -47,10 +47,10 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
 
     @Inject
     public MasterDataLinkageConfigMasterServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
-            ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder,
+            ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
             JsonService jsonService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus,
             WebServicesService webServicesService) {
-        super(MasterDataLinkageConfigMasterDomainExtension.class, replyMasterDataLinkageConfigWebServiceHolder,
+        super(MasterDataLinkageConfigMasterDomainExtension.class, replyMasterDataLinkageConfigWebService,
                 endPointConfigurationService, thesaurus, webServicesService);
         this.jsonService = jsonService;
         this.meteringService = meteringService;

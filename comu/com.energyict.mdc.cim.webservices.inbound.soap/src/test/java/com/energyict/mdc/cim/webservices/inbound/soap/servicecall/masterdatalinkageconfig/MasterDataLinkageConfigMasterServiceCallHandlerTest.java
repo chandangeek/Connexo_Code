@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
@@ -73,7 +72,6 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     private MasterDataLinkageConfigMasterServiceCallHandler handler;
 
-    private ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private EndPointConfigurationService endPointConfigurationService;
     @Mock
@@ -115,10 +113,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     @Before
     public void setup() {
-        replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
-        replyMasterDataLinkageConfigWebServiceHolder.setObject(replyMasterDataLinkageConfigWebService);
         handler = new MasterDataLinkageConfigMasterServiceCallHandler(endPointConfigurationService,
-                replyMasterDataLinkageConfigWebServiceHolder, jsonService, meterService, deviceService, thesaurus, webServicesService);
+                replyMasterDataLinkageConfigWebService, jsonService, meterService, deviceService, thesaurus, webServicesService);
 
         when(endPointConfigurationService.findEndPointConfigurations().find().stream())
                 .thenReturn(Stream.of(endPointConfiguration));
@@ -366,7 +362,9 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     private void doTestTransitionToEndStateShouldNotSendResponseWhenThereIsNoReplyWebServiceImplementation(
             DefaultState endState) {
-        replyMasterDataLinkageConfigWebServiceHolder.unsetObject();
+        when(endPointConfigurationService.findEndPointConfigurations().find().stream())
+                .thenReturn(Stream.empty());
+
 
         handler.onStateChange(serviceCall, DefaultState.ONGOING, endState);
 

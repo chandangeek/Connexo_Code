@@ -49,7 +49,7 @@ public class MasterDataLinkageConfigServiceCallHandler extends AbstractServiceCa
         MasterDataLinkageConfigDomainExtension extension = serviceCall
                 .getExtension(MasterDataLinkageConfigDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        ConfigEventInfo configurationEvent = jsonService.deserialize(extension.getConfigurationEvent(),
+        ConfigEventInfo configurationEvent = (extension.getUsagePoint() == null) ? null : jsonService.deserialize(extension.getConfigurationEvent(),
                 ConfigEventInfo.class);
         EndDeviceInfo endDevice = (extension.getEndDevice() == null) ? null : jsonService.deserialize(extension.getEndDevice(), EndDeviceInfo.class);
         UsagePointInfo usagePoint = (extension.getUsagePoint() == null) ? null : jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);

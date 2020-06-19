@@ -406,8 +406,8 @@ public class ServiceCallCommands {
             domainExtension.setEndDevice(jsonService.serialize(new EndDeviceInfo(endDevice)));
         } else if (usagePoint != null) {
             domainExtension.setUsagePoint(jsonService.serialize(new UsagePointInfo(usagePoint)));
+            domainExtension.setConfigurationEvent(jsonService.serialize(new ConfigEventInfo(configurationEvent)));
         }
-        domainExtension.setConfigurationEvent(jsonService.serialize(new ConfigEventInfo(configurationEvent)));
         domainExtension.setOperation(action.name());
         ServiceCallBuilder serviceCallBuilder = parentServiceCall.newChildCall(serviceCallType)
                 .extendedWith(domainExtension);

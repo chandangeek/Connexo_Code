@@ -54,6 +54,7 @@ public class MasterDataLinkageHandler {
     private UsagePointInfo usagePoint;
     private MeterInfo meter;
     private String correlationId;
+    private boolean shouldCreateResponse;
 
     private MasterDataLinkageAction currentLinkageAction;
 
@@ -70,10 +71,6 @@ public class MasterDataLinkageHandler {
         this.topologyService = topologyService;
     }
 
-    private boolean shouldCreateResponse() {
-        return configurationEvent == null;
-    }
-
     MasterDataLinkageHandler forMessage(MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
         configurationEventNode = message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent();
         endDeviceNodes = message.getPayload().getMasterDataLinkageConfig().getEndDevice();
@@ -81,6 +78,7 @@ public class MasterDataLinkageHandler {
         meterNodes = message.getPayload().getMasterDataLinkageConfig().getMeter();
         configurationEvent = null;
         correlationId = message.getHeader().getCorrelationID();
+        shouldCreateResponse = true;
         return this;
     }
 
@@ -90,12 +88,13 @@ public class MasterDataLinkageHandler {
         this.endDevice = endDevice;
         this.usagePoint = usagePoint;
         this.meter = meter;
+        shouldCreateResponse = false;
         return this;
     }
 
     public MasterDataLinkageConfigResponseMessageType createLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CREATE;
-        if (shouldCreateResponse()) {
+        if (shouldCreateResponse) {
             if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()){
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                         MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
@@ -126,7 +125,7 @@ public class MasterDataLinkageHandler {
 
     public MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CLOSE;
-        if (shouldCreateResponse()) {
+        if (shouldCreateResponse) {
             if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                         MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);

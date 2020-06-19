@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.parent;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -13,7 +14,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ObjectHolder;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -23,23 +23,21 @@ import java.util.Optional;
  *
  * @param <T>
  *            extension for the master service call CPS
- * @param <R>
- *            reply web service interface
  */
-public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterDomainExtension, R>
+public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterDomainExtension>
         implements ServiceCallHandler {
 
     private Class<T> extensionClass;
-    private final ObjectHolder<R> replyWebServiceHolder;
+    private final ReplyMasterDataLinkageConfigWebService replyWebService;
     private final EndPointConfigurationService endPointConfigurationService;
     private final Thesaurus thesaurus;
     private final WebServicesService webServicesService;
 
-    protected AbstractMasterServiceCallHandler(Class<T> extensionClass, ObjectHolder<R> replyWebServiceHolder,
+    protected AbstractMasterServiceCallHandler(Class<T> extensionClass, ReplyMasterDataLinkageConfigWebService replyWebService,
             EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus,
             WebServicesService webServicesService) {
         this.extensionClass = extensionClass;
-        this.replyWebServiceHolder = replyWebServiceHolder;
+        this.replyWebService = replyWebService;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
         this.webServicesService = webServicesService;
@@ -56,7 +54,7 @@ public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterD
      * @param extension
      *            cannot be null
      */
-    protected abstract void sendReply(R replyWebService, EndPointConfiguration endPointConfiguration,
+    protected abstract void sendReply(ReplyMasterDataLinkageConfigWebService replyWebService, EndPointConfiguration endPointConfiguration,
             ServiceCall serviceCall, T extension);
 
     @Override
@@ -101,7 +99,7 @@ public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterD
         if (extension.getCallbackURL() == null) {
             return;
         }
-        if (replyWebServiceHolder.getObject() == null) {
+        if (replyWebService == null) {
             logErrorAboutMissingEndpoint(serviceCall, extension);
             return;
         }
@@ -122,7 +120,7 @@ public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterD
             return;
         }
 
-        sendReply(replyWebServiceHolder.getObject(), endPointConfiguration.get(), serviceCall, extension);
+        sendReply(replyWebService, endPointConfiguration.get(), serviceCall, extension);
     }
 
     private void logErrorAboutMissingEndpoint(ServiceCall serviceCall, T extension) {
