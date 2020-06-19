@@ -209,10 +209,6 @@ public class MasterDataLinkageHandler {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                     MessageSeeds.CAN_NOT_UNLINK_ITSELF, slave.getName(), slave.getSerialNumber());
         }
-        if (slave.getDeviceConfiguration().isDirectlyAddressable()) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                    MessageSeeds.NOT_SUPPORTED_SLAVE, slave.getName(), slave.getSerialNumber());
-        }
         Optional<Device> currentGateway = topologyService.getPhysicalGateway(slave);
         if (currentGateway.isPresent()) {
             if (!currentGateway.get().equals(gateway)) {

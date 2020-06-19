@@ -984,31 +984,6 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     }
 
     @Test
-    public void testCloseLinkage_meterAndEndDeviceNotSupportedSlave() throws Exception {
-        //Prepare
-        MasterDataLinkageConfigRequestMessageType message = getValidMessage()
-                .withEndDeviceMRID(END_DEVICE_MRID)
-                .eraseUsagePointList()
-                .build();
-        when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
-        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(true);
-        when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
-        when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
-
-        //Act and verify
-        try {
-            linkageHandler.forMessage(message);
-            linkageHandler.closeLinkage();
-        } catch (FaultMessage e) {
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.NOT_SUPPORTED_SLAVE.getErrorCode(),
-                    "Device 'endDeviceName' (serial number 'endDeviceSerialNumber') not configured to act as end device.");
-            verify(topologyService, never()).clearPhysicalGateway(endDevice);
-        }
-    }
-
-    @Test
     public void testCloseLinkage_meterAndEndDevicAlreadyLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
