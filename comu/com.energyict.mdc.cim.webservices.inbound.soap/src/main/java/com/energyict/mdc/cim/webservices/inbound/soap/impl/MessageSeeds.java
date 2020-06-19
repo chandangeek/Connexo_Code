@@ -86,8 +86,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_POINT_WITH_WEBSERVICE_NAME(3007, "NoEndPointConfigured", "No end point configuration is found by web service name ''{0}''."),
 
     // master data linkage
-    UNABLE_TO_LINK_METER(3008, "UnableToLinkMeter", "Unable to link meter to usage point"),
-    UNABLE_TO_UNLINK_METER(3009, "UnableToUnlinkMeter", "Unable to unlink meter from usage point"),
+    UNABLE_TO_LINK_METER(3008, "UnableToLinkMeter", "Unable to link meter to usage point or gateway to end device"),
+    UNABLE_TO_UNLINK_METER(3009, "UnableToUnlinkMeter", "Unable to unlink meter from usage point or gateway from end device"),
     SAME_USAGE_POINT_ALREADY_LINKED(3010, "SameUsagePointAlreadyLinked",
             "Meter ''{0}'' is already linked to usage point ''{1}'' at the given time ''{2}''."),
     METER_AND_USAGE_POINT_NOT_LINKED(3011, "MeterAndUsagePointNotLinked",
