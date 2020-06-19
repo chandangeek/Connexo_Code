@@ -48,6 +48,7 @@ public enum TableSpecs {
                     .references(FiniteStateMachine.class)
                     .map(DeviceLifeCycleImpl.Fields.STATE_MACHINE.fieldName())
                     .add();
+            table.cacheWholeTable(true);
         }
     },
     DLD_TRANSITION_PROCESS {

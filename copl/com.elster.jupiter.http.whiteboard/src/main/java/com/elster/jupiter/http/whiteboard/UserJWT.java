@@ -18,7 +18,7 @@ import java.time.Instant;
  */
 public final class UserJWT {
 
-    @Size(max = Table.UUID_LENGHT)
+    @Size(max = Table.UUID_LENGTH)
     private String jwtId;
 
     private BigDecimal userId;

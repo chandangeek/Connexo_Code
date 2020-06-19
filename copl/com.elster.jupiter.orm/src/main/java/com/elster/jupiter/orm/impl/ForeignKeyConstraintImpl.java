@@ -4,7 +4,15 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.Index;
+import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalAspect;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -51,7 +59,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
     @Override
     ForeignKeyConstraintImpl init(TableImpl<?> table, String name) {
         if (is(name).empty()) {
-            throw new IllegalTableMappingException("Table " + table.getName() + " : foreign key can not have an empty name.");
+            throw new IllegalTableMappingException("Table " + table.getName() + ": foreign key can't have an empty name.");
         }
         super.init(table, name);
         return this;
@@ -71,6 +79,14 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
             throw new IllegalTableMappingException("Foreign key " + getName() + " on table " + getTable().getName() + " is missing a referenced table.");
         }
         return referencedTable.get();
+    }
+
+    public List<ColumnImpl> getReferencedColumns() {
+        return getReferencedTable().getPrimaryKeyColumns();
+    }
+
+    public KeyValue getReferencedPrimaryKey(Object object) {
+        return getReferencedTable().getPrimaryKey(object);
     }
 
     @Override
@@ -172,10 +188,17 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         Objects.requireNonNull(deleteRule);
         Objects.requireNonNull(fieldName);
         /*if (!getTable().hasForceJournal() && !deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
-            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
+            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journaled table can't have a foreign key with cascade or set null delete rule.");
         }*/
-        if (getReferencedTable().isCached() && forwardEagers.length > 0) {
-            throw new IllegalStateException("Table: " + getTable().getName() + " Do not specify eager mapping when referencing cached table " + getReferencedTable().getName());
+        if (isActual() && !getReferencedTable().getPrimaryKeyConstraint().isPresent()) {
+            throw new IllegalTableMappingException("Foreign key " + getName() + " on table " + getTable().getName() + " can't reference a table without primary key.");
+        }
+        if (reverseFieldName != null && isActual() && getReferencedTable().getField(reverseFieldName) == null) {
+            throw new IllegalTableMappingException("Foreign key " + getName() + " on table "
+                    + getTable().getName() + ": the referenced object doesn't have a field named " + reverseFieldName + ".");
+        }
+        if (getReferencedTable().getCacheType() != Table.CacheType.NO_CACHE && forwardEagers.length > 0) {
+            throw new IllegalTableMappingException("Table " + getTable().getName() + ": don't specify eager mapping when referencing cached table " + getReferencedTable().getName() + '.');
         }
     }
 
@@ -207,7 +230,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         if (reference instanceof PersistentReference<?>) {
             return ((PersistentReference<?>) reference).getKey();
         } else {
-            return getReferencedTable().getPrimaryKeyConstraint().getColumnValues(reference.get());
+            return getReferencedPrimaryKey(reference.get());
         }
     }
 
@@ -327,6 +350,10 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         this.predecessor = (ForeignKeyConstraintImpl) predecessor;
     }
 
+    private boolean isActual() {
+        return isInVersion(getTable().getDataModel().getVersion());
+    }
+
     public static class BuilderImpl implements Builder {
         private final ForeignKeyConstraintImpl constraint;
 
@@ -339,7 +366,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         public Builder on(Column... columns) {
             for (Column column : columns) {
                 if (!constraint.getTable().equals(column.getTable())) {
-                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + " : foreign key can not have columns from another table as key : " + column.getName() + ".");
+                    throw new IllegalTableMappingException("Table " + constraint.getTable().getName() + ": foreign key can't have columns from another table as key: " + column.getName() + ".");
                 }
             }
             constraint.add(columns);
@@ -374,13 +401,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
             if (referencedTable == null && constraint.getTable().getName().equals(name)) {
                 referencedTable = constraint.getTable();
             }
-            if (referencedTable == null) {
-                throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced table " + name + " does not exist.");
-            }
             constraint.setReferencedTable(referencedTable);
             return this;
         }
 
+        @Deprecated
         @Override
         public Builder references(String component, String name) {
             TableImpl<?> table = constraint.getTable().getDataModel().getOrmService().getTable(component, name);
@@ -398,10 +423,6 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
 
         @Override
         public Builder reverseMap(String field) {
-            if (constraint.getReferencedTable().getField(field) == null) {
-                throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable()
-                        .getName() + " the referenced object does not have a field named " + field + ".");
-            }
             constraint.reverseFieldName = field;
             return this;
         }

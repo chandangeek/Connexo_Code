@@ -18,6 +18,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -124,6 +125,7 @@ public class CalendarOnUsagePointImplIT {
             bind(HttpService.class).toInstance(httpService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 
@@ -191,7 +193,6 @@ public class CalendarOnUsagePointImplIT {
 
     @Test
     public void testAddCalendar() {
-
         ZonedDateTime start = ZonedDateTime.now().plusDays(1);
         ZonedDateTime.now().plusDays(1);
         Calendar calendar;

@@ -101,7 +101,7 @@ import org.mockito.stubbing.Answer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -236,13 +236,12 @@ public class ValidationServiceImplTest {
     @Mock
     private PurposeValidationImpl purposeValidation;
 
-    RangeSet<Instant> rangeSet = TreeRangeSet.create();
+    private RangeSet<Instant> rangeSet = TreeRangeSet.create();
 
     @Before
     public void setUp() {
         rangeSet.add(Range.atLeast(Instant.EPOCH));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.isInstalled()).thenReturn(true);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<DataValidationTask>mapper(any())).thenReturn(dataValidationTaskFactory2);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
@@ -272,6 +271,7 @@ public class ValidationServiceImplTest {
         when(channelsContainer.getStart()).thenReturn(Instant.EPOCH);
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(Instant.EPOCH)));
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
+        doReturn(fetcher).when(meter).findReadingQualities();
 
         validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService,
                 meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService,
@@ -403,7 +403,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.OTHER);
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
-        doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules(anyList());
+        doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules(anyListOf(ReadingType.class));
 
         when(validationRuleSetResolver.resolve(any(ValidationContext.class)))
                 .thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
@@ -450,7 +450,7 @@ public class ValidationServiceImplTest {
 
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
-        doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules(anyList());
+        doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules(anyListOf(ReadingType.class));
         when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
         Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
         validationService.validate(channelsContainer, changeScope);
@@ -886,7 +886,7 @@ public class ValidationServiceImplTest {
     @Test
     public void testFindDataValidationTaskById() {
         when(dataValidationTaskFactory2.getOptional(ID)).thenReturn(Optional.of(iDataTask));
-        assertThat(validationService.findValidationTask(ID).get()).isEqualTo(iDataTask);
+        assertThat(validationService.findValidationTask(ID)).contains(iDataTask);
     }
 
     @Test

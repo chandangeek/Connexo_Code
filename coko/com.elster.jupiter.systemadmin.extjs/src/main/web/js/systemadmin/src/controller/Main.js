@@ -21,7 +21,8 @@ Ext.define('Sam.controller.Main', {
         'Sam.controller.history.About',
         'Sam.controller.about.About',
         'Sam.controller.componentslist.ComponentsList',
-        'Sam.controller.systeminfo.SystemInfo'
+        'Sam.controller.systeminfo.SystemInfo',
+        'Sam.controller.systemprops.SystemProps'
     ],
 
     stores: [
@@ -95,9 +96,10 @@ Ext.define('Sam.controller.Main', {
                 Uni.store.PortalItems.add(dataPurgeItem);
             }
 
+
             if (Sam.privileges.DeploymentInfo.canView()) {
                 var deploymentInfoItem = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.deploymentInfo', 'SAM', 'Deployment information'),
+                    title: Uni.I18n.translate('general.System', 'SAM', 'System'),
                     portal: 'administration',
                     items: [
                         {
@@ -107,6 +109,11 @@ Ext.define('Sam.controller.Main', {
                         {
                             text: Uni.I18n.translate('general.systemInfo', 'SAM', 'System information'),
                             href: router.getRoute('administration/systeminfo').buildUrl()
+                        },
+                        {
+                            text: Uni.I18n.translate('general.systemProperties', 'SAM', 'System properties'),
+                            privileges: Sam.privileges.SystemProperties.view,
+                            href: router.getRoute('administration/systemprop').buildUrl()
                         }
                     ]
                 });

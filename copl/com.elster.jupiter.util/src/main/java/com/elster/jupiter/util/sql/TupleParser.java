@@ -4,9 +4,13 @@
 
 package com.elster.jupiter.util.sql;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@ConsumerType
+@FunctionalInterface
 public interface TupleParser<T> {
-	T construct(ResultSet resultSet) throws SQLException;
+    T construct(ResultSet resultSet) throws SQLException;
 }

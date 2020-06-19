@@ -169,7 +169,7 @@ public class DataModelImpl implements DataModel {
         checkNotRegistered();
         checkActiveBuilder();
         if (getTable(tableName) != null) {
-            throw new IllegalArgumentException("Component has already table " + tableName);
+            throw new IllegalArgumentException("Component already has table " + tableName);
         }
         TableImpl<T> table = TableImpl.from(this, schema, tableName, api);
         add(table);
@@ -416,7 +416,7 @@ public class DataModelImpl implements DataModel {
         allModules[modules.length] = getModule();
         injector = Guice.createInjector(allModules);
         for (TableImpl<?> each : getTables(getVersion())) {
-            each.prepare();
+            each.prepare(ormService.getEvictionTime(), ormService.isCacheEnabled());
         }
         this.ormService.register(this);
         registered = true;

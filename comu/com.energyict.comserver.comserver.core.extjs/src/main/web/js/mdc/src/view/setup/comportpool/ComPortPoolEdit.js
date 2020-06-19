@@ -142,6 +142,41 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                 },
                 {
                     xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('comportpool.taskExecutionTimeout', 'MDC', 'Task Execution Timeout'),
+                    itemId: 'taskExecutionTimeout',
+                    required: true,
+                    layout: 'hbox',
+                    width: 600,
+                    items: [
+                        {
+                            xtype: 'numberfield',
+                            required: true,
+                            allowBlank: false,
+                            name: 'taskExecutionTimeout[count]',
+                            itemId: 'taskExecutionTimeoutCount',
+                            margin: '0 8 0 0',
+                            width: 151,
+                            minValue: 0,
+                            stripCharsRe: /\D/,
+                            value: 0
+                        },
+                        {
+                            xtype: 'combobox',
+                            required: true,
+                            allowBlank: false,
+                            editable: false,
+                            name: 'taskExecutionTimeout[timeUnit]',
+                            margin: '0 1 0 0',
+                            flex: 1,
+                            valueField: 'timeUnit',
+                            displayField: 'localizedValue',
+                            itemId: 'taskExecutionTimeoutUnit',
+                            store: 'TimeUnitsWithoutMilliseconds'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
                     ui: 'actions',
                     fieldLabel: '&nbsp',
                     items: [

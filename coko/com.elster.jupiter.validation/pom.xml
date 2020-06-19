@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.1-Hermes-SNAPSHOT</version>
+        <version>2.0.0-Hermes-SNAPSHOT</version>
 
     </parent>
     <artifactId>validation</artifactId>
@@ -194,6 +194,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm.h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

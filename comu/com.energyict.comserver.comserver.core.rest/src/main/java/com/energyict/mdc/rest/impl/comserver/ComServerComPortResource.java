@@ -88,7 +88,13 @@ public class ComServerComPortResource {
     public ComPortInfo updateOutboundComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id, ComPortInfo info) {
         info.id = id;
         ComPort comPort = resourceHelper.lockComPortOrThrowException(info);
+        int nrOfSimultaneusConnections = comPort.getNumberOfSimultaneousConnections();
         info.writeTo(comPort, engineConfigurationService, resourceHelper);
+        if (nrOfSimultaneusConnections == 1 && info.numberOfSimultaneousConnections > 1) {
+            comPort.setNumberOfSimultaneousConnections(1);
+        } else if (nrOfSimultaneusConnections > 1 && info.numberOfSimultaneousConnections == 1) {
+            comPort.setNumberOfSimultaneousConnections(2);
+        }
         comPort.update();
         return comPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }

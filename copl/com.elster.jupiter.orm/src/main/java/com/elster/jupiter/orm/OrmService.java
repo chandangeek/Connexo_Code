@@ -31,6 +31,10 @@ public interface OrmService {
 
     public static final String EXISTING_TABLES_DATA_MODEL = "ORA";
 
+    public static final int EVICTION_TIME_IN_SECONDS_DEFAULT_VALUE = 300;
+
+    public static final boolean ENABLE_CACHE_DEFAULT_VALUE = true;
+
     /*
      * creates a new Data Model with the given name and description
      * name should be an unique three letter acronym
@@ -75,4 +79,6 @@ public interface OrmService {
     DataModelDifferencesLister getDataModelDifferences(Logger logger);
 
     boolean isTest();
+
+    String getProperty(String key);
 }
