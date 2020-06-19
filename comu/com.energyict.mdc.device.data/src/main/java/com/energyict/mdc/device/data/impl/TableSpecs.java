@@ -128,6 +128,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(com.energyict.mdc.upl.meterdata.Device.class);
             table.map(DeviceImpl.class);
+            table.cache(60000L, 10000L, true);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
