@@ -68,14 +68,12 @@ public class UpgraderV10_9 implements Upgrader {
         String sql1 =
                 "BEGIN " +
                         "  DELETE FROM DLP_MSC_WS1; " +
-                        "  DELETE FROM DLP_MSC_WS1JRNL; " +
                         "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension'; " +
                         "END; ";
 
         String sql2 =
                 "BEGIN " +
                         "  DELETE FROM DLP_CSC_WS1; " +
-                        "  DELETE FROM DLP_CSC_WS1JRNL; " +
                         "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension'; " +
                         "END; ";
 
