@@ -16,19 +16,14 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
-
     private OrmService ormService;
-    private volatile Thesaurus thesaurus;
-    PropertySpec propertySpec;
-    PropertySpecService propertySpecService;
+    private PropertySpec propertySpec;
 
     @Inject
     public EvictionTimeSystemPropertySpec(OrmService ormService,
                                           PropertySpecService propertySpecService,
                                           Thesaurus thesaurus) {
         this.ormService = ormService;
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
         propertySpec = propertySpecService.timeDurationSpec()
                 .named(SystemPropertyTranslationKeys.EVICTION_TIME)
                 .describedAs(SystemPropertyTranslationKeys.EVICTION_TIME_DESCRIPTION)
@@ -47,10 +42,10 @@ public class EvictionTimeSystemPropertySpec implements SystemPropertySpec {
     public void actionOnChange(SystemProperty property) {
         TimeDuration timeDuration = (TimeDuration)property.getValue();
         long evictionTime = timeDuration.getMilliSeconds();
-        List<DataModel> datamodels = ormService.getDataModels();
-        for (DataModel dataModel : datamodels) {
+        List<DataModel> dataModels = ormService.getDataModels();
+        for (DataModel dataModel : dataModels) {
             for (Table table : dataModel.getTables()) {
-                if (table.isCached() || table.isWholeTableCached()) {
+                if (table.isCached()) {
                     table.changeEvictionTime(evictionTime);
                 }
             }

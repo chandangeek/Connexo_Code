@@ -37,7 +37,7 @@ class ParentDataMapper<T> extends JoinDataMapper<T> {
                         put(key, value);
                     }
                 }
-                if (constraint.getFieldName() != null && getTable().getCacheType() == Table.CacheType.NO_CACHE) {
+                if (constraint.getFieldName() != null && !getTable().isCached()) {
                     DomainMapper.FIELDSTRICT.set(target, constraint.getFieldName(), value);
                 }
             }

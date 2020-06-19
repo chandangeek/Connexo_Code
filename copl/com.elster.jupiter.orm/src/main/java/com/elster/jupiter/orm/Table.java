@@ -23,14 +23,13 @@ import java.util.stream.Stream;
  */
 @ProviderType
 public interface Table<T> {
-
     int NAME_LENGTH = 80;
     int SHORT_DESCRIPTION_LENGTH = 256;
     int MAX_STRING_LENGTH = 4000;
     int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
     int UUID_LENGTH = 36; // Any UUID is 36 characters long
 
-    public enum CacheType {
+    enum CacheType {
         NO_CACHE,
         TUPLE_CACHE,
         WHOLE_TABLE_CACHE

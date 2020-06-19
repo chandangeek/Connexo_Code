@@ -14,10 +14,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
-
     private OrmService ormService;
-    private PropertySpecService propertySpecService;
-    private volatile Thesaurus thesaurus;
     private PropertySpec propertySpec;
 
     @Inject
@@ -25,7 +22,6 @@ public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
                                             PropertySpecService propertySpecService,
                                             Thesaurus thesaurus) {
         this.ormService = ormService;
-        this.propertySpecService = propertySpecService;
         propertySpec = propertySpecService.booleanSpec()
                 .named(SystemPropertyTranslationKeys.ENABLE_CACHE)
                 .describedAs(SystemPropertyTranslationKeys.ENABLE_CACHE_DESCRIPTION)
@@ -43,21 +39,15 @@ public class CacheIsEnabledSystemPropertySpec implements SystemPropertySpec {
     public void actionOnChange(SystemProperty property) {
         //recreate all caches
         boolean cacheEnabled = (Boolean) property.getValue();
-        List<DataModel> datamodels = ormService.getDataModels();
-        for (DataModel dataModel : datamodels) {
+        List<DataModel> dataModels = ormService.getDataModels();
+        for (DataModel dataModel : dataModels) {
             for (Table table : dataModel.getTables()) {
                 if (table.getCacheType() != Table.CacheType.NO_CACHE) {
-                    if (cacheEnabled) {
-                        if ((table.isWholeTableCached() == false && table.getCacheType() == Table.CacheType.WHOLE_TABLE_CACHE)
-                                || (table.isCached() == false && table.getCacheType() == Table.CacheType.TUPLE_CACHE)) {
-                            table.enableCache();
-                        }
+                    if (cacheEnabled && !table.isCached()) {
+                        table.enableCache();
                     }
-
-                    if (!cacheEnabled) {
-                        if (table.isWholeTableCached() || table.isCached()) {
-                            table.disableCache();
-                        }
+                    if (!cacheEnabled && table.isCached()) {
+                        table.disableCache();
                     }
                 }
             }

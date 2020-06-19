@@ -1293,14 +1293,14 @@
         <module>com.elster.jupiter.servicecall.extjs</module>
         <module>com.elster.jupiter.servicecall.rest</module>
         <module>com.elster.jupiter.servicecalltype.extjs</module>
-		<module>com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
-		<module>com.elster.jupiter.system</module>
-		<!-- todo rename to license -->
-		<module>com.elster.jupiter.systemadmin</module>
+        <module>com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
+        <module>com.elster.jupiter.system</module>
+        <!-- todo rename to license -->
+        <module>com.elster.jupiter.systemadmin</module>
         <module>com.elster.jupiter.systemproperties</module>
-		<module>com.elster.jupiter.systemproperties.rest</module>
-		<module>com.elster.jupiter.tasks</module>
-		<module>com.elster.jupiter.tasks.rest</module>
+        <module>com.elster.jupiter.systemproperties.rest</module>
+        <module>com.elster.jupiter.tasks</module>
+        <module>com.elster.jupiter.tasks.rest</module>
         <module>com.elster.jupiter.theme.skyline</module>
         <module>com.elster.jupiter.time</module>
         <module>com.elster.jupiter.time.extjs</module>

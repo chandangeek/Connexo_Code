@@ -218,6 +218,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             throw new UnderlyingSQLFailedException(ex);
         }
     }
+
     @Override
     int getPrimaryKeyLength() {
         return getTable().getPrimaryKeyColumns().size();
