@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm.associations.impl;
 
 
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -20,15 +21,17 @@ public class PersistentReference<T> implements Reference<T> {
     private Class<?>[] eagers;
     private KeyValue primaryKey;
     private Optional<T> value;
+    private ForeignKeyConstraint foreignKeyConstraint;
 
     public PersistentReference() {
 
     }
 
-    public PersistentReference(KeyValue primaryKey, DataMapperImpl<T> dataMapper, Class<?>[] eagers) {
+    public PersistentReference(KeyValue primaryKey, DataMapperImpl<T> dataMapper, Class<?>[] eagers, ForeignKeyConstraint foreignKeyConstraint) {
         this.primaryKey = primaryKey;
         this.dataMapper = dataMapper;
         this.eagers = eagers;
+        this.foreignKeyConstraint = foreignKeyConstraint;
     }
 
     @Override
@@ -42,9 +45,13 @@ public class PersistentReference<T> implements Reference<T> {
 
     @Override
     public Optional<T> getOptional() {
+        /* Here we check that object that contains reference is cached.*/
+        if (foreignKeyConstraint.getTable().isCached() && isPresent()) {
+            return dataMapper.getOptional(primaryKey.getKey());
+        }
         if (value == null) {
             if (isPresent()) {
-                if (eagers.length == 0 || dataMapper.getTable().isCached()) {
+                if (eagers.length == 0) {
                     value = dataMapper.getOptional(primaryKey.getKey());
                 } else {
                     value = dataMapper.query(eagers).getOptional(primaryKey.getKey());
