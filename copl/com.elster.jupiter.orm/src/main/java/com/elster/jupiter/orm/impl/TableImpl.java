@@ -1376,4 +1376,12 @@ public class TableImpl<T> implements Table<T> {
     public CacheType getCacheType(){
         return cacheType;
     }
+
+    public void putToCache(T objct) {
+        getCache().put(this.getPrimaryKey(objct), objct);
+    }
+
+    public Optional<T> findInCache(KeyValue key) {
+        return Optional.ofNullable(getCache().get(key));
+    }
 }
