@@ -465,6 +465,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDeviceLifeCycleStatus> table = dataModel.addTable(name(), EndDeviceLifeCycleStatus.class);
             table.map(EndDeviceLifeCycleStatusImpl.class);
+            table.cache(60000, 15000, true);
             Column endDevice = table.column("ENDDEVICE").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
@@ -512,6 +513,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MeterActivation> table = dataModel.addTable(name(), MeterActivation.class);
             table.map(MeterActivationImpl.class);
+            table.cache(60000, 15000, true);
             Column idColumn = table.addAutoIdColumn();
             Column usagePointIdColumn = table.column("USAGEPOINTID")
                     .number()
@@ -980,7 +982,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MeterReadingTypeConfiguration> table = dataModel.addTable(name(), MeterReadingTypeConfiguration.class);
             table.map(MeterReadingTypeConfigurationImpl.class);
-
+            table.cache(60000, 15000, true);
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
             Column meterConfig = table.column("METER_CONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column measured = table.column("MEASURED").varChar(NAME_LENGTH).notNull().add();
