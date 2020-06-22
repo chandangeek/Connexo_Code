@@ -24,167 +24,182 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 abstract class JoinDataMapper<T> {
-	private final DataMapperImpl<T> dataMapper;
-	private final String alias;
-	private Map<KeyValue,T> cache;
+    private final DataMapperImpl<T> dataMapper;
+    private final String alias;
+    private Map<KeyValue, T> cacheByKeys;
+    private List<T> cacheWithNoKeys;
 
-	JoinDataMapper(DataMapperImpl<T> dataMapper, String alias) {
-		this.dataMapper = dataMapper;
-		this.alias = alias;
-	}
-
-	final DataMapperImpl<T> getMapper() {
-		return dataMapper;
-	}
-
-	final String getAlias() {
-		return alias;
-	}
-
-	final TableImpl<? super T> getTable() {
-		return getMapper().getTable();
-	}
-
-	final <R> List<JoinDataMapper<R>> wrap(DataMapperImpl<R> newMapper , AliasFactory aliasFactory) {
-		List<JoinDataMapper<R>> result = new ArrayList<>();
-		for (ForeignKeyConstraintImpl constraint : getTable().getForeignKeyConstraints()) {
-			if (newMapper.getTable().equals(constraint.getReferencedTable())) {
-				result.add(new ParentDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
-				return result;
-			}
-		}
-		for (ForeignKeyConstraintImpl constraint : newMapper.getTable().getForeignKeyConstraints()) {
-			if (getTable().equals(constraint.getReferencedTable())) {
-				if (constraint.isTemporal()) {
-					result.add(new EffectiveDataMapper<>(newMapper, constraint, aliasFactory.getAlias()));
-				} else {
-					result.add(new ChildDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
-				}
-			}
-		}
-		return result;
-	}
-
-	final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
-		FieldMapping mapping = getTable().getFieldMapping(fieldName);
-		return mapping == null ? null : mapping.getColumns().stream()
-				.map(column -> new ColumnAndAlias(column, getAlias()))
-				.collect(Collectors.toList());
-	}
-
-	final ColumnAndAlias getColumnAndAlias(String fieldName) {
-		ColumnImpl column = getTable().getColumnForField(fieldName);
-		return column == null ? null : new ColumnAndAlias(column,getAlias());
-	}
-
-	final SqlFragment getFragment(Comparison comparison , String fieldName)   {
-		FieldMapping mapping = getTable().getFieldMapping(fieldName);
-		return mapping == null ? null : mapping.asComparisonFragment(comparison, getAlias());
-	}
-
-	final SqlFragment getFragment(Contains contains, String fieldName)   {
-		FieldMapping mapping = getTable().getFieldMapping(fieldName);
-		return mapping == null ? null : mapping.asContainsFragment(contains, getAlias());
-	}
-
-	boolean hasField(String fieldName)  {
-		return getTable().getFieldMapping(fieldName) != null;
-	}
-
-	final DataMapperImpl<T> getDataMapperForField(String fieldName) {
-		Column column = getTable().getColumnForField(fieldName);
-		if (column != null) {
-			return getMapper();
-		}
-		return null;
-	}
-
-	final String appendColumns(SqlBuilder builder , String separator) {
-		for (Column each : this.getRealColumns()) {
-			builder.append(separator);
-			builder.append(each.getName(alias));
-			builder.space();
-			String uniqueName = alias + each.getName();
-			if (uniqueName.length() > 30) {
-				uniqueName = uniqueName.substring(0, 30);
-			}
-            uniqueName = uniqueName.replace("\"", "");
-			builder.append("\"");
-			builder.append(uniqueName);
-			builder.append("\"");
-			separator = ", ";
-		}
-		return separator;
-	}
-
-	private List<ColumnImpl> getRealColumns() {
-	    return this.getTable().getRealColumns().collect(Collectors.toList());
+    JoinDataMapper(DataMapperImpl<T> dataMapper, String alias) {
+        this.dataMapper = dataMapper;
+        this.alias = alias;
     }
 
-	final void appendTable(SqlBuilder builder) {
-		getMapper().getSqlGenerator().appendTable(builder.getBuffer(), "", getAlias());
-	}
+    final DataMapperImpl<T> getMapper() {
+        return dataMapper;
+    }
 
-	final Class<?> getType(String fieldName) {
-		if (getTable().getFieldType(fieldName) == null) {
-			return null;
-		} else {
-			return dataMapper.getType(fieldName);
-		}
-	}
+    final String getAlias() {
+        return alias;
+    }
 
-	final T put(KeyValue key , T value) {
-		return cache.put(key, value);
-	}
+    final TableImpl<? super T> getTable() {
+        return getMapper().getTable();
+    }
 
-	final T get(KeyValue key) {
-		return cache.get(key);
-	}
+    final <R> List<JoinDataMapper<R>> wrap(DataMapperImpl<R> newMapper, AliasFactory aliasFactory) {
+        List<JoinDataMapper<R>> result = new ArrayList<>();
+        for (ForeignKeyConstraintImpl constraint : getTable().getForeignKeyConstraints()) {
+            if (newMapper.getTable().equals(constraint.getReferencedTable())) {
+                result.add(new ParentDataMapper<>(newMapper, constraint, aliasFactory.getAlias()));
+                return result;
+            }
+        }
+        for (ForeignKeyConstraintImpl constraint : newMapper.getTable().getForeignKeyConstraints()) {
+            if (getTable().equals(constraint.getReferencedTable())) {
+                if (constraint.isTemporal()) {
+                    result.add(new EffectiveDataMapper<>(newMapper, constraint, aliasFactory.getAlias()));
+                } else {
+                    result.add(new ChildDataMapper<>(newMapper, constraint, aliasFactory.getAlias()));
+                }
+            }
+        }
+        return result;
+    }
 
-	// overrides start here
+    final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
+        FieldMapping mapping = getTable().getFieldMapping(fieldName);
+        return mapping == null ? null : mapping.getColumns().stream()
+                .map(column -> new ColumnAndAlias(column, getAlias()))
+                .collect(Collectors.toList());
+    }
 
-	String reduce(String fieldName) {
-		String constraintField = getName();
-		if (constraintField == null || !fieldName.startsWith(constraintField + ".")) {
-			return null;
-		}
-		return fieldName.substring(constraintField.length() + 1);
-	}
-	void clearCache() {
-		this.cache = new HashMap<>();
-	}
+    final ColumnAndAlias getColumnAndAlias(String fieldName) {
+        ColumnImpl column = getTable().getColumnForField(fieldName);
+        return column == null ? null : new ColumnAndAlias(column, getAlias());
+    }
 
-	void completeFind(Instant effectiveDate) {
-		this.cache.values()
-            .stream()
-            .filter(PersistenceAware.class::isInstance)
-            .map(PersistenceAware.class::cast)
-            .forEach(PersistenceAware::postLoad);
-	}
+    final SqlFragment getFragment(Comparison comparison, String fieldName) {
+        FieldMapping mapping = getTable().getFieldMapping(fieldName);
+        return mapping == null ? null : mapping.asComparisonFragment(comparison, getAlias());
+    }
 
-	boolean isChild() {
-		return false;
-	}
+    final SqlFragment getFragment(Contains contains, String fieldName) {
+        FieldMapping mapping = getTable().getFieldMapping(fieldName);
+        return mapping == null ? null : mapping.asContainsFragment(contains, getAlias());
+    }
 
-	abstract String getName();
-	abstract T set(Object value , ResultSet rs , int index) throws SQLException;
-	abstract boolean appendFromClause(SqlBuilder builder , String parentAlias , boolean isMarked , boolean forceOuterJoin);
+    boolean hasField(String fieldName) {
+        return getTable().getFieldMapping(fieldName) != null;
+    }
 
-	final Boolean hasWhereField(String fieldName) {
-		return hasField(fieldName);
-	}
+    final DataMapperImpl<T> getDataMapperForField(String fieldName) {
+        Column column = getTable().getColumnForField(fieldName);
+        if (column != null) {
+            return getMapper();
+        }
+        return null;
+    }
 
-	final List<String> getQueryFields() {
-		return new ArrayList<>(dataMapper.getQueryFields());
-	}
+    final String appendColumns(SqlBuilder builder, String separator) {
+        for (Column each : this.getRealColumns()) {
+            builder.append(separator);
+            builder.append(each.getName(alias));
+            builder.space();
+            String uniqueName = alias + each.getName();
+            if (uniqueName.length() > 30) {
+                uniqueName = uniqueName.substring(0, 30);
+            }
+            uniqueName = uniqueName.replace("\"", "");
+            builder.append("\"");
+            builder.append(uniqueName);
+            builder.append("\"");
+            separator = ", ";
+        }
+        return separator;
+    }
 
-	public abstract boolean isReachable();
+    private List<ColumnImpl> getRealColumns() {
+        return this.getTable().getRealColumns().collect(Collectors.toList());
+    }
 
-	abstract boolean skipFetch(boolean marked, boolean anyChildMarked);
+    final void appendTable(SqlBuilder builder) {
+        getMapper().getSqlGenerator().appendTable(builder.getBuffer(), "", getAlias());
+    }
 
-	abstract boolean needsDistinct(boolean marked, boolean anyChildMarked);
+    final Class<?> getType(String fieldName) {
+        if (getTable().getFieldType(fieldName) == null) {
+            return null;
+        } else {
+            return dataMapper.getType(fieldName);
+        }
+    }
+
+    final void put(KeyValue key, T value) {
+        if (key.isEmpty()) {
+            cacheWithNoKeys.add(value);
+        } else {
+            cacheByKeys.put(key, value);
+        }
+    }
+
+    final T get(KeyValue key) {
+        Objects.requireNonNull(key);
+        if (key.isEmpty()) {
+            // should never fall into this case
+            throw new IllegalStateException("Ambiguous request: can't get an element by no key.");
+        }
+        return cacheByKeys.get(key);
+    }
+
+    // overrides start here
+
+    String reduce(String fieldName) {
+        String constraintField = getName();
+        if (constraintField == null || !fieldName.startsWith(constraintField + ".")) {
+            return null;
+        }
+        return fieldName.substring(constraintField.length() + 1);
+    }
+
+    void clearCache() {
+        cacheByKeys = new HashMap<>();
+        cacheWithNoKeys = new ArrayList<>();
+    }
+
+    void completeFind(Instant effectiveDate) {
+        Stream.concat(cacheByKeys.values().stream(), cacheWithNoKeys.stream())
+                .filter(PersistenceAware.class::isInstance)
+                .map(PersistenceAware.class::cast)
+                .forEach(PersistenceAware::postLoad);
+    }
+
+    boolean isChild() {
+        return false;
+    }
+
+    abstract String getName();
+
+    abstract T set(Object value, ResultSet rs, int index) throws SQLException;
+
+    abstract boolean appendFromClause(SqlBuilder builder, String parentAlias, boolean isMarked, boolean forceOuterJoin);
+
+    final Boolean hasWhereField(String fieldName) {
+        return hasField(fieldName);
+    }
+
+    final List<String> getQueryFields() {
+        return new ArrayList<>(dataMapper.getQueryFields());
+    }
+
+    public abstract boolean isReachable();
+
+    abstract boolean skipFetch(boolean marked, boolean anyChildMarked);
+
+    abstract boolean needsDistinct(boolean marked, boolean anyChildMarked);
 
 }

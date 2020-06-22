@@ -4,7 +4,12 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.MacException;
+import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.NotUniqueException;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
@@ -29,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class DataMapperReader<T> implements TupleParser<T> {
@@ -332,14 +338,14 @@ public class DataMapperReader<T> implements TupleParser<T> {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         Instant journalTime = Instant.ofEpochMilli(resultSet.getLong(1));
-                        T entry = construct(resultSet, 2, MACEnforcementMode.Secure);
+                        T entry = construct(resultSet, 2, MACEnforcementMode.Secure, true)
+                                .orElseThrow(fetchedRowWithNoValuesException());
                         result.add(new JournalEntry<>(journalTime, entry));
                     }
                 }
             }
         }
         return result;
-
     }
 
     private List<T> doFind(List<SqlFragment> fragments, SqlBuilder builder, MACEnforcementMode macEnforcementMode) throws SQLException {
@@ -414,17 +420,22 @@ public class DataMapperReader<T> implements TupleParser<T> {
         return builder;
     }
 
-    private T newInstance(ResultSet rs, int startIndex) throws SQLException {
-        for (int i = 0; i < getColumns().size(); i++) {
-            if (getColumns().get(i).isDiscriminator()) {
-                return dataMapper.cast(getMapperType().newInstance(rs.getString(startIndex + i)));
+    private Optional<T> newInstance(ResultSet rs, int startIndex) throws SQLException {
+        List<ColumnImpl> columns = getColumns();
+        for (int i = 0; i < columns.size(); i++) {
+            if (columns.get(i).isDiscriminator()) {
+                return Optional.ofNullable(rs.getString(startIndex + i))
+                        .map(getMapperType()::newInstance)
+                        .map(dataMapper::cast);
             }
         }
         throw MappingException.noDiscriminatorColumn();
     }
 
+    @Override
     public T construct(ResultSet rs) throws SQLException {
-        return construct(rs, 1, MACEnforcementMode.Secure);
+        return construct(rs, 1, MACEnforcementMode.Secure, true)
+                .orElseThrow(fetchedRowWithNoValuesException());
     }
 
     Fetcher<T> fetcher(SqlBuilder builder) throws SQLException {
@@ -438,48 +449,75 @@ public class DataMapperReader<T> implements TupleParser<T> {
         }
     }
 
-    T construct(ResultSet rs, int startIndex, MACEnforcementMode macEnforcementMode) throws SQLException {
-        T result = getMapperType().hasMultiple() ? newInstance(rs, startIndex) : dataMapper.cast(getMapperType().newInstance());
-        List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
+    /**
+     * @param rs The result set
+     * @param startIndex The index of the first column related to the constructed object
+     * @param macEnforcementMode The mac enforcement mode for object construction
+     * @param force If {@code true}, the object is constructed even if all columns contain Oracle NULL
+     * @return The constructed object if we have at least one non-NULL field, empty optional otherwise.
+     * In case of eagerly joined tables, all NULL fields related to one table would mean that no entry is fetched from this table => nothing to construct.
+     * In case of root of the query or single table fetch, please use {@code force} argument to force object construction even with all NULL fields.
+     */
+    Optional<T> construct(ResultSet rs, int startIndex, MACEnforcementMode macEnforcementMode, boolean force) throws SQLException {
+        Optional<T> optionalResult = getMapperType().hasMultiple() ?
+                newInstance(rs, startIndex) :
+                Optional.ofNullable(dataMapper.cast(getMapperType().newInstance()));
+        if (optionalResult.isPresent()) {
+            T result = optionalResult.get();
+            List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
+            boolean somethingFetched = false;
 
-        ColumnImpl macColumn = null;
-        String mac = null;
+            ColumnImpl macColumn = null;
+            String mac = null;
+            for (ColumnImpl column : this.getRealColumns()) {
+                Object value = convertFromDb(column, rs, startIndex++);
+                if (!rs.wasNull()) {
+                    somethingFetched = true;
+                }
+                if (column.isForeignKeyPart()) {
+                    columnValues.add(Pair.of(column, rs.wasNull() ? null : value));
+                }
+                if (column.getFieldName() != null) {
+                    column.setDomainValue(result, value);
+                }
+                if (column.isMAC()) {
+                    macColumn = column;
+                    mac = (String) value;
+                }
+            }
+            if (somethingFetched || force) {
+                for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
+                    KeyValue keyValue = createKey(constraint, columnValues);
+                    constraint.setField(result, keyValue);
+                }
+                for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
+                    constraint.setReverseField(result);
+                }
 
-        for (ColumnImpl column : this.getRealColumns()) {
-            Object value = convertFromDb(column, rs, startIndex++);
-            if (column.isForeignKeyPart()) {
-                columnValues.add(Pair.of(column, rs.wasNull() ? null : value));
-            }
-            if (column.getFieldName() != null) {
-                column.setDomainValue(result, value);
-            }
-            if (column.isMAC()) {
-                macColumn = column;
-                mac = (String) value;
+                if (macColumn != null && MACEnforcementMode.Secure.equals(macEnforcementMode)) {
+                    if (mac == null || !macColumn.verifyMacValue(mac, result)) {
+                        throw new MacException();
+                    }
+                }
+                return Optional.of(result);
             }
         }
+        return Optional.empty();
+    }
 
-        for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
-            KeyValue keyValue = createKey(constraint, columnValues);
-            constraint.setField(result, keyValue);
-        }
-        for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
-            constraint.setReverseField(result);
-        }
+    private Supplier<IllegalStateException> fetchedRowWithNoValuesException() {
+        return fetchedRowWithNoValuesException(dataMapper.getTable());
+    }
 
-        if (macColumn != null && MACEnforcementMode.Secure.equals(macEnforcementMode)) {
-            if (mac == null || !macColumn.verifyMacValue(mac, result)) {
-                throw new MacException();
-            }
-        }
-        return result;
+    public static Supplier<IllegalStateException> fetchedRowWithNoValuesException(Table table) {
+        return () -> new IllegalStateException("No values have been fetched from the database for the requested row in " + table.getName() + '.');
     }
 
     private Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
         if (column.getFieldName() == null) {
             Optional<ForeignKeyConstraintImpl> foreignKeyConstraintOptional = column.getForeignKeyConstraint();
             if (foreignKeyConstraintOptional.isPresent()) {
-                return convertFromDb(findReferencedColumn(foreignKeyConstraintOptional.get().getReferencedTable().getPrimaryKeyConstraint().getColumns(), column), rs, index);
+                return convertFromDb(findReferencedColumn(foreignKeyConstraintOptional.get().getReferencedColumns(), column), rs, index);
             }
         }
         return column.convertFromDb(rs, index);
@@ -518,7 +556,8 @@ public class DataMapperReader<T> implements TupleParser<T> {
     }
 
     private T construct(ResultSet rs, List<Setter> setters, MACEnforcementMode macEnforcementMode) throws SQLException {
-        T result = construct(rs, 1, macEnforcementMode);
+        T result = construct(rs, 1, macEnforcementMode, true)
+                .orElseThrow(fetchedRowWithNoValuesException());
         for (Setter setter : setters) {
             setter.set(result);
         }
