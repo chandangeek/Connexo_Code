@@ -128,6 +128,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(com.energyict.mdc.upl.meterdata.Device.class);
             table.map(DeviceImpl.class);
+            table.cache(60000L, 10000L, true);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
@@ -471,7 +472,7 @@ public enum TableSpecs {
                     .map(ComTaskExecutionFields.DEVICE.fieldName())
                     .reverseMap("comTaskExecutions").composition()
                     .add();
-            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add().upTo(version(10, 8, 1));
+            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
             table.audit(DDC_COMTASKEXEC.name())
                     .domainContext(AuditDomainContextType.DEVICE_COMTASKS.domainContextId())
                     .domainReferences("FK_DDC_COMTASKEXEC_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
