@@ -51,7 +51,7 @@ public class PersistentReference<T> implements Reference<T> {
         }
         if (value == null) {
             if (isPresent()) {
-                if (eagers.length == 0) {
+                if (eagers.length == 0 || dataMapper.getTable().isCached()) {
                     value = dataMapper.getOptional(primaryKey.getKey());
                 } else {
                     value = dataMapper.query(eagers).getOptional(primaryKey.getKey());
