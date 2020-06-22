@@ -283,7 +283,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         if (field != null && Reference.class.isAssignableFrom(field.getType())) {
             List<Class<?>> apiFragments = DomainMapper.extractDomainClassIdentifiers(field);
             DataMapperImpl<?> dataMapper = getReferencedTable().getDataMapper(apiFragments);
-            Reference<?> reference = new PersistentReference<>(keyValue, dataMapper, forwardEagers);
+            Reference<?> reference = new PersistentReference<>(keyValue, dataMapper, forwardEagers, this);
             try {
                 field.set(target, reference);
             } catch (ReflectiveOperationException ex) {

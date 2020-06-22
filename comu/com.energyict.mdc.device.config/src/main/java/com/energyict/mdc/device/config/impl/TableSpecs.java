@@ -147,6 +147,7 @@ public enum TableSpecs {
                     .reverseMap("deviceLifeCycle")
                     .composition()
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -178,6 +179,7 @@ public enum TableSpecs {
                     .on(customPropertySet)
                     .map("customPropertySet")
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -209,6 +211,7 @@ public enum TableSpecs {
                     .on(customPropertySet)
                     .map("registeredCustomPropertySet")
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -234,6 +237,7 @@ public enum TableSpecs {
                     .references(LogBookType.class)
                     .map("logBookType")
                     .add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -441,6 +445,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
             table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).upTo(version(10, 8)).add();
             table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn, obsoleteDate).upTo(version(10, 8)).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -484,6 +489,7 @@ public enum TableSpecs {
                     .reverseMap("protocolProperties")
                     .add();
             table.primaryKey("PK_DTC_PRTCLCONFPROPSATTR").on(deviceConfiguration, name).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -546,6 +552,7 @@ public enum TableSpecs {
                     .since(Version.version(10, 3))
                     .add();
             table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -567,6 +574,7 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.primaryKey("PK_DTC_PARTIALCONTSKPROPS").on(partialconnectiontask, name).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -588,6 +596,7 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.primaryKey("PK_DTC_DEVMESENABLEMENT").on(id).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -639,6 +648,7 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("PK_DTC_SECURITYPROPSET").on(id).add();
             table.unique("UK_DTC_SECPROPSET_NAME").on(deviceConfiguration, name).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -685,6 +695,7 @@ public enum TableSpecs {
                     .map("keyAccessorType")
                     .add();
             table.primaryKey("PK_DTC_SECURITYPROPERTY").on(securityPropertySetId, name).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -738,6 +749,7 @@ public enum TableSpecs {
                     .add();
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask, deviceCommunicationConfigation).add();
             table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();
+            table.cacheWholeTable(true);
         }
     },
 

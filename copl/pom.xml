@@ -1295,27 +1295,27 @@
         <module>com.elster.jupiter.servicecalltype.extjs</module>
 		<module>com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
 		<module>com.elster.jupiter.system</module>
-		<!-- todo rename to license -->
-		<module>com.elster.jupiter.systemadmin</module>
-		<module>com.elster.jupiter.systemproperties</module>
-		<module>com.elster.jupiter.systemproperties.rest</module>
-		<module>com.elster.jupiter.tasks</module>
-		<module>com.elster.jupiter.tasks.rest</module>
-		<module>com.elster.jupiter.theme.skyline</module>
-		<module>com.elster.jupiter.time</module>
-		<module>com.elster.jupiter.time.extjs</module>
-		<module>com.elster.jupiter.time.rest</module>
-		<module>com.elster.jupiter.transaction</module>
-		<module>com.elster.jupiter.unifyingjs</module>
-		<module>com.elster.jupiter.upgrade</module>
-		<module>com.elster.jupiter.users</module>
-		<module>com.elster.jupiter.users.extjs</module>
-		<module>com.elster.jupiter.users.rest</module>
-		<module>com.elster.jupiter.util</module>
-		<module>com.elster.jupiter.webservice.inbound.rest.scim</module>
-		<module>com.elster.jupiter.webservices.extjs</module>
-		<module>com.elster.jupiter.webservices.rest</module>
-		<module>com.elster.jupiter.yellowfin</module>
+        <!-- todo rename to license -->
+        <module>com.elster.jupiter.systemadmin</module>
+        <module>com.elster.jupiter.systemproperties</module>
+        <module>com.elster.jupiter.systemproperties.rest</module>
+        <module>com.elster.jupiter.tasks</module>
+        <module>com.elster.jupiter.tasks.rest</module>
+        <module>com.elster.jupiter.theme.skyline</module>
+        <module>com.elster.jupiter.time</module>
+        <module>com.elster.jupiter.time.extjs</module>
+        <module>com.elster.jupiter.time.rest</module>
+        <module>com.elster.jupiter.transaction</module>
+        <module>com.elster.jupiter.unifyingjs</module>
+        <module>com.elster.jupiter.upgrade</module>
+        <module>com.elster.jupiter.users</module>
+        <module>com.elster.jupiter.users.extjs</module>
+        <module>com.elster.jupiter.users.rest</module>
+        <module>com.elster.jupiter.util</module>
+        <module>com.elster.jupiter.webservice.inbound.rest.scim</module>
+        <module>com.elster.jupiter.webservices.extjs</module>
+        <module>com.elster.jupiter.webservices.rest</module>
+        <module>com.elster.jupiter.yellowfin</module>
         <module>com.elster.jupiter.yellowfin.app</module>
         <module>com.elster.jupiter.yellowfin.installer</module>
         <module>com.elster.jupiter.drools-integration</module>
