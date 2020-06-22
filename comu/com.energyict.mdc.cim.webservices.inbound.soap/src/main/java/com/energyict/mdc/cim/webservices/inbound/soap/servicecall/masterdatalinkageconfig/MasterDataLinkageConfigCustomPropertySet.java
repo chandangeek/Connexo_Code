@@ -121,12 +121,12 @@ public class MasterDataLinkageConfigCustomPropertySet
         return Arrays.asList(
                 propertySpecService.stringSpec()
                         .named(MasterDataLinkageConfigDomainExtension.FieldNames.METER.javaName(),
-                                TranslationKeys.METER_INFO)
-                        .describedAs(TranslationKeys.METER_INFO).fromThesaurus(thesaurus).finish(),
+                                TranslationKeys.METER_OR_GATEWAY_INFO)
+                        .describedAs(TranslationKeys.METER_OR_GATEWAY_INFO).fromThesaurus(thesaurus).finish(),
                 propertySpecService.stringSpec()
                         .named(MasterDataLinkageConfigDomainExtension.FieldNames.END_DEVICE.javaName(),
                                 TranslationKeys.END_DEVICE_INFO)
-                        .describedAs(TranslationKeys.METER_INFO).fromThesaurus(thesaurus).finish(),
+                        .describedAs(TranslationKeys.METER_OR_GATEWAY_INFO).fromThesaurus(thesaurus).finish(),
                 propertySpecService.stringSpec()
                         .named(MasterDataLinkageConfigDomainExtension.FieldNames.USAGE_POINT.javaName(),
                                 TranslationKeys.USAGE_POINT_INFO)

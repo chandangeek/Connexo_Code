@@ -352,9 +352,7 @@ public class ServiceCallCommands {
         MasterDataLinkageConfigMasterDomainExtension domainExtension = new MasterDataLinkageConfigMasterDomainExtension();
         domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
-        domainExtension.setExpectedNumberOfCalls(
-                BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()
-                + config.getPayload().getMasterDataLinkageConfig().getEndDevice().size()));
+        domainExtension.setExpectedNumberOfCalls(getExpectedNumberOfCallsForLinkage(config));
         String correlationId = config.getHeader() == null ? null : config.getHeader().getCorrelationID();
         domainExtension.setCorrelationId(correlationId);
 
@@ -412,6 +410,11 @@ public class ServiceCallCommands {
         ServiceCallBuilder serviceCallBuilder = parentServiceCall.newChildCall(serviceCallType)
                 .extendedWith(domainExtension);
         return serviceCallBuilder.create();
+    }
+
+    private BigDecimal getExpectedNumberOfCallsForLinkage(MasterDataLinkageConfigRequestMessageType config) {
+        return BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()
+                + config.getPayload().getMasterDataLinkageConfig().getEndDevice().size());
     }
 
     private boolean processSubParentServiceCallWithChildren(com.elster.jupiter.metering.Meter meter,

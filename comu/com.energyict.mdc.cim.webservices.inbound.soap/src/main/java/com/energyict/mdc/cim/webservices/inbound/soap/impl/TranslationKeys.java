@@ -62,7 +62,7 @@ public enum TranslationKeys implements TranslationKey {
     STATUS_INACTIVE("property.status.inactive", "Inactive"),
     STATUS_PRE_ACTIVE("property.status.pre.active", "Pre-active"),
     STATUS_TEST("property.status.test", "Test"),
-    METER_INFO("meterInfo", "Meter/gateway info"),
+    METER_OR_GATEWAY_INFO("meterInfo", "Meter/gateway info"),
     END_DEVICE_INFO("endDeviceInfo", "End device info"),
     USAGE_POINT_INFO("usagePointInfo", "Usage point info"),
     CONFIGURATION_EVENT("configurationEvent", "Configuration event"),
