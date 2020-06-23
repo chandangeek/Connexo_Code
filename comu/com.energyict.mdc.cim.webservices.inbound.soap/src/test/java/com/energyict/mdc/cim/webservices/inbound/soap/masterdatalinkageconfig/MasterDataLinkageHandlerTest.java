@@ -928,7 +928,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             linkageHandler.closeLinkage();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.METER_AND_USAGE_POINT_NOT_LINKED.getErrorCode(),
-                    "Meter 'meterName' is not linked to usage point 'usagePointName' at the given time '2017-07-05T12:00:00+12:00'.");
+                    "Meter 'meterName' isn't linked to usage point 'usagePointName' at the given time '2017-07-05T12:00:00+12:00'.");
             verify(usagePoint, never()).linkMeters();
         }
     }

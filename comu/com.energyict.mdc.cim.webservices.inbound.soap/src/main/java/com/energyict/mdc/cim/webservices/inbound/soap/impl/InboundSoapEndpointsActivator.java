@@ -175,8 +175,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile CommunicationTaskService communicationTaskService;
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile TopologyService topologyService;
-    private volatile MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
-    private volatile MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
     private volatile ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -292,8 +290,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(TopologyService.class).toInstance(topologyService);
-                bind(MasterDataLinkageConfigMasterCustomPropertySet.class).toInstance(masterDataLinkageConfigMasterCustomPropertySet);
-                bind(MasterDataLinkageConfigCustomPropertySet.class).toInstance(masterDataLinkageConfigCustomPropertySet);
                 bind(ReplyMasterDataLinkageConfigWebService.class).toInstance(replyMasterDataLinkageConfigWebService);
             }
         };
@@ -634,13 +630,13 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
     public void setMasterDataLinkageConfigMasterCustomPropertySet(
             CustomPropertySet masterDataLinkageConfigMasterCustomPropertySet) {
-        this.masterDataLinkageConfigMasterCustomPropertySet = (MasterDataLinkageConfigMasterCustomPropertySet) masterDataLinkageConfigMasterCustomPropertySet;
+        // Just for reference
     }
 
     @Reference(target = "(name=" + MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
     public void setMasterDataLinkageConfigCustomPropertySet(
             CustomPropertySet masterDataLinkageConfigCustomPropertySet) {
-        this.masterDataLinkageConfigCustomPropertySet = (MasterDataLinkageConfigCustomPropertySet) masterDataLinkageConfigCustomPropertySet;
+        // Just for reference
     }
 
     @Override

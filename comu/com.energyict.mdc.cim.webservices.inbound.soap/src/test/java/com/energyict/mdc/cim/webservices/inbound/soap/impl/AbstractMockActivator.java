@@ -172,10 +172,6 @@ public abstract class AbstractMockActivator {
     protected TopologyService topologyService;
     @Mock
     protected ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
-    @Mock
-    protected MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
-    @Mock
-    protected MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -251,8 +247,6 @@ public abstract class AbstractMockActivator {
         activator.setMeteringTranslationService(meteringTranslationService);
         activator.setTopologyService(topologyService);
         activator.addReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
-        activator.setMasterDataLinkageConfigCustomPropertySet(masterDataLinkageConfigCustomPropertySet);
-        activator.setMasterDataLinkageConfigMasterCustomPropertySet(masterDataLinkageConfigMasterCustomPropertySet);
         activator.activate(mock(BundleContext.class));
     }
 

@@ -86,12 +86,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_POINT_WITH_WEBSERVICE_NAME(3007, "NoEndPointConfigured", "No end point configuration is found by web service name ''{0}''."),
 
     // master data linkage
-    UNABLE_TO_LINK_METER(3008, "UnableToLinkMeter", "Unable to link meter to usage point or gateway to end device"),
-    UNABLE_TO_UNLINK_METER(3009, "UnableToUnlinkMeter", "Unable to unlink meter from usage point or gateway from end device"),
+    UNABLE_TO_LINK_METER(3008, "UnableToLinkMeter", "Unable to link meter to usage point or gateway to end device."),
+    UNABLE_TO_UNLINK_METER(3009, "UnableToUnlinkMeter", "Unable to unlink meter from usage point or gateway from end device."),
     SAME_USAGE_POINT_ALREADY_LINKED(3010, "SameUsagePointAlreadyLinked",
             "Meter ''{0}'' is already linked to usage point ''{1}'' at the given time ''{2}''."),
     METER_AND_USAGE_POINT_NOT_LINKED(3011, "MeterAndUsagePointNotLinked",
-            "Meter ''{0}'' is not linked to usage point ''{1}'' at the given time ''{2}''."),
+            "Meter ''{0}'' isn''t linked to usage point ''{1}'' at the given time ''{2}''."),
     NO_METER_ROLE_WITH_KEY(3012, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
     NOT_SUPPORTED_MASTER(3013, "NotSupportedMaster", "Device ''{0}'' (serial number ''{1}'') not configured to act as gateway."),
     NOT_SUPPORTED_SLAVE(3014, "NotSupportedSlave","Device ''{0}'' (serial number ''{1}'') not configured to act as end device."),
