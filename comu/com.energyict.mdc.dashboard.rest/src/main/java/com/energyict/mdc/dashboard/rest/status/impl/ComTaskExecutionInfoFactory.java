@@ -41,9 +41,15 @@ public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory
         info.comTask = new IdWithNameInfo(comTaskExecution.getComTask());
         Device device = comTaskExecution.getDevice();
         Optional<Location> location = device.getLocation();
-        info.device = new DeviceInfo(device.getId(), device.getName(), location.map(location1 -> new IdWithNameInfo(location1.getId(), location1.format().stream()
-                .flatMap(List::stream).filter(Objects::nonNull)
-                .collect(Collectors.joining(", ")))).orElse(null));
+        info.device = new DeviceInfo(device.getId(),
+                device.getName(),
+                location.map(location1 -> new IdWithNameInfo(location1.getId(),
+                        location1.format()
+                                .stream()
+                                .flatMap(List::stream)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.joining(", "))))
+                        .orElse(null));
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecutionSession.isPresent()) {

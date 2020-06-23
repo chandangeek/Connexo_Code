@@ -385,7 +385,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
                 .containsKey("id")
                 .containsKey("version")
                 .hasSize(18);
-        assertThat((LinkedHashMap) communicationTaskMap.get("device"))
+        assertThat((Map) communicationTaskMap.get("device"))
                 .containsKey("location");
 
     }
