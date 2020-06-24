@@ -41,14 +41,18 @@ public class UserConsoleService {
 
         this.threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-
-            UserDirectory userDirectory = userService.findDefaultUserDirectory();
-            User user = userDirectory.newUser(name, "", false, true);
-            user.setPassword(pass);
-            user.update();
-            context.commit();
+            // Fix for CONM-1382: Not allowing duplicate user names. Enforcing case-sensitivity.
+            User compareUserObj = userService.findUser(name).isPresent() ? userService.findUser(name).get() : null;
+            if (compareUserObj != null) {
+                System.out.println("Username is case-insensitive. Connexo already has a user with same name");
+            } else {
+                UserDirectory userDirectory = userService.findDefaultUserDirectory();
+                User user = userDirectory.newUser(name, "", false, true);
+                user.setPassword(pass);
+                user.update();
+                context.commit();
+            }
         }
-
     }
 
     public void addUser() {
