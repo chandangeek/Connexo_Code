@@ -53,7 +53,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     }
 
     protected void updateMoneyCreditThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
-        String currency = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditHigh);
+        String currency = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.currency);
         Integer remainingCreditHigh = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditHigh));
         Integer remainingCreditLow = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.remainingCreditLow));
         Structure thresholdStructure = new Structure();
