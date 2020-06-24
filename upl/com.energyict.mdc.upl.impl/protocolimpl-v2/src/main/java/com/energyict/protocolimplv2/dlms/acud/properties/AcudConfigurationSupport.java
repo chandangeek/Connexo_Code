@@ -19,6 +19,7 @@ public class AcudConfigurationSupport extends DlmsConfigurationSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.add(overwriteServerLowerMacAddressPropertySpec());
         propertySpecs.add(readCachePropertySpec());
         propertySpecs.add(addressModePropertySpec());
         propertySpecs.add(informationFieldSizePropertySpec());
@@ -35,5 +36,9 @@ public class AcudConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec readCachePropertySpec() {
         return this.booleanSpecBuilder(DlmsProtocolProperties.READCACHE_PROPERTY, false, PropertyTranslationKeys.DLMS_READ_CACHE);
+    }
+
+    private PropertySpec overwriteServerLowerMacAddressPropertySpec() {
+        return this.booleanSpecBuilder(AcudDlmsProperties.OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false, PropertyTranslationKeys.DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS);
     }
 }
