@@ -295,7 +295,9 @@ public class PreStoreLoadProfile {
                 ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
                 //filter out channels without readingTypeMRID. We consider them as not confingured in our system so those will be dropped.
                 if (channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty()) {
-                    DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
+                    DeviceIdentifier deviceIdentifier = Optional.ofNullable(getOfflineLoadProfile()).map(OfflineLoadProfile::getDeviceIdentifier)
+                            .orElseGet(() -> comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier()));
+                    //DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
                     comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
                         IntervalBlock processed = null;
                         Device device = comServerDAO.getDeviceFor(deviceIdentifier)
