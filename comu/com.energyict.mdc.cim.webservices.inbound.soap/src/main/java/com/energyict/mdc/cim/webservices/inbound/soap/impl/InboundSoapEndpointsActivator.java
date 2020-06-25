@@ -46,6 +46,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.ExecuteEndDeviceControlsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
@@ -118,6 +119,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
     private static final String CIM_METER_READINGS = "CIM MeterReadings";
+    private static final String CIM_END_DEVICE_CONTROLS = "CIM EndDeviceControls";
 
     private static final Logger LOGGER = Logger.getLogger(InboundSoapEndpointsActivator.class.getName());
     private static final String RECURRENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurrenttaskfrequency";
@@ -378,6 +380,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class), CIM_METER_READINGS);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceControlsEndpoint.class), CIM_END_DEVICE_CONTROLS);
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
