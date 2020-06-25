@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class UpgraderV10_8 implements Upgrader {
-
     private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final DataModel dataModel;
     private final Clock clock;

@@ -104,6 +104,6 @@ public class LGLoadProfileBuilder<T extends AbstractDlmsProtocol> extends Dsmr40
     }
 
     protected boolean isIgnoreDstStatusCode() {
-        return false;   //Default false, subclasses can override
+        return getMeterProtocol().getDlmsSessionProperties().isIgnoreDstStatusCode();
     }
 }

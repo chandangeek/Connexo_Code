@@ -89,7 +89,6 @@ Ext.define('Imt.controller.Main', {
         'Imt.rulesets.controller.EstimationRuleSetPurposes',
         'Imt.rulesets.controller.AddPurposesToEstimationRuleSet',
         'Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle',
-        'Isu.controller.AssignmentRules',
         'Isu.controller.CreationRules',
         'Isu.controller.CreationRuleEdit',
         'Isu.controller.CreationRuleActionEdit',
@@ -349,14 +348,6 @@ Ext.define('Imt.controller.Main', {
             router = me.getController('Uni.controller.history.Router');
 
         if (Isu.privileges.Issue.canAdminRule()) {
-            if (Isu.privileges.Issue.canViewRule()) {
-                issuemanagementItems.push(
-                    {
-                        text: Uni.I18n.translate('issue.administration.assignment', 'IMT', 'Issue assignment rules'),
-                        href: router.getRoute('administration/assignmentrules').buildUrl()
-                    }
-                );
-            }
             if (Isu.privileges.Issue.canAdminCreateRule()) {
                 issuemanagementItems.push(
                     {

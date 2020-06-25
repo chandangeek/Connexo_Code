@@ -37,8 +37,7 @@ public class DeviceShipmentImportProcessor extends AbstractDeviceDataFileImportP
         DeviceType deviceType = getDeviceTypeOrThrowException(data);
         DeviceConfiguration deviceConfiguration = getDeviceConfigurationOrThrowException(deviceType, data);
         Device device;
-        try {
-            Connection connection = getContext().getConnection();
+        try (Connection connection = getContext().getConnection()){
             Savepoint savepoint = connection.setSavepoint();
             try {
                 if (!is(data.getBatch()).emptyOrOnlyWhiteSpace()) {

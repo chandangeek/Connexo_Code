@@ -10,19 +10,33 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.comserver.*;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
-import com.energyict.mdc.common.tasks.*;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.LookupEntry;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
-import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ComTaskExecutionGroup;
+import com.energyict.mdc.engine.impl.core.ServerProcess;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.impl.core.offline.ComJobResult;
 import com.energyict.mdc.engine.impl.core.offline.OfflineActionExecuter;
@@ -33,21 +47,41 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -110,20 +144,20 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
         this.comServer = comServer;
         this.serviceProvider = serviceProvider;
         this.comServerUser = comServerUser;
-        this.offlineActionExecuter=offlineActionExecuter;
+        this.offlineActionExecuter = offlineActionExecuter;
     }
 
-    public void setComServer (ServerProcess serverProcess) {
+    public void setComServer(ServerProcess serverProcess) {
         this.serverProcess = serverProcess;
     }
 
     @Override
-    public ComServer getThisComServer () {
+    public ComServer getThisComServer() {
         return comServer;
     }
 
     @Override
-    public ComServer getComServer (String hostName) {
+    public ComServer getComServer(String hostName) {
         if (getThisComServer().getName().equals(hostName)) {
             return getThisComServer();
         }
@@ -131,7 +165,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ComServer refreshComServer (ComServer comServer) {
+    public ComServer refreshComServer(ComServer comServer) {
         return comServer;
     }
 
@@ -164,7 +198,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
+    public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         if (eventMonitorIsStarted) {
             try {
                 if (!getJobQueue().isEmpty()) {
@@ -193,7 +227,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
+    public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort) {
         return Collections.emptyList();
     }
 
@@ -233,11 +267,11 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void unlock (OutboundConnectionTask connectionTask) {
+    public void unlock(OutboundConnectionTask connectionTask) {
     }
 
     @Override
-    public boolean attemptLock (ComTaskExecution comTaskExecution, ComPort comPort) {
+    public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
         return true;
     }
 
@@ -247,23 +281,23 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void unlock (ComTaskExecution comTaskExecution) {
+    public void unlock(ComTaskExecution comTaskExecution) {
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComPort comPort) {
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
         return connectionTask;
     }
 
     @Override
-    public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
         comJobExecutionModel.setResult(ComJobResult.Success);
         comJobExecutionModel.setConnectionTaskSuccess(true);
         return connectionTask;
     }
 
     @Override
-    public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
         return connectionTask;
     }
 
@@ -384,13 +418,13 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (ComTaskExecution comTaskExecution) {
+    public void executionCompleted(ComTaskExecution comTaskExecution) {
         comJobExecutionModel.setResult(ComJobResult.Success);
         comJobExecutionModel.addSuccessfulComTaskExecution(comTaskExecution, false);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask){
+    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
         comJobExecutionModel.setResult(ComJobResult.Failed);
         comJobExecutionModel.setConnectionTaskSuccess(true);
         return connectionTask;
@@ -408,7 +442,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             comJobExecutionModel.setResult(ComJobResult.Success);
             comJobExecutionModel.addSuccessfulComTaskExecution(comTaskExecution, false);
@@ -416,13 +450,13 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionFailed (ComTaskExecution comTaskExecution) {
+    public void executionFailed(ComTaskExecution comTaskExecution) {
         comJobExecutionModel.setResult(ComJobResult.Failed);
         comJobExecutionModel.addFailedComTaskExecution(comTaskExecution, false);
     }
 
     @Override
-    public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             comJobExecutionModel.setResult(ComJobResult.Failed);
             comJobExecutionModel.addFailedComTaskExecution(comTaskExecution, false);
@@ -430,12 +464,12 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void releaseInterruptedTasks (ComPort comPort) {
+    public void releaseInterruptedTasks(ComPort comPort) {
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks (ComPort comPort) {
-        return null;
+    public TimeDuration releaseTimedOutTasks(ComPort comPort) {
+        return new TimeDuration(0);
     }
 
     @Override
@@ -572,7 +606,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         return null;
     }
 
@@ -582,7 +616,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
+    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         return null;
     }
 
@@ -602,7 +636,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public boolean isStillPending (long comTaskExecutionId) {
+    public boolean isStillPending(long comTaskExecutionId) {
         return true;
     }
 
@@ -612,12 +646,12 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public boolean areStillPending (Collection<Long> comTaskExecutionIds) {
+    public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
         return true;
     }
 
     @Override
-    public ServerProcessStatus getStatus () {
+    public ServerProcessStatus getStatus() {
         return this.status;
     }
 
@@ -632,7 +666,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void shutdownImmediate () {
+    public void shutdownImmediate() {
         this.shutdown();
     }
 

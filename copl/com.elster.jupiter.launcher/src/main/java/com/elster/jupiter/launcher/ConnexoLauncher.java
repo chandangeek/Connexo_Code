@@ -138,16 +138,18 @@ public class ConnexoLauncher {
         } else {
             configFile = new File(rootDir, "conf/config.properties");
         }
-        props.load(new FileInputStream(configFile));
 
         HashMap<String, String> map = new HashMap<>();
-        for (Object key : props.keySet()) {
-            map.put(key.toString(), props.getProperty(key.toString()));
+        try(FileInputStream fis = new FileInputStream(configFile)){
+            props.load(fis);
+            for (Object key : props.keySet()) {
+                map.put(key.toString(), props.getProperty(key.toString()));
+            }
+            map.remove("felix.auto.deploy.dir");
+            map.remove("felix.auto.deploy.action");
+            map.put("org.osgi.framework.storage", new File(rootDir, "felix-cache").getAbsolutePath());
+            map.put("org.osgi.framework.storage.clean", "onFirstInit");
         }
-        map.remove("felix.auto.deploy.dir");
-        map.remove("felix.auto.deploy.action");
-        map.put("org.osgi.framework.storage", new File(rootDir, "felix-cache").getAbsolutePath());
-        map.put("org.osgi.framework.storage.clean", "onFirstInit");
         return map;
     }
 

@@ -51,7 +51,8 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.store.filter.DeviceGroup',
         'Dsh.store.ConnectionResultsStore',
         'Dsh.store.CommunicationResultsStore',
-        'Dsh.store.CombineStore'
+        'Dsh.store.CombineStore',
+        'Dsh.store.filter.Locations'
     ],
 
     init: function () {
@@ -101,7 +102,7 @@ Ext.define('Dsh.controller.Main', {
                         },
                         {
                             text: Uni.I18n.translate('general.communications', 'DSH', 'Communications'),
-                            href: router.getRoute('workspace/communications/details').buildUrl()
+                            href: router.getRoute('workspace/communications/details').buildUrl(null, {latestResults: ['ConfigurationError', 'ConfigurationWarning', 'ConnectionError', 'IOError', 'InitError', 'NotExecuted', 'Ok', 'ProtocolError', 'Rescheduled', 'TimeError', 'TimeoutError', 'UnexpectedError']})
                         },
                         {
                             text: Uni.I18n.translate('title.communications.overview', 'DSH', 'Communications overview'),

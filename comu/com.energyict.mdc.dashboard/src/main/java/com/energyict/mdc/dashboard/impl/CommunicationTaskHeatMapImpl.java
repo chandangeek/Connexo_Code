@@ -13,6 +13,7 @@ import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
 import com.energyict.mdc.dashboard.Counter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +52,7 @@ class CommunicationTaskHeatMapImpl implements CommunicationTaskHeatMap {
         for (CompletionCode completionCode : CompletionCode.values()) {
             overview.add(new CounterImpl<>(completionCode, completionCodeValues.next()));
         }
+        overview.add(new CounterImpl<>(null, completionCodeValues.next()));
         return overview;
     }
 
@@ -73,12 +75,12 @@ class CommunicationTaskHeatMapImpl implements CommunicationTaskHeatMap {
                 .of(CompletionCode.values())
                 .map(completionCode -> new CounterImpl<>(completionCode, completionCodeCount.get(completionCode)))
                 .forEach(result::add);
+        result.add(new CounterImpl<>(null, completionCodeCount.get(null)));
         return result;
     }
 
     private Map<CompletionCode, Long> completionCodeMapWithAllZeros() {
-        return Stream
-                .of(CompletionCode.values())
+        return Stream.concat(Arrays.stream(CompletionCode.values()), Stream.of((CompletionCode) null))
                 .collect(Collectors.toMap(
                         Function.identity(),
                         completionCode -> 0L));

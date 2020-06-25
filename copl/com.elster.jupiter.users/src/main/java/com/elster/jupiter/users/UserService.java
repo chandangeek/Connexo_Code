@@ -30,6 +30,8 @@ public interface UserService {
     String DEFAULT_INSTALLER_ROLE_DESCRIPTION = "Installation privileges";
     String BATCH_EXECUTOR_ROLE = "Batch executor";
     String BATCH_EXECUTOR_ROLE_DESCRIPTION = "Batch executors privileges";
+    String PROVISIONING_ROLE = "Provisiniong";
+    String PROVISIONING_ROLE_DESCRIPTION = "Provisiniong privileges";
 
     User createUser(String name, String description);
 

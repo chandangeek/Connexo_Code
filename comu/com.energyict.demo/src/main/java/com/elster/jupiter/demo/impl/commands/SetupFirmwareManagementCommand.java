@@ -53,14 +53,18 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
     private void setUpDeviceTypeForFirmwareManagement(DeviceType deviceType){
         if (!isExcluded(deviceType)) {
-            FirmwareVersion v1 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V1, FirmwareType.METER, deviceType)
-                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.GHOST, FirmwareType.METER, IMAGE_IDENTIFIER).create());
-            setFirmwareBytes(v1, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V1+".firm"));
+            try(InputStream v1inputStream = getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V1+".firm");
+                InputStream v2inputStream = getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V2+".firm")) {
+                FirmwareVersion v1 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V1, FirmwareType.METER, deviceType)
+                        .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.GHOST, FirmwareType.METER, IMAGE_IDENTIFIER).create());
+                setFirmwareBytes(v1,v1inputStream);
 
-            FirmwareVersion v2 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V2, FirmwareType.METER, deviceType)
-                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.GHOST, FirmwareType.METER, IMAGE_IDENTIFIER).create());
-            setFirmwareBytes(v2, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V2+".firm"));
-
+                FirmwareVersion v2 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V2, FirmwareType.METER, deviceType)
+                        .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.GHOST, FirmwareType.METER, IMAGE_IDENTIFIER).create());
+                setFirmwareBytes(v2, v2inputStream);
+            } catch (IOException e) {
+                throw new UnableToCreate("FirmwareFile could not be read");
+            }
             if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
                 FirmwareManagementOptions options = firmwareService.newFirmwareManagementOptions(deviceType);
                 if(deviceType.getName().equals(ACTARIS_SL7000_DEVICETYPE)){

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.device.data.Device;
@@ -14,8 +15,11 @@ import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory<ComTaskExecutionInfo> {
 
@@ -36,7 +40,16 @@ public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory
     protected void initExtraFields(ComTaskExecutionInfo info, ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) {
         info.comTask = new IdWithNameInfo(comTaskExecution.getComTask());
         Device device = comTaskExecution.getDevice();
-        info.device = new IdWithNameInfo(device.getId(), device.getName());
+        Optional<Location> location = device.getLocation();
+        info.device = new DeviceInfo(device.getId(),
+                device.getName(),
+                location.map(location1 -> new IdWithNameInfo(location1.getId(),
+                        location1.format()
+                                .stream()
+                                .flatMap(List::stream)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.joining(", "))))
+                        .orElse(null));
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecutionSession.isPresent()) {

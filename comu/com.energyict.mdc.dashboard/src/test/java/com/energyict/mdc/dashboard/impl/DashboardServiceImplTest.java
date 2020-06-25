@@ -510,8 +510,8 @@ public class DashboardServiceImplTest {
         Map<DeviceType, List<Long>> deviceTypeHeatMap = new HashMap<>();
         deviceTypeHeatMap.put(
                 deviceType,
-                Stream
-                        .of(CompletionCode.values())
+                Stream.concat(Stream
+                        .of(CompletionCode.values()), Stream.of((CompletionCode) null))
                         .map(completionCode1 -> EXPECTED_STATUS_COUNT_VALUE)
                         .collect(Collectors.toList()));
         CommunicationTaskBreakdowns breakdowns = mock(CommunicationTaskBreakdowns.class);
@@ -533,7 +533,7 @@ public class DashboardServiceImplTest {
         for (Counter<CompletionCode> completionCodeCounter : completionResultOverview) {
             assertThat(completionCodeCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
         }
-        assertThat(completionResultOverview.getTotalCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE * CompletionCode.values().length);
+        assertThat(completionResultOverview.getTotalCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE * (CompletionCode.values().length + 1));
     }
 
     @Test
