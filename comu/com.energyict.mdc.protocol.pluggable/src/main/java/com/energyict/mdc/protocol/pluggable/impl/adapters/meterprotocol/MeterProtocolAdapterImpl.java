@@ -115,6 +115,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     private CollectedDataFactory collectedDataFactory;
     private Thesaurus thesaurus;
     private IdentificationService identificationService;
+    private ComChannelInputStreamAdapter comChannelInputStreamAdapter;
+    private ComChannelOutputStreamAdapter comChannelOutputStreamAdapter;
 
     /**
      * The used <code>RegisterProtocol</code> for which the adapter is working.
@@ -203,6 +205,20 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         initInheritors();
     }
 
+    private ComChannelInputStreamAdapter getComChannelInputStreamAdapter(ComChannel comChannel) {
+        if (comChannelInputStreamAdapter==null) {
+            comChannelInputStreamAdapter= new ComChannelInputStreamAdapter(comChannel);
+        }
+        return comChannelInputStreamAdapter;
+    }
+
+    private ComChannelOutputStreamAdapter getComChannelOutputStreamAdapter(ComChannel comChannel) {
+        if (comChannelOutputStreamAdapter==null) {
+            comChannelOutputStreamAdapter= new ComChannelOutputStreamAdapter(comChannel);
+        }
+        return comChannelOutputStreamAdapter;
+    }
+
     /**
      * Initializes the inheritance classes.
      */
@@ -250,11 +266,10 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     private void doInit(ComChannel comChannel) {
-        try( ComChannelInputStreamAdapter comChannelInputStreamAdapter = new ComChannelInputStreamAdapter(comChannel);
-             ComChannelOutputStreamAdapter comChannelOutputStreamAdapter = new ComChannelOutputStreamAdapter(comChannel)) {
+        try {
             this.meterProtocol.init(
-                    comChannelInputStreamAdapter,
-                    comChannelOutputStreamAdapter,
+                    getComChannelInputStreamAdapter(comChannel),
+                    getComChannelOutputStreamAdapter(comChannel),
                     this.getDeviceTimeZoneFromProperties(),
                     this.protocolLogger);
         } catch (IOException e) {
@@ -281,6 +296,12 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     public void terminate() {
         try {
             this.meterProtocol.release();
+            if (comChannelInputStreamAdapter!=null) {
+                comChannelInputStreamAdapter.close();
+            }
+            if (comChannelOutputStreamAdapter!=null) {
+                comChannelOutputStreamAdapter.close();
+            }
         } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }

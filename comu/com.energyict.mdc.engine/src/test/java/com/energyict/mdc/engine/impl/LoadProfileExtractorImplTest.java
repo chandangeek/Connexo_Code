@@ -52,7 +52,7 @@ public class LoadProfileExtractorImplTest {
 
     @Before
     public void initializeMocks() {
-        when(this.readingTypeUtilService.getMdcUnitFor(any(ReadingType.class))).thenReturn(Unit.get("kWh"));
+        when(this.readingTypeUtilService.getMdcUnitsFor(any(ReadingType.class))).thenReturn(Collections.singletonList(Unit.get("kWh")));
         when(this.loadProfile.getId()).thenReturn(ID);
         when(this.loadProfile.getLoadProfileSpec()).thenReturn(this.loadProfileSpec);
         when(this.loadProfileSpec.getDeviceObisCode()).thenReturn(ObisCode.fromString(DEVICE_OBIS_CODE));

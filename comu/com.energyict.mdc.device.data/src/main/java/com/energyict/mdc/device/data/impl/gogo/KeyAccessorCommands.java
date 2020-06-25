@@ -209,13 +209,14 @@ public class KeyAccessorCommands {
             NoSuchAlgorithmException, UnrecoverableKeyException {
 
         threadPrincipalService.set(() -> "Console");
-
-        try (TransactionContext context = transactionService.getContext()) {
+        //TODO refactor to avoid code duplication
+        try (TransactionContext context = transactionService.getContext();
+             FileInputStream pksInputStream = new FileInputStream(pkcs12Name)) {
             KeyType keyType = securityManagementService.getKeyType("RSA 1024")
                     .orElseThrow(() -> new RuntimeException("No such key type: RSA 1024"));
 
             KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
-            pkcs12.load(new FileInputStream(pkcs12Name), pkcs12Password.toCharArray());
+            pkcs12.load(pksInputStream, pkcs12Password.toCharArray());
             Certificate certificate = pkcs12.getCertificate(alias);
             if (certificate == null) {
                 throw new RuntimeException("The keystore does not contain a certificate with alias " + alias);
@@ -246,13 +247,14 @@ public class KeyAccessorCommands {
 
         threadPrincipalService.set(() -> "Console");
 
-        try (TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext();
+             FileInputStream pksInputStream = new FileInputStream(pkcs12Name)) {
             SecurityAccessorType certSecurityAccessorType = securityManagementService
                     .findSecurityAccessorTypeByName(certKatName)
                     .orElseThrow(() -> new RuntimeException("No such security accessor type: " + certKatName));
 
             KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
-            pkcs12.load(new FileInputStream(pkcs12Name), pkcs12Password.toCharArray());
+            pkcs12.load(pksInputStream, pkcs12Password.toCharArray());
             Certificate certificate = pkcs12.getCertificate(alias);
             if (certificate == null) {
                 throw new RuntimeException("The keystore does not contain a certificate with alias " + alias);
@@ -291,7 +293,8 @@ public class KeyAccessorCommands {
 
         threadPrincipalService.set(() -> "Console");
 
-        try (TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext();
+             FileInputStream pkcsInputStream = new FileInputStream(pkcs12Name)) {
             Device device = deviceService.findDeviceByName(deviceName)
                     .orElseThrow(() -> new RuntimeException("No such device"));
             SecurityAccessorType certSecurityAccessorType = device.getDeviceType()
@@ -302,7 +305,7 @@ public class KeyAccessorCommands {
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + certKatName));
 
             KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
-            pkcs12.load(new FileInputStream(pkcs12Name), pkcs12Password.toCharArray());
+            pkcs12.load(pkcsInputStream, pkcs12Password.toCharArray());
             Certificate certificate = pkcs12.getCertificate(alias);
             if (certificate == null) {
                 throw new RuntimeException("The keystore does not contain a certificate with alias " + alias);
@@ -369,7 +372,8 @@ public class KeyAccessorCommands {
 
         threadPrincipalService.set(() -> "Console");
 
-        try (TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext();
+             FileInputStream fileInputStream = new FileInputStream(keyStoreName)) {
             Device device = deviceService.findDeviceByName(deviceName)
                     .orElseThrow(() -> new RuntimeException("No such device"));
             SecurityAccessorType securityAccessorType = device.getDeviceType()
@@ -380,7 +384,7 @@ public class KeyAccessorCommands {
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessTypeName));
 
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
-            keyStore.load(new FileInputStream(keyStoreName), keyStorePassword.toCharArray());
+            keyStore.load(fileInputStream, keyStorePassword.toCharArray());
             Key key = keyStore.getKey(alias, keyStorePassword.toCharArray());
             if (key == null) {
                 throw new RuntimeException("The keystore does not contain a key with alias " + alias);

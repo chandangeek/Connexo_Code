@@ -81,6 +81,31 @@ public class UserTableImpl implements ExistingTable {
         for (UserConstraintImpl constraint : constraints) {
             constraint.addTo(table);
         }
+    }
+
+    @Override
+    public void addLocalTableConstraintsTo(DataModel dataModel) {
+        Table table = getOrAddTable(dataModel);
+        for (UserConstraintImpl constraint : constraints) {
+            if (!constraint.isForeignKey()) {
+                constraint.addTo(table);
+            }
+        }
+    }
+
+    @Override
+    public void addForeignKeyConstraintsTo(DataModel dataModel) {
+        Table table = getOrAddTable(dataModel);
+        for (UserConstraintImpl constraint : constraints) {
+            if (constraint.isForeignKey()) {
+                constraint.addTo(table);
+            }
+        }
+    }
+
+    @Override
+    public void addIndexesTo(DataModel dataModel) {
+        Table table = getOrAddTable(dataModel);
         for (UserIndexImpl index : indexes) {
             index.addTo(table);
         }

@@ -21,18 +21,27 @@ import com.energyict.mdc.engine.impl.core.remote.RemoteJSONTypeMapperProvider;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.impl.tools.ProtocolUtils;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -124,6 +133,11 @@ public class WebSocketQueryApiService {
 
     }
 
+    @OnWebSocketError
+    public void onError(Throwable e) {
+        sendMessage(ERROR_PREFIX + e.getLocalizedMessage());
+    }
+
     private void executeQuery(JSONObject jsonQuery, String queryMethodName, String queryId) {
         try {
             QueryMethod queryMethod = QueryMethod.byName(queryMethodName);
@@ -141,7 +155,6 @@ public class WebSocketQueryApiService {
         } catch (Throwable e) {     //This causes the connection to close, so only severe exceptions should end up in this catch clause.
             e.printStackTrace(System.err);
             sendSerializedErrorMessage("unhandled exception: ", e, queryId);
-            throw e;    //Note that this will cause the connection to be closed. The websocket is still open though, so new clients can connect.
         }
     }
 

@@ -170,7 +170,12 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomainProperties() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria").request().accept("application/json").get();
+        Form input = new Form();
+        input.param("start", null);
+        input.param("limit", null);
+        input.param("filter", null);
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        Response response = target("/search/com.devices/searchcriteria").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
         assertThat(model.<List>get("$.properties")).hasSize(3);
@@ -193,7 +198,13 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testRestictedDomainProperties() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", URLEncoder.encode("[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":\"13\"}]}]", "UTF-8")).request().accept("application/json").get();
+        Form input = new Form();
+        input.param("start", "0");
+        input.param("limit", null);
+        input.param("filter", "[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":\"13\"}]}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+
+        Response response = target("/search/com.devices/searchcriteria").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<List> constrictions = ArgumentCaptor.forClass(List.class);
         verify(devicesDomain).getPropertiesWithConstrictions(constrictions.capture());
@@ -203,7 +214,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomainPropertyValues() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria/deviceConfig").request().accept("application/json").get();
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(Entity.entity(new Form(), MediaType.APPLICATION_FORM_URLENCODED));
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
         assertThat(model.<List>get("$.values")).hasSize(2);
@@ -215,7 +226,10 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomainPropertyValuesFilterByNameCaseInsensitive() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("name", "CONF").create()).request().accept("application/json").get();
+        Form input = new Form();
+        input.param("filter", "[{\"property\":\"name\",\"value\":\"CONF\"}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
         assertThat(model.<List>get("$.values")).hasSize(2);
@@ -227,7 +241,10 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomainPropertyValuesFilterByName() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("displayValue", "2").create()).request().accept("application/json").get();
+        Form input = new Form();
+        input.param("filter", "[{\"property\":\"displayValue\",\"value\":\"2\"}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.values")).hasSize(1);
@@ -237,9 +254,8 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomainPropertyValuesSortedByName() throws Exception {
-        String response = target("/search/com.devices/searchcriteria/deviceConfig").request().get(String.class);
-
-        JsonModel model = JsonModel.model(response);
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(Entity.entity(new Form(), MediaType.APPLICATION_FORM_URLENCODED));
+        JsonModel model = JsonModel.model(response.readEntity(String.class));
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
         assertThat(model.<String>get("$.values[0].displayValue")).isEqualTo("device config 1");
         assertThat(model.<String>get("$.values[1].displayValue")).isEqualTo("device config 2");

@@ -19,7 +19,6 @@ Ext.define('Isu.controller.Main', {
     controllers: [
         'Isu.controller.history.Administration',
         'Isu.controller.AddDeviceGroupFromIssues',
-        'Isu.controller.AssignmentRules',
         'Isu.controller.CreationRules',
         'Isu.controller.CreationRuleEdit',
         'Isu.controller.CreationRuleActionEdit',
@@ -57,14 +56,6 @@ Ext.define('Isu.controller.Main', {
         }
 
         if (Isu.privileges.Issue.canAdminRule()){
-            if(Isu.privileges.Issue.canViewRule()) {
-                issuemanagementItems.push(
-                    {
-                        text: Uni.I18n.translate('issue.administration.assignment','ISU','Issue assignment rules'),
-                        href: router.getRoute('administration/assignmentrules').buildUrl()
-                    }
-                );
-            }
             if(Isu.privileges.Issue.canAdminCreateRule()) {
                 issuemanagementItems.push(
                     {

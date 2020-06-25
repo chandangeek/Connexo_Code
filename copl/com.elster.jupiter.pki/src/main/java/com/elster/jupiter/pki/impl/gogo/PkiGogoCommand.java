@@ -291,9 +291,10 @@ public class PkiGogoCommand {
         String alias = Optional.of(pkcs12Alias).orElseThrow(() -> new IllegalArgumentException("Specify valid alias"));
 
         threadPrincipalService.set(() -> "Console");
-        try (TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext();
+             FileInputStream inputStream = new FileInputStream(name)) {
             KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
-            pkcs12.load(new FileInputStream(name), password.toCharArray());
+            pkcs12.load(inputStream, password.toCharArray());
             Certificate certificate = pkcs12.getCertificate(alias);
             if (certificate == null) {
                 throw new IllegalArgumentException("The keystore does not contain a certificate with alias " + alias);
@@ -386,20 +387,23 @@ public class PkiGogoCommand {
     }
 
     public void importPublicKey(String alias, Long keyTypeId, String file) {
-        threadPrincipalService.set(() -> "Console");
-        KeyType keyType = securityManagementService.getKeyType(keyTypeId)
-                .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
-        try (TransactionContext context = transactionService.getContext()) {
-            KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(alias, keyType, "DataVault");
-            FileInputStream fileInputStream = new FileInputStream(file);
-            byte[] bytes = ByteStreams.toByteArray(fileInputStream);
-            keypairWrapper.setPublicKey(bytes);
-            keypairWrapper.save();
-            context.commit();
-        } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("No such file: " + file);
+        try(FileInputStream fileInputStream = new FileInputStream(file)) {
+            threadPrincipalService.set(() -> "Console");
+            KeyType keyType = securityManagementService.getKeyType(keyTypeId)
+                    .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
+            try (TransactionContext context = transactionService.getContext()) {
+                KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(alias, keyType, "DataVault");
+                byte[] bytes = ByteStreams.toByteArray(fileInputStream);
+                keypairWrapper.setPublicKey(bytes);
+                keypairWrapper.save();
+                context.commit();
+            } catch (FileNotFoundException e) {
+                throw new IllegalArgumentException("No such file: " + file);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Error reading file: " + file + " : " + e);
+            }
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error reading file: " + file + " : " + e);
+            e.printStackTrace();
         }
     }
 
@@ -409,30 +413,34 @@ public class PkiGogoCommand {
     }
 
     public void importKeypair(String alias, Long keyTypeId, String privateKeyFile) {
-        threadPrincipalService.set(() -> "Console");
-        KeyType keyType = securityManagementService.getKeyType(keyTypeId)
-                .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
-        try (TransactionContext context = transactionService.getContext()) {
-            KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(alias, keyType, "DataVault");
-            FileInputStream fileInputStream = new FileInputStream(privateKeyFile);
-            byte[] privateKeyBytes = ByteStreams.toByteArray(fileInputStream);
-            PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance(keyType.getKeyAlgorithm());
-            PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
-            PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) keypairWrapper.getPrivateKeyWrapper().get();
-            privateKeyWrapper.setPrivateKey(privateKey);
-            privateKeyWrapper.save();
-            keypairWrapper.setPublicKey(privateKeyWrapper.getPublicKey());
-            keypairWrapper.save();
-            context.commit();
-        } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("No such file: " + privateKeyFile);
+        try(FileInputStream fileInputStream = new FileInputStream(privateKeyFile)) {
+            threadPrincipalService.set(() -> "Console");
+            KeyType keyType = securityManagementService.getKeyType(keyTypeId)
+                    .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
+            try (TransactionContext context = transactionService.getContext()) {
+                KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(alias, keyType, "DataVault");
+
+                byte[] privateKeyBytes = ByteStreams.toByteArray(fileInputStream);
+                PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+                KeyFactory keyFactory = KeyFactory.getInstance(keyType.getKeyAlgorithm());
+                PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+                PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) keypairWrapper.getPrivateKeyWrapper().get();
+                privateKeyWrapper.setPrivateKey(privateKey);
+                privateKeyWrapper.save();
+                keypairWrapper.setPublicKey(privateKeyWrapper.getPublicKey());
+                keypairWrapper.save();
+                context.commit();
+            } catch (FileNotFoundException e) {
+                throw new IllegalArgumentException("No such file: " + privateKeyFile);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Error reading file: " + privateKeyFile + " : " + e);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IllegalArgumentException("No such algorithm: " + e);
+            } catch (InvalidKeySpecException e) {
+                throw new IllegalArgumentException("Invalid key spec: " + e);
+            }
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error reading file: " + privateKeyFile + " : " + e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm: " + e);
-        } catch (InvalidKeySpecException e) {
-            throw new IllegalArgumentException("Invalid key spec: " + e);
+            e.printStackTrace();
         }
     }
 

@@ -314,7 +314,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public User createSCIMUser(String name, String description, String externalId) {
-        threadPrincipalService.set(() -> "Provisioning tool");
         InternalDirectoryImpl directory = (InternalDirectoryImpl) findUserDirectory(getRealm()).orElse(null);
         UserImpl result = directory.newUser(name, description, false, true, externalId);
         result.update();
@@ -348,7 +347,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public Group createSCIMGroup(String name, String description, String externalId) {
-        threadPrincipalService.set(() -> "Provisioning tool");
         GroupImpl result = GroupImpl.from(dataModel, name, description, externalId);
         result.update();
         return result;

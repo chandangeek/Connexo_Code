@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class TableImpl implements ExistingTable {
-
     private String name;
     private List<ColumnImpl> columns = new ArrayList<>();
     private List<IndexColumnImpl> indexColumns = new ArrayList<>();
@@ -70,6 +69,31 @@ public class TableImpl implements ExistingTable {
         for (ConstraintImpl constraint : constraints) {
             constraint.addTo(table);
         }
+    }
+
+    @Override
+    public void addLocalTableConstraintsTo(DataModel dataModel) {
+        Table table = getOrAddTable(dataModel);
+        for (ConstraintImpl constraint : constraints) {
+            if (!constraint.isForeignKey()) {
+                constraint.addTo(table);
+            }
+        }
+    }
+
+    @Override
+    public void addForeignKeyConstraintsTo(DataModel dataModel) {
+        Table table = getOrAddTable(dataModel);
+        for (ConstraintImpl constraint : constraints) {
+            if (constraint.isForeignKey()) {
+                constraint.addTo(table);
+            }
+        }
+    }
+
+    @Override
+    public void addIndexesTo(DataModel existingDataModel) {
+        // nothing to do
     }
 
     private Table getOrAddTable(DataModel dataModel) {

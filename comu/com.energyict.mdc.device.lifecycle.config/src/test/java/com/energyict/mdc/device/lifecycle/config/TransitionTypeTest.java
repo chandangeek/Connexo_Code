@@ -111,7 +111,7 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsActivate() {
-        assertThat(TransitionType.ACTIVATE.optionalActions()).hasSize(9);
+        assertThat(TransitionType.ACTIVATE.optionalActions()).hasSize(10);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.ENABLE_ESTIMATION);
@@ -121,6 +121,7 @@ public class TransitionTypeTest {
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.SET_LAST_READING);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_COMMUNICATION);
         assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+        assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
 
     @Test
@@ -130,7 +131,7 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsDeactivate() {
-        assertThat(TransitionType.DEACTIVATE.optionalActions()).hasSize(8);
+        assertThat(TransitionType.DEACTIVATE.optionalActions()).hasSize(9);
         assertThat(TransitionType.DEACTIVATE.optionalActions()).contains(MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
         assertThat(TransitionType.DEACTIVATE.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.DEACTIVATE.optionalActions()).contains(MicroAction.DISABLE_VALIDATION);
@@ -139,6 +140,7 @@ public class TransitionTypeTest {
         assertThat(TransitionType.DEACTIVATE.optionalActions()).contains(MicroAction.DISABLE_COMMUNICATION);
         assertThat(TransitionType.DEACTIVATE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_COMMUNICATION);
         assertThat(TransitionType.DEACTIVATE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+        assertThat(TransitionType.ACTIVATE.optionalActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
 
     @Test
@@ -187,7 +189,7 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsInstallAndActivate() {
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).hasSize(9);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).hasSize(10);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.ENABLE_ESTIMATION);
@@ -197,6 +199,7 @@ public class TransitionTypeTest {
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.SET_LAST_READING);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
 
     @Test
@@ -213,7 +216,7 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsInstallAndActivateWithoutCommissioning() {
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(9);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(10);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ENABLE_ESTIMATION);
@@ -223,6 +226,7 @@ public class TransitionTypeTest {
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.SET_LAST_READING);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ACTIVATE_ALL_COMMUNICATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
 
     @Test
@@ -233,7 +237,7 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsInstallInactive() {
-        assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).hasSize(12);
+        assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).hasSize(13);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.DISABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.DISABLE_ESTIMATION);
@@ -246,6 +250,7 @@ public class TransitionTypeTest {
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.SET_LAST_READING);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_COMMUNICATION);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+        assertThat(TransitionType.INSTALL_INACTIVE.optionalActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
 
     @Test
@@ -256,7 +261,7 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsInstallInactiveFromInStock() {
-        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(12);
+        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).hasSize(13);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.DISABLE_VALIDATION);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.DISABLE_ESTIMATION);
@@ -269,6 +274,7 @@ public class TransitionTypeTest {
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.SET_LAST_READING);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ACTIVATE_ALL_COMMUNICATION);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
 
     }
 
@@ -304,13 +310,14 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionActionsCommission() {
-        assertThat(TransitionType.COMMISSION.optionalActions()).hasSize(6);
+        assertThat(TransitionType.COMMISSION.optionalActions()).hasSize(7);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.START_COMMUNICATION);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.START_RECURRING_COMMUNICATION);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.SET_LAST_READING);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.ACTIVATE_ALL_COMMUNICATION);
         assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+        assertThat(TransitionType.COMMISSION.optionalActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
 
     private void testStandardTransition(DefaultState defaultFrom, DefaultState defaultTo, TransitionType expectedTransitionType) {

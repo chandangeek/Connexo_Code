@@ -455,6 +455,7 @@ public class SELConnection {
 
     public LDPData readLoadProfileData(Date start, Date end, String serialNumber, int intervalLength) {
         //FILE READ ldp_data.bin MM/DD/YYYY HH:MM:SS MM/DD/YYYY HH:MM:SS
+        //TODO Refactor code duplication by code reusability
         Date startReadingTime = adjustStartTime(start, intervalLength);
         Date endReadingTime = end; //adjustEndTime(end);
         LDPData results = null;
@@ -466,15 +467,12 @@ public class SELConnection {
             DateFormat df = new SimpleDateFormat(LDP_YFILE_FORMAT);
             String yFile = "LDP_DATA_" + serialNumber + "_" + df.format(start) + ".BIN";
             YModem yModem = new YModem(comChannel);
-            try {
+            try (DataInputStream inputStream = new DataInputStream(new FileInputStream(new File(yFile)))) {
                 yModem.receiveFileName();
                 yModem.receive(yFile);
-                File lpFile = new File(yFile);
                 LDPParser ldpParser = new LDPParser();
-                results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+                results = ldpParser.parseYModemFile(inputStream);
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         } else {
@@ -521,12 +519,11 @@ public class SELConnection {
             sendSpecialCommand(CONTROL_CRC);
             String yFile = "LDP_DATA_" + serialNumber + ".BIN";
             YModem yModem = new YModem(comChannel);
-            try {
+            try (DataInputStream inputStream = new DataInputStream(new FileInputStream(new File(yFile)))) {
                 yModem.receiveFileName();
                 yModem.receive(yFile);
-                File lpFile = new File(yFile);
                 LDPParser ldpParser = new LDPParser();
-                results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));
+                results = ldpParser.parseYModemFile(inputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {

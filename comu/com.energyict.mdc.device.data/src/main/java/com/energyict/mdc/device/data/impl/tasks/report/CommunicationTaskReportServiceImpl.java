@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -198,8 +199,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             if (sqlBuilder == null) {
                 sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
@@ -240,8 +240,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
                                 this.deviceDataModelService.clock().instant());
                 WithClauses.BUSY_CONNECTION_TASK.appendTo(sqlBuilder, BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
             }
@@ -321,14 +320,17 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     }
 
     private List<Long> missingCompletionCodeCounters(DeviceType deviceType) {
-        return Stream.of(CompletionCode.values()).map(code -> 0L).collect(Collectors.toList());
+        List<Long> counters = Stream.of(CompletionCode.values()).map(code -> 0L).collect(Collectors.toList());
+        counters.add(0L);
+        return counters;
     }
 
     private List<Long> orderedCompletionCodeCounters(Map<CompletionCode, Long> completionCodeCounters) {
-        List<Long> counters = new ArrayList<>(CompletionCode.values().length);
+        List<Long> counters = new ArrayList<>(CompletionCode.values().length + 1);
         for (CompletionCode completionCode : CompletionCode.values()) {
             counters.add(completionCodeCounters.get(completionCode));
         }
+        counters.add(completionCodeCounters.get(null));
         return counters;
     }
 
@@ -347,10 +349,10 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             resultSet.setFetchSize(SqlBuilder.FETCH_SIZE);
             while (resultSet.next()) {
                 long businessObjectId = resultSet.getLong(1);
-                int completionCodeOrdinal = resultSet.getInt(2);
+                BigDecimal completionCodeOrdinal = (BigDecimal) resultSet.getObject(2);
                 long counter = resultSet.getLong(3);
                 Map<CompletionCode, Long> successIndicatorCounters = this.getOrPutCompletionCodeCounters(businessObjectId, counters);
-                successIndicatorCounters.put(CompletionCode.fromDBValue(completionCodeOrdinal), counter);
+                successIndicatorCounters.put(completionCodeOrdinal == null ? null : CompletionCode.fromDBValue(completionCodeOrdinal.intValue()), counter);
             }
         }
         return counters;
@@ -363,6 +365,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             for (CompletionCode missing : EnumSet.allOf(CompletionCode.class)) {
                 completionCodeCounters.put(missing, 0L);
             }
+            completionCodeCounters.put(null, 0L);
             counters.put(businessObjectId, completionCodeCounters);
         }
         return completionCodeCounters;
@@ -389,7 +392,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         if (deviceGroup != null) {
             sqlBuilder.append(" and cte.device in (");
             if (deviceGroup instanceof QueryEndDeviceGroup) {
-                sqlBuilder.add(((QueryEndDeviceGroup)deviceGroup).toFragment());
+                sqlBuilder.add(((QueryEndDeviceGroup) deviceGroup).toFragment());
             } else {
                 sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(getMdcAmrSystem().get()).toFragment());
             }

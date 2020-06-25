@@ -29,6 +29,8 @@ public interface SecurityAccessorTypeOnDeviceType {
     void resetKeyRenewal();
     KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId, DeviceMessageId serviceDeviceMessageId);
 
+    boolean isRenewalConfigured();
+
     @ConsumerType
     interface KeyRenewalBuilder {
         KeyRenewalBuilder addProperty(String key, Object value, boolean isServiceKey);

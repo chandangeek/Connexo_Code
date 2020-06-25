@@ -6,10 +6,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
@@ -29,7 +27,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -49,7 +46,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 /**
  * Performs several actions on the given LoadProfile data which are required before storing.
  * <p>
- *
+ * <p>
  * Date: 7/30/14
  * Time: 9:34 AM
  */
@@ -177,8 +174,8 @@ public class PreStoreLoadProfile {
                 return processingBlock;
             }
 
-            Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
-            int scaler = getScaler(unit, configuredUnit);
+            List<Unit> configuredUnits = mdcReadingTypeUtilService.getMdcUnitsFor(readingTypeMRID);
+            int scaler = getScaler(unit, configuredUnits);
             IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
             intervalBlock.getIntervals().stream().filter(intervalReading -> rangeToProcess.contains(intervalReading.getTimeStamp())).forEach(intervalReading -> {
                 IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
@@ -191,7 +188,7 @@ public class PreStoreLoadProfile {
         private Optional<IntervalReading> findInValidInterval(IntervalBlock intervalBlock, String readingTypeMRID, ZoneId zone) {
             Optional<TimeDuration> timeDuration = mdcReadingTypeUtilService.getReadingTypeInterval(readingTypeMRID);
 
-            if (!timeDuration.isPresent()){
+            if (!timeDuration.isPresent()) {
                 return Optional.empty();
             }
 
@@ -218,7 +215,6 @@ public class PreStoreLoadProfile {
             }
             return -1;
         }
-
 
 
         public void updateCommand(MeterDataStoreCommand meterDataStoreCommand) {
@@ -249,15 +245,16 @@ public class PreStoreLoadProfile {
             }
         }
 
-        protected final int getScaler(Unit fromUnit, Unit toUnit) {
-            if (fromUnit.equalBaseUnit(toUnit)) {
-                return fromUnit.getScale() - toUnit.getScale();
-            } else {
-                return 0;
+        protected final int getScaler(Unit fromUnit, List<Unit> toUnits) {
+            for (Unit toUnit : toUnits) {
+                if (fromUnit != null && toUnit != null && fromUnit.equalBaseUnit(toUnit)) {
+                    return fromUnit.getScale() - toUnit.getScale();
+                }
             }
+            return 0;
         }
 
-       public  enum PreStoreResult {
+        public enum PreStoreResult {
             NOT_PROCESSED,
             OK,
             LOADPROFILE_NOT_FOUND,

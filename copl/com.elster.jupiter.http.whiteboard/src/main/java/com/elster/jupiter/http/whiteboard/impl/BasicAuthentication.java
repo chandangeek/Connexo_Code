@@ -115,6 +115,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private static final String SSO_ENABLED_PROPERTY = "sso.enabled";
     private static final String SSO_IDP_ENDPOINT_PROPERTY = "sso.idp.endpoint";
+    private static final String SSO_SP_ISSUER_ID = "sso.sp.issuer.id";
     private static final String SSO_X509_CERTIFICATE_PROPERTY = "sso.x509.certificate";
     private static final String SSO_ACS_ENDPOINT_PROPERTY = "sso.acs.endpoint";
     private static final String SSO_ADMIN_USER_PROPERTY = "sso.admin.user";
@@ -148,6 +149,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> scheme;
     private boolean ssoEnabled;
     private Optional<String> idpEndpoint;
+    private Optional<String> issuerId;
     private Optional<String> acsEndpoint;
     private Optional<String> x509Certificate;
     private Optional<String> ssoAdminUser;
@@ -266,6 +268,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         ssoAdminUser = getOptionalStringProperty(SSO_ADMIN_USER_PROPERTY, context);
         ssoEnabled = Boolean.parseBoolean(context.getProperty(SSO_ENABLED_PROPERTY));
         idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
+        issuerId = getOptionalStringProperty(SSO_SP_ISSUER_ID, context);
         acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
         x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
         upgradeService.register(
@@ -504,7 +507,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private void ssoAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
+        Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get(), issuerId.get());
         if (ssoAuthenticationRequestOptional.isPresent()) {
             String redirectUrl;
             if (StringUtils.isEmpty(request.getParameter("page"))) {
@@ -792,7 +795,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private String getSamlRequestUrl(String ssoAuthnRequest, String requestUrl) throws UnsupportedEncodingException {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(idpEndpoint.get());
+        stringBuilder.append(issuerId.get());
         stringBuilder.append("?");
         stringBuilder.append("SAMLRequest=");
         stringBuilder.append(URLEncoder.encode(ssoAuthnRequest, "UTF-8").trim());

@@ -35,7 +35,8 @@ public enum TransitionType {
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_ALL_COMMUNICATION,
-                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION,
+                    MicroAction.CLOSE_METER_ACTIVATION);
         }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
@@ -50,7 +51,8 @@ public enum TransitionType {
                     MicroAction.LINK_TO_USAGE_POINT,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_ALL_COMMUNICATION,
-                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION,
+                    MicroAction.CLOSE_METER_ACTIVATION);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -73,7 +75,8 @@ public enum TransitionType {
                     MicroAction.LINK_TO_USAGE_POINT,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_ALL_COMMUNICATION,
-                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION,
+                    MicroAction.CLOSE_METER_ACTIVATION
                     );
         }
         @Override
@@ -94,7 +97,8 @@ public enum TransitionType {
                     MicroAction.LINK_TO_USAGE_POINT,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_ALL_COMMUNICATION,
-                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION,
+                    MicroAction.CLOSE_METER_ACTIVATION);
         }
 
         @Override
@@ -118,7 +122,8 @@ public enum TransitionType {
                     MicroAction.LINK_TO_USAGE_POINT,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_ALL_COMMUNICATION,
-                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION,
+                    MicroAction.CLOSE_METER_ACTIVATION);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -138,7 +143,8 @@ public enum TransitionType {
                     MicroAction.LINK_TO_USAGE_POINT,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_ALL_COMMUNICATION,
-                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION);
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION,
+                    MicroAction.CLOSE_METER_ACTIVATION);
         }
 
         @Override
@@ -158,7 +164,8 @@ public enum TransitionType {
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.DISABLE_COMMUNICATION,
                     MicroAction.ACTIVATE_ALL_COMMUNICATION,
-                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION
+                    MicroAction.ACTIVATE_ALL_RECURRING_COMMUNICATION,
+                    MicroAction.CLOSE_METER_ACTIVATION
             );
         }
     },

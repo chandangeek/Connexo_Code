@@ -20,6 +20,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCom
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.getenddeviceevents.DateTimeInterval;
+import ch.iec.tc57._2011.getenddeviceevents.EndDeviceGroup;
 import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEvents;
 import ch.iec.tc57._2011.getenddeviceevents.Meter;
@@ -106,10 +107,10 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         inject(AbstractInboundEndPoint.class, getEndDeviceEventsEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, getEndDeviceEventsEndpoint, "webServicesService", webServicesService);
         inject(AbstractInboundEndPoint.class, getEndDeviceEventsEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer(){
+        when(transactionService.execute(any())).then(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
             }
         });
         when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
@@ -139,7 +140,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
     }
 
     @Test
-    public void testNoMetersInRequest() throws Exception {
+    public void testNoMetersInSyncRequest() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
 
@@ -165,10 +166,17 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
     }
 
     @Test
-    public void testNoMeterIdentifiersInRequest() throws Exception {
+    public void testNoMetersOrGroupsInAsyncRequest() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
-        getEndDeviceEvents.getMeter().add(createMeter("\t\n\r ", null));
+        endDeviceEventsRequest.getHeader().setAsyncReplyFlag(true);
+        endDeviceEventsRequest.getHeader().setReplyAddress(REPLY_ADDRESS);
+        getEndDeviceEvents.getTimeSchedule().add(createTimeSchedule(NOW, NOW.plusMillis(1000)));
+
+        EndPointConfiguration endPointConfiguration = mockEndPointConfiguration("epc1");
+        when(endPointConfiguration.getUrl()).thenReturn(REPLY_ADDRESS);
+        Finder<EndPointConfiguration> finder = mockFinder(Collections.singletonList(endPointConfiguration));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
 
         try {
             // Business method
@@ -183,8 +191,41 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
             assertThat(faultInfo.getReply().getError()).hasSize(1);
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
-            assertThat(error.getCode()).isEqualTo(MessageSeeds.END_DEVICE_IDENTIFIER_MISSING.getErrorCode());
-            assertThat(error.getDetails()).isEqualTo(MessageSeeds.END_DEVICE_IDENTIFIER_MISSING.translate(thesaurus));
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.EMPTY_LIST.getErrorCode());
+            assertThat(error.getDetails()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus, "GetEndDeviceEvents.Meters/GetEndDeviceEvents.EndDeviceGroups"));
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
+    }
+
+    @Test
+    public void testNoMeterOrGroupIdentifiersInRequest() throws Exception {
+        GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
+        GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
+        getEndDeviceEvents.getMeter().add(createMeter("\t\n\r ", null));
+        getEndDeviceEvents.getEndDeviceGroup().add(createEndDeviceGroup(null));
+        endDeviceEventsRequest.getHeader().setAsyncReplyFlag(true);
+        endDeviceEventsRequest.getHeader().setReplyAddress(REPLY_ADDRESS);
+        EndPointConfiguration endPointConfiguration = mockEndPointConfiguration("epc1");
+        when(endPointConfiguration.getUrl()).thenReturn(REPLY_ADDRESS);
+        Finder<EndPointConfiguration> finder = mockFinder(Collections.singletonList(endPointConfiguration));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
+
+        try {
+            // Business method
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_GET_END_DEVICE_EVENTS.translate(thesaurus));
+            EndDeviceEventsFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.DEVICE_OR_GROUP_IDENTIFIER_MISSING.getErrorCode());
+            assertThat(error.getDetails()).isEqualTo(MessageSeeds.DEVICE_OR_GROUP_IDENTIFIER_MISSING.translate(thesaurus));
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -399,6 +440,14 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
                 .map(this::name)
                 .ifPresent(meter.getNames()::add);
         return meter;
+    }
+
+    private EndDeviceGroup createEndDeviceGroup(String name) {
+        EndDeviceGroup meterGroup = new EndDeviceGroup();
+        Optional.ofNullable(name)
+                .map(this::name)
+                .ifPresent(meterGroup.getNames()::add);
+        return meterGroup;
     }
 
     private Name name(String value) {
