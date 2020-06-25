@@ -237,4 +237,11 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
         return specBuilder.finish();
     }
 
+    protected PropertySpec durationSpec(String name, boolean required, TranslationKey translationKey, Duration defaultValue) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, required, translationKey, getPropertySpecService()::durationSpec)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
 }
