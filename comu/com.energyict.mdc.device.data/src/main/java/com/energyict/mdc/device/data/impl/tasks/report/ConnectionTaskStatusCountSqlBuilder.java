@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Builds the SQL query that counts {@link ConnectionTask}s
@@ -28,7 +29,6 @@ import java.util.Set;
 class ConnectionTaskStatusCountSqlBuilder implements PreparedStatementProvider {
 
     private final EnumSet<ServerConnectionTaskStatus> taskStatusses;
-    private final boolean includeBusyTasks;
     private final EndDeviceGroup deviceGroup;
     private final ConnectionTaskReportServiceImpl connectionTaskService;
     private SqlBuilder sqlBuilder;
@@ -36,8 +36,6 @@ class ConnectionTaskStatusCountSqlBuilder implements PreparedStatementProvider {
     ConnectionTaskStatusCountSqlBuilder(Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskReportServiceImpl connectionTaskService) {
         super();
         this.taskStatusses = EnumSet.copyOf(taskStatusses);
-        this.includeBusyTasks = taskStatusses.contains(ServerConnectionTaskStatus.Busy);
-        this.taskStatusses.remove(ServerConnectionTaskStatus.Busy);
         this.deviceGroup = deviceGroup;
         this.connectionTaskService = connectionTaskService;
     }
@@ -49,47 +47,24 @@ class ConnectionTaskStatusCountSqlBuilder implements PreparedStatementProvider {
     }
 
     private void build() {
-        this.appendWithClauses();
-        if (this.includeBusyTasks) {
-            this.sqlBuilder.append("select '");
-            this.sqlBuilder.append(ServerConnectionTaskStatus.Busy.name());
-            this.sqlBuilder.append("'");
-            this.sqlBuilder.append(", count(*) from busyCT ");
-            this.sqlBuilder.append(" UNION ALL ");
+        this.sqlBuilder = new SqlBuilder("SELECT TASKSTATUS, SUM(\"COUNT\") ");
+        this.sqlBuilder.append("FROM DASHBOARD_CONTASKBREAKDOWN ");
+        this.sqlBuilder.append("WHERE GROUPERBY = 'None' ");
+        if(deviceGroup != null){
+            sqlBuilder.append(" AND MRID = '");
+            sqlBuilder.append(deviceGroup.getMRID());
+            sqlBuilder.append("' ");
         }
-        this.sqlBuilder.append("select taskStatus ");
-        this.sqlBuilder.append(", count(*) from notBusyCT group by taskStatus ");
+        this.sqlBuilder.append("AND TASKSTATUS IN (");
+        this.sqlBuilder.append(getTaskStatussesToSelect());
+        this.sqlBuilder.append(") ");
+        this.sqlBuilder.append(" GROUP BY TASKSTATUS ");
     }
 
-    private void appendWithClauses() {
-        this.sqlBuilder = new SqlBuilder("WITH ");
-        if (this.includeBusyTasks) {
-            this.appendBusyComTaskExecutionWithClause();
-            this.sqlBuilder.append(", ");
-        }
-        this.appendNotBusyConnectionTaskWithClause(this.connectionTaskService.clock());
+    private String getTaskStatussesToSelect(){
+        return taskStatusses.stream().map(ServerConnectionTaskStatus::name)
+                .map(name -> String.format("'%s'", name))
+                .collect(Collectors.joining(","));
     }
 
-    private void appendBusyComTaskExecutionWithClause() {
-        this.sqlBuilder.append(" busyCT as (");
-        this.sqlBuilder.append(" select * from MV_BUSYCONTASKSTCOUNT connT where 1=1 ");
-        this.appendDeviceInGroupSql();
-        this.sqlBuilder.append(")");
-    }
-
-    private void appendNotBusyConnectionTaskWithClause(Clock clock) {
-        this.sqlBuilder.append("notBusyCT as (");
-        this.sqlBuilder.append("    SELECT /*+ NO_MERGE */ 1 dummy");
-        this.sqlBuilder.append(",");
-        this.sqlBuilder.append("      CASE");
-        this.taskStatusses.forEach(each -> each.appendBreakdownCaseClause(this.sqlBuilder, clock));
-        this.sqlBuilder.append("      END taskStatus");
-        this.sqlBuilder.append("    FROM MV_NOTBUSYCONTASKSTCOUNT connT where 1=1 ");
-        this.appendDeviceInGroupSql();
-        this.sqlBuilder.append(")");
-    }
-
-    private void appendDeviceInGroupSql() {
-        this.connectionTaskService.appendDeviceGroupConditions(this.deviceGroup, this.sqlBuilder, "connT");
-    }
 }

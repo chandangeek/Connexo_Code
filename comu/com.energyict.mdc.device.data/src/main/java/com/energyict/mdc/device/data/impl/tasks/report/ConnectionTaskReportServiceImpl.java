@@ -80,12 +80,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     @Override
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
-        //return this.doGetConnectionTaskStatusCount(null);
-        StopWatch watch = new StopWatch(true);// just for time measurement
-        Map<TaskStatus, Long> map = this.doGetConnectionTaskStatusCount(null);
-        watch.stop();// just for time measurement
-        LOGGER.log(Level.WARNING, "CONM1163: method: getConnectionTaskStatusCount; " + watch.toString());// just for time measurement
-        return map;
+        return this.doGetConnectionTaskStatusCount(null);
     }
 
     @Override
@@ -230,18 +225,13 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     }
 
     private long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(boolean waitingOnly, EndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder(" select count(*) from ");
-        sqlBuilder.append(" MV_CTLCSWithAtLstOneFT ct");
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT NVL(SUM(\"COUNT\"), 0) ");
+        sqlBuilder.append("FROM DASHBOARD_CTLCSWITHATLSTONEFT ");
         sqlBuilder.append(" where 1=1 ");
         if(deviceGroup != null) {
-            this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
-        }
-        if (waitingOnly) {
-            sqlBuilder.append(" and nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.toSeconds(this.deviceDataModelService.clock().instant()));
-            sqlBuilder.append(" and ct.comport is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
-        } else {
-            sqlBuilder.append(" and ct.lastsession is not null ");
+            sqlBuilder.append(" AND MRID = '");
+            sqlBuilder.append(deviceGroup.getMRID());
+            sqlBuilder.append("'");
         }
         try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement stmnt = sqlBuilder.prepare(connection)) {
@@ -269,33 +259,31 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     @Override
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append("  MV_CTLCSSucIndCount ct ");
-        sqlBuilder.append("  group by ct.lastSessionSuccessIndicator ");
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT LASTSESSIONSUCCESSINDICATOR, SUM(\"COUNT\") ");
+        sqlBuilder.append("FROM DASHBOARD_CTLCSSUCINDCOUNT ");
+        sqlBuilder.append("GROUP BY LASTSESSIONSUCCESSINDICATOR");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
 
     @Override
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount(EndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append("  MV_CTLCSSucIndCount ct ");
-        sqlBuilder.append("  where 1=1 ");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
-        sqlBuilder.append("  group by ct.lastSessionSuccessIndicator ");
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT LASTSESSIONSUCCESSINDICATOR, SUM(\"COUNT\") ");
+        sqlBuilder.append("FROM DASHBOARD_CTLCSSUCINDCOUNT ");
+        sqlBuilder.append("WHERE 1=1 ");
+        if(deviceGroup != null) {
+            sqlBuilder.append(" AND MRID = '");
+            sqlBuilder.append(deviceGroup.getMRID());
+            sqlBuilder.append("'");
+        }
+        sqlBuilder.append(" GROUP BY LASTSESSIONSUCCESSINDICATOR");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
 
     private Map<ComSession.SuccessIndicator, Long> fetchSuccessIndicatorCounters(SqlBuilder builder) {
         Map<ComSession.SuccessIndicator, Long> counters = new HashMap<>();
-        StopWatch watch = new StopWatch(true);// just for time measurement
         try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement stmnt = builder.prepare(connection)) {
-            watch.stop();// just for time measurement
-            LOGGER.log(Level.WARNING, "CONM1163: method: getConnection and Prepare statement(fetchSuccessIndicatorCounters); " + watch.toString());// just for time measurement
-            watch.start();// just for time measurement
             this.fetchSuccessIndicatorCounters(stmnt, counters);
-            watch.stop();// just for time measurement
-            LOGGER.log(Level.WARNING, "CONM1163: method: fetchSuccessIndicatorCounters; " + watch.toString());// just for time measurement
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
@@ -538,37 +526,20 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("select ");
         sqlBuilder.append(groupByFieldName);
-        sqlBuilder.append(", sum(completeSucces), sum(atLeastOneFailure), ");
-        sqlBuilder.append(
-                failureIndicators
-                        .stream()
-                        .map(i -> "sum(" + this.connectionTypeHeatMapFailureIndicatorCaseClauseNameFor(i) + ")")
-                        .collect(Collectors.joining(",")));
-        sqlBuilder.append("  from (");
-        sqlBuilder.append("        select ");
-        sqlBuilder.append(groupByEntityAliasName);
-        sqlBuilder.append(".");
-        sqlBuilder.append(groupByFieldName);
-        sqlBuilder.append(", ct.lastSessionSuccessIndicator,");
-        sqlBuilder.append("          CASE WHEN ct.lastSessionSuccessIndicator = 0");
-        sqlBuilder.append("                AND failedTask_comsession IS NULL");
-        sqlBuilder.append("               THEN 1");
-        sqlBuilder.append("               ELSE 0");
-        sqlBuilder.append("          END completeSucces,");
-        sqlBuilder.append("          CASE WHEN ct.lastSessionSuccessIndicator = 0");
-        sqlBuilder.append("                AND failedTask_comsession IS NOT NULL");
-        sqlBuilder.append("               THEN 1");
-        sqlBuilder.append("               ELSE 0");
-        sqlBuilder.append("          END atLeastOneFailure,");
-        sqlBuilder.append(
-                failureIndicators
-                        .stream()
-                        .map(this::connectionTypeHeatMapFailureIndicatorCaseClause)
-                        .collect(Collectors.joining(",")));
-        sqlBuilder.append("        from MV_ConnectionTypeHeatMap ct");
-        sqlBuilder.append("       where 1=1 ");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
-        sqlBuilder.append("       )");
+        sqlBuilder.append(", NVL(SUM(COMPLETESUCCES),0) ");
+        sqlBuilder.append(", NVL(SUM(ATLEASTONEFAILURE),0) ");
+        sqlBuilder.append(", NVL(SUM(FAILURESETUPERROR),0) ");
+        sqlBuilder.append(", NVL(SUM(FAILUREBROKEN),0) ");
+        sqlBuilder.append(", NVL(SUM(FAILUREINTERRUPTED),0) ");
+        sqlBuilder.append(", NVL(SUM(FAILURENOT_EXECUTE),0) ");
+        sqlBuilder.append("FROM DASHBOARD_CONTYPEHEATMAP ");
+        sqlBuilder.append(" where 1=1 ");
+        if(deviceGroup != null){
+            sqlBuilder.append(" AND MRID ='");
+            sqlBuilder.append(deviceGroup.getMRID());
+            sqlBuilder.append("' ");
+        }
+
         sqlBuilder.append(" group by " + groupByFieldName);
         return sqlBuilder;
     }

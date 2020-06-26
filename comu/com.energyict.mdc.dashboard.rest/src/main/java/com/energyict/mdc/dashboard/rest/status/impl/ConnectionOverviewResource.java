@@ -61,21 +61,13 @@ public class ConnectionOverviewResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public ConnectionOverviewInfo getConnectionWidget(@BeanParam JsonQueryFilter filter) throws Exception {
-        StopWatch watch = new StopWatch(true);// just for time measurement
-        ConnectionOverviewInfo connectionOverviewInfo;// just for time measurement
-        watch.start();// just for time measurement
         if (filter.hasProperty("deviceGroup")) {
-           connectionOverviewInfo = meteringGroupService // just for time measurement
-            //return meteringGroupService
+            return meteringGroupService
                     .findEndDeviceGroup(filter.getLong("deviceGroup"))
                     .map(connectionOverviewInfoFactory::asWidgetInfo)
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
         } else {
-            connectionOverviewInfo = connectionOverviewInfoFactory.asWidgetInfo(); // just for time measurement
-            //return connectionOverviewInfoFactory.asWidgetInfo();
+            return connectionOverviewInfoFactory.asWidgetInfo();
         }
-        watch.stop();// just for time measurement
-        LOGGER.log(Level.WARNING, "CONM1163: method: getConnectionWidget; " + watch.toString()); // just for time measurement
-        return connectionOverviewInfo;
     }
 }

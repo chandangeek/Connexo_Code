@@ -98,14 +98,11 @@ public class ConnectionOverviewInfoFactory {
     }
 
     public ConnectionOverviewInfo asWidgetInfo(){
-        StopWatch watch = new StopWatch(true);// just for time measurement
         ConnectionOverviewInfo info = new ConnectionOverviewInfo();
         TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
         SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
         info.connectionSummary = summaryInfoFactory.from(summaryData);
-        watch.stop();// just for time measurement
-        LOGGER.log(Level.WARNING, "CONM1163: method: asWidgetInfo; " + watch.toString());// just for time measurement
         return info;
     }
 

@@ -94,35 +94,15 @@ public interface FullInstaller {
         });
     }
 
-    default String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval) {
-        ImmutableMap<String,String> tableInfos = ImmutableMap.<String, String>builder()
-                .put(tableName, createTableStatement)
-                .build();
-        return getRefreshJob(jobName, tableInfos, minRefreshInterval);
-    }
 
-    default String getRefreshJob(String jobName, Map<String, String> tableInfos, int minRefreshInterval) {
+    default String getRefreshJob(String jobName, String jobAction, int minRefreshInterval) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" BEGIN ");
         sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
         sqlBuilder.append(" ( ");
         sqlBuilder.append(" JOB_NAME            => '").append(jobName).append("', ");
         sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => ' ");
-        sqlBuilder.append(" BEGIN ");
-        for(Map.Entry<String, String> tableInfo: tableInfos.entrySet()) {
-            sqlBuilder.append(" execute immediate ''DROP TABLE ").append(tableInfo.getKey()).append("''; ");
-            sqlBuilder.append(" execute immediate ");
-            sqlBuilder.append(" ''");
-            sqlBuilder.append(tableInfo.getValue().replace("'", "''''"));
-            sqlBuilder.append(" ''; ");
-        }
-        sqlBuilder.append(" EXCEPTION ");
-        sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append("       IF SQLCODE != -942 THEN ");
-        sqlBuilder.append("          RAISE; ");
-        sqlBuilder.append("       END IF; ");
-        sqlBuilder.append(" END;', ");
+        sqlBuilder.append(" JOB_ACTION          => '").append(jobAction).append("', ");
         sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
         sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
         sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=").append(minRefreshInterval).append("', ");

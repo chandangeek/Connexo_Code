@@ -97,12 +97,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public TaskStatusOverview getConnectionTaskStatusOverview() {
-        //return this.getConnectionTaskStatusOverview(this.connectionTaskReportService::getConnectionTaskStatusCount);
-        StopWatch watch = new StopWatch(true);// just for time measurement
-        TaskStatusOverview taskStatusOverview = this.getConnectionTaskStatusOverview(this.connectionTaskReportService::getConnectionTaskStatusCount);
-        watch.stop();// just for time measurement
-        LOGGER.log(Level.WARNING, "CONM1163: method: getConnectionTaskStatusOverview; " + watch.toString());// just for time measurement
-        return taskStatusOverview;
+        return this.getConnectionTaskStatusOverview(this.connectionTaskReportService::getConnectionTaskStatusCount);
     }
 
     @Override
@@ -116,12 +111,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview() {
-        //return this.getComSessionSuccessIndicatorOverview(this.connectionTaskReportService::getConnectionTaskLastComSessionSuccessIndicatorCount);
-        StopWatch watch = new StopWatch(true);// just for time measurement
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = this.getComSessionSuccessIndicatorOverview(this.connectionTaskReportService::getConnectionTaskLastComSessionSuccessIndicatorCount);
-        watch.stop();// just for time measurement
-        LOGGER.log(Level.WARNING, "CONM1163: method: getComSessionSuccessIndicatorOverview; " + watch.toString());// just for time measurement
-        return comSessionSuccessIndicatorOverview;
+        return this.getComSessionSuccessIndicatorOverview(this.connectionTaskReportService::getConnectionTaskLastComSessionSuccessIndicatorCount);
     }
 
     @Override
