@@ -67,6 +67,9 @@ public enum TranslationKeys implements TranslationKey {
     USAGE_POINT_INFO("usagePointInfo", "Usage point info"),
     CONFIGURATION_EVENT("configurationEvent", "Configuration event"),
     CALLBACK_URL("callbackUrl", "Callback URL"),
+    END_DEVICE_OR_USAGE_POINT("endDeviceOrUsagePoint", "End device or Usage point nodes"),
+    METER("meter", "Meter"),
+    OR("or", "or")
     ;
 
     private final String key;

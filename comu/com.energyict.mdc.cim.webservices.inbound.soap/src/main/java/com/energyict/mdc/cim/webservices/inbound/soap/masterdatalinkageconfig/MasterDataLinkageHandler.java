@@ -2,6 +2,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.ConfigEventInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
@@ -14,6 +15,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -36,13 +38,14 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class MasterDataLinkageHandler {
-    private static final String END_DEVICE_AND_USAGE_POINT = "End device and Usage point nodes";
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final MetrologyConfigurationService metrologyConfService;
     private final com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory faultMessageFactory;
     private final ReplyTypeFactory replyTypeFactory;
     private final TopologyService topologyService;
+    private final Thesaurus thesaurus;
+
 
     ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent configurationEventNode;
     List<ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice> endDeviceNodes;
@@ -62,13 +65,14 @@ public class MasterDataLinkageHandler {
     public MasterDataLinkageHandler(MeteringService meteringService, DeviceService deviceService,
                                     com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory faultMessageFactory,
                                     MetrologyConfigurationService metrologyConfService, ReplyTypeFactory replyTypeFactory,
-                                    TopologyService topologyService) {
+                                    TopologyService topologyService, Thesaurus thesaurus) {
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.metrologyConfService = metrologyConfService;
         this.faultMessageFactory = faultMessageFactory;
         this.replyTypeFactory = replyTypeFactory;
         this.topologyService = topologyService;
+        this.thesaurus = thesaurus;
     }
 
     MasterDataLinkageHandler forMessage(MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
@@ -97,7 +101,7 @@ public class MasterDataLinkageHandler {
         if (shouldCreateResponse) {
             if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()){
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, thesaurus.getFormat(TranslationKeys.END_DEVICE_OR_USAGE_POINT).format());
             }
             if (!usagePointNodes.isEmpty()) {
                 linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
@@ -110,7 +114,7 @@ public class MasterDataLinkageHandler {
         } else {
             if (usagePoint == null && endDevice == null) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, thesaurus.getFormat(TranslationKeys.END_DEVICE_OR_USAGE_POINT).format());
             }
             if (usagePoint != null) {
                 linkMeterToUsagePoint(transform(meter), getMeterRoleForKey(meter.getRole()), transform(usagePoint),
@@ -128,7 +132,7 @@ public class MasterDataLinkageHandler {
         if (shouldCreateResponse) {
             if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, thesaurus.getFormat(TranslationKeys.END_DEVICE_OR_USAGE_POINT).format());
             }
             if (!usagePointNodes.isEmpty()) {
                 unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
@@ -141,7 +145,7 @@ public class MasterDataLinkageHandler {
         } else {
             if (usagePoint == null && endDevice == null) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, thesaurus.getFormat(TranslationKeys.END_DEVICE_OR_USAGE_POINT).format());
             }
             if (usagePoint != null) {
                 unlinkMeterFromUsagePoint(transform(meter), transform(usagePoint),
@@ -197,8 +201,6 @@ public class MasterDataLinkageHandler {
             if (currentGateway.get().equals(gateway)) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                         MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE, slave.getName(), slave.getSerialNumber(), gateway.getName(), gateway.getSerialNumber());
-            } else {
-                topologyService.clearPhysicalGateway(slave);
             }
         }
         topologyService.setPhysicalGateway(slave, gateway);
@@ -215,7 +217,11 @@ public class MasterDataLinkageHandler {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                         MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE, slave.getName(), slave.getSerialNumber(), currentGateway.get().getName(), currentGateway.get().getSerialNumber());
             } else {
-                topologyService.clearPhysicalGateway(slave);
+                Optional<Device> slaveOptional = deviceService.findAndLockDeviceById(slave.getId());
+                if (!slaveOptional.isPresent())
+                    throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                            MessageSeeds.NO_SUCH_DEVICE, slave.getId());
+                topologyService.clearPhysicalGateway(slaveOptional.get());
             }
         } else {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
@@ -252,15 +258,19 @@ public class MasterDataLinkageHandler {
     }
 
     private Device transformToDevice(String mrid, Supplier<String> nameSupplier) throws FaultMessage {
+        return transformToDevice(mrid, nameSupplier, true);
+    }
+
+    private Device transformToDevice(String mrid, Supplier<String> nameSupplier, boolean isMeter) throws FaultMessage {
         if (mrid != null) {
             return deviceService.findDeviceByMrid(mrid)
                     .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
-                            MessageSeeds.NO_METER_WITH_MRID, mrid));
+                            isMeter ? MessageSeeds.NO_METER_WITH_MRID : MessageSeeds.NO_END_DEVICE_WITH_MRID, mrid));
         }
         String name = nameSupplier.get();
         return deviceService.findDeviceByName(name)
                 .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
-                        MessageSeeds.NO_METER_WITH_NAME, name));
+                        isMeter ? MessageSeeds.NO_METER_WITH_NAME : MessageSeeds.NO_END_DEVICE_WITH_NAME, name));
     }
 
     private Device transform(ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice endDeviceNode)
@@ -273,15 +283,7 @@ public class MasterDataLinkageHandler {
     }
 
     private Device transformEndDevice(String mrid, Supplier<String> nameSupplier) throws FaultMessage {
-        if (mrid != null) {
-            return deviceService.findDeviceByMrid(mrid)
-                    .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
-                            MessageSeeds.NO_END_DEVICE_WITH_MRID, mrid));
-        }
-        String name = nameSupplier.get();
-        return deviceService.findDeviceByName(name)
-                .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
-                        MessageSeeds.NO_END_DEVICE_WITH_NAME, name));
+        return transformToDevice(mrid, nameSupplier, false);
     }
 
     private UsagePoint transform(ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint usagePointNode)

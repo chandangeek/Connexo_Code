@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
 
@@ -39,29 +40,21 @@ public class UpgraderV10_9 implements Upgrader {
     }
 
     private void updateOldMasterDataLinkageConfigServiceCalls() {
-        serviceCallService.findServiceCallType(MASTER_DATA_LINKAGE_CONFIG.getTypeName(), MASTER_DATA_LINKAGE_CONFIG.getTypeVersion())
-                .ifPresent(serviceCallType -> {
-                    serviceCallType.getCustomPropertySets().stream()
-                            .forEach(cps -> serviceCallType.removeCustomPropertySet(cps));
-
-                    RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
-                            .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set by id {0}", MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
-                    serviceCallType.addCustomPropertySet(registeredCustomPropertySet);
-                    serviceCallType.save();
-                });
-
-        serviceCallService.findServiceCallType(DATA_LINKAGE_CONFIG.getTypeName(), DATA_LINKAGE_CONFIG.getTypeVersion())
-                .ifPresent(serviceCallType -> {
-                    serviceCallType.getCustomPropertySets().stream()
-                            .forEach(cps -> serviceCallType.removeCustomPropertySet(cps));
-
-                    RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
-                            .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set by id {0}", MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
-                    serviceCallType.addCustomPropertySet(registeredCustomPropertySet);
-                    serviceCallType.save();
-                });
-
+        updateServiceCall(MASTER_DATA_LINKAGE_CONFIG, MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_ID);
+        updateServiceCall(DATA_LINKAGE_CONFIG, MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_ID);
         migrateSql();
+    }
+
+    private void updateServiceCall(ServiceCallCommands.ServiceCallTypes type, String customPropertySetId) {
+        serviceCallService.findServiceCallType(type.getTypeName(), type.getTypeVersion())
+                .ifPresent(serviceCallType -> {
+                    serviceCallType.getCustomPropertySets().forEach(serviceCallType::removeCustomPropertySet);
+
+                    RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySetId)
+                            .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set by id {0}", customPropertySetId)));
+                    serviceCallType.addCustomPropertySet(registeredCustomPropertySet);
+                    serviceCallType.save();
+                });
     }
 
     private void migrateSql() {
@@ -77,12 +70,7 @@ public class UpgraderV10_9 implements Upgrader {
                         "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension'; " +
                         "END; ";
 
-        dataModel.useConnectionRequiringTransaction(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                execute(statement, sql1);
-                execute(statement, sql2);
-            }
-        });
+        execute(dataModel, sql1, sql2);
     }
 }
 

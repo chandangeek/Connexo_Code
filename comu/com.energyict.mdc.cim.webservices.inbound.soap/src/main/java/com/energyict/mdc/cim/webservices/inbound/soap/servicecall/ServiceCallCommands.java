@@ -21,6 +21,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
@@ -100,9 +101,6 @@ import java.util.stream.Collectors;
 
 
 public class ServiceCallCommands {
-
-    private static final String END_DEVICE_AND_USAGE_POINT = "End device and Usage point nodes";
-    private static final String METER = "Meter";
 
     public enum ServiceCallTypes {
         MASTER_METER_CONFIG(MeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigMasterServiceCallHandler.VERSION, MeterConfigMasterServiceCallHandler.APPLICATION, MeterConfigMasterCustomPropertySet.class
@@ -369,11 +367,11 @@ public class ServiceCallCommands {
         final ConfigurationEvent configurationEvent = config.getPayload().getMasterDataLinkageConfig().getConfigurationEvent();
         if (endDevices.isEmpty() && usagePoints.isEmpty()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
-                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_AND_USAGE_POINT);
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, thesaurus.getFormat(TranslationKeys.END_DEVICE_OR_USAGE_POINT).format());
         }
         if (meters.isEmpty()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
-                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, METER);
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, thesaurus.getFormat(TranslationKeys.METER).format());
         }
         if (!usagePoints.isEmpty() && usagePoints.size() != meters.size()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,

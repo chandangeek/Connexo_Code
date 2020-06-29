@@ -122,11 +122,11 @@ public class MasterDataLinkageConfigCustomPropertySet
                 propertySpecService.stringSpec()
                         .named(MasterDataLinkageConfigDomainExtension.FieldNames.METER.javaName(),
                                 TranslationKeys.METER_OR_GATEWAY_INFO)
-                        .describedAs(TranslationKeys.METER_OR_GATEWAY_INFO).fromThesaurus(thesaurus).finish(),
+                        .fromThesaurus(thesaurus).finish(),
                 propertySpecService.stringSpec()
                         .named(MasterDataLinkageConfigDomainExtension.FieldNames.END_DEVICE.javaName(),
                                 TranslationKeys.END_DEVICE_INFO)
-                        .describedAs(TranslationKeys.METER_OR_GATEWAY_INFO).fromThesaurus(thesaurus).finish(),
+                        .fromThesaurus(thesaurus).finish(),
                 propertySpecService.stringSpec()
                         .named(MasterDataLinkageConfigDomainExtension.FieldNames.USAGE_POINT.javaName(),
                                 TranslationKeys.USAGE_POINT_INFO)
@@ -225,5 +225,10 @@ public class MasterDataLinkageConfigCustomPropertySet
         public String application() {
             return "MultiSense";
         }
+    }
+
+    @Override
+    public String getId() {
+        return CUSTOM_PROPERTY_SET_ID;
     }
 }

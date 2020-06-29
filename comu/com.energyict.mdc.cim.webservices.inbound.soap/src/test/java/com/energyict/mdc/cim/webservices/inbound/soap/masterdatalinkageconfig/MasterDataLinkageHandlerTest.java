@@ -40,6 +40,7 @@ import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -61,6 +62,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     private static final String METER_ROLE = "meter.role.check";
     private static final String METER_SERIAL_NUMBER = "meterSerialNumber";
     private static final String END_DEVICE_SERIAL_NUMBER = "endDeviceSerialNumber";
+    private static final Long END_DEVICE_ID = 10l;
 
     private static final Instant CREATED_DATE_TIME = LocalDate.of(2017, Month.JULY, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     private static final Instant EFFECTIVE_DATE_TIME = LocalDate.of(2017, Month.JULY, 5).atStartOfDay().toInstant(ZoneOffset.UTC);
@@ -122,9 +124,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator).complete();
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
@@ -148,9 +150,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator).complete();
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
@@ -178,7 +180,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verify(usagePoint, never()).linkMeters();
         verify(usagePointMeterActivator, never()).activate(CREATED_DATE_TIME, meter, meterRole);
         verify(usagePointMeterActivator, never()).complete();
-        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verify(topologyService).setPhysicalGateway(endDevice, meterDevice);
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
@@ -206,7 +208,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verify(usagePoint, never()).linkMeters();
         verify(usagePointMeterActivator, never()).activate(CREATED_DATE_TIME, meter, meterRole);
         verify(usagePointMeterActivator, never()).complete();
-        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verify(topologyService).setPhysicalGateway(endDevice, meterDevice);
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
@@ -236,10 +238,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
-        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator).complete();
+        verify(topologyService).setPhysicalGateway(endDevice, meterDevice);
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
@@ -271,10 +273,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
-        verify(topologyService, times(1)).setPhysicalGateway(endDevice, meterDevice);
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator).complete();
+        verify(topologyService).setPhysicalGateway(endDevice, meterDevice);
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
@@ -297,9 +299,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator).complete();
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
@@ -344,9 +346,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.createLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).activate(CREATED_DATE_TIME, meter, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).activate(CREATED_DATE_TIME, meter, meterRole);
+        verify(usagePointMeterActivator).complete();
         verifyResponse(response,
                 HeaderType.Verb.CREATED,
                 ReplyType.Result.PARTIAL,
@@ -576,7 +578,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             linkageHandler.createLinkage();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NOT_SUPPORTED_MASTER.getErrorCode(),
-                    "Device 'meterName' (serial number 'meterSerialNumber') not configured to act as gateway.");
+                    "Device 'meterName' (serial number 'meterSerialNumber') isn't configured to act as gateway.");
             verify(topologyService, never()).setPhysicalGateway(meterDevice, meterDevice);
         }
     }
@@ -606,7 +608,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             linkageHandler.createLinkage();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NOT_SUPPORTED_SLAVE.getErrorCode(),
-                    "Device 'endDeviceName' (serial number 'endDeviceSerialNumber') not configured to act as end device.");
+                    "Device 'endDeviceName' (serial number 'endDeviceSerialNumber') isn't configured to act as end device.");
             verify(topologyService, never()).setPhysicalGateway(endDevice, meterDevice);
         }
     }
@@ -632,9 +634,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).clear(EFFECTIVE_DATE_TIME, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator).complete();
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
@@ -659,9 +661,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).clear(EFFECTIVE_DATE_TIME, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator).complete();
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
@@ -672,8 +674,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .withEndDeviceMRID(END_DEVICE_MRID)
                 .eraseUsagePointList()
                 .build();
+        when(endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
         when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
         when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
@@ -688,7 +692,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verify(usagePoint, never()).linkMeters();
         verify(usagePointMeterActivator, never()).clear(EFFECTIVE_DATE_TIME, meterRole);
         verify(usagePointMeterActivator, never()).complete();
-        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verify(topologyService).clearPhysicalGateway(endDevice);
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
@@ -700,8 +704,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .withEndDeviceName(END_DEVICE_NAME)
                 .eraseUsagePointList()
                 .build();
+        when(endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
+        when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
         when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
         when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
@@ -716,7 +722,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verify(usagePoint, never()).linkMeters();
         verify(usagePointMeterActivator, never()).clear(EFFECTIVE_DATE_TIME, meterRole);
         verify(usagePointMeterActivator, never()).complete();
-        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verify(topologyService).clearPhysicalGateway(endDevice);
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
@@ -726,8 +732,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
                 .withEndDeviceMRID(END_DEVICE_MRID)
                 .build();
+        when(endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
         when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
         when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
@@ -746,10 +754,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).clear(EFFECTIVE_DATE_TIME, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
-        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator).complete();
+        verify(topologyService).clearPhysicalGateway(endDevice);
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
@@ -762,8 +770,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .withEndDeviceMRID(null)
                 .withEndDeviceName(END_DEVICE_NAME)
                 .build();
+        when(endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(deviceService.findDeviceByName(METER_NAME)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
+        when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
         when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
         when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
@@ -782,10 +792,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         MasterDataLinkageConfigResponseMessageType response = linkageHandler.closeLinkage();
 
         //Verify
-        verify(usagePoint, times(1)).linkMeters();
-        verify(usagePointMeterActivator, times(1)).clear(EFFECTIVE_DATE_TIME, meterRole);
-        verify(usagePointMeterActivator, times(1)).complete();
-        verify(topologyService, times(1)).clearPhysicalGateway(endDevice);
+        verify(usagePoint).linkMeters();
+        verify(usagePointMeterActivator).clear(EFFECTIVE_DATE_TIME, meterRole);
+        verify(usagePointMeterActivator).complete();
+        verify(topologyService).clearPhysicalGateway(endDevice);
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
@@ -956,7 +966,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
             linkageHandler.closeLinkage();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.END_DEVICE_IS_NOT_LINKED.getErrorCode(),
-                    "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') not linked to gateway 'meterName' (serial number 'meterSerialNumber').");
+                    "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') isn't linked to gateway 'meterName' (serial number 'meterSerialNumber').");
             verify(topologyService, never()).clearPhysicalGateway(endDevice);
         }
     }
@@ -990,8 +1000,10 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .withEndDeviceMRID(END_DEVICE_MRID)
                 .eraseUsagePointList()
                 .build();
+        when(endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
         when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));

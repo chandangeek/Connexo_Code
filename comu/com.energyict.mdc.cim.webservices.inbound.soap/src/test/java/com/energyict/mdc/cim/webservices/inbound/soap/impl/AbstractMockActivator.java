@@ -44,8 +44,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -246,7 +244,7 @@ public abstract class AbstractMockActivator {
         activator.setCommunicationTaskService(communicationTaskService);
         activator.setMeteringTranslationService(meteringTranslationService);
         activator.setTopologyService(topologyService);
-        activator.addReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
+        activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.activate(mock(BundleContext.class));
     }
 

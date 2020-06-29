@@ -87,7 +87,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -245,7 +244,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setTopologyService(topologyService);
         setMasterDataLinkageConfigMasterCustomPropertySet(masterDataLinkageConfigMasterCustomPropertySet);
         setMasterDataLinkageConfigCustomPropertySet(masterDataLinkageConfigCustomPropertySet);
-        addReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
+        setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
     }
 
     private Module getModule() {
@@ -623,7 +622,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     }
 
     @Reference
-    public void addReplyMasterDataLinkageConfigWebService(ReplyMasterDataLinkageConfigWebService webService) {
+    public void setReplyMasterDataLinkageConfigWebService(ReplyMasterDataLinkageConfigWebService webService) {
         replyMasterDataLinkageConfigWebService = webService;
     }
 

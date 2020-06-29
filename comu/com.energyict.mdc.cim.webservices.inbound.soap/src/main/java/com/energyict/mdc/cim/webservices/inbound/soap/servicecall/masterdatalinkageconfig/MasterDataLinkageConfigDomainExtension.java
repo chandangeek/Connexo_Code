@@ -23,15 +23,15 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 		implements PersistentDomainExtension<ServiceCall> {
 
 	public enum FieldNames {
-		DOMAIN("serviceCall", "serviceCall"),
-		METER("meter", "meter"),
-		END_DEVICE("endDevice", "endDevice"),
-		USAGE_POINT("usagePoint", "usagePoint"),
-		CONFIGURATION_EVENT("configurationEvent", "configurationEvent"),
-		PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
-		ERROR_MESSAGE("errorMessage", "errorMessage"),
-		ERROR_CODE("errorCode", "errorCode"),
-		OPERATION("operation", "operation");
+		DOMAIN("serviceCall", "SERVICECALL"),
+		METER("meter", "METER"),
+		END_DEVICE("endDevice", "END_DEVICE"),
+		USAGE_POINT("usagePoint", "USAGEPOINT"),
+		CONFIGURATION_EVENT("configurationEvent", "CONFIGURATIONEVENT"),
+		PARENT_SERVICE_CALL("parentServiceCallId", "PARENTSERVICECALLID"),
+		ERROR_MESSAGE("errorMessage", "ERRORMESSAGE"),
+		ERROR_CODE("errorCode", "ERRORCODE"),
+		OPERATION("operation", "OPERATION");
 
 		FieldNames(String javaName, String databaseName) {
 			this.javaName = javaName;

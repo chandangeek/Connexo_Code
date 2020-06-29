@@ -10,8 +10,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalink
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.parent.AbstractServiceCallHandler;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
@@ -29,7 +29,7 @@ import java.util.Optional;
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MasterDataLinkageConfig
  */
-public class MasterDataLinkageConfigServiceCallHandler extends AbstractServiceCallHandler {
+public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MasterDataLinkageConfigServiceCallHandler";
     public static final String APPLICATION = null;
     public static final String VERSION = "v1.0";
@@ -45,11 +45,27 @@ public class MasterDataLinkageConfigServiceCallHandler extends AbstractServiceCa
     }
 
     @Override
-    protected void process(ServiceCall serviceCall) {
+    public final void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
+        switch (newState) {
+            case PENDING:
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                break;
+            case ONGOING:
+                process(serviceCall);
+                break;
+            case SUCCESSFUL:
+            case FAILED:
+            default:
+                break;
+        }
+    }
+
+    private void process(ServiceCall serviceCall) {
         MasterDataLinkageConfigDomainExtension extension = serviceCall
                 .getExtension(MasterDataLinkageConfigDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        ConfigEventInfo configurationEvent = (extension.getUsagePoint() == null) ? null : jsonService.deserialize(extension.getConfigurationEvent(),
+        ConfigEventInfo configurationEvent = (extension.getConfigurationEvent() == null) ? null : jsonService.deserialize(extension.getConfigurationEvent(),
                 ConfigEventInfo.class);
         EndDeviceInfo endDevice = (extension.getEndDevice() == null) ? null : jsonService.deserialize(extension.getEndDevice(), EndDeviceInfo.class);
         UsagePointInfo usagePoint = (extension.getUsagePoint() == null) ? null : jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);

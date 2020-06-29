@@ -87,32 +87,23 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
         return runInTransactionWithOccurrence(() -> {
             try {
                 SetMultimap<String, String> values = HashMultimap.create();
-                message.getPayload()
-                        .getMasterDataLinkageConfig().getMeter().stream().forEach(meter ->{
-                            if (!meter.getNames().isEmpty()) {
-                                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                            }
-                            if (meter.getMRID()!= null) {
-                                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                            }
+                message.getPayload().getMasterDataLinkageConfig().getMeter().forEach(meter -> {
+                    if (!meter.getNames().isEmpty()) {
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    }
+                    values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                 });
-                message.getPayload()
-                        .getMasterDataLinkageConfig().getEndDevice().stream().forEach(endDevice ->{
+                message.getPayload().getMasterDataLinkageConfig().getEndDevice().forEach(endDevice -> {
                     if (!endDevice.getNames().isEmpty()) {
                         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), endDevice.getNames().get(0).getName());
                     }
-                    if (endDevice.getMRID()!= null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), endDevice.getMRID());
-                    }
+                    values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), endDevice.getMRID());
                 });
-                message.getPayload()
-                        .getMasterDataLinkageConfig().getUsagePoint().stream().forEach(usagePoint ->{
+                message.getPayload().getMasterDataLinkageConfig().getUsagePoint().forEach(usagePoint -> {
                     if (!usagePoint.getNames().isEmpty()) {
                         values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
                     }
-                    if (usagePoint.getMRID() != null) {
-                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
-                    }
+                    values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
                 });
 
                 saveRelatedAttributes(values);

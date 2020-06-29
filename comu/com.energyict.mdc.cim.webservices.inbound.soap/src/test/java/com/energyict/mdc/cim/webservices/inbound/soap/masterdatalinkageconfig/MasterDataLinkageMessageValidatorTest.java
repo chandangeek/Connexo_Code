@@ -85,7 +85,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.Meter' cannot be empty.");
+                    "The list of 'MasterDataLinkageConfig.Meter' can't be empty.");
         }
     }
 
@@ -100,7 +100,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.Meter' cannot be empty.");
+                    "The list of 'MasterDataLinkageConfig.Meter' can't be empty.");
         }
     }
 
@@ -115,7 +115,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' cannot be empty.");
+                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' can't be empty.");
         }
     }
 
@@ -130,7 +130,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' cannot be empty.");
+                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' can't be empty.");
         }
     }
 

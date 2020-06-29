@@ -4,11 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ObjectHolder;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.parent.AbstractMasterServiceCallHandler;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
@@ -19,6 +18,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -28,6 +28,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,12 +36,15 @@ import java.util.stream.Collectors;
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MasterDataLinkageConfig
  */
-public class MasterDataLinkageConfigMasterServiceCallHandler extends
-        AbstractMasterServiceCallHandler<MasterDataLinkageConfigMasterDomainExtension> {
+public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MasterDataLinkageConfigMasterServiceCallHandler";
     public static final String APPLICATION = "MDC";
     public static final String VERSION = "v1.0";
 
+    private final ReplyMasterDataLinkageConfigWebService replyWebService;
+    private final EndPointConfigurationService endPointConfigurationService;
+    private final Thesaurus thesaurus;
+    private final WebServicesService webServicesService;
     private final JsonService jsonService;
     private final MeteringService meteringService;
     private final DeviceService deviceService;
@@ -50,15 +54,115 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
             ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
             JsonService jsonService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus,
             WebServicesService webServicesService) {
-        super(MasterDataLinkageConfigMasterDomainExtension.class, replyMasterDataLinkageConfigWebService,
-                endPointConfigurationService, thesaurus, webServicesService);
+        this.replyWebService = replyMasterDataLinkageConfigWebService;
+        this.endPointConfigurationService = endPointConfigurationService;
+        this.thesaurus = thesaurus;
+        this.webServicesService = webServicesService;
         this.jsonService = jsonService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
     }
 
     @Override
-    protected void sendReply(ReplyMasterDataLinkageConfigWebService replyWebService,
+    public final void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        switch (newState) {
+            case ONGOING:
+                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                break;
+            case SUCCESSFUL:
+            case FAILED:
+            case PARTIAL_SUCCESS:
+                sendResponseToOutboundEndPoint(serviceCall);
+                break;
+            case PENDING:
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                break;
+            default:
+                // No specific action required for these states
+                break;
+        }
+    }
+
+    @Override
+    public final void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall,
+                                         DefaultState oldState, DefaultState newState) {
+        switch (newState) {
+            case SUCCESSFUL:
+            case FAILED:
+                updateCounter(parentServiceCall, newState);
+                break;
+            case CANCELLED:
+            case REJECTED:
+            default:
+                // No specific action required for these states
+                break;
+        }
+    }
+
+    private void sendResponseToOutboundEndPoint(ServiceCall serviceCall) {
+        MasterDataLinkageConfigMasterDomainExtension extension = serviceCall.getExtension(MasterDataLinkageConfigMasterDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        if (extension.getCallbackURL() == null) {
+            return;
+        }
+        if (replyWebService == null) {
+            logErrorAboutMissingEndpoint(serviceCall, extension);
+            return;
+        }
+        Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
+                .findEndPointConfigurations().find().stream().filter(EndPointConfiguration::isActive)
+                .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extension.getCallbackURL()))
+                .findAny();
+        if (!endPointConfiguration.isPresent()) {
+            logErrorAboutMissingEndpoint(serviceCall, extension);
+            return;
+        }
+        if (!webServicesService.isPublished(endPointConfiguration.get())) {
+            webServicesService.publishEndPoint(endPointConfiguration.get());
+        }
+        if (!webServicesService.isPublished(endPointConfiguration.get())) {
+            serviceCall.log(LogLevel.SEVERE,
+                    MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL.translate(thesaurus, extension.getCallbackURL()));
+            return;
+        }
+
+        sendReply(replyWebService, endPointConfiguration.get(), serviceCall, extension);
+    }
+
+    private void logErrorAboutMissingEndpoint(ServiceCall serviceCall, MasterDataLinkageConfigMasterDomainExtension extension) {
+        serviceCall.log(LogLevel.SEVERE,
+                MessageSeeds.NO_END_POINT_WITH_URL.translate(thesaurus, extension.getCallbackURL()));
+    }
+
+    private void updateCounter(ServiceCall serviceCall, DefaultState state) {
+        MasterDataLinkageConfigMasterDomainExtension extension = serviceCall.getExtension(MasterDataLinkageConfigMasterDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+        BigDecimal successfulCalls = extension.getActualNumberOfSuccessfulCalls();
+        BigDecimal failedCalls = extension.getActualNumberOfFailedCalls();
+        BigDecimal expectedCalls = extension.getExpectedNumberOfCalls();
+
+        if (DefaultState.SUCCESSFUL.equals(state)) {
+            successfulCalls = successfulCalls.add(BigDecimal.ONE);
+            extension.setActualNumberOfSuccessfulCalls(successfulCalls);
+        } else {
+            failedCalls = failedCalls.add(BigDecimal.ONE);
+            extension.setActualNumberOfFailedCalls(failedCalls);
+        }
+        serviceCall.update(extension);
+
+        if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls.add(failedCalls)) <= 0) {
+            if (successfulCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            } else if (failedCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.FAILED)) {
+                serviceCall.requestTransition(DefaultState.FAILED);
+            } else if (serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
+                serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
+            }
+        }
+    }
+
+    private void sendReply(ReplyMasterDataLinkageConfigWebService replyWebService,
             EndPointConfiguration endPointConfiguration, ServiceCall serviceCall,
             MasterDataLinkageConfigMasterDomainExtension extension) {
         ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
@@ -88,25 +192,23 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
     }
 
     private Optional<UsagePoint> findUsagePoint(MasterDataLinkageConfigDomainExtension extension) {
-        UsagePointInfo usagePointInfo = (extension.getUsagePoint() == null) ? null : jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
-        if (usagePointInfo == null) {
-            return Optional.empty();
-        }
-        if (usagePointInfo.getMrid() != null) {
-            return meteringService.findUsagePointByMRID(usagePointInfo.getMrid());
-        }
-        return meteringService.findUsagePointByName(usagePointInfo.getName());
+        return Optional.ofNullable(extension.getUsagePoint()).map(usagePoint -> {
+            UsagePointInfo usagePointInfo = jsonService.deserialize(usagePoint, UsagePointInfo.class);
+            if (usagePointInfo.getMrid() != null) {
+                return meteringService.findUsagePointByMRID(usagePointInfo.getMrid());
+            }
+            return meteringService.findUsagePointByName(usagePointInfo.getName());
+        }).orElse(Optional.empty());
     }
 
     private Optional<Device> findEndDevice(MasterDataLinkageConfigDomainExtension extension) {
-        EndDeviceInfo endDeviceInfo = (extension.getEndDevice() == null) ? null : jsonService.deserialize(extension.getEndDevice(), EndDeviceInfo.class);
-        if (endDeviceInfo == null) {
-            return Optional.empty();
-        }
-        if (endDeviceInfo.getMrid() != null) {
-            return deviceService.findDeviceByMrid(endDeviceInfo.getMrid());
-        }
-        return deviceService.findDeviceByName(endDeviceInfo.getName());
+        return Optional.ofNullable(extension.getEndDevice()).map(endDevice -> {
+            EndDeviceInfo endDeviceInfo = jsonService.deserialize(endDevice, EndDeviceInfo.class);
+            if (endDeviceInfo.getMrid() != null) {
+                return deviceService.findDeviceByMrid(endDeviceInfo.getMrid());
+            }
+            return deviceService.findDeviceByName(endDeviceInfo.getName());
+        }).orElse(Optional.empty());
     }
 
     private FailedLinkageOperation createLinkageOperation(ServiceCall child, DefaultState state){

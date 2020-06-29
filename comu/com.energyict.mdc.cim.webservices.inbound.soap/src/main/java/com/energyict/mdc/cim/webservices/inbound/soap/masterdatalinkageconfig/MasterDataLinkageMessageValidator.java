@@ -1,6 +1,8 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
@@ -17,7 +19,6 @@ public class MasterDataLinkageMessageValidator {
     static final String CONFIGURATION_EVENT_ELEMENT = "MasterDataLinkageConfig.ConfigurationEvent";
     static final String METER_LIST_ELEMENT = "MasterDataLinkageConfig.Meter";
     static final String USAGE_POINT_LIST_ELEMENT = "MasterDataLinkageConfig.UsagePoint";
-    static final String USAGE_POINT_OR_END_DEVICE_LIST_ELEMENT = "MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice";
     static final String METER_ELEMENT = "MasterDataLinkageConfig.Meter[0]";
     static final String USAGE_POINT_ELEMENT = "MasterDataLinkageConfig.UsagePoint[0]";
     static final String CREATED_DATE_TIME_ATTRIBUTE = "MasterDataLinkageConfig.ConfigurationEvent.createdDateTime";
@@ -25,10 +26,13 @@ public class MasterDataLinkageMessageValidator {
     static final String END_DEVICE_LIST_ELEMENT = "MasterDataLinkageConfig.EndDevice";
 
     private final MasterDataLinkageFaultMessageFactory faultMessageFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public MasterDataLinkageMessageValidator(MasterDataLinkageFaultMessageFactory faultMessageFactory) {
+    public MasterDataLinkageMessageValidator(MasterDataLinkageFaultMessageFactory faultMessageFactory,
+                                             Thesaurus thesaurus) {
         this.faultMessageFactory = faultMessageFactory;
+        this.thesaurus = thesaurus;
     }
 
     void validate(MasterDataLinkageConfigRequestMessageType message, MasterDataLinkageAction linkageAction)
@@ -47,7 +51,7 @@ public class MasterDataLinkageMessageValidator {
         }
         if (message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty() && message.getPayload().getMasterDataLinkageConfig().getEndDevice().isEmpty()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction, MessageSeeds.EMPTY_LIST,
-                    USAGE_POINT_OR_END_DEVICE_LIST_ELEMENT);
+                    USAGE_POINT_LIST_ELEMENT + " " + thesaurus.getFormat(TranslationKeys.OR).format() + " " + END_DEVICE_LIST_ELEMENT);
         }
         if (linkageAction == MasterDataLinkageAction.CREATE) {
             if ((message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent() == null
