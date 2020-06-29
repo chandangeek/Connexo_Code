@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.energyict.cbo.Unit;
+
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
@@ -29,13 +30,13 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -208,7 +209,9 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
 
         if (securityAccessorTypesNames.size() != securityAccessorTypeOnDeviceTypes.size()) {
             Set<String> securityAccessorTypeOnDeviceTypesNames = securityAccessorTypeOnDeviceTypes.stream().map(s -> s.getSecurityAccessorType().getName()).collect(Collectors.toSet());
-            String missingSecurityAccessorsNames = String.join(", ", securityAccessorTypesNames.stream().filter(sA -> !securityAccessorTypeOnDeviceTypesNames.contains(sA)).collect(Collectors.toList()));
+            String missingSecurityAccessorsNames = String.join(", ", securityAccessorTypesNames.stream()
+                    .filter(sA -> !securityAccessorTypeOnDeviceTypesNames.contains(sA))
+                    .collect(Collectors.toList()));
             throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSORS_ON_DEVICE_TYPE_FOR_NAMES)
                     .format(missingSecurityAccessorsNames));
         }
@@ -240,6 +243,22 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         return command;
     }
 
+    @Override
+    public EndDeviceCommand createUpdateCreditAmountCommand(EndDevice endDevice, String creditType, BigDecimal creditAmount) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.UPDATE_CREDIT_AMOUNT));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditTypeAttributeName), creditType);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditAmount), creditAmount);
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createUpdateCreditDaysLimitCommand(EndDevice endDevice, BigDecimal creditDaysLimitFirst, BigDecimal creditDaysLimitScnd) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.UPDATE_CREDIT_DAYS_LIMIT));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditDaysLimitFirst), creditDaysLimitFirst);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditDaysLimitScnd), creditDaysLimitScnd);
+        return command;
+    }
+
     private PropertySpec getKeyTypePropertySpec(EndDeviceCommand command) {
         return command.getCommandArgumentSpecs()
                 .stream()
@@ -252,7 +271,16 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         return command.getCommandArgumentSpecs()
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE).format(command.getEndDeviceControlType().getName())));
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE)
+                        .format(command.getEndDeviceControlType().getName())));
+    }
+
+    private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {
+        return endDeviceCommand.getCommandArgumentSpecs().stream()
+                .filter(propertySpec -> propertySpec.getName().equals(commandArgumentName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_ARGUMENT_SPEC_NOT_FOUND)
+                        .format(commandArgumentName, endDeviceCommand.getEndDeviceControlType().getName())));
     }
 
 

@@ -36,6 +36,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -153,15 +154,27 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
                 .send(message);
     }
 
+    @Override
+    public void call(List<EndDeviceEvent> events, EndPointConfiguration endPointConfiguration, String correlationId) {
+        EndDeviceEventsEventMessageType message = createResponseMessage(events, correlationId);
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        events.forEach(event -> {
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getAssets().getNames().get(0).getName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
+        });
+
+        using("createdEndDeviceEvents")
+                .toEndpoints(endPointConfiguration)
+                .withRelatedAttributes(values)
+                .send(message);
+    }
+
     private EndDeviceEventsEventMessageType createResponseMessage(EndDeviceEventRecord record) {
         EndDeviceEventsEventMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsEventMessageType();
 
         // set header
-        HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setVerb(HeaderType.Verb.CREATED);
-        header.setNoun(END_DEVICE_EVENTS);
-        header.setCorrelationID(UUID.randomUUID().toString());
-        responseMessage.setHeader(header);
+        responseMessage.setHeader(createHeader(UUID.randomUUID().toString()));
 
         // set payload
         EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
@@ -171,6 +184,31 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
         responseMessage.setPayload(endDeviceEventsPayload);
 
         return responseMessage;
+    }
+
+    private EndDeviceEventsEventMessageType createResponseMessage(List<EndDeviceEvent> events, String correlationId) {
+        EndDeviceEventsEventMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsEventMessageType();
+
+        // set header
+        responseMessage.setHeader(createHeader(correlationId));
+
+        // set payload
+        EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
+        endDeviceEvents.getEndDeviceEvent().addAll(events);
+        EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
+
+        endDeviceEventsPayload.setEndDeviceEvents(endDeviceEvents);
+        responseMessage.setPayload(endDeviceEventsPayload);
+
+        return responseMessage;
+    }
+
+    private HeaderType createHeader(String correlationId) {
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setVerb(HeaderType.Verb.CREATED);
+        header.setNoun(END_DEVICE_EVENTS);
+        header.setCorrelationID(correlationId);
+        return header;
     }
 
     private EndDeviceEvent createEndDeviceEvent(EndDeviceEventRecord record) {
@@ -230,7 +268,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

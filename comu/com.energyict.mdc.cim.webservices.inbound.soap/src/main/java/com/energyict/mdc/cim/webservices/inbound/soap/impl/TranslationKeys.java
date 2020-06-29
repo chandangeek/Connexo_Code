@@ -49,7 +49,12 @@ public enum TranslationKeys implements TranslationKey {
     SGMR_CPS("GM2.name", "SubParent get meter readings custom property set"),
     CGMR_CPS("GM3.name", "Child get meter readings custom property set"),
     FUTURE_COM_TASK_EXECUTION_NAME(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
-                                               FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+            FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+    COMMAND_CODE("commandCode", "Command code"),
+    COMMAND_ATTRIBUTES("commandAttributes", "Command attributes"),
+    DEVICE_NAME("deviceName", "Device name"),
+    DEVICE_MRID("deviceMrid", "Device MRID"),
+    CANCELLATION_REASON("cancellationReason", "Cancellation reason"),
 
     CARD_FORMAT("property.cardformat", "Card format"),
     CARD_FORMAT_FULL_SIZE("property.cardformat.fullsize", "Full-size (1FF)"),
@@ -65,6 +70,10 @@ public enum TranslationKeys implements TranslationKey {
     STATUS_INACTIVE("property.status.inactive", "Inactive"),
     STATUS_PRE_ACTIVE("property.status.pre.active", "Pre-active"),
     STATUS_TEST("property.status.test", "Test"),
+
+    MEDC_CPS("servicecall.cps.master.end.device.controls", "Master end device controls custom property set"),
+    SEDC_CPS("servicecall.cps.submaster.end.device.controls", "SubMaster end device controls custom property set"),
+    CEDC_CPS("servicecall.cps.child.end.device.controls", "Child end device controls custom property set"),
     ;
 
     private final String key;

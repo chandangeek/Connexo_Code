@@ -50,6 +50,7 @@ import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.elster.jupiter.tasks.TaskService;
 
 import java.text.MessageFormat;
 import java.time.Clock;
@@ -149,6 +150,8 @@ public class HeadEndControllerTest {
     HsmEnergyService hsmEnergyService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    TaskService taskService;
 
     ExceptionFactory exceptionFactory;
 
@@ -310,7 +313,7 @@ public class HeadEndControllerTest {
 
         MultiSenseHeadEndInterface multiSenseHeadEndInterface2 = new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService,
                 meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory,
-                threadPrincipalService, clock, communicationTaskService);
+                threadPrincipalService, clock, communicationTaskService, transactionService, taskService, messageService);
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(multiSenseHeadEndInterface2));
 
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);

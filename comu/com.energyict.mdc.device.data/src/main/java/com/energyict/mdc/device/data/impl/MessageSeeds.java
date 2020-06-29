@@ -155,7 +155,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_STATUS_INFORMATION_COMTASK(2129, Keys.NO_STATUS_INFORMATION_COMTASK, "A communication task to read out the status information couldn''t be located."),
     DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2130, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2131, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
-    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2132, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
+    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2132, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Couldn''t find the command argument spec {0} for command {1}."),
     DATA_QUALITY_KPI_DEVICEGROUP_DELETION(2133, "deviceGroupXstillInUseValidation", "Device group {0} is still in use by a data quality KPI"),
     KPIS_DEVICEGROUP_DELETION(2134, "deviceGroupXstillInUseMultiple", "Device group {0} is still in use by: data quality KPI, data collection KPI"),
     VETO_ALLOWED_CALENDAR_OBSOLETE(2135, Keys.VETO_ALLOWED_CALENDAR_IN_USE, "The allowed calendar {0} is still used by at least one device"),

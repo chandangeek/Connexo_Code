@@ -19,6 +19,8 @@ import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.LoadControlInitiateCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.LoadControlTerminateCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditAmountCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditDaysLimitCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import java.util.ArrayList;
@@ -57,6 +59,19 @@ public enum EndDeviceControlTypeMapping {
     PAN_LOAD_CTRL_EVENT_SCHEDULE("0.15.43.300"),
     PAN_NETWORK_ENABLE("0.23.0.26"),
     PAN_NETWORK_DISABLE("0.23.0.22"),
+
+    UPDATE_CREDIT_DAYS_LIMIT("0.20.8.13", Collections.singletonList(DeviceMessageId.UPDATE_CREDIT_DAYS_LIMIT)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new UpdateCreditDaysLimitCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+    UPDATE_CREDIT_AMOUNT("0.20.22.13", Collections.singletonList(DeviceMessageId.UPDATE_CREDIT_AMOUNT)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new UpdateCreditAmountCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
 
     //RCDSwitch controls
     DISABLE_EMERGENCY_SUP_CAPACITY_LIM("0.31.138.22"),
@@ -182,6 +197,16 @@ public enum EndDeviceControlTypeMapping {
     public static EndDeviceControlTypeMapping getMappingFor(EndDeviceControlType endDeviceControlType) {
         for (EndDeviceControlTypeMapping controlTypeMapping : values()) {
             if (controlTypeMapping.getEndDeviceControlTypeMRID().equals(endDeviceControlType.getMRID())) {
+                return controlTypeMapping;
+            }
+        }
+        return OTHER;
+    }
+
+    public static EndDeviceControlTypeMapping getMappingWithoutDeviceTypeFor(EndDeviceControlType endDeviceControlType) {
+        for (EndDeviceControlTypeMapping controlTypeMapping : values()) {
+            //the first digit is device type in mrid, so we are looking for mapping without this digit
+            if (controlTypeMapping.getEndDeviceControlTypeMRID().endsWith(endDeviceControlType.getMRID().substring(2))) {
                 return controlTypeMapping;
             }
         }

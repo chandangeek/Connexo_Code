@@ -54,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
     EXCEPTION_OCCURRED_DURING_KEY_IMPORT(1024, "ExceptionOccurredDuringKeyImport", "Exception occurred during key import for device ''{0}'' and security accessor ''{1}''"),
     NO_DEFAULT_DEVICE_CONFIGURATION(1025, "NoDefaultDeviceConfiguration", "No default device configuration"),
     NO_DEVICE_WITH_SERIAL_NUMBER(1026, "NoDeviceWithSerialNumber", "No device found with serial number ''{0}''"),
-	SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS(1027, "SecurityKeyUpdateForbidden", "Security key update is forbidden for device ''{0}'' because it is in state ''{1}''"),
+    SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS(1027, "SecurityKeyUpdateForbidden", "Security key update is forbidden for device ''{0}'' because it is in state ''{1}''"),
     NO_CUSTOM_ATTRIBUTE_VERSION(1028, "NoCustomAttributeVersion", "Custom attribute set version with start date {0} is not found"),
     START_DATE_LOWER_CREATED_DATE(1029, "StartDateLowerCreatedDate", "Start date must be greater or equal to created date of device {0}"),
     GET_DEVICE_IDENTIFIER_MISSING(1030, "GetDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
@@ -85,6 +85,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_POINT_WITH_URL(4003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED(4004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
     NO_PUBLISHED_END_POINT_WITH_URL(4005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
+    SYNC_MODE_NOT_SUPPORTED_GENERAL(4006, "SyncModeNotSupportedGeneral", "Synchronous mode isn''t supported."),
 
     NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
     ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY(5002, "ElementByRefNotFoundOrEmpty", "Element by reference ''{0}'' not found or has an empty value"),
@@ -131,6 +132,22 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_IS_NOT_SCHEDULED(6039, "ComTaskIsNotScheduled", "No proper communication task on device ''{0}'' is scheduled.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES(6040, "NoComTaskExecutionForLoadProfileNames", "No communication task execution has been found on device ''{0}'' for load profiles ''{1}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_REGISTER_GROUP(6041, "NoComTaskExecutionForRegisterGroup", "No communication task execution has been found on device ''{0}'' for register groups ''{1}''.", Level.WARNING),
+
+    //end device controls
+    UNABLE_TO_CREATE_END_DEVICE_CONTROLS(7001, "UnableToCreateEndDeviceControls", "Unable to create end device controls."),
+    MISSING_ENDPOINT_SEND_END_DEVICE_EVENTS(7002, "MissingEndpointSendEndDeviceEvents",
+            "Endpoint for CIM SendEndDeviceEvents isn''t found by URL ''{0}''."),
+    END_DEVICES_MISSING(7003, "EndDevicesMissing", "End devices are missing under EndDeviceControl[{0}]."),
+    COMMAND_CODE_MISSING(7004, "CommandCodeMissing","The command CIM code is missing under EndDeviceControl[{0}]."),
+    MISSING_MRID_OR_NAME_FOR_END_DEVICE_CONTROL(7005, "MissingMridOrNameForEndDeviceControl",
+            "Either element ''mRID'' or ''Names'' is required under EndDeviceControl[{0}].EndDevices[{1}] for identification purpose."),
+    RELEASE_DATE_MISSING(7006, "ReleaseDateMissing","The release date is missing under EndDeviceControl[{0}]."),
+    NO_SUCH_END_DEVICE_CONTROL_TYPE_WITH_CIM(7007, "NoSuchEndDeviceControlTypeWithCim", "No end device control type with CIM code ''{0}''."),
+    UNSUPPORTED_END_DEVICE_CONTROL_TYPE(7008, "UnsupportedEndDeviceControlType", "End device control type with CIM code ''{0}'' isn''t supported."),
+    INAPPROPRIATE_COMMAND_ATTRIBUTES(7009, "InappropriateCommandAttributes", "Inappropriate command attributes for CIM code ''{0}''."),
+    END_DEVICE_CONTROL_ERROR(7010, "EndDeviceControlError", "For command under EndDeviceControl[{0}]: ''{1}''"),
+    END_DEVICE_ERROR(7011, "EndDeviceError", "For device under EndDeviceControl[{0}].EndDevices[{1}]: ''{2}''"),
+    NO_HEAD_END_INTERFACE(7012, "NoHeadEndInterface", "Couldn''t find the head-end interface for end device with MRID ''{0}''."),
     ;
 
     private final int number;

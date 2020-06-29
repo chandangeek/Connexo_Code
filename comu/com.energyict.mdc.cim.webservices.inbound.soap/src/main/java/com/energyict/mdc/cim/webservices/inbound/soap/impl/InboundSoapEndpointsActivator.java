@@ -24,7 +24,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -41,7 +40,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -52,9 +50,16 @@ import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndD
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7_2;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.MasterEndDeviceControlsPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.MasterEndDeviceControlsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.SubMasterEndDeviceControlsPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.SubMasterEndDeviceControlsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
@@ -66,6 +71,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadin
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -170,6 +176,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile MasterDataService masterDataService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile MeteringTranslationService meteringTranslationService;
+    private volatile EndDeviceEventsServiceProvider endDeviceEventsServiceProvider;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -196,7 +203,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          DeviceMessageSpecificationService deviceMessageSpecificationService,
                                          MasterDataService masterDataService,
                                          CommunicationTaskService communicationTaskService,
-                                         MeteringTranslationService meteringTranslationService) {
+                                         MeteringTranslationService meteringTranslationService,
+                                         EndDeviceEventsServiceProvider endDeviceEventsServiceProvider) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -232,7 +240,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setMasterDataService(masterDataService);
         setCommunicationTaskService(communicationTaskService);
         setMeteringTranslationService(meteringTranslationService);
+        setEndDeviceEventsServiceProvider(endDeviceEventsServiceProvider);
     }
+
 
     private Module getModule() {
         return new AbstractModule() {
@@ -276,6 +286,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(EndDeviceEventsServiceProvider.class).toInstance(endDeviceEventsServiceProvider);
             }
         };
     }
@@ -287,12 +298,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel.register(getModule());
 
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
-                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(version(10, 6), UpgraderV10_6.class)
-                        .put(version(10, 7), UpgraderV10_7.class)
-                        .put(version(10, 7, 2), UpgraderV10_7_2.class)
-                        .build());
-
+                ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
+                        version(10, 7), UpgraderV10_7.class,
+                        version(10, 7, 2), UpgraderV10_7_2.class,
+                        version(10, 9), UpgraderV10_9.class));
         setActualRecurrentTaskFrequency();
         setActualRecurrentTaskReadOutDelay();
         createOrUpdateFutureComTasksExecutionTask();
@@ -368,6 +377,12 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 ImmutableMap.of("name", ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
         serviceCallService.addServiceCallHandler(dataModel.getInstance(DeviceMessageServiceCallHandler.class),
                 ImmutableMap.of("name", DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(MasterEndDeviceControlsServiceCallHandler.class),
+                ImmutableMap.of("name", MasterEndDeviceControlsServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(SubMasterEndDeviceControlsServiceCallHandler.class),
+                ImmutableMap.of("name", SubMasterEndDeviceControlsServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(EndDeviceControlsServiceCallHandler.class),
+                ImmutableMap.of("name", EndDeviceControlsServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
     }
 
     private void addConverter(PropertyValueConverter converter) {
@@ -540,6 +555,21 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         // PATCH; required for proper startup; do not delete
     }
 
+    @Reference(target = "(name=" + MasterEndDeviceControlsPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setMasterEndDeviceControlsPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + SubMasterEndDeviceControlsPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setSubMasterEndDeviceControlsPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + EndDeviceControlsPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setEndDeviceControlsPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
     @Reference
     public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = hsmEnergyService;
@@ -583,6 +613,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setSendMeterReadingsProvider(SendMeterReadingsProvider sendMeterReadingsProvider) {
         this.sendMeterReadingsProvider = sendMeterReadingsProvider;
+    }
+
+    @Reference
+    public void setEndDeviceEventsServiceProvider(EndDeviceEventsServiceProvider endDeviceEventsServiceProvider) {
+        this.endDeviceEventsServiceProvider = endDeviceEventsServiceProvider;
     }
 
     @Reference
