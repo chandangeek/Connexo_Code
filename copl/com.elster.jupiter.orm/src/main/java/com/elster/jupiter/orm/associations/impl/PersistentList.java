@@ -44,7 +44,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 		}
 	}
 
-	final List<T> getTarget() {
+	public final List<T> getTarget() {
 		if (target == null) {
 			target = loadTarget();
 			if (dataMapper.getTable().isCached()) {
@@ -56,7 +56,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 		return target;
 	}
 	
-	ForeignKeyConstraintImpl getConstraint() {
+	public ForeignKeyConstraintImpl getConstraint() {
 		return constraint;
 	}
 	
@@ -66,7 +66,9 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 
 	@Override
 	public final T get(int index) {
+		//System.out.println("PERSISTENT LIST GET "+index + "TARGET = " +target);
 		if (dataMapper.getTable().isCached() && constraint.getReferencedTable().isCached()) {
+			//System.out.println("TRY TO GET OBJECT FROM CACHE!!!!");
 			Object targetObject = getTarget().get(index);
 			KeyValue keyValue = dataMapper.getTable().getPrimaryKey(targetObject);
 			// Try to get object from cache.
@@ -81,6 +83,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 				//We just put all objects from target to cache. So we can just take it from target.
 			}
 		}
+		//System.out.println("RETURN FROM TARGET ="+getTarget().get(index));
 		return getTarget().get(index);
 	}
 

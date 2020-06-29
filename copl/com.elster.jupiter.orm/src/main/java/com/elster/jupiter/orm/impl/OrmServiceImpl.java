@@ -298,7 +298,7 @@ public final class OrmServiceImpl implements OrmService {
 
 
         String evictionTime = readSystemPropertyValue("evictiontime", "300:13");
-        String enablecache = readSystemPropertyValue("enablecache", "0");
+        String enablecache = readSystemPropertyValue("enablecache", "1");
 
         setEvictionTime(evictionTime);
         setCacheEnabled(enablecache);

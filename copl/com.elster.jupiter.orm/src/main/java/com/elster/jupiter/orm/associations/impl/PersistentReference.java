@@ -46,7 +46,9 @@ public class PersistentReference<T> implements Reference<T> {
     @Override
     public Optional<T> getOptional() {
         /* Here we check that object that contains reference is cached.*/
+        //System.out.println("RFFERENCE GET OPTIONAL ");
         if (foreignKeyConstraint.getTable().isCached() && isPresent()) {
+            //System.out.println("GET OPTIONAL");
             return dataMapper.getOptional(primaryKey.getKey());
         }
         if (value == null) {
@@ -60,6 +62,7 @@ public class PersistentReference<T> implements Reference<T> {
                 value = Optional.empty();
             }
         }
+        //System.out.println("RETURN VALUE ="+value);
         return value;
     }
 

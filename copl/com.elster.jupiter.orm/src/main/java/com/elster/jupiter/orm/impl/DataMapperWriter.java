@@ -112,6 +112,9 @@ public class DataMapperWriter<T> {
             }
         }
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
+
+        //Update cached parent objects
+
     }
 
     private boolean needsRefreshAfterBatchInsert() {

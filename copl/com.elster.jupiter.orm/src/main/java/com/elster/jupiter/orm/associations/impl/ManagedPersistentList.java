@@ -15,12 +15,14 @@ import java.util.Optional;
 
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DataMapperWriter;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.fields.impl.ConstraintEqualFragment;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -78,7 +80,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		TableImpl tb = cnstr.getTable();//Table Of element
 		TableImpl rtb = cnstr.getReferencedTable();// Table of owner
 
-		if (rtb.isCached()){
+		/*if (rtb.isCached()){
 			System.out.println("GET NAME ="+rtb.getName());
 			Optional<?> fromCache = rtb.findInCache(rtb.getPrimaryKey(own));
 			System.out.println("FROM CACHE = "+fromCache);
@@ -94,31 +96,23 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 					System.out.println("VALIE = "+value);
 					field.set(tmp, getTarget());
 
-
-					/*Optional<?> fromCacheAfter = rtb.findInCache(rtb.getPrimaryKey(own));
-					System.out.println("Object after set target = "+fromCacheAfter.get());
-					System.out.println("ReverseFieldName = "+cnstr.getReverseFieldName());
-					Field fieldAfter = fromCacheAfter.get().getClass().getDeclaredField(cnstr.getReverseFieldName());
-					fieldAfter.setAccessible(true);
-					System.out.println("Obtained field = "+fieldAfter);
-					Object valueAfter = fieldAfter.get(fromCacheAfter.get());
-					System.out.println("VALIE = "+valueAfter);*/
-
 				} catch (NoSuchFieldException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
 				}
 			}
-		}
+		}*/
 
+
+		updateOwner(cnstr.getTable(), element);
 		//Now go up by tree.
 		//String reverseFieldName = cnstr.getReverseFieldName();
 		//Check if current object is in list in another object
 			//Now get parent object
 
 
-			TableImpl parentObjjectTable = cnstr.getReferencedTable();
+			/*TableImpl parentObjjectTable = cnstr.getReferencedTable();
 			List<ForeignKeyConstraintImpl> parentTableCnstrntList = parentObjjectTable.getReferenceConstraints();
 			for (ForeignKeyConstraintImpl frkcstrnt : parentTableCnstrntList){
 				String reverseFieldName = frkcstrnt.getReverseFieldName();
@@ -156,53 +150,68 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
 					}
-
-
 				}
-
-
-			}
-
-
-
+			}*/
 
 		updatePositions(index + 1);
 	}
 
 
-	private void updateOwner(TableImpl childTable, Object chindObject){
+	private void updateOwner(TableImpl childTable, Object childObject){
+		System.out.println("UPDATE OWNER!!!!!!!!!");
 		List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
+		//List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReverseMappedConstraints();
 		for (ForeignKeyConstraintImpl frkcstrnt : childTableCnstrntList){
 			String reverseFieldName = frkcstrnt.getReverseFieldName();
-			if (Strings.isNullOrEmpty(reverseFieldName)) {//Check that parent list is in list in another object
+			if (!Strings.isNullOrEmpty(reverseFieldName)) {//Check that parent list is in list in another object
 				String parentObjFiledName = frkcstrnt.getFieldName();
 
 				try {
-					Object parentObject = getFieldValie(chindObject, parentObjFiledName);
+					Object parentObject = ((Reference) getFieldValie(childObject, parentObjFiledName)).get();
 					//Now get list in which our object is present
-					List lst = (List)getFieldValie(parentObject, reverseFieldName);
-					ForeignKeyConstraintImpl constr = (ForeignKeyConstraintImpl)getFieldValie(lst, "constraint");
-					TableImpl ownerTable = constr.getTable();
-					if (ownerTable.isCached()){
-						Optional parentObjectFromCache = ownerTable.findInCache(ownerTable.getPrimaryKey(parentObject));
-						if (parentObjectFromCache.isPresent()){
-							Object parentFromCache = parentObjectFromCache.get();
-							List list = (List)getFieldValie(parentFromCache, reverseFieldName); //Obtain the list in which our object is.
-							long neededId = (Long)getFieldValie(parentObject, "id");
-							int neededIndex = 0;
-							for (Object ob : list){
+					List lst = (List) getFieldValie(parentObject, reverseFieldName);
+					//ForeignKeyConstraintImpl constr = (ForeignKeyConstraintImpl)getFieldValie(lst, "constraint");
+					if (lst instanceof ManagedPersistentList) {
+						ForeignKeyConstraintImpl constr = ((ManagedPersistentList) lst).getConstraint();
+						TableImpl ownerTable = constr.getReferencedTable();
+						if (ownerTable.isCached()) {
+							Optional parentObjectFromCache = ownerTable.findInCache(ownerTable.getPrimaryKey(parentObject));
+							if (parentObjectFromCache.isPresent()) {
+								Object parentFromCache = parentObjectFromCache.get();
+								List list = (List) getFieldValie(parentFromCache, reverseFieldName); //Obtain the list in which our object is.
+								System.out.println("LIST BEFORE ="+list);
+
+								//long neededId = (Long)getFieldValie(parentObject, "id");
+								int neededIndex = -1;
+								KeyValue neededKey = childTable.getPrimaryKey(childObject);
+								System.out.println("NEEDED KEY = "+neededKey);
+								for (Object ob : list) {
+									KeyValue pk = childTable.getPrimaryKey(ob);
+									System.out.println("KEY = "+pk);
+									if (pk.equals(neededKey)) {
+										neededIndex = list.indexOf(ob);
+										break;
+									}
+								}
+							/*for (Object ob : list){
 								long id = (Long)getFieldValie(ob, "id");
 								if (id == neededId){
 									neededIndex = list.indexOf(ob);
 									break;
 								}
-							}
-							if (neededIndex != 0) {
-								list.set(neededIndex, parentObject);
+							}*/
+								if (neededIndex != -1) {
+									System.out.println("SET ELEMENT "+childObject);
+									((PersistentList)list).getTarget().set(neededIndex, childObject);
+								}else{
+									System.out.println("ADD ELEMENT "+childObject);
+									((PersistentList)list).getTarget().add(childObject);
+								}
+								System.out.println("LIST AFTER UPDATE = "+list);
+
+								updateOwner(ownerTable, parentFromCache);
 							}
 						}
-
-						updateOwner(ownerTable,parentObjectFromCache.get());
 					}
 
 				} catch (NoSuchFieldException e) {
@@ -210,11 +219,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
 				}
-
-
 			}
-
-
 		}
 	}
 

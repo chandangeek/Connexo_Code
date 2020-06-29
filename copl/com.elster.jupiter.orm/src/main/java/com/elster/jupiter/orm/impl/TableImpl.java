@@ -746,11 +746,11 @@ public class TableImpl<T> implements Table<T> {
         return null;
     }
 
-    List<ForeignKeyConstraintImpl> getReferenceConstraints() {
+    public List<ForeignKeyConstraintImpl> getReferenceConstraints() {
         return referenceConstraints;
     }
 
-    List<ForeignKeyConstraintImpl> getReverseMappedConstraints() {
+    public List<ForeignKeyConstraintImpl> getReverseMappedConstraints() {
         return reverseMappedConstraints;
     }
 
@@ -871,6 +871,11 @@ public class TableImpl<T> implements Table<T> {
                 }
             });
         }
+
+        if (getName().equals("FSM_FINITE_STATE_MACHINE")){
+            System.out.println("NEEDED TABLE!!!!!!!!!!");
+        }
+
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
         buildReferenceConstraints();
         buildReverseMappedConstraints();
