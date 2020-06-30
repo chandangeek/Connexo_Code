@@ -52,11 +52,14 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 	public void add(int index, T element) {
 		setPosition(index + 1, element);
 		try {
-			getWriter().persist(element);
+			getWriter().persist(element, index);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		getTarget().add(index, element);
+
+		if (!getTarget().stream().filter(el -> getConstraint().getTable().getPrimaryKey(element).equals(getConstraint().getTable().getPrimaryKey(el))).findAny().isPresent()) {
+			getTarget().add(index, element);
+		}
 		updatePositions(index + 1);
 	}
 

@@ -73,7 +73,7 @@ public class DataMapperWriter<T> {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void persist(T object) throws SQLException {
+    public void persist(T object,int... indexToInsert ) throws SQLException {
         Instant now = getTable().getDataModel().getClock().instant();
         prepare(object, false, now);
 
@@ -121,7 +121,7 @@ public class DataMapperWriter<T> {
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
         //Update cached parent objects
-        updateOwner(getTable(), object);
+        updateOwner(getTable(), object, indexToInsert);
     }
 
     private Object getFieldValue(Object object, String fieldName) throws NoSuchFieldException, IllegalAccessException {
@@ -165,9 +165,7 @@ public class DataMapperWriter<T> {
 
     /* Owner - class that contain list with child object (reverseMap constraint).
      * Method update owner object stored in cache */
-    private void updateOwner(TableImpl childTable, Object childObject) {
-        System.out.println("TABLE NAME ="+childTable.getName());
-        System.out.println("CHILD OBJECT ="+childObject);
+    private void updateOwner(TableImpl childTable, Object childObject, int... index) {
         List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
         for (ForeignKeyConstraintImpl frkcstrnt : childTableCnstrntList) {
             String reverseFieldName = frkcstrnt.getReverseFieldName();
@@ -207,10 +205,14 @@ public class DataMapperWriter<T> {
                                     }
                                 }
 
+
                                 if (neededIndex != -1) {
                                     ((PersistentList) childListInCache).getTarget().set(neededIndex, childObject);
                                 } else {
-                                    ((PersistentList) childListInCache).getTarget().add(childObject);
+
+                                    if (index.length != 0) {
+                                        ((PersistentList) childListInCache).getTarget().add(index[0], childObject);
+                                    }
                                 }
                                 updateOwner(ownerTable, parentFromCache);
                             }
