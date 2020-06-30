@@ -62,6 +62,8 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     private static final String METER_ROLE = "meter.role.check";
     private static final String METER_SERIAL_NUMBER = "meterSerialNumber";
     private static final String END_DEVICE_SERIAL_NUMBER = "endDeviceSerialNumber";
+    private static final String GATEWAY_SERIAL_NUMBER = "gatewaySerialNumber";
+    private static final String GATEWAY_NAME = "gatewayName";
     private static final Long END_DEVICE_ID = 10l;
 
     private static final Instant CREATED_DATE_TIME = LocalDate.of(2017, Month.JULY, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
@@ -75,6 +77,8 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     private Device meterDevice;
     @Mock
     private Device endDevice;
+    @Mock
+    private Device gateway;
     @Mock
     private MeterRole meterRole;
     @Mock
@@ -496,6 +500,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.createLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.SAME_USAGE_POINT_ALREADY_LINKED.getErrorCode(),
                     "Meter 'meterName' is already linked to usage point 'usagePointName' at the given time '2017-07-01T12:00:00+12:00'.");
@@ -517,7 +522,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
         when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
         when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
-        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);
         when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
@@ -527,6 +532,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.createLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE.getErrorCode(),
                     "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') already linked to gateway 'meterName' (serial number 'meterSerialNumber').");
@@ -551,6 +557,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.createLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.CAN_NOT_BE_GATEWAY_TO_ITSELF.getErrorCode(),
                     "Device 'meterName' (serial number 'meterSerialNumber') can't be its own gateway.");
@@ -576,6 +583,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.createLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NOT_SUPPORTED_MASTER.getErrorCode(),
                     "Device 'meterName' (serial number 'meterSerialNumber') isn't configured to act as gateway.");
@@ -606,6 +614,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.createLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.NOT_SUPPORTED_SLAVE.getErrorCode(),
                     "Device 'endDeviceName' (serial number 'endDeviceSerialNumber') isn't configured to act as end device.");
@@ -936,6 +945,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.closeLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.METER_AND_USAGE_POINT_NOT_LINKED.getErrorCode(),
                     "Meter 'meterName' isn't linked to usage point 'usagePointName' at the given time '2017-07-05T12:00:00+12:00'.");
@@ -964,6 +974,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.closeLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.END_DEVICE_IS_NOT_LINKED.getErrorCode(),
                     "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') isn't linked to gateway 'meterName' (serial number 'meterSerialNumber').");
@@ -986,6 +997,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         try {
             linkageHandler.forMessage(message);
             linkageHandler.closeLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.CAN_NOT_UNLINK_ITSELF.getErrorCode(),
                     "Device 'meterName' (serial number 'meterSerialNumber') can't be unlinked from itself.");
@@ -994,7 +1006,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     }
 
     @Test
-    public void testCloseLinkage_meterAndEndDevicAlreadyLinked() throws Exception {
+    public void testCloseLinkage_meterAndEndDeviceAlreadyLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
                 .withEndDeviceMRID(END_DEVICE_MRID)
@@ -1006,19 +1018,22 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
         when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
-        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
+        when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(gateway));
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);
         when(endDevice.getSerialNumber()).thenReturn(END_DEVICE_SERIAL_NUMBER);
         when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
+        when(gateway.getSerialNumber()).thenReturn(GATEWAY_SERIAL_NUMBER);
+        when(gateway.getName()).thenReturn(GATEWAY_NAME);
 
         //Act and verify
         try {
             linkageHandler.forMessage(message);
             linkageHandler.closeLinkage();
+            failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE.getErrorCode(),
-                    "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') already linked to gateway 'meterName' (serial number 'meterSerialNumber').");
+                    "End device 'endDeviceName' (serial number 'endDeviceSerialNumber') already linked to gateway 'gatewayName' (serial number 'gatewaySerialNumber').");
             verify(topologyService, never()).clearPhysicalGateway(endDevice);
         }
     }

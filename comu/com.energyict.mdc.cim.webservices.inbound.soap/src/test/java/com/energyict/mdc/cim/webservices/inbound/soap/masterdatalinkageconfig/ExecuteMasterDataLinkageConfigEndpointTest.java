@@ -118,6 +118,9 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     public void testCreateMasterDataLinkageConfig() throws Exception {
         // Prepare
         when(linkageHandler.createLinkage()).thenReturn(response);
+        message = getValidMessage()
+                .eraseEndDeviceList()
+                .build();
 
         // Act
         MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.createMasterDataLinkageConfig(message);
@@ -184,6 +187,9 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     public void testCloseMasterDataLinkageConfig() throws Exception {
         // Prepare
         when(linkageHandler.closeLinkage()).thenReturn(response);
+        message = getValidMessage()
+                .eraseEndDeviceList()
+                .build();
 
         // Act
         MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.closeMasterDataLinkageConfig(message);

@@ -16,6 +16,19 @@
                         <!-- Required -->
                         <mas1:effectiveDateTime>2017-07-13T00:00:00+03:00</mas1:effectiveDateTime>
                     </mas1:ConfigurationEvent>
+                    <!-- Optional -->
+                    <mas1:EndDevice>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:mRID>00000000-0000-0000-0000-00000000001f</mas1:mRID>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:Names>
+                            <mas1:name>slave1</mas1:name>
+                        </mas1:Names>
+                    </mas1:EndDevice>
                     <!-- Required -->
                     <mas1:Meter>
                         <!-- Optional -->

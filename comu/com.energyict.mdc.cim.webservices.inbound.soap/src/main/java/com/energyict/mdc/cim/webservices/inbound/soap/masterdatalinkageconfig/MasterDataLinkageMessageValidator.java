@@ -26,13 +26,10 @@ public class MasterDataLinkageMessageValidator {
     static final String END_DEVICE_LIST_ELEMENT = "MasterDataLinkageConfig.EndDevice";
 
     private final MasterDataLinkageFaultMessageFactory faultMessageFactory;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public MasterDataLinkageMessageValidator(MasterDataLinkageFaultMessageFactory faultMessageFactory,
-                                             Thesaurus thesaurus) {
+    public MasterDataLinkageMessageValidator(MasterDataLinkageFaultMessageFactory faultMessageFactory) {
         this.faultMessageFactory = faultMessageFactory;
-        this.thesaurus = thesaurus;
     }
 
     void validate(MasterDataLinkageConfigRequestMessageType message, MasterDataLinkageAction linkageAction)
@@ -50,8 +47,7 @@ public class MasterDataLinkageMessageValidator {
                     METER_LIST_ELEMENT);
         }
         if (message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty() && message.getPayload().getMasterDataLinkageConfig().getEndDevice().isEmpty()) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction, MessageSeeds.EMPTY_LIST,
-                    USAGE_POINT_LIST_ELEMENT + " " + thesaurus.getFormat(TranslationKeys.OR).format() + " " + END_DEVICE_LIST_ELEMENT);
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction, MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
         }
         if (linkageAction == MasterDataLinkageAction.CREATE) {
             if ((message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent() == null

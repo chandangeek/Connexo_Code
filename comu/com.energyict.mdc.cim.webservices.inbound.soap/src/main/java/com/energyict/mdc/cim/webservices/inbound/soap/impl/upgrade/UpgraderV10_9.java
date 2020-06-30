@@ -60,13 +60,13 @@ public class UpgraderV10_9 implements Upgrader {
     private void migrateSql() {
         String sql1 =
                 "BEGIN " +
-                        "  DELETE FROM DLP_MSC_WS1; " +
+                        "  UPDATE DLP_MSC_WS1 SET CPS = (SELECT ID FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = '" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_ID +  "'); " +
                         "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension'; " +
                         "END; ";
 
         String sql2 =
                 "BEGIN " +
-                        "  DELETE FROM DLP_CSC_WS1; " +
+                        "  UPDATE DLP_CSC_WS1 SET CPS = (SELECT ID FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = '" + MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_ID +  "'); " +
                         "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension'; " +
                         "END; ";
 

@@ -114,8 +114,8 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
         } catch (FaultMessage e) {
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' can't be empty.");
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST.getErrorCode(),
+                    "The list of 'MasterDataLinkageConfig.UsagePoint' or 'MasterDataLinkageConfig.EndDevice' can't be empty.");
         }
     }
 
@@ -129,8 +129,8 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
         } catch (FaultMessage e) {
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.EMPTY_LIST.getErrorCode(),
-                    "The list of 'MasterDataLinkageConfig.UsagePoint or MasterDataLinkageConfig.EndDevice' can't be empty.");
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST.getErrorCode(),
+                    "The list of 'MasterDataLinkageConfig.UsagePoint' or 'MasterDataLinkageConfig.EndDevice' can't be empty.");
         }
     }
 
