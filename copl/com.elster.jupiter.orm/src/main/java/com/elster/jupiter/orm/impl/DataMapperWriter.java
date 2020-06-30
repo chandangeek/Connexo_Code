@@ -166,6 +166,8 @@ public class DataMapperWriter<T> {
     /* Owner - class that contain list with child object (reverseMap constraint).
      * Method update owner object stored in cache */
     private void updateOwner(TableImpl childTable, Object childObject) {
+        System.out.println("TABLE NAME ="+childTable.getName());
+        System.out.println("CHILD OBJECT ="+childObject);
         List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
         for (ForeignKeyConstraintImpl frkcstrnt : childTableCnstrntList) {
             String reverseFieldName = frkcstrnt.getReverseFieldName();
@@ -177,9 +179,13 @@ public class DataMapperWriter<T> {
                     if (parentObjectReference == null) {
                         continue;
                     }
+                    if (!parentObjectReference.isPresent()) {
+                        continue;
+                    }
+
                     Object parentObject = parentObjectReference.get();
                     //Now get list in which our object is present. List needed to obtain constraint.
-                    List childList = (List) getFieldValue(parentObject, reverseFieldName);
+                    Object childList = getFieldValue(parentObject, reverseFieldName);
                     if (childList instanceof ManagedPersistentList) {
                         ForeignKeyConstraintImpl constr = ((ManagedPersistentList) childList).getConstraint();
                         TableImpl ownerTable = constr.getReferencedTable();
