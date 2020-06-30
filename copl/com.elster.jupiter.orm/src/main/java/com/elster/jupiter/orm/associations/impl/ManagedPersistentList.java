@@ -4,29 +4,21 @@
 
 package com.elster.jupiter.orm.associations.impl;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DataMapperWriter;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.fields.impl.ConstraintEqualFragment;
-import com.elster.jupiter.orm.impl.KeyValue;
-import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.sql.SqlBuilder;
-
-import com.google.common.base.Strings;
 
 public class ManagedPersistentList<T> extends PersistentList<T> {
 	

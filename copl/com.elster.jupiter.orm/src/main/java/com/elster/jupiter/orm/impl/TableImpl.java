@@ -872,10 +872,6 @@ public class TableImpl<T> implements Table<T> {
             });
         }
 
-        if (getName().equals("FSM_FINITE_STATE_MACHINE")){
-            System.out.println("NEEDED TABLE!!!!!!!!!!");
-        }
-
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
         buildReferenceConstraints();
         buildReverseMappedConstraints();

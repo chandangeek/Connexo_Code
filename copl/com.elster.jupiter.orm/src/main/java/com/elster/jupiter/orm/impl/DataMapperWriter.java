@@ -124,7 +124,7 @@ public class DataMapperWriter<T> {
         updateOwner(getTable(), object);
     }
 
-    private Object getFieldValie(Object object, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+    private Object getFieldValue(Object object, String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field neededField = null;
         List<Field> fields = Arrays.asList(object.getClass().getDeclaredFields());
 
@@ -173,15 +173,15 @@ public class DataMapperWriter<T> {
             if (!Strings.isNullOrEmpty(reverseFieldName)) {
                 String parentObjFiledName = frkcstrnt.getFieldName();
                 try {
-                    Reference parentObjectReference = ((Reference) getFieldValie(childObject, parentObjFiledName));
+                    Reference parentObjectReference = ((Reference) getFieldValue(childObject, parentObjFiledName));
                     if (parentObjectReference == null) {
                         continue;
                     }
                     Object parentObject = parentObjectReference.get();
-                    //Now get list in which our object is present
-                    List lst = (List) getFieldValie(parentObject, reverseFieldName);
-                    if (lst instanceof ManagedPersistentList) {
-                        ForeignKeyConstraintImpl constr = ((ManagedPersistentList) lst).getConstraint();
+                    //Now get list in which our object is present. List needed to obtain constraint.
+                    List childList = (List) getFieldValue(parentObject, reverseFieldName);
+                    if (childList instanceof ManagedPersistentList) {
+                        ForeignKeyConstraintImpl constr = ((ManagedPersistentList) childList).getConstraint();
                         TableImpl ownerTable = constr.getReferencedTable();
                         if (ownerTable.isCached()) {
                             /* Find parent object in cache and update list. Update only in cache. DB already up to date.*/
@@ -189,22 +189,22 @@ public class DataMapperWriter<T> {
                             if (parentObjectFromCache.isPresent()) {
                                 Object parentFromCache = parentObjectFromCache.get();
                                 //Obtain the list in which our object is.
-                                List list = (List) getFieldValie(parentFromCache, reverseFieldName);
+                                List childListInCache = (List) getFieldValue(parentFromCache, reverseFieldName);
                                 //Find object in list that should be updated in list/added to list.
                                 int neededIndex = -1;
                                 KeyValue neededKey = childTable.getPrimaryKey(childObject);
-                                for (Object ob : list) {
+                                for (Object ob : childListInCache) {
                                     KeyValue pk = childTable.getPrimaryKey(ob);
                                     if (pk.equals(neededKey)) {
-                                        neededIndex = list.indexOf(ob);
+                                        neededIndex = childListInCache.indexOf(ob);
                                         break;
                                     }
                                 }
 
                                 if (neededIndex != -1) {
-                                    ((PersistentList) list).getTarget().set(neededIndex, childObject);
+                                    ((PersistentList) childListInCache).getTarget().set(neededIndex, childObject);
                                 } else {
-                                    ((PersistentList) list).getTarget().add(childObject);
+                                    ((PersistentList) childListInCache).getTarget().add(childObject);
                                 }
                                 updateOwner(ownerTable, parentFromCache);
                             }
