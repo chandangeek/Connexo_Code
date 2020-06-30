@@ -27,6 +27,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.List;
 
@@ -290,14 +291,13 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         changeStepTariff.addDataType(new Unsigned16(stepCode));
         Array changeStepTariffArray = new Array();
         for (int i = 1; i <= 10; i++) {
-            Integer charge = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, CHARGE_STEP + i));
             Integer price = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, PRICE_STEP + i));
             String description = getDeviceMessageAttributeValue(pendingMessage, RECALCULATION_TYPE_STEP + i);
             Integer recalculationId = ChargeDeviceMessage.RecalculationType.entryForDescription(description).getId();
             Integer graceWarning = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, GRACE_WARNING_STEP + i));
             Integer additionalTax = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, ADDITIONAL_TAX_STEP + i));
             Structure changeStep = new Structure();
-            changeStep.addDataType(new Unsigned32(charge));
+            addStepTarifCharge(pendingMessage, changeStep, i);
             changeStep.addDataType(new Integer32(price));
             changeStep.addDataType(new TypeEnum(recalculationId));
             changeStep.addDataType(new Unsigned32(graceWarning));
@@ -306,6 +306,11 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         }
         changeStepTariff.addDataType(changeStepTariffArray);
         getCosemObjectFactory().writeObject(STEP_TARIFF_CONFIGURATION, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), changeStepTariff.getBEREncodedByteArray());
+    }
+
+    protected void addStepTarifCharge(OfflineDeviceMessage pendingMessage, Structure changeStep, Integer step) throws IOException {
+        BigInteger charge = new BigInteger(getDeviceMessageAttributeValue(pendingMessage, CHARGE_STEP + step));
+        changeStep.addDataType(new Unsigned64(charge));
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
