@@ -51,15 +51,14 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 	@Override
 	public void add(int index, T element) {
 		setPosition(index + 1, element);
+		getTarget().add(index, element);
 		try {
-			getWriter().persist(element, index);
+			getWriter().persist(element);
 		} catch (SQLException ex) {
+			getTarget().remove(index);
 			throw new UnderlyingSQLFailedException(ex);
 		}
 
-		if (!getTarget().stream().filter(el -> getConstraint().getTable().getPrimaryKey(element).equals(getConstraint().getTable().getPrimaryKey(el))).findAny().isPresent()) {
-			getTarget().add(index, element);
-		}
 		updatePositions(index + 1);
 	}
 

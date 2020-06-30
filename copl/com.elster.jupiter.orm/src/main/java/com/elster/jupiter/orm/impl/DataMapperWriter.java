@@ -9,8 +9,9 @@ import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.PersistentList;
+import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.orm.audit.AuditTrailDataWriter;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Pair;
@@ -73,7 +74,7 @@ public class DataMapperWriter<T> {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void persist(T object,int... indexToInsert ) throws SQLException {
+    public void persist(T object) throws SQLException {
         Instant now = getTable().getDataModel().getClock().instant();
         prepare(object, false, now);
 
@@ -121,15 +122,13 @@ public class DataMapperWriter<T> {
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
         //Update cached parent objects
-        updateOwner(getTable(), object, indexToInsert);
+        updateOwner(getTable(), object);
     }
 
     private Object getFieldValue(Object object, String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field neededField = null;
-        List<Field> fields = Arrays.asList(object.getClass().getDeclaredFields());
-
         // Try to find needed field in current class.
-        for (Field tmpField : fields) {
+        for (Field tmpField : Arrays.asList(object.getClass().getDeclaredFields())) {
             if (tmpField.getName().equals(fieldName)) {
                 neededField = tmpField;
             }
@@ -137,7 +136,7 @@ public class DataMapperWriter<T> {
 
         // If needed field was not found try to find it in superclass.
         if (neededField == null) {
-            neededField = findFieldInSuperClass(object.getClass().getSuperclass(), fieldName);
+            neededField = findFieldRecursively(object.getClass().getSuperclass(), fieldName);
         }
 
         if (neededField == null) {
@@ -149,29 +148,29 @@ public class DataMapperWriter<T> {
     }
 
     /* Go recursively through all superclasses to find needed field */
-    private Field findFieldInSuperClass(Class clazz, String fieldName) {
+    private Field findFieldRecursively(Class clazz, String fieldName) {
         Field neededField;
         if (clazz.getSuperclass() == null) {
             neededField = null;
             return neededField;
         }
-        List<Field> flds = Arrays.asList(clazz.getSuperclass().getDeclaredFields());
+        List<Field> flds = Arrays.asList(clazz.getDeclaredFields());
         neededField = flds.stream().filter(fld -> fld.getName().equals(fieldName)).findFirst().orElse(null);
         if (neededField == null) {
-            neededField = findFieldInSuperClass(clazz.getSuperclass(), fieldName);
+            neededField = findFieldRecursively(clazz.getSuperclass(), fieldName);
         }
         return neededField;
     }
 
     /* Owner - class that contain list with child object (reverseMap constraint).
      * Method update owner object stored in cache */
-    private void updateOwner(TableImpl childTable, Object childObject, int... index) {
+    private void updateOwner(TableImpl childTable, Object childObject) {
         List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
-        for (ForeignKeyConstraintImpl frkcstrnt : childTableCnstrntList) {
-            String reverseFieldName = frkcstrnt.getReverseFieldName();
+        for (ForeignKeyConstraintImpl foreignKeyConstraint : childTableCnstrntList) {
+            String reverseFieldName = foreignKeyConstraint.getReverseFieldName();
             //Check that parent list is in list in another object
             if (!Strings.isNullOrEmpty(reverseFieldName)) {
-                String parentObjFiledName = frkcstrnt.getFieldName();
+                String parentObjFiledName = foreignKeyConstraint.getFieldName();
                 try {
                     Reference parentObjectReference = ((Reference) getFieldValue(childObject, parentObjFiledName));
                     if (parentObjectReference == null) {
@@ -181,44 +180,40 @@ public class DataMapperWriter<T> {
                         continue;
                     }
 
-                    Object parentObject = parentObjectReference.get();
-                    //Now get list in which our object is present. List needed to obtain constraint.
-                    Object childList = getFieldValue(parentObject, reverseFieldName);
-                    if (childList instanceof ManagedPersistentList) {
-                        ForeignKeyConstraintImpl constr = ((ManagedPersistentList) childList).getConstraint();
-                        TableImpl ownerTable = constr.getReferencedTable();
-                        if (ownerTable.isCached()) {
-                            /* Find parent object in cache and update list. Update only in cache. DB already up to date.*/
-                            Optional parentObjectFromCache = ownerTable.findInCache(ownerTable.getPrimaryKey(parentObject));
-                            if (parentObjectFromCache.isPresent()) {
-                                Object parentFromCache = parentObjectFromCache.get();
-                                //Obtain the list in which our object is.
-                                List childListInCache = (List) getFieldValue(parentFromCache, reverseFieldName);
-                                //Find object in list that should be updated in list/added to list.
-                                int neededIndex = -1;
-                                KeyValue neededKey = childTable.getPrimaryKey(childObject);
-                                for (Object ob : childListInCache) {
-                                    KeyValue pk = childTable.getPrimaryKey(ob);
-                                    if (pk.equals(neededKey)) {
-                                        neededIndex = childListInCache.indexOf(ob);
-                                        break;
-                                    }
-                                }
-
-
-                                if (neededIndex != -1) {
-                                    ((PersistentList) childListInCache).getTarget().set(neededIndex, childObject);
-                                } else {
-
-                                    if (index.length != 0) {
-                                        ((PersistentList) childListInCache).getTarget().add(index[0], childObject);
-                                    }
-                                }
-                                updateOwner(ownerTable, parentFromCache);
-                            }
-                        }
+                    TableImpl ownerTable = foreignKeyConstraint.getReferencedTable();
+                    KeyValue key = null;
+                    if (parentObjectReference instanceof ValueReference) {
+                        key = ownerTable.getPrimaryKey(parentObjectReference.get());
+                    } else if (parentObjectReference instanceof PersistentReference) {
+                        key = ((PersistentReference) parentObjectReference).getKey();
                     }
 
+                    if (ownerTable.isCached() && key != null) {
+                        /* Find parent object in cache and update list. Update only in cache. DB already up to date.*/
+                        Optional<?> parentObjectFromCache = ownerTable.findInCache(key);
+                        if (parentObjectFromCache.isPresent()) {
+                            Object parentFromCache = parentObjectFromCache.get();
+                            //Obtain the list in which our object is.
+                            List childListInCache = (List) getFieldValue(parentFromCache, reverseFieldName);
+                            //Find object in list that should be updated in list/added to list.
+                            int neededIndex = -1;
+                            KeyValue neededKey = childTable.getPrimaryKey(childObject);
+                            for (Object ob : childListInCache) {
+                                KeyValue pk = childTable.getPrimaryKey(ob);
+                                if (pk.equals(neededKey)) {
+                                    neededIndex = childListInCache.indexOf(ob);
+                                    break;
+                                }
+                            }
+
+                            if (neededIndex != -1) {
+                                ((PersistentList) childListInCache).getTarget().set(neededIndex, childObject);
+                            } else {
+                                ((PersistentList) childListInCache).getTarget().add(childObject);
+                            }
+                            updateOwner(ownerTable, parentFromCache);
+                        }
+                    }
                 } catch (NoSuchFieldException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException e) {
