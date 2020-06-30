@@ -51,8 +51,7 @@ public class DeviceMessageCategoriesTest extends TestCase {
 
         when(nlsService.getThesaurus(anyString())).thenReturn(thesaurus);
     }
-
-    @Ignore("FIXME: CXO-12404")
+    
     @Test
     public void testDateTimeEnums(){
         String[] daysOfMonth = DaysOfMonth.getDaysOfMonthValues();
