@@ -8,9 +8,14 @@ import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
+import com.elster.jupiter.orm.associations.impl.PersistentList;
 import com.elster.jupiter.orm.audit.AuditTrailDataWriter;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Pair;
+
+import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -21,10 +26,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DataMapperWriter<T> {
@@ -114,7 +121,103 @@ public class DataMapperWriter<T> {
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
         //Update cached parent objects
+        updateOwner(getTable(), object);
+    }
 
+    private Object getFieldValie(Object object, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+        Field neededField = null;
+        List<Field> fields = Arrays.asList(object.getClass().getDeclaredFields());
+
+        // Try to find needed field in current class.
+        for (Field tmpField : fields) {
+            if (tmpField.getName().equals(fieldName)) {
+                neededField = tmpField;
+            }
+        }
+
+        // If needed field was not found try to find it in superclass.
+        if (neededField == null) {
+            neededField = findFieldInSuperClass(object.getClass().getSuperclass(), fieldName);
+        }
+
+        if (neededField == null) {
+            //In case if filed in superclass and superclass is abstract - it will not find any field
+            return null;
+        }
+        neededField.setAccessible(true);
+        return neededField.get(object);
+    }
+
+    /* Go recursively through all superclasses to find needed field */
+    private Field findFieldInSuperClass(Class clazz, String fieldName) {
+        Field neededField;
+        if (clazz.getSuperclass() == null) {
+            neededField = null;
+            return neededField;
+        }
+        List<Field> flds = Arrays.asList(clazz.getSuperclass().getDeclaredFields());
+        neededField = flds.stream().filter(fld -> fld.getName().equals(fieldName)).findFirst().orElse(null);
+        if (neededField == null) {
+            neededField = findFieldInSuperClass(clazz.getSuperclass(), fieldName);
+        }
+        return neededField;
+    }
+
+    /* Owner - class that contain list with child object (reverseMap constraint).
+     * Method update owner object stored in cache */
+    private void updateOwner(TableImpl childTable, Object childObject) {
+        List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
+        for (ForeignKeyConstraintImpl frkcstrnt : childTableCnstrntList) {
+            String reverseFieldName = frkcstrnt.getReverseFieldName();
+            //Check that parent list is in list in another object
+            if (!Strings.isNullOrEmpty(reverseFieldName)) {
+                String parentObjFiledName = frkcstrnt.getFieldName();
+                try {
+                    Reference parentObjectReference = ((Reference) getFieldValie(childObject, parentObjFiledName));
+                    if (parentObjectReference == null) {
+                        continue;
+                    }
+                    Object parentObject = parentObjectReference.get();
+                    //Now get list in which our object is present
+                    List lst = (List) getFieldValie(parentObject, reverseFieldName);
+                    if (lst instanceof ManagedPersistentList) {
+                        ForeignKeyConstraintImpl constr = ((ManagedPersistentList) lst).getConstraint();
+                        TableImpl ownerTable = constr.getReferencedTable();
+                        if (ownerTable.isCached()) {
+                            /* Find parent object in cache and update list. Update only in cache. DB already up to date.*/
+                            Optional parentObjectFromCache = ownerTable.findInCache(ownerTable.getPrimaryKey(parentObject));
+                            if (parentObjectFromCache.isPresent()) {
+                                Object parentFromCache = parentObjectFromCache.get();
+                                //Obtain the list in which our object is.
+                                List list = (List) getFieldValie(parentFromCache, reverseFieldName);
+                                //Find object in list that should be updated in list/added to list.
+                                int neededIndex = -1;
+                                KeyValue neededKey = childTable.getPrimaryKey(childObject);
+                                for (Object ob : list) {
+                                    KeyValue pk = childTable.getPrimaryKey(ob);
+                                    if (pk.equals(neededKey)) {
+                                        neededIndex = list.indexOf(ob);
+                                        break;
+                                    }
+                                }
+
+                                if (neededIndex != -1) {
+                                    ((PersistentList) list).getTarget().set(neededIndex, childObject);
+                                } else {
+                                    ((PersistentList) list).getTarget().add(childObject);
+                                }
+                                updateOwner(ownerTable, parentFromCache);
+                            }
+                        }
+                    }
+
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private boolean needsRefreshAfterBatchInsert() {
