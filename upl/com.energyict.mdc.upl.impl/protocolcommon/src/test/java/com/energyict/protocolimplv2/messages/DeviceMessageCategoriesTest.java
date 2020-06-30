@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.messages.enums.DaysOfMonth;
 import com.energyict.protocolimplv2.messages.enums.DaysOfWeek;
 import junit.framework.TestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -51,6 +52,7 @@ public class DeviceMessageCategoriesTest extends TestCase {
         when(nlsService.getThesaurus(anyString())).thenReturn(thesaurus);
     }
 
+    @Ignore("FIXME: CXO-12404")
     @Test
     public void testDateTimeEnums(){
         String[] daysOfMonth = DaysOfMonth.getDaysOfMonthValues();

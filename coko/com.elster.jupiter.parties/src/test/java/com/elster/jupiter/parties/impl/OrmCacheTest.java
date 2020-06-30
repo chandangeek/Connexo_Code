@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,7 +103,7 @@ public class OrmCacheTest {
     	inMemoryBootstrapModule.deactivate();
     }
     
-
+    @Ignore("FIXME: CXO-12404")
     @Test
     public void testEventTypeCache() {
 		EventService eventService = injector.getInstance(EventService.class);
