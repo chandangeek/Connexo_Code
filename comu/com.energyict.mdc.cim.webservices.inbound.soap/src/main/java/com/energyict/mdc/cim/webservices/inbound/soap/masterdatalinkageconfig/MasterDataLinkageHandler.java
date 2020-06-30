@@ -214,9 +214,10 @@ public class MasterDataLinkageHandler {
                         MessageSeeds.METER_ALREADY_LINKED_TO_END_DEVICE, slave.getName(), slave.getSerialNumber(), currentGateway.get().getName(), currentGateway.get().getSerialNumber());
             } else {
                 Optional<Device> slaveOptional = deviceService.findAndLockDeviceById(slave.getId());
-                if (!slaveOptional.isPresent())
+                if (!slaveOptional.isPresent()) {
                     throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                             MessageSeeds.NO_SUCH_DEVICE, slave.getId());
+                }
                 topologyService.clearPhysicalGateway(slaveOptional.get());
             }
         } else {
