@@ -32,6 +32,7 @@ import java.util.List;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
 
+    public static final ObisCode STEP_TARIFF_CONFIGURATION = ObisCode.fromString("0.0.94.20.74.255");
     public static final ObisCode CREDIT_DAYS_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
     public static final ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
     public static final ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
@@ -51,6 +52,12 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     public static final int TIME_LENGTH_IN_SEC = 4;
     public static final String CHARGE_TABLE_TIME = "chargeTableTime";
     public static final String CHARGE_TABLE_UNIT = "chargeTableUnit";
+
+    public static final String CHARGE_STEP = "chargeStep";
+    public static final String PRICE_STEP = "priceStep";
+    public static final String RECALCULATION_TYPE_STEP = "recalculationTypeStep";
+    public static final String GRACE_WARNING_STEP = "graceWarningStep";
+    public static final String ADDITIONAL_TAX_STEP = "additionalTaxStep";
 
     public AcudMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -105,6 +112,8 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             changeChargePeriod(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION)) {
             changeChargeProportion(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_STEP_TARIFF_CONFIGURATION)) {
+            changeStepTariffConfig(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
             getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
@@ -247,9 +256,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         Array passiveUnitChargeTable = new Array();
         for (int i = 1; i <= 10; i++) {
             Structure chargeTableElement = new Structure();
-            String chargeTableTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, CHARGE_TABLE_TIME + "i").getValue();
+            String chargeTableTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, CHARGE_TABLE_TIME + i).getValue();
             chargeTableElement.addDataType(OctetString.fromString(chargeTableTime));
-            Integer chargeTableUnit = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, CHARGE_TABLE_UNIT + "i"));
+            Integer chargeTableUnit = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, CHARGE_TABLE_UNIT + i));
             chargeTableElement.addDataType(new Integer16(chargeTableUnit));
             passiveUnitChargeTable.addDataType(chargeTableElement);
         }
@@ -273,6 +282,30 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         ChargeSetup chargeSetup = getCosemObjectFactory().getChargeSetup(chargeObisCode);
         Integer chargeProportion = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeProportion));
         chargeSetup.writeChargeAttribute(ChargeSetupAttributes.PROPORTION, new Unsigned16(chargeProportion));
+    }
+
+    private void changeStepTariffConfig(OfflineDeviceMessage pendingMessage) throws IOException {
+        Structure changeStepTariff = new Structure();
+        Integer stepCode = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.tariffCode));
+        changeStepTariff.addDataType(new Unsigned16(stepCode));
+        Array changeStepTariffArray = new Array();
+        for (int i = 1; i <= 10; i++) {
+            Integer charge = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, CHARGE_STEP + i));
+            Integer price = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, PRICE_STEP + i));
+            String description = getDeviceMessageAttributeValue(pendingMessage, RECALCULATION_TYPE_STEP + i);
+            Integer recalculationId = ChargeDeviceMessage.RecalculationType.entryForDescription(description).getId();
+            Integer graceWarning = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, GRACE_WARNING_STEP + i));
+            Integer additionalTax = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, ADDITIONAL_TAX_STEP + i));
+            Structure changeStep = new Structure();
+            changeStep.addDataType(new Unsigned32(charge));
+            changeStep.addDataType(new Integer32(price));
+            changeStep.addDataType(new TypeEnum(recalculationId));
+            changeStep.addDataType(new Unsigned32(graceWarning));
+            changeStep.addDataType(new Unsigned32(additionalTax));
+            changeStepTariffArray.addDataType(changeStep);
+        }
+        changeStepTariff.addDataType(changeStepTariffArray);
+        getCosemObjectFactory().writeObject(STEP_TARIFF_CONFIGURATION, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), changeStepTariff.getBEREncodedByteArray());
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {

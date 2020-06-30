@@ -51,6 +51,7 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 ChargeDeviceMessage.UPDATE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_CHARGE_PERIOD.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION.get(this.propertySpecService, this.nlsService, this.converter),
+                ChargeDeviceMessage.CHANGE_STEP_TARIFF_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.UPDATE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
                 ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
                 ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter),
