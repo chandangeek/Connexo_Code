@@ -37,6 +37,7 @@ import static java.util.stream.Collectors.toList;
  * @since 2014-01-30 (15:42)
  */
 public class Installer implements FullInstaller, PrivilegesProvider {
+    private static final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
