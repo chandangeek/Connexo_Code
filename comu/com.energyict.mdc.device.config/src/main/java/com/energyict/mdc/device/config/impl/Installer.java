@@ -60,12 +60,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
+            logger.info("Adding subscriber " + TranslationKeys.DEVICE_TYPES_CHANGES_EVENT_SUBSC.getKey());
             destinationSpec.subscribe(
                     TranslationKeys.DEVICE_TYPES_CHANGES_EVENT_SUBSC,
                     DeviceConfigurationService.COMPONENTNAME,
                     Layer.DOMAIN,
                     whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/CREATED")
-                            .or(whereCorrelationId().isEqualTo("com/elster/jupiter/metering/enddeviceevent/CREATED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/DELETED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/dlc/UPDATED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/lifecycle/config/dlc/update"))
