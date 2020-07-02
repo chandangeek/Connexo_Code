@@ -115,7 +115,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST.getErrorCode(),
-                    "Either the list of 'MasterDataLinkageConfig.UsagePoint' or 'MasterDataLinkageConfig.EndDevice' should contain elements 'mRID' or 'Names'.");
+                    "Either the node 'MasterDataLinkageConfig.UsagePoint' or 'MasterDataLinkageConfig.EndDevice' should contain elements 'mRID' or 'Names' for identification purpose.");
         }
     }
 
@@ -130,7 +130,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
             failNoException();
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST.getErrorCode(),
-                    "Either the list of 'MasterDataLinkageConfig.UsagePoint' or 'MasterDataLinkageConfig.EndDevice' should contain elements 'mRID' or 'Names'.");
+                    "Either the node 'MasterDataLinkageConfig.UsagePoint' or 'MasterDataLinkageConfig.EndDevice' should contain elements 'mRID' or 'Names' for identification purpose.");
         }
     }
 
