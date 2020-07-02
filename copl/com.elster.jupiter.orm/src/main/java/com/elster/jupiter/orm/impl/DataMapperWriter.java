@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DataMapperWriter<T> {
@@ -228,7 +229,9 @@ public class DataMapperWriter<T> {
             journal(object, now);
         }
 
-        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE, columns.size() == 0).audit();
+        if (isAuditEnabled() && getTable().hasAudit() && doJournal(columns)) {
+            new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE, columns.size() == 0).audit();
+        }
 
         prepare(object, true, now);
         ColumnImpl[] versionCountColumns = getTable().getVersionColumns();
@@ -285,6 +288,14 @@ public class DataMapperWriter<T> {
             pair.getFirst().setDomainValue(object, pair.getLast() + 1);
         }
         refresh(object, false);
+    }
+
+    private boolean isAuditEnabled() {
+        return getAuditEnabledProperty().toLowerCase().equals("true");
+    }
+
+    private String getAuditEnabledProperty() {
+        return Optional.ofNullable(getTable().getDataModel().getOrmService().getEnableAuditing()).orElse("false");
     }
 
     private boolean doJournal(List<ColumnImpl> columns) {
