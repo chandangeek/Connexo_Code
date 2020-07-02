@@ -218,7 +218,7 @@ public class MasterDataLinkageHandler {
                     throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                             MessageSeeds.NO_SUCH_DEVICE, slave.getId());
                 }
-                Optional<Device> currentGatewayAfterLock = topologyService.getPhysicalGateway(slave);
+                Optional<Device> currentGatewayAfterLock = topologyService.getPhysicalGateway(slaveOptional.get());
                 if (currentGatewayAfterLock.isPresent() && currentGatewayAfterLock.get().equals(gateway)) {
                     topologyService.clearPhysicalGateway(slaveOptional.get());
                 }
