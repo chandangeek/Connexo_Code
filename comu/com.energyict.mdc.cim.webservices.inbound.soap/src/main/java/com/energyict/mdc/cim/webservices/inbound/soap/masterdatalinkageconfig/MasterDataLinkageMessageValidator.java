@@ -38,7 +38,8 @@ public class MasterDataLinkageMessageValidator {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction, MessageSeeds.MISSING_ELEMENT,
                     PAYLOAD_ELEMENT);
         }
-        if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent() == null && !message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()) {
+        if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent() == null
+                && !message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction, MessageSeeds.MISSING_ELEMENT,
                     CONFIGURATION_EVENT_ELEMENT);
         }
@@ -46,20 +47,20 @@ public class MasterDataLinkageMessageValidator {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction, MessageSeeds.EMPTY_LIST,
                     METER_LIST_ELEMENT);
         }
-        if (message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty() && message.getPayload().getMasterDataLinkageConfig().getEndDevice().isEmpty()) {
+        if (message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()
+                && message.getPayload().getMasterDataLinkageConfig().getEndDevice().isEmpty()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction, MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
         }
         if (linkageAction == MasterDataLinkageAction.CREATE) {
-            if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent().getCreatedDateTime() == null
-                    && !message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()) {
+            if (!message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()
+                    && message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent().getCreatedDateTime() == null) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction,
                         MessageSeeds.MISSING_ELEMENT, CREATED_DATE_TIME_ATTRIBUTE);
             }
         }
         if (linkageAction == MasterDataLinkageAction.CLOSE) {
-            if ((message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent() == null
-                    || message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent().getEffectiveDateTime() == null)
-                    && !message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()) {
+            if (!message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()
+                    && message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent().getEffectiveDateTime() == null) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(linkageAction,
                         MessageSeeds.MISSING_ELEMENT, EFFECTIVE_DATE_TIME_ATTRIBUTE);
             }
