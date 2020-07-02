@@ -4,26 +4,27 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
-import ch.iec.tc57._2011.getmeterreadings.Reading;
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
-import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
+import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
+import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
@@ -33,8 +34,31 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.SyncReplyIss
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.*;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.*;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.ConfigEventInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
@@ -46,6 +70,18 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
+
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
+import ch.iec.tc57._2011.getmeterreadings.Reading;
+import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
+import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
+import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
+import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -54,11 +90,19 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
 public class ServiceCallCommands {
+
+    private static final String METER = "Meter";
 
     public enum ServiceCallTypes {
         MASTER_METER_CONFIG(MeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigMasterServiceCallHandler.VERSION, MeterConfigMasterServiceCallHandler.APPLICATION, MeterConfigMasterCustomPropertySet.class
@@ -73,7 +117,10 @@ public class ServiceCallCommands {
         DEVICE_MESSAGE_GET_METER_READINGS(DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DeviceMessageServiceCallHandler.VERSION, DeviceMessageServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet.class
                 .getName()),
         COMTASK_EXECUTION_GET_METER_READINGS(ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ComTaskExecutionServiceCallHandler.VERSION, ComTaskExecutionServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet.class
-                .getName());
+                .getName()),
+        MASTER_DATA_LINKAGE_CONFIG(MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigMasterServiceCallHandler.VERSION, MasterDataLinkageConfigMasterServiceCallHandler.APPLICATION, MasterDataLinkageConfigMasterCustomPropertySet.class.getName()),
+        DATA_LINKAGE_CONFIG(MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigServiceCallHandler.VERSION, MasterDataLinkageConfigServiceCallHandler.APPLICATION, MasterDataLinkageConfigCustomPropertySet.class.getName());
+
 
         private final String typeName;
         private final String typeVersion;
@@ -295,6 +342,79 @@ public class ServiceCallCommands {
         }
         parentServiceCall.requestTransition(DefaultState.WAITING);
         return parentServiceCall;
+    }
+
+    @TransactionRequired
+    public ServiceCall createMasterDataLinkageConfigMasterServiceCall(MasterDataLinkageConfigRequestMessageType config,
+                                                                      Optional<EndPointConfiguration> endPointConfiguration, MasterDataLinkageAction action,
+                                                                      MasterDataLinkageFaultMessageFactory faultMessageFactory) throws ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage {
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_DATA_LINKAGE_CONFIG);
+        MasterDataLinkageConfigMasterDomainExtension domainExtension = new MasterDataLinkageConfigMasterDomainExtension();
+        domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
+        domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
+        domainExtension.setExpectedNumberOfCalls(getExpectedNumberOfCallsForLinkage(config));
+        String correlationId = config.getHeader() == null ? null : config.getHeader().getCorrelationID();
+        domainExtension.setCorrelationId(correlationId);
+
+        if (endPointConfiguration.isPresent()) {
+            domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
+        }
+        ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
+                .origin("MultiSense").extendedWith(domainExtension);
+        ServiceCall parentServiceCall = serviceCallBuilder.create();
+        final List<EndDevice> endDevices = config.getPayload().getMasterDataLinkageConfig().getEndDevice();
+        final List<UsagePoint> usagePoints = config.getPayload().getMasterDataLinkageConfig().getUsagePoint();
+        final List<ch.iec.tc57._2011.masterdatalinkageconfig.Meter> meters = config.getPayload()
+                .getMasterDataLinkageConfig().getMeter();
+        final ConfigurationEvent configurationEvent = config.getPayload().getMasterDataLinkageConfig().getConfigurationEvent();
+        if (endDevices.isEmpty() && usagePoints.isEmpty()) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
+                    MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
+        }
+        if (meters.isEmpty()) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, METER);
+        }
+        if (!usagePoints.isEmpty() && usagePoints.size() != meters.size()) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
+                    MessageSeeds.DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS, meters.size(), usagePoints.size());
+        }
+        for (int i = 0; i < usagePoints.size(); i++) {
+            createMasterDataLinkageChildServiceCall(parentServiceCall, action, null, usagePoints.get(i), meters.get(i),
+                    configurationEvent);
+        }
+        for (int i = 0; i < endDevices.size(); i++) {
+            createMasterDataLinkageChildServiceCall(parentServiceCall, action, endDevices.get(i), null, meters.get(0),
+                    configurationEvent);
+        }
+        return parentServiceCall;
+    }
+
+    private ServiceCall createMasterDataLinkageChildServiceCall(ServiceCall parentServiceCall,
+                                                                MasterDataLinkageAction action,
+                                                                EndDevice endDevice,
+                                                                UsagePoint usagePoint,
+                                                                ch.iec.tc57._2011.masterdatalinkageconfig.Meter meter,
+                                                                ConfigurationEvent configurationEvent) {
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.DATA_LINKAGE_CONFIG);
+        MasterDataLinkageConfigDomainExtension domainExtension = new MasterDataLinkageConfigDomainExtension();
+        domainExtension.setParentServiceCallId(BigDecimal.valueOf(parentServiceCall.getId()));
+        domainExtension.setMeter(jsonService.serialize(new com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo(meter)));
+        if (endDevice != null) {
+            domainExtension.setEndDevice(jsonService.serialize(new EndDeviceInfo(endDevice)));
+        } else if (usagePoint != null) {
+            domainExtension.setUsagePoint(jsonService.serialize(new UsagePointInfo(usagePoint)));
+            domainExtension.setConfigurationEvent(jsonService.serialize(new ConfigEventInfo(configurationEvent)));
+        }
+        domainExtension.setOperation(action.name());
+        ServiceCallBuilder serviceCallBuilder = parentServiceCall.newChildCall(serviceCallType)
+                .extendedWith(domainExtension);
+        return serviceCallBuilder.create();
+    }
+
+    private BigDecimal getExpectedNumberOfCallsForLinkage(MasterDataLinkageConfigRequestMessageType config) {
+        return BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()
+                + config.getPayload().getMasterDataLinkageConfig().getEndDevice().size());
     }
 
     private boolean processSubParentServiceCallWithChildren(com.elster.jupiter.metering.Meter meter,
