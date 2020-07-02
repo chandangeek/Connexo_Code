@@ -6,6 +6,8 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -14,9 +16,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
@@ -42,51 +42,50 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.util.streams.Predicates.on;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PrivilegeIT extends EqualsContractTest {
-    private Privilege privilege;
-    private Injector injector;
+    private static final String NAME = "Privilege1";
+    private static final String OTHER_NAME = "Privilege2";
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private DataModel dataModel;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static Injector injector;
+    private static DataModel dataModel;
+
     @Mock
     private Resource resource;
     @Mock
     private PrivilegeCategory privilegeCategory;
+    private Privilege privilege;
 
-    private static final String NAME = "Privilege1";
-    private static final String OTHER_NAME = "Privilege2";
+    @Rule
+    public TestRule transactional = new TransactionalRule(injector.getInstance(TransactionService.class));
 
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-
-    private class MockModule extends AbstractModule {
-
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
+    @BeforeClass
+    public static void classSetUp() throws SQLException {
+        dataModel = mock(DataModel.class);
         when(dataModel.getInstance(ResourceImpl.class)).thenAnswer(invocation -> new ResourceImpl(dataModel, getUserService()));
 
         injector = Guice.createInjector(
@@ -102,14 +101,11 @@ public class PrivilegeIT extends EqualsContractTest {
                 new UserModule(),
                 new NlsModule(),
                 new DataVaultModule());
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(UserService.class);
-            return null;
-        });
+        injector.getInstance(TransactionService.class).run(() -> injector.getInstance(UserService.class));
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void classTearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
@@ -123,8 +119,7 @@ public class PrivilegeIT extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        Privilege privilegeB = PrivilegeImpl.from(dataModel, NAME, resource, privilegeCategory);
-        return privilegeB;
+        return PrivilegeImpl.from(dataModel, NAME, resource, privilegeCategory);
     }
 
     @Override
@@ -135,7 +130,7 @@ public class PrivilegeIT extends EqualsContractTest {
 
     @Override
     protected boolean canBeSubclassed() {
-        return true;
+        return false;
     }
 
     @Override
@@ -144,70 +139,61 @@ public class PrivilegeIT extends EqualsContractTest {
     }
 
     @Test
+    @Transactional
     public void testCreateResource() {
-        getTransactionService().execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                UserService userService = getUserService();
+        UserService userService = getUserService();
 
-                userService.saveResourceWithPrivileges("USR", "User", "Test user resource", new String[]{"Test privilege"});
+        userService.saveResourceWithPrivileges("USR", "User", "Test user resource", new String[]{"Test privilege"});
 
-                Optional<Resource> found = userService.findResource("User");
+        Optional<Resource> found = userService.findResource("User");
 
-                assertThat(found.isPresent());
-                Resource resource = found.get();
-                assertThat(resource.getComponentName()).isEqualTo("USR");
-                assertThat(resource.getName()).isEqualTo("User");
-                assertThat(resource.getDescription()).isEqualTo("Test user resource");
-                assertThat(resource.getPrivileges()).hasSize(1);
-                Privilege privilege = resource.getPrivileges().get(0);
-                assertThat(privilege).isInstanceOf(Privilege.class);
-                assertThat(privilege.getName()).isEqualTo("Test privilege");
-                assertThat(privilege.getCategory().getName()).isEqualTo("Default");
-            }
-        });
+        assertThat(found.isPresent());
+        Resource resource = found.get();
+        assertThat(resource.getComponentName()).isEqualTo("USR");
+        assertThat(resource.getName()).isEqualTo("User");
+        assertThat(resource.getDescription()).isEqualTo("Test user resource");
+        assertThat(resource.getPrivileges()).hasSize(1);
+        Privilege privilege = resource.getPrivileges().get(0);
+        assertThat(privilege).isInstanceOf(Privilege.class);
+        assertThat(privilege.getName()).isEqualTo("Test privilege");
+        assertThat(privilege.getCategory().getName()).isEqualTo("Default");
     }
 
     @Test
+    @Transactional
     public void testCreateResourceWithGrantPrivilege() {
-        getTransactionService().execute(new VoidTransaction() {
+        UserService userService = getUserService();
+
+        PrivilegeCategory specialCategory = userService.createPrivilegeCategory("special");
+
+        PrivilegeCategory defaultPrivilegeCategory = userService.getDefaultPrivilegeCategory();
+
+        ResourceDefinition resourceDefinition = userService.createModuleResourceWithPrivileges("TTT", "Test", "test", Collections
+                .emptyList());
+
+        userService.addModulePrivileges(new PrivilegesProvider() {
             @Override
-            protected void doPerform() {
-                UserService userService = getUserService();
+            public String getModuleName() {
+                return "TTT";
+            }
 
-                PrivilegeCategory specialCategory = userService.createPrivilegeCategory("special");
-
-                PrivilegeCategory defaultPrivilegeCategory = userService.getDefaultPrivilegeCategory();
-
-                ResourceDefinition resourceDefinition = userService.createModuleResourceWithPrivileges("TTT", "Test", "test", Collections
-                        .emptyList());
-
-                userService.addModulePrivileges(new PrivilegesProvider() {
-                    @Override
-                    public String getModuleName() {
-                        return "TTT";
-                    }
-
-                    @Override
-                    public List<ResourceDefinition> getModuleResources() {
-                        return Arrays.asList(resourceDefinition);
-                    }
-                });
-
-                Resource resource = userService.findResource("Test").get();
-
-                GrantPrivilege grantPrivilege = resource.createGrantPrivilege("normal.grant")
-                        .forCategory(defaultPrivilegeCategory)
-                        .forCategory(specialCategory)
-                        .create();
-
+            @Override
+            public List<ResourceDefinition> getModuleResources() {
+                return Arrays.asList(resourceDefinition);
             }
         });
+
+        Resource resource = userService.findResource("Test").get();
+
+        GrantPrivilege grantPrivilege = resource.createGrantPrivilege("normal.grant")
+                .forCategory(defaultPrivilegeCategory)
+                .forCategory(specialCategory)
+                .create();
 
         Optional<Resource> foundResource = getUserService().findResource("Test");
         assertThat(foundResource).isPresent();
 
-        Resource resource = foundResource.get();
+        resource = foundResource.get();
 
         Optional<Privilege> foundPrivilege = resource.getPrivileges()
                 .stream()
@@ -217,7 +203,7 @@ public class PrivilegeIT extends EqualsContractTest {
         assertThat(foundPrivilege).isPresent()
                 .containsInstanceOf(GrantPrivilege.class);
 
-        GrantPrivilege grantPrivilege = (GrantPrivilege) foundPrivilege.get();
+        grantPrivilege = (GrantPrivilege) foundPrivilege.get();
 
         assertThat(grantPrivilege.grantableCategories()).containsOnly(
                 getUserService().getDefaultPrivilegeCategory(),
@@ -225,30 +211,26 @@ public class PrivilegeIT extends EqualsContractTest {
         );
 
         assertThat(grantPrivilege.canGrant(grantPrivilege));
-
     }
 
-    private TransactionService getTransactionService() {
+    private static TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
 
-    private UserService getUserService() {
+    private static UserService getUserService() {
         return injector.getInstance(UserService.class);
     }
 
     @Test
+    @Transactional
     public void testCreatePrivilegeCategory() {
         UserService userService = getUserService();
-        try (TransactionContext context = getTransactionService().getContext()) {
-            PrivilegeCategory category = userService.createPrivilegeCategory("TEST");
-            context.commit();
-        }
+        PrivilegeCategory category = userService.createPrivilegeCategory("TEST");
 
         Optional<PrivilegeCategory> found = userService.findPrivilegeCategory("TEST");
         assertThat(found).isPresent();
 
-        PrivilegeCategory category = found.get();
+        category = found.get();
         assertThat(category.getName()).isEqualTo("TEST");
     }
-
 }

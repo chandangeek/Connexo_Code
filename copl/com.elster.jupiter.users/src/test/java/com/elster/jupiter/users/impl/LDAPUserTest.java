@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LDAPUserIT extends EqualsContractTest {
+public class LDAPUserTest extends EqualsContractTest {
     private LdapUser ldapUser;
 
     private static final String USER_NAME = "userName";
@@ -28,25 +28,21 @@ public class LDAPUserIT extends EqualsContractTest {
         super.equalsContractSetUp();
     }
 
-
     @After
     public void tearDown() {
     }
-
 
     @Override
     protected Object getInstanceA() {
         if (ldapUser == null) {
             ldapUser =  new LdapUserImpl().init(USER_NAME, USER_DN, STATUS_ACTIVE);
-
         }
         return ldapUser;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        LdapUser ldapUserB =  new LdapUserImpl().init(USER_NAME, USER_DN, STATUS_ACTIVE);
-        return ldapUserB;
+        return new LdapUserImpl().init(USER_NAME, USER_DN, STATUS_ACTIVE);
     }
 
     @Override
@@ -64,8 +60,4 @@ public class LDAPUserIT extends EqualsContractTest {
     protected Object getInstanceOfSubclassEqualToA() {
         return null;
     }
-
 }
-
-
-
