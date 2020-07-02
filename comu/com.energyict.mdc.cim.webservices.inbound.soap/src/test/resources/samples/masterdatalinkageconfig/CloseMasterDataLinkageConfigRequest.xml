@@ -17,6 +17,8 @@
                         <mas1:effectiveDateTime>2017-07-13T00:00:00+03:00</mas1:effectiveDateTime>
                     </mas1:ConfigurationEvent>
                     <!-- Optional -->
+                    <!-- At least one of EndDevice and UsagePoint should be present-->
+                    <!-- Adding EndDevice will unlink it is as slave from Meter gateway -->
                     <mas1:EndDevice>
                         <!-- Optional -->
                         <!-- No MRID => identification by name -->
@@ -44,7 +46,9 @@
                         <!-- Ignored -->
                         <mas1:role>meter.role.default</mas1:role>
                     </mas1:Meter>
-                    <!-- Required -->
+                    <!-- Optional -->
+                    <!-- At least one of EndDevice and UsagePoint should be present-->
+                    <!-- Adding UsagePoint will unlink it from Meter -->
                     <mas1:UsagePoint>
                         <!-- Optional -->
                         <!-- No MRID => identification by name -->

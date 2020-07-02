@@ -97,7 +97,7 @@ public class MasterDataLinkageHandler {
         if (shouldCreateResponse) {
             if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()){
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_USAGE_POINT_OR_END_DEVICE_ELEMENT);
+                        MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
             }
             if (!usagePointNodes.isEmpty()) {
                 linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
@@ -110,7 +110,7 @@ public class MasterDataLinkageHandler {
         } else {
             if (usagePoint == null && endDevice == null) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_USAGE_POINT_OR_END_DEVICE_ELEMENT);
+                        MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
             }
             if (usagePoint != null) {
                 linkMeterToUsagePoint(transform(meter), getMeterRoleForKey(meter.getRole()), transform(usagePoint),
@@ -128,7 +128,7 @@ public class MasterDataLinkageHandler {
         if (shouldCreateResponse) {
             if (usagePointNodes.isEmpty() && endDeviceNodes.isEmpty()) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_USAGE_POINT_OR_END_DEVICE_ELEMENT);
+                        MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
             }
             if (!usagePointNodes.isEmpty()) {
                 unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
@@ -141,7 +141,7 @@ public class MasterDataLinkageHandler {
         } else {
             if (usagePoint == null && endDevice == null) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_USAGE_POINT_OR_END_DEVICE_ELEMENT);
+                        MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
             }
             if (usagePoint != null) {
                 unlinkMeterFromUsagePoint(transform(meter), transform(usagePoint),
@@ -218,7 +218,10 @@ public class MasterDataLinkageHandler {
                     throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                             MessageSeeds.NO_SUCH_DEVICE, slave.getId());
                 }
-                topologyService.clearPhysicalGateway(slaveOptional.get());
+                Optional<Device> currentGatewayAfterLock = topologyService.getPhysicalGateway(slave);
+                if (currentGatewayAfterLock.isPresent() && currentGatewayAfterLock.get().equals(gateway)) {
+                    topologyService.clearPhysicalGateway(slaveOptional.get());
+                }
             }
         } else {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,

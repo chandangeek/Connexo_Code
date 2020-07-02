@@ -369,7 +369,7 @@ public class ServiceCallCommands {
         final ConfigurationEvent configurationEvent = config.getPayload().getMasterDataLinkageConfig().getConfigurationEvent();
         if (endDevices.isEmpty() && usagePoints.isEmpty()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
-                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_USAGE_POINT_OR_END_DEVICE_ELEMENT);
+                    MessageSeeds.EMPTY_USAGE_POINT_OR_END_DEVICE_LIST);
         }
         if (meters.isEmpty()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,

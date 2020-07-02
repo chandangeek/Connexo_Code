@@ -192,23 +192,23 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
     }
 
     private Optional<UsagePoint> findUsagePoint(MasterDataLinkageConfigDomainExtension extension) {
-        return Optional.ofNullable(extension.getUsagePoint()).map(usagePoint -> {
+        return Optional.ofNullable(extension.getUsagePoint()).flatMap(usagePoint -> {
             UsagePointInfo usagePointInfo = jsonService.deserialize(usagePoint, UsagePointInfo.class);
             if (usagePointInfo.getMrid() != null) {
                 return meteringService.findUsagePointByMRID(usagePointInfo.getMrid());
             }
             return meteringService.findUsagePointByName(usagePointInfo.getName());
-        }).orElse(Optional.empty());
+        });
     }
 
     private Optional<Device> findEndDevice(MasterDataLinkageConfigDomainExtension extension) {
-        return Optional.ofNullable(extension.getEndDevice()).map(endDevice -> {
+        return Optional.ofNullable(extension.getEndDevice()).flatMap(endDevice -> {
             EndDeviceInfo endDeviceInfo = jsonService.deserialize(endDevice, EndDeviceInfo.class);
             if (endDeviceInfo.getMrid() != null) {
                 return deviceService.findDeviceByMrid(endDeviceInfo.getMrid());
             }
             return deviceService.findDeviceByName(endDeviceInfo.getName());
-        }).orElse(Optional.empty());
+        });
     }
 
     private FailedLinkageOperation createLinkageOperation(ServiceCall child, DefaultState state){

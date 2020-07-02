@@ -155,8 +155,7 @@ public enum MessageSeeds implements MessageSeed {
     END_DEVICE_IS_NOT_LINKED(7015, "EndDeviceIsNotLinked", "End device ''{0}'' (serial number ''{1}'') isn''t linked to gateway ''{2}'' (serial number ''{3}'')."),
     DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS(7016, "DifferentNumberOfMetersAndUsagePoints", "Number of meters should be equal to number of usage points. Currently: {0} and {1}"),
     NO_SUCH_DEVICE(7017, "NoSuchDevice", "No device with id ''{0}''."),
-    EMPTY_USAGE_POINT_OR_END_DEVICE_LIST(7018, "NoUsagePointOrEndDeviceElementsInList", "The list of ''MasterDataLinkageConfig.UsagePoint'' or ''MasterDataLinkageConfig.EndDevice'' can''t be empty."),
-    MISSING_MRID_OR_NAME_FOR_USAGE_POINT_OR_END_DEVICE_ELEMENT(7019, "MissingMridOrNameForUsagePointOrEndDeviceElement", "Either element ''mRID'' or ''Names'' is required under End device or Usage point nodes for identification purpose."),
+    EMPTY_USAGE_POINT_OR_END_DEVICE_LIST(7018, "NoUsagePointOrEndDeviceElementsInList", "Either the list of ''MasterDataLinkageConfig.UsagePoint'' or ''MasterDataLinkageConfig.EndDevice'' should contain elements ''mRID'' or ''Names''."),
     ;
 
     private final int number;

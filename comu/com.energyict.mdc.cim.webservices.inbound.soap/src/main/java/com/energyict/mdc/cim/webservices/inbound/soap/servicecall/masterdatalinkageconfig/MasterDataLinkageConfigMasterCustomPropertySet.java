@@ -209,4 +209,9 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
         }
 
     }
+
+    @Override
+    public String getId() {
+        return CUSTOM_PROPERTY_SET_ID;
+    }
 }
