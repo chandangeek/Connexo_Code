@@ -65,7 +65,6 @@ abstract class AbstractBreakdownSqlExecutor {
     }
 
     List<BreakdownResult> breakdowns() {
-        StopWatch watch = new StopWatch(true);// just for time measurement
         try (Connection connection = this.dataModel.getConnection(true);
              PreparedStatement statement = this.statement(connection)) {
             return this.fetchBreakdowns(statement);
