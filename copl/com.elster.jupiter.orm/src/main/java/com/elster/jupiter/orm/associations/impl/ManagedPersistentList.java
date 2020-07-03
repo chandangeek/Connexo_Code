@@ -51,7 +51,6 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 	@Override
 	public void add(int index, T element) {
 		setPosition(index + 1, element);
-		getTarget().add(index, element);
 		try {
 			getWriter().persist(element);
 		} catch (SQLException ex) {
@@ -59,6 +58,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 
+		getTarget().add(index, element);
 		updatePositions(index + 1);
 	}
 

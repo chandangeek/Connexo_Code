@@ -19,7 +19,7 @@ import com.elster.jupiter.util.conditions.Where;
 
 public abstract class PersistentList<T> extends AbstractList<T> {
 
-	private CopyOnWriteArrayList<T> target;
+	private List<T> target;
 	private final DataMapperImpl<T> dataMapper;
 	private final Object owner;
 	private final ForeignKeyConstraintImpl constraint;
@@ -32,7 +32,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 
 	PersistentList(ForeignKeyConstraintImpl constraint, DataMapperImpl<T> dataMapper, Object owner, List<T> target) {
 		this(constraint,dataMapper,owner);
-		this.target = new CopyOnWriteArrayList<>(target);
+		this.target = target;
 	}
 
 	private List<T> loadTarget(){
@@ -47,7 +47,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 
 	public final List<T> getTarget() {
 		if (target == null) {
-			target = new CopyOnWriteArrayList<>(loadTarget());
+			target = loadTarget();
 			if (dataMapper.getTable().isCached()) {
 				for (T object : target) {
 					dataMapper.getTable().putToCache(object);
@@ -67,6 +67,21 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 
 	@Override
 	public final T get(int index) {
+		if (dataMapper.getTable().isCached() && constraint.getReferencedTable().isCached()) {
+			Object targetObject = getTarget().get(index);
+			KeyValue keyValue = dataMapper.getTable().getPrimaryKey(targetObject);
+			// Try to get object from cache.
+			Optional<T> object = (Optional<T>) dataMapper.getTable().findInCache(keyValue);
+			if (object.isPresent()) {
+				return object.get();
+			} else {
+				target = loadTarget();
+				for (T targetObj : target) {
+					dataMapper.getTable().putToCache(targetObj);
+				}
+				//We just put all objects from target to cache. So we can just take it from target.
+			}
+		}
 		return getTarget().get(index);
 	}
 
@@ -76,7 +91,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 	}
 	
 	void setTarget(List<T> target) {
-		this.target = new CopyOnWriteArrayList<>(target);
+		this.target = target;
 	}
 
 	Object getOwner() {
