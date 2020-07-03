@@ -21,6 +21,5 @@ public class HasOnlyWhiteListedCharactersValidator implements ConstraintValidato
     @Override
     public boolean isValid(CharSequence charSequence, ConstraintValidatorContext constraintValidatorContext) {
         return (charSequence != null && PathVerification.validateInputPattern(charSequence,regex)) ;
-
     }
 }
