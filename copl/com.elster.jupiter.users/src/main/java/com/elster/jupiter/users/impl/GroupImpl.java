@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-import static com.elster.jupiter.orm.Table.UUID_LENGHT;
+import static com.elster.jupiter.orm.Table.UUID_LENGTH;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -51,7 +51,7 @@ final class GroupImpl implements Group {
     @SuppressWarnings("unused")
     private long id;
 
-    @Size(max = UUID_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
+    @Size(max = UUID_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
     private String externalId;
 
     @Size(max = NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")

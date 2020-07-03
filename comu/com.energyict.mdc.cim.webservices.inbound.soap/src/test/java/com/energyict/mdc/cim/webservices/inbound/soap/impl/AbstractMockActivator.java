@@ -17,6 +17,7 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -71,6 +72,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
@@ -98,6 +104,8 @@ public abstract class AbstractMockActivator {
     protected ThreadPrincipalService threadPrincipalService;
     @Mock
     protected MeteringService meteringService;
+    @Mock
+    protected MeteringGroupsService meteringGroupsService;
     @Mock
     protected DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -211,6 +219,7 @@ public abstract class AbstractMockActivator {
         activator.setThreadPrincipalService(threadPrincipalService);
         activator.setNlsService(nlsService);
         activator.setMeteringService(meteringService);
+        activator.setMeteringGroupsService(meteringGroupsService);
         activator.setDeviceConfigurationService(deviceConfigurationService);
         activator.setDeviceLifeCycleService(deviceLifeCycleService);
         activator.setDeviceService(deviceService);

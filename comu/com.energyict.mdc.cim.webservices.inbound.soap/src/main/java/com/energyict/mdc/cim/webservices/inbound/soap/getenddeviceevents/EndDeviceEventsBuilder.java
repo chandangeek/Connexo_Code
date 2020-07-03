@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 
@@ -19,6 +20,8 @@ import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.enddeviceevents.NameType;
 import ch.iec.tc57._2011.enddeviceevents.ObjectFactory;
 import ch.iec.tc57._2011.getenddeviceevents.DateTimeInterval;
+import ch.iec.tc57._2011.getenddeviceevents.EndDeviceEventType;
+import ch.iec.tc57._2011.getenddeviceevents.EndDeviceGroup;
 import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.getenddeviceevents.Meter;
 import ch.iec.tc57._2011.getenddeviceevents.Name;
@@ -31,11 +34,14 @@ import com.google.common.collect.TreeRangeSet;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class EndDeviceEventsBuilder {
     private static final String END_DEVICE_NAME_TYPE = "EndDevice";
@@ -49,6 +55,7 @@ public class EndDeviceEventsBuilder {
 
     private List<EndDevice> endDevices;
     private Range<Instant> timePeriods;
+    private Set<int[]> eventTypeFilters;
 
     @Inject
     public EndDeviceEventsBuilder(MeteringService meteringService,
@@ -60,17 +67,31 @@ public class EndDeviceEventsBuilder {
     }
 
     public EndDeviceEventsBuilder prepareGetFrom(List<Meter> meters, List<TimeSchedule> timeSchedules) throws FaultMessage {
-        endDevices = meteringService.findEndDevices(getMeterIdentifiers(meters));
+        Set<String> deviceIdentifiers = getMeterIdentifiers(meters);
+        if (deviceIdentifiers.isEmpty()) {
+            throw faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.END_DEVICE_IDENTIFIER_MISSING).get();
+        }
+        endDevices = meteringService.findEndDevices(deviceIdentifiers);
         timePeriods = getTimeIntervals(timeSchedules);
+        return this;
+    }
+
+    public EndDeviceEventsBuilder setEndDeviceEventTypeFilters(List<EndDeviceEventType> eventTypes) {
+        eventTypeFilters = getEventTypeFilters(getEventTypeIdentifiers(eventTypes));
         return this;
     }
 
     public EndDeviceEvents build() throws FaultMessage {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
-        endDevices.stream().forEach(
-                endDevice -> endDevice.getDeviceEvents(timePeriods).stream().forEach(
-                        deviceEvent -> endDeviceEventList.add(asEndDeviceEvent(deviceEvent))));
+        endDevices.forEach(endDevice -> {
+            if (eventTypeFilters.isEmpty()) {
+                endDevice.getDeviceEvents(timePeriods).forEach(deviceEvent -> endDeviceEventList.add(asEndDeviceEvent(deviceEvent)));
+            } else {
+                endDevice.getDeviceEvents(timePeriods).stream().filter(filter(eventTypeFilters)).forEach(
+                        deviceEvent -> endDeviceEventList.add(asEndDeviceEvent(deviceEvent)));
+            }
+        });
         return endDeviceEvents;
     }
 
@@ -80,9 +101,9 @@ public class EndDeviceEventsBuilder {
      * If name is specified, find end device by name.
      * Otherwise, this meter tag is skipped.
      */
-    public Set<String> getMeterIdentifiers(List<Meter> meters) throws FaultMessage {
+    public Set<String> getMeterIdentifiers(List<Meter> meters) {
         Set<String> identifiers = new HashSet<>();
-        meters.stream().forEach(meter -> {
+        meters.forEach(meter -> {
             Optional<String> mRID = extractMrid(meter);
             Optional<String> name = extractName(meter);
             if (mRID.isPresent()) {
@@ -91,10 +112,31 @@ public class EndDeviceEventsBuilder {
                 identifiers.add(name.get());
             }
         });
-        if (identifiers.isEmpty()) {
-            throw faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.END_DEVICE_IDENTIFIER_MISSING).get();
-        }
         return identifiers;
+    }
+
+    /*
+     * Filtering by end device group name.
+     * If name is specified, find device group by name.
+     * Otherwise, this device group tag is skipped.
+     */
+    public Set<String> getDeviceGroupIdentifiers(List<EndDeviceGroup> deviceGroups) {
+        return deviceGroups.stream().map(EndDeviceEventsBuilder::extractName).flatMap(Functions.asStream()).collect(Collectors.toSet());
+    }
+
+    public void checkDeviceIdentifiersPresentOrThrowException(Set<String> meters, Set<String> deviceGroups) throws FaultMessage {
+        if (meters.isEmpty() && deviceGroups.isEmpty()) {
+            throw faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.DEVICE_OR_GROUP_IDENTIFIER_MISSING).get();
+        }
+    }
+
+    /*
+     * Filtering by end event type.
+     * If name is specified, find events of the specified type.
+     * Otherwise, all event types are shown.
+     */
+    public Set<String> getEventTypeIdentifiers(List<EndDeviceEventType> eventTypes) {
+        return eventTypes.stream().map(EndDeviceEventsBuilder::extractName).flatMap(Functions.asStream()).collect(Collectors.toSet());
     }
 
     /*
@@ -149,12 +191,73 @@ public class EndDeviceEventsBuilder {
         return Optional.empty();
     }
 
-    private Optional<String> extractMrid(Meter meter) {
+    private static Optional<String> extractMrid(Meter meter) {
         return Optional.ofNullable(meter.getMRID()).filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
     }
 
-    private Optional<String> extractName(Meter meter) {
+    private static Optional<String> extractName(Meter meter) {
         return meter.getNames().stream().map(Name::getName).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace()).findFirst();
+    }
+
+    private static Optional<String> extractName(EndDeviceGroup deviceGroup) {
+        return deviceGroup.getNames().stream().map(Name::getName).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace()).findFirst();
+    }
+
+    private static Optional<String> extractName(EndDeviceEventType eventType) {
+        return eventType.getNames().stream().map(Name::getName).filter(name -> {
+            if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
+                return false;
+            }
+            if (name.trim().equals("*")) {
+                return true;
+            }
+            List<String> parts = Arrays.asList(name.split("\\."));
+            if (parts.size() != com.elster.jupiter.metering.events.EndDeviceEventType.MRID_FIELD_COUNT) {
+                return false;
+            }
+            try {
+                parts.stream().map(String::trim).filter(part -> !"*".equals(part)).forEach(Integer::parseInt);
+            } catch (NumberFormatException ex) {
+                return false;
+            }
+            return true;
+        }).findFirst();
+    }
+
+    public static Set<int[]> getEventTypeFilters(Set<String> eventTypes) {
+        Set<int[]> eventTypeFilters = new HashSet<>();
+        if (eventTypes.isEmpty() || eventTypes.stream().anyMatch(str -> "*".equals(str.trim()))) {
+            return eventTypeFilters;
+        }
+        for (String typeString : eventTypes) {
+            String[] eventTypesToFilter = typeString.split("\\.");
+            int[] eventTypeParts = new int[eventTypesToFilter.length];
+            for (int count = 0; count < eventTypesToFilter.length; count++) {
+                String part = eventTypesToFilter[count].trim();
+                eventTypeParts[count] = part.equals("*") ? -1 : Integer.parseInt(part);
+            }
+            eventTypeFilters.add(eventTypeParts);
+        }
+        return eventTypeFilters;
+    }
+
+    public static Predicate<EndDeviceEventRecord> filter(Set<int[]> eventTypes) {
+        return (record) -> {
+            com.elster.jupiter.metering.events.EndDeviceEventType endDeviceEventType = record.getEventType();
+            for (int[] list : eventTypes) {
+                if (compareEventParts(list[com.elster.jupiter.metering.events.EndDeviceEventType.TYPE_INDEX], endDeviceEventType.getType().getValue())
+                        && compareEventParts(list[com.elster.jupiter.metering.events.EndDeviceEventType.DOMAIN_INDEX], endDeviceEventType.getDomain().getValue())
+                        && compareEventParts(list[com.elster.jupiter.metering.events.EndDeviceEventType.SUBDOMAIN_INDEX], endDeviceEventType.getSubDomain().getValue())
+                        && compareEventParts(list[com.elster.jupiter.metering.events.EndDeviceEventType.EVENT_OR_ACTION_INDEX], endDeviceEventType.getEventOrAction().getValue())) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
+
+    private static boolean compareEventParts(Integer filter, int value) {
+        return filter < 0 || filter.equals(value);
     }
 
     private EndDeviceEvent.EndDeviceEventType toEndDeviceEventType(com.elster.jupiter.metering.events.EndDeviceEventType eventType) {

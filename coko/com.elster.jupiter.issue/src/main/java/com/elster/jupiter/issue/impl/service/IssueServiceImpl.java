@@ -812,8 +812,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     private SqlBuilder getWorkGroupWithoutUserWhereClause(User user) {
         SqlBuilder workGroupWithoutUserWhereClause = new SqlBuilder();
+        /*CONM-1426(WorkGroup device information is incorrect)
         workGroupWithoutUserWhereClause.append(" WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " IS NULL");
         workGroupWithoutUserWhereClause.append(" AND ");
+         */
+        workGroupWithoutUserWhereClause.append(" WHERE ");
         workGroupWithoutUserWhereClause.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID + " IN ( ");
         workGroupWithoutUserWhereClause.append(user.getWorkGroups().isEmpty() ? "NULL" : user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
         workGroupWithoutUserWhereClause.append(" ) ");

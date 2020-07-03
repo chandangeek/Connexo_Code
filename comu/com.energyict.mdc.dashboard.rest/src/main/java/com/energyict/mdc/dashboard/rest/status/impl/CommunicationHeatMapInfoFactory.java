@@ -35,13 +35,13 @@ public class CommunicationHeatMapInfoFactory {
         info.breakdown = HeatMapBreakdownOption.deviceTypes;
         info.alias = info.breakdown.filterOption();
         info.heatMap = new ArrayList<>();
-        info.heatMap.addAll(createHeatMap(heatMap,thesaurus));
+        info.heatMap.addAll(createHeatMap(heatMap, thesaurus));
         return info;
     }
 
     private List<HeatMapRowInfo> createHeatMap(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus) {
         List<HeatMapRowInfo> heatMapInfoList = new ArrayList<>();
-        if (heatMap!=null) {
+        if (heatMap != null) {
             for (CommunicationTaskHeatMapRow row : heatMap) {
                 HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
                 heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
@@ -51,8 +51,13 @@ public class CommunicationHeatMapInfoFactory {
                 for (ComCommandCompletionCodeOverview counters : row) {
                     for (Counter<CompletionCode> completionCodeCounter : counters) {
                         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                        taskCounterInfo.id = completionCodeCounter.getCountTarget().name();
-                        taskCounterInfo.displayName = CompletionCodeTranslationKeys.translationFor(completionCodeCounter.getCountTarget(), thesaurus);
+                        if (completionCodeCounter.getCountTarget() == null) {
+                            taskCounterInfo.id = TranslationKeys.NEVER_STARTED_COMPLETION_CODE.getKey();
+                            taskCounterInfo.displayName = thesaurus.getFormat(TranslationKeys.NEVER_STARTED_COMPLETION_CODE).format();
+                        } else {
+                            taskCounterInfo.id = completionCodeCounter.getCountTarget().name();
+                            taskCounterInfo.displayName = CompletionCodeTranslationKeys.translationFor(completionCodeCounter.getCountTarget(), thesaurus);
+                        }
                         taskCounterInfo.count = completionCodeCounter.getCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }

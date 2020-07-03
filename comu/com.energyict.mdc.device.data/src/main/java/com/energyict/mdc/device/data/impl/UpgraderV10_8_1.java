@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ */
+package com.energyict.mdc.device.data.impl;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.Upgrader;
+
+import javax.inject.Inject;
+
+public class UpgraderV10_8_1 implements Upgrader {
+    private final DataModel dataModel;
+
+    @Inject
+    public UpgraderV10_8_1(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    @Override
+    public void migrate(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 8, 1));
+        execute(dataModel,
+                "merge into " + TableSpecs.DDC_COMTASKEXECJOURNALENTRY.name() + " ctej" +
+                        " using (" +
+                        " select ID, row_number() over (partition by COMTASKEXECSESSION order by ID) position" +
+                        " from " + TableSpecs.DDC_COMTASKEXECJOURNALENTRY.name() + ") calc" +
+                        " on (ctej.ID = calc.ID)" +
+                        " when matched then update set ctej.POSITION = calc.position",
+                "alter table DDC_COMTASKEXECJOURNALENTRY add constraint PK_DDC_COMTASKJOURNALENTRY primary key (COMTASKEXECSESSION, POSITION)",
+                "alter table DDC_COMTASKEXECJOURNALENTRY drop column ID",
+                "drop sequence DDC_COMTASKEXECJOURNALENTRYID",
+                "alter table DDC_COMTASKEXECJOURNALENTRY drop column MOD_DATE"
+        );
+    }
+}

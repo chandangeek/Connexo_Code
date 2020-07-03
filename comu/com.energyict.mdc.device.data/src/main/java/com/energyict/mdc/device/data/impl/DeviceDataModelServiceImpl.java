@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -64,6 +65,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCal
 import com.energyict.mdc.device.data.impl.audit.AuditTranslationKeys;
 import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
+import com.energyict.mdc.device.data.impl.events.ComTaskExecutionCreatorEventHandler;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -184,6 +186,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private BundleContext bundleContext;
     private ConfigPropertiesService configPropertiesService;
+    private ComTaskExecutionCreatorEventHandler comTaskExecutionCreatorEventHandler;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -704,6 +707,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 7, 1), UpgraderV10_7_1.class)
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
                         .put(version(10, 8), UpgraderV10_8.class)
+                        .put(version(10, 8, 1), UpgraderV10_8_1.class)
+                        .put(version(10, 9), UpgraderV10_9.class)
                         .build());
         this.registerRealServices(bundleContext);
     }
@@ -722,9 +727,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         batchService = new BatchServiceImpl(this);
         deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
         crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
+        comTaskExecutionCreatorEventHandler = new ComTaskExecutionCreatorEventHandler(deviceService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
+        serviceRegistrations.add(bundleContext.registerService(Subscriber.class, this.comTaskExecutionCreatorEventHandler, null));
         registerConnectionTaskService(bundleContext);
         registerConnectionTaskReportService(bundleContext);
         registerPriorityComTaskService(bundleContext);

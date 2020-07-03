@@ -267,9 +267,9 @@ public class ComSessionImpl implements ComSession {
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECJOURNALENTRY.name());
         sqlBuilder.append(" cteje join ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes on cteje.COMTASKEXECSESSION = ctes.id where ctes.comsession =");
+        sqlBuilder.append(" ctes on cteje.COMTASKEXECSESSION = ctes.id where ctes.comsession = ");
         sqlBuilder.addLong(this.getId());
-        sqlBuilder.append("and loglevel in (");
+        sqlBuilder.append(" and loglevel in (");
         this.appendLogLevels(levels, sqlBuilder);
         sqlBuilder.append(") order by timestamp desc");
         sqlBuilder.asPageBuilder(start, start + pageSize - 1);

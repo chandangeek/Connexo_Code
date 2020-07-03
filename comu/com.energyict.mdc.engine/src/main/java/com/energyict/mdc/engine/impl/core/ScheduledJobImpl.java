@@ -25,6 +25,7 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
 
@@ -69,9 +70,13 @@ public abstract class ScheduledJobImpl extends JobExecution {
     }
 
 
-    protected ProtocolJournal getJournal(){
-        // create a DEBUG-level journal link for the protocols and inject it to protocols
-        ProtocolJournal protocolJournal = a -> getExecutionContext().createJournalEntry(ComServer.LogLevel.DEBUG, a);
+    protected ProtocolJournal getJournal() {
+        ProtocolJournal protocolJournal = a -> {
+        };
+        if (getExecutionContext().getComPort().getComServer().getCommunicationLogLevel().compareTo(ComServer.LogLevel.DEBUG) >= 0) {
+            // create a DEBUG-level journal link for the protocols and inject it to protocols
+            protocolJournal = a -> getExecutionContext().createJournalEntry(ComServer.LogLevel.DEBUG, a);
+        }
         return protocolJournal;
     }
 

@@ -12,10 +12,15 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.comserver.*;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.impl.SecurityPropertySetImpl;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
@@ -24,6 +29,7 @@ import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.device.config.impl.SecurityPropertySetImpl;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
@@ -35,10 +41,10 @@ import com.energyict.mdc.engine.impl.ObjectParser;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ComTaskExecutionGroup;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.tools.ProtocolUtils;
 import com.energyict.mdc.engine.impl.web.queryapi.DataCompressor;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
@@ -47,7 +53,15 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -59,6 +73,7 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.api.Session;
@@ -77,7 +92,14 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -117,17 +139,17 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         this.compressData = remoteProperties.getCompressQueryData();
     }
 
-    public void setComServer (ServerProcess comServer) {
+    public void setComServer(ServerProcess comServer) {
         this.comServer = comServer;
     }
 
     @Override
-    public ComServer getThisComServer () {
+    public ComServer getThisComServer() {
         return getComServer(getSystemName());
     }
 
     @Override
-    public ComServer getComServer (String hostName) {
+    public ComServer getComServer(String hostName) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.HOSTNAME, hostName);
         JSONObject response = this.post(QueryMethod.GetComServer, queryParameters);
@@ -135,7 +157,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ComServer refreshComServer (ComServer comServer) {
+    public ComServer refreshComServer(ComServer comServer) {
         if (!isComServerDAOShutDown()) {
             Map<String, Object> queryParameters = new HashMap<>();
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
@@ -231,7 +253,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
+    public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort) {
         if (!isComServerDAOShutDown()) {
             Map<String, Object> queryParameters = new HashMap<>();
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE, device.getId());
@@ -274,7 +296,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return toObject(response, new ObjectParser<ComTaskEnablement>());
     }
 
-    public List<SecurityPropertySet> findAllSecurityPropertySetsForDevice(DeviceIdentifier deviceIdentifier){
+    public List<SecurityPropertySet> findAllSecurityPropertySetsForDevice(DeviceIdentifier deviceIdentifier) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         JSONObject response = post(QueryMethod.FindAllSecurityPropertySetsForDevice, queryParameters);
@@ -283,7 +305,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock (ScheduledConnectionTask connectionTask, ComPort comPort) {
+    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
@@ -301,14 +323,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void unlock (OutboundConnectionTask connectionTask) {
+    public void unlock(OutboundConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.Unlock, queryParameters);
     }
 
     @Override
-    public boolean attemptLock (ComTaskExecution comTaskExecution, ComPort comPort) {
+    public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
@@ -326,14 +348,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void unlock (ComTaskExecution comTaskExecution) {
+    public void unlock(ComTaskExecution comTaskExecution) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
         this.post(QueryMethod.Unlock, queryParameters);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComPort comPort) {
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
@@ -342,7 +364,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.ExecutionCompleted, queryParameters);
@@ -350,7 +372,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.ExecutionFailed, queryParameters);
@@ -460,10 +482,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> lastReadings, Map<LogBookIdentifier, Instant> lastLogBooks) {
         Map<String, Object> queryParameters = new HashMap<>();
-        if (lastReadings.size() > 0)
+        if (lastReadings.size() > 0) {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.LAST_READINGS, lastReadings);
-        if (lastLogBooks.size() > 0)
+        }
+        if (lastLogBooks.size() > 0) {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.LAST_LOGBOOKS, lastLogBooks);
+        }
         post(QueryMethod.UpdateDataSourceReadings, queryParameters);
     }
 
@@ -567,7 +591,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (ComTaskExecution comTaskExecution) {
+    public void executionCompleted(ComTaskExecution comTaskExecution) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
         this.post(QueryMethod.ExecutionCompleted, queryParameters);
@@ -590,21 +614,21 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION_COLLECTION, this.collectIds(comTaskExecutions));
         this.post(QueryMethod.ExecutionCompleted, queryParameters);
     }
 
     @Override
-    public void executionFailed (ComTaskExecution comTaskExecution) {
+    public void executionFailed(ComTaskExecution comTaskExecution) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
         this.post(QueryMethod.ExecutionFailed, queryParameters);
     }
 
     @Override
-    public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION_COLLECTION, this.collectIds(comTaskExecutions));
         this.post(QueryMethod.ExecutionFailed, queryParameters);
@@ -763,7 +787,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateGateway (DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
+    public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.GATEWAY_DEVICE_IDENTIFIER, gatewayDeviceIdentifier);
@@ -790,8 +814,9 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_IDENTIFIER, messageIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_STATUS, newDeviceMessageStatus);
-        if (sentDate != null)
+        if (sentDate != null) {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.SENT_DATE, Date.from(sentDate));
+        }
         if (protocolInformation != null) {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION, protocolInformation);
         }
@@ -824,7 +849,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, inboundComPort.getId());
@@ -838,7 +863,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public boolean isStillPending (long comTaskExecutionId) {
+    public boolean isStillPending(long comTaskExecutionId) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecutionId);
         JSONObject response = this.post(QueryMethod.IsStillPending, queryParameters);
@@ -846,7 +871,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public boolean areStillPending (Collection<Long> comTaskExecutionIds) {
+    public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION_COLLECTION, comTaskExecutionIds);
         JSONObject response = this.post(QueryMethod.AreStillPending, queryParameters);
@@ -861,7 +886,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return toBoolean(response);
     }
 
-    private ComServer toComServer (JSONObject response) {
+    private ComServer toComServer(JSONObject response) {
         try {
             return new ComServerParser().parse(response);
         } catch (JSONException e) {
@@ -905,32 +930,28 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private JSONObject post (QueryMethod queryMethod) {
+    private JSONObject post(QueryMethod queryMethod) {
         return this.post(queryMethod, new HashMap<String, Object>(0));
     }
 
-    private JSONObject post (QueryMethod queryMethod, Map<String, Object> queryParameters) {
+    private JSONObject post(QueryMethod queryMethod, Map<String, Object> queryParameters) {
         try {
             QuerySpecs querySpecs = this.newQuerySpecs(queryMethod, queryParameters);
             Query query = this.queries.newQueryFor(querySpecs);
             this.post(query);
             return query.getResponse().get(timeout, TimeUnit.MILLISECONDS);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new DataAccessException(e, MessageSeeds.UNEXPECTED_WEBSOCKET_ERROR);
-        }
-        catch (TimeoutException e) {
+        } catch (TimeoutException e) {
             throw new DataAccessException(e, MessageSeeds.UNEXPECTED_WEBSOCKET_ERROR);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new DataAccessException(e, MessageSeeds.UNEXPECTED_WEBSOCKET_ERROR); // TODO thread safety hazard : this is not responsive to interruption
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
         }
     }
 
-    private QuerySpecs newQuerySpecs (QueryMethod method, Map<String, Object> queryParameters) throws JSONException {
+    private QuerySpecs newQuerySpecs(QueryMethod method, Map<String, Object> queryParameters) throws JSONException {
         QuerySpecs querySpecs = new QuerySpecs();
         querySpecs.put(RemoteComServerQueryJSonPropertyNames.METHOD, method.name());
         for (Map.Entry<String, Object> paramSpec : queryParameters.entrySet()) {
@@ -939,12 +960,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return querySpecs;
     }
 
-    private void post (Query query) throws IOException, JSONException {
+    private void post(Query query) throws IOException, JSONException {
         this.webSocket.post(query);
     }
 
     @Override
-    public ServerProcessStatus getStatus () {
+    public ServerProcessStatus getStatus() {
         return this.status;
     }
 
@@ -970,21 +991,22 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void shutdown () {
+    public void shutdown() {
         this.webSocket.disconnect();
     }
 
     @Override
-    public void shutdownImmediate () {
+    public void shutdownImmediate() {
         this.shutdown();
     }
 
     private void webSocketClosed() {
-        if (this.comServer != null)
+        if (this.comServer != null) {
             this.comServer.shutdownImmediate();
+        }
     }
 
-    private Collection<Long> collectIds (List<? extends HasId> businessObjects) {
+    private Collection<Long> collectIds(List<? extends HasId> businessObjects) {
         Collection<Long> ids = new ArrayList<>(businessObjects.size());
         for (HasId businessObject : businessObjects) {
             ids.add((long) businessObject.getId());
@@ -994,32 +1016,31 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private class QueryWebSocket implements WebSocketListener {
 
-        private Session session;
+        private Optional<Session> oSession = Optional.empty();
 
         public QueryWebSocket() {
         }
 
-        public QueryWebSocket(Session session) {
-            this.session = session;
-        }
-
         public boolean isOpen() {
-            return session != null && session.isOpen();
+            return oSession.isPresent() && oSession.get().isOpen();
         }
 
-        public void disconnect () {
-            if (this.session != null) {
-                this.session.close();
-            }
+        public void disconnect() {
+            oSession.ifPresent(Session::close);
         }
 
-        public synchronized void post (Query query) throws JSONException, IOException {
-            String serializedText = query.getSpecs().marshall();
-            if (compressData) {
-                byte[] compressedData = DataCompressor.encodeAndCompress(serializedText, true);
-                session.getRemote().sendBytes(ByteBuffer.wrap(compressedData));
+        public synchronized void post(Query query) throws JSONException, IOException {
+            if (oSession.isPresent()) {
+                String serializedText = query.getSpecs().marshall();
+                Session session = oSession.get();
+                if (compressData) {
+                    byte[] compressedData = DataCompressor.encodeAndCompress(serializedText, true);
+                    session.getRemote().sendBytes(ByteBuffer.wrap(compressedData));
+                } else {
+                    session.getRemote().sendString(serializedText);
+                }
             } else {
-                session.getRemote().sendString(serializedText);
+                throw new DataAccessException(MessageSeeds.WEBSOCKET_CLOSED);
             }
         }
 
@@ -1040,20 +1061,19 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
                 String queryId = String.valueOf(jsonObject.get(RemoteComServerQueryJSonPropertyNames.QUERY_ID));
                 Query query = queries.findAndRemove(queryId);
                 query.getResponse().setValue(jsonObject);
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 throw new ApplicationException("Unable to parse reponse from OnlineComServer", e);
             }
         }
 
         @Override
         public void onWebSocketConnect(Session session) {
-            this.session = session;
+            this.oSession = Optional.of(session);
         }
 
         @Override
         public void onWebSocketClose(int i, String s) {
-            this.session = null;
+            this.oSession = Optional.empty();
             webSocketClosed();
         }
 
@@ -1098,12 +1118,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         }
 
         @Override
-        public boolean isCancelled () {
+        public boolean isCancelled() {
             return false;
         }
 
         @Override
-        public boolean cancel (boolean mayInterruptIfRunning) {
+        public boolean cancel(boolean mayInterruptIfRunning) {
             return false;
         }
 
@@ -1113,16 +1133,16 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         private final QuerySpecs specs;
         private final QueryResponse response = new QueryResponse();
 
-        private Query (QuerySpecs specs) {
+        private Query(QuerySpecs specs) {
             super();
             this.specs = specs;
         }
 
-        public QuerySpecs getSpecs () {
+        public QuerySpecs getSpecs() {
             return specs;
         }
 
-        public QueryResponse getResponse () {
+        public QueryResponse getResponse() {
             return response;
         }
     }
@@ -1161,18 +1181,19 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         private long nextId = 1;
         private Map<String, Query> queriesInProgress = new HashMap<>();
 
-        public synchronized Query newQueryFor (QuerySpecs querySpecs) throws JSONException {
+        public synchronized Query newQueryFor(QuerySpecs querySpecs) throws JSONException {
             long queryId = this.nextId++;
             Principal principal = serviceProvider.threadPrincipalService().getPrincipal();
             Query query = new Query(querySpecs);
             this.queriesInProgress.put(String.valueOf(queryId), query);
             querySpecs.put(RemoteComServerQueryJSonPropertyNames.QUERY_ID, queryId);
-            if (principal instanceof User)
-                querySpecs.put(RemoteComServerQueryJSonPropertyNames.USER_ID, ((User)principal).getId());
+            if (principal instanceof User) {
+                querySpecs.put(RemoteComServerQueryJSonPropertyNames.USER_ID, ((User) principal).getId());
+            }
             return query;
         }
 
-        public synchronized Query findAndRemove (String queryId) {
+        public synchronized Query findAndRemove(String queryId) {
             Query query = this.queriesInProgress.get(queryId);
             if (query != null) {
                 this.queriesInProgress.remove(queryId);

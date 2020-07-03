@@ -76,7 +76,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
 
         CommandExecutor commandExecutor = this.commandExecutorFactory.renewal(new CommandErrorHandler(this, occurrence, eventService, logger), bpmService, keyRenewalBpmProcessDefinitionId, now, logger);
         // in future perhaps this needs more configuration like using a configurable number of threads
-        expiredKeys.parallelStream().map(f -> securityAccessorDAO.findBy(f)).filter(f -> f.isPresent()).map(f -> f.get()).forEach(f -> commandExecutor.execute(f));
+        expiredKeys.stream().map(f -> securityAccessorDAO.findBy(f)).filter(f -> f.isPresent()).map(f -> f.get()).forEach(f -> commandExecutor.execute(f));
 
     }
 

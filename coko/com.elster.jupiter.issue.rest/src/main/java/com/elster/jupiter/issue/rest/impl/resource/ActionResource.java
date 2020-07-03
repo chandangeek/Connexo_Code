@@ -64,7 +64,20 @@ public class ActionResource extends BaseResource {
                 .filter(item -> (!((item.name).equals("Email") && issueTypeParam.equals("usagepointdatavalidation"))))
                 .sorted(Comparator.comparing(a -> a.name))
                 .collect(Collectors.toList());
-
+        // Fix for CXO-11797
+        IssueActionTypeInfo objectToRemove = null;
+        boolean foundObject = false;
+        if (phaseParam != null && phaseParam.equals("OVERDUE")) {
+            for (IssueActionTypeInfo issueActionTypeInfo : ruleActionTypes) {
+                if (issueActionTypeInfo.name.equals("Close issue")) {
+                    foundObject = true;
+                    objectToRemove = issueActionTypeInfo;
+                }
+            }
+            if (foundObject) {
+                ruleActionTypes.remove(objectToRemove);
+            }
+        }
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }
 

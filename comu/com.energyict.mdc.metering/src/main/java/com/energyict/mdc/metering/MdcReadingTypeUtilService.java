@@ -6,13 +6,13 @@ package com.energyict.mdc.metering;
 
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.time.TimeDuration;
 
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -20,24 +20,27 @@ public interface MdcReadingTypeUtilService {
 
     /**
      * Creates a {@link ReadingTypeInformation} based on the given readingType
-     * @deprecated Replaced by {@link #getReadingTypeInformationFrom(String readingType)}
+     *
      * @param readingType the readingType string
      * @return the ReadingTypeInformation modeled by the given readingType string
+     * @deprecated Replaced by {@link #getReadingTypeInformationFrom(String readingType)}
      */
     @Deprecated
     ReadingTypeInformation getReadingTypeInformationFor(String readingType);
 
     /**
      * Creates a {@link ReadingTypeInformation} based on the given readingType
-     * @deprecated Replaced by {@link #getReadingTypeInformationFrom(ReadingType)}
+     *
      * @param readingType the ReadingType
      * @return the ReadingTypeInformation modeled by the given ReadingType
+     * @deprecated Replaced by {@link #getReadingTypeInformationFrom(ReadingType)}
      */
     @Deprecated
     ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType);
 
     /**
      * Creates an Optional {@link ReadingTypeInformation} based on the given readingType
+     *
      * @param readingType the readingType string
      * @return Optional ReadingTypeInformation modeled by the given readingType string
      */
@@ -45,6 +48,7 @@ public interface MdcReadingTypeUtilService {
 
     /**
      * Creates an Optional {@link ReadingTypeInformation} based on the given readingType
+     *
      * @param readingType the ReadingType
      * @return Optional ReadingTypeInformation modeled by the given ReadingType
      */
@@ -54,7 +58,7 @@ public interface MdcReadingTypeUtilService {
      * Creates a ReadingType string based on the given arguments
      *
      * @param obisCode the ObisCode that models the ReadingType
-     * @param unit     the Unit that models the ReadingType
+     * @param unit the Unit that models the ReadingType
      * @return the ReadingType string modeled by the given arguments
      */
     String getReadingTypeMridFrom(ObisCode obisCode, Unit unit);
@@ -65,7 +69,7 @@ public interface MdcReadingTypeUtilService {
      * Creates a ReadingType string based on the given arguments
      *
      * @param obisCode the ObisCode that models the ReadingType
-     * @param unit     the Unit that models the ReadingType
+     * @param unit the Unit that models the ReadingType
      * @param interval the Interval that models the ReadingType
      * @return the ReadingType string modeled by the given arguments
      */
@@ -77,7 +81,6 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the ReadingType to start from
      * @param interval the Interval to apply
      * @param registerObisCode the ObisCode of the register for the ReadingType
-     *
      * @return an optional ReadingType
      */
     Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
@@ -89,7 +92,6 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the ReadingType to start from
      * @param interval the Interval to apply
      * @param registerObisCode the ObisCode of the register for the ReadingType
-     *
      * @return the interval applied ReadingType
      */
     ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
@@ -97,7 +99,7 @@ public interface MdcReadingTypeUtilService {
     /**
      * Finds the ReadingType which is
      *
-     * @param mrid  of the ReadingType to find or create
+     * @param mrid of the ReadingType to find or create
      * @param alias the alias to give to the readingType in case you have to create one
      * @return the requested ReadingType
      */
@@ -110,7 +112,7 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the ReadingType
      * @return the mdc Unit
      */
-    Unit getMdcUnitFor(String readingType);
+    List<Unit> getMdcUnitsFor(String readingType);
 
     /**
      * Gets the MDC unit according to the CIM ReadingType.
@@ -119,7 +121,7 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the ReadingType
      * @return the mdc Unit
      */
-    Unit getMdcUnitFor(ReadingType readingType);
+    List<Unit> getMdcUnitsFor(ReadingType readingType);
 
     /**
      * Creates a ReadingTypeCodeBuilder from a given readingType
@@ -140,6 +142,7 @@ public interface MdcReadingTypeUtilService {
 
     /**
      * Creates a ReadingType regex based on the obis code
+     *
      * @param obisCode the ObisCode that will be mapped to multiple reading types
      * @return Reading Type regular expression
      */

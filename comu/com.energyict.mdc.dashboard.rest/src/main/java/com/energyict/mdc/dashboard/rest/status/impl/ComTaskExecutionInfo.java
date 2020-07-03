@@ -10,7 +10,7 @@ import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 public class ComTaskExecutionInfo extends BaseComTaskExecutionInfo {
 
     public IdWithNameInfo comTask;
-    public IdWithNameInfo device;
+    public DeviceInfo device;
     public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
     public ConnectionTaskInfo connectionTask;

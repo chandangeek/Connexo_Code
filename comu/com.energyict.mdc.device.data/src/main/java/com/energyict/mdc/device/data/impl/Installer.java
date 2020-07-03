@@ -93,6 +93,8 @@ public class Installer implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        execute(dataModel,
+                "alter table DDC_COMTASKEXECJOURNALENTRY add constraint PK_DDC_COMTASKJOURNALENTRY primary key (COMTASKEXECSESSION, POSITION)");
         doTry(
                 "Create event types for ",
                 this::createEventTypes,

@@ -6,7 +6,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
-import static com.elster.jupiter.orm.Version.version;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
@@ -16,6 +15,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -25,6 +25,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -41,10 +42,10 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
@@ -108,6 +109,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.orm.Version.version;
+
 
 @Singleton
 @Component(
@@ -144,6 +147,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
@@ -185,7 +189,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     @Inject
     public InboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock, ThreadPrincipalService threadPrincipalService,
-                                         TransactionService transactionService, MeteringService meteringService,
+                                         TransactionService transactionService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                                          NlsService nlsService, UpgradeService upgradeService,
                                          DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
                                          DeviceService deviceService, UserService userService, BatchService batchService,
@@ -212,6 +216,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
         setMeteringService(meteringService);
+        setMeteringGroupsService(meteringGroupsService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         setDeviceLifeCycleService(deviceLifeCycleService);
@@ -258,6 +263,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DeviceLifeCycleService.class).toInstance(deviceLifeCycleService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceService.class).toInstance(deviceService);
@@ -301,10 +307,13 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel.register(getModule());
 
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
-                ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
-                                version(10, 7), UpgraderV10_7.class,
-                                version(10, 7, 2), UpgraderV10_7_2.class,
-                                version(10,9), UpgraderV10_9.class));
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), UpgraderV10_7.class)
+                        .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(version(10, 9), UpgraderV10_9.class)
+                        .build());
+
         setActualRecurrentTaskFrequency();
         setActualRecurrentTaskReadOutDelay();
         createOrUpdateFutureComTasksExecutionTask();
@@ -419,6 +428,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
