@@ -20,8 +20,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class ResourceIT extends EqualsContractTest {
-
+public class ResourceTest extends EqualsContractTest {
     private Resource resource;
 
     @Mock
@@ -29,21 +28,16 @@ public class ResourceIT extends EqualsContractTest {
     @Mock
     private UserServiceImpl userService;
 
-
     private static final String TEST_COMPONENT_NAME = "componentName";
-    private static final String TEST_RESOURCE_DESCRIPTION= "resourceDescription";
+    private static final String TEST_RESOURCE_DESCRIPTION = "resourceDescription";
     private static final String RESOURCE_NAME = "resourceName";
     private static final String OTHER_RESOURCE_NAME = "otherResourceName";
-    private static final long ID = 0;
-    private static final long OTHER_ID = 1;
-
 
     @Before
     public void equalsContractSetUp() {
         when(dataModel.getInstance(ResourceImpl.class)).thenAnswer(invocation -> new ResourceImpl(dataModel, userService));
         super.equalsContractSetUp();
     }
-
 
     @After
     public void tearDown() {
@@ -52,15 +46,14 @@ public class ResourceIT extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (resource == null) {
-            resource =  ResourceImpl.from(dataModel, TEST_COMPONENT_NAME, RESOURCE_NAME, TEST_RESOURCE_DESCRIPTION);
+            resource = ResourceImpl.from(dataModel, TEST_COMPONENT_NAME, RESOURCE_NAME, TEST_RESOURCE_DESCRIPTION);
         }
         return resource;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        Resource resourceB =  ResourceImpl.from(dataModel, TEST_COMPONENT_NAME, RESOURCE_NAME, TEST_RESOURCE_DESCRIPTION);
-        return resourceB;
+        return ResourceImpl.from(dataModel, TEST_COMPONENT_NAME, RESOURCE_NAME, TEST_RESOURCE_DESCRIPTION);
     }
 
     @Override
@@ -78,7 +71,4 @@ public class ResourceIT extends EqualsContractTest {
     protected Object getInstanceOfSubclassEqualToA() {
         return null;
     }
-
 }
-
-

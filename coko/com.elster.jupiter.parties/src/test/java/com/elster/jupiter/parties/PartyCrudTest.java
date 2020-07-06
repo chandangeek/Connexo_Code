@@ -42,6 +42,7 @@ import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -196,6 +197,7 @@ public class PartyCrudTest {
     	}
     }
 
+    @Ignore("FIXME: CXO-12404")
     @Test
     public void testPartyRoleCache() {
     	try (TransactionContext context = getTransactionService().getContext()) {

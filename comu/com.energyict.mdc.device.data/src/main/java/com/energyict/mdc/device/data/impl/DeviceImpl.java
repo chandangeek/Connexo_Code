@@ -3020,7 +3020,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         @Override
         public void update() {
             super.update();
-            dataModel.touch(DeviceImpl.this);
         }
     }
 

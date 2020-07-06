@@ -250,7 +250,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             firstDeviceConfiguration.activate();
 
             device = inMemoryPersistence.getDeviceService()
-                    .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
+                    .newDevice(firstDeviceConfiguration, "Serial", "DeviceName", Instant.now());
             device.save();
             context.commit();
         }

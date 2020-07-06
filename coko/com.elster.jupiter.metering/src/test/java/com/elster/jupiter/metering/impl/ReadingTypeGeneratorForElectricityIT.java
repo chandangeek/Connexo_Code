@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,8 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore // install framework ro revise this
-public class ReadingTypeGeneratorForElectricityTest {
+public class ReadingTypeGeneratorForElectricityIT {
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @BeforeClass
@@ -44,7 +42,6 @@ public class ReadingTypeGeneratorForElectricityTest {
     @Test
     @Transactional
     public void generateTest() {
-
         ReadingTypeGeneratorForElectricity readingTypeGeneratorForElectricity = new ReadingTypeGeneratorForElectricity();
         List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
         getMeteringService().createAllReadingTypes(readingTypes);
@@ -62,8 +59,7 @@ public class ReadingTypeGeneratorForElectricityTest {
         List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
         getMeteringService().createAllReadingTypes(readingTypes);
 
-        getMeteringService().getAvailableReadingTypes().stream().forEach(readingType ->
-        {
+        getMeteringService().getAvailableReadingTypes().forEach(readingType -> {
             if (readingType.getAccumulation().equals(Accumulation.DELTADELTA)) {
                 assertThat(readingType.getFullAliasName().contains("Delta ")).isTrue();
             } else if (readingType.getAccumulation().equals(Accumulation.BULKQUANTITY)) {
@@ -74,7 +70,7 @@ public class ReadingTypeGeneratorForElectricityTest {
         });
     }
 
-    private MeteringServiceImpl getMeteringService() {
-        return (MeteringServiceImpl) inMemoryBootstrapModule.getMeteringService();
+    private ServerMeteringService getMeteringService() {
+        return inMemoryBootstrapModule.getMeteringService();
     }
 }

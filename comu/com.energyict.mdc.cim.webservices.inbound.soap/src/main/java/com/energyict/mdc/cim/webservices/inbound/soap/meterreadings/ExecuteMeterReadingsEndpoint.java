@@ -312,7 +312,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
-                Optional<ComTaskExecution> comTaskExecutionOptional = findOrCreateComTaskExecutionForDeviceMessages(device);
+                Optional<ComTaskExecution> comTaskExecutionOptional = findOrCreateComTaskExecutionForDeviceMessages(device, reading.getConnectionMethod());
                 if (comTaskExecutionOptional.isPresent()) {
                     if (reading.getScheduleStrategy() != null && reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
                         if (!comTaskExecutionOptional.get().getComSchedule().isPresent()) {
@@ -365,7 +365,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
         List<String> noComTaskExecutionLoadProfileList = new ArrayList<>();
         syncReplyIssue.getReadingExistedLoadProfilesMap().get(index).forEach(loadProfileName -> {
-                    ComTaskExecution comTaskExecution = findOrCreateComTaskExecutionForLoadProfile(device, loadProfileName);
+                    ComTaskExecution comTaskExecution = findOrCreateComTaskExecutionForLoadProfile(device, loadProfileName, reading.getConnectionMethod());
                     if (comTaskExecution != null) {
                         comTaskExecutions.add(comTaskExecution);
                     } else {
@@ -387,7 +387,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
         List<String> noComTaskExecutionRegisterGroupList = new ArrayList<>();
         syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index).forEach(loadProfileName -> {
-                    ComTaskExecution comTaskExecution = findOrCreateComTaskExecutionForRegisterGroup(device, loadProfileName);
+                    ComTaskExecution comTaskExecution = findOrCreateComTaskExecutionForRegisterGroup(device, loadProfileName, reading.getConnectionMethod());
                     if (comTaskExecution != null) {
                         comTaskExecutions.add(comTaskExecution);
                     } else {
@@ -410,7 +410,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         List<com.elster.jupiter.metering.ReadingType> noComTaskExecutionReadingTypeList = new ArrayList<>();
 
         for (com.elster.jupiter.metering.ReadingType readingType : syncReplyIssue.getExistedReadingTypes()) {
-            ComTaskExecution comTaskExecution = findOrCreateComTaskExecutionForReadingType(device, isRegular, readingType);
+            ComTaskExecution comTaskExecution = findOrCreateComTaskExecutionForReadingType(device, isRegular, readingType, reading.getConnectionMethod());
             if (comTaskExecution != null) {
                 comTaskExecutions.add(comTaskExecution);
             } else {
@@ -442,15 +442,22 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private ComTaskExecution findOrCreateComTaskExecutionForReadingType(Device device, boolean isRegular, com.elster.jupiter.metering.ReadingType readingType) {
-        Optional<ComTaskExecution> comTaskExecution = findComTaskExecutionForReadingType(device, isRegular, readingType);
+    private ComTaskExecution findOrCreateComTaskExecutionForReadingType(Device device, boolean isRegular, com.elster.jupiter.metering.ReadingType readingType, String connectionMethod) {
+        List<ComTaskExecution> comTaskExecutionList = findComTaskExecutionForReadingType(device, isRegular, readingType);
         ComTaskExecution execution = null;
-        if (comTaskExecution.isPresent()) {
-            if (!comTaskExecution.get().isOnHold()) {
+        if (!comTaskExecutionList.isEmpty()) {
+            // If the requested com task is configured on the device but it is inactive or it has the connection method that differs from the requested one, return an error
+            Optional<ComTaskExecution> comTaskExecution = comTaskExecutionList
+                    .stream()
+                    .filter(cte -> !cte.isOnHold())
+                    .filter(cte -> connectionMethod == null
+                            || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod)).findAny();
+            if (comTaskExecution.isPresent()) {
                 execution = comTaskExecution.get();
             }
         } else {
-            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForReadingType(device, isRegular, readingType);
+            // No com task executions found on the device, create an execution using the device configuration com task enablement
+            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForReadingType(device, isRegular, readingType, connectionMethod);
             if (comTaskEnablement.isPresent()) {
                 execution = createAdHocComTaskExecution(device, comTaskEnablement.get());
             }
@@ -458,15 +465,22 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return execution;
     }
 
-    private ComTaskExecution findOrCreateComTaskExecutionForLoadProfile(Device device, String loadProfileName) {
-        Optional<ComTaskExecution> comTaskExecution = findComTaskExecutionForLoadProfile(device, loadProfileName);
+    private ComTaskExecution findOrCreateComTaskExecutionForLoadProfile(Device device, String loadProfileName, String connectionMethod) {
+        List<ComTaskExecution> comTaskExecutionList = findComTaskExecutionForLoadProfile(device, loadProfileName);
         ComTaskExecution execution = null;
-        if (comTaskExecution.isPresent()) {
-            if (!comTaskExecution.get().isOnHold()) {
+        if (!comTaskExecutionList.isEmpty()) {
+            // If the requested com task is configured on the device but it is inactive or it has the connection method that differs from the requested one, return an error
+            Optional<ComTaskExecution> comTaskExecution = comTaskExecutionList
+                    .stream()
+                    .filter(cte -> !cte.isOnHold())
+                    .filter(cte -> connectionMethod == null
+                            || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod)).findAny();
+            if (comTaskExecution.isPresent()) {
                 execution = comTaskExecution.get();
             }
         } else {
-            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForLoadProfile(device, loadProfileName);
+            // No com task executions found on the device, create an execution using the device configuration com task enablement
+            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForLoadProfile(device, loadProfileName, connectionMethod);
             if (comTaskEnablement.isPresent()) {
                 execution = createAdHocComTaskExecution(device, comTaskEnablement.get());
             }
@@ -474,15 +488,22 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return execution;
     }
 
-    private ComTaskExecution findOrCreateComTaskExecutionForRegisterGroup(Device device, String registerGroupName) {
-        Optional<ComTaskExecution> comTaskExecution = findComTaskExecutionForRegisterGroup(device, registerGroupName);
+    private ComTaskExecution findOrCreateComTaskExecutionForRegisterGroup(Device device, String registerGroupName, String connectionMethod) {
+        List<ComTaskExecution> comTaskExecutionList = findComTaskExecutionForRegisterGroup(device, registerGroupName);
         ComTaskExecution execution = null;
-        if (comTaskExecution.isPresent()) {
-            if (!comTaskExecution.get().isOnHold()) {
+        if (!comTaskExecutionList.isEmpty()) {
+            // If the requested com task is configured on the device but it is inactive or it has the connection method that differs from the requested one, return an error
+            Optional<ComTaskExecution> comTaskExecution = comTaskExecutionList
+                    .stream()
+                    .filter(cte -> !cte.isOnHold())
+                    .filter(cte -> connectionMethod == null
+                            || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod)).findAny();
+            if (comTaskExecution.isPresent()) {
                 execution = comTaskExecution.get();
             }
         } else {
-            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForRegisterGroup(device, registerGroupName);
+            // No com task executions found on the device, create an execution using the device configuration com task enablement
+            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForRegisterGroup(device, registerGroupName, connectionMethod);
             if (comTaskEnablement.isPresent()) {
                 execution = createAdHocComTaskExecution(device, comTaskEnablement.get());
             }
@@ -490,47 +511,53 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return execution;
     }
 
-    private Optional<ComTaskExecution> findComTaskExecutionForLoadProfile(Device device, String loadProfileName) {
+    private List<ComTaskExecution> findComTaskExecutionForLoadProfile(Device device, String loadProfileName) {
         return device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getProtocolTasks().stream()
                         .filter(protocolTask -> protocolTask instanceof LoadProfilesTask)
                         .anyMatch(protocolTask -> ((LoadProfilesTask) protocolTask).getLoadProfileTypes().stream()
                                 .anyMatch(loadProfile -> loadProfile.getName().equals(loadProfileName))))
-                .findAny();
+                .collect(Collectors.toList());
     }
 
-    private Optional<ComTaskEnablement> findComTaskEnablementForLoadProfile(Device device, String loadProfileName) {
+    private Optional<ComTaskEnablement> findComTaskEnablementForLoadProfile(Device device, String loadProfileName, String connectionMethod) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream()
                         .filter(protocolTask -> protocolTask instanceof LoadProfilesTask)
                         .anyMatch(protocolTask -> ((LoadProfilesTask) protocolTask).getLoadProfileTypes().stream()
                                 .anyMatch(loadProfile -> loadProfile.getName().equals(loadProfileName))))
+                .filter(cte -> connectionMethod == null
+                        || cte.hasPartialConnectionTask() && cte.getPartialConnectionTask().get().getName().equalsIgnoreCase(connectionMethod))
+                .filter(cte -> !cte.isSuspended())
                 .findAny();
     }
 
-    private Optional<ComTaskExecution> findComTaskExecutionForRegisterGroup(Device device, String registerGroupName) {
+    private List<ComTaskExecution> findComTaskExecutionForRegisterGroup(Device device, String registerGroupName) {
         return device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getProtocolTasks().stream()
                         .filter(protocolTask -> protocolTask instanceof RegistersTask)
                         .anyMatch(protocolTask -> ((RegistersTask) protocolTask).getRegisterGroups().stream()
                                 .anyMatch(registerGroup -> registerGroup.getName().equals(registerGroupName))))
-                .findAny();
+                .collect(Collectors.toList());
     }
 
-    private Optional<ComTaskEnablement> findComTaskEnablementForRegisterGroup(Device device, String registerGroupName) {
+    private Optional<ComTaskEnablement> findComTaskEnablementForRegisterGroup(Device device, String registerGroupName, String connectionMethod) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream()
                         .filter(protocolTask -> protocolTask instanceof RegistersTask)
                         .anyMatch(protocolTask -> ((RegistersTask) protocolTask).getRegisterGroups().stream()
                                 .anyMatch(registerGroup -> registerGroup.getName().equals(registerGroupName))))
+                .filter(cte -> connectionMethod == null
+                        || cte.hasPartialConnectionTask() && cte.getPartialConnectionTask().get().getName().equalsIgnoreCase(connectionMethod))
+                .filter(cte -> !cte.isSuspended())
                 .findAny();
     }
 
-    private Optional<ComTaskExecution> findComTaskExecutionForReadingType(Device device,
+    private List<ComTaskExecution> findComTaskExecutionForReadingType(Device device,
                                                                           boolean isRegular, com.elster.jupiter.metering.ReadingType readingType) {
         return device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
@@ -550,11 +577,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
 
                 })
-                .findAny();
+                .collect(Collectors.toList());
     }
 
     private Optional<ComTaskEnablement> findComTaskEnablementForReadingType(Device device,
-                                                                            boolean isRegular, com.elster.jupiter.metering.ReadingType readingType) {
+                                                                            boolean isRegular, com.elster.jupiter.metering.ReadingType readingType, String connectionMethod) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> {
@@ -573,6 +600,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
 
                 })
+                .filter(cte -> connectionMethod == null
+                        || cte.hasPartialConnectionTask() && cte.getPartialConnectionTask().get().getName().equalsIgnoreCase(connectionMethod))
+                .filter(cte -> !cte.isSuspended())
                 .findAny();
     }
 
@@ -615,15 +645,24 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return false;
     }
 
-    private Optional<ComTaskExecution> findOrCreateComTaskExecutionForDeviceMessages(Device device) {
-        Optional<ComTaskExecution> comTaskExecution = findComTaskExecutionForDeviceMessages(device);
+    private Optional<ComTaskExecution> findOrCreateComTaskExecutionForDeviceMessages(Device device, String connectionMethod) {
+        List<ComTaskExecution> comTaskExecutionList = findComTaskExecutionForDeviceMessages(device);
         ComTaskExecution execution = null;
-        if (comTaskExecution.isPresent()) {
-            if (!comTaskExecution.get().isOnHold()) {
+
+        if (!comTaskExecutionList.isEmpty()) {
+            // If the requested com task is configured on the device but it is inactive or it has the connection method that differs from the requested one, return an error
+            Optional<ComTaskExecution> comTaskExecution = comTaskExecutionList
+                    .stream()
+                    .filter(cte -> !cte.isOnHold())
+                    .filter(cte -> connectionMethod == null
+                    || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod)).findAny();
+
+            if (comTaskExecution.isPresent()) {
                 execution = comTaskExecution.get();
             }
         } else {
-            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForDeviceMessages(device);
+            // No com task executions found on the device, create an execution using the device configuration com task enablement
+            Optional<ComTaskEnablement> comTaskEnablement = findComTaskEnablementForDeviceMessages(device, connectionMethod);
             if (comTaskEnablement.isPresent()) {
                 execution = createAdHocComTaskExecution(device, comTaskEnablement.get());
             }
@@ -631,7 +670,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return Optional.ofNullable(execution);
     }
 
-    private Optional<ComTaskExecution> findComTaskExecutionForDeviceMessages(Device device) {
+    private List<ComTaskExecution> findComTaskExecutionForDeviceMessages(Device device) {
         return device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getProtocolTasks().stream()
@@ -641,10 +680,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                         .flatMap(List::stream)
                         .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 16)
                 )
-                .findAny();
+                .collect(Collectors.toList());
     }
 
-    private Optional<ComTaskEnablement> findComTaskEnablementForDeviceMessages(Device device) {
+    private Optional<ComTaskEnablement> findComTaskEnablementForDeviceMessages(Device device, String connectionMethod) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream()
@@ -654,6 +693,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                         .flatMap(List::stream)
                         .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 16)
                 )
+                .filter(cte -> connectionMethod == null
+                        || cte.hasPartialConnectionTask() && cte.getPartialConnectionTask().get().getName().equalsIgnoreCase(connectionMethod))
+                .filter(cte -> !cte.isSuspended())
                 .findAny();
     }
 
