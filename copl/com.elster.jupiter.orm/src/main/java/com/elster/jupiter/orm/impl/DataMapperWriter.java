@@ -122,10 +122,10 @@ public class DataMapperWriter<T> {
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
         //Update cached parent objects
-        clearCache(getTable());
+       // clearCache(getTable());
     }
 
-    private void clearCache(TableImpl childTable) {
+    public void clearCache(TableImpl childTable) {
         List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
         for (ForeignKeyConstraintImpl foreignKeyConstraint : childTableCnstrntList) {
             String reverseFieldName = foreignKeyConstraint.getReverseFieldName();
