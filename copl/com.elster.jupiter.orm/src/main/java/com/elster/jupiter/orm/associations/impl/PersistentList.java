@@ -7,7 +7,6 @@ package com.elster.jupiter.orm.associations.impl;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.impl.DataMapperImpl;

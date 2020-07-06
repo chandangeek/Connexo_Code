@@ -122,7 +122,7 @@ public class DataMapperWriter<T> {
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
         //Update cached parent objects
-       // clearCache(getTable());
+        clearCache(getTable());
     }
 
     public void clearCache(TableImpl childTable) {
@@ -198,7 +198,7 @@ public class DataMapperWriter<T> {
     }
 
 
-
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void persistChildren(List<T> objects) throws SQLException {
         for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
             if (constraint.isComposition()) {
