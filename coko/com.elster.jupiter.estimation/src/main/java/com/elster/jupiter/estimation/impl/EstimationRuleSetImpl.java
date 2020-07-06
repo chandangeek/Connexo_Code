@@ -67,7 +67,6 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     private long version;
     private Instant createTime;
     private Instant modTime;
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALPHABETS_AND_NUMBERS)
     private String userName;
 
     @Valid

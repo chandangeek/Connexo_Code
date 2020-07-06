@@ -42,7 +42,6 @@ public class WorkGroupImpl implements WorkGroup {
     @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
     private String userName;
 
     private List<UsersInWorkGroup> usersInWorkGroups = new ArrayList<>();

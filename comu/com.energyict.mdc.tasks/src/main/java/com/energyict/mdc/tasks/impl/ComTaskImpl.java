@@ -73,7 +73,6 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
         private ComTaskUserAction userAction;
         private Reference<ComTask> comTask = ValueReference.absent();
         @SuppressWarnings("unused")
-        @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
         private String userName;
         @SuppressWarnings("unused")
         private long version;
