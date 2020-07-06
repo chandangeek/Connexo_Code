@@ -73,7 +73,6 @@ public class ReadingTypeDeliverableImpl implements ServerReadingTypeDeliverable,
     private long id;
     @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
     private String name;
     @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyContractImpl> metrologyContract = ValueReference.absent();
