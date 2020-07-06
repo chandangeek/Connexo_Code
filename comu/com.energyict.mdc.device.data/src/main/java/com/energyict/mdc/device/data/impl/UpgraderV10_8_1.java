@@ -24,7 +24,7 @@ public class UpgraderV10_8_1 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8, 1));
-        /*execute(dataModel,
+        execute(dataModel,
                 "merge into " + TableSpecs.DDC_COMTASKEXECJOURNALENTRY.name() + " ctej" +
                         " using (" +
                         " select ID, row_number() over (partition by COMTASKEXECSESSION order by ID) position" +
@@ -36,7 +36,7 @@ public class UpgraderV10_8_1 implements Upgrader {
                 "drop sequence DDC_COMTASKEXECJOURNALENTRYID",
                 "alter table DDC_COMTASKEXECJOURNALENTRY drop column MOD_DATE"
         );
-        execute(dataModel, "CREATE INDEX IX_CONNECTIONTASK_IDASC ON DDC_CONNECTIONTASK (COMPORTPOOL, NEXTEXECUTIONTIMESTAMP, mod(ID, 100), ID)");*/
+        execute(dataModel, "CREATE INDEX IX_CONNECTIONTASK_IDASC ON DDC_CONNECTIONTASK (COMPORTPOOL, NEXTEXECUTIONTIMESTAMP, mod(ID, 100), ID)");
         installerV10_8_1.prepareDashboard(Logger.getAnonymousLogger());
     }
 }
