@@ -30,6 +30,7 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheStats;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
@@ -1384,5 +1385,24 @@ public class TableImpl<T> implements Table<T> {
 
     public Optional<T> findInCache(KeyValue key) {
         return Optional.ofNullable(getCache().get(key));
+    }
+
+    public void clearCache(){
+        getCache().renew();
+        clearCacheRecursively(this);
+    }
+
+    private void clearCacheRecursively(TableImpl childTable) {
+        List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
+        for (ForeignKeyConstraintImpl foreignKeyConstraint : childTableCnstrntList) {
+            String reverseFieldName = foreignKeyConstraint.getReverseFieldName();
+            TableImpl ownerTable = foreignKeyConstraint.getReferencedTable();
+            if (!Strings.isNullOrEmpty(reverseFieldName) && !ownerTable.equals(childTable)) {
+                if (ownerTable.isCached()) {
+                    ownerTable.getCache().renew();
+                }
+                clearCacheRecursively(ownerTable);
+            }
+        }
     }
 }

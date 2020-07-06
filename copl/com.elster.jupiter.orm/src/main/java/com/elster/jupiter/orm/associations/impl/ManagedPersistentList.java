@@ -152,7 +152,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		}
 		setTarget(new ArrayList<>(newOrder));
         /*Clear cache on reorder.*/
-		getDataMapper().getWriter().clearCache(getDataMapper().getTable());
+		getDataMapper().getTable().clearCache();
 	}
 	
 	SqlBuilder swapSignSql() {
