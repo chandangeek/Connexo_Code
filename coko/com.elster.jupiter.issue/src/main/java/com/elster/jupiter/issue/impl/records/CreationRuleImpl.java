@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.issue.impl.records;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
@@ -55,9 +57,12 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
     private String name;
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
     private String comment;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
     private String content = "no content";
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<IssueType>  issueType = ValueReference.absent();//transient in fact - needed for form validation
@@ -66,6 +71,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private long dueInValue;
     private DueInType dueInType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
     private String template;//creation rule template class name
     private Instant obsoleteTime;
     private Priority priority;

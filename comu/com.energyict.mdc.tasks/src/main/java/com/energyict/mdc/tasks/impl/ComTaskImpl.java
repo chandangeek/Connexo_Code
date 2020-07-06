@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -71,6 +73,7 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
         private ComTaskUserAction userAction;
         private Reference<ComTask> comTask = ValueReference.absent();
         @SuppressWarnings("unused")
+        @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
         private String userName;
         @SuppressWarnings("unused")
         private long version;
@@ -137,6 +140,7 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.CAN_NOT_BE_EMPTY + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
     @SuppressWarnings("unused") // Managed by ORM

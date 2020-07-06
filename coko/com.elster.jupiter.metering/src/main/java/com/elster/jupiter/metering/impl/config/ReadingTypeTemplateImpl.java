@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ReadingType;
@@ -61,6 +63,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
     private String name;
     @Valid
     private List<ReadingTypeTemplateAttribute> persistedAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);

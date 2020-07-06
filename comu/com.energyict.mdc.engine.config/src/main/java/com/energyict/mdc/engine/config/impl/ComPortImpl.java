@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
@@ -77,7 +79,9 @@ public abstract class ComPortImpl implements ComPort {
     private long id=0;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
     private String name;
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
     private String userName;
     private long version;
     private Instant createTime;
@@ -85,6 +89,7 @@ public abstract class ComPortImpl implements ComPort {
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
     private String description;
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMPORT_NO_UPDATE_ALLOWED+"}")
     private Instant obsoleteDate;
