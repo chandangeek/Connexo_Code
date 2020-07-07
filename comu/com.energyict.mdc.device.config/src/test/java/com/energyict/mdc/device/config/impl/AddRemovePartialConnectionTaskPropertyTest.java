@@ -242,7 +242,6 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         when(this.dataModel.getInstance(PartialScheduledConnectionTaskImpl.class)).thenReturn(this.newInstanceFromDataModel());
     }
 
-    @Ignore("FIXME: CXO-12404")
     @Test
     @Transactional
     public void testAddRequiredProperty() {
@@ -266,7 +265,6 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME);
     }
 
-    @Ignore("FIXME: CXO-12404")
     @Test
     @Transactional
     public void testRemoveRequiredProperty() {
@@ -291,7 +289,6 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME);
     }
 
-    @Ignore("FIXME: CXO-12404")
     @Test
     @Transactional
     public void testAddAllRequiredProperties() {
@@ -315,7 +312,6 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME, PORT_PROPERTY_SPEC_NAME);
     }
 
-    @Ignore("FIXME: CXO-12404")
     @Test
     @Transactional
     public void testRemoveAllRequiredProperties() {
@@ -341,7 +337,6 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME, PORT_PROPERTY_SPEC_NAME);
     }
 
-    @Ignore("FIXME: CXO-12404")
     @Test
     @Transactional
     public void testRemoveAndSetAgainForRequiredProperties() {
@@ -368,7 +363,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
-    @Ignore("FIXME: CXO-12404")
+
     @Test
     @Transactional
     public void testSetAndRemoveAgainForRequiredProperties() {
@@ -393,7 +388,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
-    @Ignore("FIXME: CXO-12404")
+
     @Test
     @Transactional
     public void testAddOptionalProperty() {
@@ -417,7 +412,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
-    @Ignore("FIXME: CXO-12404")
+
     @Test
     @Transactional
     public void testRemoveOptionalProperty() {
@@ -442,7 +437,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
-    @Ignore("FIXME: CXO-12404")
+
     @Test
     @Transactional
     public void testSetAndRemoveAgainForOptionalProperty() {
@@ -467,7 +462,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
         assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
-    @Ignore("FIXME: CXO-12404")
+
     @Test
     @Transactional
     public void testRemoveAndSetAgainForOptionalProperty() {
