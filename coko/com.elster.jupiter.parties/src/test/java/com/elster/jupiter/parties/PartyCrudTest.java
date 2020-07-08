@@ -203,7 +203,7 @@ public class PartyCrudTest {
     		for (int i = 10 ; i < 20 ; i++) {
     			String name = "M" + i;
     			getPartyService().createRole("XAZ", name , name , name , name);
-				getPartyService().getRole(name);
+				getPartyService().getRole(name);// load in cache
     		}
     		context.commit();
     	}

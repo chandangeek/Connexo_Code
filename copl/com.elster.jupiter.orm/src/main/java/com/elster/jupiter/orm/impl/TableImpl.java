@@ -872,7 +872,6 @@ public class TableImpl<T> implements Table<T> {
                 }
             });
         }
-
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
         buildReferenceConstraints();
         buildReverseMappedConstraints();
