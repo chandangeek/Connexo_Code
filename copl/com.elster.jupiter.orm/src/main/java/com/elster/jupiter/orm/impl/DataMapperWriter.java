@@ -8,15 +8,9 @@ import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.associations.impl.PersistentList;
-import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.orm.audit.AuditTrailDataWriter;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Pair;
-
-import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -27,7 +21,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -122,7 +115,7 @@ public class DataMapperWriter<T> {
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
         //Update cached parent objects
-        getTable().clearCache();
+        getTable().clearCacheOnPersisting();
     }
 
     private boolean needsRefreshAfterBatchInsert() {
@@ -183,7 +176,7 @@ public class DataMapperWriter<T> {
         }
 
         //Update cached parent objects
-        getTable().clearCache();
+        getTable().clearCacheOnPersisting();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

@@ -1391,13 +1391,21 @@ public class TableImpl<T> implements Table<T> {
         getCache().renew();
         clearCacheRecursively(this);
     }
+    /*If we add new object(call persist method in dataWriterMapper()) so it is not needed to clear cache for current table, except case when
+    * it have foreign key to itself */
+    public void clearCacheOnPersisting(){
+        if (getReferenceConstraints().stream().anyMatch(cnstrnt->cnstrnt.getTable().equals(this)) ){
+            getCache().renew();
+        }
+        clearCacheRecursively(this);
+    }
 
     private void clearCacheRecursively(TableImpl childTable) {
         List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
         for (ForeignKeyConstraintImpl foreignKeyConstraint : childTableCnstrntList) {
             String reverseFieldName = foreignKeyConstraint.getReverseFieldName();
             TableImpl ownerTable = foreignKeyConstraint.getReferencedTable();
-            if (!Strings.isNullOrEmpty(reverseFieldName) && !ownerTable.equals(childTable)) {
+            if (reverseFieldName != null && !ownerTable.equals(childTable)) {
                 if (ownerTable.isCached()) {
                     ownerTable.getCache().renew();
                 }

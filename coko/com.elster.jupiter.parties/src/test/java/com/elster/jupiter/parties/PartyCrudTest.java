@@ -203,16 +203,10 @@ public class PartyCrudTest {
     		for (int i = 10 ; i < 20 ; i++) {
     			String name = "M" + i;
     			getPartyService().createRole("XAZ", name , name , name , name);
+				getPartyService().getRole(name);
     		}
     		context.commit();
     	}
-
-    	/* createRole call persist() method. Cache for specified table is cleared each time persist() executed.
-		So loading to cache should be performed after all objects are saved to have correct check. */
-		for (int i = 10; i < 20; i++) {
-			String name = "M" + i;
-			getPartyService().getRole(name); // load in cache
-		}
 
     	try (TransactionContext context = getTransactionService().getContext()) {
     		assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10); // will do sql
