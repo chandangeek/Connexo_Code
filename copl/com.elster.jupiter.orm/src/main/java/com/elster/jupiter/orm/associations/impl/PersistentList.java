@@ -44,7 +44,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 		}
 	}
 
-	public final List<T> getTarget() {
+	final List<T> getTarget() {
 		if (target == null) {
 			target = loadTarget();
 			if (dataMapper.getTable().isCached()) {
@@ -56,7 +56,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 		return target;
 	}
 	
-	public ForeignKeyConstraintImpl getConstraint() {
+	ForeignKeyConstraintImpl getConstraint() {
 		return constraint;
 	}
 	

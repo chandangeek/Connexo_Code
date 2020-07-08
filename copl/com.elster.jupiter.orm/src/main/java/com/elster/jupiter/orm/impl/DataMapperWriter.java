@@ -181,8 +181,10 @@ public class DataMapperWriter<T> {
         if (getTable().hasChildren()) {
             persistChildren(objects);
         }
-    }
 
+        //Update cached parent objects
+        getTable().clearCache();
+    }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void persistChildren(List<T> objects) throws SQLException {
@@ -299,6 +301,9 @@ public class DataMapperWriter<T> {
             pair.getFirst().setDomainValue(object, pair.getLast() + 1);
         }
         refresh(object, false);
+
+        //Update cached parent objects
+        getTable().clearCache();
     }
 
     private boolean isAuditEnabled() {

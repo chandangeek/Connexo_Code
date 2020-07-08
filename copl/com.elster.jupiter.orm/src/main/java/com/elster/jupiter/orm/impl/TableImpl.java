@@ -747,11 +747,11 @@ public class TableImpl<T> implements Table<T> {
         return null;
     }
 
-    public List<ForeignKeyConstraintImpl> getReferenceConstraints() {
+    List<ForeignKeyConstraintImpl> getReferenceConstraints() {
         return referenceConstraints;
     }
 
-    public List<ForeignKeyConstraintImpl> getReverseMappedConstraints() {
+    List<ForeignKeyConstraintImpl> getReverseMappedConstraints() {
         return reverseMappedConstraints;
     }
 

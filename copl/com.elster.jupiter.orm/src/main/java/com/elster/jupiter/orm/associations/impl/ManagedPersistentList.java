@@ -54,7 +54,6 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		try {
 			getWriter().persist(element);
 		} catch (SQLException ex) {
-			getTarget().remove(index);
 			throw new UnderlyingSQLFailedException(ex);
 		}
 
