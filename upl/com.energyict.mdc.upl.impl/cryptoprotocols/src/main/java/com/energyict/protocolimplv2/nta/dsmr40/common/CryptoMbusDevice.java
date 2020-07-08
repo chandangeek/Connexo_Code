@@ -17,13 +17,18 @@ public class CryptoMbusDevice extends Dsmr40MbusProtocol {
 
     private CryptoDSMR23MbusMessaging mbusMessaging;
 
-    public CryptoMbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor1) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor, keyAccessorTypeExtractor1);
+    public CryptoMbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                            CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                            DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                            NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                            KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-27";
+        return "Crypto version: 2020-07-07";
     }
 
     @Override
