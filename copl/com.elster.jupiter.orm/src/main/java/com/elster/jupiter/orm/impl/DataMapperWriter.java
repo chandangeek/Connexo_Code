@@ -114,7 +114,7 @@ public class DataMapperWriter<T> {
         }
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
-        //Update cached parent objects
+        // Update cached parent objects
         getTable().clearCacheOnPersisting();
     }
 
@@ -175,7 +175,7 @@ public class DataMapperWriter<T> {
             persistChildren(objects);
         }
 
-        //Update cached parent objects
+        // Update cached parent objects
         getTable().clearCacheOnPersisting();
     }
 
@@ -244,7 +244,7 @@ public class DataMapperWriter<T> {
         List<Pair<ColumnImpl, Long>> versionCounts = new ArrayList<>(versionCountColumns.length);
         try (Connection connection = getConnection(true)) {
             String sql;
-            if  (columns.size() == 0 || doJournal(columns)){
+            if (columns.size() == 0 || doJournal(columns)) {
                 sql = getSqlGenerator().updateSql(columns);
             } else {
                 sql = getSqlGenerator().updateSqlWithoutVersionIncrease(columns);
@@ -295,7 +295,7 @@ public class DataMapperWriter<T> {
         }
         refresh(object, false);
 
-        //Update cached parent objects
+        // Update cached parent objects
         getTable().clearCache();
     }
 
@@ -342,7 +342,7 @@ public class DataMapperWriter<T> {
                 this.closeAll(resources);
             }
         }
-        //Update cached parent objects
+        // Update cached parent objects
         getTable().clearCache();
     }
 
@@ -377,9 +377,9 @@ public class DataMapperWriter<T> {
             }
         }
         if (object instanceof PersistenceAware) {
-            ((PersistenceAware)object).postDelete();
+            ((PersistenceAware) object).postDelete();
         }
-        //Update cached parent objects
+        // Update cached parent objects
         getTable().clearCache();
     }
 
@@ -417,7 +417,7 @@ public class DataMapperWriter<T> {
             }
         }
         objects.stream().filter(o -> o instanceof PersistenceAware).map(PersistenceAware.class::cast).forEach(PersistenceAware::postDelete);
-        //Update cached parent objects
+        // Update cached parent objects
         getTable().clearCache();
     }
 

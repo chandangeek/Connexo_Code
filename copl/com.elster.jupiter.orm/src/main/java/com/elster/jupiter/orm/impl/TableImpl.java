@@ -30,7 +30,6 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 
-import com.google.common.base.Strings;
 import com.google.common.cache.CacheStats;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
@@ -240,7 +239,7 @@ public class TableImpl<T> implements Table<T> {
     public void cacheWholeTable(boolean recordStat, long cacheTtl) {
         this.cacheRecordStat = recordStat;
         this.cacheTtl = cacheTtl;
-        this.cacheType =  CacheType.WHOLE_TABLE_CACHE;
+        this.cacheType = CacheType.WHOLE_TABLE_CACHE;
     }
 
     @Override
@@ -898,24 +897,24 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
-    public void changeEvictionTime(long cacheTtl){
+    public void changeEvictionTime(long cacheTtl) {
         this.cacheTtl = cacheTtl;
         if (isWholeTableCached()) {
             cache = new TableCache.WholeTableCache<>(this, cacheTtl, cacheRecordStat);
-        } else if(isCached()){
-            cache =  new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
+        } else if (isCached()) {
+            cache = new TableCache.TupleCache<>(this, cacheTtl, cacheMaximumSize, cacheRecordStat);
         }
     }
 
     @Override
-    public synchronized void disableCache(){
+    public synchronized void disableCache() {
         cached = false;
         cacheWholeTable = false;
         cache = new TableCache.NoCache<>();
     }
 
     @Override
-    public synchronized void enableCache(){
+    public synchronized void enableCache() {
         switch (cacheType) {
             case WHOLE_TABLE_CACHE:
                 cached = true;
@@ -1129,8 +1128,8 @@ public class TableImpl<T> implements Table<T> {
         return null;
     }
 
-    TableConstraintImpl findMatchingConstraint(TableConstraintImpl other) {
-        for (TableConstraintImpl tableConstraint : getConstraints()) {
+    TableConstraintImpl findMatchingConstraint(TableConstraintImpl<?> other) {
+        for (TableConstraintImpl<?> tableConstraint : getConstraints()) {
             if (tableConstraint.matches(other)) {
                 return tableConstraint;
             }
@@ -1373,37 +1372,41 @@ public class TableImpl<T> implements Table<T> {
             Stream.of(ranges).forEach(range -> journalNameHistory.put(range, this.tableName));
         }
     }
+
     @Override
-    public CacheType getCacheType(){
+    public CacheType getCacheType() {
         return cacheType;
     }
 
-    public void putToCache(T objct) {
-        getCache().put(this.getPrimaryKey(objct), objct);
+    public void putToCache(T object) {
+        getCache().put(this.getPrimaryKey(object), object);
     }
 
     public Optional<T> findInCache(KeyValue key) {
         return Optional.ofNullable(getCache().get(key));
     }
 
-    public void clearCache(){
+    public void clearCache() {
         getCache().renew();
         clearCacheRecursively(this);
     }
-    /*If we add new object(call persist method in dataWriterMapper()) so it is not needed to clear cache for current table, except case when
-    * it have foreign key to itself */
-    public void clearCacheOnPersisting(){
-        if (getReferenceConstraints().stream().anyMatch(cnstrnt->cnstrnt.getTable().equals(this)) ){
+
+    /**
+     * If we add new object(s) (call {@link DataMapperWriter#persist(Object)} or {@link DataMapperWriter#persist(List)}),
+     * it is not needed to clear cache for current table, except case where it has foreign key to itself.
+     */
+    void clearCacheOnPersisting() {
+        if (getReferenceConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
             getCache().renew();
         }
         clearCacheRecursively(this);
     }
 
-    private void clearCacheRecursively(TableImpl childTable) {
-        List<ForeignKeyConstraintImpl> childTableCnstrntList = childTable.getReferenceConstraints();
-        for (ForeignKeyConstraintImpl foreignKeyConstraint : childTableCnstrntList) {
+    private void clearCacheRecursively(TableImpl<?> childTable) {
+        List<ForeignKeyConstraintImpl> childTableReferenceConstraints = childTable.getReferenceConstraints();
+        for (ForeignKeyConstraintImpl foreignKeyConstraint : childTableReferenceConstraints) {
             String reverseFieldName = foreignKeyConstraint.getReverseFieldName();
-            TableImpl ownerTable = foreignKeyConstraint.getReferencedTable();
+            TableImpl<?> ownerTable = foreignKeyConstraint.getReferencedTable();
             if (reverseFieldName != null && !ownerTable.equals(childTable)) {
                 if (ownerTable.isCached()) {
                     ownerTable.getCache().renew();
