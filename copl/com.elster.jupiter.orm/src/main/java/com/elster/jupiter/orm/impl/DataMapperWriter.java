@@ -384,6 +384,8 @@ public class DataMapperWriter<T> {
         if (object instanceof PersistenceAware) {
             ((PersistenceAware)object).postDelete();
         }
+        //Update cached parent objects
+        getTable().clearCache();
     }
 
     public void remove(List<? extends T> objects) throws SQLException {
@@ -420,6 +422,8 @@ public class DataMapperWriter<T> {
             }
         }
         objects.stream().filter(o -> o instanceof PersistenceAware).map(PersistenceAware.class::cast).forEach(PersistenceAware::postDelete);
+        //Update cached parent objects
+        getTable().clearCache();
     }
 
     private void refresh(T object, boolean afterInsert) throws SQLException {
