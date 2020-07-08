@@ -4,8 +4,7 @@
 
 package com.energyict.mdc.device.command.impl;
 
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.dualcontrol.DualControlService;
@@ -78,7 +77,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String name;
     @Min(0)
     private long dayLimit;

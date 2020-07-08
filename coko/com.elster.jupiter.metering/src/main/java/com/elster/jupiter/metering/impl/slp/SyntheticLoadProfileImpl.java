@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl.slp;
 
 import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
@@ -52,10 +53,10 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     private long id;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
+    @HasNoBlacklistedCharacters(blacklisted = {'<','>'})
     private String name;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
+    @HasNoBlacklistedCharacters(blacklisted = {'<','>'})
     private String description;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();

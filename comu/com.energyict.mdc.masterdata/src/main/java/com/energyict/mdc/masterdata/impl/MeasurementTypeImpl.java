@@ -4,8 +4,7 @@
 
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -65,14 +64,14 @@ public abstract class MeasurementTypeImpl extends PersistentIdObject<Measurement
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode obisCodeCached;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String obisCode;
     private String oldObisCode;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     private boolean cumulative;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String description;
 
     protected MeasurementTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MasterDataService masterDataService) {

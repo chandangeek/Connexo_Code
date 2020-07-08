@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -39,6 +40,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String password;
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String description;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")

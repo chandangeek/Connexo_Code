@@ -5,8 +5,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
@@ -53,12 +52,12 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     private String mRID;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
+    @HasNoBlacklistedCharacters(blacklisted = {'<','>'})
     private String name;
     @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String aliasName;
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
+    @HasNoBlacklistedCharacters(blacklisted = {'<','>'})
     private String description;
     private Instant obsoleteTime;
     @NotNull(groups = {Save.Create.class, Save.Update.class})

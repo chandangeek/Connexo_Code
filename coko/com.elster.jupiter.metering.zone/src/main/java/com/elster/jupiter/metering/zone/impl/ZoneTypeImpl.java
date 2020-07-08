@@ -4,8 +4,7 @@
 
 package com.elster.jupiter.metering.zone.impl;
 
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.ZoneType;
@@ -28,7 +27,7 @@ class ZoneTypeImpl implements ZoneType {
     private String application;
     @NotNull(message = "{" + MessageSeeds.Constants.ZONE_TYPE_NAME_REQUIRED + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_CHARS_WITH_SPACE)
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String typeName;
     private final DataModel dataModel;
     private final MeteringZoneService meteringZoneService;

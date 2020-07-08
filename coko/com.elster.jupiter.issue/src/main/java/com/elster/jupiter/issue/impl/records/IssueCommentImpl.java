@@ -4,8 +4,7 @@
 
 package com.elster.jupiter.issue.impl.records;
 
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.orm.DataModel;
@@ -21,7 +20,7 @@ import javax.validation.constraints.Size;
 public class IssueCommentImpl extends EntityImpl implements IssueComment{
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, message = "{" + MessageSeeds.Keys.ISSUE_COMMENT_COMMENT_SIZE + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.ALLOWED_SPECIAL_CHARS)
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String comment;
     @Min(value = 1, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private long issueId;
