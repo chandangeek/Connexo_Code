@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -33,20 +34,24 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String directoryUser;
     @Size(max = 128, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String password;
     private String description;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String url;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String backupUrl;
     @Size(max = 4, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4 + "}")
@@ -55,12 +60,15 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     private String securityProtocol;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String baseUser;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String baseGroup;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String groupName;
     private Long trustStoreId;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"

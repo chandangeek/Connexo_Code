@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -56,8 +57,9 @@ final class GroupImpl implements Group {
 
     @Size(max = NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String name;
-
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
 
