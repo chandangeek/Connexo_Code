@@ -150,8 +150,6 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 		setTarget(new ArrayList<>(newOrder));
-        /*Clear cache on reorder.*/
-		getDataMapper().getTable().clearCache();
 	}
 	
 	SqlBuilder swapSignSql() {

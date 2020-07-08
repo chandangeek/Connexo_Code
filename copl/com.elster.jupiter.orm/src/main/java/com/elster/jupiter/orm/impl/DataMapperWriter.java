@@ -349,6 +349,8 @@ public class DataMapperWriter<T> {
                 this.closeAll(resources);
             }
         }
+        //Update cached parent objects
+        getTable().clearCache();
     }
 
     public void remove(T object) throws SQLException {
