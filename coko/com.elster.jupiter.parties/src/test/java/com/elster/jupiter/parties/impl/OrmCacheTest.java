@@ -102,8 +102,7 @@ public class OrmCacheTest {
     public void instanceTearDown() throws SQLException {
     	inMemoryBootstrapModule.deactivate();
     }
-    
-    @Ignore("FIXME: CXO-12404")
+
     @Test
     public void testEventTypeCache() {
 		EventService eventService = injector.getInstance(EventService.class);

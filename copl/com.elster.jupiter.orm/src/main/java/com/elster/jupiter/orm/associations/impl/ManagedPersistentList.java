@@ -47,19 +47,20 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
-	
+
 	@Override
-	public void add(int index,T element) {
-		setPosition(index + 1,element);
+	public void add(int index, T element) {
+		setPosition(index + 1, element);
 		try {
 			getWriter().persist(element);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		getTarget().add(index,element);
+
+		getTarget().add(index, element);
 		updatePositions(index + 1);
 	}
-	
+
 	@Override
 	public boolean addAll(Collection<? extends T> collection) {
 		if (collection.isEmpty()) {

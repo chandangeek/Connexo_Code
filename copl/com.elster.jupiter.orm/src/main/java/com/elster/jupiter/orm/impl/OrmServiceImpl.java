@@ -62,6 +62,8 @@ import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class}, property = "name=" + OrmService.COMPONENTNAME)
 public final class OrmServiceImpl implements OrmService {
+    private static final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
+    private static final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
 
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -75,8 +77,6 @@ public final class OrmServiceImpl implements OrmService {
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
     private volatile TransactionService transactionService;
-    private final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
-    private final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
     private String enablePartition;
     private String enableAuditing;
     private Registration clearCacheOnRollBackRegistration;
@@ -247,8 +247,7 @@ public final class OrmServiceImpl implements OrmService {
     }
 
     private void setCacheEnabled(String enableCache) {
-        this.cacheEnabled = enableCache.equals("1") ? true: false;
-        return;
+        this.cacheEnabled = enableCache.equals("1");
     }
 
     private DataModel createDataModel(boolean register) {
@@ -298,7 +297,7 @@ public final class OrmServiceImpl implements OrmService {
 
 
         String evictionTime = readSystemPropertyValue("evictiontime", "300:13");
-        String enablecache = readSystemPropertyValue("enablecache", "0");
+        String enablecache = readSystemPropertyValue("enablecache", "1");
 
         setEvictionTime(evictionTime);
         setCacheEnabled(enablecache);
