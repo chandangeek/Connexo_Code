@@ -21,6 +21,5 @@ Export-Package: com.energyict.mdc.cim.webservices.outbound.soap,\
                 ch.iec.tc57._2011.sendenddeviceevents,\
                 ch.iec.tc57._2011.sendmeterconfig,\
                 com.elster.connexo._2018*,\
-                com.elster.connexo._2017.schema.customattributes.*,\
                 org.w3._2000*,\
                 org.w3._2001._04*
