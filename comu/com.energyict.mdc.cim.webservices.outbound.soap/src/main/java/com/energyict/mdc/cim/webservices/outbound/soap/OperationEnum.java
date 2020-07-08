@@ -10,6 +10,7 @@ public enum OperationEnum {
     CREATE("Create", "SIM1001"),
     UPDATE("Update", "SIM1002"),
     GET("Get", "SIM1032"),
+    DELETE("Delete", "SIM1037"),
     UNDEFINED("-", "");
 
     private String operation;

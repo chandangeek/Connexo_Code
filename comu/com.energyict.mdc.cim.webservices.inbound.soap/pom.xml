@@ -200,6 +200,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.topology</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
