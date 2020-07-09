@@ -11,6 +11,7 @@ import com.energyict.mdc.common.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.common.tasks.BasicCheckTask;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.MessageSeeds;
@@ -40,8 +41,8 @@ public final class ComTaskExecutionOrganizer {
     public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<ComTaskExecution> comTaskExecutions) {
         Map<Device, DeviceOrganizedComTaskExecution> result = new LinkedHashMap<>();
         Map<DeviceKey, List<ComTaskExecution>> tasksPerDevice = groupComTaskExecutionsByDevice(comTaskExecutions);
-        makeSureComTaskWithoutCommandsAreLast(tasksPerDevice);
-        makeSureBasicCheckIsInBeginningOfExecutions(tasksPerDevice);
+        moveBasicCheckToHead(tasksPerDevice);
+        moveCommandsToTail(tasksPerDevice);
         Map<Key, List<ComTaskExecution>> tasksPerDeviceAndSecurity = groupComTaskExecutionsBySecuritySet(tasksPerDevice);
 
         Key previous = null;
@@ -194,21 +195,15 @@ public final class ComTaskExecutionOrganizer {
         return result;
     }
 
-    private void makeSureBasicCheckIsInBeginningOfExecutions(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
+    private void moveBasicCheckToHead(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
         for (List<ComTaskExecution> comTaskExecutions : comTaskExecutionGroupsPerDevice.values()) {
             comTaskExecutions.sort(BasicCheckTasks.FIRST);
         }
     }
 
-    private void makeSureComTaskWithoutCommandsAreLast(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
+    private void moveCommandsToTail(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
         for (List<ComTaskExecution> comTaskExecutions : comTaskExecutionGroupsPerDevice.values()) {
-            int countComTaskExecutions = 0;
-            while(comTaskExecutions.size() > 1 && comTaskExecutions.get(0).getProtocolTasks().size() == 0 && countComTaskExecutions < comTaskExecutions.size()){
-                countComTaskExecutions++;
-                ComTaskExecution moveComTaskExecution = comTaskExecutions.get(0);
-                comTaskExecutions.remove(moveComTaskExecution);
-                comTaskExecutions.add(moveComTaskExecution);
-            }
+            comTaskExecutions.sort(MessagesTasks.LAST);
         }
     }
 
@@ -236,6 +231,27 @@ public final class ComTaskExecutionOrganizer {
         private boolean hasBasicCheckTask(ComTaskExecution execution) {
             for (ProtocolTask protocolTask : execution.getProtocolTasks()) {
                 if (protocolTask instanceof BasicCheckTask) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    enum MessagesTasks implements Comparator<ComTaskExecution> {
+        LAST;
+
+        @Override
+        public int compare(ComTaskExecution o1, ComTaskExecution o2) {
+            if (hasMessagesTask(o1)) {
+                return hasMessagesTask(o2) ? 0 : 1;
+            }
+            return hasMessagesTask(o2) ? -1 : 0;
+        }
+
+        private boolean hasMessagesTask(ComTaskExecution execution) {
+            for (ProtocolTask protocolTask : execution.getProtocolTasks()) {
+                if (protocolTask instanceof MessagesTask) {
                     return true;
                 }
             }
