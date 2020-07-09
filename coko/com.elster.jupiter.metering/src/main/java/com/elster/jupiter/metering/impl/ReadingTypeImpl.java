@@ -16,6 +16,8 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
@@ -71,6 +73,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     // persistent fields
     private String mRID;
     private long id;
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
     private String aliasName;
     private String fullAliasName;
     private String description;

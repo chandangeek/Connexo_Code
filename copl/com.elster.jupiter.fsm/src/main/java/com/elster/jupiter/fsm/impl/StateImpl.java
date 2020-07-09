@@ -5,6 +5,8 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.EndPointConfigurationReference;
@@ -75,6 +77,7 @@ public final class StateImpl implements State {
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
     private String name;
     private Instant obsoleteTimestamp;
     private boolean custom;

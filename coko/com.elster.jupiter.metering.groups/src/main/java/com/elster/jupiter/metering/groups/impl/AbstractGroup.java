@@ -5,6 +5,8 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
@@ -36,6 +38,7 @@ abstract class AbstractGroup<T extends HasId & IdentifiedObject> implements Grou
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
     private String name;
     private String mRID;
     private String description;

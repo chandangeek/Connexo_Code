@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.CannotDeleteWhileBusyException;
 import com.elster.jupiter.export.DataExportDestination;
@@ -64,6 +66,7 @@ final class ExportTaskImpl implements IExportTask {
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final Thesaurus thesaurus;
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
     protected String name;
     @NotNull
     @IsExistingFormatter
