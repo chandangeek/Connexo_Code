@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.orm.DataModel;
@@ -15,6 +17,7 @@ import java.time.Instant;
 
 public class LocationMemberImpl implements LocationMember {
     private Reference<Location> location = Reference.empty();
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
     private String countryCode;
     private String countryName;
     private String administrativeArea;

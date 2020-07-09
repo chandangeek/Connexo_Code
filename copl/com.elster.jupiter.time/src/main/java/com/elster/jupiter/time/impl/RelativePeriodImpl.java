@@ -4,7 +4,8 @@
 
 package com.elster.jupiter.time.impl;
 
-import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
@@ -37,7 +38,7 @@ import java.util.List;
 final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
     private String name;
     @NotNull
     private RelativeDate from;

@@ -41,11 +41,9 @@ public class PathVerification {
      * @param input
      */
     public static boolean validateInputPattern(CharSequence input,String regex) {
-        Pattern patternWhitelist = Pattern.compile(regex);
-        Pattern patternBlacklist = Pattern.compile("[#<>$+%!`&*'|{}?\"=@/]");
-        Matcher matcherWhitelist = patternWhitelist.matcher(input);
-        Matcher matcherBlacklist = patternBlacklist.matcher(input);
-        return matcherWhitelist.find() && !matcherBlacklist.find();
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return !matcher.find();
     }
 
     /**

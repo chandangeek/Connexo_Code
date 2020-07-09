@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.issue.impl.records;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.PersistentProperty;
 import com.elster.jupiter.orm.Table;
@@ -20,6 +22,7 @@ public abstract class AbstractPropertyImpl implements PersistentProperty {
     private String name;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = Table.DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXTAREA_FEILD_CHARS)
     private String value;
 
     // Audit fields
