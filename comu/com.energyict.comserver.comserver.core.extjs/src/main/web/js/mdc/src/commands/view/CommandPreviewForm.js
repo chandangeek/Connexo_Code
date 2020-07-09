@@ -72,7 +72,7 @@ Ext.define('Mdc.commands.view.CommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.protocolInfo', 'MDC', 'Protocol info'),
+                    fieldLabel: Uni.I18n.translate('general.errorMessage', 'MDC', 'Error message'),
                     name: 'errorMessage',
                     renderer: function (val) {
                         return Ext.isEmpty(val) ? '-' : Ext.String.htmlEncode(val);

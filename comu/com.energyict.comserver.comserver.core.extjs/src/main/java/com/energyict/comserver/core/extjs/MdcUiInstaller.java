@@ -43,7 +43,7 @@ public class MdcUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\git10.7\\connexo\\comu\\com.energyict.comserver.comserver.core.extjs\\src\\main\\web\\js\\mdc", new FileResolver());
+        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\git10.9\\connexo\\comu\\com.energyict.comserver.comserver.core.extjs\\src\\main\\web\\js\\mdc", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

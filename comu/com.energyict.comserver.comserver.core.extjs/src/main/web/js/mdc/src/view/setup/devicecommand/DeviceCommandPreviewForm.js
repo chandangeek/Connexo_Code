@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.errorMessage', 'MDC', 'Error message'),
+                    fieldLabel: Uni.I18n.translate('general.protocolInfo', 'MDC', 'Protocol info'),
                     name: 'errorMessage',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val) : '-'
