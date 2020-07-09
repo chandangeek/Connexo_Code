@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.pki.impl.wrappers.keypair;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -72,6 +73,7 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String alias;
     private byte[] publicKey;
     private Instant expirationTime;
