@@ -67,8 +67,10 @@ public class KeyRenewalCommand extends EndDeviceCommandImpl {
     }
 
     private void configureCommandAttributes(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType, List<PropertySpec> propertySpecs) {
-        PropertySpec accessorPropertySpec = extractSecurityAccessorPropertySpec(propertySpecs);
-        setPropertyValue(accessorPropertySpec, securityAccessorTypeOnDeviceType.getSecurityAccessorType());
+        if (!propertySpecs.isEmpty()) {
+            PropertySpec accessorPropertySpec = extractSecurityAccessorPropertySpec(propertySpecs);
+            setPropertyValue(accessorPropertySpec, securityAccessorTypeOnDeviceType.getSecurityAccessorType());
+        }
 
         //set all required commands attributes, but exclude the ones not filled in.
         //On security accessor all other properties are filled in except the ones referring to security accessor

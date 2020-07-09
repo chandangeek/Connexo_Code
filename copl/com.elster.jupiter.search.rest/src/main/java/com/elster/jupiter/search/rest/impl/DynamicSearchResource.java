@@ -85,15 +85,20 @@ public class DynamicSearchResource {
         return Response.ok().entity(pagedInfoList).build();
     }
 
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}/searchcriteria")
     public Response getSearchablePropertiesForDomain(@PathParam("domain") String domainId,
-                                                     @BeanParam JsonQueryFilter jsonQueryFilter,
-                                                     @BeanParam JsonQueryParameters jsonQueryParameters,
-                                                     @BeanParam UriInfo uriInfo) throws InvalidValueException {
+                                                     @FormParam("filter") String filter,
+                                                     @FormParam("start") Integer start,
+                                                     @FormParam("limit") Integer limit,
+                                                     @Context UriInfo uriInfo) throws InvalidValueException {
+
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
+        JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start, limit);
+
         Stream<SearchableProperty> propertyStream = getSearchableProperties(searchDomain, jsonQueryFilter);
         List<PropertyInfo> propertyList = propertyStream
                 .map(p -> searchCriterionInfoFactory.asListObject(p, uriInfo))
@@ -190,15 +195,15 @@ public class DynamicSearchResource {
         return false;
     }
 
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}/count")
     public Response doCountSearchResults(@PathParam("domain") String domainId,
-                                         @BeanParam JsonQueryFilter jsonQueryFilter,
-                                         @BeanParam JsonQueryParameters jsonQueryParameters,
+                                         @FormParam("filter") String filter,
                                          @Context UriInfo uriInfo) {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
         int numberOfSearchResults = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().count();
         Map<String, Object> jsonResponse = new HashMap<>();
         jsonResponse.put("numberOfSearchResults", numberOfSearchResults);
@@ -228,16 +233,16 @@ public class DynamicSearchResource {
                 orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_SEARCH_DOMAIN, org.apache.commons.text.StringEscapeUtils.escapeHtml4(domainId)));
     }
 
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}/searchcriteria/{property}")
     public Response getFullCriteriaInfo(@PathParam("domain") String domainId,
                                         @PathParam("property") String property,
-                                        @BeanParam JsonQueryParameters jsonQueryParameters,
-                                        @BeanParam JsonQueryFilter jsonQueryFilter,
-                                        @BeanParam UriInfo uriInfo) {
+                                        @FormParam("filter") String filter,
+                                        @Context UriInfo uriInfo){
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))
                 .findFirst()
@@ -251,16 +256,16 @@ public class DynamicSearchResource {
         return Response.ok().entity(propertyInfo).build();
     }
 
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}/locationsearchcriteria/{property}")
     public Response getLocationFullCriteriaInfo(@PathParam("domain") String domainId,
                                                 @PathParam("property") String property,
-                                                @BeanParam JsonQueryParameters jsonQueryParameters,
-                                                @BeanParam JsonQueryFilter jsonQueryFilter,
-                                                @BeanParam UriInfo uriInfo) {
+                                                @FormParam("filter") String filter,
+                                                @Context UriInfo uriInfo) {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))
                 .findFirst()

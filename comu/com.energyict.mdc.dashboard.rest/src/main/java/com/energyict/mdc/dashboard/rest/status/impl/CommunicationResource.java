@@ -93,9 +93,10 @@ public class CommunicationResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Consumes("application/json")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
@@ -111,7 +112,7 @@ public class CommunicationResource {
                             .collect(Collectors.toList());
             return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
 
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
                     "{\"success\": false, \"message\": \"" + e.getMessage() + "\",\"errors\": [{\"message\": \"" + e.getMessage() + "\"}]}").build());
         }
@@ -122,10 +123,11 @@ public class CommunicationResource {
         return this.comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
@@ -139,10 +141,11 @@ public class CommunicationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
@@ -156,10 +159,11 @@ public class CommunicationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskExecId}/runprio")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationWithPriority(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
@@ -174,9 +178,10 @@ public class CommunicationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/run")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationTask(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
@@ -186,9 +191,10 @@ public class CommunicationResource {
         return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow");
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/runnow")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationTaskNow(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
@@ -199,7 +205,7 @@ public class CommunicationResource {
     }
 
     private Response queueCommunicationBulkAction(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, String action) throws Exception {
-        if (communicationsBulkRequestInfo !=null && communicationsBulkRequestInfo.filter!=null) {
+        if (communicationsBulkRequestInfo != null && communicationsBulkRequestInfo.filter != null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
                 return processMessagePost(new ItemizeCommunicationsFilterQueueMessage(substituteRestToDomainEnums(communicationsBulkRequestInfo.filter), action), destinationSpec.get());
@@ -207,7 +213,7 @@ public class CommunicationResource {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
             }
 
-        } else if (communicationsBulkRequestInfo !=null && communicationsBulkRequestInfo.communications!=null) {
+        } else if (communicationsBulkRequestInfo != null && communicationsBulkRequestInfo.communications != null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
                 communicationsBulkRequestInfo.communications.stream().forEach(c -> processMessagePost(new ComTaskExecutionQueueMessage(c, action), destinationSpec.get()));
@@ -222,15 +228,15 @@ public class CommunicationResource {
     private boolean verifyAppServerExists(String destinationName) {
         return appService.findAppServers().stream().
                 filter(AppServer::isActive).
-                flatMap(server->server.getSubscriberExecutionSpecs().stream()).
-                map(execSpec->execSpec.getSubscriberSpec().getDestination()).
+                flatMap(server -> server.getSubscriberExecutionSpecs().stream()).
+                map(execSpec -> execSpec.getSubscriberSpec().getDestination()).
                 filter(DestinationSpec::isActive).
                 filter(spec -> !spec.getSubscribers().isEmpty()).
                 anyMatch(spec -> destinationName.equals(spec.getName()));
     }
 
     private ComTaskExecutionFilterSpecificationMessage substituteRestToDomainEnums(ComTaskExecutionFilterSpecificationMessage jsonQueryFilter) throws Exception {
-        if (jsonQueryFilter.currentStates!=null) {
+        if (jsonQueryFilter.currentStates != null) {
             jsonQueryFilter.currentStates =
                     jsonQueryFilter.currentStates
                             .stream()
@@ -239,7 +245,7 @@ public class CommunicationResource {
                             .collect(toSet());
         }
 
-        if (jsonQueryFilter.latestResults!=null) {
+        if (jsonQueryFilter.latestResults != null) {
             jsonQueryFilter.latestResults =
                     jsonQueryFilter.latestResults
                             .stream()
@@ -261,9 +267,9 @@ public class CommunicationResource {
             filter.taskStatuses.addAll(taskStatuses);
         }
 
-        filter.latestResults = EnumSet.noneOf(CompletionCode.class);
+        filter.latestResults = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
-            List<CompletionCode> latestResults = jsonQueryFilter.getStringList(FilterOption.latestResults.name()).stream().map(CompletionCode::valueOf).collect(Collectors.toList());
+            List<CompletionCode> latestResults = jsonQueryFilter.getStringList(FilterOption.latestResults.name()).stream().map(CommunicationResource::completionCodeFrom).collect(Collectors.toList());
             filter.latestResults.addAll(latestResults);
         }
 
@@ -327,12 +333,20 @@ public class CommunicationResource {
             filter.deviceName = jsonQueryFilter.getString("device");
         }
 
-        if(jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
             filter.connectionMethods = jsonQueryFilter.getLongList(FilterOption.connectionMethods.name());
+        }
+
+        if (jsonQueryFilter.hasProperty(FilterOption.location.name())) {
+            filter.locationId = jsonQueryFilter.getLong(FilterOption.location.name());
         }
 
         filter.showSlaveComTaskExecutions = true;
         return filter;
+    }
+
+    private static CompletionCode completionCodeFrom(String name) {
+        return name.equals(TranslationKeys.NEVER_STARTED_COMPLETION_CODE.getKey()) ? null : CompletionCode.valueOf(name);
     }
 
     private <H extends HasId> Collection<H> getObjectsByIdFromList(List<Long> ids, List<H> objects) {

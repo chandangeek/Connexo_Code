@@ -792,12 +792,6 @@ Ext.define('Imt.controller.History', {
                         }
                     }
                 },
-                assignmentrules: {
-                    title: Uni.I18n.translate('issue.administration.assignment', 'IMT', 'Issue assignment rules'),
-                    route: 'assignmentrules',
-                    controller: 'Isu.controller.AssignmentRules',
-                    privileges: Isu.privileges.Issue.viewRule
-                },
                 creationrules: {
                     title: Uni.I18n.translate('general.issueCreationRules', 'IMT', 'Issue creation rules'),
                     route: 'creationrules',

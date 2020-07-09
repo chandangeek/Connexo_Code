@@ -37,7 +37,6 @@ import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
-import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,6 +63,8 @@ import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50
  * </pre>
  */
 public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements DeviceLoadProfileSupport {
+
+    private static final ObisCode MBUS_LP_COMBINED_CHANNEL = ObisCode.fromString("0.x.24.2.1.255");
 
     /**
      * Hardcoded ObisCode for the status of the 15min profile
@@ -207,7 +208,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
                 }
             } else {
                 lpc.setSupportedByMeter(false);
-                getMeterProtocol().journal("Load profile configuration for "+lpr+" could not be retreived from local configuration.");
+                getMeterProtocol().journal("Load profile configuration for "+lpr+" could not be retrieved from local configuration.");
             }
             this.loadProfileConfigurationList.add(lpc);
         }
@@ -439,15 +440,77 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
     }
 
     private int constructChannelMask(List<CapturedRegisterObject> registers) {
+        int channelMask;
+
+        if (isCombinedLoadProfile(registers)) {
+            channelMask = getCombinedLoadProfileChannelMask(registers);
+        } else {
+            channelMask = getLoadProfileChannelMask(registers);
+        }
+        return channelMask;
+    }
+
+    private boolean isCombinedLoadProfile(List<CapturedRegisterObject> capturedRegisterObjectList) {
+        return capturedRegisterObjectList.stream().anyMatch(cro -> cro.getObisCode().equalsIgnoreBChannel(MBUS_LP_COMBINED_CHANNEL));
+    }
+
+    private int getCombinedLoadProfileChannelMask(List<CapturedRegisterObject> registers) {
         int channelMask = 0;
         int counter = 0;
+        int mbusCounter = 1;
+
+        for (CapturedRegisterObject register : registers) {
+            if (isValidMasterRegister(register)) {
+                channelMask |= (int) Math.pow(2, counter);
+            } else if (isMbusRegister(register)) {
+                final int bField = register.getObisCode().getB();
+
+                if (bField > mbusCounter) {
+                    final int difference = (bField - mbusCounter) * getNumberOfChannels(registers, register.getObisCode());
+
+                    for (int i = 0; i < difference; i++) {
+                        counter++;
+                    }
+                } else if (bField < mbusCounter) {
+                    mbusCounter--;
+                }
+                channelMask |= (int) Math.pow(2, counter);
+
+                mbusCounter++;
+            }
+            counter++;
+        }
+
+        return channelMask;
+    }
+
+    private int getNumberOfChannels(List<CapturedRegisterObject> registers, ObisCode currentRegisterObisCode) {
+        return (int) registers.stream()
+                .filter(cro -> cro.getObisCode().equals(currentRegisterObisCode)).count();
+    }
+
+    private int getLoadProfileChannelMask(List<CapturedRegisterObject> registers) {
+        int channelMask = 0;
+        int counter = 0;
+
         for (CapturedRegisterObject registerUnit : registers) {
             if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
         }
+
         return channelMask;
+    }
+
+    private boolean isMbusRegister(CapturedRegisterObject register) {
+        return register.getObisCode().equalsIgnoreBChannel(MBUS_LP_COMBINED_CHANNEL);
+    }
+
+    private boolean isValidMasterRegister(CapturedRegisterObject register) {
+        return !"".equals(register.getSerialNumber()) &&
+                isDataObisCode(register.getObisCode(), register.getSerialNumber()) &&
+                !isMbusRegister(register);
     }
 
     /**

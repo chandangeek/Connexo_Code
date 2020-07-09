@@ -1639,7 +1639,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                     }
                 }
         );
-        return configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == id);
+        return configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == keyAccessorType.getId());
     }
 
     private void clearOldDefault(){

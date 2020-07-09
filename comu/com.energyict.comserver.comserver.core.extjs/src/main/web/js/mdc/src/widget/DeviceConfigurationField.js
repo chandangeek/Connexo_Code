@@ -13,8 +13,8 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
     },
     deviceTypeStore: undefined,
     queryMode: 'local',
-    fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
-    labelAlign: 'right',
+    fieldLabel: Uni.I18n.translate('general.deviceTypeAndConfiguration', 'MDC', 'Device type and configuration'),
+    //labelAlign: 'right',
     required: true,
     allowBlank: true,
     extraConfigListener: null,
@@ -67,6 +67,8 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
                         }
 
                         field.up('form').getRecord().set('deviceTypeId', valueId);
+                        Ext.query('#device-info')[0].style.display = 'none';
+                        field.up('form').doLayout();
                     },
                     change: function (field, value) {
                         var configCombo = field.nextSibling();
@@ -97,10 +99,9 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
                 allowBlank: me.allowBlank,
                 autoSelect: true,
                 enabled: false,
-                labelAlign: 'right',
                 emptyText: Uni.I18n.translate('deviceAdd.config.value', 'MDC', 'Select a device configuration...'),
-                afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'
-                + Uni.I18n.translate('deviceAdd.firstSelectDeviceType', 'MDC', 'First select a device type.')
+                afterSubTpl: '<div id="device-info" style="color: #686868; margin-top: 6px"><i>'
+                + Uni.I18n.translate('deviceAdd.firstSelectDeviceType1', 'MDC', 'First select a device type.')
                 + '</i></div>',
                 displayField: 'name',
                 valueField: 'id',

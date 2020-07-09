@@ -198,26 +198,20 @@ public class ObisCodeFactory {
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
-        BigDecimal registerValue;
         TOURegisterInfo touri = findTOURegisterInfo(obisCode);
         ReadCommand rc = getProtocol().getCommandFactory().getReadCommand(touri.getEdmiEnergyRegisterId());
-        Date to = null;
-        int dp = touri.getDecimalPoint();
-        Unit unit = Unit.get(rc.getUnit().getBaseUnit().getDlmsCode(), touri.getUnit().getScale());
 
+        Date to = null;
         if (touri.hasBillingTimestampDate()) {
             to = doValidateDate(getBillingInfo().getToDate());
         }
 
-        registerValue = rc.getRegister().getBigDecimal();
-        registerValue = registerValue.movePointLeft(dp > 1 ? dp : 0);   //TODO: check behaviour in case decimal point position is set to 1
-
+        Date eventDate = null;
         if (touri.hasTimeOfMaxDemandDate()) {
-            Date eventDate = doValidateDate(getProtocol().getCommandFactory().getReadCommand(touri.getMK10TimeOfMaxDemandRegisterId(), DataType.T_TIME_DATE_SINCE__1_97).getRegister().getDate());
-            return new RegisterValue(obisCode, new Quantity(registerValue, unit), eventDate, null, to);
-        } else {
-            return new RegisterValue(obisCode, new Quantity(registerValue, unit), null, null, to);
+            ReadCommand readTimeOfMaxDemandRegister = getProtocol().getCommandFactory().getReadCommand(touri.getMK10TimeOfMaxDemandRegisterId(), DataType.T_TIME_DATE_SINCE__1_97);
+            eventDate = doValidateDate(readTimeOfMaxDemandRegister.getRegister().getDate());
         }
+        return new RegisterValue(obisCode, new Quantity(rc.getRegister().getBigDecimal(), rc.getUnit()), eventDate, null, to);
     }
 
     private TOURegisterInfo findTOURegisterInfo(ObisCode obisCode) throws NoSuchRegisterException {
