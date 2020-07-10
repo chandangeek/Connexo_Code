@@ -5,7 +5,6 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -13,9 +12,8 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringTranslationService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -30,7 +28,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -44,9 +41,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -69,13 +63,9 @@ import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEv
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE;
 
-@Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
-        property = {"name=" + BasicDataCollectionRuleTemplate.NAME},
-        service = CreationRuleTemplate.class,
-        immediate = true)
 public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate implements AllowsComTaskFiltering {
     private static final Logger LOG = Logger.getLogger(BasicDataCollectionRuleTemplate.class.getName());
-    static final String NAME = "BasicDataCollectionRuleTemplate";
+    public static final String NAME = "BasicDataCollectionRuleTemplate";
 
     public static final String EVENTTYPE = NAME + ".eventType";
     public static final String EXCLUDEDCOMTASKS = NAME + ".excludedComTasks";
@@ -91,79 +81,31 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     private volatile TaskService taskService;
 
-    //for OSGI
-    public BasicDataCollectionRuleTemplate() {
-    }
-
     @Inject
-    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, Clock clock, CommunicationTaskService communicationTaskService, MeteringTranslationService meteringTranslationService) {
-        this();
-        setIssueDataCollectionService(issueDataCollectionService);
-        setNlsService(nlsService);
-        setIssueService(issueService);
-        setPropertySpecService(propertySpecService);
-        setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        setTimeService(timeService);
-        setClock(clock);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        setTaskService(taskService);
-        setMeteringTranslationService(meteringTranslationService);
-        activate();
-    }
-
-    @Activate
-    public void activate() {
-    }
-
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
-    }
-
-    @Reference
-    public final void setClock(Clock clock) {
-        super.setClock(clock);
-    }
-
-    @Reference
-    public void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
+    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService,
+                                           Thesaurus thesaurus,
+                                           IssueService issueService,
+                                           PropertySpecService propertySpecService,
+                                           DeviceConfigurationService deviceConfigurationService,
+                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                           TimeService timeService,
+                                           Clock clock,
+                                           MeteringTranslationService meteringTranslationService,
+                                           TaskService taskService) {
         super.setIssueDataCollectionService(issueDataCollectionService);
-    }
-
-    @Reference
-    public void setIssueService(IssueService issueService) {
+        super.setThesaurus(thesaurus);
         super.setIssueService(issueService);
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         super.setDeviceConfigurationService(deviceConfigurationService);
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-    }
-
-    @Reference
-    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        super.setTimeService(timeService);
+        super.setClock(clock);
+        setTaskService(taskService);
         super.setMeteringTranslationService(meteringTranslationService);
     }
 
-    @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
-    }
-
-    @Reference
-    public void setTimeService(TimeService timeService) {
-        super.setTimeService(timeService);
     }
 
     @Override
@@ -190,6 +132,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic datacollection rule=@{ruleId}\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +
@@ -197,6 +140,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == true, @{" + AUTORESOLUTION + "} == 1 )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve issue by basic datacollection rule=@{ruleId}\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "rule \"Setting priority to default value section @{ruleId}\"\n" +
@@ -204,6 +148,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == true, @{" + AUTORESOLUTION + "} == 0 )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to discard issue's priority to default value by basic datacollection rule=@{ruleId}\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueDiscardPriorityOnResolutionEvent(@{ruleId}, event);\n" +
                 "end";
     }
