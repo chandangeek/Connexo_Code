@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -28,8 +30,10 @@ public class WorkGroupImpl implements WorkGroup {
     private long id;
     @Size(max = NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
     private String name;
     @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXTAREA_FEILD_CHARS)
     private String description;
     @SuppressWarnings("unused")
     private long version;
