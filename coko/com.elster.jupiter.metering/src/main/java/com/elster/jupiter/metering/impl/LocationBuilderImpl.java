@@ -5,6 +5,8 @@
 package com.elster.jupiter.metering.impl;
 
 
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.orm.DataModel;
@@ -70,6 +72,7 @@ public class LocationBuilderImpl implements LocationBuilder {
         private String streetNumber;
         private String establishmentType;
         private String establishmentName;
+        @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
         private String establishmentNumber;
         private String addressDetail;
         private String zipCode;

@@ -5,7 +5,6 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
 import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -55,7 +54,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     private long id;
 
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXTAREA_FEILD_CHARS)
     private String description;
     private Instant startDate;
     private transient Instant endDate;

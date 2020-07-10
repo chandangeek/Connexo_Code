@@ -5,6 +5,8 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.domain.util.AllowedChars;
+import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.StructureMarker;
@@ -107,7 +109,10 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
 
     private final MailService mailService;
 
+
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXTAREA_FEILD_CHARS)
     private String recipients;
+    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXTAREA_FEILD_CHARS)
     private String subject;
     @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String attachmentName;
