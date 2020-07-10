@@ -901,12 +901,12 @@ sub activate_sso_filters{
         if ("$INSTALL_FLOW" eq "yes") {
             print "Activating FLOW SSO filter in $CATALINA_BASE/webapps/flow/WEB-INF/web.xml";
 
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->", "<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->", "<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!--filter>", "<filter>");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "</filter-mapping-->", "</filter-mapping>");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->", "<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1: Default Flow authentication method; to be uncommented when using Connexo SSO -->", "<!-- Section 1: Default Flow authentication method; to be uncommented when using Connexo SSO >");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1 ends here -->", "< Section 1 ends here -->");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO -->", "<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO >");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2: Default Flow security constraints; to be uncommented when using Connexo SSO -->", "<!-- Section 2: Default Flow security constraints; to be uncommented when using Connexo SSO >");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2 ends here -->", "< Section 2 ends here -->");
 
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml", "<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>", "<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
@@ -918,7 +918,7 @@ sub activate_sso_filters{
             print "Activating FACTS SSO filter in $CATALINA_BASE/webapps/facts/WEB-INF/web.xml";
 
             replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", qq(<!ENTITY jsps SYSTEM "web-jsps.xml">), qq(<!ENTITY jsps SYSTEM "file:///$CATALINA_BASE/webapps/facts/WEB-INF/web-jsps.xml">));
-            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", "<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->", "<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->");
+            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", "<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->", "<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->");
             replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", "<!--filter>", "<filter>");
             replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", "</filter-mapping-->", "</filter-mapping>");
         }
