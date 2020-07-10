@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr;
 
-
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
@@ -13,13 +12,19 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 public class CryptoMbusDevice extends com.energyict.protocolimplv2.nta.dsmr40.common.CryptoMbusDevice {
-    public CryptoMbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor1) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor, keyAccessorTypeExtractor1);
+
+    public CryptoMbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                            CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                            DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                            NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                            KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-28";
+        return "Crypto version: 2020-07-07";
     }
 
     @Override

@@ -89,6 +89,15 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 flex: 2
             },
             {
+                itemId: 'location',
+                text: Uni.I18n.translate('communication.widget.details.location', 'DSH', 'Location'),
+                dataIndex: 'device',
+                renderer: function (value) {
+                    return value ? value.location ? value.location.name : "-" : "-";
+                },
+                flex: 2
+            },
+            {
                 itemId: 'communicationsGridActionMenu',
                 xtype: 'uni-actioncolumn',
                 width: 120,

@@ -16,6 +16,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -108,6 +109,8 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     private Thesaurus thesaurus;
     private MeteringService meteringService;
     private IdentificationService identificationService;
+    private ComChannelInputStreamAdapter comChannelInputStreamAdapter;
+    private ComChannelOutputStreamAdapter comChannelOutputStreamAdapter;
 
     /**
      * The DeviceSecuritySupport component that <i>can</i> be used during communication.
@@ -192,6 +195,20 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
         initInheritors();
     }
 
+    private ComChannelInputStreamAdapter getComChannelInputStreamAdapter(ComChannel comChannel) {
+        if (comChannelInputStreamAdapter==null) {
+            comChannelInputStreamAdapter= new ComChannelInputStreamAdapter(comChannel);
+        }
+        return comChannelInputStreamAdapter;
+    }
+
+    private ComChannelOutputStreamAdapter getComChannelOutputStreamAdapter(ComChannel comChannel) {
+        if (comChannelOutputStreamAdapter==null) {
+            comChannelOutputStreamAdapter= new ComChannelOutputStreamAdapter(comChannel);
+        }
+        return comChannelOutputStreamAdapter;
+    }
+
     /**
      * Initializes the inheritance classes.
      */
@@ -245,11 +262,10 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     private void doInit(com.energyict.mdc.protocol.ComChannel comChannel) {
-        try (ComChannelInputStreamAdapter comChannelInputStreamAdapter = new ComChannelInputStreamAdapter(comChannel);
-             ComChannelOutputStreamAdapter comChannelOutputStreamAdapter = new ComChannelOutputStreamAdapter(comChannel)) {
+        try {
             this.meterProtocol.init(
-                    comChannelInputStreamAdapter,
-                    comChannelOutputStreamAdapter,
+                    getComChannelInputStreamAdapter(comChannel),
+                    getComChannelOutputStreamAdapter(comChannel),
                     this.getDeviceTimeZoneFromProperties(),
                     this.protocolLogger);
         } catch (IOException e) {

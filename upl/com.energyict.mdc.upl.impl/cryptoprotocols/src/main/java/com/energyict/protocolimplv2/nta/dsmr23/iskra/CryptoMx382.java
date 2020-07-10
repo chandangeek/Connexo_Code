@@ -24,7 +24,6 @@ import com.energyict.protocolimplv2.nta.dsmr23.messages.CryptoDSMR23Messaging;
 public class CryptoMx382 extends Mx382 {
     private CryptoDSMR23Messaging cryptoMessaging;
     private CryptoDSMR23MessageExecutor cryptoMessageExecutor;
-    private static long INITIAL_FRAME_COUNTER = 1L;
 
     public CryptoMx382(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, KeyAccessorTypeExtractor keyAccessorTypeExtractor, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, keyAccessorTypeExtractor, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor);
@@ -42,35 +41,11 @@ public class CryptoMx382 extends Mx382 {
     }
 
     @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        journal("Iskra Mx382 protocol init V2");
-        this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        HHUSignOnV2 hhuSignOn = null;
-        if (comChannel.getComChannelType() == ComChannelType.SerialComChannel || comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
-            hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
-        }
-        setDlmsSession(newDlmsSession(comChannel));
-        getDlmsSession().getDLMSConnection().setSNRMType(1);//Uses a specific parameter length for the HDLC signon (SNRM request)
-    }
-
-    protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
-        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
-        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
-        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
-        hhuSignOn.enableDataReadout(false);
-        return hhuSignOn;
-    }
-
-    @Override
     protected DlmsSession newDlmsSession(ComChannel comChannel) {
-        if (!getDlmsSessionProperties().replayAttackPreventionEnabled()) {
-            getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(INITIAL_FRAME_COUNTER);
-        }
         //Uses the HSM to encrypt requests and decrypt responses, we don't have the plain keys
         if (getDlmsSessionProperties().useCryptoServer()) {
-            //Uses the cryptoserver to encrypt requests and decrypt responses
-            return  new CryptoDlmsSession(comChannel, getDlmsSessionProperties());
+            //Uses the crypto server to encrypt requests and decrypt responses
+            return new CryptoDlmsSession(comChannel, getDlmsSessionProperties());
         } else {
             //Normal session
             return super.newDlmsSession(comChannel);
