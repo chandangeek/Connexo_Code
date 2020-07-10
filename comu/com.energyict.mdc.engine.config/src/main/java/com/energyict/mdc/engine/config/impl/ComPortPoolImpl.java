@@ -4,9 +4,8 @@
 
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.domain.util.AllowedChars;
 import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -71,11 +70,10 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<','>'})
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     private boolean active;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<','>'})
     private String description;
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}")
     private Instant obsoleteDate;

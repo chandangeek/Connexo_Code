@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.pki.impl.wrappers.keypair;
 
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.UniqueAlias;
@@ -74,7 +73,7 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String alias;
     private byte[] publicKey;
     private Instant expirationTime;

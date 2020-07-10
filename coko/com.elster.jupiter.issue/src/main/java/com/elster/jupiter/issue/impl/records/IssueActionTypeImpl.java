@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -25,12 +26,12 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 1024, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String className;
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String factoryId;
 
     private Reference<IssueType> issueType = ValueReference.absent();

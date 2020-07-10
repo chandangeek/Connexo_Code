@@ -5,6 +5,7 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -56,7 +57,6 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String application;
     @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String name;
     private transient ScheduleExpression scheduleExpression;
     private String cronString;

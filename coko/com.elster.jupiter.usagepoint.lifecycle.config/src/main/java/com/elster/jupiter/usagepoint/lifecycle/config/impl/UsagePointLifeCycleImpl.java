@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -61,7 +61,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     @Size(max = Table.NAME_LENGTH - 4, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}") // 4 is the length for 'UPL_' prefix for FSM
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @SuppressWarnings("unused")
     private Instant obsoleteTime;

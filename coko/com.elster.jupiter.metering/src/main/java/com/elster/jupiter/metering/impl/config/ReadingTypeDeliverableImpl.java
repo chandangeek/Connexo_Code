@@ -5,8 +5,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.domain.util.AllowedChars;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;

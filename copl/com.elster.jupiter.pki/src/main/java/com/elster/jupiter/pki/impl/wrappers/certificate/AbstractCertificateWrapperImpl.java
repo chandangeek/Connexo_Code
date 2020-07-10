@@ -4,16 +4,24 @@
 
 package com.elster.jupiter.pki.impl.wrappers.certificate;
 
-import com.elster.jupiter.domain.util.AllowedChars;
 import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
-import com.elster.jupiter.domain.util.HasOnlyWhiteListedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.CertificateFormatter;
+import com.elster.jupiter.pki.CertificateRequestData;
+import com.elster.jupiter.pki.CertificateStatus;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
+import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.VetoDeleteCertificateException;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
@@ -24,6 +32,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
@@ -33,9 +42,22 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
-import java.security.cert.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -94,7 +116,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @HasOnlyWhiteListedCharacters(whitelistRegex = AllowedChars.Constant.TEXT_FEILD_CHARS)
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;

@@ -173,8 +173,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private String name;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>', '/', ';', '?', '\\', '!', '*', '\'', '=', ','}, balcklistedCharRegEx = "")
     private String mRID;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(blacklisted = {'<', '>', '/', ';', '?', '\\', '!', '*', '\'', '=', ','}, balcklistedCharRegEx = "")
     private String serialNumber;
     @Size(max = 32, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String timeZoneId;

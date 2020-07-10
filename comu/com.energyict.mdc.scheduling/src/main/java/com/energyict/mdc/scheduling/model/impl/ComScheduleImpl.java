@@ -5,6 +5,7 @@
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
@@ -89,10 +90,9 @@ public final class ComScheduleImpl implements ComSchedule {
     private long id;
     @NotNull(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.TOO_LONG + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.TOO_LONG + "}")
-    @HasNoBlacklistedCharacters(blacklisted = {'<', '>'})
     private String mRID;
     @Size(min = 1, groups = {NotObsolete.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND + "}")
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
