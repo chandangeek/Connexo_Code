@@ -131,7 +131,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
 public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider, UserDirectorySecurityProvider {
-
+    private static final int DEFAULT_MAX_PAGE_SIZE = 200;
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, PassphraseFactory> passphraseFactories = new ConcurrentHashMap<>();
@@ -797,7 +797,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
                 .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
-                .maxPageSize(thesaurus, 100);
+                .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
     @Override
@@ -815,7 +815,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
                 .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
-                .maxPageSize(thesaurus, 100);
+                .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
     @Override
@@ -836,7 +836,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
                 .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName() + ")", true)
-                .maxPageSize(thesaurus, 100);
+                .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
     public Finder<CertificateWrapper> getIssuersByFilter(IssuerParameterFilter searchFilter) {
@@ -857,7 +857,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
                 .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName() + ")", true)
-                .maxPageSize(thesaurus, 100);
+                .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
     @Override
@@ -878,14 +878,14 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
                 .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName() + ")", true)
-                .maxPageSize(thesaurus, 100);
+                .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
     @Override
     public Finder<CertificateWrapper> findCertificatesByFilter(DataSearchFilter dataSearchFilter) {
         return DefaultFinder.of(CertificateWrapper.class,
                 getSearchCondition(dataSearchFilter), getDataModel())
-                .maxPageSize(thesaurus, 100);
+                .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
     @Override
