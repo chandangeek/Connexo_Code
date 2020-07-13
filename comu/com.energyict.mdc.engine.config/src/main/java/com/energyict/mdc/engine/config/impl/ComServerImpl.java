@@ -112,6 +112,7 @@ public abstract class ComServerImpl implements ComServer {
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String serverMonitorUrl;
     @SuppressWarnings("unused")
     private String userName;

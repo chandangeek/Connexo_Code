@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
@@ -48,6 +50,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String serverName;
     @Range(min = MIN_NON_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
     private int queryApiPort;

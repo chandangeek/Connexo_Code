@@ -14,7 +14,7 @@ public enum HasNotAllowedChars {
         return name;
     }
     public static class Constant {
-        public static final String SPECIAL_CHARS = "[`~<>'\"/{}=+]";
+        public static final String SPECIAL_CHARS = "[`~<>\"/{}=+]";
         public static final String SCRIPT_CHARS = "[<>]";
     }
 }

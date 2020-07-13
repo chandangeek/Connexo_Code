@@ -66,6 +66,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
     @MaxTimeDuration(max = 946080000L, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.EXCESSIVE_TIME_DURATION + "}")
     private TimeDuration duration;

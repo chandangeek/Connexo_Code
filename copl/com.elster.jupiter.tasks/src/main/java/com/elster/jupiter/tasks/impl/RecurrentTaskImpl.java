@@ -57,6 +57,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String application;
     @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String name;
     private transient ScheduleExpression scheduleExpression;
     private String cronString;

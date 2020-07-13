@@ -40,7 +40,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = 256, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx =HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
 
     @Inject

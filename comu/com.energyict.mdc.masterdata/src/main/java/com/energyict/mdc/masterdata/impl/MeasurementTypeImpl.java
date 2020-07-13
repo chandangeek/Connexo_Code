@@ -72,6 +72,7 @@ public abstract class MeasurementTypeImpl extends PersistentIdObject<Measurement
     private Reference<ReadingType> readingType = ValueReference.absent();
     private boolean cumulative;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
 
     protected MeasurementTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MasterDataService masterDataService) {

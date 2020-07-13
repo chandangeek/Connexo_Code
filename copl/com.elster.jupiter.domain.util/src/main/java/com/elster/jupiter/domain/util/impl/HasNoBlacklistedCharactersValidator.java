@@ -30,12 +30,15 @@ public class HasNoBlacklistedCharactersValidator implements ConstraintValidator<
 
     @Override
     public boolean isValid(CharSequence charSequence, ConstraintValidatorContext context) {
-        if(!balcklistedCharRegEx.isEmpty()) {
-            return (charSequence != null && PathVerification.validateInputPattern(charSequence,balcklistedCharRegEx)) ;
-        } else if(null != blacklisted && !blacklisted.isEmpty()) {
-            return charSequence == null || charSequence.chars().noneMatch(blacklisted::contains);
-        } else {
-            return false;
+        //if validator applied on non mandatory feilds
+        if(null == charSequence) {
+            return true;
         }
+        if(!balcklistedCharRegEx.isEmpty()) {
+            return PathVerification.validateInputPattern(charSequence,balcklistedCharRegEx) ;
+        } else if(!blacklisted.isEmpty()) {
+            return charSequence.chars().noneMatch(blacklisted::contains);
+        }
+        return false;
     }
 }

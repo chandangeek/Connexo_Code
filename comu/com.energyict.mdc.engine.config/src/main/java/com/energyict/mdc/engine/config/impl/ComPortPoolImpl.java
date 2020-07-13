@@ -74,6 +74,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private String name;
     private boolean active;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}")
     private Instant obsoleteDate;

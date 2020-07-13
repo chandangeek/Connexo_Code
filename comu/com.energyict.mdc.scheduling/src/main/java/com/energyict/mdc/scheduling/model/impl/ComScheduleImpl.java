@@ -93,6 +93,7 @@ public final class ComScheduleImpl implements ComSchedule {
     @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String mRID;
     @Size(min = 1, groups = {NotObsolete.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND + "}")
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
