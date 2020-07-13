@@ -11,7 +11,9 @@ import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.pki.CertificateType;
+import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -31,6 +33,7 @@ import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import java.security.cert.CertificateParsingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,7 +85,11 @@ public class HeadEndController {
         EndDeviceCommand deviceCommand;
         List<SecurityAccessorType> securityAccessorTypes = Arrays.stream(deviceCommandInfo.keyAccessorType.split(","))
                 .map(sA -> getKeyAccessorType(sA, device))
-                .peek(aT -> {if (aT == null) throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);})
+                .peek(aT -> {
+                    if (aT == null) {
+                        throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
+                    }
+                })
                 .collect(Collectors.toList());
         deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes, isServiceKey);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
@@ -139,14 +146,24 @@ public class HeadEndController {
         }
     }
 
-    public void performTestCommunication(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    public void performTestCommunication(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) throws CertificateParsingException {
         MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(endDevice);
         performTestCommunication(headEndInterface, serviceCall, deviceCommandInfo, device);
     }
 
-    private void performTestCommunication(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performTestCommunication(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) throws CertificateParsingException {
         serviceCall.log(LogLevel.INFO, "Handling test communication.");
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(device, getKeyAccessorType(deviceCommandInfo.keyAccessorType, device));
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(device, securityAccessorType);
+        if (comTaskExecutions.isEmpty() && securityAccessorType.getTrustStore().isPresent()) {
+            for (TrustedCertificate certificate : securityAccessorType.getTrustStore().get().getCertificates()) {
+                if (certificate.getKeyUsages().contains(KeyUsage.digitalSignature) &&
+                        certificate.getKeyUsages().contains(KeyUsage.keyAgreement)) {
+                    comTaskExecutions.addAll(device.getComTaskExecutions());
+                    break;
+                }
+            }
+        }
         CompletionOptions completionOptions = ((MultiSenseHeadEndInterface) headEndInterface).runCommunicationTask(device, getFilteredList(comTaskExecutions), deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }

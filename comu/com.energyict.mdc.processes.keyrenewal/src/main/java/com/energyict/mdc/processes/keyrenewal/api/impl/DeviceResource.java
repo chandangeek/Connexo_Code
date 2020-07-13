@@ -33,6 +33,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.security.cert.CertificateParsingException;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -145,7 +146,7 @@ public class DeviceResource {
 
                 context.commit();
                 return Response.accepted().build();
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | CertificateParsingException e) {
                 return handleException(deviceCommandInfo, serviceCall, device, context, e);
             }
         }
@@ -195,7 +196,7 @@ public class DeviceResource {
                 .orElseThrow((exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE)));
     }
 
-    private Response handleException(DeviceCommandInfo deviceCommandInfo, ServiceCall serviceCall, Device device, TransactionContext context, RuntimeException e) {
+    private Response handleException(DeviceCommandInfo deviceCommandInfo, ServiceCall serviceCall, Device device, TransactionContext context, Exception e) {
         if (serviceCall == null) {
             serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.ofNullable(device), deviceCommandInfo);
         }

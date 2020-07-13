@@ -52,7 +52,7 @@ public class StandardCsvEventDataFormatterTest {
     @Test
     public void testWithoutDeviceCode() {
         TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_COMMA.getKey(), "Comma (,)");
-        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", false);
+        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", false, false);
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
         meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", time1.toInstant()));
@@ -83,14 +83,14 @@ public class StandardCsvEventDataFormatterTest {
     @Test
     public void testWithDeviceCode() {
         TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_COMMA.getKey(), "Comma (,)");
-        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", true);
+        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", true, false);
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
-        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", "10", time1.toInstant()));
-        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("2.2.3.4", null, time2.toInstant()));
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", "10", time1.toInstant(), null));
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("2.2.3.4", null, time2.toInstant(), null));
         MeterEventData meterEventData1 = new MeterEventData(meterReading1, TestDefaultStructureMarker.createRoot(clock, "MRID1").child("Device1"));
         MeterReadingImpl meterReading2 = MeterReadingImpl.newInstance();
-        meterReading2.addEndDeviceEvent(EndDeviceEventImpl.of("3.2.3.4", "30", time3.toInstant()));
+        meterReading2.addEndDeviceEvent(EndDeviceEventImpl.of("3.2.3.4", "30", time3.toInstant(), null));
         MeterEventData meterEventData2 = new MeterEventData(meterReading2, TestDefaultStructureMarker.createRoot(clock, "MRID2").child("Device2"));
 
         FormattedData formattedData = standardCsvEventDataFormatter.processData(Stream.of(meterEventData1, meterEventData2));
@@ -108,6 +108,69 @@ public class StandardCsvEventDataFormatterTest {
 
         TextLineExportData textLine3 = (TextLineExportData) formattedData.getData().get(2);
         assertThat(textLine3.getAppendablePayload()).isEqualTo("2014-05-13T15:42:00.000+12:00,3.2.3.4,30,MRID2,Device2\n");
+        assertThat(textLine3.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID2").child("Device2"));
+    }
+
+    @Test
+    public void testWithDescription() {
+        TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_COMMA.getKey(), "Comma (,)");
+        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", false, true);
+
+        MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
+        String description = "description";
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", null, time1.toInstant(),description));
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("2.2.3.4", null, time2.toInstant(), description));
+        MeterEventData meterEventData1 = new MeterEventData(meterReading1, TestDefaultStructureMarker.createRoot(clock, "MRID1").child("Device1"));
+        MeterReadingImpl meterReading2 = MeterReadingImpl.newInstance();
+        meterReading2.addEndDeviceEvent(EndDeviceEventImpl.of("3.2.3.4", null, time3.toInstant(), description));
+        MeterEventData meterEventData2 = new MeterEventData(meterReading2, TestDefaultStructureMarker.createRoot(clock, "MRID2").child("Device2"));
+
+        FormattedData formattedData = standardCsvEventDataFormatter.processData(Stream.of(meterEventData1, meterEventData2));
+
+        assertThat(formattedData.getData()).hasSize(3);
+
+        assertThat(formattedData.getData().get(0)).isInstanceOf(TextLineExportData.class);
+        TextLineExportData textLine1 = (TextLineExportData) formattedData.getData().get(0);
+        assertThat(textLine1.getAppendablePayload()).isEqualTo("2014-03-13T15:42:00.000+13:00,1.2.3.4,description,MRID1,Device1\n");
+        assertThat(textLine1.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
+
+        TextLineExportData textLine2 = (TextLineExportData) formattedData.getData().get(1);
+        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00,2.2.3.4,description,MRID1,Device1\n");
+        assertThat(textLine2.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
+
+        TextLineExportData textLine3 = (TextLineExportData) formattedData.getData().get(2);
+        assertThat(textLine3.getAppendablePayload()).isEqualTo("2014-05-13T15:42:00.000+12:00,3.2.3.4,description,MRID2,Device2\n");
+        assertThat(textLine3.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID2").child("Device2"));
+    }
+
+    @Test
+    public void testWithDeviceCodeAndDescription() {
+        TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_COMMA.getKey(), "Comma (,)");
+        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", true, true);
+        String description = "description";
+        MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", "10", time1.toInstant(), description));
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("2.2.3.4", null, time2.toInstant(), description));
+        MeterEventData meterEventData1 = new MeterEventData(meterReading1, TestDefaultStructureMarker.createRoot(clock, "MRID1").child("Device1"));
+        MeterReadingImpl meterReading2 = MeterReadingImpl.newInstance();
+        meterReading2.addEndDeviceEvent(EndDeviceEventImpl.of("3.2.3.4", "30", time3.toInstant(), description));
+        MeterEventData meterEventData2 = new MeterEventData(meterReading2, TestDefaultStructureMarker.createRoot(clock, "MRID2").child("Device2"));
+
+        FormattedData formattedData = standardCsvEventDataFormatter.processData(Stream.of(meterEventData1, meterEventData2));
+
+        assertThat(formattedData.getData()).hasSize(3);
+
+        assertThat(formattedData.getData().get(0)).isInstanceOf(TextLineExportData.class);
+        TextLineExportData textLine1 = (TextLineExportData) formattedData.getData().get(0);
+        assertThat(textLine1.getAppendablePayload()).isEqualTo("2014-03-13T15:42:00.000+13:00,1.2.3.4,10,description,MRID1,Device1\n");
+        assertThat(textLine1.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
+
+        TextLineExportData textLine2 = (TextLineExportData) formattedData.getData().get(1);
+        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00,2.2.3.4,,description,MRID1,Device1\n");
+        assertThat(textLine2.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID1").child("Device1"));
+
+        TextLineExportData textLine3 = (TextLineExportData) formattedData.getData().get(2);
+        assertThat(textLine3.getAppendablePayload()).isEqualTo("2014-05-13T15:42:00.000+12:00,3.2.3.4,30,description,MRID2,Device2\n");
         assertThat(textLine3.getStructureMarker()).isEqualTo(TestDefaultStructureMarker.createRoot(clock, "Tag").child("MRID2").child("Device2"));
     }
 }

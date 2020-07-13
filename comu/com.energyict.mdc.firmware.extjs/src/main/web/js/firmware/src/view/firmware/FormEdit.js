@@ -12,8 +12,8 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             xtype: 'uni-form-error-message',
             itemId: 'form-errors',
             margin: '0 0 10 0',
-            anchor: '60%',
-            hidden: true
+			hidden: true,
+			width: 600
         },
         {
             xtype: 'textfield',

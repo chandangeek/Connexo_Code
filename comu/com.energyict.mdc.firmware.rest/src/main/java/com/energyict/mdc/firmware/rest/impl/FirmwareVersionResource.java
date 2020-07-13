@@ -161,11 +161,19 @@ public class FirmwareVersionResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
         checkIfEditableOrThrowException(firmwareVersion);
-        firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
+        if (!FirmwareStatus.FINAL.equals(firmwareVersion.getFirmwareStatus())
+                || !firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())) {
+
+            firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
+            firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
+
+            if (firmwareVersionInfo.fileSize != null) {
+                firmwareVersion.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
+            }
+        }
         if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)) {
             firmwareVersion.setImageIdentifier(firmwareVersionInfo.imageIdentifier);
         }
-        firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
         firmwareVersion.setMeterFirmwareDependency(Optional.ofNullable(firmwareVersionInfo.meterFirmwareDependency)
                 .map(idWithName -> idWithName.id) // nullable too
                 .map(Number.class::cast)
@@ -184,10 +192,6 @@ public class FirmwareVersionResource {
                 .map(Number::longValue)
                 .map(resourceHelper::findFirmwareVersionByIdOrThrowException)
                 .orElse(null));
-
-        if (firmwareVersionInfo.fileSize != null) {
-            firmwareVersion.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
-        }
         firmwareVersion.validate();
         return Response.ok().build();
     }
@@ -211,20 +215,25 @@ public class FirmwareVersionResource {
         DeviceType deviceType = resourceHelper.findAndLockDeviceTypeOrThrowException(deviceTypeId); // to prevent from changing order of firmwares during the operation
 
         FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(id, version, fwVersion);
-        firmwareVersion.setFirmwareVersion(fwVersion);
         firmwareVersion.setImageIdentifier(imageId);
 
-        parseFirmwareStatusField(status).ifPresent(firmwareVersion::setFirmwareStatus);
         firmwareVersion.setMeterFirmwareDependency(meterFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(meterFWDependency));
         firmwareVersion.setCommunicationFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
         firmwareVersion.setAuxiliaryFirmwareDependency(auxFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(auxFWDependency));
 
-        byte[] firmwareFile = loadFirmwareFile(fileInputStream);
-        resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
-                .ifPresent(securityAccessor -> resourceHelper.checkFirmwareVersion(deviceType, securityAccessor, firmwareFile));
-        setExpectedFirmwareSize(firmwareVersion, firmwareFile);
-        firmwareVersion.update();
-        setFirmwareFile(firmwareVersion, firmwareFile);
+        if (!FirmwareStatus.FINAL.equals(firmwareVersion.getFirmwareStatus())
+                || !firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())) {
+            firmwareVersion.setFirmwareVersion(fwVersion);
+            parseFirmwareStatusField(status).ifPresent(firmwareVersion::setFirmwareStatus);
+            byte[] firmwareFile = loadFirmwareFile(fileInputStream);
+            resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
+                    .ifPresent(securityAccessor -> resourceHelper.checkFirmwareVersion(deviceType, securityAccessor, firmwareFile));
+            setExpectedFirmwareSize(firmwareVersion, firmwareFile);
+            firmwareVersion.update();
+            setFirmwareFile(firmwareVersion, firmwareFile);
+        } else {
+            firmwareVersion.update();
+        }
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
@@ -268,10 +277,6 @@ public class FirmwareVersionResource {
     }
 
     private void checkIfEditableOrThrowException(FirmwareVersion firmwareVersion) {
-        if (FirmwareStatus.FINAL.equals(firmwareVersion.getFirmwareStatus())
-                && firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())) {
-            throw exceptionFactory.newException(MessageSeeds.VERSION_IN_USE);
-        }
         if (firmwareVersion.getFirmwareStatus().equals(FirmwareStatus.DEPRECATED)) {
             throw exceptionFactory.newException(MessageSeeds.VERSION_IS_DEPRECATED);
         }

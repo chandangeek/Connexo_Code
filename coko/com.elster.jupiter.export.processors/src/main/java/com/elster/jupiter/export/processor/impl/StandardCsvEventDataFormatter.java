@@ -33,20 +33,23 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
     private String separator;
     private String tag;
     private boolean withDeviceCode;
+    private boolean withDescription;
 
     StandardCsvEventDataFormatter(DataExportService dataExportService) {
         this.dataExportService = dataExportService;
     }
 
-    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag, boolean withDeviceCode) {
+    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag, boolean withDeviceCode, boolean withDescription) {
         this.separator = defineSeparator(translatablePropertyValueInfo);
         this.tag = tag;
         this.withDeviceCode = withDeviceCode;
+        this.withDescription = withDescription;
         return this;
     }
 
-    static StandardCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag, boolean withDeviceCode) {
-        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag, withDeviceCode);
+    static StandardCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo,
+                                              String tag, boolean withDeviceCode, boolean withDescription) {
+        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag, withDeviceCode, withDescription);
     }
 
     @Override
@@ -81,6 +84,10 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
         if (withDeviceCode) {
             String deviceCode = endDeviceEvent.getType();
             joiner.add(deviceCode != null ? deviceCode : "");
+        }
+        if (withDescription) {
+            String description = endDeviceEvent.getDescription();
+            joiner.add(description != null ? description : "");
         }
         // adding list of device identifiers; see com.elster.jupiter.export.impl.EventSelector.buildStructureMarker
         structureMarker.getStructurePath().forEach(joiner::add);
