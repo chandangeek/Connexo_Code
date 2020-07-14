@@ -33,8 +33,6 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_IDENTIFIER_MISSING(1002, "DeviceIdentifierMissing", "''Name'' or ''serialNumber'' or ''mRID'' must be specified in the payload."),
     NO_SUCH_DEVICE_TYPE(1003, "NoSuchDeviceType", "No such device type: ''{0}''."),
     NO_SUCH_DEVICE_CONFIGURATION(1004, "NoSuchDeviceConfiguration", "No such device configuration: ''{0}''."),
-    NO_METER_WITH_MRID(1005, "NoMeterWithMRID", "No meter is found by MRID ''{0}''."),
-    NO_METER_WITH_NAME(1006, "NoMeterWithName", "No meter is found by name ''{0}''."),
 
     // usage point config
     UNABLE_TO_CREATE_USAGE_POINT(2001, "UnableToCreateUsagePoint", "Unable to create usage point"),
@@ -69,20 +67,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_ACTIVE_METROLOGY_CONFIGURATION_WITH_NAME(2030, "NoActiveMetrologyConfigWithName", "Metrology configuration with name ''{0}'' isn''t active."),
     DUPLICATE_USAGE_POINT_NAME(2031,"usagepoint.name.already.exists", "Usage point name must be unique."),
 
-    // master data linkage
-    UNABLE_TO_LINK_METER(4001, "UnableToLinkMeter", "Unable to link meter to usage point"),
-    UNABLE_TO_UNLINK_METER(4002, "UnableToUnlinkMeter", "Unable to unlink meter from usage point"),
-    SAME_USAGE_POINT_ALREADY_LINKED(4003, "SameUsagePointAlreadyLinked",
-            "Meter ''{0}'' is already linked to usage point ''{1}'' at the given time ''{2}''."),
-    METER_AND_USAGE_POINT_NOT_LINKED(4004, "MeterAndUsagePointNotLinked",
-            "Meter ''{0}'' is not linked to usage point ''{1}'' at the given time ''{2}''."),
-    NO_METER_ROLE_WITH_KEY(4005, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
-
     // async
     COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could''t find service call type {0} with version {1}"),
     NO_END_POINT_WITH_URL(5002, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     NO_PUBLISHED_END_POINT_WITH_URL(5003, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
-    DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS(5005, "DifferentNumberOfMetersAndUsagePoints", "Number of meters should be equal to number of usage points. Currently: {0} and {1}"),
     ;
 
     private final int number;

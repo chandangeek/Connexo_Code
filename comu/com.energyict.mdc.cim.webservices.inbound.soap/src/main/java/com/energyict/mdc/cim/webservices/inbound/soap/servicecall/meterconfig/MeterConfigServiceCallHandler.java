@@ -26,6 +26,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceDeleter;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
@@ -34,6 +35,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -72,11 +74,13 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile HsmEnergyService hsmEnergyService;
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile TransactionService transactionService;
+    private volatile TopologyService topologyService;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
     private DeviceFinder deviceFinder;
+    private DeviceDeleter deviceDeleter;
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
     private CasHandler casHandler;
     private SecurityHelper securityHelper;
@@ -90,7 +94,8 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                                          DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
                                          DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
-                                         MeteringTranslationService meteringTranslationService, TransactionService transactionService) {
+                                         MeteringTranslationService meteringTranslationService, TransactionService transactionService,
+                                         TopologyService topologyService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -103,6 +108,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.hsmEnergyService = hsmEnergyService;
         this.meteringTranslationService = meteringTranslationService;
         this.transactionService = transactionService;
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -137,7 +143,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private void processMeterConfigServiceCall(ServiceCall serviceCall) {
         MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
         OperationEnum operation = OperationEnum.getFromString(extensionFor.getOperation());
-        final MeterInfo meterInfo = OperationEnum.GET.equals(operation) ? null : jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+        final MeterInfo meterInfo = (OperationEnum.GET.equals(operation) || OperationEnum.DELETE.equals(operation)) ? null : jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
         try {
             transactionService.runInIndependentTransaction(() -> {
                 Device device;
@@ -152,6 +158,10 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                         break;
                     case GET:
                         getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                        break;
+                    case DELETE:
+                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                        getDeviceDeleter().delete(device);
                         break;
                     default:
                         break;
@@ -283,6 +293,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
         webServiceExtension.ifPresent(
                 inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
@@ -293,6 +308,13 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             deviceFinder = new DeviceFinder(deviceService, getMessageFactory());
         }
         return deviceFinder;
+    }
+
+    private DeviceDeleter getDeviceDeleter() {
+        if (deviceDeleter == null) {
+            deviceDeleter = new DeviceDeleter(topologyService, getMessageFactory());
+        }
+        return deviceDeleter;
     }
 
     private DeviceBuilder getDeviceBuilder() {

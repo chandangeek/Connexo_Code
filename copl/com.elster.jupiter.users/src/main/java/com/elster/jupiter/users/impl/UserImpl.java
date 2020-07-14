@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.UUID_LENGHT;
+import static com.elster.jupiter.orm.Table.UUID_LENGTH;
 import static com.elster.jupiter.util.Checks.is;
 
 public final class UserImpl implements User {
@@ -50,7 +50,7 @@ public final class UserImpl implements User {
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
 
-    @Size(max = UUID_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
+    @Size(max = UUID_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
     private String externalId;
     private String authenticationName;
     @Size(max = SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")

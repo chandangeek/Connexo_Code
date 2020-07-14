@@ -51,7 +51,8 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.store.filter.DeviceGroup',
         'Dsh.store.ConnectionResultsStore',
         'Dsh.store.CommunicationResultsStore',
-        'Dsh.store.CombineStore'
+        'Dsh.store.CombineStore',
+        'Dsh.store.filter.Locations'
     ],
 
     init: function () {

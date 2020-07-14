@@ -1,0 +1,70 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mas="http://iec.ch/TC57/2011/MasterDataLinkageConfigMessage" xmlns:mes="http://iec.ch/TC57/2011/schema/message"
+                  xmlns:mas1="http://iec.ch/TC57/2011/MasterDataLinkageConfig#">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <mas:CreateMasterDataLinkageConfig>
+            <mas:Header>
+                <mes:Verb>create</mes:Verb>
+                <mes:Noun>MasterDataLinkageConfig</mes:Noun>
+                <mes:Timestamp>2017-07-15T00:00:00+03:00</mes:Timestamp>
+            </mas:Header>
+            <mas:Payload>
+                <mas1:MasterDataLinkageConfig>
+                    <!-- Required -->
+                    <mas1:ConfigurationEvent>
+                        <!-- Required -->
+                        <mas1:createdDateTime>2017-07-10T00:00:00+03:00</mas1:createdDateTime>
+                        <!-- Ignored -->
+                        <mas1:effectiveDateTime>2017-07-11T00:00:00+03:00</mas1:effectiveDateTime>
+                    </mas1:ConfigurationEvent>
+                    <!-- Optional -->
+                    <!-- At least one of EndDevice and UsagePoint should be present-->
+                    <!-- Adding EndDevice will link it is as slave to Meter gateway -->
+                    <mas1:EndDevice>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:mRID>00000000-0000-0000-0000-00000000001f</mas1:mRID>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:Names>
+                            <mas1:name>slave1</mas1:name>
+                        </mas1:Names>
+                    </mas1:EndDevice>
+                    <!-- Required -->
+                    <mas1:Meter>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:mRID>00000000-0000-0000-0000-00000000000f</mas1:mRID>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:Names>
+                            <mas1:name>DNB-BA-000</mas1:name>
+                        </mas1:Names>
+                        <!-- Optional -->
+                        <!-- No meter role => default meter role -->
+                        <mas1:role>meter.role.default</mas1:role>
+                    </mas1:Meter>
+                    <!-- Optional -->
+                    <!-- At least one of EndDevice and UsagePoint should be present-->
+                    <!-- Adding UsagePoint will link it to Meter -->
+                    <mas1:UsagePoint>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:mRID>00000000-0000-0000-0000-0000000000ff</mas1:mRID>
+                        <!-- Optional -->
+                        <!-- No MRID => identification by name -->
+                        <!-- No MRID & name => error -->
+                        <mas1:Names>
+                            <mas1:name>K@#Ø%!</mas1:name>
+                        </mas1:Names>
+                    </mas1:UsagePoint>
+                </mas1:MasterDataLinkageConfig>
+            </mas:Payload>
+        </mas:CreateMasterDataLinkageConfig>
+    </soapenv:Body>
+</soapenv:Envelope>

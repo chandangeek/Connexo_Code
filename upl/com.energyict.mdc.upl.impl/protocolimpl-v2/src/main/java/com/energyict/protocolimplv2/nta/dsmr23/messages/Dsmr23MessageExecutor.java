@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -68,6 +70,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
+import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import com.energyict.sercurity.KeyRenewalInfo;
 import org.xml.sax.SAXException;
@@ -523,6 +526,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
         String keyAccessorName = values[0];
         KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(values[1]);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
         byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
 
         Optional<String> securityAttribute = this.keyAccessorTypeExtractor.correspondingSecurityAttribute(
@@ -531,10 +535,27 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         );
         if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())) {
             renewKey(wrappedKey, 2);
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
         } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())) {
             renewKey(wrappedKey, 0);
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+            resetFC();
+            resetCachedFC();
         } else {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
+        }
+    }
+
+    private void resetFC() {
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        securityContext.setFrameCounter(1);
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+    }
+
+    private void resetCachedFC() {
+        DLMSCache dlmsCache = getProtocol().getDeviceCache();
+        if (dlmsCache instanceof ESMR50Cache) {
+            ((ESMR50Cache) dlmsCache).setFrameCounter(1);
         }
     }
 

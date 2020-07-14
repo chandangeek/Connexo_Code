@@ -909,7 +909,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-08-08$";
+        return "$Date: 2020-07-01$";
     }
 
     @Override

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -51,6 +52,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndD
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7_2;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9;
+import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
@@ -62,6 +65,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadin
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
@@ -74,6 +81,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -118,6 +126,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
     private static final String CIM_METER_READINGS = "CIM MeterReadings";
+    private static final String CIM_MASTER_DATA_LINKAGE_CONFIG = "CIM MasterDataLinkageConfig";
 
     private static final Logger LOGGER = Logger.getLogger(InboundSoapEndpointsActivator.class.getName());
     private static final String RECURRENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurrenttaskfrequency";
@@ -168,6 +177,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile MasterDataService masterDataService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile MeteringTranslationService meteringTranslationService;
+    private volatile TopologyService topologyService;
+    private volatile ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -194,7 +205,12 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          DeviceMessageSpecificationService deviceMessageSpecificationService,
                                          MasterDataService masterDataService,
                                          CommunicationTaskService communicationTaskService,
-                                         MeteringTranslationService meteringTranslationService) {
+                                         MeteringTranslationService meteringTranslationService,
+                                         TopologyService topologyService,
+                                         ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
+                                         MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet,
+                                         MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet
+                                         ) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -230,6 +246,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setMasterDataService(masterDataService);
         setCommunicationTaskService(communicationTaskService);
         setMeteringTranslationService(meteringTranslationService);
+        setTopologyService(topologyService);
+        setMasterDataLinkageConfigMasterCustomPropertySet(masterDataLinkageConfigMasterCustomPropertySet);
+        setMasterDataLinkageConfigCustomPropertySet(masterDataLinkageConfigCustomPropertySet);
+        setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
     }
 
     private Module getModule() {
@@ -274,6 +294,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(TopologyService.class).toInstance(topologyService);
+                bind(ReplyMasterDataLinkageConfigWebService.class).toInstance(replyMasterDataLinkageConfigWebService);
             }
         };
     }
@@ -289,6 +311,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), UpgraderV10_7.class)
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(version(10, 9), UpgraderV10_9.class)
                         .build());
 
         setActualRecurrentTaskFrequency();
@@ -366,6 +389,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 ImmutableMap.of("name", ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
         serviceCallService.addServiceCallHandler(dataModel.getInstance(DeviceMessageServiceCallHandler.class),
                 ImmutableMap.of("name", DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(MasterDataLinkageConfigServiceCallHandler.class),
+                ImmutableMap.of("name", MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(MasterDataLinkageConfigMasterServiceCallHandler.class),
+                ImmutableMap.of("name", MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
     }
 
     private void addConverter(PropertyValueConverter converter) {
@@ -378,6 +405,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class), CIM_METER_READINGS);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMasterDataLinkageConfigEndpoint.class), CIM_MASTER_DATA_LINKAGE_CONFIG);
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -558,6 +586,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     }
 
     @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
+    @Reference
     public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {
         this.meterConfigFactory = meterConfigFactory;
     }
@@ -600,6 +633,23 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setReplyMasterDataLinkageConfigWebService(ReplyMasterDataLinkageConfigWebService webService) {
+        replyMasterDataLinkageConfigWebService = webService;
+    }
+
+    @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setMasterDataLinkageConfigMasterCustomPropertySet(
+            CustomPropertySet masterDataLinkageConfigMasterCustomPropertySet) {
+        // Just for reference
+    }
+
+    @Reference(target = "(name=" + MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setMasterDataLinkageConfigCustomPropertySet(
+            CustomPropertySet masterDataLinkageConfigCustomPropertySet) {
+        // Just for reference
     }
 
     @Override

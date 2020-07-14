@@ -288,28 +288,33 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
         return dataModel;
     }
 
-    private void addTableToExistingModel(DataModelImpl currentDataModel, MetaData metaData, String tableName, String journalTableName, Set<String> processedTables, List<? extends TableImpl<?>> toBeProcessed) {
+    private void addTableToExistingModel(DataModelImpl currentDataModel,
+                                         MetaData metaData,
+                                         String tableName,
+                                         String journalTableName,
+                                         Set<String> processedTables,
+                                         List<? extends TableImpl<?>> tablesToBeProcessed) {
         if (processedTables.add(tableName)) {
-            metaData.getTable(tableName)
-                    .ifPresent(userTable -> {
-                        userTable.addColumnsTo(currentDataModel, journalTableName);
-                        userTable.getConstraints()
-                                .stream()
-                                .filter(ExistingConstraint::isForeignKey)
-                                .map(ExistingConstraint::getReferencedTableName)
-                                .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName) && currentDataModel
-                                        .getTable(referencedTableName) == null)
-                                .forEach(referencedTableName -> {
-                                    String refJournalTableName = toBeProcessed.stream()
-                                            .filter(table -> table.getName().equals(referencedTableName))
-                                            .map(referencedTable -> getExistingJournalTableName(metaData, referencedTable))
-                                            .filter(Objects::nonNull)
-                                            .findAny()
-                                            .orElse(null);
-                                    addTableToExistingModel(currentDataModel, metaData, referencedTableName, refJournalTableName, processedTables, toBeProcessed);
-                                });
-                        userTable.addConstraintsTo(currentDataModel);
-                    });
+            metaData.getTable(tableName).ifPresent(userTable -> {
+                userTable.addColumnsTo(currentDataModel, journalTableName);
+                userTable.addIndexesTo(currentDataModel);
+                userTable.addLocalTableConstraintsTo(currentDataModel);
+                userTable.getConstraints().stream()
+                        .filter(ExistingConstraint::isForeignKey)
+                        .map(ExistingConstraint::getReferencedTableName)
+                        .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName)
+                                && currentDataModel.getTable(referencedTableName) == null)
+                        .forEach(referencedTableName -> {
+                            String refJournalTableName = tablesToBeProcessed.stream()
+                                    .filter(table -> table.getName().equals(referencedTableName))
+                                    .map(referencedTable -> getExistingJournalTableName(metaData, referencedTable))
+                                    .filter(Objects::nonNull)
+                                    .findAny()
+                                    .orElse(null);
+                            addTableToExistingModel(currentDataModel, metaData, referencedTableName, refJournalTableName, processedTables, tablesToBeProcessed);
+                        });
+                userTable.addForeignKeyConstraintsTo(currentDataModel);
+            });
         }
     }
 
