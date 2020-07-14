@@ -24,7 +24,7 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
         labelWidth: 150
     },
     editDefaults: {
-        labelWidth: 150,
+        labelWidth: 250,
         anchor: '100%',
         maxWidth: 421
     },
@@ -62,12 +62,11 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                 itemId: 'props-form-edit'
             }
 
-
            me.editForm.bbar = {
                             xtype: 'container',
                             layout: 'column',
                             defaultType: 'button',
-                            padding: '0 0 0 ' + ((me.editDefaults && me.editDefaults.labelWidth ? me.editDefaults.labelWidth : 100) + 15),
+                            padding: '0 0 0 ' + ((me.editDefaults && me.editDefaults.labelWidth ? me.editDefaults.labelWidth : 250) + 15),
                             items: [
                                 {
                                     itemId: 'edit-form-save-button',
@@ -80,7 +79,7 @@ Ext.define('Sam.view.systemprops.SystemPropsView', {
                                 },
                                 {
                                     itemId: 'edit-form-restore-default-values-button',
-                                    text: Uni.I18n.translate('general.restoreToDefault', 'SAM', 'Restore to default'),
+                                    text: Uni.I18n.translate('general.restoreToDefaults', 'SAM', 'Restore to defaults'),
                                     iconCls: 'icon-rotate-ccw3',
                                     iconAlign: 'left',
                                     handler: function () {
