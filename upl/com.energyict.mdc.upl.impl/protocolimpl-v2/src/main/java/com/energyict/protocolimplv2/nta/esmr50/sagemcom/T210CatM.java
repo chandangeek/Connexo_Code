@@ -39,7 +39,7 @@ public class T210CatM extends T210 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-10-07 12:00:00 +0300 (Mon, 07 Okt 2019)$";
+        return "$Date: 2020-07-14$";
     }
 
     @Override
