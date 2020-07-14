@@ -101,6 +101,7 @@ public class ReadingStorerImplDerivationTest {
         when(channel.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getMeter()).thenReturn(Optional.empty());
         when(timeSeries.getRecordSpec()).thenReturn(recordSpec);
+        when(timeSeries.getEntry(any(Instant.class))).thenReturn(Optional.of(mock(TimeSeriesEntry.class)));
         doReturn(asList(fieldSpec, fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(idsService.createOverrulingStorer()).thenReturn(storer);
         when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);
