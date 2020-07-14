@@ -73,7 +73,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     // persistent fields
     private String mRID;
     private long id;
-    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String aliasName;
     private String fullAliasName;
     private String description;
