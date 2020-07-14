@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
@@ -215,7 +216,7 @@ class ReadingStorerImpl implements ReadingStorer {
     private void updateExistingRecords(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
         Set<Pair<ChannelContract, Instant>> mayNeedToUpdateTimes = valuesView.keySet()
                 .stream()
-                .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast())))
+                .map(pair -> getPairForShiftedTime(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast())))
                 .filter(not(valuesView::containsKey))
                 .collect(Collectors.toSet());
         Map<Pair<ChannelContract, Instant>, Object[]> mayNeedToUpdate = readFromDb(mayNeedToUpdateTimes);
@@ -225,6 +226,24 @@ class ReadingStorerImpl implements ReadingStorer {
                 .filter(this::updateEntryIfNeeded)
                 .forEach(entry -> updatingStorer.add(entry.getKey().getFirst().getTimeSeries(), entry.getKey().getLast(), entry.getValue()));
         updatingStorer.execute();
+    }
+
+    private static Pair<ChannelContract, Instant> getPairForShiftedTime(ChannelContract currentChannel, Instant shiftedTime) {
+        if (currentChannel.getTimeSeries().getEntry(shiftedTime).isPresent()) {
+            return Pair.of(currentChannel, shiftedTime);
+        } else {
+            return Pair.of(currentChannel.getChannelsContainer().getMeter()
+                            .map(meter -> meter.getMeterActivation(shiftedTime))
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .map(MeterActivation::getChannelsContainer)
+                            .map(channelsContainer -> channelsContainer.getChannel(currentChannel.getMainReadingType()))
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .filter(channel -> channel instanceof ChannelContract)
+                            .map(channel -> (ChannelContract) channel).orElse(currentChannel),
+                    shiftedTime);
+        }
     }
 
     private boolean updateEntryIfNeeded(Map.Entry<Pair<ChannelContract, Instant>, Object[]> entry) {
@@ -618,7 +637,7 @@ class ReadingStorerImpl implements ReadingStorer {
         Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
             return valuesView.keySet()
                     .stream()
-                    .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
+                    .map(pair -> getPairForShiftedTime(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
                     .collect(Collectors.toSet());
         }
 
