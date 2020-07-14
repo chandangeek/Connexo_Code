@@ -5,7 +5,7 @@ execute immediate 'DROP TABLE MV_CONNECTIONDATA';
 
 EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF;
 
-execute immediate 'CREATE TABLE MV_CONNECTIONDATA
+execute immediate 'CREATE GLOBAL TEMPORARY TABLE MV_CONNECTIONDATA on commit preserve rows
 AS
 SELECT
        ct.lastsession,
@@ -209,6 +209,8 @@ SELECT devicetype,
  WHERE IS_MV_CTLCSWithAtLstOneFT  = 1
    AND lastsession is not null
  GROUP BY devicetype, mrid';
+--
+execute immediate 'TRUNCATE TABLE MV_CONNECTIONDATA';
 --
 execute immediate 'DROP TABLE MV_CONNECTIONDATA';
 --
