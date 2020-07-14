@@ -22,6 +22,7 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.common.tasks.TopologyTask;
@@ -112,6 +113,12 @@ public class ComTaskExecutionOrganizerTest {
         return comTask;
     }
 
+    private ComTask createMockedCommandComTask() {
+        ComTask comTask = mock(ComTask.class);
+        ProtocolTask messagesTask = mock(MessagesTask.class);
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
+        return comTask;
+    }
 
     private ComTaskExecution createMockedComTaskExecution(Device device, ComTask comTask) {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
@@ -689,13 +696,14 @@ public class ComTaskExecutionOrganizerTest {
     }
 
     @Test
-    public void comTaskExecutionWithBasicCheckInFrontOfTheLineTest() {
+    public void comTaskExecutionWithBasicCheckFirstAndCommandLastTest() {
         Device device = getMockedDevice(false);
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedRegistersComTask());
         ComTaskExecution comTaskExecution3 = createMockedComTaskExecution(device, createMockedLoadProfilesComTask());
         ComTaskExecution comTaskExecution4 = createMockedComTaskExecution(device, createMockedTaskWithBasicCheckInMiddleOfProtocolTasks());
         ComTaskExecution comTaskExecution5 = createMockedComTaskExecution(device, createMockedLogBooksComTask());
+        ComTaskExecution comTaskExecution6 = createMockedComTaskExecution(device, createMockedCommandComTask());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -705,7 +713,7 @@ public class ComTaskExecutionOrganizerTest {
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
                 new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Arrays.asList(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4, comTaskExecution5));
+                        comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4, comTaskExecution5, comTaskExecution6));
 
         final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
         final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> comTasksWithSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
@@ -716,6 +724,7 @@ public class ComTaskExecutionOrganizerTest {
         assertThat(comTasksWithSteps.get(2).getComTaskExecution()).isEqualTo(comTaskExecution2);
         assertThat(comTasksWithSteps.get(3).getComTaskExecution()).isEqualTo(comTaskExecution3);
         assertThat(comTasksWithSteps.get(4).getComTaskExecution()).isEqualTo(comTaskExecution5);
+        assertThat(comTasksWithSteps.get(5).getComTaskExecution()).isEqualTo(comTaskExecution6);
     }
 
     @Test

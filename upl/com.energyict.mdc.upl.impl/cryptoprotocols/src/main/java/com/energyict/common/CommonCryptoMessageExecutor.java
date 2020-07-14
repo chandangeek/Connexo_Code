@@ -27,6 +27,8 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382Cache;
+import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
@@ -123,6 +125,9 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             renewKeyFor(renewKeyData, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(),
                     getCosemObjectFactory().getSecuritySetup().getObisCode(),
                     getProtocol().getDlmsSession().getProperties().getClientMacAddress());
+
+            resetFC();
+            resetCachedFC();
         } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.PASSWORD.getKey())) {
             renewHlsSecret(renewKeyData);
         }
@@ -611,6 +616,15 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             ((FrameCounterCache) dlmsCache).setTXFrameCounter(clientToChangeKeyFor, 1);
         } else {
             throw new ProtocolException("DlmsCache instance (" + dlmsCache.getClass().toString() + ") should implement interface FrameCounterCache.");
+        }
+    }
+
+    private void resetCachedFC() {
+        DLMSCache dlmsCache = getProtocol().getDeviceCache();
+        if (dlmsCache instanceof ESMR50Cache) {
+            ((ESMR50Cache) dlmsCache).setFrameCounter(1);
+        } else if (dlmsCache instanceof Mx382Cache) {
+            ((Mx382Cache) dlmsCache).setFrameCounter(1);
         }
     }
 

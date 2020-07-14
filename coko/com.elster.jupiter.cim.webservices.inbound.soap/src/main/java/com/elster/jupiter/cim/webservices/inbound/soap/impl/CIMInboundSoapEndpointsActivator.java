@@ -4,17 +4,11 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigCustomPropertySet;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterCustomPropertySet;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.ExecuteUsagePointConfigEndpoint;
-import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -89,12 +83,9 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile ServiceCallService serviceCallService;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
-    private volatile MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
-    private volatile MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
     private volatile UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet;
     private volatile UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet;
     private volatile OrmService ormService;
-    private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
     private final ObjectHolder<ReplyUsagePointConfigWebService> replyUsagePointConfigWebServiceHolder = new ObjectHolder<>();
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -111,10 +102,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                                             UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
                                             EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
                                             ServiceCallService serviceCallService, MessageService messageService, JsonService jsonService,
-                                            ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
                                             ReplyUsagePointConfigWebService replyUsagePointConfigWebService,
-                                            MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet,
-                                            MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet,
                                             UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet,
                                             UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet, OrmService ormService) {
         this();
@@ -133,11 +121,8 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setServiceCallService(serviceCallService);
         setMessageService(messageService);
         setJsonService(jsonService);
-        setMasterDataLinkageConfigMasterCustomPropertySet(masterDataLinkageConfigMasterCustomPropertySet);
-        setMasterDataLinkageConfigCustomPropertySet(masterDataLinkageConfigCustomPropertySet);
         setUsagePointConfigMasterCustomPropertySet(usagePointConfigMasterCustomPropertySet);
         setUsagePointConfigCustomPropertySet(usagePointConfigCustomPropertySet);
-        addReplyMasterDataLinkageConfigWebServiceClient(replyMasterDataLinkageConfigWebService);
         addReplyUsagePointConfigWebServiceClient(replyUsagePointConfigWebService);
         setOrmService(ormService);
         activate(bundleContext);
@@ -163,13 +148,8 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(JsonService.class).toInstance(jsonService);
-                bind(MasterDataLinkageConfigMasterCustomPropertySet.class).toInstance(masterDataLinkageConfigMasterCustomPropertySet);
-                bind(MasterDataLinkageConfigCustomPropertySet.class).toInstance(masterDataLinkageConfigCustomPropertySet);
                 bind(UsagePointConfigMasterCustomPropertySet.class).toInstance(usagePointConfigMasterCustomPropertySet);
                 bind(UsagePointConfigCustomPropertySet.class).toInstance(usagePointConfigCustomPropertySet);
-                TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>> replyMasterDataLinkageHolder = new TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>>() {
-                };
-                bind(replyMasterDataLinkageHolder).toInstance(replyMasterDataLinkageConfigWebServiceHolder);
                 TypeLiteral<ObjectHolder<ReplyUsagePointConfigWebService>> replyUsagePointHolder = new TypeLiteral<ObjectHolder<ReplyUsagePointConfigWebService>>() {
                 };
                 bind(replyUsagePointHolder).toInstance(replyUsagePointConfigWebServiceHolder);
@@ -196,8 +176,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private List<CustomPropertySet> getServiceCallCustomPropertySets() {
-        return Arrays.asList(masterDataLinkageConfigMasterCustomPropertySet, masterDataLinkageConfigCustomPropertySet,
-                usagePointConfigMasterCustomPropertySet, usagePointConfigCustomPropertySet);
+        return Arrays.asList(usagePointConfigMasterCustomPropertySet, usagePointConfigCustomPropertySet);
     }
 
     private void registerCustomPropertySets() {
@@ -205,12 +184,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private void registerHandlers(BundleContext bundleContext) {
-        registerServiceCallHandler(bundleContext,
-                dataModel.getInstance(MasterDataLinkageConfigServiceCallHandler.class),
-                MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
-        registerServiceCallHandler(bundleContext,
-                dataModel.getInstance(MasterDataLinkageConfigMasterServiceCallHandler.class),
-                MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         registerServiceCallHandler(bundleContext, dataModel.getInstance(UsagePointConfigMasterServiceCallHandler.class),
                 UsagePointConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         registerServiceCallHandler(bundleContext, dataModel.getInstance(UsagePointConfigServiceCallHandler.class),
@@ -219,9 +192,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private void registerServices(BundleContext bundleContext) {
-        registerInboundSoapEndpoint(bundleContext,
-                () -> dataModel.getInstance(ExecuteMasterDataLinkageConfigEndpoint.class),
-                "CIM MasterDataLinkageConfig");
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteUsagePointConfigEndpoint.class),
                 "CIM UsagePointConfig");
     }
@@ -315,33 +285,12 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void addReplyMasterDataLinkageConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) {
-        replyMasterDataLinkageConfigWebServiceHolder.setObject(webService);
-    }
-
-    public void removeReplyMasterDataLinkageConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) { // NOSONAR we cannot remove this parameter
-        replyMasterDataLinkageConfigWebServiceHolder.unsetObject();
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void addReplyUsagePointConfigWebServiceClient(ReplyUsagePointConfigWebService webService) {
         replyUsagePointConfigWebServiceHolder.setObject(webService);
     }
 
     public void removeReplyUsagePointConfigWebServiceClient(ReplyUsagePointConfigWebService webService) { // NOSONAR we cannot remove this parameter
         replyUsagePointConfigWebServiceHolder.unsetObject();
-    }
-
-    @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
-    public void setMasterDataLinkageConfigMasterCustomPropertySet(
-            CustomPropertySet masterDataLinkageConfigMasterCustomPropertySet) {
-        this.masterDataLinkageConfigMasterCustomPropertySet = (MasterDataLinkageConfigMasterCustomPropertySet) masterDataLinkageConfigMasterCustomPropertySet;
-    }
-
-    @Reference(target = "(name=" + MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
-    public void setMasterDataLinkageConfigCustomPropertySet(
-            CustomPropertySet masterDataLinkageConfigCustomPropertySet) {
-        this.masterDataLinkageConfigCustomPropertySet = (MasterDataLinkageConfigCustomPropertySet) masterDataLinkageConfigCustomPropertySet;
     }
 
     @Reference(target = "(name=" + UsagePointConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")

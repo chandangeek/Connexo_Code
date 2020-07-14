@@ -14,13 +14,13 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    EMPTY_LIST(1, "NoElementsInList", "The list of ''{0}'' cannot be empty"),
-    UNSUPPORTED_BULK_OPERATION(2, "UnsupportedBulkOperation", "Bulk operation is not supported on ''{0}'', only first element is processed", Level.WARNING),
-    MISSING_ELEMENT(3, "NoRequiredElement", "Element ''{0}'' is required"),
+    EMPTY_LIST(1, "NoElementsInList", "The list of ''{0}'' can''t be empty."),
+    UNSUPPORTED_BULK_OPERATION(2, "UnsupportedBulkOperation", "Bulk operation isn''t supported on ''{0}'', only first element is processed", Level.WARNING),
+    MISSING_ELEMENT(3, "NoRequiredElement", "Element ''{0}'' is required."),
     ELEMENT_BY_REFERENCE_NOT_FOUND(4, "ElementByRefNotFound", "Element by reference ''{0}'' is not found in ''{1}''"),
     UNSUPPORTED_LIST_SIZE(5, "UnsupportedListSize", "The list of ''{0}'' has unsupported size. Must be of size {1}"),
     EMPTY_ELEMENT(6, "EmptyElement", "Element ''{0}'' is empty or contains only white spaces"),
-    MISSING_MRID_OR_NAME_FOR_ELEMENT(7, "MissingMridOrNameForElement", "Either element ''mRID'' or ''Names'' is required under ''{0}'' for identification purpose"),
+    MISSING_MRID_OR_NAME_FOR_ELEMENT(7, "MissingMridOrNameForElement", "Either element ''mRID'' or ''Names'' is required under ''{0}'' for identification purpose."),
     MISSING_MRID_OR_NAME_WITH_TYPE_FOR_ELEMENT(8, "MissingMridOrNameWithTypeForElement",
             "Either element ''mRID'' or ''Names'' with ''NameType.name'' = ''{0}'' is required under ''{1}'' for identification purpose"),
     UNSUPPORTED_ELEMENT(9, "UnsupportedElement", "Element ''{0}'' under ''{1}'' is not supported"),
@@ -62,6 +62,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEVICE(1032, "NoDevice", "Device(s) not found"),
     SHIPMENT_DATE_NOT_IN_STOCK(1033, "shipmentdateNotInStock", "Unable to edit shipment date when device isn''t in state ''In stock''."),
     WRONG_ENUM_WALUE_FOR_ATTRIBUTE(1034, "WrongEnumerationValueForAttribute", "Wrong enumeration value for attribute ''{0}''. Possible values: {1}."),
+    METROLOGY_CONFIG_NOT_ALLOW_GAPS(1035, "MetrologyConfigurationDoesntAllowGaps", "Meter ''{0}'' (serial number ''{1}'') is linked to usage point ''{2}'' with metrology configuration that doesn''t allow gaps so the meter can''t be deleted."),
+    CANT_REMOVE_GATEWAY(1036, "CantRemoveGateway", "Meter ''{0}'' (serial number ''{1}'') can''t be removed while it''s still used as a gateway."),
+    UNABLE_TO_DELETE_DEVICE(1037, "UnableToDeleteDevice", "Unable to delete device"),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
@@ -89,6 +92,9 @@ public enum MessageSeeds implements MessageSeed {
     NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
     ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY(5002, "ElementByRefNotFoundOrEmpty", "Element by reference ''{0}'' not found or has an empty value"),
     IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES(5003, "DuplicatedZoneType", "Is not allowed to send the same zone type more than once, a device can be assigned to only one zone from a zone type"),
+    NO_CONNECTION_METHOD_WITH_NAME(5004, "NoConnectionMethodWithName", "No connection method ''{0}''."),
+    NO_CONNECTION_METHODS(5005, "NoConnectionMethods", "No connection methods are found."),
+    NO_CONNECTION_ATTRIBUTE(5006, "NoConnectionAttribute", "Attribute ''{0}'' isn''t found on connection method ''{1}''."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(6001, "UnableToGetReadings", "Unable to get readings."),
@@ -131,6 +137,26 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_IS_NOT_SCHEDULED(6039, "ComTaskIsNotScheduled", "No proper communication task on device ''{0}'' is scheduled.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES(6040, "NoComTaskExecutionForLoadProfileNames", "No communication task execution has been found on device ''{0}'' for load profiles ''{1}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_REGISTER_GROUP(6041, "NoComTaskExecutionForRegisterGroup", "No communication task execution has been found on device ''{0}'' for register groups ''{1}''.", Level.WARNING),
+
+    // master data linkage
+    NO_METER_WITH_MRID(7001, "NoMeterWithMRID", "No meter or gateway is found by MRID ''{0}''."),
+    NO_METER_WITH_NAME(7002, "NoMeterWithName", "No meter or gateway is found by name ''{0}''."),
+    NO_END_DEVICE_WITH_MRID(7003, "NoEndDeviceWithMRID", "No end device is found by MRID ''{0}''."),
+    NO_END_DEVICE_WITH_NAME(7004, "NoEndDeviceWithName", "No end device is found by name ''{0}''."),
+    UNABLE_TO_LINK_METER(7005, "UnableToLinkMeter", "Unable to link meter to usage point or gateway to end device."),
+    UNABLE_TO_UNLINK_METER(7006, "UnableToUnlinkMeter", "Unable to unlink meter from usage point or gateway from end device."),
+    SAME_USAGE_POINT_ALREADY_LINKED(7007, "SameUsagePointAlreadyLinked", "Meter ''{0}'' is already linked to usage point ''{1}'' at the given time ''{2}''."),
+    METER_AND_USAGE_POINT_NOT_LINKED(7008, "MeterAndUsagePointNotLinked", "Meter ''{0}'' isn''t linked to usage point ''{1}'' at the given time ''{2}''."),
+    NO_METER_ROLE_WITH_KEY(7009, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
+    NOT_SUPPORTED_MASTER(7010, "NotSupportedMaster", "Device ''{0}'' (serial number ''{1}'') isn''t configured to act as gateway."),
+    NOT_SUPPORTED_SLAVE(7011, "NotSupportedSlave","Device ''{0}'' (serial number ''{1}'') isn''t configured to act as end device."),
+    CAN_NOT_BE_GATEWAY_TO_ITSELF(7012, "CanNotBeGatewayToItself", "Device ''{0}'' (serial number ''{1}'') can''t be its own gateway."),
+    CAN_NOT_UNLINK_ITSELF(7013, "CanNotUnlinkItself", "Device ''{0}'' (serial number ''{1}'') can''t be unlinked from itself."),
+    METER_ALREADY_LINKED_TO_END_DEVICE(7014, "MeterAlreadyLinkedToEndDevice", "End device ''{0}'' (serial number ''{1}'') already linked to gateway ''{2}'' (serial number ''{3}'')."),
+    END_DEVICE_IS_NOT_LINKED(7015, "EndDeviceIsNotLinked", "End device ''{0}'' (serial number ''{1}'') isn''t linked to gateway ''{2}'' (serial number ''{3}'')."),
+    DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS(7016, "DifferentNumberOfMetersAndUsagePoints", "Number of meters should be equal to number of usage points. Currently: {0} and {1}"),
+    NO_SUCH_DEVICE(7017, "NoSuchDevice", "No device with id ''{0}''."),
+    EMPTY_USAGE_POINT_OR_END_DEVICE_LIST(7018, "NoUsagePointOrEndDeviceElementsInList", "Either the node ''MasterDataLinkageConfig.UsagePoint'' or ''MasterDataLinkageConfig.EndDevice'' should contain elements ''mRID'' or ''Names'' for identification purpose."),
     ;
 
     private final int number;

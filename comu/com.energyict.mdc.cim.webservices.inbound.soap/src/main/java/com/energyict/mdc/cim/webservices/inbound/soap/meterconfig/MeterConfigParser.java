@@ -27,7 +27,6 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zone;
 
-import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKeys;
@@ -99,6 +98,10 @@ public class MeterConfigParser {
                             .get();
                 }
                 break;
+            case DELETE:
+                meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
+                meterInfo.setmRID(extractMrid(meter).orElse(null));
+                break;
             default:
                 break;
 
@@ -112,6 +115,7 @@ public class MeterConfigParser {
         meterInfo.setCustomAttributeSets(extractCustomPropertySets(meter));
         meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
         meterInfo.setSecurityInfo(extractSecurityInfo(meter));
+        meterInfo.setConnectionAttributes(meter.getConnectionAttributes());
         return meterInfo;
     }
 
@@ -137,7 +141,7 @@ public class MeterConfigParser {
         info.setEndDate(cas.getToDateTime());
         Map<String, String> attributes = new HashMap<>();
         int attributeIndex = 0;
-        for (Attribute attribute : cas.getAttribute()) {
+        for (com.elster.connexo._2017.schema.customattributes.Attribute attribute : cas.getAttribute()) {
             attributes.put(extractCpsAttributeName(meterName, customPropertySetIndex, attribute, attributeIndex),
                     extractCpsAttributeValue(meterName, customPropertySetIndex, attribute, attributeIndex));
             attributeIndex++;
@@ -381,7 +385,7 @@ public class MeterConfigParser {
                         METER_CONFIG_CUSTOM_ATTRIBUTE_SET_PREFIX + customPropertySetIndex + "].id"));
     }
 
-    private String extractCpsAttributeName(String meterName, int customPropertySetIndex, Attribute attribute,
+    private String extractCpsAttributeName(String meterName, int customPropertySetIndex, com.elster.connexo._2017.schema.customattributes.Attribute attribute,
                                            int attributeIndex) throws FaultMessage {
         return Optional.ofNullable(attribute.getName()).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace())
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meterName,
@@ -389,7 +393,7 @@ public class MeterConfigParser {
                                 + "].Attribute[" + attributeIndex + "].name"));
     }
 
-    private String extractCpsAttributeValue(String meterName, int customPropertySetIndex, Attribute attribute,
+    private String extractCpsAttributeValue(String meterName, int customPropertySetIndex, com.elster.connexo._2017.schema.customattributes.Attribute attribute,
                                             int attributeIndex) throws FaultMessage {
         return Optional.ofNullable(attribute.getValue()).filter(value -> !Checks.is(value).emptyOrOnlyWhiteSpace())
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meterName,

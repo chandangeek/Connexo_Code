@@ -660,8 +660,8 @@ sub install_tomcat {
         add_to_file($catalina, "org.uberfire.nio.git.dir=$replaceHOME");
         add_to_file($catalina, "org.uberfire.metadata.index.dir=$replaceHOME");
         add_to_file($catalina, "org.uberfire.nio.git.ssh.cert.dir=$replaceHOME");
-        add_to_file($catalina, "org.guvnor.m2repo.dir=$replaceHOME/repositories/kie   ");
-        add_to_file($catalina, "port.shutdown=$TOMCAT_SHUTDOWN_PORT   ");
+        add_to_file($catalina, "org.guvnor.m2repo.dir=$replaceHOME/repositories/kie");
+        add_to_file($catalina, "port.shutdown=$TOMCAT_SHUTDOWN_PORT");
         add_to_file($catalina, "port.http=$TOMCAT_HTTP_PORT");
         add_to_file($catalina, "flow.url=$FLOW_URL");
         add_to_file($catalina, "connexo.url=$CONNEXO_URL");
@@ -669,7 +669,7 @@ sub install_tomcat {
         add_to_file($catalina, "connexo.password=$replacePASSWORD");
         add_to_file($catalina, "btm.root=$replaceHOME");
         add_to_file($catalina, "bitronix.tm.configuration=$replaceHOME/conf/btm-config.properties");
-        add_to_file($catalina, "jbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry ");
+        add_to_file($catalina, "jbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry");
         add_to_file($catalina, "org.kie.demo=false");
         add_to_file($catalina, "org.kie.example=false");
         add_to_file($catalina, "connexo.configuration=$replaceHOME/conf/connexo.properties");
@@ -904,9 +904,9 @@ sub activate_sso_filters{
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->", "<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!--filter>", "<filter>");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "</filter-mapping-->", "</filter-mapping>");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->", "<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->", "<!-- Section 1: Default Flow authentication method; to be uncommented when using Connexo SSO >");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 1 ends here -->", "< Section 1 ends here -->");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO -->", "<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO >");
+            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO -->", "<!-- Section 2: Default Flow security constraints; to be uncommented when using Connexo SSO >");
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml", "<!-- Section 2 ends here -->", "< Section 2 ends here -->");
 
             replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml", "<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>", "<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");

@@ -22,13 +22,18 @@ public class CryptoESMR50MbusDevice extends CryptoMbusDevice {
     private ESMR50MbusConfigurationSupport dlmsConfigurationSupport;
     private CryptoESMR50MbusMessaging mbusMessaging;
 
-    public CryptoESMR50MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor1) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor, keyAccessorTypeExtractor1);
+    public CryptoESMR50MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                                  CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                                  DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                                  NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                                  KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-10-17";
+        return "Crypto version: 2020-07-07";
     }
 
     @Override
@@ -50,6 +55,11 @@ public class CryptoESMR50MbusDevice extends CryptoMbusDevice {
             dlmsConfigurationSupport = new ESMR50MbusConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport.getUPLPropertySpecs();
+    }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return false;
     }
 
 }

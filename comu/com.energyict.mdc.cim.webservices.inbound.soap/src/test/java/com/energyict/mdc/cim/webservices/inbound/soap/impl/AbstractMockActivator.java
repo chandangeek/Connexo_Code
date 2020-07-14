@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
@@ -54,6 +55,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -79,7 +81,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -173,6 +174,10 @@ public abstract class AbstractMockActivator {
     protected CommunicationTaskService communicationTaskService;
     @Mock
     protected MeteringTranslationService meteringTranslationService;
+    @Mock
+    protected TopologyService topologyService;
+    @Mock
+    protected ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -247,6 +252,8 @@ public abstract class AbstractMockActivator {
         activator.setMasterDataService(masterDataService);
         activator.setCommunicationTaskService(communicationTaskService);
         activator.setMeteringTranslationService(meteringTranslationService);
+        activator.setTopologyService(topologyService);
+        activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.activate(mock(BundleContext.class));
     }
 

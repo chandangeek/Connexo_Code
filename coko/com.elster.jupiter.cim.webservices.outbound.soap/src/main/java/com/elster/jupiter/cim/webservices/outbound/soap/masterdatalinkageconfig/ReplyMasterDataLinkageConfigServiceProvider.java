@@ -14,6 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
+import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
@@ -73,8 +74,8 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 	@Override
 	public void	call(EndPointConfiguration endPointConfiguration, String operation,
-			List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
-			BigDecimal expectedNumberOfCalls, String correlationId) {
+						List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
+						BigDecimal expectedNumberOfCalls, String correlationId) {
 		String method;
 		MasterDataLinkageConfigEventMessageType message;
 		switch (operation) {
@@ -97,6 +98,8 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		successfulLinkages.forEach(link->{
 			values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
 			values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+			values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+			values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
 			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
 			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
 
@@ -104,6 +107,8 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		failedLinkages.forEach(link->{
 			values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
 			values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+			values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getEndDeviceMrid());
+			values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getEndDeviceName());
 			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
 			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
 		});
@@ -133,18 +138,29 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	private MasterDataLinkageConfig createMasterDataLinkageConfig(List<LinkageOperation> successfulLinkageOperations) {
 		MasterDataLinkageConfig config = new MasterDataLinkageConfig();
 		successfulLinkageOperations.forEach(linkage -> {
-			UsagePoint usagePoint = new UsagePoint();
-			usagePoint.setMRID(linkage.getUsagePointMrid());
-			ch.iec.tc57._2011.masterdatalinkageconfig.Name upName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
-			upName.setName(linkage.getUsagePointName());
-			usagePoint.getNames().add(upName);
-			config.getUsagePoint().add(usagePoint);
+			if (linkage.getUsagePointMrid() != null || linkage.getUsagePointName() != null) {
+				UsagePoint usagePoint = new UsagePoint();
+				usagePoint.setMRID(linkage.getUsagePointMrid());
+				ch.iec.tc57._2011.masterdatalinkageconfig.Name upName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
+				upName.setName(linkage.getUsagePointName());
+				usagePoint.getNames().add(upName);
+				config.getUsagePoint().add(usagePoint);
+			}
 			Meter meter = new Meter();
 			meter.setMRID(linkage.getMeterMrid());
 			ch.iec.tc57._2011.masterdatalinkageconfig.Name meterName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
 			meterName.setName(linkage.getMeterName());
 			meter.getNames().add(meterName);
 			config.getMeter().add(meter);
+			if (linkage.getEndDeviceMrid() != null || linkage.getEndDeviceName() != null) {
+				EndDevice endDevice = new EndDevice();
+				endDevice.setMRID(linkage.getEndDeviceMrid());
+				ch.iec.tc57._2011.masterdatalinkageconfig.Name endDeviceName = new ch.iec.tc57._2011.masterdatalinkageconfig.Name();
+				endDeviceName.setName(linkage.getEndDeviceName());
+				endDevice.getNames().add(endDeviceName);
+				config.getEndDevice().add(endDevice);
+			}
+
 		});
 		return config;
 	}
