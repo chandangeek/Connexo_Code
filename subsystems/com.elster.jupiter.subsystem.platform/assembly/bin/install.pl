@@ -660,8 +660,8 @@ sub install_tomcat {
         add_to_file($catalina, "org.uberfire.nio.git.dir=$replaceHOME");
         add_to_file($catalina, "org.uberfire.metadata.index.dir=$replaceHOME");
         add_to_file($catalina, "org.uberfire.nio.git.ssh.cert.dir=$replaceHOME");
-        add_to_file($catalina, "org.guvnor.m2repo.dir=$replaceHOME/repositories/kie   ");
-        add_to_file($catalina, "port.shutdown=$TOMCAT_SHUTDOWN_PORT   ");
+        add_to_file($catalina, "org.guvnor.m2repo.dir=$replaceHOME/repositories/kie");
+        add_to_file($catalina, "port.shutdown=$TOMCAT_SHUTDOWN_PORT");
         add_to_file($catalina, "port.http=$TOMCAT_HTTP_PORT");
         add_to_file($catalina, "flow.url=$FLOW_URL");
         add_to_file($catalina, "connexo.url=$CONNEXO_URL");
@@ -669,7 +669,7 @@ sub install_tomcat {
         add_to_file($catalina, "connexo.password=$replacePASSWORD");
         add_to_file($catalina, "btm.root=$replaceHOME");
         add_to_file($catalina, "bitronix.tm.configuration=$replaceHOME/conf/btm-config.properties");
-        add_to_file($catalina, "jbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry ");
+        add_to_file($catalina, "jbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry");
         add_to_file($catalina, "org.kie.demo=false");
         add_to_file($catalina, "org.kie.example=false");
         add_to_file($catalina, "connexo.configuration=$replaceHOME/conf/connexo.properties");
