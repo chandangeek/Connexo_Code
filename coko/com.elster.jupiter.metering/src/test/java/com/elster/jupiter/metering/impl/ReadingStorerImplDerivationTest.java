@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
@@ -100,8 +101,8 @@ public class ReadingStorerImplDerivationTest {
         when(channel.getDerivationRule(secondaryBulkReadingType)).thenReturn(DerivationRule.MEASURED);
         when(channel.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getMeter()).thenReturn(Optional.empty());
+        when(channelsContainer.getInterval()).thenReturn(Interval.forever());
         when(timeSeries.getRecordSpec()).thenReturn(recordSpec);
-        when(timeSeries.getEntry(any(Instant.class))).thenReturn(Optional.of(mock(TimeSeriesEntry.class)));
         doReturn(asList(fieldSpec, fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(idsService.createOverrulingStorer()).thenReturn(storer);
         when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);
@@ -109,13 +110,13 @@ public class ReadingStorerImplDerivationTest {
             BaseReading reading = (BaseReading) invocation.getArguments()[0];
             ReadingType readingType = (ReadingType) invocation.getArguments()[1];
             boolean bulk = readingType == secondaryBulkReadingType;
-            return new Object[] { 0L, 0L, bulk ? null : reading.getValue(), bulk ? reading.getValue() : null };
+            return new Object[]{0L, 0L, bulk ? null : reading.getValue(), bulk ? reading.getValue() : null};
         });
         when(channel.toArray(any())).thenAnswer(invocation -> {
             BaseReadingRecord reading = (BaseReadingRecord) invocation.getArguments()[0];
             BigDecimal delta = Optional.ofNullable(reading.getQuantity(secondaryDeltaReadingType)).map(Quantity::getValue).orElse(null);
             BigDecimal bulk = Optional.ofNullable(reading.getQuantity(secondaryBulkReadingType)).map(Quantity::getValue).orElse(null);
-            return new Object[] { 0L, 0L, delta, bulk };
+            return new Object[]{0L, 0L, delta, bulk};
         });
         when(channel.getReading(any())).thenReturn(Optional.empty());
 
