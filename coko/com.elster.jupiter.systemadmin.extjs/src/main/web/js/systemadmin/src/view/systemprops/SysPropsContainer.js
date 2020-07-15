@@ -11,17 +11,6 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
 
     router: null,
 
-    viewDefaults: {
-        xtype: 'displayfield',
-        labelWidth: 150
-    },
-    editDefaults: {
-        labelWidth: 150,
-        anchor: '100%',
-        maxWidth: 421
-    },
-
-
     refs: [
             {
                 ref: 'cont',
@@ -72,9 +61,7 @@ Ext.define('Sam.view.systemprops.SysPropsContainer', {
                                 xtype: 'system-props-view',
                                 itemId: 'sys-props-attributes-form',
                                 title: Uni.I18n.translate('general.cacheParameters', 'SAM', 'Cache parameters'),
-                                router: me.router,
-                                viewDefaults: me.viewDefaults,
-                                editDefaults: me.editDefaults
+                                router: me.router
                             }
                         ]
                     }
