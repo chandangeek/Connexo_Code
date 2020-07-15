@@ -160,7 +160,7 @@ class ReadingStorerImpl implements ReadingStorer {
     private Object[] getPreviousValues(ChannelContract channel, Instant timestamp) {
         if (channel.isRegular()) {
             Instant previousDateTime = channel.getPreviousDateTime(timestamp);
-            return previousReadings.get(Pair.of(channel, previousDateTime));
+            return previousReadings.get(getPairForShiftedTime(channel, previousDateTime, deltaDerivations));
         }
         return null;
     }
@@ -181,7 +181,7 @@ class ReadingStorerImpl implements ReadingStorer {
                 .distinct()
                 .collect(Collectors.toMap(
                         Function.identity(),
-                        this::getDerivations
+                        ReadingStorerImpl::getDerivations
                 ));
 
         Set<Pair<ChannelContract, Instant>> needed = determineNeed(valuesView);
@@ -202,10 +202,10 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
-        return updateBehaviour.determineNeed(valuesView);
+        return updateBehaviour.determineNeed(valuesView, deltaDerivations);
     }
 
-    private List<Derivation> getDerivations(ChannelContract channel) {
+    private static List<Derivation> getDerivations(ChannelContract channel) {
         return decorate(channel.getReadingTypes().stream())
                 .zipWithIndex()
                 .map(pair -> new Derivation(channel, pair.getFirst(), channel.getDerivationRule(pair.getFirst()), pair.getLast().intValue()))
@@ -216,7 +216,7 @@ class ReadingStorerImpl implements ReadingStorer {
     private void updateExistingRecords(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
         Set<Pair<ChannelContract, Instant>> mayNeedToUpdateTimes = valuesView.keySet()
                 .stream()
-                .map(pair -> getPairForShiftedTime(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast())))
+                .map(pair -> getPairForShiftedTime(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast()), deltaDerivations))
                 .filter(not(valuesView::containsKey))
                 .collect(Collectors.toSet());
         Map<Pair<ChannelContract, Instant>, Object[]> mayNeedToUpdate = readFromDb(mayNeedToUpdateTimes);
@@ -228,22 +228,30 @@ class ReadingStorerImpl implements ReadingStorer {
         updatingStorer.execute();
     }
 
-    private static Pair<ChannelContract, Instant> getPairForShiftedTime(ChannelContract currentChannel, Instant shiftedTime) {
-        if (currentChannel.getTimeSeries().getEntry(shiftedTime).isPresent()) {
+    private static Pair<ChannelContract, Instant> getPairForShiftedTime(ChannelContract currentChannel, Instant shiftedTime, Map<ChannelContract, List<Derivation>> deltaDerivations) {
+        if (currentChannel.getChannelsContainer().getInterval().toOpenClosedRange().contains(shiftedTime)) {
             return Pair.of(currentChannel, shiftedTime);
         } else {
-            return Pair.of(currentChannel.getChannelsContainer().getMeter()
-                            .map(meter -> meter.getMeterActivation(shiftedTime))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .map(MeterActivation::getChannelsContainer)
-                            .map(channelsContainer -> channelsContainer.getChannel(currentChannel.getMainReadingType()))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .filter(channel -> channel instanceof ChannelContract)
-                            .map(channel -> (ChannelContract) channel).orElse(currentChannel),
-                    shiftedTime);
+            Optional<ChannelContract> oChannel = currentChannel.getChannelsContainer().getMeter()
+                    .flatMap(meter -> getMeterActivation(meter, shiftedTime))
+                    .map(MeterActivation::getChannelsContainer)
+                    .flatMap(channelsContainer -> channelsContainer.getChannel(currentChannel.getMainReadingType()))
+                    .filter(channel -> channel instanceof ChannelContract)
+                    .map(channel -> (ChannelContract) channel);
+            if (oChannel.isPresent()) {
+                ChannelContract channel = oChannel.get();
+                deltaDerivations.computeIfAbsent(channel, ReadingStorerImpl::getDerivations);
+                return Pair.of(channel, shiftedTime);
+            } else {
+                return Pair.of(currentChannel, shiftedTime);
+            }
         }
+    }
+
+    private static Optional<? extends MeterActivation> getMeterActivation(Meter meter, Instant when) {
+        return meter.getMeterActivations().stream()
+                .filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(when))
+                .findFirst();
     }
 
     private boolean updateEntryIfNeeded(Map.Entry<Pair<ChannelContract, Instant>, Object[]> entry) {
@@ -251,7 +259,7 @@ class ReadingStorerImpl implements ReadingStorer {
         Instant instant = entry.getKey().getLast();
         Object[] toUpdate = entry.getValue();
         Instant previousInstant = channel.getPreviousDateTime(instant);
-        Object[] previous = consolidatedValues.get(Pair.of(channel, previousInstant));
+        Object[] previous = consolidatedValues.get(getPairForShiftedTime(channel, previousInstant, deltaDerivations));
         return previous != null && doDeltaUpdates(channel, instant, toUpdate, previous);
     }
 
@@ -627,17 +635,17 @@ class ReadingStorerImpl implements ReadingStorer {
             }
 
             @Override
-            Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
+            Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView, Map<ChannelContract, List<Derivation>> deltaDerivations) {
                 HashSet<Pair<ChannelContract, Instant>> needed = new HashSet<>(valuesView.keySet());
-                needed.addAll(super.determineNeed(valuesView));
+                needed.addAll(super.determineNeed(valuesView, deltaDerivations));
                 return needed;
             }
         };
 
-        Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
+        Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView, Map<ChannelContract, List<Derivation>> deltaDerivations) {
             return valuesView.keySet()
                     .stream()
-                    .map(pair -> getPairForShiftedTime(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
+                    .map(pair -> getPairForShiftedTime(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast()), deltaDerivations))
                     .collect(Collectors.toSet());
         }
 
