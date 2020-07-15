@@ -148,7 +148,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, String correlationId) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, boolean meterStatusRequired, String correlationId) {
         String method;
         MeterConfigEventMessageType message;
         switch (operation) {
@@ -162,7 +162,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 break;
             case GET:
                 method = "replyMeterConfig";
-                message = createInfoResponseMessage(getMeterConfig(successfulDevices), HeaderType.Verb.REPLY, correlationId);
+                message = createInfoResponseMessage(getMeterConfig(successfulDevices, meterStatusRequired), HeaderType.Verb.REPLY, correlationId);
                 break;
             case DELETE:
                 method = "deletedMeterConfig";
@@ -218,8 +218,8 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return new MeterConfig();
     }
 
-    private MeterConfig getMeterConfig(List<Device> devices) {
-        return meterConfigFactory.asGetMeterConfig(devices);
+    private MeterConfig getMeterConfig(List<Device> devices, boolean isMeterStatusRequired) {
+        return meterConfigFactory.asGetMeterConfig(devices, isMeterStatusRequired);
     }
 
     private MeterConfigEventMessageType createInfoResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {

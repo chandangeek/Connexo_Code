@@ -9,12 +9,15 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterStatusSource;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.common.base.Strings;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -139,9 +142,10 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
             MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet())
                     .get();
             OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
+            boolean meterStatusRequired = !Strings.isNullOrEmpty(extensionFor.getMeterStatusSource());
             replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
                     getSuccessfullyProcessedDevices(serviceCall), getUnsuccessfullyProcessedDevices(serviceCall),
-                    extensionFor.getExpectedNumberOfCalls(), extensionFor.getCorrelationId());
+                    extensionFor.getExpectedNumberOfCalls(), meterStatusRequired, extensionFor.getCorrelationId());
         }
     }
 

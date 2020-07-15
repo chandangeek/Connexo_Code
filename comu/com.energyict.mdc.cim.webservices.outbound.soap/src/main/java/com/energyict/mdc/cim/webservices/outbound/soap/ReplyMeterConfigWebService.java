@@ -23,8 +23,9 @@ public interface ReplyMeterConfigWebService {
      * @param successfulDevices - the list of successfully proceeded devices
      * @param failedDevices - the list contains the device failed to proceed and the error message
      * @param expectedNumberOfCalls - the expected number of child calls
+     * @param meterStatusRequired - specify if meter status should be included to GET response
      * @param correlationId - correlationId received in inbound request
      */
     void call(EndPointConfiguration endPointConfiguration, OperationEnum operation, List<Device> successfulDevices,
-              List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, String correlationId);
+              List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, boolean meterStatusRequired, String correlationId);
 }
