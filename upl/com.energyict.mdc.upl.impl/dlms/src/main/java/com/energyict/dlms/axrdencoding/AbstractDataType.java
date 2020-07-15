@@ -143,6 +143,10 @@ abstract public class AbstractDataType {
 		return isCosemTime() ? (CosemTime) this : null;
 	}
 
+	public DateTime getDateTime() {
+		return isDateTime() ? (DateTime) this : null;
+	}
+
 	public boolean isArray() {
 		return this instanceof Array;
 	}
@@ -222,6 +226,10 @@ abstract public class AbstractDataType {
     public boolean isNumerical(){
         return isInteger16()||isInteger32()||isInteger64()||isInteger8()||isUnsigned8()||isUnsigned16()||isUnsigned32()||isUnsigned64();
     }
+
+	public boolean isDateTime() {
+		return this instanceof DateTime;
+	}
 
 	public boolean isCosemDate() {
 		return this instanceof CosemDate;

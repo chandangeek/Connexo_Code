@@ -3033,9 +3033,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * @param pendingMessage   The {@link OfflineDeviceMessage}.
      * @param collectedMessage The {@link CollectedMessage}.
      */
-    private final void readBlacklist(final OfflineDeviceMessage pendingMessage, final CollectedMessage collectedMessage) {
+    private void readBlacklist(final OfflineDeviceMessage pendingMessage, final CollectedMessage collectedMessage) {
         try {
-            final G3NetworkManagement g3Management = this.getCosemObjectFactory().getG3NetworkManagement();
+            final G3NetworkManagement g3Management = getG3NetworkManagement();
 
             final List<String> blacklist = g3Management.getBlacklistedNodes();
 

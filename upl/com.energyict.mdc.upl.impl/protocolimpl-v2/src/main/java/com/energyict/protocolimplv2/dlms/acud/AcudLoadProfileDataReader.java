@@ -2,8 +2,11 @@ package com.energyict.protocolimplv2.dlms.acud;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
@@ -56,6 +59,7 @@ public class AcudLoadProfileDataReader {
                 List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
                 List<ChannelInfo>  channelInfos = getChannelInfo(captureObjects, loadProfileConfiguration.getMeterSerialNumber());
                 getChannelInfosMap().put(loadProfileReader, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
+                loadProfileConfiguration.setProfileInterval(readIntervalFromDevice(loadProfileReader.getProfileObisCode()));
                 loadProfileConfiguration.setChannelInfos(channelInfos);
                 loadProfileConfiguration.setSupportedByMeter(true);
                 this.loadProfileConfigs.add(loadProfileConfiguration);
@@ -131,7 +135,6 @@ public class AcudLoadProfileDataReader {
                     u = Unit.get(BaseUnit.NOTAVAILABLE, u.getScale());
                 }
                 u = Unit.get(u.getBaseUnit().getDlmsCode(), 0); // SET SCALE to ZERO since it's already applied and converted to Engineering Unit by the protocol
-
                 unitMap.put(capturedObject.getLogicalName().getObisCode(), u);
                 channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
             }
@@ -189,6 +192,17 @@ public class AcudLoadProfileDataReader {
             default: {
                 return Unit.getUndefined();
             }
+        }
+    }
+
+    public int readIntervalFromDevice(ObisCode obis) {
+        DLMSAttribute intervalAttribute = new DLMSAttribute(obis, 4, DLMSClassId.PROFILE_GENERIC);
+        ComposedCosemObject cosemObject = this.protocol.getDlmsSession().getCosemObjectFactory().getComposedCosemObject(intervalAttribute);
+        try {
+            AbstractDataType attributeData = cosemObject.getAttribute(intervalAttribute);
+            return attributeData.intValue();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, this.protocol.getDlmsSessionProperties().getRetries() + 1);
         }
     }
 

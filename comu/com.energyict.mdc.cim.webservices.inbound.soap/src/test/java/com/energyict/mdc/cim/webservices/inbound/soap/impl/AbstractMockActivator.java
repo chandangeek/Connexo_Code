@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
@@ -57,6 +58,7 @@ import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -176,6 +178,10 @@ public abstract class AbstractMockActivator {
     protected DeviceMessageService deviceMessageService;
     @Mock
     protected MultiSenseHeadEndInterface multiSenseHeadEndInterface;
+    @Mock
+    protected TopologyService topologyService;
+    @Mock
+    protected ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -253,6 +259,8 @@ public abstract class AbstractMockActivator {
         activator.setEndDeviceEventsServiceProvider(endDeviceEventsServiceProvider);
         activator.setDeviceMessageService(deviceMessageService);
         activator.setMultiSenseHeadEndInterface(multiSenseHeadEndInterface);
+        activator.setTopologyService(topologyService);
+        activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.activate(mock(BundleContext.class));
     }
 

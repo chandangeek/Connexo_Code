@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr40.common;
 
-
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -16,8 +15,13 @@ import com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice;
  */
 public class Dsmr40MbusProtocol extends MbusDevice {
 
-    public Dsmr40MbusProtocol(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor1) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor, keyAccessorTypeExtractor1);
+    public Dsmr40MbusProtocol(PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                              CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                              DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                              NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                              KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override

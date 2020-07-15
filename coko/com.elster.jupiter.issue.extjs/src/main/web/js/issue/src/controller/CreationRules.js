@@ -19,6 +19,10 @@ Ext.define('Isu.controller.CreationRules', {
             selector: 'issue-creation-rules-overview'
         },
         {
+            ref : 'creationRulesGrid',
+            selector: 'issue-creation-rules-overview issues-creation-rules-list'
+        },
+        {
             ref: 'itemPanel',
             selector: 'issue-creation-rules-overview issue-creation-rules-item'
         },
@@ -105,7 +109,9 @@ Ext.define('Isu.controller.CreationRules', {
     activateRule: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            suspended = record.data.active;
+            suspended = record.data.active,
+            grid = this.getCreationRulesGrid(),
+            store = grid.getStore();
 
         var action = ((suspended == true) ? 'deactivate' : 'activate');
 
@@ -118,7 +124,10 @@ Ext.define('Isu.controller.CreationRules', {
                     ? Uni.I18n.translate('administration.issueCreationRules.deactivateSuccessMsg', 'ISU', 'Issue creation rule deactivated')
                     : Uni.I18n.translate('administration.issueCreationRules.activateSuccessMsg', 'ISU', 'Issue creation rule activated');
                 me.getApplication().fireEvent('acknowledge', messageText);
-                router.getState().forward(); // navigate to the previously stored url
+                store.load(function () {
+                    var updatedRecord = store.find("id", record.data.id);
+                    grid.getSelectionModel().select(updatedRecord);
+                });
             },
             failure: function (response) {
                 if (response.status == 400) {

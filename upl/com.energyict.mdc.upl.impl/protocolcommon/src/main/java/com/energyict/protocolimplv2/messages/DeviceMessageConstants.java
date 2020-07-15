@@ -1951,4 +1951,117 @@ public final class DeviceMessageConstants {
     public static final String chargeTableUnit10 = "chargeTableUnit10";
     public static final String chargeTableUnit10DefaultTranslation = "Charge Table Unit 10";
 
+    public static final String tariffCode = "tariffCode";
+    public static final String tariffCodeDefaultTranslation = "Tariff Code";
+
+    public static final String chargeStep1 = "chargeStep1";
+    public static final String chargeStep1DefaultTranslation = "Step1 Charge";
+    public static final String priceStep1 = "priceStep1";
+    public static final String priceStep1DefaultTranslation = "Step1 Price";
+    public static final String recalculationTypeStep1 = "recalculationTypeStep1";
+    public static final String recalculationTypeStep1DefaultTranslation = "Step1 Recalculation Type";
+    public static final String graceWarningStep1 = "graceWarningStep1";
+    public static final String graceWarningStep1DefaultTranslation = "Step1 Recalculation Grace Warning";
+    public static final String additionalTaxStep1 = "additionalTaxStep1";
+    public static final String additionalTaxStep1DefaultTranslation = "Step1 Additional Tax";
+
+    public static final String chargeStep2 = "chargeStep2";
+    public static final String chargeStep2DefaultTranslation = "Step2 Charge";
+    public static final String priceStep2 = "priceStep2";
+    public static final String priceStep2DefaultTranslation = "Step2 Price";
+    public static final String recalculationTypeStep2 = "recalculationTypeStep2";
+    public static final String recalculationTypeStep2DefaultTranslation = "Step2 Recalculation Type";
+    public static final String graceWarningStep2 = "graceWarningStep2";
+    public static final String graceWarningStep2DefaultTranslation = "Step2 Recalculation Grace Warning";
+    public static final String additionalTaxStep2 = "additionalTaxStep2";
+    public static final String additionalTaxStep2DefaultTranslation = "Step2 Additional Tax";
+
+    public static final String chargeStep3 = "chargeStep3";
+    public static final String chargeStep3DefaultTranslation = "Step3 Charge";
+    public static final String priceStep3 = "priceStep3";
+    public static final String priceStep3DefaultTranslation = "Step3 Price";
+    public static final String recalculationTypeStep3 = "recalculationTypeStep3";
+    public static final String recalculationTypeStep3DefaultTranslation = "Step3 Recalculation Type";
+    public static final String graceWarningStep3 = "graceWarningStep3";
+    public static final String graceWarningStep3DefaultTranslation = "Step3 Recalculation Grace Warning";
+    public static final String additionalTaxStep3 = "additionalTaxStep3";
+    public static final String additionalTaxStep3DefaultTranslation = "Step3 Additional Tax";
+
+    public static final String chargeStep4 = "chargeStep4";
+    public static final String chargeStep4DefaultTranslation = "Step4 Charge";
+    public static final String priceStep4 = "priceStep4";
+    public static final String priceStep4DefaultTranslation = "Step4 Price";
+    public static final String recalculationTypeStep4 = "recalculationTypeStep4";
+    public static final String recalculationTypeStep4DefaultTranslation = "Step4 Recalculation Type";
+    public static final String graceWarningStep4 = "graceWarningStep4";
+    public static final String graceWarningStep4DefaultTranslation = "Step4 Recalculation Grace Warning";
+    public static final String additionalTaxStep4 = "additionalTaxStep4";
+    public static final String additionalTaxStep4DefaultTranslation = "Step4 Additional Tax";
+
+    public static final String chargeStep5 = "chargeStep5";
+    public static final String chargeStep5DefaultTranslation = "Step5 Charge";
+    public static final String priceStep5 = "priceStep5";
+    public static final String priceStep5DefaultTranslation = "Step5 Price";
+    public static final String recalculationTypeStep5 = "recalculationTypeStep5";
+    public static final String recalculationTypeStep5DefaultTranslation = "Step5 Recalculation Type";
+    public static final String graceWarningStep5 = "graceWarningStep5";
+    public static final String graceWarningStep5DefaultTranslation = "Step5 Recalculation Grace Warning";
+    public static final String additionalTaxStep5 = "additionalTaxStep5";
+    public static final String additionalTaxStep5DefaultTranslation = "Step5 Additional Tax";
+
+    public static final String chargeStep6 = "chargeStep6";
+    public static final String chargeStep6DefaultTranslation = "Step6 Charge";
+    public static final String priceStep6 = "priceStep6";
+    public static final String priceStep6DefaultTranslation = "Step6 Price";
+    public static final String recalculationTypeStep6 = "recalculationTypeStep6";
+    public static final String recalculationTypeStep6DefaultTranslation = "Step6 Recalculation Type";
+    public static final String graceWarningStep6 = "graceWarningStep6";
+    public static final String graceWarningStep6DefaultTranslation = "Step6 Recalculation Grace Warning";
+    public static final String additionalTaxStep6 = "additionalTaxStep6";
+    public static final String additionalTaxStep6DefaultTranslation = "Step6 Additional Tax";
+
+    public static final String chargeStep7 = "chargeStep7";
+    public static final String chargeStep7DefaultTranslation = "Step7 Charge";
+    public static final String priceStep7 = "priceStep7";
+    public static final String priceStep7DefaultTranslation = "Step7 Price";
+    public static final String recalculationTypeStep7 = "recalculationTypeStep7";
+    public static final String recalculationTypeStep7DefaultTranslation = "Step7 Recalculation Type";
+    public static final String graceWarningStep7 = "graceWarningStep7";
+    public static final String graceWarningStep7DefaultTranslation = "Step7 Recalculation Grace Warning";
+    public static final String additionalTaxStep7 = "additionalTaxStep7";
+    public static final String additionalTaxStep7DefaultTranslation = "Step7 Additional Tax";
+
+    public static final String chargeStep8 = "chargeStep8";
+    public static final String chargeStep8DefaultTranslation = "Step8 Charge";
+    public static final String priceStep8 = "priceStep8";
+    public static final String priceStep8DefaultTranslation = "Step8 Price";
+    public static final String recalculationTypeStep8 = "recalculationTypeStep8";
+    public static final String recalculationTypeStep8DefaultTranslation = "Step8 Recalculation Type";
+    public static final String graceWarningStep8 = "graceWarningStep8";
+    public static final String graceWarningStep8DefaultTranslation = "Step8 Recalculation Grace Warning";
+    public static final String additionalTaxStep8 = "additionalTaxStep8";
+    public static final String additionalTaxStep8DefaultTranslation = "Step8 Additional Tax";
+
+    public static final String chargeStep9 = "chargeStep9";
+    public static final String chargeStep9DefaultTranslation = "Step9 Charge";
+    public static final String priceStep9 = "priceStep9";
+    public static final String priceStep9DefaultTranslation = "Step9 Price";
+    public static final String recalculationTypeStep9 = "recalculationTypeStep9";
+    public static final String recalculationTypeStep9DefaultTranslation = "Step9 Recalculation Type";
+    public static final String graceWarningStep9 = "graceWarningStep9";
+    public static final String graceWarningStep9DefaultTranslation = "Step9 Recalculation Grace Warning";
+    public static final String additionalTaxStep9 = "additionalTaxStep9";
+    public static final String additionalTaxStep9DefaultTranslation = "Step9 Additional Tax";
+
+    public static final String chargeStep10 = "chargeStep10";
+    public static final String chargeStep10DefaultTranslation = "Step10 Charge";
+    public static final String priceStep10 = "priceStep10";
+    public static final String priceStep10DefaultTranslation = "Step10 Price";
+    public static final String recalculationTypeStep10 = "recalculationTypeStep10";
+    public static final String recalculationTypeStep10DefaultTranslation = "Step10 Recalculation Type";
+    public static final String graceWarningStep10 = "graceWarningStep10";
+    public static final String graceWarningStep10DefaultTranslation = "Step10 Recalculation Grace Warning";
+    public static final String additionalTaxStep10 = "additionalTaxStep10";
+    public static final String additionalTaxStep10DefaultTranslation = "Step10 Additional Tax";
+
 }

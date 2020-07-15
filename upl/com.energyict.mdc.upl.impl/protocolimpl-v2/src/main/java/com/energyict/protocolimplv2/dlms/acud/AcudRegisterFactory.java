@@ -79,6 +79,8 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                     registerValue = new RegisterValue(obisCode, attribute.getOctetString().stringValue());
                 } else if (attribute.isBitString() && attribute.getBitString() != null) {
                     registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit.get("")));
+                } else if (attribute.isDateTime()) {
+                    registerValue = new RegisterValue(obisCode, attribute.getDateTime().getCalendar(protocol.getTimeZone()).getTime());
                 } else {
                     Number value = register.getValueAttr().toBigDecimal();
                     if (value != null) {
@@ -91,6 +93,10 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                 final Register register = protocol.getDlmsSession().getCosemObjectFactory().getRegister(obisCode);
                 Quantity quantity = new Quantity(register.getValueAttr().toBigDecimal(), register.getScalerUnit().getEisUnit());
                 registerValue = new RegisterValue(obisCode, quantity);
+            } else if (uo.getClassID() == DLMSClassId.REGISTER_MONITOR.getClassId()) {
+                RegisterMonitor registerMonitor = protocol.getDlmsSession().getCosemObjectFactory().getRegisterMonitor(obisCode);
+                int value = registerMonitor.readThresholds().getDataType(0).intValue();
+                registerValue = new RegisterValue(obisCode, new Quantity(value, Unit.getUndefined()));
             } else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
                 final ExtendedRegister register = protocol.getDlmsSession().getCosemObjectFactory().getExtendedRegister(obisCode);
                 AbstractDataType valueAttr = register.getValueAttr();

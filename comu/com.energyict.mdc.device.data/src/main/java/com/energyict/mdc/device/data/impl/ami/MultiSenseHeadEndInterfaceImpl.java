@@ -192,13 +192,13 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             return Optional.empty();
         } else {
             if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
-                Device device = findDeviceForEndDevice(endDevice);
-                if (multiSenseUrl.isPresent()) {
+                Optional<Device> device = findOptionalDeviceForEndDevice(endDevice);
+                if (multiSenseUrl.isPresent() && device.isPresent()) {
                     String urlText = multiSenseUrl.get().trim();
                     if (!urlText.endsWith("#")) {
                         urlText = urlText + "#";
                     }
-                    urlText = urlText + "/devices/" + device.getName();
+                    urlText = urlText + "/devices/" + device.get().getName();
                     try {
                         return Optional.of(new URL(urlText));
                     } catch (MalformedURLException e) {
@@ -511,6 +511,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
+    }
+
+    private Optional<Device> findOptionalDeviceForEndDevice(EndDevice endDevice) {
+        long deviceId = Long.parseLong(endDevice.getAmrId());
+        return deviceService.findDeviceById(deviceId);
     }
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {

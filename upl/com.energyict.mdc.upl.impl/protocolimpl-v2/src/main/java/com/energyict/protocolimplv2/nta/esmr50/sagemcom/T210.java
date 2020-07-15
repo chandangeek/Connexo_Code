@@ -53,7 +53,7 @@ public class T210 extends ESMR50Protocol implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-09-26 12:00:00 +0300 (Thu, 16 Sep 2019)$";
+        return "$Date: 2020-07-14$";
     }
 
     @Override
