@@ -134,11 +134,11 @@ public final class ReadingQualityType {
         return hasQualityIndex(QualityCodeIndex.ERRORCODE);
     }
 
-    private boolean hasQualityCodeCategory(QualityCodeCategory cat) {
+    public boolean hasQualityCodeCategory(QualityCodeCategory cat) {
         return category().filter(category -> category.equals(cat)).isPresent();
     }
 
-    private boolean hasQualityIndex(QualityCodeIndex index) {
+    public boolean hasQualityIndex(QualityCodeIndex index) {
         return qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
     }
 
