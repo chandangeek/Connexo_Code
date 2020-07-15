@@ -45,7 +45,7 @@ public class CreateEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.createEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Payload' is required");
+                "Element 'CreateEndDeviceControls.Payload' is required.");
 
         //No EndDeviceControls
         EndDeviceControlsPayloadType payloadType = endDeviceControlsMessageObjectFactory.createEndDeviceControlsPayloadType();
@@ -53,7 +53,7 @@ public class CreateEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.createEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Payload.EndDeviceControls' is required");
+                "Element 'CreateEndDeviceControls.Payload.EndDeviceControls' is required.");
 
         //Empty EndDeviceControls
         EndDeviceControls endDeviceControls = endDeviceControlsObjectFactory.createEndDeviceControls();
@@ -61,7 +61,7 @@ public class CreateEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.createEndDeviceControls(requestMessage),
                 MessageSeeds.EMPTY_LIST.getErrorCode(),
-                "The list of 'CreateEndDeviceControls.Payload.EndDeviceControls' cannot be empty");
+                "The list of 'CreateEndDeviceControls.Payload.EndDeviceControls' can't be empty.");
 
         // No header
         EndDeviceControl endDeviceControl = endDeviceControlsObjectFactory.createEndDeviceControl();
@@ -69,7 +69,7 @@ public class CreateEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.createEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Header' is required");
+                "Element 'CreateEndDeviceControls.Header' is required.");
 
         //Synchronous mode
         HeaderType header = cimMessageObjectFactory.createHeaderType();
@@ -86,14 +86,14 @@ public class CreateEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         //No correlation id
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.createEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Header.CorrelationID' is required");
+                "Element 'CreateEndDeviceControls.Header.CorrelationID' is required.");
 
         header.setCorrelationID(CORRELATION_ID);
 
         //No reply address
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.createEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Header.ReplyAddress' is required");
+                "Element 'CreateEndDeviceControls.Header.ReplyAddress' is required.");
 
         header.setReplyAddress(REPLY_ADDRESS);
 
@@ -174,7 +174,7 @@ public class CreateEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
         assertThat(response.getReply().getError().size()).isEqualTo(1);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7010")));
+                .anyMatch(error -> error.getCode().equals("SIM8010")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("For command under EndDeviceControl[0]: 'End device control type with CIM code '1.99.99.99' isn't supported.'")));
 
@@ -228,7 +228,7 @@ public class CreateEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertThat(response.getReply().getError().size()).isEqualTo(1);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7010")));
+                .anyMatch(error -> error.getCode().equals("SIM8010")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("For command under EndDeviceControl[1]: 'End device control type with CIM code '1.99.99.99' isn't supported.'")));
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));

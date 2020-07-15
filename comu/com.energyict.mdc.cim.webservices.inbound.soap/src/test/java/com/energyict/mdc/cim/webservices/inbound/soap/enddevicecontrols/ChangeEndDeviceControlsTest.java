@@ -62,7 +62,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.changeEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Payload' is required");
+                "Element 'CreateEndDeviceControls.Payload' is required.");
 
         //No EndDeviceControls
         EndDeviceControlsPayloadType payloadType = endDeviceControlsMessageObjectFactory.createEndDeviceControlsPayloadType();
@@ -70,7 +70,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.changeEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Payload.EndDeviceControls' is required");
+                "Element 'CreateEndDeviceControls.Payload.EndDeviceControls' is required.");
 
         //Empty EndDeviceControls
         EndDeviceControls endDeviceControls = endDeviceControlsObjectFactory.createEndDeviceControls();
@@ -78,7 +78,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.changeEndDeviceControls(requestMessage),
                 MessageSeeds.EMPTY_LIST.getErrorCode(),
-                "The list of 'CreateEndDeviceControls.Payload.EndDeviceControls' cannot be empty");
+                "The list of 'CreateEndDeviceControls.Payload.EndDeviceControls' can't be empty.");
 
         // No header
         EndDeviceControl endDeviceControl = endDeviceControlsObjectFactory.createEndDeviceControl();
@@ -86,7 +86,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.changeEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Header' is required");
+                "Element 'CreateEndDeviceControls.Header' is required.");
 
         //No correlation id
         HeaderType header = cimMessageObjectFactory.createHeaderType();
@@ -96,7 +96,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.changeEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Header.CorrelationID' is required");
+                "Element 'CreateEndDeviceControls.Header.CorrelationID' is required.");
 
         header.setCorrelationID(CORRELATION_ID);
 
@@ -171,7 +171,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
         assertThat(response.getReply().getError().size()).isEqualTo(1);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7011")));
+                .anyMatch(error -> error.getCode().equals("SIM8011")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("For device under EndDeviceControl[0].EndDevices[0]: 'End device control has already been processed.'")));
 
@@ -208,7 +208,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertThat(response.getReply().getError().size()).isEqualTo(1);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7011")));
+                .anyMatch(error -> error.getCode().equals("SIM8011")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("For device under EndDeviceControl[0].EndDevices[1]: 'End device control has already been processed.'")));
 
