@@ -60,7 +60,7 @@ public class PartyCrudTest {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-			bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -69,30 +69,30 @@ public class PartyCrudTest {
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(
-        			new MockModule(),
-        			inMemoryBootstrapModule,
-					new DataVaultModule(),
-        			new PartyModule(),
-        			new UserModule(),
-        			new EventsModule(),
-        			new InMemoryMessagingModule(),
-        			new DomainUtilModule(),
-        			new H2OrmModule(),
-        			new UtilModule(),
-        			new ThreadSecurityModule(),
-        			new PubSubModule(),
-        			new TransactionModule(printSql),
-                    new NlsModule()
-                );
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(PartyService.class);
-        	ctx.commit();
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new DataVaultModule(),
+                new PartyModule(),
+                new UserModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new H2OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(printSql),
+                new NlsModule()
+        );
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(PartyService.class);
+            ctx.commit();
         }
     }
 
     @AfterClass
     public static void tearDown() throws SQLException {
-    	inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
 
     private PartyService getPartyService() {
@@ -104,151 +104,152 @@ public class PartyCrudTest {
     }
 
     @Test
-    public void testCrud()  {
+    public void testCrud() {
         try (TransactionContext context = getTransactionService().getContext()) {
-        	PartyService partyService = getPartyService();
-			StreetAddress address = new StreetAddress();
-			address.getStreetDetail().setBuildingName("KKS");
-			address.getStreetDetail().setName("Spinnerijstraat");
-			address.getStreetDetail().setNumber("101");
-         	Organization organization = partyService.newOrganization("EICT")
-					.setName("Elster")
-					.setAliasName("EnergyICT")
-					.setDescription("Delivering tomorrow's energy solutions today")
-					.setStreetAddress(address)
-					.create();
-        	Query<Party> query = partyService.getPartyQuery();
-        	query.setLazy();
-        	assertThat(query.select(Condition.TRUE)).hasSize(1);
-        	query.setEager();
-        	assertThat(query.select(Condition.TRUE)).hasSize(1);
-        	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
-        	PartyRole role = partyService.getPartyRoles().get(0);
-        	organization.assumeRole(partyService.getPartyRoles().get(0), Instant.now());
-        	assertThat(organization.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
-        	Party party = query.select(Condition.TRUE).get(0);
-        	assertThat(party.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
-        	query.setLazy();
-        	party = query.select(Condition.TRUE).get(0);
-        	assertThat(party.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
-        	query = partyService.getPartyQuery();
-        	Condition condition = Where.where("partyInRoles.interval").isEffective();
-        	assertThat(query.select(condition)).isNotEmpty();
-        	query.setEffectiveDate(Instant.EPOCH);
-        	assertThat(query.select(condition)).isEmpty();
-        	UserService userService = injector.getInstance(UserService.class);
-        	User user = userService.findUser("admin").get();
-        	party.appointDelegate(user, Instant.EPOCH);
-        	party.update();
-        	party = query.select(Condition.TRUE).get(0);
-        	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
-        	assertThat(role.getParties()).isNotEmpty();
-        	assertThat(query.select(Where.where("upperName").isEqualTo("ELSTER"))).hasSize(1);
-        	context.commit();
+            PartyService partyService = getPartyService();
+            StreetAddress address = new StreetAddress();
+            address.getStreetDetail().setBuildingName("KKS");
+            address.getStreetDetail().setName("Spinnerijstraat");
+            address.getStreetDetail().setNumber("101");
+            Organization organization = partyService.newOrganization("EICT")
+                    .setName("Elster")
+                    .setAliasName("EnergyICT")
+                    .setDescription("Delivering tomorrow's energy solutions today")
+                    .setStreetAddress(address)
+                    .create();
+            Query<Party> query = partyService.getPartyQuery();
+            query.setLazy();
+            assertThat(query.select(Condition.TRUE)).hasSize(1);
+            query.setEager();
+            assertThat(query.select(Condition.TRUE)).hasSize(1);
+            partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
+            PartyRole role = partyService.getPartyRoles().get(0);
+            organization.assumeRole(partyService.getPartyRoles().get(0), Instant.now());
+            assertThat(organization.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
+            Party party = query.select(Condition.TRUE).get(0);
+            assertThat(party.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
+            query.setLazy();
+            party = query.select(Condition.TRUE).get(0);
+            assertThat(party.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
+            query = partyService.getPartyQuery();
+            Condition condition = Where.where("partyInRoles.interval").isEffective();
+            assertThat(query.select(condition)).isNotEmpty();
+            query.setEffectiveDate(Instant.EPOCH);
+            assertThat(query.select(condition)).isEmpty();
+            UserService userService = injector.getInstance(UserService.class);
+            User user = userService.findUser("admin").get();
+            party.appointDelegate(user, Instant.EPOCH);
+            party.update();
+            party = query.select(Condition.TRUE).get(0);
+            assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
+            assertThat(role.getParties()).isNotEmpty();
+            assertThat(query.select(Where.where("upperName").isEqualTo("ELSTER"))).hasSize(1);
+            context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
-        	Party party = getPartyService().getPartyQuery().select(Condition.TRUE).get(0);
-        	party.getCurrentDelegates().size();
-        	for (PartyInRole each : party.getPartyInRoles(Instant.now())) {
-        		each.getRole().getMRID();
-        	}
-        	context.commit();
-        	//assertThat(context.getStats().getSqlCount()).isEqualTo(2);
+            Party party = getPartyService().getPartyQuery().select(Condition.TRUE).get(0);
+            party.getCurrentDelegates().size();
+            for (PartyInRole each : party.getPartyInRoles(Instant.now())) {
+                each.getRole().getMRID();
+            }
+            context.commit();
+            //assertThat(context.getStats().getSqlCount()).isEqualTo(2);
         }
         try (TransactionContext context = getTransactionService().getContext()) {
-        	for (Party party : getPartyService().getPartyQuery().select(Condition.TRUE)) {
-        		party.delete();
-        	}
-        	context.commit();
+            for (Party party : getPartyService().getPartyQuery().select(Condition.TRUE)) {
+                party.delete();
+            }
+            context.commit();
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testDuplicateRepresentation() {
-    	try (TransactionContext context = getTransactionService().getContext()) {
-    		Person person = getPartyService().newPerson("Frank", "Hyldmar").create();
-        	UserService userService = injector.getInstance(UserService.class);
-        	User user = userService.findUser("admin").get();
-        	person.appointDelegate(user, Instant.EPOCH);
-        	person.update();
-        	assertThat(person.getCurrentDelegates()).hasSize(1);
-        	person.appointDelegate(user, Instant.now());
-    		context.commit();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            Person person = getPartyService().newPerson("Frank", "Hyldmar").create();
+            UserService userService = injector.getInstance(UserService.class);
+            User user = userService.findUser("admin").get();
+            person.appointDelegate(user, Instant.EPOCH);
+            person.update();
+            assertThat(person.getCurrentDelegates()).hasSize(1);
+            person.appointDelegate(user, Instant.now());
+            context.commit();
         }
-    	try (TransactionContext context = getTransactionService().getContext()) {
-    		for (Party party : getPartyService().getPartyQuery().select(Condition.TRUE)) {
-        		party.delete();
-        	}
-        	context.commit();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            for (Party party : getPartyService().getPartyQuery().select(Condition.TRUE)) {
+                party.delete();
+            }
+            context.commit();
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testDuplicateRole() {
-    	try (TransactionContext context = getTransactionService().getContext()) {
-    		Organization organization = getPartyService().newOrganization("Elster").create();
-    		PartyRole role = getPartyService().createRole("111", "222", "333", "444", "555");
-    		organization.assumeRole(role, Instant.EPOCH);
-    		organization.update();
-    		assertThat(organization.getPartyInRoles(Instant.now())).hasSize(1);
-    		organization.assumeRole(role, Instant.now());
-    		context.commit();
-    	}
+        try (TransactionContext context = getTransactionService().getContext()) {
+            Organization organization = getPartyService().newOrganization("Elster").create();
+            PartyRole role = getPartyService().createRole("111", "222", "333", "444", "555");
+            organization.assumeRole(role, Instant.EPOCH);
+            organization.update();
+            assertThat(organization.getPartyInRoles(Instant.now())).hasSize(1);
+            organization.assumeRole(role, Instant.now());
+            context.commit();
+        }
     }
 
     @Test
     public void testPartyRoleCache() {
-    	try (TransactionContext context = getTransactionService().getContext()) {
-    		for (int i = 10 ; i < 20 ; i++) {
-    			String name = "M" + i;
-    			getPartyService().createRole("XAZ", name , name , name , name);
-    			getPartyService().getRole(name); // load in cache
-    		}
-    		context.commit();
-    	}
-    	try (TransactionContext context = getTransactionService().getContext()) {
-    		assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10); // will do sql
-    		assertThat(getPartyService().getRole("M15").isPresent()).isTrue(); // should not do sql
-    		assertThat(getPartyService().getRole("M1599").isPresent()).isFalse(); // will do sql
-    		context.commit();
-    		assertThat(context.getStats().getSqlCount()).isEqualTo(2);
-    	}
+        try (TransactionContext context = getTransactionService().getContext()) {
+            for (int i = 10; i < 20; i++) {
+                String name = "M" + i;
+                getPartyService().createRole("XAZ", name, name, name, name);
+                getPartyService().getRole(name); // load in cache
+            }
+            context.commit();
+        }
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10); // will do sql
+            assertThat(getPartyService().getRole("M15").isPresent()).isTrue(); // should not do sql
+            assertThat(getPartyService().getRole("M1599").isPresent()).isFalse(); // will do sql
+            context.commit();
+            assertThat(context.getStats().getSqlCount()).isEqualTo(2);
+        }
 
     }
 
-    @Test(expected=ConstraintViolationException.class)
+    @Test(expected = ConstraintViolationException.class)
     public void testValidation() {
-    	try (TransactionContext context = getTransactionService().getContext()) {
-           	PartyService partyService = getPartyService();
-           	Organization organization = partyService.newOrganization("Elster")
+        try (TransactionContext context = getTransactionService().getContext()) {
+            PartyService partyService = getPartyService();
+            partyService.newOrganization("Elster")
                     .setStreetAddress(new StreetAddress())
                     .create();
-           	context.commit();
-    	}
+            context.commit();
+        }
     }
 
-    @Test(expected=ConstraintViolationException.class)
+    @Test(expected = ConstraintViolationException.class)
     public void testDuplicate() {
-    	try (TransactionContext context = getTransactionService().getContext()) {
-           	PartyService partyService = getPartyService();
-           	Organization organization = partyService.newOrganization("Elster").create();
-           	organization = partyService.newOrganization("Elster").create();
-           	context.commit();
-    	}
+        try (TransactionContext context = getTransactionService().getContext()) {
+            PartyService partyService = getPartyService();
+            partyService.newOrganization("Elster").create();
+            partyService.newOrganization("Elster").create();
+            context.commit();
+        }
     }
 
-	@Test()
-	public void testFindAndLockPartyRepresentation() {
-		try (TransactionContext context = getTransactionService().getContext()) {
-			Person person = getPartyService().newPerson("Samuel", "La").create();
-			UserService userService = injector.getInstance(UserService.class);
-			User user = userService.findUser("admin").get();
-			person.appointDelegate(user, Instant.EPOCH);
-			person.update();
+    @Test
+    public void testFindAndLockPartyRepresentation() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            Person person = getPartyService().newPerson("Samuel", "La").create();
+            UserService userService = injector.getInstance(UserService.class);
+            User user = userService.findUser("admin").get();
+            person.appointDelegate(user, Instant.EPOCH);
+            person.update();
 
-			Optional<PartyRepresentation> partyRepresentation = getPartyService()
-					.findAndLockPartyRepresentationByVersionAndKey(1L, "admin", person.getId(), Instant.EPOCH.toEpochMilli());
-			assertThat(partyRepresentation.isPresent()).isTrue();
-		}
-	}
+            Optional<PartyRepresentation> partyRepresentation = getPartyService()
+                    .findAndLockPartyRepresentationByVersionAndKey(1L, "admin", person.getId(), Instant.EPOCH.toEpochMilli());
+            assertThat(partyRepresentation.isPresent()).isTrue();
+        }
+    }
 }

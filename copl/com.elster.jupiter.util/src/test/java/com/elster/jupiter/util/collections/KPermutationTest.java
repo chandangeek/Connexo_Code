@@ -122,7 +122,6 @@ public class KPermutationTest extends EqualsContractTest {
         assertThat(variation.isNeutral(characters)).isFalse();
     }
 
-
     @Test(expected = IllegalArgumentException.class)
     public void testKPermutationOfThatWontEverWork() {
         List<Character> characters = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f');
@@ -138,6 +137,11 @@ public class KPermutationTest extends EqualsContractTest {
         KPermutation second = new KPermutation(2, 1, 3); //adc
 
         assertThat(kpermutation.andThen(second)).isEqualTo(new KPermutation(0, 3, 2));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testKPermutationOfFails() {
+        KPermutation.of(new long[] {1, 2, 3, 4}, new long[] {3, 2, 1, 5});
     }
 
     @Override

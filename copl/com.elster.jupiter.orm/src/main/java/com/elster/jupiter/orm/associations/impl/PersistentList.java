@@ -17,7 +17,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 
 public abstract class PersistentList<T> extends AbstractList<T> {
-	
+
 	private List<T> target;
 	private final DataMapperImpl<T> dataMapper;
 	private final Object owner;
@@ -66,21 +66,6 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 
 	@Override
 	public final T get(int index) {
-		if (dataMapper.getTable().isCached() && constraint.getReferencedTable().isCached()) {
-			Object targetObject = getTarget().get(index);
-			KeyValue keyValue = dataMapper.getTable().getPrimaryKey(targetObject);
-			// Try to get object from cache.
-			Optional<T> object = (Optional<T>) dataMapper.getTable().findInCache(keyValue);
-			if (object.isPresent()) {
-				return object.get();
-			} else {
-				target = loadTarget();
-				for (T targetObj : target) {
-					dataMapper.getTable().putToCache(targetObj);
-				}
-				//We just put all objects from target to cache. So we can just take it from target.
-			}
-		}
 		return getTarget().get(index);
 	}
 

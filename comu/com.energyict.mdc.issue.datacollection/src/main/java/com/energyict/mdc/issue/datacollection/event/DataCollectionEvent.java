@@ -4,11 +4,12 @@
 
 package com.energyict.mdc.issue.datacollection.event;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateIssueException;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -51,6 +52,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 public abstract class DataCollectionEvent implements IssueEvent, OccurrenceConditionControllable, Cloneable {
     protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
 
@@ -63,10 +66,9 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
     private final Thesaurus thesaurus;
     private final TimeService timeService;
     private final Clock clock;
+    private final IssueService issueService;
 
     private Device device;
-
-    private Optional<? extends OpenIssue> existingIssue;
 
     private Instant timestamp;
 
@@ -78,7 +80,18 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
     private static final String COMMA_SEPARATOR = ",";
     private static final String SEMI_COLON_SEPARATOR = ";";
 
-    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, EventService eventService, TimeService timeService, Clock clock, Injector injector) {
+    private long ruleId;
+
+    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService,
+                               MeteringService meteringService,
+                               DeviceService deviceService,
+                               CommunicationTaskService communicationTaskService,
+                               TopologyService topologyService,
+                               Thesaurus thesaurus, EventService eventService,
+                               TimeService timeService,
+                               Clock clock,
+                               Injector injector,
+                               IssueService issueService) {
         this.issueDataCollectionService = issueDataCollectionService;
         this.meteringService = meteringService;
         this.communicationTaskService = communicationTaskService;
@@ -89,6 +102,7 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
         this.eventService = eventService;
         this.clock = clock;
         this.injector = injector;
+        this.issueService = issueService;
     }
 
     protected IssueDataCollectionService getIssueDataCollectionService() {
@@ -296,16 +310,9 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
 
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
-        if (existingIssue == null) {
-            Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class, ConnectionTask.class, ComTaskExecution.class, ComSession.class);
-            List<OpenIssueDataCollection> theSameIssues = query.select(getConditionForExistingIssue());
-            if (!theSameIssues.isEmpty()) {
-                existingIssue = Optional.of(theSameIssues.get(0));
-            } else {
-                existingIssue = Optional.empty();
-            }
-        }
-        return existingIssue;
+        return getIssueDataCollectionService().stream(OpenIssueDataCollection.class, ConnectionTask.class, ComTaskExecution.class, ComSession.class, OpenIssue.class, CreationRule.class)
+                .filter(getConditionForExistingIssue().and(where("baseIssue.rule.id").isEqualTo(ruleId)))
+                .findAny();
     }
 
     protected abstract Condition getConditionForExistingIssue();
@@ -345,4 +352,14 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
         return false;
     }
 
+    /**
+     * used by issue creation rule
+     */
+    public void setCreationRule(long ruleId) {
+        this.ruleId = ruleId;
+    }
+
+    public long getCreationRule() {
+        return ruleId;
+    }
 }

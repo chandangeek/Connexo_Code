@@ -133,6 +133,7 @@ public enum TableSpecs {
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_GROUP").on(idColumn).add();
             table.unique("IDS_U_GROUP").on(nameColumn).add();
+            table.cacheWholeTable(true);
         }
     },
     USR_WORKGROUP {
@@ -228,6 +229,7 @@ public enum TableSpecs {
                 .map("privilege")
                 .on(privilegeIdColumn)
                 .add();
+            table.cacheWholeTable(true);
         }
     },
     USR_USERINWORKGROUP {

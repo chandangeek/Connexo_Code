@@ -7,12 +7,10 @@ import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
@@ -29,10 +27,15 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private final LoadProfileExtractor loadProfileExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor1) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+    public MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                      CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                      DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                      NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                      KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
         this.loadProfileExtractor = loadProfileExtractor;
-        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor1;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {return keyAccessorTypeExtractor;}

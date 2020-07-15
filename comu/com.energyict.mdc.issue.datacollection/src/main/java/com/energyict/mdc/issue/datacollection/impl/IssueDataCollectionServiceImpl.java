@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -19,10 +20,12 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -32,6 +35,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
@@ -41,8 +45,11 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -57,22 +64,32 @@ import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_2;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_4;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_8;
+import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_8_1;
 import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.MeterRegistrationRuleTemplate;
+import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,11 +109,17 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile TimeService timeService;
-
+    private volatile PropertySpecService propertySpecService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
+    private volatile Clock clock;
+    private volatile TaskService taskService;
     private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
+    private volatile List<ServiceRegistration> registrations = new ArrayList<>();
 
     // For OSGi framework
     public IssueDataCollectionServiceImpl() {
@@ -113,8 +136,14 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                                           DeviceService deviceService,
                                           EventService eventService,
                                           UpgradeService upgradeService,
-                                          TimeService timeService
-    ) {
+                                          TimeService timeService,
+                                          BundleContext bundleContext,
+                                          PropertySpecService propertySpecService,
+                                          DeviceConfigurationService deviceConfigurationService,
+                                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                          MeteringTranslationService meteringTranslationService,
+                                          Clock clock,
+                                          TaskService taskService) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -126,11 +155,18 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         setEventService(eventService);
         setUpgradeService(upgradeService);
         setTimeService(timeService);
-        activate();
+        setPropertySpecService(propertySpecService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setClock(clock);
+        setMeteringTranslationService(meteringTranslationService);
+        setTaskService(taskService);
+
+        activate(bundleContext);
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -145,14 +181,36 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                 bind(EventService.class).toInstance(eventService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(IssueDataCollectionService.class).toInstance(IssueDataCollectionServiceImpl.this);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
+                bind(Clock.class).toInstance(clock);
+                bind(TaskService.class).toInstance(taskService);
+                bind(IssueCreationService.class).toInstance(issueService.getIssueCreationService());
             }
         });
+
+        BasicDataCollectionRuleTemplate basicDataCollectionRuleTemplate = new BasicDataCollectionRuleTemplate(this, thesaurus, issueService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, timeService, clock, meteringTranslationService, taskService);
+        EventAggregationRuleTemplate eventAggregationRuleTemplate = new EventAggregationRuleTemplate(thesaurus, issueService, this, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService);
+        MeterRegistrationRuleTemplate meterRegistrationRuleTemplate = new MeterRegistrationRuleTemplate(this, thesaurus, issueService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService);
+        registrations.add(bundleContext.registerService(CreationRuleTemplate.class, basicDataCollectionRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDataCollectionRuleTemplate.NAME))));
+        registrations.add(bundleContext.registerService(CreationRuleTemplate.class, eventAggregationRuleTemplate, new Hashtable<>(ImmutableMap.of("name", EventAggregationRuleTemplate.NAME))));
+        registrations.add(bundleContext.registerService(CreationRuleTemplate.class, meterRegistrationRuleTemplate, new Hashtable<>(ImmutableMap.of("name", MeterRegistrationRuleTemplate.NAME))));
+
         upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
                 version(10, 4), UpgraderV10_4.class,
                 version(10, 7), V10_7SimpleUpgrader.class,
-                version(10, 8), UpgraderV10_8.class
+                version(10, 8), UpgraderV10_8.class,
+                version(10, 8, 1), UpgraderV10_8_1.class
         ));
+    }
+
+    @Deactivate
+    public void deactivate() {
+        registrations.forEach(ServiceRegistration::unregister);
+        registrations.clear();
     }
 
     @Reference
@@ -214,6 +272,36 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
+    public final void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public Optional<? extends IssueDataCollection> findIssue(long id) {
         Optional<OpenIssueDataCollection> issue = findOpenIssue(id);
@@ -266,6 +354,13 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         Query<T> query = queryService.wrap(queryExecutor);
         query.setEager();
         return query;
+    }
+
+    @Override
+    public <T extends Entity> QueryStream<T> stream(Class<T> clazz, Class<?>... eagers) {
+        QueryStream<T> queryStream = dataModel.stream(clazz);
+        Arrays.stream(eagers).forEach(queryStream::join);
+        return queryStream;
     }
 
     @Override
@@ -350,6 +445,10 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where("baseIssue.status").in(filter.getStatuses()));
+        }
+        //filter by rules
+        if (!filter.getRules().isEmpty()) {
+            condition = condition.and(where("baseIssue.rule").in(filter.getRules()));
         }
         return condition;
     }

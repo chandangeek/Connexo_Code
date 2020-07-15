@@ -7,6 +7,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -29,7 +30,8 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,20 +39,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserSecuritySettingsIT extends EqualsContractTest {
-
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static Injector injector;
 
     private UserSecuritySettings userSecuritySettings;
     @Mock
     private DataModel dataModel;
-    private Injector injector;
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
     private final static Boolean LOCK_ACCOUNT_ACTIVE = true;
     private final static long ID = 0;
@@ -58,37 +56,37 @@ public class UserSecuritySettingsIT extends EqualsContractTest {
     private final static int FAILED_LOGIN_ATTEMPTS = 2;
     private final static int LOCK_OUT_MINUTES = 5;
 
-    private class MockModule extends AbstractModule {
-
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new DomainUtilModule(),
-                    new OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new UserModule(),
-                    new NlsModule(),
-                    new PubSubModule(),
-                    new DataVaultModule());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @BeforeClass
+    public static void classSetUp() throws SQLException {
+        injector = Guice.createInjector(
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new UserModule(),
+                new NlsModule(),
+                new PubSubModule(),
+                new DataVaultModule(),
+                new H2OrmModule());
+    }
 
+    @AfterClass
+    public static void classTearDown() {
+        inMemoryBootstrapModule.deactivate();
     }
 
     @Override

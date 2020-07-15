@@ -525,6 +525,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param collectedLoadProfile  The collectedLoadProfile, containing the collected ProfileData
      * @param currentDate
      */
+
     void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate);
 
     /**
@@ -556,7 +557,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param logBookIdentifier
      * @param lastExecutionStartTimestamp
      */
-    public void updateLogBookLastReading(LogBookIdentifier logBookIdentifier, Date lastExecutionStartTimestamp);
+    void updateLogBookLastReading(LogBookIdentifier logBookIdentifier, Date lastExecutionStartTimestamp);
 
     /**
      * Updates the last reading date of a {@link LogBook} which is uniquely identified by
@@ -565,7 +566,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param logBookIdentifier
      * @param comTaskExecutionId
      */
-    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, long comTaskExecutionId);
+    void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, long comTaskExecutionId);
 
     /**
      * Finds the OfflineDevice that is uniquely identified

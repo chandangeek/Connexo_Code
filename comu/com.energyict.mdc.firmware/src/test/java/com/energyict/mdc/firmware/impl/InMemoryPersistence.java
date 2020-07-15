@@ -24,6 +24,7 @@ import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -343,6 +344,7 @@ public class InMemoryPersistence {
             });
 
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 
