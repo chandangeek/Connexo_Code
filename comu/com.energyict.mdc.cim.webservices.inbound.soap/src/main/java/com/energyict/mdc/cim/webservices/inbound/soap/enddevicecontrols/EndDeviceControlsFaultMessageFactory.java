@@ -21,7 +21,6 @@ import java.util.function.Supplier;
 public class EndDeviceControlsFaultMessageFactory {
 
     private final ObjectFactory messageObjectFactory = new ObjectFactory();
-
     private final Thesaurus thesaurus;
     private final ReplyTypeFactory replyTypeFactory;
 
@@ -31,34 +30,22 @@ public class EndDeviceControlsFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    //createEndDeviceControls
-    public Supplier<FaultMessage> createEDCFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
-        return () -> createFaultMessage(MessageSeeds.UNABLE_TO_CREATE_END_DEVICE_CONTROLS, replyTypeFactory.failureReplyType(messageSeed, args));
-    }
-
-
-    public Supplier<? extends FaultMessage> createEDCFaultMessageSupplier(List<ErrorType> errorTypes) {
-        return () -> createFaultMessage(MessageSeeds.UNABLE_TO_CREATE_END_DEVICE_CONTROLS,
+    public Supplier<? extends FaultMessage> edcFaultMessageSupplier(MessageSeeds basicMessageSeed, List<ErrorType> errorTypes) {
+        return () -> faultMessage(basicMessageSeed,
                 replyTypeFactory.failureReplyType(ReplyType.Result.FAILED, errorTypes.stream().toArray(ErrorType[]::new)));
     }
 
-    FaultMessage createEDCFaultMessage(String message, String errorCode) {
-        return createFaultMessage(MessageSeeds.UNABLE_TO_CREATE_END_DEVICE_CONTROLS, replyTypeFactory.failureReplyType(message, errorCode));
+    FaultMessage edcFaultMessage(MessageSeeds basicMessageSeed, String message, String errorCode) {
+        return faultMessage(basicMessageSeed, replyTypeFactory.failureReplyType(message, errorCode));
     }
 
-    FaultMessage createEDCFaultMessage(String message) {
-        return createEDCFaultMessage(message, null);
+    FaultMessage edcFaultMessage(MessageSeeds basicMessageSeed, String message) {
+        return edcFaultMessage(basicMessageSeed, message, null);
     }
 
-    //changeEndDeviceControls
-    //TODO: CXO-12371
-
-    //cancelEndDeviceControls
-    //TODO: CXO-12371
-
-    private FaultMessage createFaultMessage(MessageSeeds messageSeed, ReplyType replyType) {
+    private FaultMessage faultMessage(MessageSeeds basicMessageSeed, ReplyType replyType) {
         EndDeviceControlsFaultMessageType faultMessageType = messageObjectFactory.createEndDeviceControlsFaultMessageType();
         faultMessageType.setReply(replyType);
-        return new FaultMessage(messageSeed.translate(thesaurus), faultMessageType);
+        return new FaultMessage(basicMessageSeed.translate(thesaurus), faultMessageType);
     }
 }

@@ -4,9 +4,12 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols;
 
+import java.time.Instant;
+
 public class EndDeviceMessage {
     private String deviceName;
     private String deviceMrid;
+    private Instant releaseDate;
 
     public String getDeviceName() {
         return deviceName;
@@ -22,5 +25,13 @@ public class EndDeviceMessage {
 
     public void setDeviceMrid(String deviceMrid) {
         this.deviceMrid = deviceMrid;
+    }
+
+    public Instant getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(Instant releaseDate) {
+        this.releaseDate = releaseDate;
     }
 }

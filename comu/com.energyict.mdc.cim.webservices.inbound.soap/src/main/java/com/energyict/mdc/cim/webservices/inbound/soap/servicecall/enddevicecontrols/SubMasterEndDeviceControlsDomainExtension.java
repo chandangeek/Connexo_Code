@@ -24,8 +24,7 @@ public class SubMasterEndDeviceControlsDomainExtension extends AbstractPersisten
     public enum FieldNames {
         DOMAIN("serviceCall", "SERVICE_CALL"),
         COMMAND_CODE("commandCode", "COMMAND_CODE"),
-        COMMAND_ATTRIBUTES("commandAttributes", "COMMAND_ATTRIBUTES"),
-        TRIGGER_DATE("triggerDate", "TRIGGER_DATE");
+        COMMAND_ATTRIBUTES("commandAttributes", "COMMAND_ATTRIBUTES");
 
         private final String javaName;
         private final String databaseName;
@@ -53,17 +52,6 @@ public class SubMasterEndDeviceControlsDomainExtension extends AbstractPersisten
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String commandAttributes;
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Instant triggerDate;
-
-    public Instant getTriggerDate() {
-        return triggerDate;
-    }
-
-    public void setTriggerDate(Instant triggerDate) {
-        this.triggerDate = triggerDate;
-    }
-
     public String getCommandCode() {
         return commandCode;
     }
@@ -85,18 +73,20 @@ public class SubMasterEndDeviceControlsDomainExtension extends AbstractPersisten
         this.serviceCall.set(serviceCall);
         this.setCommandCode((String) propertyValues.getProperty(FieldNames.COMMAND_CODE.javaName()));
         this.setCommandAttributes((String) propertyValues.getProperty(FieldNames.COMMAND_ATTRIBUTES.javaName()));
-        this.setTriggerDate((Instant) propertyValues.getProperty(FieldNames.TRIGGER_DATE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.COMMAND_CODE.javaName(), this.getCommandCode());
         propertySetValues.setProperty(FieldNames.COMMAND_ATTRIBUTES.javaName(), this.getCommandAttributes());
-        propertySetValues.setProperty(FieldNames.TRIGGER_DATE.javaName(), this.getTriggerDate());
     }
 
     @Override
     public void validateDelete() {
         // do nothing
+    }
+
+    public ServiceCall getServiceCall() {
+        return serviceCall.get();
     }
 }

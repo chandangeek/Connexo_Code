@@ -117,12 +117,6 @@ public class SubMasterEndDeviceControlsPropertySet implements CustomPropertySet<
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
-                        .specForValuesOf(new InstantFactory())
-                        .named(SubMasterEndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.javaName(), TranslationKeys.TRIGGER_DATE)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish(),
-                this.propertySpecService
                         .stringSpec()
                         .named(SubMasterEndDeviceControlsDomainExtension.FieldNames.COMMAND_CODE.javaName(), TranslationKeys.COMMAND_CODE)
                         .fromThesaurus(thesaurus)
@@ -177,12 +171,6 @@ public class SubMasterEndDeviceControlsPropertySet implements CustomPropertySet<
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(SubMasterEndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(SubMasterEndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.javaName())
-                    .notNull()
-                    .add();
             table.column(SubMasterEndDeviceControlsDomainExtension.FieldNames.COMMAND_CODE.databaseName())
                     .varChar()
                     .map(SubMasterEndDeviceControlsDomainExtension.FieldNames.COMMAND_CODE.javaName())

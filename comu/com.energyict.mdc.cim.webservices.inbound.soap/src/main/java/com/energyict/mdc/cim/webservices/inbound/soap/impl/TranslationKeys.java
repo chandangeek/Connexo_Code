@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.cim.webservices.inbound.soap.task.EndDeviceControlsCancellationHandlerFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
@@ -50,11 +51,15 @@ public enum TranslationKeys implements TranslationKey {
     CGMR_CPS("GM3.name", "Child get meter readings custom property set"),
     FUTURE_COM_TASK_EXECUTION_NAME(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
             FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+    END_DEVICE_CONTROLS_CANCELLATION_NAME(EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_SUBSCRIBER,
+            EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_DISPLAYNAME),
     COMMAND_CODE("commandCode", "Command code"),
     COMMAND_ATTRIBUTES("commandAttributes", "Command attributes"),
     DEVICE_NAME("deviceName", "Device name"),
     DEVICE_MRID("deviceMrid", "Device MRID"),
     CANCELLATION_REASON("cancellationReason", "Cancellation reason"),
+    ERROR("error", "Error"),
+    MAX_EXEC_TIMEOUT("maxExecTimeout", "Maximum execution timeout"),
 
     CARD_FORMAT("property.cardformat", "Card format"),
     CARD_FORMAT_FULL_SIZE("property.cardformat.fullsize", "Full-size (1FF)"),

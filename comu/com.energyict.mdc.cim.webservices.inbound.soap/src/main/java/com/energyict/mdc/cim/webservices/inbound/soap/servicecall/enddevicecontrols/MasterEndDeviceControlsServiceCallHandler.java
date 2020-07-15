@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols;
 
-import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -16,6 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
@@ -24,6 +23,7 @@ import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.Name;
 import ch.iec.tc57._2011.enddeviceevents.NameType;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.energyict.cim.EndDeviceEventOrAction;
 
 import javax.inject.Inject;
@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH;
 import static com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH;
 
@@ -44,28 +43,32 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
 
     private final EndPointConfigurationService endPointConfigurationService;
     private final EndDeviceEventsServiceProvider endDeviceEventsServiceProvider;
-    private final MeteringService meteringService;
     private final ServiceCallService serviceCallService;
     private final Clock clock;
     private final Thesaurus thesaurus;
+    private final ReplyTypeFactory replyTypeFactory;
 
     @Inject
     public MasterEndDeviceControlsServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
-                                                     EndDeviceEventsServiceProvider endDeviceEventsServiceProvider,
-                                                     MeteringService meteringService, ServiceCallService serviceCallService,
-                                                     Clock clock, Thesaurus thesaurus) {
+                                                     EndDeviceEventsServiceProvider endDeviceEventsServiceProvider, ServiceCallService serviceCallService,
+                                                     Clock clock, Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endDeviceEventsServiceProvider = endDeviceEventsServiceProvider;
-        this.meteringService = meteringService;
         this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.thesaurus = thesaurus;
+        this.replyTypeFactory = replyTypeFactory;
     }
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Service call is switched to state " + newState.getDefaultFormat());
         switch (newState) {
+            case PENDING:
+                serviceCall = ServiceCallTransitionUtils.lock(serviceCall, serviceCallService);
+                serviceCall.findChildren().stream().forEach(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
+                ServiceCallTransitionUtils.transitToStateAfterOngoing(serviceCall, DefaultState.WAITING);
+                break;
             case SUCCESSFUL:
             case PARTIAL_SUCCESS:
             case REJECTED:
@@ -81,7 +84,9 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
 
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall subParentServiceCall, DefaultState oldState, DefaultState newState) {
-        ServiceCallTransitionUtils.resultTransition(parentServiceCall, serviceCallService);
+        if (!newState.isOpen()) {
+            ServiceCallTransitionUtils.resultTransition(parentServiceCall, serviceCallService);
+        }
     }
 
     private void sendResponse(ServiceCall serviceCall) {
@@ -95,6 +100,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
         }
 
         List<EndDeviceEvent> events = new ArrayList<>();
+        List<ErrorType> errorTypes = new ArrayList<>();
 
         serviceCall.findChildren().stream().forEach(subSC -> {
             SubMasterEndDeviceControlsDomainExtension subExtension = subSC.getExtension(SubMasterEndDeviceControlsDomainExtension.class)
@@ -104,30 +110,38 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                 EndDeviceControlsDomainExtension childExtension = childSC.getExtension(EndDeviceControlsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-                if (childExtension.getCancellationReason() != CancellationReason.CREATE_ERROR) {
-                    Device device = (Device) childSC.getTargetObject()
-                            .orElseThrow(() -> new IllegalStateException("Unable to get device"));
+                if (childExtension.getError() != null) {
+                    errorTypes.add(replyTypeFactory.errorType(childExtension.getError(), MessageSeeds.END_DEVICE_ERROR.getErrorCode(), MessageSeeds.END_DEVICE_ERROR.getErrorTypeLevel()));
+                } else {
+                    Optional<Device> device = (Optional<Device>) childSC.getTargetObject();
 
+                    Asset asset;
+                    if (device.isPresent()) {
+                        asset = createAsset(device.get());
+                    } else {
+                        asset = createAsset(childExtension.getDeviceMrid(), childExtension.getDeviceName());
+                    }
                     EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
-                    endDeviceEvent.setAssets(createAsset(device));
+                    endDeviceEvent.setAssets(asset);
                     endDeviceEvent.setCreatedDateTime(clock.instant());
 
                     EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
 
-                    String ref = createRef(subExtension.getCommandCode(), childSC.getState());
+                    String ref = createRef(subExtension.getCommandCode(), childSC.getState(), childExtension.getCancellationReason());
                     eventType.setRef(ref);
                     endDeviceEvent.setEndDeviceEventType(eventType);
 
                     events.add(endDeviceEvent);
                 }
+
             });
         });
 
-        if (!events.isEmpty()) {
-            serviceCall.log(LogLevel.INFO, "Sending " + events.size() + " event(s).");
-            endDeviceEventsServiceProvider.call(events, endPointConfigurationOptional.get(), extension.getCorrelationId());
+        if (events.isEmpty() && errorTypes.isEmpty()) {
+            serviceCall.log(LogLevel.INFO, "No events/errors to send.");
         } else {
-            serviceCall.log(LogLevel.INFO, "No events to send.");
+            serviceCall.log(LogLevel.INFO, "Sending " + events.size() + " event(s) and " + errorTypes.size() + " error(s).");
+            endDeviceEventsServiceProvider.call(events, errorTypes, endPointConfigurationOptional.get(), extension.getCorrelationId());
         }
     }
 
@@ -135,20 +149,15 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
      * Create ref based on command code: we change the last digit of command code
      * to {@link EndDeviceEventOrAction} according state of service call and {@link CommandEventCodeMapping}
      */
-    private String createRef(String commandCode, DefaultState state) {
+    private String createRef(String commandCode, DefaultState state, CancellationReason cancellationReason) {
         EndDeviceEventOrAction endDeviceEventOrAction;
         if (state.equals(DefaultState.CANCELLED)) {
-            endDeviceEventOrAction = EndDeviceEventOrAction.CANCELLED;
+            endDeviceEventOrAction = cancellationReason == CancellationReason.TIMEOUT ? EndDeviceEventOrAction.EXPIRED :
+                    EndDeviceEventOrAction.CANCELLED;
         } else {
-            Optional<EndDeviceControlType> endDeviceControlType = meteringService.getEndDeviceControlType(commandCode);
-            CommandEventCodeMapping commandEventCodeMapping;
-            if (endDeviceControlType.isPresent()) {
-                commandEventCodeMapping = CommandEventCodeMapping.getMappingFor(endDeviceControlType.get());
-            } else {
-                commandEventCodeMapping = CommandEventCodeMapping.DEFAULT;
-            }
+            CommandEventCodeMapping commandEventCodeMapping = CommandEventCodeMapping.getMappingFor(commandCode);
 
-            if (state.equals(SUCCESSFUL)) {
+            if (state.equals(DefaultState.SUCCESSFUL)) {
                 endDeviceEventOrAction = commandEventCodeMapping.getSuccessEvent();
             } else {
                 endDeviceEventOrAction = commandEventCodeMapping.getFailureEvent();
@@ -159,23 +168,31 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     }
 
     private Asset createAsset(Device device) {
+        return createAsset(device.getmRID(), device.getName());
+    }
+
+    private Asset createAsset(String deviceMrid, String deviceName) {
         Asset asset = new Asset();
-        asset.setMRID(device.getmRID());
-        asset.getNames().add(createName(device));
+        if (deviceMrid != null) {
+            asset.setMRID(deviceMrid);
+        }
+        if (deviceName != null) {
+            asset.getNames().add(createName(deviceName));
+        }
         return asset;
     }
 
-    private Name createName(Device device) {
+    private Name createName(String deviceName) {
         NameType nameType = new NameType();
         nameType.setName("EndDevice");
         Name name = new Name();
         name.setNameType(nameType);
-        name.setName(device.getName());
+        name.setName(deviceName);
         return name;
     }
 
     private Optional<EndPointConfiguration> getEndPointConfiguration(String url) {
-        return  endPointConfigurationService
+        return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(EndDeviceEventsServiceProvider.NAME)
                 .stream()
                 .filter(EndPointConfiguration::isActive)
@@ -213,8 +230,8 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
             return failureEvent;
         }
 
-        public static CommandEventCodeMapping getMappingFor(EndDeviceControlType endDeviceControlType) {
-            EndDeviceControlTypeMapping endDeviceControlTypeMapping = EndDeviceControlTypeMapping.getMappingWithoutDeviceTypeFor(endDeviceControlType);
+        public static CommandEventCodeMapping getMappingFor(String commandCode) {
+            EndDeviceControlTypeMapping endDeviceControlTypeMapping = EndDeviceControlTypeMapping.getMappingWithoutDeviceTypeFor(commandCode);
             for (CommandEventCodeMapping mapping : values()) {
                 if (endDeviceControlTypeMapping.equals(mapping.getEndDeviceControlTypeMapping())) {
                     return mapping;

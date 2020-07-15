@@ -8,6 +8,7 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
@@ -75,6 +76,13 @@ public class ReplyTypeFactory {
                 messageSeed.getErrorCode(),
                 meterName,
                 messageSeed.getErrorTypeLevel());
+    }
+
+    public ErrorType errorType(String translatedMessage, String errorCode, ErrorType.Level level) {
+        return errorType(translatedMessage,
+                errorCode,
+                null,
+                level);
     }
 
     private ErrorType errorType(String translatedMessage, String errorCode, String meterName, ErrorType.Level level) {

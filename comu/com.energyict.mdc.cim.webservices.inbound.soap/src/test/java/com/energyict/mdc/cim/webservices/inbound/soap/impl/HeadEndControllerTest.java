@@ -6,7 +6,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -107,8 +106,6 @@ public class HeadEndControllerTest {
     private EndDeviceControlType endDeviceControlType;
     @Mock
     private Clock clock;
-    @Mock
-    private MeteringService meteringService;
 
     private HeadEndController headEndController;
     private PropertySpecService propertySpecService;
@@ -116,7 +113,7 @@ public class HeadEndControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        headEndController = new HeadEndController(meteringService, thesaurus, clock);
+        headEndController = new HeadEndController(thesaurus, clock);
 
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
@@ -128,21 +125,13 @@ public class HeadEndControllerTest {
 
     @Test
     public void testInvalidOperation() throws Exception {
-        when(meteringService.getEndDeviceControlType(UNSUPPORTED_CODE)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> headEndController.checkOperation(UNSUPPORTED_CODE, Collections.emptyList()))
-                .isInstanceOf(LocalizedException.class)
-                .hasMessage("No end device control type with CIM code '9.9.9.9'.");
-
         when(endDeviceControlType.getMRID()).thenReturn(UNSUPPORTED_CODE);
-        when(meteringService.getEndDeviceControlType(UNSUPPORTED_CODE)).thenReturn(Optional.of(endDeviceControlType));
 
         assertThatThrownBy(() -> headEndController.checkOperation(UNSUPPORTED_CODE, Collections.emptyList()))
                 .isInstanceOf(LocalizedException.class)
                 .hasMessage("End device control type with CIM code '9.9.9.9' isn't supported.");
 
         when(endDeviceControlType.getMRID()).thenReturn(UNSUPPORTED_CODE_BY_CIM_HEADEND_CONTROLLER);
-        when(meteringService.getEndDeviceControlType(UNSUPPORTED_CODE_BY_CIM_HEADEND_CONTROLLER)).thenReturn(Optional.of(endDeviceControlType));
 
         assertThatThrownBy(() -> headEndController.checkOperation(UNSUPPORTED_CODE_BY_CIM_HEADEND_CONTROLLER, Collections.emptyList()))
                 .isInstanceOf(LocalizedException.class)
@@ -314,7 +303,6 @@ public class HeadEndControllerTest {
 
     private void mockEndDeviceControlType(String mRID) {
         when(endDeviceControlType.getMRID()).thenReturn(mRID);
-        when(meteringService.getEndDeviceControlType(mRID)).thenReturn(Optional.of(endDeviceControlType));
         when(endDeviceCommand.getEndDeviceControlType()).thenReturn(endDeviceControlType);
     }
 

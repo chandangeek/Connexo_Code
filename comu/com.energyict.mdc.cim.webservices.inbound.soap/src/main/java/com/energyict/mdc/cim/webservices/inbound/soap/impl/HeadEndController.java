@@ -5,13 +5,14 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
-import com.elster.jupiter.metering.EndDeviceControlType;
 
 import ch.iec.tc57._2011.enddevicecontrols.EndDeviceControlAttribute;
 
@@ -31,23 +32,19 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.credi
 
 public class HeadEndController {
 
-    private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final Clock clock;
 
     @Inject
-    public HeadEndController(MeteringService meteringService, Thesaurus thesaurus, Clock clock) {
-        this.meteringService = meteringService;
+    public HeadEndController(Thesaurus thesaurus, Clock clock) {
         this.thesaurus = thesaurus;
         this.clock = clock;
     }
 
     public DeviceCommandInfo checkOperation(String commandCode, List<EndDeviceControlAttribute> attributes) {
         DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
-        EndDeviceControlType endDeviceControlType = meteringService.getEndDeviceControlType(commandCode)
-                .orElseThrow(CommandException.endDeviceControlTypeWithCIMNotFound(thesaurus, commandCode));
 
-        EndDeviceControlTypeMapping endDeviceControlTypeMapping = EndDeviceControlTypeMapping.getMappingWithoutDeviceTypeFor(endDeviceControlType);
+        EndDeviceControlTypeMapping endDeviceControlTypeMapping = EndDeviceControlTypeMapping.getMappingWithoutDeviceTypeFor(commandCode);
         if (endDeviceControlTypeMapping.equals(EndDeviceControlTypeMapping.OTHER)) {
             throw CommandException.unsupportedEndDeviceControlType(thesaurus, commandCode);
         }
@@ -97,6 +94,11 @@ public class HeadEndController {
         headEndInterface.sendCommand(deviceCommand,
                 releaseDate.isBefore(clock.instant()) ? clock.instant() : releaseDate,
                 serviceCall);
+    }
+
+    public void scheduleDeviceCommandsComTask(Device device, List<DeviceMessage> deviceMessages) {
+        HeadEndInterface headEndInterface = getHeadEndInterface(device.getMeter());
+        ((MultiSenseHeadEndInterface) headEndInterface).scheduleRequiredComTasks(device, deviceMessages);
     }
 
     private HeadEndInterface getHeadEndInterface(EndDevice endDevice) {

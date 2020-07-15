@@ -27,6 +27,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_VALUE(10, "UnsupportedValue", "Element ''{0}'' contains unsupported value ''{1}''. Must be one of: {2}"),
     THIS_FIELD_IS_REQUIRED(11, Keys.THIS_FIELD_IS_REQUIRED, "This field is required"),
     FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
+    MISSING_ENDPOINT(13, "MissingEndpoint", "Endpoint for {0} isn''t found by URL ''{1}''."),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
@@ -135,19 +136,25 @@ public enum MessageSeeds implements MessageSeed {
 
     //end device controls
     UNABLE_TO_CREATE_END_DEVICE_CONTROLS(7001, "UnableToCreateEndDeviceControls", "Unable to create end device controls."),
-    MISSING_ENDPOINT_SEND_END_DEVICE_EVENTS(7002, "MissingEndpointSendEndDeviceEvents",
-            "Endpoint for CIM SendEndDeviceEvents isn''t found by URL ''{0}''."),
+    UNABLE_TO_CHANGE_END_DEVICE_CONTROLS(7002, "UnableToChangeEndDeviceControls", "Unable to change end device controls."),
     END_DEVICES_MISSING(7003, "EndDevicesMissing", "End devices are missing under EndDeviceControl[{0}]."),
-    COMMAND_CODE_MISSING(7004, "CommandCodeMissing","The command CIM code is missing under EndDeviceControl[{0}]."),
+    COMMAND_CODE_MISSING(7004, "CommandCodeMissing", "The command CIM code is missing under EndDeviceControl[{0}]."),
     MISSING_MRID_OR_NAME_FOR_END_DEVICE_CONTROL(7005, "MissingMridOrNameForEndDeviceControl",
             "Either element ''mRID'' or ''Names'' is required under EndDeviceControl[{0}].EndDevices[{1}] for identification purpose."),
-    RELEASE_DATE_MISSING(7006, "ReleaseDateMissing","The release date is missing under EndDeviceControl[{0}]."),
+    RELEASE_DATE_MISSING(7006, "ReleaseDateMissing", "The release date is missing under EndDeviceControl[{0}]."),
     NO_SUCH_END_DEVICE_CONTROL_TYPE_WITH_CIM(7007, "NoSuchEndDeviceControlTypeWithCim", "No end device control type with CIM code ''{0}''."),
     UNSUPPORTED_END_DEVICE_CONTROL_TYPE(7008, "UnsupportedEndDeviceControlType", "End device control type with CIM code ''{0}'' isn''t supported."),
     INAPPROPRIATE_COMMAND_ATTRIBUTES(7009, "InappropriateCommandAttributes", "Inappropriate command attributes for CIM code ''{0}''."),
     END_DEVICE_CONTROL_ERROR(7010, "EndDeviceControlError", "For command under EndDeviceControl[{0}]: ''{1}''"),
-    END_DEVICE_ERROR(7011, "EndDeviceError", "For device under EndDeviceControl[{0}].EndDevices[{1}]: ''{2}''"),
+    END_DEVICE_SYNC_ERROR(7011, "EndDeviceSyncError", "For device under EndDeviceControl[{0}].EndDevices[{1}]: ''{2}''"),
     NO_HEAD_END_INTERFACE(7012, "NoHeadEndInterface", "Couldn''t find the head-end interface for end device with MRID ''{0}''."),
+    NO_REQUEST_WITH_CORRELATION_ID(7013, "NoRequestWithCorrelationId", "No request found with correlation id ''{0}''."),
+    NO_SERVICE_CALL_WITH_CIM(7014, "NoServiceCallWithCim", "No service call found with CIM code ''{0}''."),
+    NO_SERVICE_CALL_WITH_DEVICE_MRID(7015, "NoServiceCallWithDeviceMrid", "No service call found for device with MRID ''{0}''."),
+    NO_SERVICE_CALL_WITH_DEVICE_NAME(7016, "NoServiceCallWithDeviceName", "No service call found for device with name ''{0}''."),
+    END_DEVICE_CONTROL_ALREADY_PROCESSED(7017, "EndDeviceControlAlreadyProcessed", "End device control has already been processed."),
+    UNABLE_TO_CANCEL_END_DEVICE_CONTROLS(7018, "UnableToCancelEndDeviceControls", "Unable to cancel end device controls."),
+    END_DEVICE_ERROR(7019, "EndDeviceError", "For device {0}: {1}"),
     ;
 
     private final int number;

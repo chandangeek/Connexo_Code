@@ -27,10 +27,17 @@ public class SubMasterEndDeviceControlsServiceCallHandler implements ServiceCall
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Service call is switched to state " + newState.getDefaultFormat());
+        if (newState == DefaultState.PENDING) {
+            serviceCall = ServiceCallTransitionUtils.lock(serviceCall, serviceCallService);
+            serviceCall.findChildren().stream().forEach(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
+            ServiceCallTransitionUtils.transitToStateAfterOngoing(serviceCall, DefaultState.WAITING);
+        }
     }
 
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall subParentServiceCall, DefaultState oldState, DefaultState newState) {
-        ServiceCallTransitionUtils.resultTransition(parentServiceCall, serviceCallService);
+        if (!newState.isOpen()) {
+            ServiceCallTransitionUtils.resultTransition(parentServiceCall, serviceCallService);
+        }
     }
 }

@@ -25,7 +25,9 @@ import ch.iec.tc57._2011.enddeviceevents.Name;
 import ch.iec.tc57._2011.enddeviceevents.NameType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsEventMessageType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.sendenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.sendenddeviceevents.SendEndDeviceEvents;
 import com.google.common.collect.HashMultimap;
@@ -155,8 +157,9 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
     }
 
     @Override
-    public void call(List<EndDeviceEvent> events, EndPointConfiguration endPointConfiguration, String correlationId) {
-        EndDeviceEventsEventMessageType message = createResponseMessage(events, correlationId);
+    public void call(List<EndDeviceEvent> events, List<ErrorType> errorTypes,
+                     EndPointConfiguration endPointConfiguration, String correlationId) {
+        EndDeviceEventsEventMessageType message = createResponseMessage(events, errorTypes, correlationId);
 
         SetMultimap<String, String> values = HashMultimap.create();
         events.forEach(event -> {
@@ -186,19 +189,37 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
         return responseMessage;
     }
 
-    private EndDeviceEventsEventMessageType createResponseMessage(List<EndDeviceEvent> events, String correlationId) {
+    private EndDeviceEventsEventMessageType createResponseMessage(List<EndDeviceEvent> events, List<ErrorType> errorTypes,
+                                                                  String correlationId) {
         EndDeviceEventsEventMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsEventMessageType();
 
         // set header
         responseMessage.setHeader(createHeader(correlationId));
 
-        // set payload
-        EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
-        endDeviceEvents.getEndDeviceEvent().addAll(events);
-        EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
+        // set reply
+        ReplyType replyType = cimMessageObjectFactory.createReplyType();
+        ReplyType.Result result;
 
-        endDeviceEventsPayload.setEndDeviceEvents(endDeviceEvents);
-        responseMessage.setPayload(endDeviceEventsPayload);
+        if (!errorTypes.isEmpty() && !events.isEmpty()) {
+            result = ReplyType.Result.PARTIAL;
+        } else if (errorTypes.isEmpty()) {
+            result = ReplyType.Result.OK;
+        } else {
+            result = ReplyType.Result.FAILED;
+        }
+        replyType.getError().addAll(errorTypes);
+        replyType.setResult(result);
+        responseMessage.setReply(replyType);
+
+        // set payload
+        if (!events.isEmpty()) {
+            EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
+            endDeviceEvents.getEndDeviceEvent().addAll(events);
+            EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
+
+            endDeviceEventsPayload.setEndDeviceEvents(endDeviceEvents);
+            responseMessage.setPayload(endDeviceEventsPayload);
+        }
 
         return responseMessage;
     }

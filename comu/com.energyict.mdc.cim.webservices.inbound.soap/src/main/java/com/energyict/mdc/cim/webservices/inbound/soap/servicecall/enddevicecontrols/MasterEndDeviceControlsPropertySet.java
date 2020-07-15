@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -40,6 +41,7 @@ import java.util.Set;
         immediate = true)
 public class MasterEndDeviceControlsPropertySet implements CustomPropertySet<ServiceCall, MasterEndDeviceControlsDomainExtension> {
     public static final String CUSTOM_PROPERTY_SET_NAME = "MasterEndDeviceControlsPropertySet";
+    public static final String MODEL_NAME = "DC1";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -127,6 +129,12 @@ public class MasterEndDeviceControlsPropertySet implements CustomPropertySet<Ser
                         .named(MasterEndDeviceControlsDomainExtension.FieldNames.CORRELATION_ID.javaName(), TranslationKeys.CORRELATION_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .longSpec()
+                        .named(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIMEOUT.javaName(), TranslationKeys.MAX_EXEC_TIMEOUT)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
@@ -134,10 +142,11 @@ public class MasterEndDeviceControlsPropertySet implements CustomPropertySet<Ser
     private static class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterEndDeviceControlsDomainExtension> {
         private static final String TABLE_NAME = "DC1_EDC_MASTER_CPS";
         private static final String FK = "FK_DC1_EDC_MASTER_CPS";
+        private final String IDX = "IDX_DC1_EDC_MASTER_CPS_CORID";
 
         @Override
         public String componentName() {
-            return "DC1";
+            return MODEL_NAME;
         }
 
         @Override
@@ -177,9 +186,16 @@ public class MasterEndDeviceControlsPropertySet implements CustomPropertySet<Ser
                     .map(MasterEndDeviceControlsDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
                     .add();
-            table.column(MasterEndDeviceControlsDomainExtension.FieldNames.CORRELATION_ID.databaseName())
+            Column correlationIdColumnString = table.column(MasterEndDeviceControlsDomainExtension.FieldNames.CORRELATION_ID.databaseName())
                     .varChar()
                     .map(MasterEndDeviceControlsDomainExtension.FieldNames.CORRELATION_ID.javaName())
+                    .notNull()
+                    .add();
+            table.index(IDX).on(correlationIdColumnString).add();
+            table.column(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIMEOUT.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .map(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIMEOUT.javaName())
                     .notNull()
                     .add();
         }

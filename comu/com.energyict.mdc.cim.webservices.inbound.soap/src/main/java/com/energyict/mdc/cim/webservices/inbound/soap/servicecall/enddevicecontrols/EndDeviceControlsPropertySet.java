@@ -12,7 +12,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -125,6 +127,17 @@ public class EndDeviceControlsPropertySet implements CustomPropertySet<ServiceCa
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(EndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.javaName(), TranslationKeys.TRIGGER_DATE)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(EndDeviceControlsDomainExtension.FieldNames.ERROR.javaName(), TranslationKeys.ERROR)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .stringSpec()
                         .named(EndDeviceControlsDomainExtension.FieldNames.CANCELLATION_REASON.javaName(), TranslationKeys.CANCELLATION_REASON)
                         .fromThesaurus(thesaurus)
@@ -180,6 +193,16 @@ public class EndDeviceControlsPropertySet implements CustomPropertySet<ServiceCa
             table.column(EndDeviceControlsDomainExtension.FieldNames.DEVICE_MRID.databaseName())
                     .varChar()
                     .map(EndDeviceControlsDomainExtension.FieldNames.DEVICE_MRID.javaName())
+                    .add();
+            table.column(EndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(EndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.javaName())
+                    .notNull()
+                    .add();
+            table.column(EndDeviceControlsDomainExtension.FieldNames.ERROR.databaseName())
+                    .varChar()
+                    .map(EndDeviceControlsDomainExtension.FieldNames.ERROR.javaName())
                     .add();
             table.column(EndDeviceControlsDomainExtension.FieldNames.CANCELLATION_REASON.databaseName())
                     .varChar()

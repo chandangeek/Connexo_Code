@@ -23,6 +23,7 @@ public class MasterEndDeviceControlsDomainExtension extends AbstractPersistentDo
         DOMAIN("serviceCall", "SERVICE_CALL"),
         CALLBACK_URL("callbackUrl", "CALLBACK_URL"),
         CORRELATION_ID("correlationId", "CORRELATION_ID"),
+        MAX_EXEC_TIMEOUT("maxExecTimeout", "MAX_EXEC_TIMEOUT"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -52,6 +53,8 @@ public class MasterEndDeviceControlsDomainExtension extends AbstractPersistentDo
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String correlationId;
 
+    private long maxExecTimeout;
+
     public String getCallbackUrl() {
         return callbackUrl;
     }
@@ -68,21 +71,35 @@ public class MasterEndDeviceControlsDomainExtension extends AbstractPersistentDo
         this.correlationId = correlationId;
     }
 
+    public long getMaxExecTimeout() {
+        return maxExecTimeout;
+    }
+
+    public void setMaxExecTimeout(long maxExecTimeout) {
+        this.maxExecTimeout = maxExecTimeout;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setCallbackUrl((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
         this.setCorrelationId((String) propertyValues.getProperty(FieldNames.CORRELATION_ID.javaName()));
+        this.setMaxExecTimeout((long) propertyValues.getProperty(FieldNames.MAX_EXEC_TIMEOUT.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), this.getCallbackUrl());
         propertySetValues.setProperty(FieldNames.CORRELATION_ID.javaName(), this.getCorrelationId());
+        propertySetValues.setProperty(FieldNames.MAX_EXEC_TIMEOUT.javaName(), this.getMaxExecTimeout());
     }
 
     @Override
     public void validateDelete() {
         // do nothing
+    }
+
+    public ServiceCall getServiceCall() {
+        return serviceCall.get();
     }
 }

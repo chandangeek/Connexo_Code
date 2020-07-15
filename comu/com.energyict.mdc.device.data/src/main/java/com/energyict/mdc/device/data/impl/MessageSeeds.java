@@ -228,7 +228,8 @@ public enum MessageSeeds implements MessageSeed {
     MULTIPLE_DEV_SEC_ACCESSOR_FOR_SYMKEY(2201, "symmetric.key.multiple.security.accessor", "Multiple device security accessors found for key {0}"),
     MULTIPLE_DEV_SEC_ACCESSOR_FOR_CERT(2202, "certificate.multiple.security.accessor", "Multiple device security accessors found for certificate {0}"),
     NO_SEC_ACC_MAPPED_TO_KEY(2203, "symmetric.key.no.security.accessor", "No security accessor found for key {0}"),
-    NO_SEC_ACC_MAPPED_TO_CERT(2204, "certificate.no.security.accessor", "No security accessor found for certificate {0}");
+    NO_SEC_ACC_MAPPED_TO_CERT(2204, "certificate.no.security.accessor", "No security accessor found for certificate {0}"),
+    NO_SUCH_DEVICE_MESSAGE_WITH_ID(2205, "NoSuchDeviceMessageWithId", "No such device message with id: {0}.");
 
     private final int number;
     private final String key;

@@ -43,6 +43,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.ExecuteEndDeviceControlsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
@@ -70,14 +71,17 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadin
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.task.EndDeviceControlsCancellationHandlerFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -85,6 +89,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Ints;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -138,6 +143,13 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private static final int RECURRENT_TASK_DEFAULT_READ_OUT_DELAY = 1;
     public static int actualRecurrentTaskReadOutDelay = RECURRENT_TASK_DEFAULT_READ_OUT_DELAY;
 
+    private static final String RECURRENT_TASK_END_DEVICE_CONTROLS_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrolstaskfrequency";
+    private static final String RECURRENT_TASK_END_DEVICE_CONTROLS_NAME = "End device controls cancellation task";
+    private static final int RECURRENT_TASK_END_DEVICE_CONTROLS_DEFAULT_FREQUENCY = 30;
+    private static final String END_DEVICE_CONTROLS_TIMEOUT = "com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrolstimeout";
+    private static final int END_DEVICE_CONTROLS_DEFAULT_TIMEOUT = 30;
+    private int endDeviceControlsTimeout = END_DEVICE_CONTROLS_DEFAULT_TIMEOUT;
+
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
@@ -177,6 +189,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile CommunicationTaskService communicationTaskService;
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile EndDeviceEventsServiceProvider endDeviceEventsServiceProvider;
+    private volatile DeviceMessageService deviceMessageService;
+    private volatile MultiSenseHeadEndInterface multiSenseHeadEndInterface;
+    private volatile NlsService nlsService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -204,7 +219,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          MasterDataService masterDataService,
                                          CommunicationTaskService communicationTaskService,
                                          MeteringTranslationService meteringTranslationService,
-                                         EndDeviceEventsServiceProvider endDeviceEventsServiceProvider) {
+                                         EndDeviceEventsServiceProvider endDeviceEventsServiceProvider,
+                                         DeviceMessageService deviceMessageService,
+                                         MultiSenseHeadEndInterface multiSenseHeadEndInterface) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -241,6 +258,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setCommunicationTaskService(communicationTaskService);
         setMeteringTranslationService(meteringTranslationService);
         setEndDeviceEventsServiceProvider(endDeviceEventsServiceProvider);
+        setDeviceMessageService(deviceMessageService);
+        setMultiSenseHeadEndInterface(multiSenseHeadEndInterface);
     }
 
 
@@ -287,6 +306,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(EndDeviceEventsServiceProvider.class).toInstance(endDeviceEventsServiceProvider);
+                bind(DeviceMessageService.class).toInstance(deviceMessageService);
+                bind(MultiSenseHeadEndInterface.class).toInstance(multiSenseHeadEndInterface);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(NlsService.class).toInstance(nlsService);
+                bind(InboundSoapEndpointsActivator.class).toInstance(InboundSoapEndpointsActivator.this);
             }
         };
     }
@@ -304,7 +328,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                         version(10, 9), UpgraderV10_9.class));
         setActualRecurrentTaskFrequency();
         setActualRecurrentTaskReadOutDelay();
+        setEndDeviceControlsTimeout();
         createOrUpdateFutureComTasksExecutionTask();
+        createOrUpdateEndDeviceControlsCancellationTask();
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
         registerServices(bundleContext);
@@ -317,24 +343,22 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     }
 
     private void createOrUpdateFutureComTasksExecutionTask() {
-        threadPrincipalService.set(() -> "Activator");
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(RECURRENT_TASK_NAME);
-            if (taskOptional.isPresent()) {
-                RecurrentTask task = taskOptional.get();
-                task.setScheduleExpression(PeriodicalScheduleExpression.every(actualRecurrentTaskFrequency).minutes().at(0).build());
-                task.save();
-            } else {
-                createActionTask(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION,
-                        RECURRENT_TASK_RETRY_DELAY,
-                        TranslationKeys.FUTURE_COM_TASK_EXECUTION_NAME,
-                        RECURRENT_TASK_NAME,
-                        "0 0/" + actualRecurrentTaskFrequency + " * 1/1 * ? *");
-            }
-            context.commit();
-        } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
-        }
+        createOrUpdateActionTask(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION,
+                RECURRENT_TASK_RETRY_DELAY,
+                TranslationKeys.FUTURE_COM_TASK_EXECUTION_NAME,
+                RECURRENT_TASK_NAME,
+                PeriodicalScheduleExpression.every(actualRecurrentTaskFrequency).minutes().at(0).build());
+    }
+
+    private void createOrUpdateEndDeviceControlsCancellationTask() {
+        int actualRecurrentTaskEndDeviceCtrlsFrequency = getIntProperty(RECURRENT_TASK_END_DEVICE_CONTROLS_FREQUENCY,
+                RECURRENT_TASK_END_DEVICE_CONTROLS_DEFAULT_FREQUENCY);
+
+        createOrUpdateActionTask(EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_DESTINATION,
+                EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_RETRY_DELAY,
+                TranslationKeys.END_DEVICE_CONTROLS_CANCELLATION_NAME,
+                RECURRENT_TASK_END_DEVICE_CONTROLS_NAME,
+                PeriodicalScheduleExpression.every(actualRecurrentTaskEndDeviceCtrlsFrequency).minutes().at(0).build());
     }
 
     private void setActualRecurrentTaskFrequency() {
@@ -351,21 +375,49 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         }
     }
 
-    private void createActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, String taskSchedule) {
-        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
-                .get()
-                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
-        destination.activate();
-        destination.subscribe(subscriberSpecName, InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.DOMAIN);
+    private void setEndDeviceControlsTimeout() {
+        endDeviceControlsTimeout = getIntProperty(END_DEVICE_CONTROLS_TIMEOUT, END_DEVICE_CONTROLS_DEFAULT_TIMEOUT);
+    }
 
-        taskService.newBuilder()
-                .setApplication("MultiSense")
-                .setName(taskName)
-                .setScheduleExpressionString(taskSchedule)
-                .setDestination(destination)
-                .setPayLoad("payload")
-                .scheduleImmediately(true)
-                .build();
+    public int getEndDeviceControlsTimeout(){
+        return endDeviceControlsTimeout;
+    }
+
+    private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName,
+                                          String taskName, ScheduleExpression taskSchedule) {
+        threadPrincipalService.set(() -> "Activator");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(taskName);
+            if (taskOptional.isPresent()) {
+                RecurrentTask task = taskOptional.get();
+                task.setScheduleExpression(taskSchedule);
+                task.save();
+            } else {
+                DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                        .get()
+                        .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+                destination.activate();
+                destination.subscribe(subscriberSpecName, InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.DOMAIN);
+
+                taskService.newBuilder()
+                        .setApplication("MultiSense")
+                        .setName(taskName)
+                        .setScheduleExpression(taskSchedule)
+                        .setDestination(destination)
+                        .setPayLoad("payload")
+                        .scheduleImmediately(true)
+                        .build();
+            }
+            context.commit();
+        } catch (Exception e) {
+            LOGGER.severe(e.getMessage());
+        }
+    }
+
+    private int getIntProperty(String propertyName, int defaultValue) {
+        return Optional.ofNullable(bundleContext.getProperty(propertyName))
+                .map(Ints::tryParse)
+                .orElse(defaultValue);
     }
 
     private void registerHandlers() {
@@ -411,6 +463,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
     }
@@ -638,6 +691,16 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
+
+    @Reference
+    public void setMultiSenseHeadEndInterface(MultiSenseHeadEndInterface multiSenseHeadEndInterface) {
+        this.multiSenseHeadEndInterface = multiSenseHeadEndInterface;
     }
 
     @Override

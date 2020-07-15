@@ -203,10 +203,10 @@ public enum EndDeviceControlTypeMapping {
         return OTHER;
     }
 
-    public static EndDeviceControlTypeMapping getMappingWithoutDeviceTypeFor(EndDeviceControlType endDeviceControlType) {
+    public static EndDeviceControlTypeMapping getMappingWithoutDeviceTypeFor(String endDeviceControlTypeMRID) {
         for (EndDeviceControlTypeMapping controlTypeMapping : values()) {
             //the first digit is device type in mrid, so we are looking for mapping without this digit
-            if (controlTypeMapping.getEndDeviceControlTypeMRID().endsWith(endDeviceControlType.getMRID().substring(2))) {
+            if (controlTypeMapping.getEndDeviceControlTypeMRID().endsWith(endDeviceControlTypeMRID.substring(2))) {
                 return controlTypeMapping;
             }
         }

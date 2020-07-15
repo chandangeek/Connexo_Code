@@ -47,7 +47,7 @@ public class ServiceCallTransitionUtils {
                 .allMatch(sc -> !sc.getState().isOpen());
     }
 
-    private static void transitToStateAfterOngoing(ServiceCall serviceCall, DefaultState finalState) {
+    public static void transitToStateAfterOngoing(ServiceCall serviceCall, DefaultState finalState) {
         if (serviceCall.getState() != finalState) {
             if (serviceCall.getState() != DefaultState.ONGOING) {
                 serviceCall.requestTransition(DefaultState.ONGOING);
@@ -58,7 +58,7 @@ public class ServiceCallTransitionUtils {
         }
     }
 
-    private static ServiceCall lock(ServiceCall serviceCall, ServiceCallService serviceCallService) {
+    public static ServiceCall lock(ServiceCall serviceCall, ServiceCallService serviceCallService) {
         return serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }

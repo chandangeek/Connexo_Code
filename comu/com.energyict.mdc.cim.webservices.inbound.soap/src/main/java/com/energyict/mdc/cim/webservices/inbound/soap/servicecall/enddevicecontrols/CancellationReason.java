@@ -10,7 +10,6 @@ public enum CancellationReason {
     NOT_CANCELLED("-"),
     UNKNOWN_REASON("Unknown reason"),
     TIMEOUT("Timeout"),
-    CREATE_ERROR("Create error"),
     MANUALLY("Manually"),
     CANCEL_END_DEVICE_CONTROLS("CancelEndDeviceControls request");
 
