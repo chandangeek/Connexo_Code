@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 
 import javax.inject.Inject;
 
@@ -32,7 +32,7 @@ public class UpgraderV10_9 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 9));
         issueService.getIssueCreationService().getCreationRuleQuery()
-                .select(Where.where("template").isEqualTo(BasicDataCollectionRuleTemplate.NAME))
+                .select(Where.where("template").isEqualTo(EventAggregationRuleTemplate.NAME))
                 .forEach(CreationRule::update);
     }
 }
