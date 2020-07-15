@@ -289,11 +289,6 @@ public class PreStoreLoadProfile {
             this.comServerDAO = comServerDAO;
         }
 
-        CompositePreStoredLoadProfile(MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO, Optional<OfflineLoadProfile> offlineLoadProfile) {
-            super(mdcReadingTypeUtilService, offlineLoadProfile);
-            this.comServerDAO = comServerDAO;
-        }
-
         public PreStoredLoadProfile preprocess(CollectedLoadProfile collectedLoadProfile, Instant intervalStorageEnd) {
             for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
                 IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
