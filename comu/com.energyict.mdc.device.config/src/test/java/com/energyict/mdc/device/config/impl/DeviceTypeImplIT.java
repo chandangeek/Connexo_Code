@@ -939,11 +939,11 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     public void testRemoveDeviceConfigFromDeviceType() {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
 
-        assertThat(((DeviceConfigurationImpl) deviceConfiguration).getObsoleteDate()).isEmpty();
+        assertThat(((DeviceConfigurationImpl) deviceConfiguration).isObsolete()).isFalse();
         deviceType.removeConfiguration(deviceConfiguration);
         Optional<DeviceConfiguration> reloaded = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
         assertThat(reloaded.isPresent()).isTrue();
-        assertThat(((DeviceConfigurationImpl) deviceConfiguration).getObsoleteDate()).isPresent();
+        assertThat(((DeviceConfigurationImpl) deviceConfiguration).isObsolete()).isTrue();
     }
 
     @Test
