@@ -40,7 +40,7 @@ public class RegisterReadingTypeNameSearchableProperty extends AbstractReadingTy
                 "join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_REGISTERSPEC.REGISTERTYPEID " +
                 "join MTR_READINGTYPE on MTR_READINGTYPE.MRID = MDS_MEASUREMENTTYPE.READINGTYPE " +
                 "where ");
-        builder.add(this.toSqlFragment("MTR_READINGTYPE.ALIASNAME", condition, now));
+        builder.add(this.toSqlFragment("MTR_READINGTYPE.FULLALIASNAME", condition, now));
         builder.closeBracket();
         return builder;
     }
