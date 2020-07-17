@@ -33,7 +33,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.security.cert.CertificateParsingException;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -146,7 +145,7 @@ public class DeviceResource {
 
                 context.commit();
                 return Response.accepted().build();
-            } catch (RuntimeException | CertificateParsingException e) {
+            } catch (RuntimeException e) {
                 return handleException(deviceCommandInfo, serviceCall, device, context, e);
             }
         }
