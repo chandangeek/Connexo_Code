@@ -68,6 +68,7 @@ import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageU
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382;
+import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382Cache;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
@@ -556,6 +557,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         DLMSCache dlmsCache = getProtocol().getDeviceCache();
         if (dlmsCache instanceof ESMR50Cache) {
             ((ESMR50Cache) dlmsCache).setFrameCounter(1);
+        } else if (dlmsCache instanceof Mx382Cache) {
+            ((Mx382Cache) dlmsCache).setFrameCounter(1);
         }
     }
 
