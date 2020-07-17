@@ -146,12 +146,12 @@ public class HeadEndController {
         }
     }
 
-    public void performTestCommunication(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) throws CertificateParsingException {
+    public void performTestCommunication(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(endDevice);
         performTestCommunication(headEndInterface, serviceCall, deviceCommandInfo, device);
     }
 
-    private void performTestCommunication(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) throws CertificateParsingException {
+    private void performTestCommunication(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling test communication.");
         SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(device, securityAccessorType);
