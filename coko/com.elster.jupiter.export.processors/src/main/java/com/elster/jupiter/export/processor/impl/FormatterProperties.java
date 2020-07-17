@@ -22,6 +22,7 @@ public enum FormatterProperties implements TranslationKey {
     TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Identifier"),
     UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier"),
     WITH_DEVICE_CODE(FORMATTER_PROPERTIES.getKey() + '.' + "withDeviceCode", "Include device code"),
+    WITH_DESCRIPTION(FORMATTER_PROPERTIES.getKey() + '.' + "withDescription", "Include description"),
     ;
 
     private String name;

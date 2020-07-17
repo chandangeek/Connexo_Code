@@ -333,13 +333,15 @@ Ext.define('Fwc.controller.Firmware', {
                         me.getFirmwareForm().down('#text-image-identifier').show();
                     }
                     if (firmware.getFirmwareStatus().getId() === 'final' && firmware.raw.isInUse) {
-                        me.getFirmwareForm().down('uni-form-error-message').setText(
-                            Uni.I18n.translate('firmware.edit.versionInUse', 'FWC', 'This version is in use and can not be modified.')
+                        var firmwareForm = me.getFirmwareForm();
+                        firmwareForm.down('uni-form-error-message').setText(
+                            Uni.I18n.translate('firmware.edit.versionInUseAndOnlySomeAttrsCanBeModified', 'FWC', 'This version is in use and only the image identifier and minimum FW versions can be modified.')
                         );
-                        me.getFirmwareForm().down('uni-form-error-message').show();
-                        me.getFirmwareForm().down('#text-firmware-version').disable();
-                        me.getFirmwareForm().down('#firmware-field-file').disable();
-                        me.getFirmwareForm().down('#createEditButton').disable();
+                        firmwareForm.down('uni-form-error-message').show();
+                        firmwareForm.down('#text-firmware-version').disable();
+                        firmwareForm.down('#firmware-field-file').disable();
+                        firmwareForm.down('#disp-firmware-type').disable();
+                        firmwareForm.down('#disp-firmware-status').disable();
                     }
 
                     if (firmware.getFirmwareType().getId() === 'caConfigImage') {
@@ -535,6 +537,8 @@ Ext.define('Fwc.controller.Firmware', {
                     me.getController('Uni.controller.Error').concurrentErrorHandler(options, responseObject);
                 } else if (!Ext.isEmpty(responseObject.errors)) {
                     me.setFormErrors(response, form);
+                } else if (responseObject.errorCode && responseObject.message) {
+                     me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'), responseObject.message, responseObject.errorCode);
                 }
             } else {
                 window.location.href = backUrl;
