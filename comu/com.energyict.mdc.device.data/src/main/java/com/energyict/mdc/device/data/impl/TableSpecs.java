@@ -88,6 +88,7 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -1229,6 +1230,9 @@ public enum TableSpecs {
             table.addRefAnyColumns("TEMPSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName());
             table.addRefAnyColumns("ACTUALPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_ACTUAL.fieldName());
             table.addRefAnyColumns("TEMPPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_TEMP.fieldName());
+            Column actualSimKeyId = table.getColumn("ACTUALSYMKEYID").orElseThrow(()
+                    -> new IllegalArgumentException("Table " + table.getName() + "does not have a column ACTUALSYMKEYID"));
+            table.index("IX_DDC_KEYACCESSOR_SYMKEYID").on(actualSimKeyId).add();
         }
     },
 
