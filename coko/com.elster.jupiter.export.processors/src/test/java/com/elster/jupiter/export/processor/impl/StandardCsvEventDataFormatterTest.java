@@ -86,7 +86,7 @@ public class StandardCsvEventDataFormatterTest {
         StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", true, false);
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
-        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", "10", time1.toInstant(), null));
+        meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", "10", time1.toInstant(), "desc"));
         meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("2.2.3.4", null, time2.toInstant(), null));
         MeterEventData meterEventData1 = new MeterEventData(meterReading1, TestDefaultStructureMarker.createRoot(clock, "MRID1").child("Device1"));
         MeterReadingImpl meterReading2 = MeterReadingImpl.newInstance();

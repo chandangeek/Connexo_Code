@@ -47,6 +47,12 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
         return new EndDeviceEventImpl(eventTypeCode, eventTime);
     }
 
+    public static EndDeviceEventImpl of(String eventTypeCode, String deviceCode, Instant eventTime) {
+        EndDeviceEventImpl event = of(eventTypeCode, eventTime);
+        event.setType(deviceCode);
+        return event;
+    }
+
     public static EndDeviceEventImpl of(String eventTypeCode, String deviceCode, Instant eventTime, String description) {
         EndDeviceEventImpl event = of(eventTypeCode, eventTime);
         event.setType(deviceCode);
