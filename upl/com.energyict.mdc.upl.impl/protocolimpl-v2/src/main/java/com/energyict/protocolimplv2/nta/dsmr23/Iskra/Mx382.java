@@ -50,8 +50,6 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
-import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
-import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Properties;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
@@ -97,7 +95,6 @@ public class Mx382 extends AbstractSmartNtaProtocol {
     protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
 
     private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
-    private static final long INITIAL_FRAME_COUNTER = 1L;
     private static final long UNSIGNED32_MAX = 0xFFFFFFFFL; // 4294967295;
     private static final ObisCode FRAME_COUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
 
@@ -110,7 +107,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-04-15$";
+        return "$Date: 2020-07-14$";
     }
 
     @Override
@@ -136,12 +133,11 @@ public class Mx382 extends AbstractSmartNtaProtocol {
                 readFrameCounter(comChannel);
                 reEstablishAssociation(comChannel);
             } else {
-                //Framecounter was validated and DLMSSession set so go on
+                // Frame counter was validated and DLMSSession set so go on
                 journal("Secure association established");
             }
-        }
-        else {
-            getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(INITIAL_FRAME_COUNTER);
+        } else {
+            // It uses a random initial frame counter
             setDlmsSession(newDlmsSession(comChannel));
         }
 
@@ -149,20 +145,20 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         journal("Initialization phase has ended.");
     }
 
-    protected boolean testCachedFrameCounterAndEstablishAssociation(ComChannel comChannel){
+    protected boolean testCachedFrameCounterAndEstablishAssociation(ComChannel comChannel) {
         boolean validCachedFrameCounter = false;
-        DlmsSession dlmsSession = newDlmsSession(comChannel);
-        long cachedFramecounter = getDeviceCache().getFrameCounter();
-        if (checkFrameCounterLimits(cachedFramecounter)){
-            journal("Testing cached frame counter: " + cachedFramecounter);
-            getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
-            dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
+        long cachedFrameCounter = getDeviceCache().getFrameCounter();
+        if (checkFrameCounterLimits(cachedFrameCounter)) {
+            journal("Testing cached frame counter: " + cachedFrameCounter);
+            getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter);
+            DlmsSession dlmsSession = newDlmsSession(comChannel);
+            dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFrameCounter);
             try {
                 dlmsSession.getDlmsV2Connection().connectMAC();
                 dlmsSession.createAssociation();
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
                     long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
-                    journal("This FrameCounter was validated: " + frameCounter);
+                    journal("This frame counter was validated: " + frameCounter);
                     getDeviceCache().setFrameCounter(frameCounter);
                     validCachedFrameCounter = true;
                     setDlmsSession(dlmsSession);
@@ -174,8 +170,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
                 throw ex;
             }
         } else {
-            validCachedFrameCounter = false; // outside limits, force re-read
-            journal("Cached frame counter ("+cachedFramecounter+") is outside acceptable limits, will force reading it again.");
+            journal("Cached frame counter ("+cachedFrameCounter+") is outside acceptable limits, will force reading it again.");
         }
         return validCachedFrameCounter;
     }
@@ -204,7 +199,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
             journal("Frame counter received: " + frameCounter);
             checkFrameCounterLimits(frameCounter);
         } catch (DataAccessResultException | ProtocolException e) {
-            final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
+            final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the frame counter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
@@ -219,12 +214,12 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         boolean isValid = true;
         long frameCounterLimit = getDlmsSessionProperties().getFrameCounterLimit();
 
-        if (frameCounterLimit>0 && frameCounter>frameCounterLimit) {
-            journal(Level.WARNING, "Frame-counter "+frameCounter+" is above the threshold (" + frameCounterLimit + "), consider key-roll to reset it!");
+        if (frameCounterLimit > 0 && frameCounter > frameCounterLimit) {
+            journal(Level.WARNING, "Frame counter "+frameCounter+" is above the threshold (" + frameCounterLimit + "), consider key-roll to reset it!");
             isValid = false;
         }
 
-        if (frameCounter<=0 || frameCounter >= UNSIGNED32_MAX){
+        if (frameCounter <= 0 || frameCounter >= UNSIGNED32_MAX) {
             journal(Level.SEVERE, "Frame counter "+frameCounter+" is not within Unsigned32 acceptable limits, consider key-roll to reset it");
             isValid = false;
         }
@@ -237,7 +232,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         journal("Re-establishing secure association with frame counter "+initialFrameCounter);
         dlmsSession.getAso().getSecurityContext().setFrameCounter(initialFrameCounter);
         setDlmsSession(dlmsSession);
-        if (dlmsSession.getAso().getAssociationStatus() != ApplicationServiceObject.ASSOCIATION_CONNECTED){
+        if (dlmsSession.getAso().getAssociationStatus() != ApplicationServiceObject.ASSOCIATION_CONNECTED) {
             try {
                 dlmsSession.getDlmsV2Connection().connectMAC();
                 dlmsSession.createAssociation();
@@ -247,7 +242,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
             } catch (CommunicationException ex) {
                 journal("Association using the new frame counter has failed ("+ex.getLocalizedMessage()+")");
                 throw ex;
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
                 throw ex;
             }
@@ -257,17 +252,23 @@ public class Mx382 extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    public void terminate(){
-        if(getDlmsSession() != null && getDlmsSession().getAso().getSecurityContext() != null){
+    public void terminate() {
+        if (saveFrameCounterToCache()) {
             long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
             getDeviceCache().setFrameCounter(frameCounter);
-            journal("Caching frameCounter=" + frameCounter);
+            journal("Caching frame counter = " + frameCounter);
         }
+    }
+
+    private boolean saveFrameCounterToCache() {
+        return getDlmsSession() != null &&
+               getDlmsSession().getAso().getSecurityContext() != null &&
+               getDlmsSessionProperties().replayAttackPreventionEnabled();
     }
 
     @Override
     public Mx382Cache getDeviceCache() {
-        if(mx382Cache == null){
+        if (mx382Cache == null) {
             mx382Cache = new Mx382Cache();
         }
         return mx382Cache;
@@ -281,7 +282,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    protected void checkCacheObjects(){
+    protected void checkCacheObjects() {
         if (getDeviceCache() == null) {
             setDeviceCache(new Mx382Cache());
         }
@@ -295,7 +296,6 @@ public class Mx382 extends AbstractSmartNtaProtocol {
             journal("Cache exist, will not be read.");
         }
     }
-
 
     protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
         HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
