@@ -30,7 +30,7 @@ Ext.define('Mdc.model.DeviceGroup', {
         var me = this;
 
         Ext.Ajax.request({
-            method: 'GET',
+            method: 'POST',
             url: '/api/jsr/search/com.energyict.mdc.common.device.data.Device/count',
             params: {
                 filter: me.get('filter')
