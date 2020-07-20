@@ -5,6 +5,8 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.CannotDeleteWhileBusyException;
 import com.elster.jupiter.estimation.EstimationTask;
@@ -47,7 +49,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private final Thesaurus thesaurus;
 
     private long id;
-
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     private boolean revalidate;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();

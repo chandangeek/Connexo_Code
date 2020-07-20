@@ -21,6 +21,8 @@ import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 import com.elster.jupiter.calendar.Status;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -89,8 +91,10 @@ public class CalendarImpl implements ServerCalendar {
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_NAME_FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String name;
     @Size(max = Table.DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.DESCRIPTION_FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_MRID_FIELD_TOO_LONG + "}")
     private String mRID;

@@ -8,6 +8,8 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
@@ -51,6 +53,7 @@ class DayTypeImpl implements DayType {
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.DAYTYPE_NAME_FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
