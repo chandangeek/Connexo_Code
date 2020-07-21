@@ -19,8 +19,6 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.Device;
-import com.elster.jupiter.metering.DefaultState;
-import com.energyict.mdc.common.pluggable.PluggableClassUsageProperty;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
@@ -31,12 +29,10 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilterImpl;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
@@ -63,6 +59,7 @@ import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -72,10 +69,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -95,12 +90,26 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     private volatile FirmwareService firmwareService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private volatile CommunicationTaskService communicationTaskService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
 
     public MeterConfigFactoryImpl() {
         // for OSGI purposes
+    }
+
+    // for testing purposes
+    @Inject
+    public MeterConfigFactoryImpl(CustomPropertySetService customPropertySetService, DeviceService deviceService,
+                                  FirmwareService firmwareService, DeviceMessageService deviceMessageService,
+                                  DeviceMessageSpecificationService deviceMessageSpecificationService,
+                                  Clock clock, NlsService nlsService) {
+        setCustomPropertySetService(customPropertySetService);
+        setDeviceService(deviceService);
+        setFirmwareService(firmwareService);
+        setDeviceMessageService(deviceMessageService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setClock(clock);
+        setNlsService(nlsService);
     }
 
     @Reference
@@ -126,11 +135,6 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-    }
-
-    @Reference
-    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
-        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
