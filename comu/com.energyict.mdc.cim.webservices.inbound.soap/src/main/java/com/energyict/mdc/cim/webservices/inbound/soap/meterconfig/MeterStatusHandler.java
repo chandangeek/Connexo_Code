@@ -62,11 +62,11 @@ public class MeterStatusHandler extends EventHandler<LocalEvent> {
             if (lockedServiceCall.getState().equals(DefaultState.WAITING)) {
                 MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
-                extension.setErrorMessage(thesaurus.getSimpleFormat(MessageSeeds.COM_TASK_FAILED).format());
+                extension.setErrorMessage(thesaurus.getSimpleFormat(MessageSeeds.COM_TASK_FAILED).format(comTaskExecution.getComTask().getName(), comTaskExecution.getDevice().getName()));
                 extension.setErrorCode(MessageSeeds.COM_TASK_FAILED.getErrorCode());
                 lockedServiceCall.update(extension);
                 lockedServiceCall.requestTransition(DefaultState.ONGOING);
-                lockedServiceCall.requestTransition(DefaultState.FAILED);
+                lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);
             }
         }
 

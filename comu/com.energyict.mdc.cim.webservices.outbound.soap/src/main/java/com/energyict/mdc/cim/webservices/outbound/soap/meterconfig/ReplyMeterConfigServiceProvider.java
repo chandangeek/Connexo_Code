@@ -145,28 +145,28 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return true;
     }
 
-
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, boolean meterStatusRequired, String correlationId) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, List<FailedMeterOperation> devicesWithWarnings,
+                     long expectedNumberOfCalls, boolean meterStatusRequired, String correlationId) {
         String method;
         MeterConfigEventMessageType message;
         switch (operation) {
             case CREATE:
                 method = "createdMeterConfig";
-                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
+                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case UPDATE:
                 method = "changedMeterConfig";
-                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
+                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
                 method = "replyMeterConfig";
-                message = createInfoResponseMessage(getMeterConfig(successfulDevices, meterStatusRequired), HeaderType.Verb.REPLY, correlationId);
+                message = createStatusResponseMessage(getMeterConfig(successfulDevices, meterStatusRequired), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
                 break;
             case DELETE:
                 method = "deletedMeterConfig";
-                message = createStatusResponseMessage(getEmptyMeterConfig(), failedDevices, expectedNumberOfCalls, HeaderType.Verb.DELETED, correlationId);
+                message = createStatusResponseMessage(getEmptyMeterConfig(), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.DELETED, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
@@ -236,7 +236,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createStatusResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+    private MeterConfigEventMessageType createStatusResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, List<FailedMeterOperation> devicesWithWarnings, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
         MeterConfigEventMessageType meterConfigEventMessageType = meterConfigMessageObjectFactory.createMeterConfigEventMessageType();
 
         // set header
@@ -258,23 +258,29 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         meterConfigEventMessageType.setPayload(payloadType);
 
         // set errors
-        failedDevices.forEach(failedMeterOperation -> {
-            ErrorType errorType = new ErrorType();
-            errorType.setCode(failedMeterOperation.getErrorCode());
-            errorType.setDetails(failedMeterOperation.getErrorMessage());
-            ObjectType objectType = new ObjectType();
-            objectType.setMRID(failedMeterOperation.getmRID());
-            objectType.setObjectType("EndDevice");
-            Name name = new Name();
-            name.setName(failedMeterOperation.getMeterName());
-            objectType.getName().add(name);
-            errorType.setObject(objectType);
-            replyType.getError().add(errorType);
-        });
+        failedDevices.forEach(failedMeterOperation -> replyType.getError().add(convertToErrorType(failedMeterOperation, ErrorType.Level.FATAL)));
+
+        // set warnings
+        devicesWithWarnings.forEach(warningMeterOperation -> replyType.getError().add(convertToErrorType(warningMeterOperation, ErrorType.Level.WARNING)));
 
         meterConfigEventMessageType.setReply(replyType);
 
         return meterConfigEventMessageType;
+    }
+
+    private ErrorType convertToErrorType(FailedMeterOperation meterOperation, ErrorType.Level level) {
+        ErrorType errorType = new ErrorType();
+        errorType.setLevel(level);
+        errorType.setCode(meterOperation.getErrorCode());
+        errorType.setDetails(meterOperation.getErrorMessage());
+        ObjectType objectType = new ObjectType();
+        objectType.setMRID(meterOperation.getmRID());
+        objectType.setObjectType("EndDevice");
+        Name name = new Name();
+        name.setName(meterOperation.getMeterName());
+        objectType.getName().add(name);
+        errorType.setObject(objectType);
+        return errorType;
     }
 
     private void addHeader(MeterConfigEventMessageType message, HeaderType.Verb verb, String correlationId) {

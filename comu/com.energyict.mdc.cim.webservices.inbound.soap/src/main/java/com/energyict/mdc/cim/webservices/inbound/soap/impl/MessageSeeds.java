@@ -65,9 +65,10 @@ public enum MessageSeeds implements MessageSeed {
     METROLOGY_CONFIG_NOT_ALLOW_GAPS(1035, "MetrologyConfigurationDoesntAllowGaps", "Meter ''{0}'' (serial number ''{1}'') is linked to usage point ''{2}'' with metrology configuration that doesn''t allow gaps so the meter can''t be deleted."),
     CANT_REMOVE_GATEWAY(1036, "CantRemoveGateway", "Meter ''{0}'' (serial number ''{1}'') can''t be removed while it''s still used as a gateway."),
     UNABLE_TO_DELETE_DEVICE(1037, "UnableToDeleteDevice", "Unable to delete device"),
-    COM_TASK_FAILED(1038, "ComTaskFailed", "Communication task with id ''{0}'' has failed."),
+    COM_TASK_FAILED(1038, "ComTaskFailed", "Communication task with name ''{0}'' for device ''{1}'' has failed."),
     TASK_FOR_METER_STATUS_IS_MISSING(1039, "TaskForMeterStatusIsMissing", "The required status information communication task hasn''t been found on device ''{0}''."),
     METER_STATUS_NOT_SUPPORTED(1040, "MeterStatusNotSupported", "Element ''{0}'' contains unsupported value ''{1}''. Must be one of: {2} or empty."),
+    SERVICE_CALL_IS_CANCELLED(1041, "ServiceCallIsCancelled", "Service call ''{0}'' is cancelled."),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
