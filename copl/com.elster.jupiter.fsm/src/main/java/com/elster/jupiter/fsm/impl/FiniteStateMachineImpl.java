@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -81,6 +83,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String name;
     @Valid
     private List<StateImpl> states = new ArrayList<>();

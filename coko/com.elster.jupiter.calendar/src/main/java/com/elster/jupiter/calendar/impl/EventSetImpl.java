@@ -7,6 +7,8 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventSet;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -41,6 +43,7 @@ public class EventSetImpl implements EventSet {
 
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.EVENTSET_NAME_FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
 
     private final DataModel dataModel;

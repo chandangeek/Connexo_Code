@@ -6,6 +6,8 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
@@ -42,6 +44,7 @@ final class CategoryImpl implements Category {
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CATEGORY_NAME_FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
 
     private final ServerCalendarService calendarService;

@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.issue.impl.records;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -24,9 +26,11 @@ public class AssignmentRuleImpl extends EntityImpl implements AssignmentRule {
 
     private int priority;
     @Size(min = 1, max = 400, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 400, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String title;
     private boolean enabled = true;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")

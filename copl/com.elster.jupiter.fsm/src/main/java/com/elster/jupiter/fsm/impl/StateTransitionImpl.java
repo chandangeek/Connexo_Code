@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
@@ -63,8 +65,10 @@ public final class StateTransitionImpl implements StateTransition {
     @SuppressWarnings("unused")
     private long id;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String name;
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String nameTranslationKey;
     @IsPresent
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();

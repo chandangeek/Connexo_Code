@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.favorites.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.favorites.LabelCategory;
@@ -18,6 +20,7 @@ public class LabelCategoryImpl implements LabelCategory, Serializable {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
 
     LabelCategoryImpl() {

@@ -6,6 +6,8 @@ package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -20,9 +22,11 @@ import java.util.Optional;
  */
 public class BpmProcessPropertyImpl implements BpmProcessProperty {
     @NotNull(message = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
 
     @NotNull(message = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String value;
 
     // Audit fields

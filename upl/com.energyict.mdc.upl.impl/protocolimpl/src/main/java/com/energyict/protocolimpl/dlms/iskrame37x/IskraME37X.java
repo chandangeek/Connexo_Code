@@ -785,7 +785,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         for (int t = 0; t < getCapturedObjects().getNROfChannels(); t++) {
 
             if (getCapturedObjects().isChannelData(getObjectNumber(t))) {
-                intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t) + dataContainerOffset)));
+                final long value = dataStructure.getValue(getObjectNumber(t) + dataContainerOffset);
+                intervalData.addValue(value);
             }
         }
 

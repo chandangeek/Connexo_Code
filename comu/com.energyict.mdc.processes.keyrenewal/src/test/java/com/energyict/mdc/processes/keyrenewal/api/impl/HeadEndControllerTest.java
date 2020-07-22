@@ -315,7 +315,7 @@ public class HeadEndControllerTest {
 
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
         Mockito.doReturn(comtasks).when(headEndController).getComTaskExecutions(device, securityAccessorType);
-
+        when(securityAccessorType.getTrustStore()).thenReturn(Optional.empty());
 
         // Business method
         headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);

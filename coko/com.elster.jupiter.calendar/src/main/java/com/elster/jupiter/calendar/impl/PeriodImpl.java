@@ -7,6 +7,8 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
@@ -54,6 +56,7 @@ class PeriodImpl implements Period {
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.PERIOD_NAME_FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();

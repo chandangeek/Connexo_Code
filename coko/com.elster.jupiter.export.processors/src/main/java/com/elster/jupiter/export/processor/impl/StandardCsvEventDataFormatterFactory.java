@@ -99,6 +99,13 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
                         .fromThesaurus(this.thesaurus)
                         .setDefaultValue(false)
                         .finish());
+        propertySpecs.add(
+                propertySpecService
+                        .booleanSpec()
+                        .named(FormatterProperties.WITH_DESCRIPTION)
+                        .fromThesaurus(this.thesaurus)
+                        .setDefaultValue(false)
+                        .finish());
         return propertySpecs;
     }
 
@@ -108,7 +115,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties), shouldIncludeDeviceCode(properties));
+        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties), shouldIncludeDeviceCode(properties), shouldIncludeDescription(properties));
     }
 
     private String getTag(Map<String, Object> properties) {
@@ -122,6 +129,11 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
     private boolean shouldIncludeDeviceCode(Map<String, Object> properties) {
         Object includeDeviceCodeProperty = properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey());
         return includeDeviceCodeProperty != null ? (Boolean) includeDeviceCodeProperty : false;
+    }
+
+    private boolean shouldIncludeDescription(Map<String, Object> properties) {
+        Object includeDescriptionProperty = properties.get(FormatterProperties.WITH_DESCRIPTION.getKey());
+        return includeDescriptionProperty != null ? (Boolean) includeDescriptionProperty : false;
     }
 
     @Override

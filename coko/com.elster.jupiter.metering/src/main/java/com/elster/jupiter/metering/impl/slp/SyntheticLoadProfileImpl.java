@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl.slp;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.ids.IdsService;
@@ -29,15 +31,12 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
-import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Unique(fields = "name", groups = {Save.Create.class}, message = "{" + PrivateMessageSeeds.Constants.DUPLICATE_SLP_NAME + "}")
 public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
@@ -50,8 +49,10 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     private long id;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
