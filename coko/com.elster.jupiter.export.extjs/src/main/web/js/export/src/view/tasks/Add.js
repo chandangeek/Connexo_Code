@@ -530,13 +530,13 @@ Ext.define('Dxp.view.tasks.Add', {
                                 },
                                 items: [
                                     {
-                                        //   itemId: 'noExportForUpdated',
+                                        itemId: 'startOfExportWindow',
                                         boxLabel: Uni.I18n.translate('general.startOfExportWindow', 'DES', 'start of export window'),
                                         inputValue: false,
                                         checked: true
                                     },
                                     {
-                                        //  itemId: 'exportWithinWindow',
+                                        itemId: 'continuousData',
                                         boxLabel: Uni.I18n.translate('general.continuousData', 'DES', 'last exported data (continuous data)'),
                                         inputValue: true
                                     }
