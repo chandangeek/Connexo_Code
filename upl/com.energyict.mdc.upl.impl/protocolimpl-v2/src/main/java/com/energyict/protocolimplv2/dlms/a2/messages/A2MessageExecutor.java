@@ -18,6 +18,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.A2;
 import com.energyict.protocolimplv2.messages.*;
@@ -197,12 +198,13 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hexUserFileContent = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        String path = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
         String activationEpochString = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateActivationDateAttributeName);
         String hash = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateHashAttributeName);
         String kdl = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateKDLAttributeName);
         String type = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateImageTypeAttributeName);
-        byte[] imageData = ProtocolTools.getBytesFromHexString(hexUserFileContent, "");
+
+        byte[] imageData = TempFileLoader.loadTempFile(path);
         byte[] typeBytes = FirmwareImageType.typeForDescription(type).getByteArray();
         byte[] hashBytes = ProtocolTools.getBytesFromHexString(hash, 2);
         byte[] kdlBytes = ProtocolTools.getBytesFromHexString(kdl, 2);
