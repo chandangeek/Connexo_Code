@@ -4,35 +4,34 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
-import com.energyict.protocolimplv2.edmi.mk10.properties.MK10ConfigurationSupport;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 
 /**
  * @author sva
- * @since 22/02/2017 - 16:30
+ * @since 22/02/2017 - 16:31
  */
-public class TcpDeviceProtocolDialect extends CommonEDMIDeviceProtocolDialect {
+public class SerialDeviceProtocolDialect extends CommonEDMIDeviceProtocolDialect {
 
-    private static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(0);
+    private static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(100);
 
-    public TcpDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+    public SerialDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
     }
 
-    public TcpDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public SerialDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectTranslationKeys.EDMI_TCP_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.EDMI_SERIAL_DIALECT_NAME.getName();
     }
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.EDMI_TCP_DIALECT_NAME).format();
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.EDMI_SERIAL_DIALECT_NAME).format();
     }
 
     @Override
@@ -52,7 +51,7 @@ public class TcpDeviceProtocolDialect extends CommonEDMIDeviceProtocolDialect {
 
     @Override
     String getDefaultConnectionMode() {
-        return ConnectionMode.MINI_E_COMMAND_LINE.getName();
+        return ConnectionMode.EXTENDED_COMMAND_LINE.getName();
     }
 
 }
