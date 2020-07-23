@@ -39,6 +39,7 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
+import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.SetMultimap;
@@ -51,6 +52,7 @@ import java.util.List;
 public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implements MeterConfigPort, ApplicationSpecific {
     private static final String NOUN = "MeterConfig";
     private static final String METER_ITEM = NOUN + ".Meter";
+    private static final String METER_STATUS_SOURCE_ELEMENT = "MeterStatusSource";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -151,7 +153,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         faults.addAll(processSecurityAttributes(device, meterInfo));
         if (faults.isEmpty()) {
             postProcessDevice(device, meterInfo);
-            return createResponseMessage(device, verb, correlationId);
+            return createResponseMessage(device, verb, false, correlationId);
         }
         throw faultMessageFactory.meterConfigFaultMessage(faults);
     }
@@ -246,7 +248,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return serviceCall;
     }
 
-    private MeterConfigResponseMessageType createResponseMessage(Device device, HeaderType.Verb verb, String correlationId) {
+    private MeterConfigResponseMessageType createResponseMessage(Device device, HeaderType.Verb verb, boolean meterStatusRequired, String correlationId) {
         MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory
                 .createMeterConfigResponseMessageType();
 
@@ -264,7 +266,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         // set payload
         MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
         if(device != null) {
-            meterConfigPayload.setMeterConfig(Verb.REPLY.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
+            meterConfigPayload.setMeterConfig(Verb.REPLY.equals(verb) ? meterConfigFactory.asGetMeterConfig(device, meterStatusRequired) : meterConfigFactory.asMeterConfig(device));
         } else {
             meterConfigPayload.setMeterConfig(new MeterConfig());
         }
@@ -368,7 +370,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
                     deviceDeleter.delete(device);
-                    return createResponseMessage(null, Verb.DELETED, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
+                    return createResponseMessage(null, Verb.DELETED, false, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
             } catch (LocalizedException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE, e.getLocalizedMessage());
@@ -410,6 +412,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     if (meterConfig.getMeter().size() == faultMessages.size()) {
                         throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.FAILED);
                     } else {
+                        checkMeterStatusSourceAsync(meterConfig.getMeterStatusSource());
                         EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
                         createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
                         if (faultMessages.isEmpty()) {
@@ -425,12 +428,33 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-                    return createResponseMessage(device, HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                    checkMeterStatusSourceSync(meterConfig.getMeterStatusSource(), device.getName());
+                    boolean meterStatusRequired = MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterConfig.getMeterStatusSource());
+                    return createResponseMessage(device, HeaderType.Verb.REPLY, meterStatusRequired, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
             }
         });
+    }
+
+    private void checkMeterStatusSourceSync(String meterStatusSource, String meterName) throws FaultMessage {
+        if (!Strings.isNullOrEmpty(meterStatusSource) && !MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterStatusSource)) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(meterName, MessageSeeds.METER_STATUS_NOT_SUPPORTED, METER_STATUS_SOURCE_ELEMENT, meterStatusSource, "'" + MeterStatusSource.SYSTEM.getSource() + "'").get();
+        }
+    }
+
+    private void checkMeterStatusSourceAsync(String meterStatusSource) throws FaultMessage {
+        if (!Strings.isNullOrEmpty(meterStatusSource)
+                && !MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterStatusSource)
+                && !MeterStatusSource.METER.getSource().equalsIgnoreCase(meterStatusSource)) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.METER_STATUS_NOT_SUPPORTED, METER_STATUS_SOURCE_ELEMENT, meterStatusSource,
+                    new StringBuilder().append('\'')
+                            .append(MeterStatusSource.SYSTEM.getSource())
+                            .append("\', \'")
+                            .append(MeterStatusSource.METER.getSource())
+                            .append('\'').toString()).get();
+        }
     }
 
     @Override
