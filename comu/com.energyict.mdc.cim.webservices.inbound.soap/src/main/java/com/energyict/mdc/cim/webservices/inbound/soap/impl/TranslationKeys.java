@@ -16,6 +16,7 @@ public enum TranslationKeys implements TranslationKey {
     METER_CONFIG("meterConfig", "Meter config"),
     METER_MRID("meterMrid", "Meter mrid"),
     METER_NAME("meterName", "Meter name"),
+    METER_STATUS_SOURCE("meterStatusSource", "Meter status source"),
     METERS("meters", "Meters"),
     DEVICE_GROUPS("deviceGroups", "Device groups"),
     EVENT_TYPES("eventTypes", "Event types"),

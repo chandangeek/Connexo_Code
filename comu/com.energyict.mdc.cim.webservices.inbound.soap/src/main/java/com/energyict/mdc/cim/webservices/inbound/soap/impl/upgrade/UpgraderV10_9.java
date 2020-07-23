@@ -15,7 +15,6 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalink
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
 
 import javax.inject.Inject;
-import java.sql.Statement;
 import java.text.MessageFormat;
 
 import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes.DATA_LINKAGE_CONFIG;
