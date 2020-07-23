@@ -79,7 +79,7 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION)) {
             upgradeFirmware(pendingMessage);
             // clock
-        } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SetTimezone)) {
+        } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SET_TIMEZONE_OFFSET)) {
             setTimezone(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SyncTime)) {
             synchronizeTime();
