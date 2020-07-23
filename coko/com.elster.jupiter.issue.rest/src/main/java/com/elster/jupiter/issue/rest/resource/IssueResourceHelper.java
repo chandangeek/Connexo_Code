@@ -189,9 +189,15 @@ public class IssueResourceHelper {
             locationService.findLocationById(locationId).ifPresent(filter::addLocation);
         }
 
-        if (jsonFilter.hasProperty(IssueRestModuleConst.DEVICE_GROUP)) {
+
+        if (jsonFilter.getLongList(IssueRestModuleConst.DEVICE_GROUP).stream().allMatch(s -> s != null)) {
             jsonFilter.getLongList(IssueRestModuleConst.DEVICE_GROUP).stream()
                     .map(id -> meteringGroupService.findEndDeviceGroup(id).orElseThrow(() -> new DeviceGroupNotFoundException(thesaurus, id)))
+                    .filter(devGroup -> devGroup != null)
+                    .forEach(filter::addDeviceGroup);
+        } else {
+            jsonFilter.getStringList(IssueRestModuleConst.DEVICE_GROUP).stream()
+                    .map(id -> meteringGroupService.findEndDeviceGroup(Long.valueOf(id)).orElseThrow(() -> new DeviceGroupNotFoundException(thesaurus, id)))
                     .filter(devGroup -> devGroup != null)
                     .forEach(filter::addDeviceGroup);
         }
