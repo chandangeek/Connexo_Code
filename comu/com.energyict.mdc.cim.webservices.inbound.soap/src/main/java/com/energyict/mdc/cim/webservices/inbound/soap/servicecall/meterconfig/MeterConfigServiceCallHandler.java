@@ -30,9 +30,12 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.Ca
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceDeleter;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ErrorMessage;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigPingUtils;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterStatusSource;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
@@ -90,6 +93,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
     private CasHandler casHandler;
     private SecurityHelper securityHelper;
+    private MeterConfigPingUtils meterConfigPingUtils;
 
     public MeterConfigServiceCallHandler() {
 
@@ -189,20 +193,37 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     }
 
     private void processMeterStatus(Device device, ServiceCall serviceCall) throws FaultMessage {
-        ServiceCall parent  = serviceCall.getParent().orElseThrow(() -> new IllegalStateException("Unable to find parent service call."));
-        MeterConfigMasterDomainExtension parentExtension = parent.getExtension(MeterConfigMasterDomainExtension.class).orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
+        ServiceCall parent = serviceCall.getParent().orElseThrow(() -> new IllegalStateException("Unable to find parent service call."));
+        MeterConfigMasterDomainExtension parentExtension = parent.getExtension(MeterConfigMasterDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
         if (MeterStatusSource.METER.getSource().equalsIgnoreCase(parentExtension.getMeterStatusSource())) {
             Optional<ComTaskExecution> statusInformationTask = getStatusInformationTask(device);
             if (statusInformationTask.isPresent()) {
                 executeStatusInformationTask(statusInformationTask.get(), serviceCall);
             } else {
                 ServiceCall lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Unable to lock service call."));
-                MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class).orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
+                MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
                 extension.setErrorMessage(thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_METER_STATUS_IS_MISSING).format(device.getName()));
                 extension.setErrorCode(MessageSeeds.TASK_FOR_METER_STATUS_IS_MISSING.getErrorCode());
                 lockedServiceCall.update(extension);
                 lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);
             }
+        } else if (parentExtension.needsPing()) {
+            ServiceCall lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Unable to lock service call."));
+            MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class)
+                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
+
+            Optional<ErrorMessage> errorMessageOptional = getMeterConfigPingUtils().ping(device);
+            if (errorMessageOptional.isPresent()) {
+                extension.setPingResult(PingResult.FAILED.getName());
+                extension.setErrorMessage(errorMessageOptional.get().getMessage());
+                extension.setErrorCode(errorMessageOptional.get().getCode());
+            } else {
+                extension.setPingResult(PingResult.SUCCESSFUL.getName());
+            }
+            lockedServiceCall.update(extension);
+            lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             serviceCall.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
         }
@@ -210,7 +231,8 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     private void executeStatusInformationTask(ComTaskExecution statusInformationTask, ServiceCall serviceCall) {
         ServiceCall lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Unable to lock service call."));
-        MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class).orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
+        MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
         extension.setCommunicationTask(statusInformationTask.getComTask());
         lockedServiceCall.setTargetObject(statusInformationTask.getDevice());
         lockedServiceCall.update(extension);
@@ -234,7 +256,8 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     private void setCancelled(ServiceCall serviceCall) {
         ServiceCall lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Unable to lock service call."));
-        MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class).orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
+        MeterConfigDomainExtension extension = lockedServiceCall.getExtension(MeterConfigDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call."));
         extension.setErrorMessage(thesaurus.getSimpleFormat(MessageSeeds.SERVICE_CALL_IS_CANCELLED).format(serviceCall.getNumber()));
         extension.setErrorCode(MessageSeeds.SERVICE_CALL_IS_CANCELLED.getErrorCode());
         lockedServiceCall.update(extension);
@@ -426,5 +449,12 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                     thesaurus);
         }
         return securityHelper;
+    }
+
+    private MeterConfigPingUtils getMeterConfigPingUtils() {
+        if (meterConfigPingUtils == null) {
+            meterConfigPingUtils = new MeterConfigPingUtils(thesaurus);
+        }
+        return meterConfigPingUtils;
     }
 }

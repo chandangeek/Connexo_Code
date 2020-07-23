@@ -21,6 +21,8 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_GROUPS("deviceGroups", "Device groups"),
     EVENT_TYPES("eventTypes", "Event types"),
     PARENT_SERVICE_CALL("parentServiceCall", "Parent service call"),
+    PING("ping", "Ping"),
+    PING_RESULT("pingResult", "Ping result"),
     ERROR_MESSAGE("errorMessage", "Error message"),
     ERROR_CODE("errorCode", "Error code"),
     OPERATION("operation", "Operation"),
@@ -50,7 +52,7 @@ public enum TranslationKeys implements TranslationKey {
     SGMR_CPS("GM2.name", "SubParent get meter readings custom property set"),
     CGMR_CPS("GM3.name", "Child get meter readings custom property set"),
     FUTURE_COM_TASK_EXECUTION_NAME(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
-                                               FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+            FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
 
     CARD_FORMAT("property.cardformat", "Card format"),
     CARD_FORMAT_FULL_SIZE("property.cardformat.fullsize", "Full-size (1FF)"),
