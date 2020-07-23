@@ -15,7 +15,7 @@ import java.time.Instant;
 
 public class RegisterReadingTypeNameSearchableProperty extends AbstractReadingTypeNameSearchableProperty <RegisterReadingTypeNameSearchableProperty>{
 
-    static final String PROPERTY_NAME = "device.register.reading.type.name";
+    static final String PROPERTY_NAME = "device.register.register.type.name";
 
     @Inject
     public RegisterReadingTypeNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {

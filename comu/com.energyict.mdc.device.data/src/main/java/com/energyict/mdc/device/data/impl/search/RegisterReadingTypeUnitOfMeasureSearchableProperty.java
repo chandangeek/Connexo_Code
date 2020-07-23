@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 public class RegisterReadingTypeUnitOfMeasureSearchableProperty extends AbstractReadingTypeUnitOfMeasureSearchableProperty<RegisterReadingTypeUnitOfMeasureSearchableProperty> {
 
-    static final String PROPERTY_NAME = "device.register.reading.type.unit";
+    static final String PROPERTY_NAME = "device.register.register.type.unit";
 
     @Inject
     public RegisterReadingTypeUnitOfMeasureSearchableProperty(MeteringService meteringService, PropertySpecService propertySpecService, Thesaurus thesaurus) {

@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 public class RegisterReadingTypeTimeOfUseSearchableProperty extends AbstractReadingTypeTimeOfUseSearchableProperty<RegisterReadingTypeTimeOfUseSearchableProperty> {
 
-    static final String PROPERTY_NAME = "device.register.reading.type.tou";
+    static final String PROPERTY_NAME = "device.register.register.type.tou";
 
     @Inject
     public RegisterReadingTypeTimeOfUseSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {

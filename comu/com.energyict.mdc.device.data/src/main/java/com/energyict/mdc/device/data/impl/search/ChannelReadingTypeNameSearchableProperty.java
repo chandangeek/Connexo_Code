@@ -15,7 +15,7 @@ import java.time.Instant;
 
 public class ChannelReadingTypeNameSearchableProperty extends AbstractReadingTypeNameSearchableProperty<ChannelReadingTypeNameSearchableProperty> {
 
-    static final String PROPERTY_NAME = "device.channel.reading.type.name";
+    static final String PROPERTY_NAME = "device.channel.register.type.name";
 
     @Inject
     public ChannelReadingTypeNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
