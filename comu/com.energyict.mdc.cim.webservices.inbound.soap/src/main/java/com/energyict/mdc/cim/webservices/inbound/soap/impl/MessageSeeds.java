@@ -15,7 +15,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     EMPTY_LIST(1, "NoElementsInList", "The list of ''{0}'' can''t be empty."),
-    UNSUPPORTED_BULK_OPERATION(2, "UnsupportedBulkOperation", "Bulk operation isn''t supported on ''{0}'', only first element is processed", Level.WARNING),
+    UNSUPPORTED_BULK_OPERATION(2, "UnsupportedBulkOperation", "Bulk operation isn''t supported for ''{0}'', only first element is processed.", Level.WARNING),
     MISSING_ELEMENT(3, "NoRequiredElement", "Element ''{0}'' is required."),
     ELEMENT_BY_REFERENCE_NOT_FOUND(4, "ElementByRefNotFound", "Element by reference ''{0}'' is not found in ''{1}''"),
     UNSUPPORTED_LIST_SIZE(5, "UnsupportedListSize", "The list of ''{0}'' has unsupported size. Must be of size {1}"),
