@@ -134,6 +134,7 @@ public class UserResource {
     public Response updateUser(UserInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
+        userService.updateLoggedInUser(id);
         return Response.ok(getUser(info.id)).build();
     }
 

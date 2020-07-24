@@ -823,7 +823,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             loggedInUsers.add(user);
         }
     }
-
+    @Override
+    public void updateLoggedInUser(long id) {
+        Optional<User> user = getUser(id);
+        if (loggedInUsers.contains(user.get())) {
+            User eUser = user.get();
+            eUser.setRoleModified(true);
+            loggedInUsers.set(loggedInUsers.indexOf(user.get()) , eUser);
+        }
+    }
 
     @Override
     public void removeLoggedUser(User user) {

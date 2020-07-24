@@ -20,6 +20,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -280,6 +281,7 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         final User user = getAssociatedUser(Long.parseLong(jwtClaimsSet.getSubject()));
 
         final boolean result = Objects.nonNull(user)
+                && !user.isRoleModified()
                 && verifyIfUserHasUserJWTInStorage(user, UUID.fromString(jwtClaimsSet.getJWTID()))
                 && verifyJWTSignature(signedJWT)
                 && verifyJWTIssuer(jwtClaimsSet.getIssuer())
@@ -304,8 +306,9 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
             // Create new token with increased counter
             final UserJWT userJWT = createUserJWT(user, createUserSpecificClaims(user, refreshCounter));
             return new TokenValidation(true, user, userJWT.getToken());
+        } else {
+            userService.removeLoggedUser(user);
         }
-
         return new TokenValidation(result && !isTokenExpired, user, signedJWT.serialize());
     }
 

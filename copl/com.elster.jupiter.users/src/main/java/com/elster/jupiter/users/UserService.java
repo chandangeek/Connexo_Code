@@ -162,7 +162,7 @@ public interface UserService {
     Optional<User> getLoggedInUserFromCache(long userId);
 
     void addLoggedInUser(User user);
-
+    void updateLoggedInUser(long id);
     void removeLoggedUser(User user);
 
     Optional<WorkGroup> getWorkGroup(long id);
