@@ -41,7 +41,9 @@ Ext.define('Mdc.model.DeviceAttribute', {
 
                 return res
             }
-        }
+        },
+        {name: 'dataLoggerInfo', type: 'auto'},
+        {name: 'multiElementInfo', type: 'auto'},
     ],
 
     proxy: {

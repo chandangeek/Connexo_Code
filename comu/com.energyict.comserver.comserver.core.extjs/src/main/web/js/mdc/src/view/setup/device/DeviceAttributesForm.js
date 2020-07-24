@@ -183,19 +183,90 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
+                name: 'dataLoggerInfo',
                 itemId: 'fld-data-logger',
                 fieldLabel: Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger'),
-                hidden: Ext.isEmpty(me.dataLoggerSlave),
-                renderer: function() {
-                    var dataloggerName = Ext.isEmpty(me.dataLoggerSlave) ? undefined : (me.dataLoggerSlave.get('isDataloggerSlave') ? me.dataLoggerSlave.get('dataloggerName'): me.dataLoggerSlave.get('multiElementDeviceName')) ;
-                    if (Ext.isEmpty(dataloggerName)) {
-                        return '-';
-                    }
+                renderer: function(value) {
+                    var dataloggerName;
+                    if (value){ // Case for 'Device attribute page'
+                        if (value.displayValue.isDataLoggerSlave){
+                            this.show();
+                        } else {
+                            this.hide();
+                            return;
+                        }
+
+                    dataloggerName = value.displayValue.masterDeviceName;
                     return Ext.String.format(
                         '<a href="{0}">{1}</a>',
                         '#/devices/' + encodeURIComponent(dataloggerName),
                         Ext.String.htmlEncode(dataloggerName)
-                    );
+                        );
+                    } else { //case for 'Overview page'
+                        if (Ext.isEmpty(me.dataLoggerSlave)){
+                            this.hide();
+                            return
+                        }
+                        if (me.dataLoggerSlave.get('isDataLoggerSlave')){
+                            this.show();
+                        } else {
+                            this.hide();
+                            return;
+                        }
+                        dataloggerName = me.dataLoggerSlave.get('masterDeviceName');
+                        if (Ext.isEmpty(dataloggerName)) {
+                            return '-';
+                        }
+                        return Ext.String.format(
+                            '<a href="{0}">{1}</a>',
+                            '#/devices/' + encodeURIComponent(dataloggerName),
+                            Ext.String.htmlEncode(dataloggerName)
+                        );
+                    }
+
+                }
+            },
+            {
+                name: 'multiElementInfo',
+                itemId: 'fld-multi-element',
+                fieldLabel: Uni.I18n.translate('general.multiElementDevice', 'MDC', 'Multi-element device'),
+                renderer: function(value) {
+                    var dataloggerName;
+                    if (value){ // Case for 'Device attribute page'
+                        if (value.displayValue.isMultiElementSlave){
+                            this.show();
+                        } else {
+                            this.hide();
+                            return;
+                        }
+
+                        dataloggerName = value.displayValue.masterDeviceName;
+                        return Ext.String.format(
+                            '<a href="{0}">{1}</a>',
+                            '#/devices/' + encodeURIComponent(dataloggerName),
+                            Ext.String.htmlEncode(dataloggerName)
+                        );
+                    } else { //case for 'Overview page'
+                        if (Ext.isEmpty(me.dataLoggerSlave)){
+                            this.hide();
+                            return;
+                        }
+                        if (me.dataLoggerSlave.get('isMultiElementSlave')){
+                            this.show();
+                        } else {
+                            this.hide();
+                            return;
+                        }
+                        dataloggerName =  me.dataLoggerSlave.get('masterDeviceName');
+                        if (Ext.isEmpty(dataloggerName)) {
+                            return '-';
+                        }
+                        return Ext.String.format(
+                            '<a href="{0}">{1}</a>',
+                            '#/devices/' + encodeURIComponent(dataloggerName),
+                            Ext.String.htmlEncode(dataloggerName)
+                            );
+                    }
                 }
             },
             {
@@ -327,9 +398,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fullInfo: me.fullInfo
             }
         ];
-        if (!Ext.isEmpty(me.dataLoggerSlave) && me.dataLoggerSlave.get('isMultiElementSlave')){
-           me.items[9].fieldLabel =  Uni.I18n.translate('general.multiElementDevice', 'MDC', 'Multi-element device');
-        }
+
         me.callParent(arguments);
+
+
     }
 });

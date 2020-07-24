@@ -43,6 +43,8 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Instant> decommissioningDate;
     public DeviceAttributeInfo<EditLocationInfo> location;
     public DeviceAttributeInfo<CoordinatesInfo> geoCoordinates;
+    public DeviceAttributeInfo<DataLoggerInfo> dataLoggerInfo;
+    public DeviceAttributeInfo<MultiElementInfo> multiElementInfo;
     public String deviceIcon;
     public DeviceInfo device;
 
@@ -109,6 +111,8 @@ public class DeviceAttributesInfo {
         MANUFACTURER,
         MODEL_NUMBER,
         MODEL_VERSION,
+        DATA_LOGGER,
+        MULTI_ELEMENT,
         YEAR_OF_CERTIFICATION,
         LIFE_CYCLE_STATE {
             @Override
