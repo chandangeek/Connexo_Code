@@ -149,6 +149,11 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(MeterConfigMasterDomainExtension.FieldNames.METER_STATUS_SOURCE.javaName(), TranslationKeys.METER_STATUS_SOURCE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.javaName(), TranslationKeys.CORRELATION_ID)
                         .describedAs(TranslationKeys.CORRELATION_ID)
                         .fromThesaurus(thesaurus)
@@ -226,6 +231,11 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .since(Version.version(10, 6))
                     .previously(oldColumn)
+                    .add();
+            table.column(MeterConfigMasterDomainExtension.FieldNames.METER_STATUS_SOURCE.databaseName())
+                    .varChar()
+                    .map(MeterConfigMasterDomainExtension.FieldNames.METER_STATUS_SOURCE.javaName())
+                    .since(Version.version(10, 9))
                     .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.databaseName())
                     .varChar()
