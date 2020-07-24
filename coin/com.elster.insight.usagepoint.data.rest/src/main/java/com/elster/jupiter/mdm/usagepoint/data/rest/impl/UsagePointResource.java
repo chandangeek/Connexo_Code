@@ -23,6 +23,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
@@ -90,6 +91,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -945,10 +947,15 @@ public class UsagePointResource {
         if (editLocation.properties != null) {
             List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.properties);
             for (PropertyInfo propertyInfo : propertyInfos) {
-                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().isEmpty()))) {
+                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null)
+                        || (propertyInfo.propertyValueInfo.value.toString().isEmpty()))) {
                     validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "properties." + propertyInfo.key));
                 }
-            }
+                if(propertyInfo.propertyValueInfo.value != null && !propertyInfo.propertyValueInfo.value.toString().isEmpty()
+                            && !PathVerification.validateInputPattern(propertyInfo.propertyValueInfo.value.toString(), HasNotAllowedChars.Constant.SCRIPT_CHARS)) {
+                        validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.FORBIDDEN_CHARACTER, "properties." + propertyInfo.key));
+                    }
+                }
         }
     }
 

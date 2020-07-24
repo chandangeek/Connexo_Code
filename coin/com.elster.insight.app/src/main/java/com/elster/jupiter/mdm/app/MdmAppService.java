@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.app;
 
 public interface MdmAppService {
+    
     String COMPONENTNAME = "MDMAPP";
     String APPLICATION_KEY = "INS";
     String APPLICATION_NAME = "Insight";

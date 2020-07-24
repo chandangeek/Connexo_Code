@@ -17,13 +17,18 @@ import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 
+import ch.iec.tc57._2011.meterconfig.CalendarStatus;
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
+import ch.iec.tc57._2011.meterconfig.ContactorStatus;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
+import ch.iec.tc57._2011.meterconfig.FirmwareStatus;
+import ch.iec.tc57._2011.meterconfig.FirmwareStatusType;
 import ch.iec.tc57._2011.meterconfig.LifecycleDate;
 import ch.iec.tc57._2011.meterconfig.Manufacturer;
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
+import ch.iec.tc57._2011.meterconfig.MeterStatus;
 import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
@@ -38,6 +43,8 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -47,6 +54,7 @@ import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,6 +84,18 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected static final String GA_VALUE_1 = "GA value 1";
     protected static final String GA_NAME_2 = "GA name 2";
     protected static final String GA_VALUE_2 = "GA value 2";
+    protected static final String COM_TASK_EXECUTION_STATUS = "Successful";
+    protected static final Instant COM_TASK_EXECUTION_DATE = Instant.from(ZonedDateTime.of(2020, 2, 1, 1, 0, 0, 0, ZoneId.systemDefault()));
+    protected static final String CONTACTOR_STATUS = "Closed";
+    protected static final Instant CONTACTOR_SENT_DATE = Instant.from(ZonedDateTime.of(2020, 2, 2, 2, 0, 0, 0, ZoneId.systemDefault()));
+    protected static final Instant CONTACTOR_ACTIVATION_DATE = Instant.from(ZonedDateTime.of(2020, 2, 3, 3, 0, 0, 0, ZoneId.systemDefault()));
+    protected static final String CALENDAR_NAME = "Calendar name";
+    protected static final Instant CALENDAR_UPLOAD_DATE = Instant.from(ZonedDateTime.of(2020, 2, 4, 4, 0, 0, 0, ZoneId.systemDefault()));
+    protected static final Instant CALENDAR_ACTIVATION_DATE = Instant.from(ZonedDateTime.of(2020, 2, 5, 5, 0, 0, 0, ZoneId.systemDefault()));
+    protected static final String FIRMWARE_VERSION = "Firmware version";
+    protected static final String FIRMWARE_IMAGE_IDENTIFIER = "Firmware image identifier";
+    protected static final Instant FIRMWARE_UPLOAD_DATE = Instant.from(ZonedDateTime.of(2020, 2, 6, 6, 0, 0, 0, ZoneId.systemDefault()));
+    protected static final Instant FIRMWARE_ACTIVATION_DATE = Instant.from(ZonedDateTime.of(2020, 2, 6, 6, 0, 0, 0, ZoneId.systemDefault()));
 
     protected final ObjectFactory meterConfigMessageObjectFactory = new ObjectFactory();
     protected final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
@@ -171,14 +191,14 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(meterConfig.getMeter()).thenReturn(Arrays.asList(createDefaultMeter()));
         when(meterConfig.getSimpleEndDeviceFunction()).thenReturn(Arrays.asList(createDefaultEndDeviceFunction()));
         when(meterConfigFactory.asMeterConfig(any(Device.class))).thenReturn(meterConfig);
-        when(meterConfigFactory.asGetMeterConfig(any(Device.class))).thenReturn(meterConfig);
+        when(meterConfigFactory.asGetMeterConfig(any(Device.class), eq(false))).thenReturn(meterConfig);
     }
 
     protected void mockMeterConfigFactoryWithCas() {
         when(meterConfig.getMeter()).thenReturn(Arrays.asList(createMeterWithCas()));
         when(meterConfig.getSimpleEndDeviceFunction()).thenReturn(Arrays.asList(createDefaultEndDeviceFunction()));
         when(meterConfigFactory.asMeterConfig(any(Device.class))).thenReturn(meterConfig);
-        when(meterConfigFactory.asGetMeterConfig(any(Device.class))).thenReturn(meterConfig);
+        when(meterConfigFactory.asGetMeterConfig(any(Device.class), eq(false))).thenReturn(meterConfig);
     }
 
     private void mockLifeCycleDates() {
@@ -220,6 +240,56 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         meter.setStatus(createStatus());
         meter.getMeterCustomAttributeSet().addAll(Arrays.asList(createGeneralAttributes(), createNonVersionedCustomPropertySet(), createVersionedCustomPropertySet()));
         return meter;
+    }
+
+    protected Meter createMeterWithMeterStatus() {
+        Meter meter = createMeter();
+        meter.setMRID(DEVICE_MRID);
+        meter.setLotNumber(BATCH);
+        meter.setSerialNumber(SERIAL_NUMBER);
+        meter.getMeterMultipliers().add(createMeterMultiplier(MULTIPLIER));
+        EndDeviceInfo endDeviceInfo = createEndDeviceInfo(MODEL_NUMBER, MODEL_VERSION, MANUFACTURER);
+        meter.setEndDeviceInfo(endDeviceInfo);
+        meter.setStatus(createStatus());
+        meter.setMeterStatus(createMeterStatus());
+        return meter;
+    }
+
+    protected MeterStatus createMeterStatus() {
+        MeterStatus meterStatus = new MeterStatus();
+        meterStatus.setStatusInfoComTaskExecutionStatus(COM_TASK_EXECUTION_STATUS);
+        meterStatus.setStatusInfoComTaskExecutionDate(COM_TASK_EXECUTION_DATE);
+        meterStatus.setFirmwareStatus(getFirmwareStatus());
+        meterStatus.setCalendarStatus(getCalendarStatus());
+        meterStatus.setContactorStatus(getContactorStatus());
+        return meterStatus;
+    }
+
+    protected ContactorStatus getContactorStatus() {
+        ContactorStatus contactorStatus = new ContactorStatus();
+        contactorStatus.setStatus(CONTACTOR_STATUS);
+        contactorStatus.setSentDate(CONTACTOR_SENT_DATE);
+        contactorStatus.setActivationDate(CONTACTOR_ACTIVATION_DATE);
+        return contactorStatus;
+    }
+
+    protected CalendarStatus getCalendarStatus() {
+        CalendarStatus calendarStatus = new CalendarStatus();
+        calendarStatus.setCalendar(CALENDAR_NAME);
+        calendarStatus.setUploadDate(CALENDAR_UPLOAD_DATE);
+        calendarStatus.setActivationDate(CALENDAR_ACTIVATION_DATE);
+        return calendarStatus;
+    }
+
+    protected FirmwareStatus getFirmwareStatus() {
+        FirmwareStatus firmwareStatus = new FirmwareStatus();
+        FirmwareStatusType firmwareStatusType = new FirmwareStatusType();
+        firmwareStatusType.setVersion(FIRMWARE_VERSION);
+        firmwareStatusType.setImageIdentifier(FIRMWARE_IMAGE_IDENTIFIER);
+        firmwareStatusType.setUploadDate(FIRMWARE_UPLOAD_DATE);
+        firmwareStatusType.setActivationDate(FIRMWARE_ACTIVATION_DATE);
+        firmwareStatus.setMeterFirmware(firmwareStatusType);
+        return firmwareStatus;
     }
 
     protected Meter createDefaultMeter() {

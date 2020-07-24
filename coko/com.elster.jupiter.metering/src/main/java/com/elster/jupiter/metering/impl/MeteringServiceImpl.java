@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -608,7 +609,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public ReadingType createReadingType(String mRID, String aliasName) {
         ReadingTypeImpl readingType = dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
-        dataModel.persist(readingType);
+        Save.CREATE.save(dataModel, readingType); //dataModel.persist(readingType);
         return readingType;
     }
 

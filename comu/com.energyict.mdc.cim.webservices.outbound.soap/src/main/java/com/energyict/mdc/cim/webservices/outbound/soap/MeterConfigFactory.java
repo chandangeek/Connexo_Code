@@ -15,6 +15,8 @@ import java.util.Collection;
 public interface MeterConfigFactory {
     MeterConfig asMeterConfig(Device device);
     MeterConfig asGetMeterConfig(Device device);
+    MeterConfig asGetMeterConfig(Device device, boolean meterStatusRequired);
     MeterConfig asMeterConfig(Collection<Device> devices);
     MeterConfig asGetMeterConfig(Collection<Device> devices);
+    MeterConfig asGetMeterConfig(Collection<Device> devices, boolean meterStatusRequired);
 }

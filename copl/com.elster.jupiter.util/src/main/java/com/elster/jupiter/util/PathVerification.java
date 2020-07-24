@@ -36,16 +36,14 @@ public class PathVerification {
     }
 
     /**
-     * This method checks for any invalid characters that are present in path.
+     * This method checks for any invalid characters that are present in input.
      *
-     * @param path
+     * @param input
      */
-    public static void validatePathPattern(String path) {
-        Pattern pattern = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=@\\s]");
-        Matcher matcher = pattern.matcher(path);
-        if (matcher.find()) {
-            throw new IllegalArgumentException("Invalid characters #<>$+%!`&*'|?{@}\\\"= ");
-        }
+    public static boolean validateInputPattern(CharSequence input,String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return !matcher.find();
     }
 
     /**

@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.edmi.mk6.properties;
 
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.protocolimplv2.edmi.dialects.CommonEDMIDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.mk10.properties.MK10ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
@@ -20,11 +22,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
  */
 public class MK6Properties {
 
-    public static final String TIMEOUT = "Timeout";
-    public static final String RETRIES = "Retries";
-    public static final String FORCED_DELAY = "ForcedDelay";
-
-    TypedProperties properties = TypedProperties.empty();
+    private TypedProperties properties = TypedProperties.empty();
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     public MK6Properties() {
@@ -34,18 +32,14 @@ public class MK6Properties {
         getProperties().setAllProperties(properties);
     }
 
-    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
-        getProperties().setAllProperties(dialectProperties);
-    }
-
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         getProperties().setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
         this.deviceProtocolSecurityPropertySet = deviceProtocolSecurityPropertySet;
     }
 
-    public MK10ConfigurationSupport.ConnectionMode getConnectionMode() {
-        String connectionModeName = (String) getProperties().getProperty(MK10ConfigurationSupport.CONNECTION_MODE);
-        return connectionModeName != null ? MK10ConfigurationSupport.ConnectionMode.fromName(connectionModeName) : MK10ConfigurationSupport.DEFAULT_CONNECTION_MODE;
+    public CommonEDMIDeviceProtocolDialect.ConnectionMode getConnectionMode() {
+        String connectionModeName = (String) getProperties().getProperty(CommonEDMIDeviceProtocolDialect.CONNECTION_MODE);
+        return CommonEDMIDeviceProtocolDialect.ConnectionMode.fromName(connectionModeName);
     }
 
     public boolean preventCrossingIntervalBoundaryWhenReading() {
@@ -61,15 +55,15 @@ public class MK6Properties {
     }
 
     public int getTimeout() {
-        return (int) ((Duration) properties.getTypedProperty(TIMEOUT)).toMillis();
+        return (int) ((Duration) properties.getTypedProperty(DlmsProtocolProperties.TIMEOUT)).toMillis();
     }
 
     public int getMaxRetries() {
-        return ((BigDecimal) properties.getTypedProperty(RETRIES)).intValue();
+        return ((BigDecimal) properties.getTypedProperty(DlmsProtocolProperties.RETRIES)).intValue();
     }
 
-    public long getforcedDelay() {
-        return ((Duration) properties.getTypedProperty(FORCED_DELAY)).toMillis();
+    public long getForcedDelay() {
+        return ((Duration) properties.getTypedProperty(DlmsProtocolProperties.FORCED_DELAY)).toMillis();
     }
 
     public String getDeviceId() {

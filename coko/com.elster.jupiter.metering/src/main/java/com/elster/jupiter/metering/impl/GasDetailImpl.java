@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
@@ -31,6 +33,7 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
     private Quantity physicalCapacity;
     private YesNoAnswer limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String loadLimiterType;
     @HasQuantityUnit(units =  {Unit.CUBIC_METER_PER_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity loadLimit;

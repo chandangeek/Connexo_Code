@@ -108,6 +108,7 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
                 "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
+                "global java.util.logging.Logger LOGGER;\n" +
                 "rule \"Events from meters of concentrator @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
