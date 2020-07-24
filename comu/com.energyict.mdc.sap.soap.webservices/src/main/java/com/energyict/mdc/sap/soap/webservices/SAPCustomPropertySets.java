@@ -33,6 +33,8 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(EndDevice endDevice);
 
+    Optional<String> getRegisteredSapDeviceId(EndDevice endDevice);
+
     /**
      * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
      */
