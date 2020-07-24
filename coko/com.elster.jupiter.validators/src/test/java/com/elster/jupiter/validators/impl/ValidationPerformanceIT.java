@@ -24,6 +24,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -129,6 +130,7 @@ public class ValidationPerformanceIT {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 
