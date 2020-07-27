@@ -637,10 +637,17 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
 
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.DEVICE_GROUP)) {
-            jsonFilter.getLongList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream()
-                    .map(id -> getMeteringGroupService().findEndDeviceGroup(id).orElseThrow(() -> new DeviceGroupNotFoundException(getThesaurus(), id)))
-                    .filter(devGroup -> devGroup != null)
-                    .forEach(filter::addDeviceGroup);
+            if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.USER_ASSIGNEE).stream().allMatch(s -> s != null)) {
+                jsonFilter.getLongList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream()
+                        .map(id -> getMeteringGroupService().findEndDeviceGroup(id).orElseThrow(() -> new DeviceGroupNotFoundException(getThesaurus(), id)))
+                        .filter(devGroup -> devGroup != null)
+                        .forEach(filter::addDeviceGroup);
+            } else {
+                jsonFilter.getStringList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream()
+                        .map(id -> getMeteringGroupService().findEndDeviceGroup(Long.valueOf(id)).orElseThrow(() -> new DeviceGroupNotFoundException(getThesaurus(), id)))
+                        .filter(devGroup -> devGroup != null)
+                        .forEach(filter::addDeviceGroup);
+            }
         }
 
         if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.USER_ASSIGNEE).stream().allMatch(s -> s == null)) {
