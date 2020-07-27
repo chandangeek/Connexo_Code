@@ -1277,7 +1277,7 @@ DDC;DOMAIN;device.comtask.schedule.type;Schedule type;Zeitplantyp;;;;;
 DDC;DOMAIN;device.register.last.reading;Last reading;Letzte Ablesung;;;;;
 DDC;DOMAIN;multiplier.exceeds.max.value;The multiplier exceeds the max value 2147483647;Der Multiplikator überschreitet den Höchstwert 2147483647;;;;;
 DDC;DOMAIN;privilege.estimate.with.rule;Estimate with rule;Mit Regel bewerten;;;;;
-DDC;DOMAIN;reading.type.unit.of.measure;Register type: Unit of measure;Ablesetyp: Maßeinheit;;;;;
+DDC;DOMAIN;register.type.unit.of.measure;Register type: Unit of measure;Ablesetyp: Maßeinheit;;;;;
 DDC;DOMAIN;CommunicationTestEventHandler;Handle events for communication test;Ereignisse für Übertragungstest bearbeiten;;;;;
 DDC;DOMAIN;device.noDestinationSpecFound;No destination spec found for : {0};Keine Zielort-Spezifikation gefunden für: {0};;;;;
 DDC;DOMAIN;no.status.information.comtask;A comtask to read out the status information couldn''t be located;Es konnte kein ComTask zum Ablesen der Statusinformationen gefunden werden;x;;;;
