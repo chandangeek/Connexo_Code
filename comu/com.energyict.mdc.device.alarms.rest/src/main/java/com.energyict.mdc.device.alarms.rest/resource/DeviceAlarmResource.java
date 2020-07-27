@@ -33,7 +33,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
@@ -54,7 +53,6 @@ import com.energyict.mdc.device.alarms.rest.transactions.AssignToMeSingleDeviceA
 import com.energyict.mdc.device.alarms.rest.transactions.BulkSnoozeTransaction;
 import com.energyict.mdc.device.alarms.rest.transactions.UnassignSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.security.Privileges;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -637,7 +635,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
 
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.DEVICE_GROUP)) {
-            if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.USER_ASSIGNEE).stream().allMatch(s -> s != null)) {
+            if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream().allMatch(s -> s != null)) {
                 jsonFilter.getLongList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream()
                         .map(id -> getMeteringGroupService().findEndDeviceGroup(id).orElseThrow(() -> new DeviceGroupNotFoundException(getThesaurus(), id)))
                         .filter(devGroup -> devGroup != null)
