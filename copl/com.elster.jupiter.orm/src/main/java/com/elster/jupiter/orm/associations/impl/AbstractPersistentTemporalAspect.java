@@ -66,6 +66,8 @@ public abstract class AbstractPersistentTemporalAspect<T extends Effectivity> im
 				dataMapper.getWriter().persist(element);
 			} catch (SQLException ex) {
 				throw new UnderlyingSQLFailedException(ex);
+			} finally {
+				dataMapper.getTable().clearCacheOnPersisting();
 			}
 		}
 		return true;
@@ -77,6 +79,8 @@ public abstract class AbstractPersistentTemporalAspect<T extends Effectivity> im
 				dataMapper.getWriter().remove(element);
 			} catch (SQLException ex) {
 				throw new UnderlyingSQLFailedException(ex);
+			} finally {
+				dataMapper.getTable().clearCache(element);
 			}
 		}
 		return true;

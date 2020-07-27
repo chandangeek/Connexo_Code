@@ -113,9 +113,6 @@ public class DataMapperWriter<T> {
             }
         }
         new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
-
-        // Update cached parent objects
-        getTable().clearCacheOnPersisting();
     }
 
     private boolean needsRefreshAfterBatchInsert() {
@@ -174,9 +171,6 @@ public class DataMapperWriter<T> {
         if (getTable().hasChildren()) {
             persistChildren(objects);
         }
-
-        // Update cached parent objects
-        getTable().clearCacheOnPersisting();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -294,9 +288,6 @@ public class DataMapperWriter<T> {
             pair.getFirst().setDomainValue(object, pair.getLast() + 1);
         }
         refresh(object, false);
-
-        // Update cached parent objects
-        getTable().clearCache();
     }
 
     private boolean isAuditEnabled() {
@@ -342,8 +333,6 @@ public class DataMapperWriter<T> {
                 this.closeAll(resources);
             }
         }
-        // Update cached parent objects
-        getTable().clearCache();
     }
 
     public void remove(T object) throws SQLException {
@@ -362,8 +351,13 @@ public class DataMapperWriter<T> {
                     List parts = constraint.added(object, writer.needsRefreshAfterBatchInsert());
                     allParts.addAll(parts);
                 }
+
                 if (writer != null) {
-                    writer.remove(allParts);
+                    try {
+                        writer.remove(allParts);
+                    } finally {
+                        writer.getTable().clearCache(allParts);
+                    }
                 }
             }
         }
@@ -379,8 +373,6 @@ public class DataMapperWriter<T> {
         if (object instanceof PersistenceAware) {
             ((PersistenceAware) object).postDelete();
         }
-        // Update cached parent objects
-        getTable().clearCache();
     }
 
     public void remove(List<? extends T> objects) throws SQLException {
@@ -403,7 +395,11 @@ public class DataMapperWriter<T> {
                     }
                 }
                 if (writer != null) {
-                    writer.remove(allParts);
+                    try {
+                        writer.remove(allParts);
+                    } finally {
+                        writer.getTable().clearCache(allParts);
+                    }
                 }
             }
         }
@@ -417,8 +413,6 @@ public class DataMapperWriter<T> {
             }
         }
         objects.stream().filter(o -> o instanceof PersistenceAware).map(PersistenceAware.class::cast).forEach(PersistenceAware::postDelete);
-        // Update cached parent objects
-        getTable().clearCache();
     }
 
     private void refresh(T object, boolean afterInsert) throws SQLException {

@@ -23,9 +23,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
-import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -446,17 +444,11 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         }
         this.obsoleteTime = this.clock.instant();
         this.dataModel.update(this, "obsoleteTime");
-        invalidateCache();
     }
 
     @Override
     public Optional<Instant> getObsoleteTime() {
         return Optional.ofNullable(this.obsoleteTime);
-    }
-
-    @Override
-    public void invalidateCache() {
-        this.publisher.publish(new InvalidateCacheRequest(MeteringService.COMPONENTNAME, TableSpecs.MTR_METROLOGYCONFIG.name()));
     }
 
     @Override

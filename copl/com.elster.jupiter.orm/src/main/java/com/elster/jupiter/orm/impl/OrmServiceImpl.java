@@ -567,6 +567,4 @@ public final class OrmServiceImpl implements OrmService {
     public String getProperty(String key) {
         return Optional.ofNullable(bundleContext).map(context -> context.getProperty(key)).orElse(null);
     }
-
-
 }

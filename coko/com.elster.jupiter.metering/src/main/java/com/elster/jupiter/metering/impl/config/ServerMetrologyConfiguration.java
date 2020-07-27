@@ -15,5 +15,4 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
  */
 interface ServerMetrologyConfiguration extends MetrologyConfiguration {
     void contractUpdated(MetrologyContractImpl contract);
-    void invalidateCache();
 }
