@@ -152,9 +152,13 @@ public abstract class Acud extends AbstractDlmsProtocol {
 
     public AcudLogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new AcudLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
+            this.logBookFactory = createLogBookFactory();
         }
         return this.logBookFactory;
+    }
+
+    protected AcudLogBookFactory createLogBookFactory() {
+        return new AcudLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
     }
 
     @Override

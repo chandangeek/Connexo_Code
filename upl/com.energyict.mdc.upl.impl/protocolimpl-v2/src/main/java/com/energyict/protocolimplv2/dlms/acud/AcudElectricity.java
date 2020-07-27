@@ -14,13 +14,16 @@ public class AcudElectricity extends Acud {
 
     private static final EndDeviceType typeMeter = EndDeviceType.ELECTRICMETER;
 
-
     public AcudElectricity(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor);
     }
 
     protected AcudRegisterFactory createRegisterFactory() {
         return new AcudElectricRegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
+    }
+
+    protected AcudLogBookFactory createLogBookFactory() {
+        return new AcudElectricLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
     }
 
     protected AcudMessaging createProtocolMessaging() {

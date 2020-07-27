@@ -18,7 +18,6 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
     public static final String LIMIT_SEPARATOR = ";";
     public static final String VALUE_SEPARATOR = ",";
 
-
     public AcudElectricRegisterFactory(Acud protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
     }

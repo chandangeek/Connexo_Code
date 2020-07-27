@@ -15,28 +15,35 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class AcudLogBookFactory implements DeviceLogBookSupport {
 
     private static final Logger sLogger = Logger.getLogger(AcudLogBookFactory.class.getName());
+
     private static final int OCTESTS = 100;
 
-    private final List<ObisCode> supportedLogBooks;
+    private static final ObisCode[] supportedLogBooks = new ObisCode[]{
+            /* Event Log (Time before change) */ ObisCode.fromString("8.0.99.98.3.255"),
+            /* Event Log (Time after change) */ ObisCode.fromString("8.0.99.98.4.255"),
+            /* Event Log (EOB reset) */ ObisCode.fromString("8.0.99.98.5.255"),
+            /* Event Log (Communication port log) */ ObisCode.fromString("8.0.99.98.9.255"),
+            /* Event Log (Tamper 1) */ ObisCode.fromString("8.0.99.98.12.255"),
+            /* Event Log (Password Change) */ ObisCode.fromString(".99.98.16.255"),
+            /* Event Log (Security association) */ ObisCode.fromString("8.96.99.98.19.255"),
+            /* Event Log (Display Roll-Over to nZero) */ ObisCode.fromString("8.96.99.98.20.255"),
+    };
+
     private Acud protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public AcudLogBookFactory(Acud protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory){
+    public AcudLogBookFactory(Acud protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.protocol = protocol;
-        supportedLogBooks = new ArrayList<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -80,7 +87,10 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
                 }
 
                 //map the meter events in order to change the device type of the code to the correct device type from protocol
-                collectedLogBook.setCollectedMeterEvents(new AcudStandardEventLog(basicEvents).buildMeterEvent().stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList()));
+                collectedLogBook.setCollectedMeterEvents(new AcudStandardEventLog(basicEvents).buildMeterEvent().stream().map(item -> {
+                    item.getEventType().setType(protocol.getTypeMeter());
+                    return item;
+                }).collect(Collectors.toList()));
             } catch (IOException e) {
                 if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
@@ -94,7 +104,7 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
      */
     private int getNumberOfEntries(ObisCode obisCode, int fromOffset, int length) throws IOException {
         TableRead tableRead = protocol.getDlmsSession().getCosemObjectFactory().getTableRead(obisCode);
-        byte[] buffer = tableRead.getBuffer(fromOffset,  length);
+        byte[] buffer = tableRead.getBuffer(fromOffset, length);
 
         int numberOfEntries = 0;
 
@@ -114,7 +124,7 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
         int numberOfOctetsRead = 0;
         byte[] bytesRead = new byte[numberOfOctets];
 
-        for (int i = 0 ; i < timeToRead; i++) {
+        for (int i = 0; i < timeToRead; i++) {
             if (numberOfOctetsRead + OCTESTS < numberOfOctets) {
                 try {
                     byte[] buffer = ignoreFirst2Bytes(tableRead.getBuffer(numberOfOctetsRead, OCTESTS));
@@ -191,12 +201,16 @@ public class AcudLogBookFactory implements DeviceLogBookSupport {
         }
     }
 
-    private boolean isSupportedDLMS(LogBookReader logBookReader) {
-        for (ObisCode supportedLogBook : supportedLogBooks) {
+    protected boolean isSupportedDLMS(LogBookReader logBookReader) {
+        for (ObisCode supportedLogBook : getSupportedLogBooks()) {
             if (supportedLogBook.equalsIgnoreBChannel(logBookReader.getLogBookObisCode())) {
                 return true;
             }
         }
         return false;
+    }
+
+    protected List<ObisCode> getSupportedLogBooks() {
+        return Arrays.asList(supportedLogBooks);
     }
 }
