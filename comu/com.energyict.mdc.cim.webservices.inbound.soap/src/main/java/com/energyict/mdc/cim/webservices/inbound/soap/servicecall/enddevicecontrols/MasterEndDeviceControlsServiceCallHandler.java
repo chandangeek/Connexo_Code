@@ -110,11 +110,21 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                 EndDeviceControlsDomainExtension childExtension = childSC.getExtension(EndDeviceControlsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-                if (childExtension.getError() != null) {
-                    errorTypes.add(replyTypeFactory.errorType(childExtension.getError(), MessageSeeds.END_DEVICE_ERROR.getErrorCode(), MessageSeeds.END_DEVICE_ERROR.getErrorTypeLevel()));
-                } else {
-                    Optional<Device> device = (Optional<Device>) childSC.getTargetObject();
+                Optional<Device> device = (Optional<Device>) childSC.getTargetObject();
 
+                if (childExtension.getError() != null) {
+                    String name;
+                    String mrid;
+                    if (device.isPresent()) {
+                        name = device.get().getName();
+                        mrid = device.get().getmRID();
+                    } else {
+                        name = childExtension.getDeviceName();
+                        mrid = childExtension.getDeviceMrid();
+                    }
+                    errorTypes.add(replyTypeFactory.errorType(name, mrid, childExtension.getError(),
+                            MessageSeeds.END_DEVICE_ERROR.getErrorCode(), MessageSeeds.END_DEVICE_ERROR.getErrorTypeLevel()));
+                } else {
                     Asset asset;
                     if (device.isPresent()) {
                         asset = createAsset(device.get());

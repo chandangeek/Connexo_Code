@@ -78,11 +78,18 @@ public class ReplyTypeFactory {
                 messageSeed.getErrorTypeLevel());
     }
 
-    public ErrorType errorType(String translatedMessage, String errorCode, ErrorType.Level level) {
-        return errorType(translatedMessage,
-                errorCode,
-                null,
-                level);
+    public ErrorType errorType(String deviceName, String deviceMrid, String translatedMessage, String errorCode, ErrorType.Level level) {
+        ErrorType errorType = errorType(translatedMessage, errorCode, deviceName, level);
+        if (deviceMrid != null) {
+            ObjectType objectType = errorType.getObject();
+            if (objectType == null) {
+                objectType = new ObjectType();
+                objectType.setObjectType("EndDevice");
+                errorType.setObject(objectType);
+            }
+            objectType.setMRID(deviceMrid);
+        }
+        return errorType;
     }
 
     private ErrorType errorType(String translatedMessage, String errorCode, String meterName, ErrorType.Level level) {

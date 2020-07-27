@@ -422,7 +422,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-            throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+            throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
         }
     }
 
@@ -440,7 +440,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-            throw NoSuchElementException.statusInformationComTaskExecutionCouldNotBeLocated(thesaurus).get();
+            throw NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get();
         }
     }
 
@@ -452,7 +452,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                     .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                     .findFirst();
             if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-                throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+                throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
             }
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
             ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())

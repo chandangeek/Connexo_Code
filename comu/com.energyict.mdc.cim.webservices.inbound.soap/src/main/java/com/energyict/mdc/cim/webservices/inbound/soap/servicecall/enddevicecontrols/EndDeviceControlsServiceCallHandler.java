@@ -123,7 +123,7 @@ public class EndDeviceControlsServiceCallHandler implements ServiceCallHandler {
 
                 headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, extension.getTriggerDate());
             } catch (LocalizedException ex) {
-                failServiceCall(serviceCall, extension, MessageSeeds.END_DEVICE_ERROR, optionalDevice.get().getName(), ex.getLocalizedMessage());
+                failServiceCall(serviceCall, extension, ex.getLocalizedMessage());
                 return;
             }
 
@@ -132,7 +132,11 @@ public class EndDeviceControlsServiceCallHandler implements ServiceCallHandler {
     }
 
     private void failServiceCall(ServiceCall serviceCall, EndDeviceControlsDomainExtension extension, MessageSeeds messageSeed, Object... args) {
-        extension.setError(messageSeed.translate(thesaurus, args));
+        failServiceCall(serviceCall, extension, messageSeed.translate(thesaurus, args));
+    }
+
+    private void failServiceCall(ServiceCall serviceCall, EndDeviceControlsDomainExtension extension, String error) {
+        extension.setError(error);
         serviceCall.update(extension);
 
         serviceCall.requestTransition(DefaultState.FAILED);
