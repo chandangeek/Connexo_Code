@@ -927,14 +927,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             }
             Instant now = deviceDataModelService.clock().instant();
             Condition condition =
-                    where("connectionTask." + ConnectionTaskFields.COM_PORT.fieldName()).isNull()
-                            .and(where("connectionTask." + ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull())
+                    where("connectionTask.obsoleteDate").isNull()
                             .and(where("connectionTask." + ConnectionTaskFields.DEVICE.name()).isEqualTo(device.getId()))
                             .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
                             .and(where(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).isEqualTo(true)
                                     .or(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)))
-                            .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
-                            .and(where("connectionTask." + ConnectionTaskFields.COM_PORT_POOL.fieldName()).isEqualTo(inboundComPortPool));
+                            .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
             return deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition,
                     Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
                     Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()),
