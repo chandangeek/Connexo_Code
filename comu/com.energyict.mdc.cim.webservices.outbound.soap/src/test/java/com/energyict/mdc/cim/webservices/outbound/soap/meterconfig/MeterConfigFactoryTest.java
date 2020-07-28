@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -175,7 +176,7 @@ public class MeterConfigFactoryTest {
 
     @Test
     public void withoutMeterConfigTest() {
-        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(device, false);
+        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(device, PingResult.NOT_NEEDED, false);
         assertThat(meterConfig.getMeter().get(0).getMRID()).isEqualTo(DEVICE_MRID);
         assertThat(meterConfig.getMeter().get(0).getSerialNumber()).isEqualTo(SERIAL_NUMBER);
         assertThat(meterConfig.getMeter().get(0).getNames().get(0).getName()).isEqualTo(DEVICE_NAME);
@@ -194,7 +195,7 @@ public class MeterConfigFactoryTest {
         mockFirmware();
         mockCalendar();
         mockContactorStatus();
-        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(device, true);
+        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(device, PingResult.NOT_NEEDED, true);
         assertThat(meterConfig.getMeter().get(0).getMRID()).isEqualTo(DEVICE_MRID);
         assertThat(meterConfig.getMeter().get(0).getSerialNumber()).isEqualTo(SERIAL_NUMBER);
         assertThat(meterConfig.getMeter().get(0).getNames().get(0).getName()).isEqualTo(DEVICE_NAME);
@@ -225,7 +226,7 @@ public class MeterConfigFactoryTest {
         mockEmptyFirmware();
         mockEmptyCalendar();
         mockEmptyContactorStatus();
-        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(device, true);
+        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(device, PingResult.NOT_NEEDED,true);
         assertThat(meterConfig.getMeter().get(0).getMRID()).isEqualTo(DEVICE_MRID);
         assertThat(meterConfig.getMeter().get(0).getSerialNumber()).isEqualTo(SERIAL_NUMBER);
         assertThat(meterConfig.getMeter().get(0).getNames().get(0).getName()).isEqualTo(DEVICE_NAME);

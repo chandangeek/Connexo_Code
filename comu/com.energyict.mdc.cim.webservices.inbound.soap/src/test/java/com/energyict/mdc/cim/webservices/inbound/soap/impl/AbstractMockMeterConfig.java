@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigPingUtils;
+import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Batch;
@@ -129,6 +131,8 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected MessageContext messageContext;
     @Mock
     protected WebServiceCallOccurrence webServiceCallOccurrence;
+    @Mock
+    protected MeterConfigPingUtils meterConfigPingUtils;
 
     protected void mockDeviceType() {
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
@@ -191,14 +195,14 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(meterConfig.getMeter()).thenReturn(Arrays.asList(createDefaultMeter()));
         when(meterConfig.getSimpleEndDeviceFunction()).thenReturn(Arrays.asList(createDefaultEndDeviceFunction()));
         when(meterConfigFactory.asMeterConfig(any(Device.class))).thenReturn(meterConfig);
-        when(meterConfigFactory.asGetMeterConfig(any(Device.class), eq(false))).thenReturn(meterConfig);
+        when(meterConfigFactory.asGetMeterConfig(any(Device.class), any(PingResult.class), eq(false))).thenReturn(meterConfig);
     }
 
     protected void mockMeterConfigFactoryWithCas() {
         when(meterConfig.getMeter()).thenReturn(Arrays.asList(createMeterWithCas()));
         when(meterConfig.getSimpleEndDeviceFunction()).thenReturn(Arrays.asList(createDefaultEndDeviceFunction()));
         when(meterConfigFactory.asMeterConfig(any(Device.class))).thenReturn(meterConfig);
-        when(meterConfigFactory.asGetMeterConfig(any(Device.class), eq(false))).thenReturn(meterConfig);
+        when(meterConfigFactory.asGetMeterConfig(any(Device.class), any(PingResult.class), eq(false))).thenReturn(meterConfig);
     }
 
     private void mockLifeCycleDates() {
@@ -252,6 +256,19 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         meter.setEndDeviceInfo(endDeviceInfo);
         meter.setStatus(createStatus());
         meter.setMeterStatus(createMeterStatus());
+        return meter;
+    }
+
+    protected Meter createMeterWithPing(PingResult pingResult) {
+        Meter meter = createMeter();
+        meter.setMRID(DEVICE_MRID);
+        meter.setLotNumber(BATCH);
+        meter.setSerialNumber(SERIAL_NUMBER);
+        meter.getMeterMultipliers().add(createMeterMultiplier(MULTIPLIER));
+        EndDeviceInfo endDeviceInfo = createEndDeviceInfo(MODEL_NUMBER, MODEL_VERSION, MANUFACTURER);
+        meter.setEndDeviceInfo(endDeviceInfo);
+        meter.setStatus(createStatus());
+        meter.setPingResult(pingResult.getName());
         return meter;
     }
 

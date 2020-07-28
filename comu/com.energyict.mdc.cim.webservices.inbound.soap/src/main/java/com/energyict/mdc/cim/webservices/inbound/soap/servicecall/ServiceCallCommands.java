@@ -120,8 +120,10 @@ public class ServiceCallCommands {
                 .getName()),
         COMTASK_EXECUTION_GET_METER_READINGS(ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ComTaskExecutionServiceCallHandler.VERSION, ComTaskExecutionServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet.class
                 .getName()),
-        MASTER_DATA_LINKAGE_CONFIG(MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigMasterServiceCallHandler.VERSION, MasterDataLinkageConfigMasterServiceCallHandler.APPLICATION, MasterDataLinkageConfigMasterCustomPropertySet.class.getName()),
-        DATA_LINKAGE_CONFIG(MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigServiceCallHandler.VERSION, MasterDataLinkageConfigServiceCallHandler.APPLICATION, MasterDataLinkageConfigCustomPropertySet.class.getName());
+        MASTER_DATA_LINKAGE_CONFIG(MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigMasterServiceCallHandler.VERSION, MasterDataLinkageConfigMasterServiceCallHandler.APPLICATION, MasterDataLinkageConfigMasterCustomPropertySet.class
+                .getName()),
+        DATA_LINKAGE_CONFIG(MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigServiceCallHandler.VERSION, MasterDataLinkageConfigServiceCallHandler.APPLICATION, MasterDataLinkageConfigCustomPropertySet.class
+                .getName());
 
 
         private final String typeName;
@@ -197,6 +199,7 @@ public class ServiceCallCommands {
         meterConfigMasterDomainExtension.setCorrelationId(correlationId);
         setCallBackUrl(meterConfigMasterDomainExtension, outboundEndPointConfiguration);
         meterConfigMasterDomainExtension.setMeterStatusSource(meterConfig.getMeterStatusSource());
+        meterConfigMasterDomainExtension.setPing(meterConfig.getPing() != null && meterConfig.getPing().equalsIgnoreCase("yes"));
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")
@@ -528,7 +531,7 @@ public class ServiceCallCommands {
                 }
                 Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
                 loadProfiles.forEach(loadProfile -> {
-                    if (loadProfile.getLastReading() == null || start.isBefore(loadProfile.getLastReading().toInstant()))  {
+                    if (loadProfile.getLastReading() == null || start.isBefore(loadProfile.getLastReading().toInstant())) {
                         device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update();
                     }
                     ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,

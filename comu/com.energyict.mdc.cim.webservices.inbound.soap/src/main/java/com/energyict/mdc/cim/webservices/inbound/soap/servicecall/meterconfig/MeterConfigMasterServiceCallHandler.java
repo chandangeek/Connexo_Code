@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -20,7 +21,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -144,24 +147,23 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
             OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
             boolean meterStatusRequired = !Strings.isNullOrEmpty(extensionFor.getMeterStatusSource());
             replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
-                    getSuccessfullyProcessedDevices(serviceCall), getFailedMeterOperations(serviceCall, false),
-                    getFailedMeterOperations(serviceCall, true), extensionFor.getExpectedNumberOfCalls(), meterStatusRequired, extensionFor.getCorrelationId());
+                    getSuccessfullyProcessedDevices(serviceCall),
+                    getFailedMeterOperations(serviceCall, false), getFailedMeterOperations(serviceCall, true),
+                    extensionFor.getExpectedNumberOfCalls(), meterStatusRequired, extensionFor.getCorrelationId());
         }
     }
 
-    private List<Device> getSuccessfullyProcessedDevices(ServiceCall serviceCall) {
-        List<Device> devices = new ArrayList<>();
+    private Map<Device, PingResult> getSuccessfullyProcessedDevices(ServiceCall serviceCall) {
+        Map<Device, PingResult> map = new HashMap<>();
         serviceCall.findChildren()
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .forEach(child -> {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
                     Optional<Device> device = findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
-                    if (device.isPresent()) {
-                        devices.add(device.get());
-                    }
+                    device.ifPresent(value -> map.put(value, PingResult.valueFor(extensionFor.getPingResult())));
                 });
-        return devices;
+        return map;
     }
 
     private List<FailedMeterOperation> getFailedMeterOperations(ServiceCall serviceCall, boolean warning) {
