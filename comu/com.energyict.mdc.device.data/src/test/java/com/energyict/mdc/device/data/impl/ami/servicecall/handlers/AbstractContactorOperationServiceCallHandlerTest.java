@@ -215,12 +215,13 @@ public class AbstractContactorOperationServiceCallHandlerTest {
         verify(serviceCall).update(domainExtensionArgumentCaptor.capture());
         assertEquals(CommandOperationStatus.READ_STATUS_INFORMATION, domainExtensionArgumentCaptor.getValue().getCommandOperationStatus());
 
-        verify(comTaskExecution).scheduleNow();
+        verify(comTaskExecution).addNewComTaskExecutionTrigger(any());
+        verify(comTaskExecution).updateNextExecutionTimestamp();
         verify(serviceCall).requestTransition(DefaultState.WAITING);
     }
 
     @Test
-    @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information couldn't be located.")
+    @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information can't be located or is inactive.")
     public void testStateChangeFromWaitingToOngoingStatusInformationComTaskEnablementNotFound() throws Exception {
         AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();

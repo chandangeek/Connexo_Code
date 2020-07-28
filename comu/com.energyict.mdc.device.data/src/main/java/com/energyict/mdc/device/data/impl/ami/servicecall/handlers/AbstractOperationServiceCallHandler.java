@@ -38,8 +38,6 @@ import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReaso
  */
 public abstract class AbstractOperationServiceCallHandler implements ServiceCallHandler {
 
-    private static final String DEVICE_MSG_DELIMITER = ", ";
-
     private volatile MessageService messageService;
     private volatile Thesaurus thesaurus;
     private volatile CompletionOptionsCallBack completionOptionsCallBack;
@@ -145,10 +143,10 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
         Device device = (Device) serviceCall.getTargetObject().get();
         List<DeviceMessage> interruptCandidates = device.getMessagesByState(DeviceMessageStatus.PENDING);
         interruptCandidates.addAll(device.getMessagesByState(DeviceMessageStatus.WAITING));
-        List<String> deviceMsgIds = Arrays.asList(domainExtension.getDeviceMessages().substring(1, domainExtension.getDeviceMessages().length() - 1).split(DEVICE_MSG_DELIMITER));
+        List<Long> deviceMsgIds = domainExtension.getDeviceMessageIds();
         serviceCall.log(LogLevel.WARNING, MessageFormat.format("Revoking device messages with ids {0}", Arrays.toString(deviceMsgIds.toArray())));
         interruptCandidates.stream()
-                .filter(msg -> deviceMsgIds.contains(Long.toString(msg.getId())))
+                .filter(msg -> deviceMsgIds.contains(msg.getId()))
                 .filter(msg -> msg.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED))
                 .forEach(msg -> {
                     tryToRevokeDeviceMessage(msg, serviceCall);

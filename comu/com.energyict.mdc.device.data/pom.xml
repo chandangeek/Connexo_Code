@@ -243,6 +243,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>soap.whiteboard.cxf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocolcommon</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -338,12 +343,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>dlms</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>protocolcommon</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -10,12 +10,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InstallerV1;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
 
 import javax.inject.Inject;
-import java.sql.Statement;
 import java.text.MessageFormat;
 
 import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes.DATA_LINKAGE_CONFIG;
@@ -26,17 +26,21 @@ public class UpgraderV10_9 implements Upgrader {
     private final DataModel dataModel;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
+    private final InstallerV1 installer;
 
     @Inject
-    UpgraderV10_9(DataModel dataModel, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    UpgraderV10_9(DataModel dataModel, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
+            InstallerV1 installer) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
+        this.installer = installer;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         updateOldMasterDataLinkageConfigServiceCalls();
+        installer.createServiceCallTypes();
     }
 
     private void updateOldMasterDataLinkageConfigServiceCalls() {

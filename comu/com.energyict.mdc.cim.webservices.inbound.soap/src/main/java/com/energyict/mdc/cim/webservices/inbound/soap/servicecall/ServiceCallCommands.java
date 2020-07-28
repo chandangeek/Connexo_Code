@@ -4,10 +4,23 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
+import ch.iec.tc57._2011.getmeterreadings.Reading;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -17,11 +30,17 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.EndDeviceControlMessage;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.CIMWebservicesException;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.EndDeviceControlsRequestMessage;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.EndDeviceMessage;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.HeadEndController;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
@@ -31,6 +50,16 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReading
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ReadingSourceEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.SyncReplyIssue;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.CancellationReason;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.MasterEndDeviceControlsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.MasterEndDeviceControlsPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.MasterEndDeviceControlsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.SubMasterEndDeviceControlsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.SubMasterEndDeviceControlsPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.SubMasterEndDeviceControlsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsServiceCallHandler;
@@ -66,32 +95,33 @@ import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.ICommandServiceCallDomainExtension;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
-import ch.iec.tc57._2011.getmeterreadings.Reading;
 import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
-import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,8 +129,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import java.util.List;
-import java.util.Set;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class ServiceCallCommands {
 
@@ -120,9 +149,16 @@ public class ServiceCallCommands {
                 .getName()),
         COMTASK_EXECUTION_GET_METER_READINGS(ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ComTaskExecutionServiceCallHandler.VERSION, ComTaskExecutionServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet.class
                 .getName()),
-        MASTER_DATA_LINKAGE_CONFIG(MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigMasterServiceCallHandler.VERSION, MasterDataLinkageConfigMasterServiceCallHandler.APPLICATION, MasterDataLinkageConfigMasterCustomPropertySet.class.getName()),
-        DATA_LINKAGE_CONFIG(MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigServiceCallHandler.VERSION, MasterDataLinkageConfigServiceCallHandler.APPLICATION, MasterDataLinkageConfigCustomPropertySet.class.getName());
-
+        MASTER_END_DEVICE_CONTROLS(MasterEndDeviceControlsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterEndDeviceControlsServiceCallHandler.VERSION,
+                MasterEndDeviceControlsServiceCallHandler.APPLICATION, MasterEndDeviceControlsPropertySet.class.getName()),
+        SUB_MASTER_END_DEVICE_CONTROLS(SubMasterEndDeviceControlsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, SubMasterEndDeviceControlsServiceCallHandler.VERSION,
+                SubMasterEndDeviceControlsServiceCallHandler.APPLICATION, SubMasterEndDeviceControlsPropertySet.class.getName()),
+        END_DEVICE_CONTROLS(EndDeviceControlsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, EndDeviceControlsServiceCallHandler.VERSION,
+                EndDeviceControlsServiceCallHandler.APPLICATION, EndDeviceControlsPropertySet.class.getName()),
+        MASTER_DATA_LINKAGE_CONFIG(MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigMasterServiceCallHandler.VERSION, MasterDataLinkageConfigMasterServiceCallHandler.APPLICATION, MasterDataLinkageConfigMasterCustomPropertySet.class
+                .getName()),
+        DATA_LINKAGE_CONFIG(MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigServiceCallHandler.VERSION, MasterDataLinkageConfigServiceCallHandler.APPLICATION, MasterDataLinkageConfigCustomPropertySet.class
+                .getName());
 
         private final String typeName;
         private final String typeVersion;
@@ -165,13 +201,25 @@ public class ServiceCallCommands {
     private final Clock clock;
     private final MasterDataService masterDataService;
     private final CommunicationTaskService communicationTaskService;
+    private final MeteringService meteringService;
+    private final ReplyTypeFactory replyTypeFactory;
+    private final HeadEndController headEndController;
+    private final OrmService ormService;
+    private final DeviceMessageService deviceMessageService;
+    private final InboundSoapEndpointsActivator inboundSoapEndpointsActivator;
+    private final MultiSenseHeadEndInterface multiSenseHeadEndInterface;
+
+    private Map<ServiceCallTypes, ServiceCallType> serviceCallTypes = new HashMap<>();
 
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
                                MeterConfigParser meterConfigParser, MeterConfigFaultMessageFactory meterConfigFaultMessageFactory,
                                ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
                                Thesaurus thesaurus, MeterReadingFaultMessageFactory faultMessageFactory, Clock clock,
-                               MasterDataService masterDataService, CommunicationTaskService communicationTaskService) {
+                               MasterDataService masterDataService, CommunicationTaskService communicationTaskService,
+                               MeteringService meteringService, ReplyTypeFactory replyTypeFactory,
+                               HeadEndController headEndController, OrmService ormService, DeviceMessageService deviceMessageService,
+                               InboundSoapEndpointsActivator inboundSoapEndpointsActivator, MultiSenseHeadEndInterface multiSenseHeadEndInterface) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -183,6 +231,13 @@ public class ServiceCallCommands {
         this.clock = clock;
         this.masterDataService = masterDataService;
         this.communicationTaskService = communicationTaskService;
+        this.meteringService = meteringService;
+        this.replyTypeFactory = replyTypeFactory;
+        this.headEndController = headEndController;
+        this.ormService = ormService;
+        this.deviceMessageService = deviceMessageService;
+        this.inboundSoapEndpointsActivator = inboundSoapEndpointsActivator;
+        this.multiSenseHeadEndInterface = multiSenseHeadEndInterface;
     }
 
     @TransactionRequired
@@ -275,10 +330,10 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(newState);
     }
 
-    private ServiceCallType getServiceCallType(ServiceCallTypes serviceCallType) {
-        return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
+    private ServiceCallType getServiceCallType(ServiceCallTypes serviceCallTypeEnum) {
+        return serviceCallTypes.computeIfAbsent(serviceCallTypeEnum, serviceCallType -> serviceCallService.findServiceCallType(serviceCallTypeEnum.getTypeName(), serviceCallTypeEnum.getTypeVersion())
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
-                        .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
+                        .format(serviceCallTypeEnum.getTypeName(), serviceCallTypeEnum.getTypeVersion()))));
     }
 
     private Device findDevice(MeterInfo meterInfo) throws FaultMessage {
@@ -527,7 +582,7 @@ public class ServiceCallCommands {
                 }
                 Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
                 loadProfiles.forEach(loadProfile -> {
-                    if (loadProfile.getLastReading() == null || start.isBefore(loadProfile.getLastReading().toInstant()))  {
+                    if (loadProfile.getLastReading() == null || start.isBefore(loadProfile.getLastReading().toInstant())) {
                         device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update();
                     }
                     ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
@@ -677,6 +732,259 @@ public class ServiceCallCommands {
                 .create();
     }
 
+    @TransactionRequired
+    public boolean createMasterEndDeviceControlsServiceCall(EndDeviceControlsRequestMessage edcRequestMessage, List<ErrorType> errorTypes) {
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_END_DEVICE_CONTROLS);
+        MasterEndDeviceControlsDomainExtension masterDomainExtension = new MasterEndDeviceControlsDomainExtension();
+
+        masterDomainExtension.setCallbackUrl(edcRequestMessage.getReplyAddress());
+        masterDomainExtension.setCorrelationId(edcRequestMessage.getCorrelationId());
+        masterDomainExtension.setMaxExecTime(edcRequestMessage.getMaxExecTime() != null ? edcRequestMessage.getMaxExecTime()
+                : inboundSoapEndpointsActivator.getEndDeviceControlsTimeout());
+
+        ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
+                .origin("MultiSense")
+                .extendedWith(masterDomainExtension);
+
+        ServiceCall parentServiceCall = serviceCallBuilder.create();
+
+        List<EndDeviceControlMessage> endDeviceControlMessages = edcRequestMessage.getEndDeviceControlMessages();
+        for (int i = 0; i < endDeviceControlMessages.size(); ++i) {
+            createSubMasterEndDeviceControlsServiceCall(parentServiceCall, endDeviceControlMessages.get(i), errorTypes, i);
+        }
+
+        if (parentServiceCall.findChildren().stream().noneMatch(child -> child.getState().isOpen())) {
+            parentServiceCall.requestTransition(DefaultState.REJECTED);
+            parentServiceCall.log(LogLevel.SEVERE, "No open child service calls have been created.");
+            return false;
+        } else {
+            parentServiceCall.requestTransition(DefaultState.PENDING);
+            return true;
+        }
+    }
+
+    private void createSubMasterEndDeviceControlsServiceCall(ServiceCall parentServiceCall, EndDeviceControlMessage endDeviceControlMessage,
+                                                             List<ErrorType> errorTypes, int endDeviceControlIndex) {
+        try {
+            headEndController.checkOperation(endDeviceControlMessage.getCommandCode(), endDeviceControlMessage.getAttributes());
+        } catch (LocalizedException e) {
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_CONTROL_ERROR, null, endDeviceControlIndex, e.getLocalizedMessage()));
+            return;
+        }
+
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.SUB_MASTER_END_DEVICE_CONTROLS);
+        SubMasterEndDeviceControlsDomainExtension subParentDomainExtension = new SubMasterEndDeviceControlsDomainExtension();
+
+        subParentDomainExtension.setCommandCode(endDeviceControlMessage.getCommandCode());
+        String commandAttributes = endDeviceControlMessage.getAttributes().stream()
+                .map(m -> String.join("=", m.getName(), m.getValue()))
+                .collect(Collectors.joining(";"));
+
+        subParentDomainExtension.setCommandAttributes(commandAttributes);
+
+        ServiceCall subParentServiceCall = parentServiceCall.newChildCall(serviceCallType).extendedWith(subParentDomainExtension)
+                .create();
+
+        List<EndDeviceMessage> endDeviceMessages = endDeviceControlMessage.getEndDeviceMessages();
+        for (EndDeviceMessage endDeviceMessage : endDeviceMessages) {
+            createChildEndDeviceControlsServiceCall(subParentServiceCall, endDeviceMessage);
+        }
+
+        if (subParentServiceCall.findChildren().stream().noneMatch(child -> child.getState().isOpen())) {
+            subParentServiceCall.requestTransition(DefaultState.REJECTED);
+            subParentServiceCall.log(LogLevel.SEVERE, "No open child service calls have been created.");
+        }
+    }
+
+    private void createChildEndDeviceControlsServiceCall(ServiceCall subParentServiceCall, EndDeviceMessage endDeviceMessage) {
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.END_DEVICE_CONTROLS);
+
+        EndDeviceControlsDomainExtension domainExtension = new EndDeviceControlsDomainExtension();
+        domainExtension.setDeviceMrid(endDeviceMessage.getDeviceMrid());
+        domainExtension.setDeviceName(endDeviceMessage.getDeviceName());
+        domainExtension.setTriggerDate(endDeviceMessage.getReleaseDate());
+
+        subParentServiceCall.newChildCall(serviceCallType)
+                .extendedWith(domainExtension)
+                .create();
+    }
+
+
+    @TransactionRequired
+    public boolean cancelOrChangeMasterEndDeviceControlsServiceCall(EndDeviceControlsRequestMessage edcRequestMessage, List<ErrorType> errorTypes, boolean isCancel) {
+        boolean isAnyProcessed = false;
+        Optional<MasterEndDeviceControlsDomainExtension> extension = getMasterEDCExtension(edcRequestMessage.getCorrelationId());
+        if (extension.isPresent()) {
+            ServiceCall serviceCall = extension.get().getServiceCall();
+            List<SubMasterEndDeviceControlsDomainExtension> listOfSubExtensions = serviceCall.findChildren()
+                    .stream()
+                    .map(subSC -> subSC.getExtension(SubMasterEndDeviceControlsDomainExtension.class)
+                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call")))
+                    .collect(Collectors.toList());
+            List<EndDeviceControlMessage> endDeviceControlMessages = edcRequestMessage.getEndDeviceControlMessages();
+
+            for (int i = 0; i < endDeviceControlMessages.size(); ++i) {
+                EndDeviceControlMessage endDeviceControlMessage = endDeviceControlMessages.get(i);
+                Optional<SubMasterEndDeviceControlsDomainExtension> subExtension = listOfSubExtensions.stream()
+                        .filter(s -> s.getCommandCode().equals(endDeviceControlMessage.getCommandCode()))
+                        .findFirst();
+
+                if (subExtension.isPresent()) {
+                    if (cancelOrChangeSubMasterEndDeviceControlsServiceCall(subExtension.get().getServiceCall(), endDeviceControlMessage, errorTypes, i, isCancel)) {
+                        isAnyProcessed = true;
+                    }
+                } else {
+                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_CONTROL_ERROR, null, i,
+                            MessageSeeds.NO_SERVICE_CALL_WITH_CIM.translate(thesaurus, endDeviceControlMessage.getCommandCode())));
+                }
+            }
+        } else {
+            throw CIMWebservicesException.noRequestWithCorrelationId(thesaurus, edcRequestMessage.getCorrelationId());
+        }
+        return isAnyProcessed;
+    }
+
+    private boolean cancelOrChangeSubMasterEndDeviceControlsServiceCall(ServiceCall serviceCall, EndDeviceControlMessage endDeviceControlMessage,
+                                                                        List<ErrorType> errorTypes, int endDeviceControlIndex, boolean isCancel) {
+        boolean isAnyProcessed = false;
+        List<EndDeviceControlsDomainExtension> listOfExtensions = serviceCall.findChildren().stream()
+                .map(endDeviceSC -> endDeviceSC.getExtension(EndDeviceControlsDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call")))
+                .collect(Collectors.toList());
+
+        List<EndDeviceMessage> endDeviceMessages = endDeviceControlMessage.getEndDeviceMessages();
+        for (int i = 0; i < endDeviceMessages.size(); ++i) {
+            EndDeviceMessage endDeviceMessage = endDeviceMessages.get(i);
+            Optional<EndDeviceControlsDomainExtension> extension = listOfExtensions.stream()
+                    .filter(s -> {
+                        if (endDeviceMessage.getDeviceMrid() != null) {
+                            return endDeviceMessage.getDeviceMrid().equals(s.getDeviceMrid());
+                        } else {
+                            return endDeviceMessage.getDeviceName().equals(s.getDeviceName());
+                        }
+                    })
+                    .findFirst();
+
+            if (extension.isPresent()) {
+                if (cancelOrChangeChildEndDeviceControlsServiceCall(extension.get(), endDeviceMessage, errorTypes, endDeviceControlIndex, i, isCancel)) {
+                    isAnyProcessed = true;
+                }
+            } else {
+                if (endDeviceMessage.getDeviceMrid() != null) {
+                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
+                            MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_MRID.translate(thesaurus, endDeviceMessage.getDeviceMrid())));
+                } else {
+                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
+                            MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_NAME.translate(thesaurus, endDeviceMessage.getDeviceName())));
+                }
+            }
+        }
+        return isAnyProcessed;
+    }
+
+    private boolean cancelOrChangeChildEndDeviceControlsServiceCall(EndDeviceControlsDomainExtension extension, EndDeviceMessage endDeviceMessage, List<ErrorType> errorTypes,
+                                                                    int endDeviceControlIndex, int endDeviceIndex, boolean isCancel) {
+        boolean isProcessed = false;
+        ServiceCall serviceCall = extension.getServiceCall();
+        if (serviceCall.getState().isOpen() && extension.getTriggerDate().isAfter(clock.instant())) {
+            serviceCall = lock(serviceCall);
+            if (serviceCall.getState().isOpen() && extension.getTriggerDate().isAfter(clock.instant())) {
+                if (isCancel) {
+                    cancelEndDeviceControlsServiceCall(serviceCall, extension);
+                    isProcessed = true;
+                } else {
+                    try {
+                        if (changeReleaseDateEndDeviceControlsServiceCall(serviceCall, extension, endDeviceMessage.getReleaseDate())) {
+                            isProcessed = true;
+                        }
+                    } catch (VerboseConstraintViolationException ex) {
+                        String errorMessage = ex.getConstraintViolations()
+                                .stream().map(ConstraintViolation::getMessage)
+                                .collect(Collectors.joining("; "));
+                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, endDeviceIndex,
+                                errorMessage));
+                    } catch (Exception e) {
+                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, endDeviceIndex,
+                                e.getLocalizedMessage()));
+                    }
+                }
+            } else {
+                errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, endDeviceIndex,
+                        MessageSeeds.END_DEVICE_CONTROL_ALREADY_PROCESSED.translate(thesaurus)));
+            }
+        } else {
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, endDeviceIndex,
+                    MessageSeeds.END_DEVICE_CONTROL_ALREADY_PROCESSED.translate(thesaurus)));
+        }
+        return isProcessed;
+    }
+
+    private boolean changeReleaseDateEndDeviceControlsServiceCall(ServiceCall serviceCall, EndDeviceControlsDomainExtension extension, Instant newReleaseDate) {
+        boolean isProcessed = false;
+        List<ServiceCall> headEndSCList = serviceCall.findChildren().paged(0, 0).find();
+
+        if (!headEndSCList.isEmpty()) {
+            ServiceCall headEndSC = headEndSCList.get(0);
+            ICommandServiceCallDomainExtension headEndExtension = multiSenseHeadEndInterface.getCommandServiceCallDomainExtension(headEndSC)
+                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+            if (headEndSC.getState().isOpen() && headEndExtension.getReleaseDate().isAfter(clock.instant())) {
+                headEndSC = lock(headEndSC);
+                if (headEndSC.getState().isOpen() && headEndExtension.getReleaseDate().isAfter(clock.instant())) {
+                    Device device = (Device) headEndSC.getTargetObject().get();
+                    deviceService.findAndLockDeviceById(device.getId())
+                            .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, device.getId()));
+                    List<Long> deviceMsgIds = headEndExtension.getDeviceMessageIds();
+                    int idx = 0;
+                    Instant date = newReleaseDate.isBefore(clock.instant()) ? clock.instant() : newReleaseDate;
+                    List<DeviceMessage> deviceMessages = new ArrayList<>();
+                    for (Long deviceMessageId : deviceMsgIds) {
+                        DeviceMessage deviceMessage = deviceMessageService.findAndLockDeviceMessageById(deviceMessageId)
+                                .orElseThrow(NoSuchElementException.deviceMessageWithIdNotFound(thesaurus, deviceMessageId));
+                        deviceMessage.setReleaseDate(date.plusMillis(idx++)); // Add milliseconds to release date in order to ensure the order the device messages are executed is guaranteed
+                        deviceMessage.save();
+                        deviceMessages.add(deviceMessage);
+                    }
+                    headEndController.scheduleDeviceCommandsComTask(device, deviceMessages);
+
+                    headEndExtension.setReleaseDate(date);
+                    headEndSC.update(headEndExtension);
+                    headEndSC.log(LogLevel.INFO, "Changed release date to " + DefaultDateTimeFormatters.shortDate().withShortTime().build()
+                            .format(date.atZone(ZoneId.systemDefault())));
+                    extension.setTriggerDate(newReleaseDate);
+                    serviceCall.update(extension);
+                    serviceCall.log(LogLevel.INFO, "Changed trigger date to " + DefaultDateTimeFormatters.shortDate().withShortTime().build()
+                            .format(newReleaseDate.atZone(ZoneId.systemDefault())));
+                    isProcessed = true;
+                }
+            }
+        } else {
+            extension.setTriggerDate(newReleaseDate);
+            serviceCall.update(extension);
+            serviceCall.log(LogLevel.INFO, "Changed trigger date to " + LocalDateTime.ofInstant(newReleaseDate, ZoneId.systemDefault()));
+            isProcessed = true;
+        }
+        return isProcessed;
+    }
+
+    private void cancelEndDeviceControlsServiceCall(ServiceCall serviceCall, EndDeviceControlsDomainExtension extension) {
+        extension.setCancellationReason(CancellationReason.CANCEL_END_DEVICE_CONTROLS);
+        serviceCall.update(extension);
+        if (serviceCall.getState().equals(DefaultState.CREATED)) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+        }
+        serviceCall.requestTransition(DefaultState.CANCELLED);
+    }
+
+    private Optional<MasterEndDeviceControlsDomainExtension> getMasterEDCExtension(String correlationId) {
+        return ormService.getDataModel(MasterEndDeviceControlsPropertySet.MODEL_NAME)
+                .orElseThrow(() -> new IllegalStateException("Data model " + MasterEndDeviceControlsPropertySet.MODEL_NAME + " isn't found."))
+                .stream(MasterEndDeviceControlsDomainExtension.class)
+                .join(ServiceCall.class)
+                .filter(where(MasterEndDeviceControlsDomainExtension.FieldNames.CORRELATION_ID.javaName()).isEqualTo(correlationId))
+                .max("createTime");
+    }
+
     private Device findDeviceForEndDevice(com.elster.jupiter.metering.Meter meter) {
         long deviceId = Long.parseLong(meter.getAmrId());
         return deviceService.findAndLockDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
@@ -805,5 +1113,10 @@ public class ServiceCallCommands {
                     scheduleStrategy).get();
         }
         return strategy;
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 }

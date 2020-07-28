@@ -61,10 +61,12 @@ public class CompletionOptionsCallBackImpl implements CompletionOptionsCallBack 
 
     public void sendFinishedMessageToDestinationSpec(ServiceCall serviceCall, CompletionMessageInfo.CompletionMessageStatus completionMessageStatus, CompletionMessageInfo.FailureReason failureReason) {
         CompletionOptionsServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CompletionOptionsCustomPropertySet()).get();
-        CompletionMessageInfo completionMessageInfo = new CompletionMessageInfo(domainExtension.getDestinationIdentification())
-                .setCompletionMessageStatus(completionMessageStatus)
-                .setFailureReason(failureReason);
-        doSendMessageToDestinationSpec(serviceCall, domainExtension.getDestinationSpec(), completionMessageInfo);
+        if (domainExtension.getDestinationSpec() != null) {
+            CompletionMessageInfo completionMessageInfo = new CompletionMessageInfo(domainExtension.getDestinationIdentification())
+                    .setCompletionMessageStatus(completionMessageStatus)
+                    .setFailureReason(failureReason);
+            doSendMessageToDestinationSpec(serviceCall, domainExtension.getDestinationSpec(), completionMessageInfo);
+        }
     }
 
     private void doSendMessageToDestinationSpec(ServiceCall serviceCall, String destinationSpecName, CompletionMessageInfo completionMessageInfo) {

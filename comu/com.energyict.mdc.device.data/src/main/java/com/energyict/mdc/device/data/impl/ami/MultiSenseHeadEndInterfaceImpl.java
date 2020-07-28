@@ -43,6 +43,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.MultiSenseEndDeviceCommand;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
+import com.energyict.mdc.device.data.ami.ICommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -421,7 +422,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-            throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+            throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
         }
     }
 
@@ -439,7 +440,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-            throw NoSuchElementException.statusInformationComTaskExecutionCouldNotBeLocated(thesaurus).get();
+            throw NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get();
         }
     }
 
@@ -451,7 +452,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                     .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                     .findFirst();
             if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-                throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+                throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
             }
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
             ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
@@ -539,6 +540,16 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         serviceCall.requestTransition(DefaultState.ONGOING);
         comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
         return new CompletionOptionsImpl(serviceCall);
+    }
+
+    @Override
+    public void scheduleRequiredComTasks(Device device, List<DeviceMessage> deviceMessages) {
+        scheduleDeviceCommandsComTaskEnablement(device, deviceMessages);
+    }
+
+    @Override
+    public Optional<? extends ICommandServiceCallDomainExtension> getCommandServiceCallDomainExtension(ServiceCall serviceCall) {
+        return serviceCall.getExtension(CommandServiceCallDomainExtension.class);
     }
 
     private ServiceCall getCommunicationTestServiceCall(Device device, int estimatedTasks, Instant triggerDate, Optional<ServiceCall> parentServiceCall) {
