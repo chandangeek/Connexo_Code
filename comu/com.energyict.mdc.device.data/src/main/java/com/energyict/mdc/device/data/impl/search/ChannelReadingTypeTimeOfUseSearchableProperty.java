@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 public class ChannelReadingTypeTimeOfUseSearchableProperty extends AbstractReadingTypeTimeOfUseSearchableProperty<ChannelReadingTypeTimeOfUseSearchableProperty> {
 
-    static final String PROPERTY_NAME = "device.channel.reading.type.tou";
+    static final String PROPERTY_NAME = "device.channel.register.type.tou";
 
     @Inject
     public ChannelReadingTypeTimeOfUseSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {

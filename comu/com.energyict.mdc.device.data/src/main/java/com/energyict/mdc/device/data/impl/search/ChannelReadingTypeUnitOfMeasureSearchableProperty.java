@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 public class ChannelReadingTypeUnitOfMeasureSearchableProperty extends AbstractReadingTypeUnitOfMeasureSearchableProperty<ChannelReadingTypeUnitOfMeasureSearchableProperty> {
 
-    static final String PROPERTY_NAME = "device.channel.reading.type.unit";
+    static final String PROPERTY_NAME = "device.channel.register.type.unit";
 
     @Inject
     public ChannelReadingTypeUnitOfMeasureSearchableProperty(MeteringService meteringService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
