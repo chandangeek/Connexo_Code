@@ -221,7 +221,7 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     }
 
     @Test
-    @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information couldn't be located or is inactive.")
+    @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information can't be located or is inactive.")
     public void testStateChangeFromWaitingToOngoingStatusInformationComTaskEnablementNotFound() throws Exception {
         AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
