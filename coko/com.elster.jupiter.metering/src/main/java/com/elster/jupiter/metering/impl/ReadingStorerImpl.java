@@ -236,8 +236,8 @@ class ReadingStorerImpl implements ReadingStorer {
                     .flatMap(meter -> getMeterActivation(meter, shiftedTime))
                     .map(MeterActivation::getChannelsContainer)
                     .flatMap(channelsContainer -> channelsContainer.getChannel(currentChannel.getMainReadingType()))
-                    .filter(channel -> channel instanceof ChannelContract)
-                    .map(channel -> (ChannelContract) channel);
+                    .filter(ChannelContract.class::isInstance)
+                    .map(ChannelContract.class::cast);
             if (oChannel.isPresent()) {
                 ChannelContract channel = oChannel.get();
                 deltaDerivations.computeIfAbsent(channel, ReadingStorerImpl::getDerivations);
