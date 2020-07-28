@@ -11,6 +11,9 @@ import com.energyict.mdc.common.protocol.ConnectionProperty;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 
+import com.google.common.net.InetAddresses;
+import com.google.common.net.InternetDomainName;
+
 import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -63,6 +66,8 @@ public class MeterConfigPingUtils {
                 int intPort = port.intValueExact();
                 if (intPort < 0 || intPort > 0xFFFF) {
                     errorMessage = createErrorMessage(MessageSeeds.WRONG_PORT_RANGE, port);
+                } else if (!InetAddresses.isInetAddress(host) && !InternetDomainName.isValid(host)) {
+                    errorMessage = createErrorMessage(MessageSeeds.UNKNOWN_HOST_EXCEPTION, host);
                 } else {
                     try (Socket soc = new Socket()) {
                         soc.connect(new InetSocketAddress(host, intPort), TIMEOUT);
