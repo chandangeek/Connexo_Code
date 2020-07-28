@@ -17,6 +17,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -27,6 +28,9 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -46,6 +50,7 @@ import org.mockito.stubbing.Answer;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -224,4 +229,95 @@ public class ReadingStorerImplDerivationTest {
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, BigDecimal.valueOf(3140, 0), BigDecimal.valueOf(628, 0));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(30).toInstant(), 0L, 0L, BigDecimal.valueOf(5000, 0), BigDecimal.valueOf(1000, 0));
     }
+
+    @Test
+    public void testValuesOnAEdgeOfChannelContainer() {
+
+        ChannelsContainer channelsContainerBefore = mock(ChannelsContainer.class);
+        ChannelsContainer channelsContainerAfter = mock(ChannelsContainer.class);
+
+        when(channelsContainerBefore.getInterval()).thenReturn(Interval.of(Range.range(Instant.EPOCH, BoundType.OPEN, BASE_TIME.toInstant(), BoundType.CLOSED)));
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.range(BASE_TIME.toInstant(), BoundType.OPEN, BASE_TIME.plusMinutes(15).toInstant(), BoundType.CLOSED)));
+        when(channelsContainerAfter.getInterval()).thenReturn(Interval.of(Range.range(BASE_TIME.plusMinutes(15).toInstant(), BoundType.OPEN, BASE_TIME.plusMinutes(120).toInstant(), BoundType.CLOSED)));
+
+        ChannelContract channelBefore = mock(ChannelContract.class);
+        ChannelContract channelAfter = mock(ChannelContract.class);
+
+        TimeSeries timeSeriesBefore = mock(TimeSeries.class);
+        TimeSeries timeSeriesAfter = mock(TimeSeries.class);
+
+        when(timeSeriesBefore.getRecordSpec()).thenReturn(recordSpec);
+        when(timeSeriesAfter.getRecordSpec()).thenReturn(recordSpec);
+
+        when(channelBefore.getTimeSeries()).thenReturn(timeSeriesBefore);
+        when(channelAfter.getTimeSeries()).thenReturn(timeSeriesAfter);
+
+        CimChannel cimChannelBefore = mock(CimChannel.class);
+        CimChannel cimChannelAfter = mock(CimChannel.class);
+
+        when(cimChannelBefore.getChannel()).thenReturn(channelBefore);
+        when(cimChannelAfter.getChannel()).thenReturn(channelAfter);
+
+        when(cimChannelBefore.getReadingType()).thenReturn(secondaryBulkReadingType);
+        when(cimChannelAfter.getReadingType()).thenReturn(secondaryBulkReadingType);
+
+        ChannelContract[] channels = {channelBefore, channelAfter};
+        Meter meter = mock(Meter.class);
+
+        when(meter.getConfiguration(any())).thenReturn(Optional.empty());
+
+        for (ChannelContract channelContract : channels) {
+            when(channelContract.getRecordSpecDefinition()).thenReturn(RecordSpecs.BULKQUANTITYINTERVAL);
+            when(channelContract.getReadingTypes()).thenReturn(asList(secondaryDeltaReadingType, secondaryBulkReadingType));
+            when(channelContract.getDerivationRule(secondaryDeltaReadingType)).thenReturn(DerivationRule.DELTA);
+            when(channelContract.getDerivationRule(secondaryBulkReadingType)).thenReturn(DerivationRule.MEASURED);
+            when(channelContract.isRegular()).thenReturn(true);
+
+            when(channelContract.toArray(any(), any(), any())).thenAnswer(invocation -> {
+                BaseReading reading = (BaseReading) invocation.getArguments()[0];
+                ReadingType readingType = (ReadingType) invocation.getArguments()[1];
+                boolean bulk = readingType == secondaryBulkReadingType;
+                return new Object[]{0L, 0L, bulk ? null : reading.getValue(), bulk ? reading.getValue() : null};
+            });
+            when(channelContract.toArray(any())).thenAnswer(invocation -> {
+                BaseReadingRecord reading = (BaseReadingRecord) invocation.getArguments()[0];
+                BigDecimal delta = Optional.ofNullable(reading.getQuantity(secondaryDeltaReadingType)).map(Quantity::getValue).orElse(null);
+                BigDecimal bulk = Optional.ofNullable(reading.getQuantity(secondaryBulkReadingType)).map(Quantity::getValue).orElse(null);
+                return new Object[]{0L, 0L, delta, bulk};
+            });
+            when(channelContract.getReading(any())).thenReturn(Optional.empty());
+            when(channelContract.getPreviousDateTime(any())).thenAnswer(invocation -> invocation.getArgumentAt(0, Instant.class).minusSeconds(15 * 60));
+            when(channelContract.getNextDateTime(any())).thenAnswer(invocation -> invocation.getArgumentAt(0, Instant.class).plusSeconds(15 * 60));
+        }
+
+        when(channelBefore.getChannelsContainer()).thenReturn(channelsContainerBefore);
+        when(channelAfter.getChannelsContainer()).thenReturn(channelsContainerAfter);
+
+        when(channelsContainerBefore.getMeter()).thenReturn(Optional.of(meter));
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
+        when(channelsContainerAfter.getMeter()).thenReturn(Optional.of(meter));
+
+        IMeterActivation beforeActivation  = mock(IMeterActivation.class);
+        IMeterActivation activation  = mock(IMeterActivation.class);
+        IMeterActivation afterActivation  = mock(IMeterActivation.class);
+
+        when(beforeActivation.getChannelsContainer()).thenReturn(channelsContainerBefore);
+        when(activation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(afterActivation.getChannelsContainer()).thenReturn(channelsContainerAfter);
+
+        when(meter.getMeterActivation(eq(BASE_TIME.minusMinutes(15).toInstant()))).thenAnswer(invocationOnMock -> Optional.of(beforeActivation));
+        when(meter.getMeterActivation(BASE_TIME.toInstant())).thenAnswer(invocationOnMock -> Optional.of(activation));
+        when(meter.getMeterActivation(BASE_TIME.plusMinutes(15).toInstant())).thenAnswer(invocationOnMock -> Optional.of(afterActivation));
+
+        readingStorer.addReading(cimChannelBefore, IntervalReadingImpl.of(BASE_TIME.minusMinutes(15).toInstant(), BigDecimal.valueOf(100, 1)));
+        readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(200, 1)));
+        readingStorer.addReading(cimChannelAfter, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(300, 1)));
+
+        readingStorer.execute(QualityCodeSystem.MDC);
+
+        verify(storer).add(timeSeriesBefore, BASE_TIME.minusMinutes(15).toInstant(), 0L, 0L, null, BigDecimal.valueOf(100, 1));
+        verify(storer).add(timeSeries, BASE_TIME.toInstant(), 0L, 0L, null, BigDecimal.valueOf(200, 1));
+        verify(storer).add(timeSeriesAfter, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, null, BigDecimal.valueOf(300, 1));
+    }
+
 }
