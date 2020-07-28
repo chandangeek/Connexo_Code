@@ -279,9 +279,11 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
         final ReadOnlyJWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
 
         final User user = getAssociatedUser(Long.parseLong(jwtClaimsSet.getSubject()));
-
+        // User data is required in next steps, so added user and returning immediately.
+        if(Objects.nonNull(user) && user.isRoleModified()) {
+            return new TokenValidation(false, user,  signedJWT.serialize());
+        }
         final boolean result = Objects.nonNull(user)
-                && !user.isRoleModified()
                 && verifyIfUserHasUserJWTInStorage(user, UUID.fromString(jwtClaimsSet.getJWTID()))
                 && verifyJWTSignature(signedJWT)
                 && verifyJWTIssuer(jwtClaimsSet.getIssuer())
@@ -306,8 +308,6 @@ public class DatabaseBasedTokenService implements TokenService<UserJWT> {
             // Create new token with increased counter
             final UserJWT userJWT = createUserJWT(user, createUserSpecificClaims(user, refreshCounter));
             return new TokenValidation(true, user, userJWT.getToken());
-        } else {
-            userService.removeLoggedUser(user);
         }
         return new TokenValidation(result && !isTokenExpired, user, signedJWT.serialize());
     }

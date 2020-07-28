@@ -163,6 +163,7 @@ public interface UserService {
 
     void addLoggedInUser(User user);
     void updateLoggedInUser(long id);
+    void updateUser(long id);
     void removeLoggedUser(User user);
 
     Optional<WorkGroup> getWorkGroup(long id);

@@ -32,13 +32,14 @@ public class UserInfo {
     public String lastUnSuccessfulLogin;
     public int unSuccessfulLoginCount;
     public boolean isUserLocked;
+    public Boolean isRoleModified;
     public List<GroupInfo> groups = new ArrayList<>();
 
     public UserInfo() {
     }
 
     public boolean update(User user) {
-        return updateDescription(user) | updateLocale(user) | updateStatus(user);
+        return updateDescription(user) | updateLocale(user) | updateStatus(user) | updateRoleModified(user);
     }
 
     private boolean updateLocale(User user) {
@@ -72,6 +73,14 @@ public class UserInfo {
     public boolean updateUnsuccessfullLoginCount(User user) {
         if (unSuccessfulLoginCount != user.getUnSuccessfulLoginCount()) {
             user.setUnSuccessfulLoginCount(unSuccessfulLoginCount);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean updateRoleModified(User user) {
+        if (!isRoleModified.equals(user.isRoleModified())) {
+            user.setRoleModified(isRoleModified);
             return true;
         }
         return false;

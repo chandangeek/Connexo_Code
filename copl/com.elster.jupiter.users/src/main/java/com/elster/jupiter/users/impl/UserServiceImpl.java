@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -56,6 +57,8 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -70,6 +73,9 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.KeyStore;
 import java.security.Principal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -830,6 +836,24 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             User eUser = user.get();
             eUser.setRoleModified(true);
             loggedInUsers.set(loggedInUsers.indexOf(user.get()) , eUser);
+        }
+    }
+
+    @Override
+    public void updateUser(long id) {
+        Optional<User> user= getUser(id);
+        if(user.isPresent()) {
+            SqlBuilder sqlBuilder = new SqlBuilder("UPDATE USR_USER SET ");
+            sqlBuilder.append("ISROLEMODIFIED = ");
+            sqlBuilder.append("'N'");
+            sqlBuilder.append(" WHERE ID = ");
+            sqlBuilder.addLong(user.get().getId());
+            try (Connection connection = this.dataModel.getConnection(true);
+                 PreparedStatement stmnt = sqlBuilder.prepare(connection)) {
+                 stmnt.executeUpdate();
+            } catch (SQLException ex) {
+                throw new UnderlyingSQLFailedException(ex);
+            }
         }
     }
 

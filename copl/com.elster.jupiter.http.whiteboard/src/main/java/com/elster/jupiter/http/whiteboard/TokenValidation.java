@@ -2,6 +2,7 @@ package com.elster.jupiter.http.whiteboard;
 
 import com.elster.jupiter.users.User;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class TokenValidation {
@@ -21,7 +22,7 @@ public class TokenValidation {
     }
 
     public Optional<User> getUser() {
-        if (isValid()) {
+        if (isValid() || (Objects.nonNull(user) && user.isRoleModified())) {
             return Optional.ofNullable(user);
         } else {
             return Optional.empty();
