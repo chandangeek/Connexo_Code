@@ -33,7 +33,6 @@ import ch.iec.tc57._2011.executeenddevicecontrols.EndDeviceControlsPort;
 import ch.iec.tc57._2011.executeenddevicecontrols.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.OptionType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -48,12 +47,14 @@ import java.util.stream.Stream;
 public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint implements EndDeviceControlsPort, ApplicationSpecific {
     private static final String NOUN = "EndDeviceControls";
     private static final String CREATE_END_DEVICE_CONTROLS_ITEM = "CreateEndDeviceControls";
-    private static final String PAYLOAD_ITEM = CREATE_END_DEVICE_CONTROLS_ITEM + "." + "Payload";
-    private static final String HEADER_ITEM = CREATE_END_DEVICE_CONTROLS_ITEM + "." + "Header";
-    private static final String CORRELATION_ITEM = HEADER_ITEM + ".CorrelationID";
-    private static final String REPLY_ADDRESS_ITEM = HEADER_ITEM + ".ReplyAddress";
-    private static final String END_DEVICE_CONTROLS_ITEM = PAYLOAD_ITEM + ".EndDeviceControls";
-    private static final String MAXIMUM_EXECUTION_TIMEOUT = "MaximumExecutionTimeout";
+    private static final String CHANGE_END_DEVICE_CONTROLS_ITEM = "ChangeEndDeviceControls";
+    private static final String CANCEL_END_DEVICE_CONTROLS_ITEM = "CancelEndDeviceControls";
+    private static final String PAYLOAD_ITEM = "Payload";
+    private static final String HEADER_ITEM = "Header";
+    private static final String CORRELATION_ITEM = "CorrelationID";
+    private static final String REPLY_ADDRESS_ITEM = "ReplyAddress";
+    private static final String END_DEVICE_CONTROLS_ITEM = "EndDeviceControls";
+    private static final String MAXIMUM_EXECUTION_TIME = "MaximumExecutionTime";
 
     private final ReplyTypeFactory replyTypeFactory;
     private final EndDeviceControlsFaultMessageFactory faultMessageFactory;
@@ -82,24 +83,26 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
             throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
-                List<EndDeviceControl> listOfControls = extractEndDeviceControls(requestMessage);
+                List<EndDeviceControl> listOfControls = extractEndDeviceControls(requestMessage, CREATE_END_DEVICE_CONTROLS_ITEM);
 
                 saveWebserviceOccurrenceAttributes(listOfControls);
 
+                String fullHeaderItem = CREATE_END_DEVICE_CONTROLS_ITEM + "." + HEADER_ITEM;
                 HeaderType header = Optional.ofNullable(requestMessage.getHeader())
-                        .orElseThrow(CIMWebservicesException.missingElement(thesaurus, HEADER_ITEM));
+                        .orElseThrow(CIMWebservicesException.missingElement(thesaurus, fullHeaderItem));
 
                 boolean async = Optional.ofNullable(header.isAsyncReplyFlag())
                         .orElse(Boolean.FALSE);
 
                 if (async) {
                     String correlationId = header.getCorrelationID();
-                    checkIfMissingOrIsEmpty(correlationId, CORRELATION_ITEM);
+                    checkIfMissingOrIsEmpty(correlationId, fullHeaderItem + "." + CORRELATION_ITEM);
 
                     String replyAddress = header.getReplyAddress();
-                    checkIfMissingOrIsEmpty(replyAddress, REPLY_ADDRESS_ITEM);
+                    checkIfMissingOrIsEmpty(replyAddress, fullHeaderItem + "." + REPLY_ADDRESS_ITEM);
 
                     validateEndpointsForCreateRequest(replyAddress);
+                    Optional<Long> maxExecTime = getMaxExecTime(requestMessage);
 
                     EndDeviceControlsRequestMessage edcRequestMessage = parseControls(listOfControls, true);
 
@@ -107,7 +110,7 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                     if (errorTypes.isEmpty()) {
                         edcRequestMessage.setCorrelationId(correlationId);
                         edcRequestMessage.setReplyAddress(replyAddress);
-                        getMaxExecTimeout(requestMessage).ifPresent(edcRequestMessage::setMaxExecTimeout);
+                        maxExecTime.ifPresent(edcRequestMessage::setMaxExecTime);
 
                         if (serviceCallCommands.createMasterEndDeviceControlsServiceCall(edcRequestMessage, errorTypes)) {
                             return createPartialOrSuccessfulResponseMessage(correlationId, HeaderType.Verb.REPLY, errorTypes);
@@ -160,18 +163,20 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
     private EndDeviceControlsResponseMessageType cancelOrChangeEndDeviceControls(EndDeviceControlsRequestMessageType requestMessage, boolean isCancel) throws FaultMessage {
         MessageSeeds basicSeed = isCancel ? MessageSeeds.UNABLE_TO_CANCEL_END_DEVICE_CONTROLS : MessageSeeds.UNABLE_TO_CHANGE_END_DEVICE_CONTROLS;
         HeaderType.Verb verb = isCancel ? HeaderType.Verb.CANCELED : HeaderType.Verb.CHANGED;
+        String operationName = isCancel ? CANCEL_END_DEVICE_CONTROLS_ITEM : CHANGE_END_DEVICE_CONTROLS_ITEM;
 
         try {
 
-            List<EndDeviceControl> listOfControls = extractEndDeviceControls(requestMessage);
+            List<EndDeviceControl> listOfControls = extractEndDeviceControls(requestMessage, operationName);
 
             saveWebserviceOccurrenceAttributes(listOfControls);
 
+            String fullHeaderItem = operationName + "." + HEADER_ITEM;
             HeaderType header = Optional.ofNullable(requestMessage.getHeader())
-                    .orElseThrow(CIMWebservicesException.missingElement(thesaurus, HEADER_ITEM));
+                    .orElseThrow(CIMWebservicesException.missingElement(thesaurus, fullHeaderItem));
 
             String correlationId = header.getCorrelationID();
-            checkIfMissingOrIsEmpty(correlationId, CORRELATION_ITEM);
+            checkIfMissingOrIsEmpty(correlationId, fullHeaderItem + "." + CORRELATION_ITEM);
 
             EndDeviceControlsRequestMessage edcRequestMessage = parseControls(listOfControls, !isCancel);
             List<ErrorType> errorTypes = edcRequestMessage.getErrorTypes();
@@ -193,17 +198,18 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
         }
     }
 
-    private List<EndDeviceControl> extractEndDeviceControls(EndDeviceControlsRequestMessageType requestMessage) {
+    private List<EndDeviceControl> extractEndDeviceControls(EndDeviceControlsRequestMessageType requestMessage, String operationName) {
+        String fullPayloadItem = operationName + "." + PAYLOAD_ITEM;
         EndDeviceControlsPayloadType payload = Optional.ofNullable(requestMessage.getPayload())
-                .orElseThrow(CIMWebservicesException.missingElement(thesaurus, PAYLOAD_ITEM));
+                .orElseThrow(CIMWebservicesException.missingElement(thesaurus, fullPayloadItem));
 
         EndDeviceControls endDeviceControls = Optional.ofNullable(payload.getEndDeviceControls())
-                .orElseThrow(CIMWebservicesException.missingElement(thesaurus, END_DEVICE_CONTROLS_ITEM));
+                .orElseThrow(CIMWebservicesException.missingElement(thesaurus, fullPayloadItem + "." + END_DEVICE_CONTROLS_ITEM));
 
         List<EndDeviceControl> listOfControls = endDeviceControls.getEndDeviceControl();
 
         if (listOfControls.isEmpty()) {
-            throw CIMWebservicesException.emptyList(thesaurus, END_DEVICE_CONTROLS_ITEM);
+            throw CIMWebservicesException.emptyList(thesaurus, fullPayloadItem + "." + END_DEVICE_CONTROLS_ITEM);
         } else {
             return listOfControls;
         }
@@ -324,16 +330,16 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                 .orElse(null);
     }
 
-    private Optional<Long> getMaxExecTimeout(EndDeviceControlsRequestMessageType requestMessage) {
+    private Optional<Long> getMaxExecTime(EndDeviceControlsRequestMessageType requestMessage) {
         return Optional.ofNullable(requestMessage.getRequest())
-                .map(request -> request.getOption().stream().filter(option -> option.getName().equals(MAXIMUM_EXECUTION_TIMEOUT)))
+                .map(request -> request.getOption().stream().filter(option -> option.getName().equals(MAXIMUM_EXECUTION_TIME)))
                 .flatMap(Stream::findFirst)
                 .filter(option -> !Checks.is(option.getValue()).emptyOrOnlyWhiteSpace())
                 .map(option -> {
                     try {
                         return Long.parseLong(option.getValue());
                     } catch (NumberFormatException ignored) {
-                        return null;
+                        throw CIMWebservicesException.unsupportedValue(thesaurus, MAXIMUM_EXECUTION_TIME);
                     }
                 });
     }

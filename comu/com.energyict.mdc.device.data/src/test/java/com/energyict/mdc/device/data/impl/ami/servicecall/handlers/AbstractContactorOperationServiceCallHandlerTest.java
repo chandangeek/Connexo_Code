@@ -215,7 +215,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
         verify(serviceCall).update(domainExtensionArgumentCaptor.capture());
         assertEquals(CommandOperationStatus.READ_STATUS_INFORMATION, domainExtensionArgumentCaptor.getValue().getCommandOperationStatus());
 
-        verify(comTaskExecution).scheduleNow();
+        verify(comTaskExecution).addNewComTaskExecutionTrigger(any());
+        verify(comTaskExecution).updateNextExecutionTimestamp();
         verify(serviceCall).requestTransition(DefaultState.WAITING);
     }
 

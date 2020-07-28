@@ -13,6 +13,7 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
@@ -110,6 +111,7 @@ import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -156,7 +158,7 @@ public class ServiceCallCommands {
         MASTER_DATA_LINKAGE_CONFIG(MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigMasterServiceCallHandler.VERSION, MasterDataLinkageConfigMasterServiceCallHandler.APPLICATION, MasterDataLinkageConfigMasterCustomPropertySet.class
                 .getName()),
         DATA_LINKAGE_CONFIG(MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigServiceCallHandler.VERSION, MasterDataLinkageConfigServiceCallHandler.APPLICATION, MasterDataLinkageConfigCustomPropertySet.class
-                .getName());;
+                .getName());
 
         private final String typeName;
         private final String typeVersion;
@@ -737,7 +739,7 @@ public class ServiceCallCommands {
 
         masterDomainExtension.setCallbackUrl(edcRequestMessage.getReplyAddress());
         masterDomainExtension.setCorrelationId(edcRequestMessage.getCorrelationId());
-        masterDomainExtension.setMaxExecTimeout(edcRequestMessage.getMaxExecTimeout() != null ? edcRequestMessage.getMaxExecTimeout()
+        masterDomainExtension.setMaxExecTime(edcRequestMessage.getMaxExecTime() != null ? edcRequestMessage.getMaxExecTime()
                 : inboundSoapEndpointsActivator.getEndDeviceControlsTimeout());
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
@@ -895,6 +897,12 @@ public class ServiceCallCommands {
                         if (changeReleaseDateEndDeviceControlsServiceCall(serviceCall, extension, endDeviceMessage.getReleaseDate())) {
                             isProcessed = true;
                         }
+                    } catch (VerboseConstraintViolationException ex) {
+                        String errorMessage = ex.getConstraintViolations()
+                                .stream().map(ConstraintViolation::getMessage)
+                                .collect(Collectors.joining("; "));
+                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, endDeviceIndex,
+                                errorMessage));
                     } catch (Exception e) {
                         errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, endDeviceIndex,
                                 e.getLocalizedMessage()));

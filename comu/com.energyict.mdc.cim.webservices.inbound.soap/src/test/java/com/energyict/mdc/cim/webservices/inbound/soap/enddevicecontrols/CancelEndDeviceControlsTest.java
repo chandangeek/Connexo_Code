@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +49,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.cancelEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Payload' is required.");
+                "Element 'CancelEndDeviceControls.Payload' is required.");
 
         //No EndDeviceControls
         EndDeviceControlsPayloadType payloadType = endDeviceControlsMessageObjectFactory.createEndDeviceControlsPayloadType();
@@ -58,7 +57,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.cancelEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Payload.EndDeviceControls' is required.");
+                "Element 'CancelEndDeviceControls.Payload.EndDeviceControls' is required.");
 
         //Empty EndDeviceControls
         EndDeviceControls endDeviceControls = endDeviceControlsObjectFactory.createEndDeviceControls();
@@ -66,7 +65,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.cancelEndDeviceControls(requestMessage),
                 MessageSeeds.EMPTY_LIST.getErrorCode(),
-                "The list of 'CreateEndDeviceControls.Payload.EndDeviceControls' can't be empty.");
+                "The list of 'CancelEndDeviceControls.Payload.EndDeviceControls' can't be empty.");
 
         // No header
         EndDeviceControl endDeviceControl = endDeviceControlsObjectFactory.createEndDeviceControl();
@@ -74,7 +73,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.cancelEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Header' is required.");
+                "Element 'CancelEndDeviceControls.Header' is required.");
 
         //No correlation id
         HeaderType header = cimMessageObjectFactory.createHeaderType();
@@ -84,7 +83,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
 
         assertFaultMessage(() -> executeEndDeviceControlsEndpoint.cancelEndDeviceControls(requestMessage),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'CreateEndDeviceControls.Header.CorrelationID' is required.");
+                "Element 'CancelEndDeviceControls.Header.CorrelationID' is required.");
 
         header.setCorrelationID(CORRELATION_ID);
 
@@ -150,7 +149,8 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("SIM8011")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("For device under EndDeviceControl[0].EndDevices[0]: 'End device control has already been processed.'")));
+                .anyMatch(error -> error.getDetails().equals("For device under EndDeviceControl[0].EndDevices[0]: "
+                        + "'Changes to the end device control request can't be applied after the processing has started or finished.'")));
 
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
@@ -183,7 +183,8 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("SIM8011")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("For device under EndDeviceControl[0].EndDevices[1]: 'End device control has already been processed.'")));
+                .anyMatch(error -> error.getDetails().equals("For device under EndDeviceControl[0].EndDevices[1]: "
+                        + "'Changes to the end device control request can't be applied after the processing has started or finished.'")));
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 

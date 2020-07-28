@@ -132,7 +132,7 @@ public class MasterEndDeviceControlsPropertySet implements CustomPropertySet<Ser
                         .finish(),
                 this.propertySpecService
                         .longSpec()
-                        .named(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIMEOUT.javaName(), TranslationKeys.MAX_EXEC_TIMEOUT)
+                        .named(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIME.javaName(), TranslationKeys.MAX_EXEC_TIME)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish()
@@ -192,10 +192,10 @@ public class MasterEndDeviceControlsPropertySet implements CustomPropertySet<Ser
                     .notNull()
                     .add();
             table.index(IDX).on(correlationIdColumnString).add();
-            table.column(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIMEOUT.databaseName())
+            table.column(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIME.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIMEOUT.javaName())
+                    .map(MasterEndDeviceControlsDomainExtension.FieldNames.MAX_EXEC_TIME.javaName())
                     .notNull()
                     .add();
         }

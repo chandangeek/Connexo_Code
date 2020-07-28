@@ -52,7 +52,7 @@ public class EndDeviceControlsCancellationHandler implements TaskExecutor {
 
                     long timeout = serviceCall.getParent().get().getParent().get().getExtension(MasterEndDeviceControlsDomainExtension.class)
                             .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for master service call"))
-                            .getMaxExecTimeout();
+                            .getMaxExecTime();
 
                     if (Duration.between(headEndExtension.getReleaseDate(), now).get(ChronoUnit.SECONDS) > timeout * 60) {
                         serviceCall = lock(serviceCall);

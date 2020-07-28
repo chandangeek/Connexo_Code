@@ -12,7 +12,7 @@ import java.util.List;
 public class EndDeviceControlsRequestMessage {
     private String correlationId;
     private String replyAddress;
-    private Long maxExecTimeout;
+    private Long maxExecTime;
 
     private List<EndDeviceControlMessage> endDeviceControlMessages = new ArrayList<>();
     private List<ErrorType> errorTypes = new ArrayList<>();
@@ -33,12 +33,12 @@ public class EndDeviceControlsRequestMessage {
         this.replyAddress = replyAddress;
     }
 
-    public Long getMaxExecTimeout() {
-        return maxExecTimeout;
+    public Long getMaxExecTime() {
+        return maxExecTime;
     }
 
-    public void setMaxExecTimeout(Long maxExecTimeout) {
-        this.maxExecTimeout = maxExecTimeout;
+    public void setMaxExecTime(Long maxExecTime) {
+        this.maxExecTime = maxExecTime;
     }
 
     public List<EndDeviceControlMessage> getEndDeviceControlMessages() {

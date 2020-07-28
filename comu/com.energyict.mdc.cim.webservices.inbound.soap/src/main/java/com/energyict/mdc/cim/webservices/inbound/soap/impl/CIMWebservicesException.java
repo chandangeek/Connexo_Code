@@ -42,4 +42,8 @@ public class CIMWebservicesException extends LocalizedException implements Suppl
     public static CIMWebservicesException noRequestWithCorrelationId(Thesaurus thesaurus, String correlationId) {
         return new CIMWebservicesException(thesaurus, MessageSeeds.NO_REQUEST_WITH_CORRELATION_ID, correlationId);
     }
+
+    public static CIMWebservicesException unsupportedValue(Thesaurus thesaurus, String element) {
+        return new CIMWebservicesException(thesaurus, MessageSeeds.UNSUPPORTED_VALUE_GENERAL, element);
+    }
 }

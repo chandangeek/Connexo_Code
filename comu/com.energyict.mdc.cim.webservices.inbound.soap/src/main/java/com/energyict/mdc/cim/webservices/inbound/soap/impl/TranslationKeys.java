@@ -59,7 +59,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_MRID("deviceMrid", "Device MRID"),
     CANCELLATION_REASON("cancellationReason", "Cancellation reason"),
     ERROR("error", "Error"),
-    MAX_EXEC_TIMEOUT("maxExecTimeout", "Maximum execution timeout"),
+    MAX_EXEC_TIME("maxExecTime", "Maximum execution time"),
 
     CARD_FORMAT("property.cardformat", "Card format"),
     CARD_FORMAT_FULL_SIZE("property.cardformat.fullsize", "Full-size (1FF)"),

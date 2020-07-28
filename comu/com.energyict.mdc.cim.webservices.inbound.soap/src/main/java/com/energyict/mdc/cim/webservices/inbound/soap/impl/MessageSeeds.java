@@ -28,6 +28,7 @@ public enum MessageSeeds implements MessageSeed {
     THIS_FIELD_IS_REQUIRED(11, Keys.THIS_FIELD_IS_REQUIRED, "This field is required"),
     FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     MISSING_ENDPOINT(13, "MissingEndpoint", "Endpoint for {0} isn''t found by URL ''{1}''."),
+    UNSUPPORTED_VALUE_GENERAL(14, "UnsupportedValueGeneral", "Unsupported value for ''{0}''."),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
@@ -151,7 +152,7 @@ public enum MessageSeeds implements MessageSeed {
     METER_AND_USAGE_POINT_NOT_LINKED(7008, "MeterAndUsagePointNotLinked", "Meter ''{0}'' isn''t linked to usage point ''{1}'' at the given time ''{2}''."),
     NO_METER_ROLE_WITH_KEY(7009, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
     NOT_SUPPORTED_MASTER(7010, "NotSupportedMaster", "Device ''{0}'' (serial number ''{1}'') isn''t configured to act as gateway."),
-    NOT_SUPPORTED_SLAVE(7011, "NotSupportedSlave","Device ''{0}'' (serial number ''{1}'') isn''t configured to act as end device."),
+    NOT_SUPPORTED_SLAVE(7011, "NotSupportedSlave", "Device ''{0}'' (serial number ''{1}'') isn''t configured to act as end device."),
     CAN_NOT_BE_GATEWAY_TO_ITSELF(7012, "CanNotBeGatewayToItself", "Device ''{0}'' (serial number ''{1}'') can''t be its own gateway."),
     CAN_NOT_UNLINK_ITSELF(7013, "CanNotUnlinkItself", "Device ''{0}'' (serial number ''{1}'') can''t be unlinked from itself."),
     METER_ALREADY_LINKED_TO_END_DEVICE(7014, "MeterAlreadyLinkedToEndDevice", "End device ''{0}'' (serial number ''{1}'') already linked to gateway ''{2}'' (serial number ''{3}'')."),
@@ -178,7 +179,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SERVICE_CALL_WITH_CIM(8014, "NoServiceCallWithCim", "No service call found with CIM code ''{0}''."),
     NO_SERVICE_CALL_WITH_DEVICE_MRID(8015, "NoServiceCallWithDeviceMrid", "No service call found for device with MRID ''{0}''."),
     NO_SERVICE_CALL_WITH_DEVICE_NAME(8016, "NoServiceCallWithDeviceName", "No service call found for device with name ''{0}''."),
-    END_DEVICE_CONTROL_ALREADY_PROCESSED(8017, "EndDeviceControlAlreadyProcessed", "End device control has already been processed."),
+    END_DEVICE_CONTROL_ALREADY_PROCESSED(8017, "EndDeviceControlAlreadyProcessed",
+            "Changes to the end device control request can''t be applied after the processing has started or finished."),
     UNABLE_TO_CANCEL_END_DEVICE_CONTROLS(8018, "UnableToCancelEndDeviceControls", "Unable to cancel end device controls."),
     END_DEVICE_ERROR(8019, "EndDeviceError", "For device {0}: {1}"),
     ;
