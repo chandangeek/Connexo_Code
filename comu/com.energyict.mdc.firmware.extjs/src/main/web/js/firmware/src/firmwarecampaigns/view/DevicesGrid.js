@@ -110,6 +110,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 itemId: 'firmware-campaigns-devices-grid-paging-toolbar-top',
                 dock: 'top',
                 store: me.store,
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('firmware.campaigns.devices.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('firmware.campaigns.devices.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} devices'),
                 emptyMsg: Uni.I18n.translate('firmware.campaigns.devices.pagingtoolbartop.emptyMsg', 'FWC', 'There are no devices to display')
@@ -118,6 +119,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 xtype: 'pagingtoolbarbottom',
                 itemId: 'firmware-campaigns-devices-grid-paging-toolbar-bottom',
                 dock: 'bottom',
+                needExtendedData: true,
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('firmware.campaigns.devices.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Devices per page')
             }

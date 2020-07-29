@@ -82,6 +82,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                         xtype: 'pagingtoolbarbottom',
                         store: me.store,
                         dock: 'bottom',
+                        needExtendedData: true,
                         itemsPerPageMsg: Uni.I18n.translate('registerTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register types per page')
                     })
                 }

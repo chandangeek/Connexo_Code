@@ -21,8 +21,20 @@ import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
-import com.elster.jupiter.issue.share.*;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueGroupInfo;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
+import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.DeviceGroupNotFoundException;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -33,7 +45,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
@@ -94,7 +105,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 
 @Path("/alarms")
-public class DeviceAlarmResource extends BaseAlarmResource{
+public class DeviceAlarmResource extends BaseAlarmResource {
 
     private final DeviceAlarmInfoFactory deviceAlarmInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
@@ -117,7 +128,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
-    public PagedInfoList getAllDeviceAlarms(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter){
+    public PagedInfoList getAllDeviceAlarms(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, "start", "limit");
         DeviceAlarmFilter alarmFilter = buildFilterFromQueryParameters(filter);
         Finder<? extends DeviceAlarm> finder = getDeviceAlarmService().findAlarms(alarmFilter);
@@ -132,7 +143,18 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         return PagedInfoList.fromPagedList("data", deviceAlarmInfos, queryParams);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
+    @Path("/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
+    public Response getAllDeviceAlarmsCount(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
+        DeviceAlarmFilter alarmFilter = buildFilterFromQueryParameters(filter);
+        return Response.ok(getDeviceAlarmService().findAlarms(alarmFilter).count()).build();
+    }
+
+    @GET
+    @Transactional
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -270,7 +292,8 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         return Response.ok().entity(info).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/processes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
@@ -278,7 +301,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         String jsonContent;
         AlarmProcessInfos issueProcessInfos = new AlarmProcessInfos();
         JSONArray arr = null;
-        if(params.get("variableid") != null && params.get("variablevalue") != null ) {
+        if (params.get("variableid") != null && params.get("variablevalue") != null) {
             try {
                 String rest = "/rest/tasks/allprocesses?";
                 rest += "variableid=" + params.get("variableid").get(0);
@@ -315,7 +338,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         DeviceAlarmFilter alarmFilter = buildFilterFromQueryParameters(filter);
         Finder<? extends DeviceAlarm> finder = getDeviceAlarmService().findAlarms(alarmFilter);
         List<? extends DeviceAlarm> issues = finder.find();
-        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length()-1);
+        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length() - 1);
         List<IssueGroupInfo> infos = issueResourceUtility.getIssueGroupList(issues, value);
 
 
@@ -339,10 +362,11 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         return Response.ok().entity(info).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/close")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.CLOSE_ALARM)
     public Response closeIssues(CloseDeviceAlarmRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         User performer = (User) securityContext.getUserPrincipal();
@@ -357,11 +381,11 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     }
 
 
-
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/setpriority")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ALARM)
     public Response setPriority(SetPriorityAlarmRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         Function<ActionInfo, List<? extends Issue>> alarmProvider;
@@ -422,9 +446,6 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
         return alarm;
     }
-
-
-
 
 
     private ActionInfo doBulkClose(CloseDeviceAlarmRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
@@ -490,15 +511,15 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     private List<? extends Issue> getDeviceAlarmForBulk(JsonQueryFilter filter) {
         return getDeviceAlarmService().findAlarms(buildFilterFromQueryParameters(filter))
                 .find().stream().map(alarm -> {
-            if(alarm.getStatus().isHistorical()){
-                return getIssueService().findHistoricalIssue(alarm.getId());
-            }else{
-                return getIssueService().findOpenIssue(alarm.getId());
-            }
-        }).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+                    if (alarm.getStatus().isHistorical()) {
+                        return getIssueService().findHistoricalIssue(alarm.getId());
+                    } else {
+                        return getIssueService().findOpenIssue(alarm.getId());
+                    }
+                }).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
     }
 
-    private boolean isNumericValue(String id){
+    private boolean isNumericValue(String id) {
         try {
             long number = Long.parseLong(id);
             return true;
@@ -548,7 +569,6 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         Condition condition = (c0).or(c1);
 
 
-
         return query.select(condition).stream()
                 .filter(actionType -> actionType.createIssueAction()
                         .map(action -> action.isApplicable(deviceAlarm) && action.isApplicableForUser(user) && action.isApplicable(""))
@@ -593,7 +613,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     private void validateMandatory(StandardParametersBean params, String... mandatoryParameters) {
         if (mandatoryParameters != null) {
             Arrays.asList(mandatoryParameters).stream().map(params::getFirst).forEach(param -> {
-                if(param == null){
+                if (param == null) {
                     throw new WebApplicationException(Response.Status.BAD_REQUEST);
                 }
             });
@@ -664,39 +684,39 @@ public class DeviceAlarmResource extends BaseAlarmResource{
             }
         }
 
-        if(jsonFilter.getLongList(DeviceAlarmRestModuleConst.WORKGROUP).stream().allMatch(s-> s == null)){
+        if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.WORKGROUP).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(DeviceAlarmRestModuleConst.WORKGROUP).stream().map(id -> getUserService().getWorkGroup(Long.valueOf(id)).orElse(null))
                     .filter(workGroup -> workGroup != null)
                     .forEach(filter::addWorkGroupAssignees);
-            if(jsonFilter.getStringList(DeviceAlarmRestModuleConst.WORKGROUP).stream().anyMatch(id -> id.equals("-1"))){
+            if (jsonFilter.getStringList(DeviceAlarmRestModuleConst.WORKGROUP).stream().anyMatch(id -> id.equals("-1"))) {
                 filter.setUnassignedWorkGroupSelected();
             }
-        }else{
+        } else {
             jsonFilter.getLongList(DeviceAlarmRestModuleConst.WORKGROUP)
                     .stream().map(id -> getUserService().getWorkGroup(id).orElse(null))
                     .filter(workGroup -> workGroup != null)
                     .forEach(filter::addWorkGroupAssignees);
-            if(jsonFilter.getLongList(DeviceAlarmRestModuleConst.WORKGROUP).stream().anyMatch(id -> id == -1L)){
+            if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.WORKGROUP).stream().anyMatch(id -> id == -1L)) {
                 filter.setUnassignedWorkGroupSelected();
             }
         }
-        if(jsonFilter.getString(DeviceAlarmRestModuleConst.START_INTERVAL_FROM_TO) !=null){
+        if (jsonFilter.getString(DeviceAlarmRestModuleConst.START_INTERVAL_FROM_TO) != null) {
             String[] betweenRange = jsonFilter.getString(DeviceAlarmRestModuleConst.START_INTERVAL_FROM_TO).split("-");
-            if(betweenRange.length == 2) {
-                if(!"".equals(betweenRange[0])) {
+            if (betweenRange.length == 2) {
+                if (!"".equals(betweenRange[0])) {
                     Long from = Long.valueOf(betweenRange[0]);
                     filter.setStartCreateTime(from);
                 }
-                if(!"".equals(betweenRange[1])) {
+                if (!"".equals(betweenRange[1])) {
                     Long to = Long.valueOf(betweenRange[1]);
                     filter.setEndCreateTime(to);
                 }
             }
         }
-        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_FROM) !=null){
+        if (jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_FROM) != null) {
             filter.setStartCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_FROM));
         }
-        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_TO) !=null){
+        if (jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_TO) != null) {
             filter.setEndCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_TO));
         }
         getDueDates(jsonFilter).stream().forEach(dd -> filter.setDueDates(dd.startTime, dd.endTime));
@@ -708,7 +728,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         return filter.getStringList(DeviceAlarmRestModuleConst.DUE_DATE).stream().map(dd -> {
             try {
                 return issueDueDateInfoAdapter.unmarshal(dd);
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
             }
         }).collect(Collectors.toList());

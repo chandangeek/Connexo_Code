@@ -12,8 +12,10 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             xtype: 'uni-form-error-message',
             itemId: 'form-errors',
             margin: '0 0 10 0',
-            anchor: '60%',
-            hidden: true
+            text: 'This version is in use and only the image identifier and minimum FW versions can be modified',
+            value: 'This version is in use and only the image identifier and minimum FW versions can be modified',
+			hidden: true,
+			width: 600
         },
         {
             xtype: 'textfield',

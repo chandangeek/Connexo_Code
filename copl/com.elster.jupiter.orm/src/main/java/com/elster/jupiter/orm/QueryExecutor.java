@@ -41,6 +41,8 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
 
     Optional<T> get(Object[] key, boolean eager, String[] exceptions);
 
+    long count(Condition condition);
+
     boolean hasField(String fieldName);
 
     Class<?> getType(String fieldName);

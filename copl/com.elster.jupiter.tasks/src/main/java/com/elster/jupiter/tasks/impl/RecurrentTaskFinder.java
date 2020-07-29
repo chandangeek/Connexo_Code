@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.tasks.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -16,6 +15,8 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,20 +36,40 @@ public class RecurrentTaskFinder implements TaskFinder {
         this.limit = limit;
     }
 
+    public RecurrentTaskFinder(DataModel dataModel, RecurrentTaskFilterSpecification filter) {
+        this(dataModel, filter, null, null);
+    }
+
 
     public List<RecurrentTask> find() {
         try (Connection connection = dataModel.getConnection(false)) {
-            return findTasks(connection);
+            return getRecurrentTasks(dataModel.mapper(RecurrentTaskImpl.class).fetcher(getTasksSqlBuilder(false)));
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private List<RecurrentTask> findTasks(Connection connection) throws SQLException {
-        DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
-        //SqlBuilder builder = mapper.builder("RT");
+    @Override
+    public long count() {
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (PreparedStatement statement = getTasksSqlBuilder(true).prepare(connection)) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    return rs.next() ? rs.getLong(1) : 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private SqlBuilder getTasksSqlBuilder(boolean count) {
         SqlBuilder builder = new SqlBuilder();
-        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, PRIORITY, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, SUSPENDUNTIL, QUEUE_TYPE_NAME, ROWNUM as rnum from (");
+        if (count) {
+            builder.append("select count(*)");
+        } else {
+            builder.append("select *");
+        }
+        builder.append(" from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, PRIORITY, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, SUSPENDUNTIL, QUEUE_TYPE_NAME, ROWNUM as rnum from (");
         builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.PRIORITY, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, RT.SUSPENDUNTIL, DS.QUEUE_TYPE_NAME, ROWNUM as rnum ");
         builder.append(" from TSK_RECURRENT_TASK RT ");
         builder.append(" inner join (select NAME, QUEUE_TYPE_NAME from MSG_DESTINATIONSPEC) DS on RT.DESTINATION = DS.NAME ");
@@ -213,7 +234,7 @@ public class RecurrentTaskFinder implements TaskFinder {
 
         // add sorting conditions
         builder.append("order by ");
-        if (!filter.sortingColumns.isEmpty()) {
+        if (filter.sortingColumns!=null && !filter.sortingColumns.isEmpty()) {
             Order[] order = filter.sortingColumns.toArray(new Order[filter.sortingColumns.size()]);
             for (int i = 0; i < order.length; i++) {
                 switch (order[i].getName()) {
@@ -237,14 +258,13 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(")) ");
 
         // add pagging
-        builder.append(" where rnum <=  ");
-        builder.addInt(start + limit + 1);
-        builder.append(" and rnum >= ");
-        builder.addInt(start + 1);
-
-        try (Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
-            return getRecurrentTasks(fetcher);
+        if (start != null && limit != null) {
+            builder.append(" where rnum <=  ");
+            builder.addInt(start + limit + 1);
+            builder.append(" and rnum >= ");
+            builder.addInt(start + 1);
         }
+        return builder;
     }
 
     private List<RecurrentTask> getRecurrentTasks(Fetcher<RecurrentTaskImpl> fetcher) throws SQLException {

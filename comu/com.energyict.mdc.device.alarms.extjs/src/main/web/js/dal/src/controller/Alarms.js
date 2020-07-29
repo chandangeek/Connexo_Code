@@ -80,6 +80,10 @@ Ext.define('Dal.controller.Alarms', {
                 {
                     ref: 'previewActionMenu',
                     selector: '#alarm-preview alarms-action-menu'
+                },
+                {
+                    ref: 'countButton',
+                    selector: '#alarms-count-action'
                 }
             ];
         me.views = [
@@ -96,7 +100,10 @@ Ext.define('Dal.controller.Alarms', {
             },
             'alarm-overview #alarm-preview #filter-display-button': {
                 click: this.setFilterItem
-            }
+            },
+            '#alarms-count-action': {
+                click: this.countAlarms
+             }
         });
     },
 
@@ -202,5 +209,65 @@ Ext.define('Dal.controller.Alarms', {
                 break;
         }
         me.callParent(arguments);
+    },
+    countAlarms: function(){
+        var me = this;
+        me.fireEvent('loadingcount');
+        Ext.Ajax.suspendEvent('requestexception');
+        me.getCountButton().up('panel').setLoading(true);
+        var filters = [];
+        var queryStringValues = Uni.util.QueryString.getQueryStringValues(false);
+        for (property in queryStringValues){
+            if (property !== 'sort'){
+                filters.push({'property' : property, value: queryStringValues[property] })
+            }
+        };
+        var queryString = Ext.Object.toQueryString({"filters" : filters}, true);
+        Ext.Ajax.request({
+            url: Ext.getStore('Dal.store.Alarms').getProxy().url + '/count',
+            timeout: 120000,
+            params: {
+                 filter: JSON.stringify(filters)
+            },
+            method: 'GET',
+            success: function (response) {
+                me.getCountButton().setText(response.responseText);
+                me.getCountButton().setDisabled(true);
+                me.getCountButton().up('panel').setLoading(false);
+            },
+            failure: function (response, request) {
+                var box = Ext.create('Ext.window.MessageBox', {
+                    buttons: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.close', 'DAL', 'Close'),
+                            action: 'close',
+                            name: 'close',
+                            ui: 'remove',
+                            handler: function () {
+                                box.close();
+                            }
+                        }
+                    ],
+                    listeners: {
+                        beforeclose: {
+                            fn: function () {
+                                me.getCountButton().setDisabled(true);
+                                me.getCountButton().up('panel').setLoading(false);
+                            }
+                        }
+                    }
+                });
+
+                box.show({
+                    title: Uni.I18n.translate('general.timeOut', 'DAL', 'Time out'),
+                    msg: Uni.I18n.translate('general.timeOutMessageAlarms', 'DAL', 'Counting the issues took too long.'),
+                    modal: false,
+                    ui: 'message-error',
+                    icon: 'icon-warning2',
+                    style: 'font-size: 34px;'
+                });
+            }
+        });
     }
 });

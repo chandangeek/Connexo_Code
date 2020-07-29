@@ -69,7 +69,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks",
@@ -206,6 +205,11 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
     @Override
     public TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification, int start, int limit) {
         return new RecurrentTaskFinder(dataModel, filterSpecification, start, limit);
+    }
+
+    @Override
+    public TaskFinder getTaskFinderWithoutPagination(RecurrentTaskFilterSpecification filterSpecification) {
+        return new RecurrentTaskFinder(dataModel, filterSpecification);
     }
 
     @Override

@@ -32,7 +32,15 @@ import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.*;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueDeviceFilter;
+import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -278,7 +286,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Reference
-    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility){
+    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility) {
         this.issueResourceUtility = issueResourceUtility;
     }
 
@@ -938,9 +946,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             condition = condition.and(getDeviceGroupSearchCondition(filter.getDeviceGroups()));
         }
         //filter by usagepoint
-//        if (!filter.getUsagePoints().isEmpty()) {
-//            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
-//        }
+        if (!filter.getUsagePoints().isEmpty()) {
+            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
+        }
 
         //filter by usagepoint
         if (!filter.getUsagePointGroups().isEmpty()) {

@@ -71,6 +71,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     prevText: Uni.I18n.translate('general.previousPage', 'UNI', 'Previous page'),
     nextText: Uni.I18n.translate('general.nextPage', 'UNI', 'Next page'),
     lastText: Uni.I18n.translate('general.lastPage', 'UNI', 'Last page'),
+    needExtendedData: false,
 
     pageSizeStore: Ext.create('Ext.data.Store', {
         fields: ['value'],
@@ -87,6 +88,14 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     currentPageNavItemTpl: new Ext.XTemplate('<span>{0}</span>'),
 
     initComponent: function () {
+        if (this.needExtendedData){
+            var lastValue = this.pageSizeStore.getAt(this.pageSizeStore.getCount()-1);
+            if (lastValue && lastValue.data && lastValue.data.value !== '1000'){
+                this.pageSizeStore.add({
+                     value: '1000'
+                });
+            }
+        }
         this.callParent(arguments);
 
         this.initPageSizeAndStartFromQueryString();
