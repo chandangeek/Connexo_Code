@@ -261,4 +261,15 @@ public class UserServiceImplTest {
             assertThat(userService.getWorkGroups()).isEqualTo(Collections.emptyList());
         }
     }
+
+    @Test
+    public void testUpdateUserWhenRoleModified(){
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            userService.updateUser(1L);
+        }
+        Optional<User> usr=  userService.getUser(1L);
+        assertThat(usr.isPresent()).isTrue();
+        assertThat(usr.get().isRoleModified()).isFalse();
+    }
 }
