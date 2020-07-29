@@ -114,4 +114,45 @@ public class ChannelImplIT {
         List<BaseReadingRecord> deltaReadingsUpdatedSince = channel.getReadingsUpdatedSince(deltaReadingType, Range.all(), since);
         assertThat(deltaReadingsUpdatedSince).hasSize(1);
     }
+
+    @Test
+    @Transactional
+    public void createEstimateTwice() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ReadingType bulkReadingType = meteringService.getReadingType(BULK).get();
+        ReadingType deltaReadingType = meteringService.getReadingType(DELTA).get();
+        Meter meter;
+
+        meter = meteringService.findAmrSystem(1).get()
+                .newMeter("amrID", "myName")
+                .create();
+
+        MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
+        Channel channel = meterActivation.getChannelsContainer().createChannel(bulkReadingType);
+        assertThat((List<ReadingType>) channel.getReadingTypes()).contains(deltaReadingType);
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(BULK);
+
+        IntervalReading reading1 = IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5));
+        IntervalReading reading2 = IntervalReadingImpl.of(ACTIVATION.plusDays(3).plusMinutes(15).toInstant(), BigDecimal.valueOf(7));
+        intervalBlock.addAllIntervalReadings(Arrays.asList(reading1, reading2));
+        meterReading.addIntervalBlock(intervalBlock);
+        meter.store(QualityCodeSystem.MDC, meterReading);
+
+        Instant since = clock.instant();
+        ChannelsContainer channelsContainer = meter.getChannelsContainers().get(0);
+        channel = channelsContainer.getChannels().get(0);
+        channel.getCimChannel(deltaReadingType)
+                .get()
+                .editReadings(QualityCodeSystem.MDC, Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
+        channel.getCimChannel(deltaReadingType)
+                .get()
+                .editReadings(QualityCodeSystem.MDC, Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(6))));
+
+        channel = meter.getChannelsContainers().get(0).getChannels().get(0);
+        List<BaseReadingRecord> bulkReadingsUpdatedSince = channel.getReadingsUpdatedSince(bulkReadingType, Range.all(), since);
+        assertThat(bulkReadingsUpdatedSince).isEmpty();
+        List<BaseReadingRecord> deltaReadingsUpdatedSince = channel.getReadingsUpdatedSince(deltaReadingType, Range.all(), since);
+        assertThat(deltaReadingsUpdatedSince).hasSize(1);
+    }
 }
