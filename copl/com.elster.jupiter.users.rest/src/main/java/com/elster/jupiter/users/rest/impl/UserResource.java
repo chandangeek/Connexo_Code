@@ -133,7 +133,10 @@ public class UserResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public Response updateUser(UserInfo info, @PathParam("id") long id) {
         info.id = id;
-        info.isRoleModified = true;
+        info.isRoleModified = false;
+        if(userService.getLoggedInUserFromCache(id).isPresent()) {
+            info.isRoleModified = true;
+        }
         transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
         userService.updateLoggedInUser(id);
         return Response.ok(getUser(info.id)).build();
