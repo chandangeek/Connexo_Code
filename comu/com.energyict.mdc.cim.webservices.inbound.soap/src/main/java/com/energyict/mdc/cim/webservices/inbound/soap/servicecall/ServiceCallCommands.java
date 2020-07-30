@@ -251,6 +251,8 @@ public class ServiceCallCommands {
         meterConfigMasterDomainExtension.setExpectedNumberOfCalls(Long.valueOf(meterConfig.getMeter().size()));
         meterConfigMasterDomainExtension.setCorrelationId(correlationId);
         setCallBackUrl(meterConfigMasterDomainExtension, outboundEndPointConfiguration);
+        meterConfigMasterDomainExtension.setMeterStatusSource(meterConfig.getMeterStatusSource());
+        meterConfigMasterDomainExtension.setPing(meterConfig.getPing() != null && meterConfig.getPing().equalsIgnoreCase("yes"));
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")

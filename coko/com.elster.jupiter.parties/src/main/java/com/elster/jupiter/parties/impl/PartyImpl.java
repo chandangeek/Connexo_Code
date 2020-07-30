@@ -6,6 +6,8 @@ package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
@@ -51,9 +53,12 @@ abstract class PartyImpl implements Party {
     @NotNull(groups = Organization.class)
     private String mRID;
     @Size(max=80)
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @Size(max=80)
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String aliasName;
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
     @Valid
     private ElectronicAddress electronicAddress;

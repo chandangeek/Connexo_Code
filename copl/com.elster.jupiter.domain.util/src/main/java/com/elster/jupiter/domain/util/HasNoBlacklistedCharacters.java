@@ -22,9 +22,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HasNoBlacklistedCharacters {
 
-    String message() default "{com.elster.jupiter.validation.blacklisted}";
-
+    String message() default "{Input contains forbidden characters}";
     char[] blacklisted() default {};
+    String balcklistedCharRegEx() default "";
 
     Class<?>[] groups() default {};
 

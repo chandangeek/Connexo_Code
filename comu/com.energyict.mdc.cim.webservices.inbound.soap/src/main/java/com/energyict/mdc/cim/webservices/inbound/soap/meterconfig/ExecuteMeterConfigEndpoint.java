@@ -25,6 +25,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.Ca
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.InvalidLastCheckedException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
@@ -37,8 +38,10 @@ import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
+import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.SetMultimap;
@@ -47,10 +50,12 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implements MeterConfigPort, ApplicationSpecific {
     private static final String NOUN = "MeterConfig";
     private static final String METER_ITEM = NOUN + ".Meter";
+    private static final String METER_STATUS_SOURCE_ELEMENT = "MeterStatusSource";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -58,6 +63,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     private final MeterConfigFaultMessageFactory faultMessageFactory;
     private final MeterConfigFactory meterConfigFactory;
     private final MeterConfigParser meterConfigParser;
+    private final MeterConfigPingUtils meterConfigPingUtils;
     private final ReplyTypeFactory replyTypeFactory;
     private final DeviceBuilder deviceBuilder;
     private final DeviceFinder deviceFinder;
@@ -76,7 +82,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                                       DeviceBuilder deviceBuilder, ServiceCallCommands serviceCallCommands,
                                       EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
                                       WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
-                                      CasHandler casHandler, SecurityHelper securityHelper, DeviceFinder deviceFinder, DeviceDeleter deviceDeleter) {
+                                      CasHandler casHandler, SecurityHelper securityHelper, DeviceFinder deviceFinder, DeviceDeleter deviceDeleter,
+                                      MeterConfigPingUtils meterConfigPingUtils) {
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
         this.faultMessageFactory = faultMessageFactory;
@@ -90,6 +97,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         this.securityHelper = securityHelper;
         this.deviceFinder = deviceFinder;
         this.deviceDeleter = deviceDeleter;
+        this.meterConfigPingUtils = meterConfigPingUtils;
     }
 
     @Override
@@ -101,10 +109,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
                 SetMultimap<String, String> values = HashMultimap.create();
                 meterConfig.getMeter().stream().forEach(meter -> {
-                    if (!meter.getNames().isEmpty()){
+                    if (!meter.getNames().isEmpty()) {
                         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
                     }
-                    if (meter.getMRID() != null){
+                    if (meter.getMRID() != null) {
                         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     }
                     if (meter.getSerialNumber() != null) {
@@ -174,10 +182,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
 
                 SetMultimap<String, String> values = HashMultimap.create();
                 meterConfig.getMeter().stream().forEach(meter -> {
-                    if (!meter.getNames().isEmpty()){
+                    if (!meter.getNames().isEmpty()) {
                         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
                     }
-                    if (meter.getMRID() != null){
+                    if (meter.getMRID() != null) {
                         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     }
                     if (meter.getSerialNumber() != null) {
@@ -247,27 +255,33 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     }
 
     private MeterConfigResponseMessageType createResponseMessage(Device device, HeaderType.Verb verb, String correlationId) {
-        MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory
-                .createMeterConfigResponseMessageType();
 
-        // set header
-        HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setNoun(NOUN);
-        header.setVerb(verb);
-        header.setCorrelationID(correlationId);
-
-        responseMessage.setHeader(header);
-
-        // set reply
-        responseMessage.setReply(replyTypeFactory.okReplyType());
+        MeterConfigResponseMessageType responseMessage = createResponseMessageCustomPayload(verb, correlationId, replyTypeFactory.okReplyType());
 
         // set payload
         MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        if(device != null) {
-            meterConfigPayload.setMeterConfig(Verb.REPLY.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
+        if (device != null) {
+            meterConfigPayload.setMeterConfig(meterConfigFactory.asMeterConfig(device));
         } else {
             meterConfigPayload.setMeterConfig(new MeterConfig());
         }
+        responseMessage.setPayload(meterConfigPayload);
+
+        return responseMessage;
+    }
+
+    private MeterConfigResponseMessageType createGetResponseMessage(Device device, PingResult pingResult, boolean meterStatusRequired,
+                                                                    ErrorMessage errorMessage, String correlationId) {
+        MeterConfigResponseMessageType responseMessage = createResponseMessageCustomPayload(HeaderType.Verb.REPLY, correlationId, replyTypeFactory.okReplyType());
+
+        if (errorMessage != null) {
+            responseMessage.getReply().getError().add(replyTypeFactory.errorType(device, errorMessage.getMessage(), errorMessage.getCode(), ErrorType.Level.WARNING));
+        }
+
+        // set payload
+        MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
+        meterConfigPayload.setMeterConfig(meterConfigFactory.asGetMeterConfig(device, pingResult, meterStatusRequired));
+
         responseMessage.setPayload(meterConfigPayload);
 
         return responseMessage;
@@ -277,15 +291,17 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory
                 .createMeterConfigResponseMessageType();
 
-        // set header
+        responseMessage.setHeader(createHeader(verb, correlationId));
+        responseMessage.setReply(replyType);
+        return responseMessage;
+    }
+
+    private HeaderType createHeader(HeaderType.Verb verb, String correlationId) {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
         header.setCorrelationID(correlationId);
-
-        responseMessage.setHeader(header);
-        responseMessage.setReply(replyType);
-        return responseMessage;
+        return header;
     }
 
     private MeterConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb, String correlationId) {
@@ -384,10 +400,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 SetMultimap<String, String> values = HashMultimap.create();
 
                 meterConfig.getMeter().stream().forEach(meter -> {
-                    if (!meter.getNames().isEmpty()){
+                    if (!meter.getNames().isEmpty()) {
                         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
                     }
-                    if (meter.getMRID() != null){
+                    if (meter.getMRID() != null) {
                         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     }
                     if (meter.getSerialNumber() != null) {
@@ -400,7 +416,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     List<FaultMessage> faultMessages = new ArrayList<>();
-                    meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo ->  {
+                    meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo -> {
                         try {
                             deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
                         } catch (FaultMessage e) {
@@ -410,11 +426,13 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     if (meterConfig.getMeter().size() == faultMessages.size()) {
                         throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.FAILED);
                     } else {
+                        checkMeterStatusSourceAsync(meterConfig.getMeterStatusSource());
+                        isPingRequested(meterConfig.getPing(), null);
                         EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
                         createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
                         if (faultMessages.isEmpty()) {
                             return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
-                        } else  {
+                        } else {
                             return createResponseMessageCustomPayload(Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID(),
                                     faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.PARTIAL).getFaultInfo().getReply());
                         }
@@ -425,12 +443,60 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-                    return createResponseMessage(device, HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                    checkMeterStatusSourceSync(meterConfig.getMeterStatusSource(), device.getName());
+                    boolean meterStatusRequired = MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterConfig.getMeterStatusSource());
+                    PingResult pingResult = PingResult.NOT_NEEDED;
+                    Optional<ErrorMessage> errorMessageOptional = Optional.empty();
+                    if (isPingRequested(meterConfig.getPing(), device.getName())) {
+                        errorMessageOptional = meterConfigPingUtils.ping(device);
+                        if (errorMessageOptional.isPresent()) {
+                            pingResult = PingResult.FAILED;
+                        } else {
+                            pingResult = PingResult.SUCCESSFUL;
+                        }
+                    }
+                    return createGetResponseMessage(device, pingResult, meterStatusRequired, errorMessageOptional.orElse(null),
+                            meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
             }
         });
+    }
+
+    private void checkMeterStatusSourceSync(String meterStatusSource, String meterName) throws FaultMessage {
+        if (!Strings.isNullOrEmpty(meterStatusSource) && !MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterStatusSource)) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(meterName, MessageSeeds.METER_STATUS_NOT_SUPPORTED, METER_STATUS_SOURCE_ELEMENT, meterStatusSource, "'" + MeterStatusSource.SYSTEM
+                    .getSource() + "'").get();
+        }
+    }
+
+    private void checkMeterStatusSourceAsync(String meterStatusSource) throws FaultMessage {
+        if (!Strings.isNullOrEmpty(meterStatusSource)
+                && !MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterStatusSource)
+                && !MeterStatusSource.METER.getSource().equalsIgnoreCase(meterStatusSource)) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.METER_STATUS_NOT_SUPPORTED, METER_STATUS_SOURCE_ELEMENT, meterStatusSource,
+                    new StringBuilder().append('\'')
+                            .append(MeterStatusSource.SYSTEM.getSource())
+                            .append("\', \'")
+                            .append(MeterStatusSource.METER.getSource())
+                            .append('\'').toString()).get();
+        }
+    }
+
+    private boolean isPingRequested(String pingField, String meterName) throws FaultMessage {
+        if (!Checks.is(pingField).emptyOrOnlyWhiteSpace()) {
+            if (pingField.toLowerCase().equals("yes")) {
+                return true;
+            } else if (pingField.toLowerCase().equals("no")) {
+                return false;
+            } else {
+                throw faultMessageFactory.meterConfigFaultMessageSupplier(meterName, MessageSeeds.UNSUPPORTED_PING_VALUE,
+                        pingField).get();
+            }
+        } else {
+            return false;
+        }
     }
 
     @Override

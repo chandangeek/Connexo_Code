@@ -13,14 +13,29 @@ import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -40,9 +55,9 @@ import com.energyict.protocolimpl.edmi.common.connection.CommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.ExtendedCommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.MiniECommandLineConnection;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation;
-import com.energyict.protocolimpl.utils.ComServerModeUtil;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
+import com.energyict.protocolimplv2.edmi.dialects.CommonEDMIDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.ModemDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.UdpDeviceProtocolDialect;
@@ -55,7 +70,13 @@ import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * @author sva
@@ -78,6 +99,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     private final IssueFactory issueFactory;
     private final NlsService nlsService;
     private HHUSignOnV2 hhuSignOn;
+    private ProtocolJournal protocolJournal;
 
     public MK10(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
@@ -152,12 +174,13 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
         result.add(new UdpDeviceProtocolDialect(propertySpecService, this.nlsService));
         result.add(new ModemDeviceProtocolDialect(propertySpecService, this.nlsService));
         result.add(new SerialDeviceProtocolDialect(propertySpecService, this.nlsService));
+        result.add(new com.energyict.protocolimplv2.edmi.dialects.SerialDeviceProtocolDialect(propertySpecService, this.nlsService));
         return result;
     }
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getProperties().addDeviceProtocolDialectProperties(dialectProperties);
+        getProperties().addProperties(dialectProperties);
     }
 
     @Override
@@ -211,39 +234,33 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     @Override
     public CommandLineConnection getCommandLineConnection() {
         if (commandLineConnection == null) {
-            if (getConnectionMode().equals(MK10ConfigurationSupport.ConnectionMode.MINI_E_COMMAND_LINE)) {
-                commandLineConnection = new MiniECommandLineConnection(
+            CommonEDMIDeviceProtocolDialect.ConnectionMode connectionMode = getProperties().getConnectionMode();
+            switch (connectionMode) {
+                case UNDEFINED: journal("No Connection Mode specified on Dialect, Default to Extended command line");
+                case EXTENDED_COMMAND_LINE: commandLineConnection = new ExtendedCommandLineConnection(
                         new ComChannelInputStreamAdapter(getComChannel()),
                         new ComChannelOutputStreamAdapter(getComChannel()),
                         getProperties().getTimeout(),
                         getProperties().getMaxRetries(),
-                        getProperties().getforcedDelay(),
+                        getProperties().getForcedDelay(),
                         0,
                         null,
-                        getOfflineDevice().getSerialNumber()
-                );
-            } else {
-                commandLineConnection = new ExtendedCommandLineConnection(
+                        getOfflineDevice().getSerialNumber());
+                        break;
+                case MINI_E_COMMAND_LINE: commandLineConnection= new MiniECommandLineConnection(
                         new ComChannelInputStreamAdapter(getComChannel()),
                         new ComChannelOutputStreamAdapter(getComChannel()),
                         getProperties().getTimeout(),
                         getProperties().getMaxRetries(),
-                        getProperties().getforcedDelay(),
+                        getProperties().getForcedDelay(),
                         0,
                         null,
-                        getOfflineDevice().getSerialNumber()
-                );
+                        getOfflineDevice().getSerialNumber());
+                        break;
             }
             commandLineConnection.setHHUSignOn(hhuSignOn);
         }
         return commandLineConnection;
-    }
-
-    private MK10ConfigurationSupport.ConnectionMode getConnectionMode() {
-        if (ComServerModeUtil.isOnline())
-            return getProperties().getConnectionMode();
-        else
-            return getProperties().getOfflineConnectionMode();
     }
 
     @Override
@@ -288,7 +305,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-11-22$";
+        return "$Date: 2020-07-23$";
     }
 
     @Override
@@ -437,5 +454,17 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
+    }
+
+    @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal) {
+        this.protocolJournal = protocolJournal;
+    }
+
+    @Override
+    public void journal(String message) {
+        if (protocolJournal!=null) {
+            protocolJournal.addToJournal(message);
+        }
     }
 }

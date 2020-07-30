@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.zone.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
@@ -26,7 +28,9 @@ class ZoneImpl implements Zone {
     private long id;
     @NotNull(message = "{" + MessageSeeds.Constants.ZONE_NAME_REQUIRED + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String zoneTypeName;
     private long zoneTypeId;
     private final Reference<ZoneType> zoneType = Reference.empty();

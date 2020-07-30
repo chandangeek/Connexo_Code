@@ -15,7 +15,7 @@ import java.time.Instant;
 
 public class ChannelReadingTypeNameSearchableProperty extends AbstractReadingTypeNameSearchableProperty<ChannelReadingTypeNameSearchableProperty> {
 
-    static final String PROPERTY_NAME = "device.channel.reading.type.name";
+    static final String PROPERTY_NAME = "device.channel.register.type.name";
 
     @Inject
     public ChannelReadingTypeNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -40,7 +40,7 @@ public class ChannelReadingTypeNameSearchableProperty extends AbstractReadingTyp
                 "join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_CHANNELSPEC.CHANNELTYPEID " +
                 "join MTR_READINGTYPE on MTR_READINGTYPE.MRID = MDS_MEASUREMENTTYPE.READINGTYPE " +
                 "where ");
-        builder.add(this.toSqlFragment("MTR_READINGTYPE.ALIASNAME", condition, now));
+        builder.add(this.toSqlFragment("MTR_READINGTYPE.FULLALIASNAME", condition, now));
         builder.closeBracket();
         return builder;
     }

@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -20,7 +22,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import javax.validation.constraints.Size;
-
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -33,20 +34,25 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String directoryUser;
     @Size(max = 128, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String password;
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String url;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String backupUrl;
     @Size(max = 4, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4 + "}")
@@ -55,12 +61,15 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     private String securityProtocol;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String baseUser;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String baseGroup;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String groupName;
     private Long trustStoreId;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"

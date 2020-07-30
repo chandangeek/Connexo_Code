@@ -13,6 +13,7 @@ import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 import org.reflections.Reflections;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,6 +68,7 @@ public class DeviceProtocolDialectCustomPropertySetMappingTest {
         return new Reflections(prefix).getSubTypesOf(AbstractDeviceProtocolDialect.class)
                 .stream()
                 .filter(aClass -> !aClass.getSimpleName().equals("NoParamsDeviceProtocolDialect"))
+                .filter(aClass -> (!Modifier.isAbstract( aClass.getModifiers())))
                 .collect(Collectors.toList());
     }
 

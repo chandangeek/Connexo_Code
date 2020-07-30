@@ -29,6 +29,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -56,6 +57,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterStatusHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsServiceCallHandler;
@@ -355,6 +357,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
         registerServices(bundleContext);
+        serviceRegistrations.add(bundleContext.registerService(Subscriber.class, dataModel.getInstance(MeterStatusHandler.class), new Hashtable<>()));
+
     }
 
     @Deactivate

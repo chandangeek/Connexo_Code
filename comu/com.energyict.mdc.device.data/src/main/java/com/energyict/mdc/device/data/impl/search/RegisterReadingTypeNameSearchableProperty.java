@@ -15,7 +15,7 @@ import java.time.Instant;
 
 public class RegisterReadingTypeNameSearchableProperty extends AbstractReadingTypeNameSearchableProperty <RegisterReadingTypeNameSearchableProperty>{
 
-    static final String PROPERTY_NAME = "device.register.reading.type.name";
+    static final String PROPERTY_NAME = "device.register.register.type.name";
 
     @Inject
     public RegisterReadingTypeNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -40,7 +40,7 @@ public class RegisterReadingTypeNameSearchableProperty extends AbstractReadingTy
                 "join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_REGISTERSPEC.REGISTERTYPEID " +
                 "join MTR_READINGTYPE on MTR_READINGTYPE.MRID = MDS_MEASUREMENTTYPE.READINGTYPE " +
                 "where ");
-        builder.add(this.toSqlFragment("MTR_READINGTYPE.ALIASNAME", condition, now));
+        builder.add(this.toSqlFragment("MTR_READINGTYPE.FULLALIASNAME", condition, now));
         builder.closeBracket();
         return builder;
     }

@@ -19,6 +19,8 @@
             <xs:element name="ComFunction" type="m:ComFunction" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ConnectDisconnectFunction" type="m:ConnectDisconnectFunction" minOccurs="0"
                         maxOccurs="unbounded"/>
+            <xs:element name="MeterStatusSource" type="xs:string" minOccurs="0"/>
+            <xs:element name="Ping" type="xs:string" minOccurs="0"/>
             <xs:element name="Meter" type="m:Meter" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ReadingType" type="m:ReadingType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="SimpleEndDeviceFunction" type="m:SimpleEndDeviceFunction" minOccurs="0"
@@ -351,6 +353,45 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="CalendarStatus">
+        <xs:sequence>
+            <xs:element name="Calendar" type="xs:string" minOccurs="0"/>
+            <xs:element name="UploadDate" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="ActivationDate" type="xs:dateTime" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ContactorStatus">
+        <xs:sequence>
+            <xs:element name="Status" type="xs:string" minOccurs="0"/>
+            <xs:element name="SentDate" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="ActivationDate" type="xs:dateTime" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="FirmwareStatusType">
+        <xs:sequence>
+            <xs:element name="Version" type="xs:string" minOccurs="0"/>
+            <xs:element name="ImageIdentifier" type="xs:string" minOccurs="0"/>
+            <xs:element name="UploadDate" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="ActivationDate" type="xs:dateTime" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="FirmwareStatus">
+        <xs:sequence>
+            <xs:element name="MeterFirmware" type="m:FirmwareStatusType" minOccurs="0"/>
+            <xs:element name="CommunicationFirmware" type="m:FirmwareStatusType" minOccurs="0"/>
+            <xs:element name="AuxiliaryFirmware" type="m:FirmwareStatusType" minOccurs="0"/>
+            <xs:element name="Image" type="m:FirmwareStatusType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="MeterStatus">
+        <xs:sequence>
+            <xs:element name="StatusInfoComTaskExecutionStatus" type="xs:string" minOccurs="0"/>
+            <xs:element name="StatusInfoComTaskExecutionDate" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="FirmwareStatus" type="m:FirmwareStatus" minOccurs="0"/>
+            <xs:element name="CalendarStatus" type="m:CalendarStatus" minOccurs="0"/>
+            <xs:element name="ContactorStatus" type="m:ContactorStatus" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="Meter" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Meter">
         <xs:sequence>
             <xs:element name="mRID" type="xs:string" minOccurs="0"
@@ -416,6 +457,8 @@
             <xs:element name="status" type="m:Status" minOccurs="0"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Asset.status"/>
             <!-- Below elements added for Connexo -->
+            <xs:element name="PingResult" type="xs:string" minOccurs="0"/>
+            <xs:element name="MeterStatus" type="m:MeterStatus" minOccurs="0"/>
             <xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"
                         maxOccurs="unbounded"/>
             <xs:element name="ConnectionAttributes" type="m:ConnectionAttributes" minOccurs="0"

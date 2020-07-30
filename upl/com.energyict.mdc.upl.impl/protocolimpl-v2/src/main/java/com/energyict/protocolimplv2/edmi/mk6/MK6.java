@@ -10,6 +10,7 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
@@ -54,6 +55,7 @@ import com.energyict.protocolimpl.edmi.common.connection.MiniECommandLineConnect
 import com.energyict.protocolimpl.edmi.mk6.registermapping.MK6RegisterInformation;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
+import com.energyict.protocolimplv2.edmi.dialects.CommonEDMIDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.ModemDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.UdpDeviceProtocolDialect;
@@ -95,6 +97,7 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
     private final NlsService nlsService;
+    private ProtocolJournal protocolJournal;
 
     public MK6(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
@@ -160,7 +163,7 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getProperties().addDeviceProtocolDialectProperties(dialectProperties);
+        getProperties().addProperties(dialectProperties);
     }
 
     @Override
@@ -221,28 +224,29 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
     @Override
     public CommandLineConnection getCommandLineConnection() {
         if (commandLineConnection == null) {
-            if (getProperties().getConnectionMode().equals(MK6ConfigurationSupport.ConnectionMode.MINI_E_COMMAND_LINE)) {
-                commandLineConnection = new MiniECommandLineConnection(
+            CommonEDMIDeviceProtocolDialect.ConnectionMode connectionMode = getProperties().getConnectionMode();
+            switch (connectionMode) {
+                case UNDEFINED: journal("No Connection Mode specified on Dialect, Default to Extended command line");
+                case EXTENDED_COMMAND_LINE: commandLineConnection = new ExtendedCommandLineConnection(
                         new ComChannelInputStreamAdapter(getComChannel()),
                         new ComChannelOutputStreamAdapter(getComChannel()),
                         getProperties().getTimeout(),
                         getProperties().getMaxRetries(),
-                        getProperties().getforcedDelay(),
+                        getProperties().getForcedDelay(),
                         0,
                         null,
-                        getOfflineDevice().getSerialNumber()
-                );
-            } else {
-                commandLineConnection = new ExtendedCommandLineConnection(
+                        getOfflineDevice().getSerialNumber());
+                    break;
+                case MINI_E_COMMAND_LINE: commandLineConnection= new MiniECommandLineConnection(
                         new ComChannelInputStreamAdapter(getComChannel()),
                         new ComChannelOutputStreamAdapter(getComChannel()),
                         getProperties().getTimeout(),
                         getProperties().getMaxRetries(),
-                        getProperties().getforcedDelay(),
+                        getProperties().getForcedDelay(),
                         0,
                         null,
-                        getOfflineDevice().getSerialNumber()
-                );
+                        getOfflineDevice().getSerialNumber());
+                    break;
             }
         }
         return commandLineConnection;
@@ -290,7 +294,7 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-03-14 14:27:09 +0100$";
+        return "$Date: 2020-07-23$";
     }
 
     @Override
@@ -439,5 +443,17 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
+    }
+
+    @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal) {
+        this.protocolJournal = protocolJournal;
+    }
+
+    @Override
+    public void journal(String message) {
+        if (protocolJournal!=null) {
+            protocolJournal.addToJournal(message);
+        }
     }
 }

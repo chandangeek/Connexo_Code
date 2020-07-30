@@ -13,6 +13,8 @@ import com.elster.jupiter.customtask.CustomTaskOccurrenceFinder;
 import com.elster.jupiter.customtask.CustomTaskProperty;
 import com.elster.jupiter.customtask.CustomTaskStatus;
 import com.elster.jupiter.customtask.PropertiesInfo;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
@@ -59,9 +61,9 @@ final class CustomTaskImpl implements ICustomTask {
     private final Thesaurus thesaurus;
     @NotNull(message = "{" + MessageSeeds.Keys.NAME_REQUIRED_KEY  + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @NotNull
-
     private transient String taskType;
 
     private transient ScheduleExpression scheduleExpression;

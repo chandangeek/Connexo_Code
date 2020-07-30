@@ -11,6 +11,8 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import com.elster.jupiter.nls.Thesaurus;
 
+import com.energyict.mdc.common.device.data.Device;
+
 import javax.inject.Inject;
 import java.util.Arrays;
 
@@ -76,6 +78,12 @@ public class ReplyTypeFactory {
                 messageSeed.getErrorCode(),
                 meterName,
                 messageSeed.getErrorTypeLevel());
+    }
+
+    public ErrorType errorType(Device device, String translatedMessage, String errorCode, ErrorType.Level level) {
+        ErrorType errorType = errorType(translatedMessage, errorCode, device.getName(), level);
+        errorType.getObject().setMRID(device.getmRID());
+        return errorType;
     }
 
     public ErrorType errorType(String deviceName, String deviceMrid, String translatedMessage, String errorCode, ErrorType.Level level) {

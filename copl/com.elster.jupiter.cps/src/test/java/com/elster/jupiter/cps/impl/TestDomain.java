@@ -5,6 +5,8 @@
 package com.elster.jupiter.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
@@ -81,8 +83,10 @@ public class TestDomain {
     @SuppressWarnings("unused")
     private long id;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "FieldTooLong")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SPECIAL_CHARS)
     private String name;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "FieldTooLong")
+    @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
 
     public long getId() {
