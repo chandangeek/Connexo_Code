@@ -19,6 +19,7 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,11 +164,19 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .map(ServiceCallImpl.Fields.externalReference.fieldName())
                     .add();
+           Column reference = table.column("REFERENCE")
+                    .varChar(NAME_LENGTH)
+                    .upTo(Version.version(10, 8, 1))
+                    .as("'SC_'||" + sqlDialect.leftPad("ID", ServiceCallImpl.ZEROFILL_SIZE, "0") + ")")
+                    .alias("internalReference")
+                    .add();
             table.column("REFERENCE")
                     .varChar(NAME_LENGTH)
-                    .as("CASE when id < " + Math.pow(10,ServiceCallImpl.ZEROFILL_SIZE) + " then " +
+                    .previously(reference)
+                    .since(Version.version(10, 8, 1))
+                    .as("CASE when id < " + new DecimalFormat("#").format(Math.pow(10, ServiceCallImpl.ZEROFILL_SIZE)) + " then " +
                             " 'SC_'||" + sqlDialect.leftPad("ID", ServiceCallImpl.ZEROFILL_SIZE, "0") + ")" +
-                    " else 'SC_'||TO_CHAR(\"ID\") END")
+                    " else 'SC_'||TO_CHAR(ID) END")
                     .alias("internalReference")
                     .add();
             List<Column> target = table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
