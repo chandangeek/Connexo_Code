@@ -16,6 +16,10 @@ public class AcudWater extends Acud {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor);
     }
 
+    protected AcudLogBookFactory createLogBookFactory() {
+        return new AcudWaterLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
+    }
+
     public EndDeviceType getTypeMeter() {
         return typeMeter;
     }

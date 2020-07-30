@@ -5,13 +5,15 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 
 import java.util.Arrays;
@@ -46,8 +48,7 @@ public class AcudGateway extends Acud {
         return null;
     }
 
-    @Override
-    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+    protected AcudLogBookFactory createLogBookFactory() {
         return null;
     }
 

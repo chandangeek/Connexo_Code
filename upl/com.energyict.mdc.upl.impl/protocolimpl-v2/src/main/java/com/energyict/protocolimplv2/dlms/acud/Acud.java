@@ -157,9 +157,7 @@ public abstract class Acud extends AbstractDlmsProtocol {
         return this.logBookFactory;
     }
 
-    protected AcudLogBookFactory createLogBookFactory() {
-        return new AcudLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
-    }
+    protected abstract AcudLogBookFactory createLogBookFactory();
 
     @Override
     public String getSerialNumber() {

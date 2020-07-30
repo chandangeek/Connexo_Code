@@ -17,6 +17,10 @@ public class AcudGas extends Acud {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor);
     }
 
+    protected AcudLogBookFactory createLogBookFactory() {
+        return new AcudGasLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
+    }
+
     public EndDeviceType getTypeMeter() {
         return typeMeter;
     }
