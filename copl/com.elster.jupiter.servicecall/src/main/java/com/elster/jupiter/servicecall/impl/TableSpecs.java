@@ -165,7 +165,9 @@ public enum TableSpecs {
                     .add();
             table.column("REFERENCE")
                     .varChar(NAME_LENGTH)
-                    .as("'SC_'||" + sqlDialect.leftPad("ID", ServiceCallImpl.ZEROFILL_SIZE, "0") + ")")
+                    .as("CASE when id < " + Math.pow(10,ServiceCallImpl.ZEROFILL_SIZE) + " then " +
+                            " 'SC_'||" + sqlDialect.leftPad("ID", ServiceCallImpl.ZEROFILL_SIZE, "0") + ")" +
+                    " else 'SC_'||TO_CHAR(\"ID\") END")
                     .alias("internalReference")
                     .add();
             List<Column> target = table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
