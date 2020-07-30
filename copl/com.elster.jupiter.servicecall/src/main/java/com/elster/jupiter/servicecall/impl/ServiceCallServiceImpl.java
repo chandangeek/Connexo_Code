@@ -277,7 +277,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 7), UpgraderV10_7.class,
-                        version(10, 7), V10_8_1SimpleUpgrader.class
+                        version(10, 8, 1), V10_8_1SimpleUpgrader.class
                 ));
     }
 
