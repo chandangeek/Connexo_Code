@@ -24,12 +24,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
@@ -314,12 +312,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
     private boolean checkComTaskExecutions(Set<Device> devices, String readingItem, SyncReplyIssue syncReplyIssue) {
         for (Device device : devices) {
-            if (syncReplyIssue.getDeviceIrregularComTaskExecutionMap().get(device.getId()) == null
-                    && syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(device.getId()) == null
-                    && syncReplyIssue.getDeviceMessagesComTaskExecutionMap().get(device.getId()) == null) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.NO_COM_TASK_EXECUTION_ON_DEVICE, null,
-                        device.getName(), readingItem));
-            } else {
+            if (syncReplyIssue.getDeviceIrregularComTaskExecutionMap().get(device.getId()) != null
+                    || syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(device.getId()) != null
+                    || syncReplyIssue.getDeviceMessagesComTaskExecutionMap().get(device.getId()) != null) {
                 return true;
             }
         }
