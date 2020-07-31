@@ -20,6 +20,7 @@
             <xs:element name="ConnectDisconnectFunction" type="m:ConnectDisconnectFunction" minOccurs="0"
                         maxOccurs="unbounded"/>
             <xs:element name="MeterStatusSource" type="xs:string" minOccurs="0"/>
+            <xs:element name="Ping" type="xs:string" minOccurs="0"/>
             <xs:element name="Meter" type="m:Meter" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ReadingType" type="m:ReadingType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="SimpleEndDeviceFunction" type="m:SimpleEndDeviceFunction" minOccurs="0"
@@ -456,6 +457,7 @@
             <xs:element name="status" type="m:Status" minOccurs="0"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Asset.status"/>
             <!-- Below elements added for Connexo -->
+            <xs:element name="PingResult" type="xs:string" minOccurs="0"/>
             <xs:element name="MeterStatus" type="m:MeterStatus" minOccurs="0"/>
             <xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"
                         maxOccurs="unbounded"/>

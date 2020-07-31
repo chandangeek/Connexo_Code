@@ -15,7 +15,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-							
+
 import java.util.Optional;
 
 public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
@@ -26,6 +26,7 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLS"),
         CALLBACK_URL("callbackURL", "CALLBACK_URL"),
         METER_STATUS_SOURCE("meterStatusSource", "METER_STATUS_SOURCE"),
+        PING("ping", "PING"),
         CORRELATION_ID("correlationId", "CORRELATION_ID");
 
         FieldNames(String javaName, String databaseName) {
@@ -57,6 +58,7 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     private String callbackURL;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meterStatusSource;
+    private boolean ping;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String correlationId;
@@ -105,6 +107,14 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         this.meterStatusSource = meterStatusSource;
     }
 
+    public boolean needsPing() {
+        return ping;
+    }
+
+    public void setPing(boolean ping) {
+        this.ping = ping;
+    }
+
     public String getCorrelationId() {
         return correlationId;
     }
@@ -116,11 +126,12 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setExpectedNumberOfCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0l));
-        this.setActualNumberOfSuccessfulCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0l));
-        this.setActualNumberOfFailedCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0l));
+        this.setExpectedNumberOfCalls((Long) Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0l));
+        this.setActualNumberOfSuccessfulCalls((Long) Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0l));
+        this.setActualNumberOfFailedCalls((Long) Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0l));
         this.setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
         this.setMeterStatusSource((String) propertyValues.getProperty(FieldNames.METER_STATUS_SOURCE.javaName()));
+        this.setPing((boolean) propertyValues.getProperty(FieldNames.PING.javaName()));
         this.setCorrelationId((String) propertyValues.getProperty(FieldNames.CORRELATION_ID.javaName()));
     }
 
@@ -131,6 +142,7 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.CALLS_FAILED.javaName(), this.getActualNumberOfFailedCalls());
         propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), this.getCallbackURL());
         propertySetValues.setProperty(FieldNames.METER_STATUS_SOURCE.javaName(), this.getMeterStatusSource());
+        propertySetValues.setProperty(FieldNames.PING.javaName(), this.needsPing());
         propertySetValues.setProperty(FieldNames.CORRELATION_ID.javaName(), this.getCorrelationId());
     }
 

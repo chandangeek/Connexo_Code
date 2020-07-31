@@ -107,6 +107,11 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
     }
 
     @Override
+    public Optional<DeviceMessage> findAndLockDeviceMessageById(long id) {
+        return Optional.ofNullable(this.deviceDataModelService.dataModel().mapper(DeviceMessage.class).lock(id));
+    }
+
+    @Override
     public boolean willDeviceMessageBePickedUpByPlannedComTask(Device device, DeviceMessage deviceMessage) {
         return device.getComTaskExecutions().stream().
                 filter(not(ComTaskExecution::isOnHold)).

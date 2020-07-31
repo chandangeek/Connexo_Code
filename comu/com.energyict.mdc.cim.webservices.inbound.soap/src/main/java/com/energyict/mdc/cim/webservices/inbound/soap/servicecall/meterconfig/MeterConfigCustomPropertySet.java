@@ -171,6 +171,11 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .named(MeterConfigDomainExtension.FieldNames.OPERATION.javaName(), TranslationKeys.OPERATION)
                         .describedAs(TranslationKeys.OPERATION)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterConfigDomainExtension.FieldNames.PING_RESULT.javaName(), TranslationKeys.PING_RESULT)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -257,6 +262,11 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.OPERATION.javaName())
                     .notNull()
+                    .add();
+            table.column(MeterConfigDomainExtension.FieldNames.PING_RESULT.databaseName())
+                    .varChar()
+                    .map(MeterConfigDomainExtension.FieldNames.PING_RESULT.javaName())
+                    .since(Version.version(10, 9))
                     .add();
         }
 

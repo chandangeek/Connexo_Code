@@ -19,6 +19,7 @@ import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.common.device.data.Device;
@@ -45,6 +46,7 @@ import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -146,40 +148,45 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     }
 
     @Override
-    public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, List<FailedMeterOperation> devicesWithWarnings,
-                     long expectedNumberOfCalls, boolean meterStatusRequired, String correlationId) {
+    public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation, Map<Device, PingResult> successfulDevices,
+                     List<FailedMeterOperation> failedDevices, List<FailedMeterOperation> devicesWithWarnings, long expectedNumberOfCalls,
+                     boolean meterStatusRequired, String correlationId) {
         String method;
         MeterConfigEventMessageType message;
         switch (operation) {
             case CREATE:
                 method = "createdMeterConfig";
-                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
+                message = createStatusResponseMessage(createMeterConfig(successfulDevices.keySet()), failedDevices,
+                        devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case UPDATE:
                 method = "changedMeterConfig";
-                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
+                message = createStatusResponseMessage(createMeterConfig(successfulDevices.keySet()), failedDevices,
+                        devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
                 method = "replyMeterConfig";
-                message = createStatusResponseMessage(getMeterConfig(successfulDevices, meterStatusRequired), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
+                message = createStatusResponseMessage(getMeterConfig(successfulDevices, meterStatusRequired),
+                        failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
                 break;
             case DELETE:
                 method = "deletedMeterConfig";
-                message = createStatusResponseMessage(getEmptyMeterConfig(), failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.DELETED, correlationId);
+                message = createStatusResponseMessage(getEmptyMeterConfig(), failedDevices, devicesWithWarnings,
+                        expectedNumberOfCalls, HeaderType.Verb.DELETED, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
+
         SetMultimap<String, String> values = HashMultimap.create();
 
-        successfulDevices.forEach(device->{
+        successfulDevices.keySet().forEach(device -> {
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), device.getName());
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getmRID());
             values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber());
         });
-        
-        failedDevices.forEach(meterOperation->{
+
+        failedDevices.forEach(meterOperation -> {
             values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meterOperation.getMeterName());
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meterOperation.getmRID());
         });
@@ -207,7 +214,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return translationKeys;
     }
 
-    private MeterConfig createMeterConfig(List<Device> devices) {
+    private MeterConfig createMeterConfig(Collection<Device> devices) {
         MeterConfig meterConfig = meterConfigFactory.asMeterConfig(devices);
         getMeterConfigExtendedDataFactories()
                 .forEach(meterConfigExtendedDataFactory -> meterConfigExtendedDataFactory.extendData(devices, meterConfig));
@@ -218,8 +225,8 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return new MeterConfig();
     }
 
-    private MeterConfig getMeterConfig(List<Device> devices, boolean isMeterStatusRequired) {
-        return meterConfigFactory.asGetMeterConfig(devices, isMeterStatusRequired);
+    private MeterConfig getMeterConfig(Map<Device, PingResult> devicesAndPingResult, boolean isMeterStatusRequired) {
+        return meterConfigFactory.asGetMeterConfig(devicesAndPingResult, isMeterStatusRequired);
     }
 
     private MeterConfigEventMessageType createInfoResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {
@@ -252,11 +259,6 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             replyType.setResult(ReplyType.Result.PARTIAL);
         }
 
-        // set payload
-        MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        payloadType.setMeterConfig(meterConfig);
-        meterConfigEventMessageType.setPayload(payloadType);
-
         // set errors
         failedDevices.forEach(failedMeterOperation -> replyType.getError().add(convertToErrorType(failedMeterOperation, ErrorType.Level.FATAL)));
 
@@ -264,6 +266,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         devicesWithWarnings.forEach(warningMeterOperation -> replyType.getError().add(convertToErrorType(warningMeterOperation, ErrorType.Level.WARNING)));
 
         meterConfigEventMessageType.setReply(replyType);
+
+        // set payload
+        MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
+        payloadType.setMeterConfig(meterConfig);
+        meterConfigEventMessageType.setPayload(payloadType);
 
         return meterConfigEventMessageType;
     }
@@ -292,7 +299,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

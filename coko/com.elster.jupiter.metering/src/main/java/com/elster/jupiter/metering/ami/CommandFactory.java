@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.units.Quantity;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -36,4 +37,8 @@ public interface CommandFactory {
     EndDeviceCommand createGenerateCSRCommand(EndDevice endDevice, CertificateType certificateType) throws UnsupportedCommandException;
 
     EndDeviceCommand createImportCertificateCommand(EndDevice endDevice, SecurityAccessorType securityAccessorType) throws UnsupportedCommandException;
+
+    EndDeviceCommand createUpdateCreditAmountCommand(EndDevice endDevice, String creditType, BigDecimal creditAmount) throws UnsupportedCommandException;
+
+    EndDeviceCommand createUpdateCreditDaysLimitCommand(EndDevice endDevice, BigDecimal creditDaysLimitFirst, BigDecimal creditDaysLimitScnd) throws UnsupportedCommandException;
 }

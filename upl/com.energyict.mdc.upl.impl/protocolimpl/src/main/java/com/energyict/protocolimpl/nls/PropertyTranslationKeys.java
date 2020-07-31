@@ -997,7 +997,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DLMS_WAKE_UP("upl.property.dlms.wakeUp", "Wake up"),
     DLMS_WAKE_UP_DESCRIPTION("upl.property.dlms.wakeUp.description", "Wake up"),
     DLMS_WAVENIS_ENCRYPTION_KEY("upl.property.dlms.wavenisEncryptionKey", "Wavenis encryption key"),
-    DLMS_WAVENIS_ENCRYPTION_KEY_DESCRIPTION("upl.property.dlms.wavenisEncryptionKey.description", "Wavenis encryption key")
+    DLMS_WAVENIS_ENCRYPTION_KEY_DESCRIPTION("upl.property.dlms.wavenisEncryptionKey.description", "Wavenis encryption key"),
+    DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS("upl.property.dlms.overwriteServerLowerMacAddress", "Overwrite server lower MAC address"),
+    DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS_DESCRIPTION("upl.property.dlms.overwriteServerLowerMacAddress.description", "Overwrite server lower MAC address"),
     ;
 
 

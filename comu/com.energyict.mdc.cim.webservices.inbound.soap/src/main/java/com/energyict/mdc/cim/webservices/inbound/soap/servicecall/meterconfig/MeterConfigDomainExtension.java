@@ -29,7 +29,8 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
         PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
         ERROR_MESSAGE("errorMessage", "errorMessage"),
         ERROR_CODE("errorCode", "errorCode"),
-        OPERATION("operation", "operation");
+        OPERATION("operation", "operation"),
+        PING_RESULT("pingResult", "PING_RESULT");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -64,6 +65,9 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String operation;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String pingResult;
 
     public MeterConfigDomainExtension() {
         super();
@@ -133,6 +137,14 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
         this.operation = operation;
     }
 
+    public String getPingResult() {
+        return pingResult;
+    }
+
+    public void setPingResult(String pingResult) {
+        this.pingResult = pingResult;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -145,6 +157,7 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setOperation((String) propertyValues.getProperty(FieldNames.OPERATION.javaName()));
+        this.setPingResult((String) propertyValues.getProperty(FieldNames.PING_RESULT.javaName()));
     }
 
     @Override
@@ -157,6 +170,7 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.OPERATION.javaName(), this.getOperation());
+        propertySetValues.setProperty(FieldNames.PING_RESULT.javaName(), this.getPingResult());
     }
 
     @Override

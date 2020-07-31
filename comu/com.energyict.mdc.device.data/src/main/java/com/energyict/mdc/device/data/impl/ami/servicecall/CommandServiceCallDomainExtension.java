@@ -6,25 +6,27 @@ package com.energyict.mdc.device.data.impl.ami.servicecall;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.device.data.ami.ICommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author sva
  * @since 03/06/2016 - 15:39
  */
-public class CommandServiceCallDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class CommandServiceCallDomainExtension extends AbstractPersistentDomainExtension implements ICommandServiceCallDomainExtension {
+    private static final String DEVICE_MSG_DELIMITER = ", ";
 
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
@@ -81,6 +83,11 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
 
     public String getDeviceMessages() {
         return deviceMessages;
+    }
+
+    public List<Long> getDeviceMessageIds() {
+        return Arrays.stream(deviceMessages.substring(1, deviceMessages.length() - 1).split(DEVICE_MSG_DELIMITER))
+                .map(Long::valueOf).collect(Collectors.toList());
     }
 
     public void setDeviceMessages(String deviceMessages) {

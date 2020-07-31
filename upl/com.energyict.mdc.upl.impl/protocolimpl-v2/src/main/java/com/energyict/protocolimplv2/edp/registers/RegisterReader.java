@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.common.DisconnectControlState;
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 

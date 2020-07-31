@@ -172,8 +172,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
-        getLogger().info("-version: " + getVersion());
+        getLogger().info("Start Beacon 3x00 protocol for " + offlineDevice.getSerialNumber());
+        getLogger().info("Beacon 3x200 protocol version: " + getVersion());
         handleFrameCounter(comChannel);
         initDlmsSession(comChannel);
     }
@@ -909,7 +909,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-07-01$";
+        return "$Date: 2020-07-30$";
     }
 
     @Override

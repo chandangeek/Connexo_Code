@@ -69,14 +69,14 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (optionalExistingComTaskExecution.isPresent() && optionalExistingComTaskExecution.get().isOnHold()) {
-            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK_EXECUTION).format());
+            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK).format());
         }
         ComTaskExecution existingComTaskExecution = optionalExistingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
 
-        getLockedComTaskExecution(existingComTaskExecution.getId(), existingComTaskExecution.getVersion())
-                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())))
-                .scheduleNow();
-
+        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(existingComTaskExecution.getId(), existingComTaskExecution.getVersion())
+                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())));
+        lockedComTaskExecution.addNewComTaskExecutionTrigger(domainExtension.getReleaseDate());
+        lockedComTaskExecution.updateNextExecutionTimestamp();
     }
 
     private ComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {

@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
@@ -71,6 +72,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -80,7 +82,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activ
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 
-@Component(name="com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory", service=MeterConfigFactory.class)
+@Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory", service = MeterConfigFactory.class)
 public class MeterConfigFactoryImpl implements MeterConfigFactory {
 
     private static final String COMPONENT_NAME = "SIM";
@@ -153,13 +155,8 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     @Override
-    public MeterConfig asGetMeterConfig(Device device) {
-        return asGetMeterConfig(Arrays.asList(device), false);
-    }
-
-    @Override
-    public MeterConfig asGetMeterConfig(Device device, boolean meterStatusRequired) {
-        return asGetMeterConfig(Arrays.asList(device), meterStatusRequired);
+    public MeterConfig asGetMeterConfig(Device device, PingResult pingResult, boolean meterStatusRequired) {
+        return asGetMeterConfig(Collections.singletonMap(device, pingResult), meterStatusRequired);
     }
 
     @Override
@@ -184,19 +181,14 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     @Override
-    public MeterConfig asGetMeterConfig(Collection<Device> devices) {
-        return asGetMeterConfig(devices, false);
-    }
-
-    @Override
-    public MeterConfig asGetMeterConfig(Collection<Device> devices, boolean meterStatusRequired) {
+    public MeterConfig asGetMeterConfig(Map<Device, PingResult> devicesAndPingResult, boolean meterStatusRequired) {
         MeterConfig meterConfig = new MeterConfig();
-        for (Device device : devices) {
-            Meter meter = getMeter(device, meterStatusRequired);
+        devicesAndPingResult.forEach((device, pingResult) -> {
+            Meter meter = getMeter(device, meterStatusRequired, pingResult);
             meterConfig.getMeter().add(meter);
             SimpleEndDeviceFunction simpleEndDeviceFunction = getSimpleEndDeviceFunction(device, meter);
             meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
-        }
+        });
         return meterConfig;
     }
 
@@ -275,7 +267,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         return meterMultiplier;
     }
 
-    private Meter getMeter(Device device, boolean isMeterStatusRequired) {
+    private Meter getMeter(Device device, boolean isMeterStatusRequired, PingResult pingResult) {
         Meter meter = new Meter();
         meter.setMRID(device.getmRID());
         meter.setSerialNumber(device.getSerialNumber());
@@ -291,6 +283,9 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         meter.setStatus(createStatus(stateName));
         if (isMeterStatusRequired) {
             meter.setMeterStatus(getMeterStatus(device));
+        }
+        if (pingResult != PingResult.NOT_NEEDED) {
+            meter.setPingResult(pingResult.getName());
         }
         //general attributes
         List<CustomAttributeSet> generalList = new ArrayList<>();
@@ -478,13 +473,17 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
             versionUtils.getActivationDateFromMessage(deviceMessage).ifPresent(firmwareStatusType::setActivationDate);
         }
         switch (activatedFirmwareVersion.getFirmwareVersion().getFirmwareType()) {
-            case METER: firmwareStatus.setMeterFirmware(firmwareStatusType);
+            case METER:
+                firmwareStatus.setMeterFirmware(firmwareStatusType);
                 break;
-            case COMMUNICATION: firmwareStatus.setCommunicationFirmware(firmwareStatusType);
+            case COMMUNICATION:
+                firmwareStatus.setCommunicationFirmware(firmwareStatusType);
                 break;
-            case AUXILIARY: firmwareStatus.setAuxiliaryFirmware(firmwareStatusType);
+            case AUXILIARY:
+                firmwareStatus.setAuxiliaryFirmware(firmwareStatusType);
                 break;
-            case CA_CONFIG_IMAGE: firmwareStatus.setImage(firmwareStatusType);
+            case CA_CONFIG_IMAGE:
+                firmwareStatus.setImage(firmwareStatusType);
                 break;
         }
     }
