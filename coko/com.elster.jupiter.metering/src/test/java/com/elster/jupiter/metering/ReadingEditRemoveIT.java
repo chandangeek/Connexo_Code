@@ -115,6 +115,10 @@ public class ReadingEditRemoveIT {
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.OVERFLOWCONDITIONDETECTED), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.OVERFLOWCONDITIONDETECTED), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REVERSEROTATION), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REVERSEROTATION), existDate);
 
         // step 5
         // test edit & add
@@ -147,6 +151,18 @@ public class ReadingEditRemoveIT {
         assertThat(channelReading).isPresent();
         assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), KILO, WATTHOUR));
 
+        channel.editReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2));
+        assertQualities(channel, newDate, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)
+        }, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD),
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)
+        });
         // step 6
         // test re-edit
         reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
