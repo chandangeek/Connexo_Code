@@ -121,10 +121,18 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
                 .finish();
     }
 
-    private PropertySpecBuilder<Boolean> booleanSpecBuilder(String name, TranslationKey translationKey) {
+    protected PropertySpecBuilder<Boolean> booleanSpecBuilder(String name, TranslationKey translationKey) {
         return this.propertySpecService
                 .booleanSpec()
                 .named(name, translationKey).describedAs(new DescriptionTranslationKey(translationKey));
+    }
+
+    protected PropertySpec booleanSpecBuilder(String name, boolean defaultValue, TranslationKey translationKey) {
+        return getPropertySpecService()
+                .booleanSpec()
+                .named(name, translationKey).describedAs(new DescriptionTranslationKey(translationKey))
+                .setDefaultValue(defaultValue)
+                .finish();
     }
 
     protected PropertySpec deviceId() {
@@ -227,6 +235,13 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
             specBuilder.markExhaustive();
         }
         return specBuilder.finish();
+    }
+
+    protected PropertySpec durationSpec(String name, boolean required, TranslationKey translationKey, Duration defaultValue) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, required, translationKey, getPropertySpecService()::durationSpec)
+                .setDefaultValue(defaultValue)
+                .finish();
     }
 
 }

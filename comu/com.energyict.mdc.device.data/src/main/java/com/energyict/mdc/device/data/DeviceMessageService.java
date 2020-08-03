@@ -32,6 +32,8 @@ public interface DeviceMessageService {
 
     Optional<DeviceMessage> findAndLockDeviceMessageByIdAndVersion(long id, long version);
 
+    Optional<DeviceMessage> findAndLockDeviceMessageById(long id);
+
     /**
      * Checks if a DeviceMessage will be picked up by a planned ComTask.
      *

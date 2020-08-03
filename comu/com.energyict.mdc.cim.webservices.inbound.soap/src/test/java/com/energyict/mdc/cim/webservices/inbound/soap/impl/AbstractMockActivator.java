@@ -46,12 +46,15 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -69,11 +72,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -159,9 +157,9 @@ public abstract class AbstractMockActivator {
     @Mock
     protected ServiceCall serviceCall;
     @Mock
-    OrmService ormService;
+    protected OrmService ormService;
     @Mock
-    DataModel dataModel;
+    protected DataModel dataModel;
     @Mock
     protected MeterConfigFactory meterConfigFactory;
     @Mock
@@ -174,6 +172,12 @@ public abstract class AbstractMockActivator {
     protected CommunicationTaskService communicationTaskService;
     @Mock
     protected MeteringTranslationService meteringTranslationService;
+    @Mock
+    protected EndDeviceEventsServiceProvider endDeviceEventsServiceProvider;
+    @Mock
+    protected DeviceMessageService deviceMessageService;
+    @Mock
+    protected MultiSenseHeadEndInterface multiSenseHeadEndInterface;
     @Mock
     protected TopologyService topologyService;
     @Mock
@@ -252,6 +256,9 @@ public abstract class AbstractMockActivator {
         activator.setMasterDataService(masterDataService);
         activator.setCommunicationTaskService(communicationTaskService);
         activator.setMeteringTranslationService(meteringTranslationService);
+        activator.setEndDeviceEventsServiceProvider(endDeviceEventsServiceProvider);
+        activator.setDeviceMessageService(deviceMessageService);
+        activator.setMultiSenseHeadEndInterface(multiSenseHeadEndInterface);
         activator.setTopologyService(topologyService);
         activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.activate(mock(BundleContext.class));

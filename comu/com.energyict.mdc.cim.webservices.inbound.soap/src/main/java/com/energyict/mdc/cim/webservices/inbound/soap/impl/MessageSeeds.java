@@ -27,6 +27,8 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_VALUE(10, "UnsupportedValue", "Element ''{0}'' contains unsupported value ''{1}''. Must be one of: {2}"),
     THIS_FIELD_IS_REQUIRED(11, Keys.THIS_FIELD_IS_REQUIRED, "This field is required"),
     FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
+    MISSING_ENDPOINT(13, "MissingEndpoint", "Endpoint for {0} isn''t found by URL ''{1}''."),
+    UNSUPPORTED_VALUE_GENERAL(14, "UnsupportedValueGeneral", "Unsupported value for ''{0}''."),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
@@ -99,6 +101,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_POINT_WITH_URL(4003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED(4004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
     NO_PUBLISHED_END_POINT_WITH_URL(4005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
+    SYNC_MODE_NOT_SUPPORTED_GENERAL(4006, "SyncModeNotSupportedGeneral", "Synchronous mode isn''t supported."),
 
     NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
     ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY(5002, "ElementByRefNotFoundOrEmpty", "Element by reference ''{0}'' not found or has an empty value"),
@@ -168,6 +171,29 @@ public enum MessageSeeds implements MessageSeed {
     DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS(7016, "DifferentNumberOfMetersAndUsagePoints", "Number of meters should be equal to number of usage points. Currently: {0} and {1}"),
     NO_SUCH_DEVICE(7017, "NoSuchDevice", "No device with id ''{0}''."),
     EMPTY_USAGE_POINT_OR_END_DEVICE_LIST(7018, "NoUsagePointOrEndDeviceElementsInList", "Either the node ''MasterDataLinkageConfig.UsagePoint'' or ''MasterDataLinkageConfig.EndDevice'' should contain elements ''mRID'' or ''Names'' for identification purpose."),
+
+    //end device controls
+    UNABLE_TO_CREATE_END_DEVICE_CONTROLS(8001, "UnableToCreateEndDeviceControls", "Unable to create end device controls."),
+    UNABLE_TO_CHANGE_END_DEVICE_CONTROLS(8002, "UnableToChangeEndDeviceControls", "Unable to change end device controls."),
+    END_DEVICES_MISSING(8003, "EndDevicesMissing", "End devices are missing under EndDeviceControl[{0}]."),
+    COMMAND_CODE_MISSING(8004, "CommandCodeMissing", "The command CIM code is missing under EndDeviceControl[{0}]."),
+    MISSING_MRID_OR_NAME_FOR_END_DEVICE_CONTROL(8005, "MissingMridOrNameForEndDeviceControl",
+            "Either element ''mRID'' or ''Names'' is required under EndDeviceControl[{0}].EndDevices[{1}] for identification purpose."),
+    RELEASE_DATE_MISSING(8006, "ReleaseDateMissing", "The release date is missing under EndDeviceControl[{0}]."),
+    NO_SUCH_END_DEVICE_CONTROL_TYPE_WITH_CIM(8007, "NoSuchEndDeviceControlTypeWithCim", "No end device control type with CIM code ''{0}''."),
+    UNSUPPORTED_END_DEVICE_CONTROL_TYPE(8008, "UnsupportedEndDeviceControlType", "End device control type with CIM code ''{0}'' isn''t supported."),
+    INAPPROPRIATE_COMMAND_ATTRIBUTES(8009, "InappropriateCommandAttributes", "Inappropriate command attributes for CIM code ''{0}''."),
+    END_DEVICE_CONTROL_ERROR(8010, "EndDeviceControlError", "For command under EndDeviceControl[{0}]: ''{1}''"),
+    END_DEVICE_SYNC_ERROR(8011, "EndDeviceSyncError", "For device under EndDeviceControl[{0}].EndDevices[{1}]: ''{2}''"),
+    NO_HEAD_END_INTERFACE(8012, "NoHeadEndInterface", "Couldn''t find the head-end interface for end device with MRID ''{0}''."),
+    NO_REQUEST_WITH_CORRELATION_ID(8013, "NoRequestWithCorrelationId", "No request found with correlation id ''{0}''."),
+    NO_SERVICE_CALL_WITH_CIM(8014, "NoServiceCallWithCim", "No service call found with CIM code ''{0}''."),
+    NO_SERVICE_CALL_WITH_DEVICE_MRID(8015, "NoServiceCallWithDeviceMrid", "No service call found for device with MRID ''{0}''."),
+    NO_SERVICE_CALL_WITH_DEVICE_NAME(8016, "NoServiceCallWithDeviceName", "No service call found for device with name ''{0}''."),
+    END_DEVICE_CONTROL_ALREADY_PROCESSED(8017, "EndDeviceControlAlreadyProcessed",
+            "Changes to the end device control request can''t be applied after the processing has started or finished."),
+    UNABLE_TO_CANCEL_END_DEVICE_CONTROLS(8018, "UnableToCancelEndDeviceControls", "Unable to cancel end device controls."),
+    END_DEVICE_ERROR(8019, "EndDeviceError", "For device {0}: {1}"),
     ;
 
     private final int number;

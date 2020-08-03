@@ -252,6 +252,8 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage.values());
         addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.WavenisDeviceMessage.values());
         addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.ZigBeeConfigurationDeviceMessage.values());
+        addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.CreditDeviceMessage.values());
+        addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.ChargeDeviceMessage.values());
 
         return keys;
     }

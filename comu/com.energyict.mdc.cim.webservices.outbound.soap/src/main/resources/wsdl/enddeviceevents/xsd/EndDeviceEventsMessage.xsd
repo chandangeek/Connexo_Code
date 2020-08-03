@@ -42,6 +42,7 @@
     <xs:complexType name="EndDeviceEventsEventMessageType">
         <xs:sequence>
             <xs:element name="Header" type="msg:HeaderType"/>
+            <xs:element name="Reply" type="msg:ReplyType" minOccurs="0"/>
             <xs:element name="Payload" type="tns:EndDeviceEventsPayloadType" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>

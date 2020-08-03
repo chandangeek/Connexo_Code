@@ -1041,6 +1041,19 @@ public final class DeviceMessageConstants {
     public static final String LongPowerFailureThresholdAttributeName = "PowerConfigurationDeviceMessage.longpowerfailurethreshold";
     public static final String LongPowerFailureThresholdAttributeDefaultTranslation = "Long power failure threshold";
 
+    public static final String CurrentOverLimitThresholdAttributeName = "PowerConfigurationDeviceMessage.currentOverLimitThreshold";
+    public static final String CurrentOverLimitThresholdAttributeDefaultTranslation = "Current Over Limit Threshold";
+    public static final String CurrentOverLimitTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.currentOverLimitTimeThreshold";
+    public static final String CurrentOverLimitTimeThresholdAttributeDefaultTranslation = "Current Over Limit Time Threshold";
+    public static final String VoltageUnderLimitThresholdAttributeName = "PowerConfigurationDeviceMessage.voltageUnderLimitThreshold";
+    public static final String VoltageUnderLimitThresholdAttributeDefaultTranslation = "Voltage Under Limit Threshold";
+    public static final String VoltageUnderLimitTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.voltageUnderLimitTimeThreshold";
+    public static final String VoltageUnderLimitTimeThresholdAttributeDefaultTranslation = "Voltage Under Limit Time Threshold";
+    public static final String LiPfUnderLimitThresholdAttributeName = "PowerConfigurationDeviceMessage.LiPfUnderLimitThreshold";
+    public static final String LiPfUnderLimitThresholdAttributeDefaultTranslation = "\u01A9Li PF Under Limit Threshold";
+    public static final String LiPfUnderLimitTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.LiPfUnderLimitTimeThreshold";
+    public static final String LiPfUnderLimitTimeThresholdAttributeDefaultTranslation = "\u01A9Li PF Under Limit Time Threshold";
+
     public static final String SetMmEveryAttributeName = "ModbusConfigurationDeviceMessage.setmmevery";
     public static final String SetMmEveryAttributeDefaultTranslation = "Mm every";
     public static final String SetMmTimeoutAttributeName = "ModbusConfigurationDeviceMessage.setmmtimeout";
@@ -1457,6 +1470,8 @@ public final class DeviceMessageConstants {
     public static final String outputIdDefaultTranslation = "Output ID";
     public static final String newState = "OutputConfigurationMessage.newState";
     public static final String newStateDefaultTranslation = "New state";
+    public static final String loadLimitArray = "loadLimitArray";
+    public static final String loadLimitArrayDefaultTranslation = "Array of min. 4 load limits (start, stop, limit;...)";
 
     public static final String EnableDLMS = "FirewallConfigurationMessage.enableDLMS";
     public static final String EnableDLMSDefaultTranslation = "Enable DLMS";
@@ -1856,5 +1871,197 @@ public final class DeviceMessageConstants {
     public static final String numberOfRetriesDefaultTranslation = "Number Of Retries";
     public static final String repetitionDelay = "repetitionDelay";
     public static final String repetitionDelayDefaultTranslation = "Repetition Delay";
+
+    public static final String chargeTypeAttributeName = "chargeType";
+    public static final String chargeTypeAttributeNameDefaultTranslation = "Charge Type";
+    public static final String creditTypeAttributeName = "creditType";
+    public static final String creditTypeAttributeNameDefaultTranslation = "Credit Type";
+
+    public static final String creditAmount = "creditAmount";
+    public static final String creditAmountDefaultTranslation = "Credit Amount";
+    public static final String remainingCreditHigh = "remainingCreditHigh";
+    public static final String remainingCreditHighDefaultTranslation = "Remaining Credit High Threshold";
+    public static final String consumedCreditHigh = "consumedCreditHigh";
+    public static final String consumedCreditHighDefaultTranslation = "Consumed Credit High Threshold";
+    public static final String remainingTimeHigh = "remainingTimeHigh";
+    public static final String remainingTimeHighDefaultTranslation = "Remaining Time High Threshold (hours)";
+    public static final String creditDaysLimitFirst = "creditDaysLimitFirst";
+    public static final String creditDaysLimitFirstDefaultTranslation = "Grace period before warning (days)";
+
+
+    public static final String remainingCreditLow = "remainingCreditLow";
+    public static final String remainingCreditLowDefaultTranslation = "Remaining Credit Low Threshold";
+    public static final String consumedCreditLow = "consumedCreditLow";
+    public static final String consumedCreditLowDefaultTranslation = "Consumed Credit Low Threshold";
+    public static final String remainingTimeLow = "remainingTimeLow";
+    public static final String remainingTimeLowDefaultTranslation = "Remaining Time Low Threshold (hours)";
+    public static final String creditDaysLimitScnd = "creditDaysLimitScnd";
+    public static final String creditDaysLimitScndDefaultTranslation = "Grace period before relay shall be opened (days)";
+
+    public static final String passiveImmediateActivation = "passiveImmediateActivation";
+    public static final String passiveImmediateActivationDefaultTranslation = "Immediate Activation";
+    public static final String passiveUnitChargeActivationTime = "passiveUnitChargeActivationTime";
+    public static final String passiveUnitChargeActivationTimeDefaultTranslation = "Activation Time";
+    public static final String chargePeriod = "chargePeriod";
+    public static final String chargePeriodDefaultTranslation = "Charge Period";
+    public static final String chargeProportion = "chargeProportion";
+    public static final String chargeProportionDefaultTranslation = "Charge Proportion";
+    public static final String chargeCommodityScale = "chargeCommodityScale";
+    public static final String chargeCommodityScaleDefaultTranslation = "Charge Commodity Scale";
+    public static final String chargePriceScale = "chargePriceScale";
+    public static final String chargePriceScaleDefaultTranslation = "Charge Price Scale";
+    public static final String chargeTableTime1 = "chargeTableTime1";
+    public static final String chargeTableTime1DefaultTranslation = "Charge Table Time 1";
+    public static final String chargeTableUnit1 = "chargeTableUnit1";
+    public static final String chargeTableUnit1DefaultTranslation = "Charge Table Unit 1";
+    public static final String chargeTableTime2 = "chargeTableTime2";
+    public static final String chargeTableTime2DefaultTranslation = "Charge Table Time 2";
+    public static final String chargeTableUnit2 = "chargeTableUnit2";
+    public static final String chargeTableUnit2DefaultTranslation = "Charge Table Unit 2";
+    public static final String chargeTableTime3 = "chargeTableTime3";
+    public static final String chargeTableTime3DefaultTranslation = "Charge Table Time 3";
+    public static final String chargeTableUnit3 = "chargeTableUnit3";
+    public static final String chargeTableUnit3DefaultTranslation = "Charge Table Unit 3";
+    public static final String chargeTableTime4 = "chargeTableTime4";
+    public static final String chargeTableTime4DefaultTranslation = "Charge Table Time 4";
+    public static final String chargeTableUnit4 = "chargeTableUnit4";
+    public static final String chargeTableUnit4DefaultTranslation = "Charge Table Unit 4";
+    public static final String chargeTableTime5 = "chargeTableTime5";
+    public static final String chargeTableTime5DefaultTranslation = "Charge Table Time 5";
+    public static final String chargeTableUnit5 = "chargeTableUnit5";
+    public static final String chargeTableUnit5DefaultTranslation = "Charge Table Unit 5";
+    public static final String chargeTableTime6 = "chargeTableTime6";
+    public static final String chargeTableTime6DefaultTranslation = "Charge Table Time 6";
+    public static final String chargeTableUnit6 = "chargeTableUnit6";
+    public static final String chargeTableUnit6DefaultTranslation = "Charge Table Unit 6";
+    public static final String chargeTableTime7 = "chargeTableTime7";
+    public static final String chargeTableTime7DefaultTranslation = "Charge Table Time 7";
+    public static final String chargeTableUnit7 = "chargeTableUnit7";
+    public static final String chargeTableUnit7DefaultTranslation = "Charge Table Unit 7";
+    public static final String chargeTableTime8 = "chargeTableTime8";
+    public static final String chargeTableTime8DefaultTranslation = "Charge Table Time 8";
+    public static final String chargeTableUnit8 = "chargeTableUnit8";
+    public static final String chargeTableUnit8DefaultTranslation = "Charge Table Unit 8";
+    public static final String chargeTableTime9 = "chargeTableTime9";
+    public static final String chargeTableTime9DefaultTranslation = "Charge Table Time 9";
+    public static final String chargeTableUnit9 = "chargeTableUnit9";
+    public static final String chargeTableUnit9DefaultTranslation = "Charge Table Unit 9";
+    public static final String chargeTableTime10 = "chargeTableTime10";
+    public static final String chargeTableTime10DefaultTranslation = "Charge Table Time 10";
+    public static final String chargeTableUnit10 = "chargeTableUnit10";
+    public static final String chargeTableUnit10DefaultTranslation = "Charge Table Unit 10";
+
+    public static final String tariffCode = "tariffCode";
+    public static final String tariffCodeDefaultTranslation = "Tariff Code";
+
+    public static final String chargeStep1 = "chargeStep1";
+    public static final String chargeStep1DefaultTranslation = "Step1 Charge";
+    public static final String priceStep1 = "priceStep1";
+    public static final String priceStep1DefaultTranslation = "Step1 Price";
+    public static final String recalculationTypeStep1 = "recalculationTypeStep1";
+    public static final String recalculationTypeStep1DefaultTranslation = "Step1 Recalculation Type";
+    public static final String graceWarningStep1 = "graceWarningStep1";
+    public static final String graceWarningStep1DefaultTranslation = "Step1 Recalculation Grace Warning";
+    public static final String additionalTaxStep1 = "additionalTaxStep1";
+    public static final String additionalTaxStep1DefaultTranslation = "Step1 Additional Tax";
+
+    public static final String chargeStep2 = "chargeStep2";
+    public static final String chargeStep2DefaultTranslation = "Step2 Charge";
+    public static final String priceStep2 = "priceStep2";
+    public static final String priceStep2DefaultTranslation = "Step2 Price";
+    public static final String recalculationTypeStep2 = "recalculationTypeStep2";
+    public static final String recalculationTypeStep2DefaultTranslation = "Step2 Recalculation Type";
+    public static final String graceWarningStep2 = "graceWarningStep2";
+    public static final String graceWarningStep2DefaultTranslation = "Step2 Recalculation Grace Warning";
+    public static final String additionalTaxStep2 = "additionalTaxStep2";
+    public static final String additionalTaxStep2DefaultTranslation = "Step2 Additional Tax";
+
+    public static final String chargeStep3 = "chargeStep3";
+    public static final String chargeStep3DefaultTranslation = "Step3 Charge";
+    public static final String priceStep3 = "priceStep3";
+    public static final String priceStep3DefaultTranslation = "Step3 Price";
+    public static final String recalculationTypeStep3 = "recalculationTypeStep3";
+    public static final String recalculationTypeStep3DefaultTranslation = "Step3 Recalculation Type";
+    public static final String graceWarningStep3 = "graceWarningStep3";
+    public static final String graceWarningStep3DefaultTranslation = "Step3 Recalculation Grace Warning";
+    public static final String additionalTaxStep3 = "additionalTaxStep3";
+    public static final String additionalTaxStep3DefaultTranslation = "Step3 Additional Tax";
+
+    public static final String chargeStep4 = "chargeStep4";
+    public static final String chargeStep4DefaultTranslation = "Step4 Charge";
+    public static final String priceStep4 = "priceStep4";
+    public static final String priceStep4DefaultTranslation = "Step4 Price";
+    public static final String recalculationTypeStep4 = "recalculationTypeStep4";
+    public static final String recalculationTypeStep4DefaultTranslation = "Step4 Recalculation Type";
+    public static final String graceWarningStep4 = "graceWarningStep4";
+    public static final String graceWarningStep4DefaultTranslation = "Step4 Recalculation Grace Warning";
+    public static final String additionalTaxStep4 = "additionalTaxStep4";
+    public static final String additionalTaxStep4DefaultTranslation = "Step4 Additional Tax";
+
+    public static final String chargeStep5 = "chargeStep5";
+    public static final String chargeStep5DefaultTranslation = "Step5 Charge";
+    public static final String priceStep5 = "priceStep5";
+    public static final String priceStep5DefaultTranslation = "Step5 Price";
+    public static final String recalculationTypeStep5 = "recalculationTypeStep5";
+    public static final String recalculationTypeStep5DefaultTranslation = "Step5 Recalculation Type";
+    public static final String graceWarningStep5 = "graceWarningStep5";
+    public static final String graceWarningStep5DefaultTranslation = "Step5 Recalculation Grace Warning";
+    public static final String additionalTaxStep5 = "additionalTaxStep5";
+    public static final String additionalTaxStep5DefaultTranslation = "Step5 Additional Tax";
+
+    public static final String chargeStep6 = "chargeStep6";
+    public static final String chargeStep6DefaultTranslation = "Step6 Charge";
+    public static final String priceStep6 = "priceStep6";
+    public static final String priceStep6DefaultTranslation = "Step6 Price";
+    public static final String recalculationTypeStep6 = "recalculationTypeStep6";
+    public static final String recalculationTypeStep6DefaultTranslation = "Step6 Recalculation Type";
+    public static final String graceWarningStep6 = "graceWarningStep6";
+    public static final String graceWarningStep6DefaultTranslation = "Step6 Recalculation Grace Warning";
+    public static final String additionalTaxStep6 = "additionalTaxStep6";
+    public static final String additionalTaxStep6DefaultTranslation = "Step6 Additional Tax";
+
+    public static final String chargeStep7 = "chargeStep7";
+    public static final String chargeStep7DefaultTranslation = "Step7 Charge";
+    public static final String priceStep7 = "priceStep7";
+    public static final String priceStep7DefaultTranslation = "Step7 Price";
+    public static final String recalculationTypeStep7 = "recalculationTypeStep7";
+    public static final String recalculationTypeStep7DefaultTranslation = "Step7 Recalculation Type";
+    public static final String graceWarningStep7 = "graceWarningStep7";
+    public static final String graceWarningStep7DefaultTranslation = "Step7 Recalculation Grace Warning";
+    public static final String additionalTaxStep7 = "additionalTaxStep7";
+    public static final String additionalTaxStep7DefaultTranslation = "Step7 Additional Tax";
+
+    public static final String chargeStep8 = "chargeStep8";
+    public static final String chargeStep8DefaultTranslation = "Step8 Charge";
+    public static final String priceStep8 = "priceStep8";
+    public static final String priceStep8DefaultTranslation = "Step8 Price";
+    public static final String recalculationTypeStep8 = "recalculationTypeStep8";
+    public static final String recalculationTypeStep8DefaultTranslation = "Step8 Recalculation Type";
+    public static final String graceWarningStep8 = "graceWarningStep8";
+    public static final String graceWarningStep8DefaultTranslation = "Step8 Recalculation Grace Warning";
+    public static final String additionalTaxStep8 = "additionalTaxStep8";
+    public static final String additionalTaxStep8DefaultTranslation = "Step8 Additional Tax";
+
+    public static final String chargeStep9 = "chargeStep9";
+    public static final String chargeStep9DefaultTranslation = "Step9 Charge";
+    public static final String priceStep9 = "priceStep9";
+    public static final String priceStep9DefaultTranslation = "Step9 Price";
+    public static final String recalculationTypeStep9 = "recalculationTypeStep9";
+    public static final String recalculationTypeStep9DefaultTranslation = "Step9 Recalculation Type";
+    public static final String graceWarningStep9 = "graceWarningStep9";
+    public static final String graceWarningStep9DefaultTranslation = "Step9 Recalculation Grace Warning";
+    public static final String additionalTaxStep9 = "additionalTaxStep9";
+    public static final String additionalTaxStep9DefaultTranslation = "Step9 Additional Tax";
+
+    public static final String chargeStep10 = "chargeStep10";
+    public static final String chargeStep10DefaultTranslation = "Step10 Charge";
+    public static final String priceStep10 = "priceStep10";
+    public static final String priceStep10DefaultTranslation = "Step10 Price";
+    public static final String recalculationTypeStep10 = "recalculationTypeStep10";
+    public static final String recalculationTypeStep10DefaultTranslation = "Step10 Recalculation Type";
+    public static final String graceWarningStep10 = "graceWarningStep10";
+    public static final String graceWarningStep10DefaultTranslation = "Step10 Recalculation Grace Warning";
+    public static final String additionalTaxStep10 = "additionalTaxStep10";
+    public static final String additionalTaxStep10DefaultTranslation = "Step10 Additional Tax";
 
 }

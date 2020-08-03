@@ -8772,6 +8772,7 @@ PR1;DOMAIN;upl.property.ctr.dialHomeId.description;Dial home id;Home-ID wählen;
 PR1;DOMAIN;upl.property.dlms.HLSSecret.description;HLS secret;HLS-Geheimnis;;;;;
 PR1;DOMAIN;upl.property.dlms.masterKey.description;Master key;Hauptschlüssel;;;;;
 PR1;DOMAIN;upl.property.dlms.readCache.description;Read cache;Cache lesen;;;;;
+PR1;DOMAIN;upl.property.dlms.overwriteServerLowerMacAddress;Overwrite server lower MAC address;Uberschreiben Sie die niedrigere MAC-Adresse des Servers;;;;;
 PR1;DOMAIN;upl.property.dlms.serverLowerMacAddress;Server lower MAC address;Untere Server-MAC-Adresse;;;;;
 PR1;DOMAIN;upl.property.dlms.serverUpperMacAddress;Server upper MAC address;Obere Server-MAC-Adresse;;;;;
 PR1;DOMAIN;upl.property.edf.callingPhysicalAddress;Calling phyisical address;Die physische Adresse wird aufgerufen.;;;;;
@@ -9478,6 +9479,7 @@ PR1;DOMAIN;upl.property.v2.elster.requestTimeZone.description;Request timezone;Z
 PR1;DOMAIN;upl.property.v2.nta.useEquipmentIdentifierAsSerial;Use equipment identifier as serial;Anlagenkennzeichen als serielle verwenden;;;;;
 PR1;DOMAIN;upl.property.v2.tasks.sendEndOfSession.description;Send end of session;Sitzungsende senden;;;;;
 PR1;DOMAIN;upl.property.waveflow.initialRfCommand.description;Initial RF command;RF-Ausgangsbefehl;;;;;
+PR1;DOMAIN;upl.property.dlms.overwriteServerLowerMacAddress.description;Overwrite server lower MAC address;Uberschreiben Sie die niedrigere MAC-Adresse des Servers;;;;;
 PR1;DOMAIN;upl.property.dlms.serverLowerMacAddress.description;Server lower MAC address;Untere Server-MAC-Adresse;;;;;
 PR1;DOMAIN;upl.property.dlms.serverUpperMacAddress.description;Server upper MAC address;Obere Server-MAC-Adresse;;;;;
 PR1;DOMAIN;upl.property.edf.callingPhysicalAddress.description;Calling phyisical address;Die physische Adresse wird aufgerufen.;;;;;

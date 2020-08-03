@@ -4,8 +4,10 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.impl.NlsModule.FakeThesaurus;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -13,7 +15,10 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.HeadEndController;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
@@ -24,7 +29,9 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalink
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.ConfigEventInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
 
@@ -121,6 +128,20 @@ public class ServiceCallCommandsTest {
     private MasterDataService masterDataService;
     @Mock
     private CommunicationTaskService communicationTaskService;
+    @Mock
+    private MeteringService meteringService;
+    @Mock
+    private ReplyTypeFactory replyTypeFactory;
+    @Mock
+    private HeadEndController headEndController;
+    @Mock
+    private OrmService ormService;
+    @Mock
+    private DeviceMessageService deviceMessageService;
+    @Mock
+    private InboundSoapEndpointsActivator inboundSoapEndpointsActivator;
+    @Mock
+    private MultiSenseHeadEndInterface multiSenseHeadEndInterface;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private MasterDataLinkageConfigRequestMessageType linkageConfig;
@@ -202,7 +223,8 @@ public class ServiceCallCommandsTest {
         when(readingType.getMRID()).thenReturn(READING_TYPE_MRID);
         testable = new ServiceCallCommands(deviceService, jsonService, meterConfigParser, meterConfigFaultMessageFactory,
                 serviceCallService, endDeviceEventsBuilder, FakeThesaurus.INSTANCE, faultMessageFactory, clock,
-                masterDataService, communicationTaskService);
+                masterDataService, communicationTaskService, meteringService, replyTypeFactory, headEndController, ormService,
+                deviceMessageService, inboundSoapEndpointsActivator, multiSenseHeadEndInterface);
     }
 
     @Test
