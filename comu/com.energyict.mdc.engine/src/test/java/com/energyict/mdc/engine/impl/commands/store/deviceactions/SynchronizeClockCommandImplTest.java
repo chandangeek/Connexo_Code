@@ -217,31 +217,4 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getProblems()).isEmpty();
         assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED.getKey());
     }
-
-    @Test
-    public void smallerThanConfiguredTest() {
-        TimeDuration maxClockDifference = new TimeDuration(111);
-        TimeDuration maxClockShift = new TimeDuration(50);
-        TimeDuration minClockDifference = new TimeDuration(2);
-        TimeDuration clockDiff = new TimeDuration(1);
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        ClockCommand clockCommand = mock(ClockCommand.class);
-        ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
-        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
-        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
-
-        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
-        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
-        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
-
-        // business method
-        command.execute(deviceProtocol, this.newTestExecutionContext());
-
-        assertThat(command.getIssues()).hasSize(1);
-        assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
-        verify(deviceProtocol, never()).setTime(any(Date.class));
-    }
 }
