@@ -503,7 +503,7 @@ public class ServiceCallCommands {
         allLoadProfiles.addAll(loadProfilesSetByNames);
         allLoadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
 
-        Boolean meterReadingRequired = isMeterReadingRequired(reading.getSource(), registers, allLoadProfiles, actualEnd, now,
+        boolean meterReadingRequired = isMeterReadingRequired(reading.getSource(), registers, allLoadProfiles, actualEnd, now,
                 InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay);
 
         if (start != null && end != null) {
