@@ -516,7 +516,13 @@ public final class LoggerFactory {
 
     private static final class MessageInterfaceImplementationClassGenerator<MI> {
 
-        private ClassPool classPool;
+        private static ClassPool classPool;
+        static {
+            classPool = ClassPool.getDefault();
+            classPool.insertClassPath(new ClassClassPath(LoggerHolder.class));
+            classPool.insertClassPath(new ClassClassPath(LogLevel.class));
+            classPool.insertClassPath(new ClassClassPath(Configuration.class));
+        }
         private Class superClass;
         private AnnotatedMethodFinder methodFinder;
         private SourceCodeGenerator sourceCodeGenerator;
@@ -529,14 +535,6 @@ public final class LoggerFactory {
             this.sourceCodeGenerator = sourceCodeGenerator;
             this.messageInterfaceClass = messageInterfaceClass;
             this.logLevel = logLevel;
-            this.initializeClassPool();
-        }
-
-        private void initializeClassPool () {
-            this.classPool = ClassPool.getDefault();
-            this.classPool.insertClassPath(new ClassClassPath(LoggerHolder.class));
-            this.classPool.insertClassPath(new ClassClassPath(LogLevel.class));
-            this.classPool.insertClassPath(new ClassClassPath(Configuration.class));
         }
 
         @SuppressWarnings("unchecked")
@@ -580,7 +578,7 @@ public final class LoggerFactory {
         @SuppressWarnings("unchecked")
         private void generateImplementationClass () throws CannotCompileException {
             CtClass superClass = this.getSuperClassFromPool();
-            CtClass implementationClass = this.classPool.makeClass(this.implementationClassName());
+            CtClass implementationClass = classPool.makeClass(this.implementationClassName());
             implementationClass.setSuperclass(superClass);
             implementationClass.addInterface(this.getClassFromPool(this.messageInterfaceClass));
             this.addInterfaceMethods(implementationClass);
@@ -612,13 +610,13 @@ public final class LoggerFactory {
         }
 
         private CtClass getClassFromPool (Class clazz) {
-            this.classPool.insertClassPath(new ClassClassPath(clazz));
+            classPool.insertClassPath(new ClassClassPath(clazz));
             return this.getClassFromPool(clazz, "Could not find the class {0} from the JavaAssist class pool. Always expect the unexpected ;-)");
         }
 
         private CtClass getClassFromPool (Class clazz, String errorMessagePattern) {
             try {
-                return this.classPool.get(clazz.getName());
+                return classPool.get(clazz.getName());
             }
             catch (NotFoundException e) {
                 throw new RuntimeException(MessageFormat.format(errorMessagePattern, clazz.getName()), e);
