@@ -11,8 +11,14 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
@@ -20,11 +26,15 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Version;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -35,7 +45,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.issue.datavalidation.*;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
 import com.energyict.mdc.issue.datavalidation.impl.template.DataValidationIssueCreationRuleTemplate;
@@ -78,17 +93,16 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile TimeService timeService;
     private volatile ValidationService validationService;
-    private volatile NlsService nlsService;
     /* for dependency - startup/installation order */
     private volatile MeteringService meteringService;
     private volatile EstimationService estimationService;
 
     private volatile DataModel dataModel;
 
-    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private final List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
-    //for OSGI
     public IssueDataValidationServiceImpl() {
+        // for OSGi
     }
 
     @Inject
@@ -115,8 +129,6 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Activate
     public final void activate(BundleContext bundleContext) {
-        registerCreationRuleTemplateServices(bundleContext);
-
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -124,11 +136,21 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueActionService.class).toInstance(issueActionService);
+                bind(IssueCreationService.class).toInstance(issueService.getIssueCreationService());
                 bind(IssueDataValidationService.class).toInstance(IssueDataValidationServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
+                bind(TimeService.class).toInstance(timeService);
+                bind(ValidationService.class).toInstance(validationService);
             }
         });
+
+        registerCreationRuleTemplateServices(bundleContext);
+
         upgradeService.register(
                 InstallIdentifier.identifier("MultiSense", IssueDataValidationService.COMPONENT_NAME),
                 dataModel,
@@ -136,13 +158,15 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 ImmutableMap.of(
                         Version.version(10, 2), UpgraderV10_2.class,
                         Version.version(10, 7, 2), UpgraderV10_7_2.class,
-                        Version.version(10, 8), UpgraderV10_8.class
+                        Version.version(10, 8), UpgraderV10_8.class,
+                        Version.version(10, 8, 1), UpgraderV10_8_1.class
                 ));
     }
 
     @Deactivate
     public void stop() {
-        this.serviceRegistrations.forEach(ServiceRegistration::unregister);
+        serviceRegistrations.forEach(ServiceRegistration::unregister);
+        serviceRegistrations.clear();
     }
 
     @Override
@@ -228,7 +252,6 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
@@ -304,7 +327,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         Class<? extends IssueDataValidation> mainClass;
         Class<? extends Issue> issueEager;
         List<IssueStatus> statuses = filter.getStatuses();
-        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+        if (!statuses.isEmpty() && statuses.stream().noneMatch(IssueStatus::isHistorical)) {
             mainClass = OpenIssueDataValidation.class;
             issueEager = OpenIssue.class;
         } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
@@ -348,14 +371,8 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
 
     private void registerCreationRuleTemplateServices(BundleContext bundleContext) {
-        CreationRuleTemplate suspectCreatedIssueCreationRuleTemplate =
-                new SuspectCreatedIssueCreationRuleTemplate(propertySpecService, this, issueService,
-                        nlsService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService,
-                        timeService, validationService);
-
-        CreationRuleTemplate dataValidationIssueCreationRuleTemplate =
-                new DataValidationIssueCreationRuleTemplate(this, issueService,
-                        nlsService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService);
+        CreationRuleTemplate suspectCreatedIssueCreationRuleTemplate = dataModel.getInstance(SuspectCreatedIssueCreationRuleTemplate.class);
+        CreationRuleTemplate dataValidationIssueCreationRuleTemplate = dataModel.getInstance(DataValidationIssueCreationRuleTemplate.class);
 
         serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, suspectCreatedIssueCreationRuleTemplate,
                 new Hashtable<>(ImmutableMap.of("name", SuspectCreatedIssueCreationRuleTemplate.NAME))));

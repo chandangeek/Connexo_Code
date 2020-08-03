@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -102,6 +103,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -272,6 +274,10 @@ public class ValidationServiceImplTest {
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(Instant.EPOCH)));
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
         doReturn(fetcher).when(meter).findReadingQualities();
+        when(fetcher.ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .inScope(anyMap())
+                .collect())
+                .thenReturn(Collections.emptyList());
 
         validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService,
                 meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService,

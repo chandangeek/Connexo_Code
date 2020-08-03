@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -107,6 +108,16 @@ class ReadingQualityFetcherImpl implements ReadingQualityFetcher {
     public ReadingQualityFetcher atTimestamp(Instant timestamp) {
         stream = stream.filter(where("readingTimestamp").isEqualTo(timestamp));
         return this;
+    }
+
+    @Override
+    public ReadingQualityWithTypeFetcher ofQualityType(ReadingQualityType readingQualityType) {
+        return new ReadingQualityWithTypeFetcherImpl(this).ofQualityType(readingQualityType);
+    }
+
+    @Override
+    public ReadingQualityWithTypeFetcher ofQualityTypes(Set<ReadingQualityType> readingQualityTypes) {
+        return new ReadingQualityWithTypeFetcherImpl(this).ofQualityTypes(readingQualityTypes);
     }
 
     @Override

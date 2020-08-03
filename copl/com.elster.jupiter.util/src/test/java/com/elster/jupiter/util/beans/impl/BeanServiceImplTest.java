@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BeanServiceImplTest {
 
-    private static final String NAME = "name";
+    private static final String NAME = "name457";
     private static final int AGE = 45;
 
     private BeanService beanService = new BeanServiceImpl();
@@ -36,13 +36,18 @@ public class BeanServiceImplTest {
     @Test
     public void testGetter() {
         assertThat(beanService.get(bean, "name")).isEqualTo(NAME);
+        assertThat(beanService.get(bean, "age")).isEqualTo(AGE);
+        assertThat(beanService.get(bean, "thirteen")).isEqualTo(13);
     }
 
     @Test
     public void testSetter() {
         beanService.set(bean, "name", "Franky Avalon");
-
         assertThat(bean.getName()).isEqualTo("Franky Avalon");
+        beanService.set(bean, "age", 300);
+        assertThat(bean.getAge()).isEqualTo(300);
+        beanService.set(bean, "moniker", "Franky Knight");
+        assertThat(bean.getName()).isEqualTo("Franky Knight");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -60,5 +65,13 @@ public class BeanServiceImplTest {
         beanService.get(bean, "ancestry");
     }
 
+    @Test(expected = NoSuchPropertyException.class)
+    public void testNoSuchPropertyExceptionOnNoGetter() {
+        beanService.get(bean, "abyss");
+    }
 
+    @Test(expected = NoSuchPropertyException.class)
+    public void testNoSuchPropertyExceptionOnNoSetter() {
+        beanService.set(bean, "abyss", "Mountain");
+    }
 }

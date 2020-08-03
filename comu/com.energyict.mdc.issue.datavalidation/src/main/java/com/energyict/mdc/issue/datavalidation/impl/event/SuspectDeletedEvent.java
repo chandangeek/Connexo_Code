@@ -43,7 +43,7 @@ public class SuspectDeletedEvent extends DataValidationEvent {
             this.channelId = ((Number) jsonPayload.get("channelId")).longValue();
             this.readingType = (String) jsonPayload.get("readingType");
         } catch (Exception e) {
-            throw new UnableToCreateIssueException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
+            throw new UnableToCreateIssueException(thesaurus, MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }
     }
 }

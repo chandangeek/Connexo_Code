@@ -88,7 +88,7 @@ import static org.mockito.Mockito.when;
 public class IssueDataValidationServiceIT {
 
     @Rule
-    public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateIT.getTransactionService());
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     private IssueService issueService;
     private IssueCreationService issueCreationService;
     private IssueDataValidationService issueDataValidationService;
@@ -98,9 +98,9 @@ public class IssueDataValidationServiceIT {
     public static void initialize() throws SQLException {
         DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence = new InMemoryIntegrationPersistence(mock(DeviceConfigurationService.class));
         DataValidationIssueCreationRuleTemplateIT.initializeClock();
-        DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.initializeDatabase("IssueDataValidationServiceTest", false);
+        DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.initializeDatabase(false);
 
-        try (TransactionContext ctx = DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.getTransactionService().getContext()) {
+        try (TransactionContext ctx = getTransactionService().getContext()) {
             DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.getService(FiniteStateMachineService.class);
             DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.getService(IssueDataValidationService.class);
             ctx.commit();
@@ -120,7 +120,7 @@ public class IssueDataValidationServiceIT {
     public void setUp() throws Exception {
         issueService = DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.getService(IssueService.class);
         DataValidationIssueCreationRuleTemplate template = DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
-        ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
+        issueService.addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
         issueDataValidationService = DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.getService(IssueDataValidationService.class);
         DeviceConfigurationService deviceConfigurationService = DataValidationIssueCreationRuleTemplateIT.inMemoryPersistence.getService(DeviceConfigurationService.class);
@@ -131,28 +131,27 @@ public class IssueDataValidationServiceIT {
         when(deviceConfiguration.getId()).thenReturn(deviceConfigurationId);
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
         deviceConfigurations.add(deviceConfiguration);
-        when(deviceType.getId()).thenReturn(1l);
+        when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         FiniteStateMachine fsm = mock(FiniteStateMachine.class);
-        when(deviceLifeCycle.getId()).thenReturn(1l);
+        when(deviceLifeCycle.getId()).thenReturn(1L);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(fsm);
         List<State> states = new ArrayList<>();
         State state1 = mock(State.class);
-        when(state1.getId()).thenReturn(1l);
+        when(state1.getId()).thenReturn(1L);
         states.add(state1);
         State state2 = mock(State.class);
-        when(state2.getId()).thenReturn(2l);
+        when(state2.getId()).thenReturn(2L);
         states.add(state2);
         when(fsm.getStates()).thenReturn(states);
         when(deviceTypeFinder.stream()).thenAnswer(invocationOnMock -> Stream.of(deviceType));
         MeteringTranslationService meteringTranslationService = mock(MeteringTranslationService.class);
         DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypes = {new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
                 .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), meteringTranslationService)};
-        DeviceLifeCycleInDeviceTypeInfo[] something;
         when(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues()).thenReturn(deviceLifeCycleInDeviceTypes);
-        when(deviceConfigurationService.findDeviceType(1l)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findDeviceType(1L)).thenReturn(Optional.of(deviceType));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId)).thenReturn(Optional.of(deviceConfiguration));
 

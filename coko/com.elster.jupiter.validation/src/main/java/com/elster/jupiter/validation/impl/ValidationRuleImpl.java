@@ -470,7 +470,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         QualityCodeSystem qualityCodeSystem = getRuleSet().getQualityCodeSystem();
         return getValidator().getReadingQualityCodeIndex()
                 .map(index -> ReadingQualityType.of(qualityCodeSystem, index))
-                .orElse(ReadingQualityType.defaultCodeForRuleId(qualityCodeSystem, getId()));
+                .orElseGet(() -> ReadingQualityType.defaultCodeForRuleId(qualityCodeSystem, getId()));
     }
 
     @Override

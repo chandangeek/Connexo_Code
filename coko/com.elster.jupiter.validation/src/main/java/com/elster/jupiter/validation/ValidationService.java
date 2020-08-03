@@ -17,6 +17,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -226,4 +227,5 @@ public interface ValidationService {
 
     List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
 
+    List<ValidationRule> findValidationRules(Collection<Long> ids);
 }

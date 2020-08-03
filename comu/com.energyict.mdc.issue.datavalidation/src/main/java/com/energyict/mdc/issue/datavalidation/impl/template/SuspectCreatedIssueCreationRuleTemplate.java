@@ -7,11 +7,12 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringTranslationService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.PropertySelectionMode;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory;
 import com.elster.jupiter.properties.rest.ValidationRulePropertyFactory;
@@ -21,11 +22,11 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
 import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
@@ -38,7 +39,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * SuspectCreationRuleTemplate is responsible for creating issues when a suspect value is found during the data validation process.
@@ -74,7 +79,7 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
     public SuspectCreatedIssueCreationRuleTemplate(final PropertySpecService propertySpecService,
                                                    final IssueDataValidationService issueDataValidationService,
                                                    final IssueService issueService,
-                                                   final NlsService nlsService,
+                                                   final Thesaurus thesaurus,
                                                    final DeviceConfigurationService deviceConfigurationService,
                                                    final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                                    final MeteringTranslationService meteringTranslationService,
@@ -86,7 +91,7 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.meteringTranslationService = meteringTranslationService;
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.validationService = validationService;
     }
@@ -123,10 +128,9 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
                 "rule \"Data validation rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : SuspectValueCreatedEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS + "}))\n" +
-                "\teval( event.checkValidationRule(\"@{" + THRESHOLD + "}\", \"@{" + VALIDATION_RULES + "}\") == true )\n" +
-                "\teval( event.checkOccurrenceConditions(\"@{" + THRESHOLD + "}\") == true )\n" +
+                "\teval( event.checkOccurrenceConditions(\"@{" + THRESHOLD + "}\", \"@{" + VALIDATION_RULES + "}\") == true )\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create suspect created issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tLOGGER.info(\"Trying to create suspects created issue by rule [id = @{ruleId}]\");\n" +
                 "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n";
@@ -415,10 +419,8 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
             if (values.size() != 2) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
-                        "properties." + THRESHOLD,
-                        String.valueOf(2),
-                        String.valueOf(values.size()));
+                throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_PARSE_THRESHOLD_WITH_RELATIVE_PERIOD,
+                        "properties." + THRESHOLD);
             }
             int count = Integer.parseInt(values.get(0));
             RelativePeriod relativePeriod = timeService.findRelativePeriod(Long.parseLong(values.get(1))).orElse(null);

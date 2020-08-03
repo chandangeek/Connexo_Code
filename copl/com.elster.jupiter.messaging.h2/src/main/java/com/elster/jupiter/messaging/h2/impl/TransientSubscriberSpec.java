@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class TransientSubscriberSpec implements SubscriberSpec {
+public class TransientSubscriberSpec implements SubscriberSpec {
 
     private final TransientDestinationSpec destinationSpec;
     private final String name;
