@@ -94,6 +94,8 @@ public enum MessageSeeds implements MessageSeed {
             "Error while processing meter location notification: ''{0}''."),
     ERROR_PROCESSING_METER_POD_NOTIFICATION(4037, "ErrorProcessingMeterPodNotification",
             "Error while processing meter pod notification: ''{0}''."),
+    DIFFERENT_DEVICE_TYPE(4038, "DifferentDeviceType", "Existent device has different device type than the one mapped to material id ''{0}''." +
+            " Please check ''com.elster.jupiter.sap.device.types.mapping'' property."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),

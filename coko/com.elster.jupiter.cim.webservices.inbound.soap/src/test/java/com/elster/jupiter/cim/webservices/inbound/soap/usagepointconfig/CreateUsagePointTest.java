@@ -862,7 +862,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         assertThat(reply.getError().get(0).getCode()).isEqualTo(MessageSeeds.UNSUPPORTED_BULK_OPERATION.getErrorCode());
         assertThat(reply.getError().get(0).getLevel()).isEqualTo(ErrorType.Level.WARNING);
         assertThat(reply.getError().get(0).getDetails())
-                .isEqualTo("Bulk operation is not supported on 'UsagePointConfig.UsagePoint', only first element is processed.");
+                .isEqualTo("Bulk operation isn't supported for 'UsagePointConfig.UsagePoint', only first element is processed.");
 
         UsagePointConfig responseUsagePointConfig = response.getPayload().getUsagePointConfig();
         assertThat(responseUsagePointConfig.getUsagePoint()).hasSize(1);

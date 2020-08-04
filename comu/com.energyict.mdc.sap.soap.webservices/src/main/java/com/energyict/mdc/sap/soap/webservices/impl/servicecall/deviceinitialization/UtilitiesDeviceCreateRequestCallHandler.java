@@ -135,16 +135,24 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
     private Device getOrCreateDevice(UtilitiesDeviceCreateRequestDomainExtension extension) {
         //name = serial id for SAP
         String name = extension.getSerialId();
-        return deviceService.findDeviceByName(name)
-                .orElseGet(() -> createDevice(extension));
-    }
 
-    private Device createDevice(UtilitiesDeviceCreateRequestDomainExtension extension) {
         String deviceTypeName = extension.getDeviceType();
         if (deviceTypeName == null) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_TYPE_IS_NOT_MAPPED, extension.getMaterialId());
         }
+        Optional<Device> device = deviceService.findDeviceByName(name);
+        if (device.isPresent()) {
+            if (device.get().getDeviceConfiguration().getDeviceType().getName().equals(deviceTypeName)) {
+                return device.get();
+            } else {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.DIFFERENT_DEVICE_TYPE, extension.getMaterialId());
+            }
+        } else {
+            return createDevice(extension, deviceTypeName);
+        }
+    }
 
+    private Device createDevice(UtilitiesDeviceCreateRequestDomainExtension extension, String deviceTypeName) {
         DeviceConfiguration deviceConfig = findDeviceConfiguration(deviceTypeName);
         DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig,
                 extension.getSerialId(), extension.getShipmentDate());

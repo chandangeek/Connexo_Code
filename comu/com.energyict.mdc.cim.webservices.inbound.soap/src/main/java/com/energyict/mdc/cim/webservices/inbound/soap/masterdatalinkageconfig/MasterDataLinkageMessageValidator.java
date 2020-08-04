@@ -1,8 +1,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
@@ -19,8 +17,6 @@ public class MasterDataLinkageMessageValidator {
     static final String CONFIGURATION_EVENT_ELEMENT = "MasterDataLinkageConfig.ConfigurationEvent";
     static final String METER_LIST_ELEMENT = "MasterDataLinkageConfig.Meter";
     static final String USAGE_POINT_LIST_ELEMENT = "MasterDataLinkageConfig.UsagePoint";
-    static final String METER_ELEMENT = "MasterDataLinkageConfig.Meter[0]";
-    static final String USAGE_POINT_ELEMENT = "MasterDataLinkageConfig.UsagePoint[0]";
     static final String CREATED_DATE_TIME_ATTRIBUTE = "MasterDataLinkageConfig.ConfigurationEvent.createdDateTime";
     static final String EFFECTIVE_DATE_TIME_ATTRIBUTE = "MasterDataLinkageConfig.ConfigurationEvent.effectiveDateTime";
     static final String END_DEVICE_LIST_ELEMENT = "MasterDataLinkageConfig.EndDevice";
@@ -84,7 +80,7 @@ public class MasterDataLinkageMessageValidator {
         }
         meter.getNames().stream().findFirst().map(Name::getName)
                 .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(linkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, METER_ELEMENT));
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, METER_LIST_ELEMENT));
     }
 
     private void validateIdentificationAttributes(UsagePoint usagePoint, MasterDataLinkageAction linkageAction)
@@ -94,7 +90,7 @@ public class MasterDataLinkageMessageValidator {
         }
         usagePoint.getNames().stream().findFirst().map(Name::getName)
                 .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(linkageAction,
-                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, USAGE_POINT_ELEMENT));
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, USAGE_POINT_LIST_ELEMENT));
     }
 
     private void validateIdentificationAttributes(EndDevice endDevice, MasterDataLinkageAction linkageAction)

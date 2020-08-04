@@ -1330,7 +1330,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("SIM0002")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("Bulk operation isn't supported on 'GetMeterReadings.EndDevice', only first element is processed")));
+                .anyMatch(error -> error.getDetails().equals("Bulk operation isn't supported for 'GetMeterReadings.EndDevice', only first element is processed.")));
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 

@@ -26,23 +26,14 @@ public class SystemInfoFactory {
 
     public SystemInfo asInfo() {
         SystemInfo info = new SystemInfo();
-        info.jre = System.getProperty("java.runtime.name") + "(build " + System.getProperty("java.runtime.version") + ")";
-        info.jvm = System.getProperty("java.vm.name") + "(build " + System.getProperty("java.vm.version") + ", " + System.getProperty("java.vm.info" ) + ")";
-        info.javaHome = System.getProperty("java.home");
-        info.javaClassPath = System.getProperty("java.class.path");
         info.osName = getOSName();
         info.osArch = System.getProperty("os.arch");
         info.timeZone = System.getProperty("user.timezone");
-        info.numberOfProcessors = Runtime.getRuntime().availableProcessors();
         info.totalMemory = Runtime.getRuntime().totalMemory() / 1024;
         info.freeMemory = Runtime.getRuntime().freeMemory() / 1024;
         info.usedMemory = info.totalMemory - info.freeMemory;
         info.lastStartedTime = this.lastStartedTime;
         info.serverUptime = System.currentTimeMillis() - this.lastStartedTime;
-        info.dbConnectionUrl = this.bundleContext.getProperty(BootstrapService.JDBC_DRIVER_URL);
-        info.dbUser = this.bundleContext.getProperty(BootstrapService.JDBC_USER);
-        info.dbMaxConnectionsNumber = getPropertyOrDefault(this.bundleContext.getProperty(BootstrapService.JDBC_POOLMAXLIMIT), BootstrapService.JDBC_POOLMAXLIMIT_DEFAULT);
-        info.dbMaxStatementsPerRequest = getPropertyOrDefault(this.bundleContext.getProperty(BootstrapService.JDBC_POOLMAXSTATEMENTS), BootstrapService.JDBC_POOLMAXSTATEMENTS_DEFAULT);
         info.environmentParameters = getEnvironmentParameters();
         return info;
     }
