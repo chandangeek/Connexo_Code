@@ -154,7 +154,7 @@ public final class SqlBuilder implements SqlFragment {
         builder.append(" ");
     }
 
-    public void append(String string) {
+    public void append(CharSequence string) {
         builder.append(string);
     }
 

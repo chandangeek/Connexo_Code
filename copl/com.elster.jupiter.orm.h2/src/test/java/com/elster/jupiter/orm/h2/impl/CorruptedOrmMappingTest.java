@@ -36,6 +36,8 @@ public class CorruptedOrmMappingTest {
 
     private static final String TABLE_NAME = "TABLE_NAME";
     private static final String TABLE_NAME2 = TABLE_NAME + "2";
+    private static final long EVICTION_TIME = 300;
+    private static final boolean CACHE_IS_ENABLED = false;
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
 
@@ -159,7 +161,7 @@ public class CorruptedOrmMappingTest {
     public void testColumnMustBeMapped() {
         table.map(Dummy.class);
         table.column("ONE").number().add();
-        table.prepare();
+        table.prepare(EVICTION_TIME, CACHE_IS_ENABLED);
     }
 
     @Test
@@ -177,7 +179,7 @@ public class CorruptedOrmMappingTest {
         table.column("ONE").number().map("field").add();
         Column id = table.column("ID").number().notNull().map("id").add();
         table.primaryKey("PK").on(id).add();
-        table.prepare();
+        table.prepare(EVICTION_TIME, CACHE_IS_ENABLED);
     }
 
     @Test
@@ -186,7 +188,7 @@ public class CorruptedOrmMappingTest {
         table.map(Dummy.class);
         table.column("ONE").number().map("field").add();
         table.setJournalTableName(TABLE_NAME + "JRNL");
-        table.prepare();
+        table.prepare(EVICTION_TIME, CACHE_IS_ENABLED);
     }
 
     @Test
@@ -195,25 +197,24 @@ public class CorruptedOrmMappingTest {
         table.map(Dummy.class);
         table.column("ONE").number().map("field").add();
         table.cache();
-        table.prepare();
+        table.prepare(EVICTION_TIME, CACHE_IS_ENABLED);
     }
 
-    // TODO: uncomment when caching whole tables is available
-//    @Test
-//    @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": can't cache table without primary key.")
-//    public void testCannotCacheWholeTableWithoutPrimaryKey() {
-//        table.map(Dummy.class);
-//        table.column("ONE").number().map("field").add();
-//        table.cacheWholeTable(false);
-//        table.prepare();
-//    }
+    @Test
+    @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": can't cache table without primary key.")
+    public void testCannotCacheWholeTableWithoutPrimaryKey() {
+        table.map(Dummy.class);
+        table.column("ONE").number().map("field").add();
+        table.cacheWholeTable(false);
+        table.prepare(EVICTION_TIME, CACHE_IS_ENABLED);
+    }
 
     @Test
     @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": ColumnConversion.BLOB2SQLBLOB can't be used for table without primary key.")
     public void testCannotUseBlobInTableWithoutPrimaryKey() {
         table.map(Dummy.class);
         table.column("ONE").blob().map("blob").add();
-        table.prepare();
+        table.prepare(EVICTION_TIME, CACHE_IS_ENABLED);
     }
 
     @Test

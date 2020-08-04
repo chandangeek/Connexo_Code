@@ -271,7 +271,8 @@ public class InMemoryPersistence {
                 new AuditServiceModule(),
                 new FileImportModule(),
                 new TokenModule(),
-                new BlackListModule()
+                new BlackListModule(),
+                new TransactionModule()
         ));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());

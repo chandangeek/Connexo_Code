@@ -518,7 +518,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                                         .anyMatch(registerGroup -> registerGroup.getRegisterTypes().stream()
                                                 .anyMatch(registerType -> registerType.getReadingType().equals(readingType))));
                     }
-
                 })
                 .filter(cte -> connectionMethod == null
                         || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod))

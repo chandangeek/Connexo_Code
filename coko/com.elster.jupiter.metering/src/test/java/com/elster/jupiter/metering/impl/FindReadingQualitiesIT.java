@@ -249,6 +249,34 @@ public class FindReadingQualitiesIT {
     }
 
     @Test
+    public void testOfQualityType() {
+        assertThat(channel1.findReadingQualities().ofQualityType(overflow.getType()).collect())
+                .isEmpty();
+        assertThat(channel1.findReadingQualities().ofQualityType(batteryLow.getType()).collect())
+                .containsOnly(batteryLow);
+        assertThat(channel2.findReadingQualities().ofQualityType(overflow.getType()).collect())
+                .containsOnly(overflow);
+        assertThat(channel2.findReadingQualities().ofQualityType(batteryLow.getType()).collect())
+                .isEmpty();
+    }
+
+    @Test
+    public void testOfQualityTypes() {
+        assertThat(channel1.findReadingQualities().ofQualityTypes(Collections.singleton(overflow.getType())).collect())
+                .isEmpty();
+        assertThat(channel1.findReadingQualities().ofQualityTypes(Collections.singleton(batteryLow.getType())).collect())
+                .containsOnly(batteryLow);
+        assertThat(channel1.findReadingQualities().ofQualityTypes(Collections.emptySet()).collect())
+                .containsOnly(batteryLow, watchdog);
+        assertThat(channel2.findReadingQualities().ofQualityTypes(ImmutableSet.of(added.getType(), overflow.getType())).collect())
+                .containsOnly(added, overflow);
+        assertThat(channel2.findReadingQualities().ofQualityTypes(ImmutableSet.of(estimated.getType(), estimatedGeneric.getType(), suspect.getType())).collect())
+                .containsOnly(estimated, estimatedGeneric, suspect);
+        assertThat(channel2.findReadingQualities().ofQualityTypes(Collections.emptySet()).collect())
+                .containsOnly(added, estimated, estimatedGeneric, overflow, suspect);
+    }
+
+    @Test
     public void testCombinationOfQualityIndexActualAndTime() {
         assertThat(bulkCimChannel1.findReadingQualities().ofQualityIndex(QualityCodeIndex.BATTERYLOW)
                 .inTimeInterval(Range.greaterThan(FIRST_TIME)).collect())
@@ -330,6 +358,23 @@ public class FindReadingQualitiesIT {
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.DIAGNOSTICS).ofQualitySystem(QualityCodeSystem.MDM)
                 .orOfAnotherType().ofQualitySystem(QualityCodeSystem.MDC).ofQualityIndex(QualityCodeIndex.SUSPECT).collect())
                 .isEmpty();
+        assertThat(channel1.findReadingQualities()
+                .ofQualityIndex(QualityCodeIndex.WATCHDOGFLAG)
+                .orOfAnotherType().ofQualityType(batteryLow.getType()).collect())
+                .containsOnly(watchdog, batteryLow);
+        assertThat(channel1.findReadingQualities()
+                .ofQualityTypes(Collections.singleton(watchdog.getType()))
+                .orOfAnotherType().ofAnyQualityIndexInCategory(QualityCodeCategory.DIAGNOSTICS).collect())
+                .containsOnly(watchdog, batteryLow);
+        assertThat(channel1.findReadingQualities()
+                .ofQualityTypes(Collections.emptySet())
+                .orOfAnotherType().ofQualityType(watchdog.getType()).collect())
+                .containsOnly(watchdog, batteryLow);
+        assertThat(channel1.findReadingQualities()
+                .ofAnyQualityIndexInCategories(Collections.emptySet())
+                .orOfAnotherType().ofQualityIndex(QualityCodeIndex.CRCERROR).collect())
+                .containsOnly(watchdog, batteryLow);
+
         assertThat(channel2.findReadingQualities()
                 .ofQualitySystems(ImmutableSet.of(QualityCodeSystem.ENDDEVICE, QualityCodeSystem.MDM))
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED)).collect())

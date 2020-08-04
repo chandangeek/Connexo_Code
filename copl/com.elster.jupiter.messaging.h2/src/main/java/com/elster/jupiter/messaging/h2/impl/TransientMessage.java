@@ -8,7 +8,7 @@ import com.elster.jupiter.messaging.Message;
 
 import java.util.Arrays;
 
-class TransientMessage implements Message {
+public class TransientMessage implements Message {
 
     private final byte[] data;
     private String correlationId;
@@ -22,7 +22,7 @@ class TransientMessage implements Message {
         return Arrays.copyOf(data, data.length);
     }
 
-    String getCorrelationId() {
+    public String getCorrelationId() {
         return correlationId;
     }
 

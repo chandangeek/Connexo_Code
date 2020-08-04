@@ -34,7 +34,8 @@ Ext.define('MdmApp.controller.Main', {
         'Yfn.privileges.Yellowfin',
         'Yfn.controller.Main',
         'Wss.privileges.Webservices',
-        'Wss.controller.Main'
+        'Wss.controller.Main',
+        'Sam.privileges.SystemProperties'
     ],
 
     applicationTitle: 'Connexo Insight',

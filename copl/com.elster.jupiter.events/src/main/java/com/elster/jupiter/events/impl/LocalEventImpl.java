@@ -13,6 +13,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 
@@ -84,7 +85,7 @@ public class LocalEventImpl implements LocalEvent {
         for (EventPropertyType eventPropertyType : getType().getPropertyTypes()) {
             Object value = getValue(eventPropertyType);
             result.put(eventPropertyType.getName(), value);
-        }        
+        }
         result.put(EventConstants.TIMESTAMP, dateTime.toEpochMilli());
         result.put(EventConstants.EVENT_TOPIC, getType().getTopic());
         return result;
@@ -104,7 +105,7 @@ public class LocalEventImpl implements LocalEvent {
         for (String property : accessPath) {
             current = beanService.get(current, property);
             if (current == null) {
-            	return current;
+                return null;
             }
         }
         return current;

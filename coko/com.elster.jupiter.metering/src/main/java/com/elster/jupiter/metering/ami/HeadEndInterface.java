@@ -26,6 +26,10 @@ public interface HeadEndInterface {
 
     CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall);
 
+    CompletionOptions scheduleMeterRead(Meter meter, Instant instant, ServiceCall serviceCall);
+
+    CompletionOptionsBuilder scheduleMeterRead(Meter meter, Instant instant);
+
     CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes);
 
     CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall serviceCall);
