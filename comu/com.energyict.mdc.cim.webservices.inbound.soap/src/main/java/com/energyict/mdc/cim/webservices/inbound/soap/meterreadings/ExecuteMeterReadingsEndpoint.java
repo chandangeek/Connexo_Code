@@ -24,12 +24,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
@@ -101,7 +99,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private static final String DATA_SOURCE_NAME = DATA_SOURCE + ".name";
     private static final String DATA_SOURCE_NAME_TYPE = DATA_SOURCE + ".NameType";
     private static final String DATA_SOURCE_NAME_TYPE_NAME = DATA_SOURCE_NAME_TYPE + ".name";
-
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory getMeterReadingsMessageObjectFactory = new ObjectFactory();
