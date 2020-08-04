@@ -364,7 +364,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                 .max(Comparator.comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
     }
 
-    private Optional<DeviceMessage> getContactorCommand(Device device) {
+    private Optional<DeviceMessage> getContactorCommand(Device device, ActivatedBreakerStatus breakerStatus) {
         DeviceMessageCategory deviceMessageCategory = deviceMessageSpecificationService.allCategories().stream()
                 .filter(m -> m.getName().equals("Contactor"))
                 .findFirst()
@@ -376,6 +376,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         return deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .stream()
                 .filter(dm -> dm.getSentDate().isPresent())
+                .filter(dm -> !dm.getSentDate().get().isAfter(breakerStatus.getLastChecked()))
                 .max(Comparator.comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
 
     }
@@ -383,7 +384,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     private ContactorStatus getContactorStatus(Device device, ActivatedBreakerStatus breakerStatus) {
         ContactorStatus contactorStatus = new ContactorStatus();
         contactorStatus.setStatus(breakerStatus.getBreakerStatus().toString());
-        Optional<DeviceMessage> command = getContactorCommand(device);
+        Optional<DeviceMessage> command = getContactorCommand(device, breakerStatus);
         if (command.isPresent()) {
             Optional<Instant> sentDate = command.get().getSentDate();
             sentDate.ifPresent(contactorStatus::setSentDate);
