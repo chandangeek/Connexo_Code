@@ -84,6 +84,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -832,7 +833,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public void updateLoggedInUser(long id) {
         Optional<User> user = getUser(id);
-        if (loggedInUsers.contains(user.get())) {
+        if (Objects.nonNull(user) && user.isPresent() && loggedInUsers.contains(user.get())) {
             User eUser = user.get();
             eUser.setRoleModified(true);
             loggedInUsers.set(loggedInUsers.indexOf(user.get()) , eUser);
@@ -840,9 +841,9 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
-    public void updateUser(long id) {
+    public void resetUserRoleChangeStatus(long id) {
         Optional<User> user= getUser(id);
-        if(user.isPresent()) {
+        if(Objects.nonNull(user) && user.isPresent()) {
             SqlBuilder sqlBuilder = new SqlBuilder("UPDATE USR_USER SET ");
             sqlBuilder.append("ISROLEMODIFIED = ");
             sqlBuilder.append("'N'");
