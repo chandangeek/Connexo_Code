@@ -4,6 +4,8 @@
 
 package com.energyict.cim;
 
+import static com.energyict.protocol.MeterEvent.*;
+
 import java.util.Objects;
 
 /**
@@ -372,18 +374,27 @@ public enum EndDeviceEventTypeMapping {
     TOO_HIGH_CONSUMPTION_OR_PRODUCTION      (352, EndDeviceEventTypeFactory.getHighConsumptionOrProductionEnergy()),
     INDEX_VALUE_DECREASE_OR_RESET           (353, EndDeviceEventTypeFactory.getIndexValuesDecreaseOrReset()),
     MISMATCH_BETWEEN_TOTAL_AND_TARIFF_REGISTERS(354, EndDeviceEventTypeFactory.getMismatchBetweenTotalAndTariffRegisters()),
-    SEND_FRAME_COUNTER_ABOVE_THRESHOLD(359, EndDeviceEventTypeFactory.getSendFrameCounterAboveThreshold()),
-    RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD(360, EndDeviceEventTypeFactory.getReceiveFrameCounterAboveThreshold()),
-    TAMPER_BATTERY( 355, EndDeviceEventTypeFactory.getTamperBattery() ),
-    HLC_DAMAGE( 356, EndDeviceEventTypeFactory.getHlcDamage()),
-    PERMANENT_LOG_FILLED_UP_90_PERSENT (357, EndDeviceEventTypeFactory.getPermanentLogFilledUp90Persent()),
-    DEVICE_ABOUT_HIBERNATION_MODE  (358, EndDeviceEventTypeFactory.getDeviceAboutHibernationMode()),
-    POWER_FAIL(361, EndDeviceEventTypeFactory.getPowerFail()),
-    MAX_FLOW(362, EndDeviceEventTypeFactory.getMaxFlow()),
-    TEMP_MIN_LIMIT(363, EndDeviceEventTypeFactory.getTempMinLimit()),
-    TEMP_MAX_LIMIT(364, EndDeviceEventTypeFactory.getTempMaxLimit()),
-    PULSE_ERROR(365, EndDeviceEventTypeFactory.getPulseError()),
-    CONSUMPTION_ERROR(366, EndDeviceEventTypeFactory.getConsumptionError()),
+    SEND_FRAME_COUNTER_ABOVE_THRESHOLD      (359, EndDeviceEventTypeFactory.getSendFrameCounterAboveThreshold()),
+    RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD   (360, EndDeviceEventTypeFactory.getReceiveFrameCounterAboveThreshold()),
+    TAMPER_BATTERY                          (355, EndDeviceEventTypeFactory.getTamperBattery() ),
+    HLC_DAMAGE                              (356, EndDeviceEventTypeFactory.getHlcDamage()),
+    PERMANENT_LOG_FILLED_UP_90_PERSENT      (357, EndDeviceEventTypeFactory.getPermanentLogFilledUp90Persent()),
+    DEVICE_ABOUT_HIBERNATION_MODE           (358, EndDeviceEventTypeFactory.getDeviceAboutHibernationMode()),
+    POWER_FAIL                              (361, EndDeviceEventTypeFactory.getPowerFail()),
+    MAX_FLOW                                (362, EndDeviceEventTypeFactory.getMaxFlow()),
+    TEMP_MIN_LIMIT                          (363, EndDeviceEventTypeFactory.getTempMinLimit()),
+    TEMP_MAX_LIMIT                          (364, EndDeviceEventTypeFactory.getTempMaxLimit()),
+    PULSE_ERROR                             (365, EndDeviceEventTypeFactory.getPulseError()),
+    EDETM_CONSUMPTION_ERROR                 ( CONSUMPTION_ERROR, EndDeviceEventTypeFactory.getConsumptionError()),
+    EDETM_BATTERY_CONSUMPTION_HIGH          ( BATTERY_CONSUMPTION_HIGH, EndDeviceEventTypeFactory.getBatteryConsumptionHigh() ),
+    EDETM_REVERSE_FLOW                      ( REVERSE_FLOW, EndDeviceEventTypeFactory.getReverseFlow() ),
+    EDETM_TAMPER_P2                         ( TAMPER_P2, EndDeviceEventTypeFactory.getTamperP2()),
+    EDETM_TAMPER_P0                         ( TAMPER_P0,EndDeviceEventTypeFactory.getTamperP0()),
+    EDETM_TAMPER_CASE                       ( TAMPER_CASE, EndDeviceEventTypeFactory.getTamperCase()),
+    EDETM_SYSTEM_HW_ERROR                   ( SYSTEM_HW_ERROR ,EndDeviceEventTypeFactory.getSystemHRError()),
+    EDETM_CFG_CALIBRATION_ERROR             ( CFG_CALIBRATION_ERROR, EndDeviceEventTypeFactory.getCFGCalibrationError()),
+    EDETM_TEMPERATURE_SENSOR_ERROR          ( TEMPERATURE_SENSOR_ERROR, EndDeviceEventTypeFactory.getTemperatureSensorError()),
+    EDETM_BINDING_FLAG                      ( BINDING_FLAG, EndDeviceEventTypeFactory.getBindingFlag() ),
 
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),
