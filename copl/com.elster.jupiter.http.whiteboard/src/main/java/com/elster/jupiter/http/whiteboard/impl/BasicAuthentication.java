@@ -606,7 +606,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         } else {
             if(Objects.nonNull(validation) && validation.getUser().isPresent()) {
                 try (TransactionContext transactionContext = transactionService.getContext()) {
-                    userService.updateUser(validation.getUser().get().getId());
+                    userService.resetUserRoleChangeStatus(validation.getUser().get().getId());
                     transactionContext.commit();
                 }
                 userService.removeLoggedUser(validation.getUser().get());
