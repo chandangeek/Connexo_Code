@@ -44,9 +44,7 @@ import java.util.logging.Logger;
 public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduledJobCallBack {
 
     public static final Logger LOGGER = Logger.getLogger(MultiThreadedJobCreator.class.getName());
-    private final BlockingQueue<ScheduledJobImpl> jobBlockingQueue;
     private final OutboundComPort comPort;
-    private final int threadPoolSize;
     private final ThreadPrincipalService threadPrincipalService;
     private final ExecutorService executor;
     private final Map<MultiThreadedScheduledJobExecutor, Future<?>> executors = new ConcurrentHashMap<>();
@@ -55,6 +53,8 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
     private final DeviceCommandExecutor deviceCommandExecutor;
     private final ScheduledComPortImpl.ServiceProvider serviceProvider;
     private final User comServerUser;
+    private BlockingQueue<ScheduledJobImpl> jobBlockingQueue, newJobBlockingQueue;
+    private int threadPoolSize;
 
 
     MultiThreadedJobCreator(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, OutboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, int threadPoolSize, ThreadFactory threadFactory, ScheduledComPortImpl.ServiceProvider serviceProvider, User comServerUser) {
@@ -70,6 +70,15 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
         this.deviceCommandExecutor = deviceCommandExecutor;
     }
 
+    protected void update(BlockingQueue<ScheduledJobImpl> jobBlockingQueue, int threadPoolSize) {
+        newJobBlockingQueue = jobBlockingQueue;
+        this.threadPoolSize = threadPoolSize;
+        if (executor instanceof ThreadPoolExecutor) {
+            ((ThreadPoolExecutor) executor).setCorePoolSize(threadPoolSize);
+            ((ThreadPoolExecutor) executor).setMaximumPoolSize(threadPoolSize);
+        }
+    }
+
     @Override
     public void run() {
 
@@ -78,8 +87,14 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     ScheduledJobImpl scheduledJob = jobBlockingQueue.take();
-
-                    executeScheduledJob(scheduledJob);
+                    if (scheduledJob instanceof ChangeQueueSignal) {
+                        if (newJobBlockingQueue != jobBlockingQueue) {
+                            jobBlockingQueue = newJobBlockingQueue;
+                        }
+                        continue;
+                    } else {
+                        executeScheduledJob(scheduledJob);
+                    }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

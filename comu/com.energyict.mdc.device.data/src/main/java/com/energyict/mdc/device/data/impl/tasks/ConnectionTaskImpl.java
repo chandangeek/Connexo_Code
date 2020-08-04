@@ -345,8 +345,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.notifyUpdated();
     }
 
-    public void update() {
-        Save.UPDATE.save(this.dataModel, this, Save.Create.class, Save.Update.class);
+    public void update(String... fieldNames) {
+        dataModel.update(this, fieldNames);
         if (!doNotTouchParentDevice) {
             this.dataModel.touch(device.get());
         }
@@ -355,11 +355,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected void update(DataModel dataModel, String... fieldNames) {
         dataModel.update(this, fieldNames);
-        this.notifyUpdated();
-    }
-
-    protected void update(String... fieldNames) {
-        this.dataModel.update(this, fieldNames);
         this.notifyUpdated();
     }
 
@@ -669,7 +664,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // To be used by the DeviceServiceImpl only that now has the responsibility to switch defaults
     public void setAsDefault() {
         this.doSetAsDefault();
-        this.update();
+        this.update(ConnectionTaskFields.IS_DEFAULT.fieldName());
         this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
@@ -688,7 +683,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     // Only to be used by the ConnectionTaskServiceImpl that now has the responsibility to switch defaults.
     void clearDefault() {
         this.isDefault = false;
-        this.update();
+        this.update(ConnectionTaskFields.IS_DEFAULT.fieldName());
     }
 
     @Override
@@ -816,20 +811,20 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(this.getStatus())) {
             this.status = ConnectionTaskLifecycleStatus.INACTIVE;
             setExecutingComPort(null);
-            this.update();
+            this.update(ConnectionTaskFields.STATUS.fieldName(), ConnectionTaskFields.COM_PORT.fieldName());
         }
     }
 
     @Override
     public void activate() {
         this.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        this.update();
+        this.update(ConnectionTaskFields.STATUS.fieldName());
     }
 
     @Override
     public void invalidateStatus() {
         this.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
-        this.update();
+        this.update(ConnectionTaskFields.STATUS.fieldName());
     }
 
     @Override

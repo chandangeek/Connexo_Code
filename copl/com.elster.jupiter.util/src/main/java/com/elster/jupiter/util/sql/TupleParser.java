@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @ConsumerType
+@FunctionalInterface
 public interface TupleParser<T> {
     T construct(ResultSet resultSet) throws SQLException;
 }

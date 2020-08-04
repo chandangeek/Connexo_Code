@@ -12,6 +12,5 @@ public class RestWhiteboardModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(ReferenceResolver.class).to(ReferenceResolverWhiteboard.class);
-
     }
 }

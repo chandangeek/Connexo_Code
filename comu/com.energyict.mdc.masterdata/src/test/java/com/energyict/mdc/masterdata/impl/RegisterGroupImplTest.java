@@ -99,7 +99,6 @@ public class RegisterGroupImplTest {
         testInstance.addRegisterType(this.registerType1);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel, never()).touch(testInstance);
     }
 
@@ -111,7 +110,6 @@ public class RegisterGroupImplTest {
         testInstance.addRegisterType(this.registerType1);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel).touch(testInstance);
     }
 
@@ -124,7 +122,6 @@ public class RegisterGroupImplTest {
         testInstance.addRegisterType(this.registerType2);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel, never()).touch(testInstance);
     }
 
@@ -137,7 +134,6 @@ public class RegisterGroupImplTest {
         testInstance.addRegisterType(this.registerType2);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel).touch(testInstance);
     }
 
@@ -153,7 +149,6 @@ public class RegisterGroupImplTest {
         testInstance.removeRegisterType(this.registerType1);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel, never()).touch(testInstance);
     }
 
@@ -170,7 +165,6 @@ public class RegisterGroupImplTest {
         testInstance.removeRegisterType(this.registerType1);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel).touch(testInstance);
     }
 
@@ -188,7 +182,6 @@ public class RegisterGroupImplTest {
         testInstance.removeRegisterType(this.registerType2);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel, never()).touch(testInstance);
     }
 
@@ -207,7 +200,6 @@ public class RegisterGroupImplTest {
         testInstance.removeRegisterType(this.registerType2);
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel).touch(testInstance);
     }
 
@@ -224,7 +216,6 @@ public class RegisterGroupImplTest {
         testInstance.save();
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel, never()).touch(testInstance);
     }
 
@@ -242,7 +233,6 @@ public class RegisterGroupImplTest {
         testInstance.save();
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel).touch(testInstance);
     }
 
@@ -275,7 +265,6 @@ public class RegisterGroupImplTest {
         testInstance.delete();
 
         // Asserts
-        verify(this.publisher).publish(any(InvalidateCacheRequest.class));
         verify(this.dataModel, never()).touch(testInstance);
     }
 

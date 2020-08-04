@@ -33,5 +33,6 @@ public class UpgraderV10_8_1 implements Upgrader {
                 "drop sequence DDC_COMTASKEXECJOURNALENTRYID",
                 "alter table DDC_COMTASKEXECJOURNALENTRY drop column MOD_DATE"
         );
+        execute(dataModel, "CREATE INDEX IX_CONNECTIONTASK_IDASC ON DDC_CONNECTIONTASK (COMPORTPOOL, NEXTEXECUTIONTIMESTAMP, mod(ID, 100), ID)");
     }
 }

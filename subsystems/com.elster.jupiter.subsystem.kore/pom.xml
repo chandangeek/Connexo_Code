@@ -303,6 +303,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue.webservice.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemproperties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemproperties.rest</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

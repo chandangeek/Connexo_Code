@@ -36,8 +36,8 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 	
 	@Override
 	public T remove(int index) {
+		T result = getTarget().remove(index);
 		try {
-			T result = getTarget().remove(index);
 			if (result != null) {
 				getWriter().remove(result);
 				updatePositions(index);
@@ -45,21 +45,26 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 			return result;
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
+		} finally {
+			getDataMapper().getTable().clearCache(result);
 		}
 	}
-	
+
 	@Override
-	public void add(int index,T element) {
-		setPosition(index + 1,element);
+	public void add(int index, T element) {
+		setPosition(index + 1, element);
 		try {
 			getWriter().persist(element);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
+		} finally {
+			getDataMapper().getTable().clearCacheOnPersisting();
 		}
-		getTarget().add(index,element);
+
+		getTarget().add(index, element);
 		updatePositions(index + 1);
 	}
-	
+
 	@Override
 	public boolean addAll(Collection<? extends T> collection) {
 		if (collection.isEmpty()) {
@@ -74,6 +79,8 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 			getWriter().persist(toAdd);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
+		} finally {
+			getDataMapper().getTable().clearCacheOnPersisting();
 		}
 		return getTarget().addAll(toAdd);
 	}
@@ -90,7 +97,9 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
             getWriter().remove(toRemove);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
-        }
+		} finally {
+			getDataMapper().getTable().clearCache(toRemove);
+		}
 		updatePositions(0);
 		return !toRemove.isEmpty();
 	}
@@ -100,6 +109,8 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 			getWriter().remove(getTarget());
 		} catch (SQLException e) {
 			throw new UnderlyingSQLFailedException(e);
+		} finally {
+			getDataMapper().getTable().clearCache(getTarget());
 		}
 		getTarget().clear();
 	}

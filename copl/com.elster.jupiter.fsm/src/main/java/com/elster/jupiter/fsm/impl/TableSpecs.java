@@ -58,6 +58,7 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("PK_FSM_STAGE").on(id).add();
             table.unique("UK_FSM_STAGE").on(name, stageSet).add();
+            table.cacheWholeTable(true);
         }
     },
 

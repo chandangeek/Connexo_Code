@@ -17,7 +17,6 @@ import com.energyict.mdc.common.device.data.InboundConnectionTask;
 import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
-import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.BasicCheckTask;
@@ -68,6 +67,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -108,18 +108,17 @@ public abstract class JobExecution implements ScheduledJob {
         this.preparationContext = new PreparationContext();
     }
 
-    protected static TypedProperties getProtocolDialectTypedProperties(ComServerDAO comServerDAO, ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
-        TypedProperties result = TypedProperties.empty();
+    protected static TypedProperties getProtocolDialectTypedProperties(ConnectionTask connectionTask) {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
-        TypedProperties protocolDialectProperties = comServerDAO.findProtocolDialectPropertiesFor(comTaskExecution.getId());
-        if (protocolDialectProperties == null) {
-            result = TypedProperties.inheritingFrom(
-                    protocolDialectConfigurationProperties != null
-                            ? protocolDialectConfigurationProperties.getTypedProperties()
-                            : TypedProperties.empty()
-            );
+        Device device = connectionTask.getDevice();
+        Optional<ProtocolDialectProperties> protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
+        TypedProperties result;
+        if (protocolDialectPropertiesWithName.isPresent()) {
+            result = protocolDialectPropertiesWithName.get().getTypedProperties();
         } else {
-            result = protocolDialectProperties;
+            result = TypedProperties.inheritingFrom(protocolDialectConfigurationProperties != null ?
+                    protocolDialectConfigurationProperties.getTypedProperties()
+                    : TypedProperties.empty());
         }
         addDefaultValuesIfNecessary(protocolDialectConfigurationProperties, result);
         addProtocolDialectNameAsProperty(protocolDialectConfigurationProperties, result);
@@ -232,7 +231,7 @@ public abstract class JobExecution implements ScheduledJob {
         final List<ProtocolTask> protocolTasks = generateProtocolTaskList(comTaskExecution);
         commandCreator.createCommands(
                 groupedDeviceCommand,
-                getProtocolDialectTypedProperties(getComServerDAO(), getConnectionTask(), comTaskExecution),
+                getProtocolDialectTypedProperties(getConnectionTask()),
                 this.preparationContext.getComChannelPlaceHolder(),
                 protocolTasks,
                 deviceProtocolSecurityPropertySet,

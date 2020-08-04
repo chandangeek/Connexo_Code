@@ -4,16 +4,20 @@
 
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public class IssueDataCollectionFilter {
@@ -22,6 +26,7 @@ public class IssueDataCollectionFilter {
     private List<EndDevice> devices = new ArrayList<>();
     private Optional<User> assignee = Optional.empty();
     private boolean unassignedOnly = false;
+    private Set<CreationRule> rules = new HashSet<>();
 
     public IssueDataCollectionFilter() {
     }
@@ -70,5 +75,13 @@ public class IssueDataCollectionFilter {
 
     public List<IssueStatus> getStatuses() {
         return this.statuses;
+    }
+
+    public void addRule(CreationRule rule) {
+        rules.add(rule);
+    }
+
+    public List<CreationRule> getRules() {
+        return ImmutableList.copyOf(rules);
     }
 }

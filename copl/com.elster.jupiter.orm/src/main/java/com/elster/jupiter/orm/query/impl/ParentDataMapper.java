@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.orm.query.impl;
 
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
@@ -76,11 +77,11 @@ class ParentDataMapper<T> extends JoinDataMapper<T> {
 
     @Override
     public boolean isReachable() {
-        return !getTable().isCached();
+        return getTable().getCacheType() == Table.CacheType.NO_CACHE;
     }
 
     boolean skipFetch(boolean marked, boolean anyChildMarked) {
-        return getTable().isCached();
+        return getTable().getCacheType() != Table.CacheType.NO_CACHE;
     }
 
     @Override
