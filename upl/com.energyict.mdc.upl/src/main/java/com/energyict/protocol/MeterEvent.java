@@ -780,6 +780,32 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int CONSUMPTION_ERROR = 366;
 
+    public static final int EOB_RESET = 367;
+    public static final int MANUAL_RESET = 368;
+    public static final int AUTO_RESET = 369;
+    public static final int ROLL_OVER_TO_ZERO = 370;
+    public static final int SELECTION_OF_INPUTS_SIGNALS = 371;
+    public static final int OUTPUT_RELAY_CONTROL_SIGNALS_STATE_CHANGE = 372;
+    public static final int ERROR_REGISTR_1_CHANGED = 373;
+    public static final int ERROR_REGISTR_2_CHANGED = 374;
+    public static final int ERROR_REGISTR_3_CHANGED = 375;
+    public static final int COMMUNICATION_STATUS_CHANGED = 376;
+    public static final int MAXIMUM_CURRENT = 377;
+    public static final int SAG_CONFIRMED = 378;
+    public static final int SWELL_CONFIRMED = 379;
+    public static final int RECOVERY_AFTER_CURRENT_OVERLIMIT = 380;
+    public static final int RECOVERY_TIMES_SETTING_CHANGED = 381;
+    public static final int RECOVERY_MECHANISM_RELEASED = 382;
+    public static final int DISCONNECTOR_STATUS_CHANGED = 383;
+    public static final int SECURITY_EVENT = 384;
+    public static final int MAXIMUM_DEMAND_EVENT = 385;
+
+    public static final int TIME_BEFORE_CHANGE = 386;
+    public static final int TIME_AFTER_CHANGE = 387;
+    public static final int COMM_PORT_STATUS_CHANGE = 388;
+    public static final int OUTPUT_VALVE_CONTROL = 389;
+
+
     /**
      * Start of Beacon3100 custom codes
      * Range from 100000 to 100129
@@ -1361,6 +1387,52 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Pulse error");
             case CONSUMPTION_ERROR:
                 return ("Consumption Error");
+            case EOB_RESET:
+                return ("EOB Reset");
+            case MANUAL_RESET:
+                return ("Manual Reset");
+            case AUTO_RESET:
+                return ("Auto Reset");
+            case ROLL_OVER_TO_ZERO:
+                return ("Roll Over To Zero");
+            case SELECTION_OF_INPUTS_SIGNALS:
+                return ("Selection Of Input Signals");
+            case OUTPUT_RELAY_CONTROL_SIGNALS_STATE_CHANGE:
+                return ("Output Relay Control Signals State Change");
+            case ERROR_REGISTR_1_CHANGED:
+                return ("Error Register 1 Changed");
+            case ERROR_REGISTR_2_CHANGED:
+                return ("Error Register 2 Changed");
+            case ERROR_REGISTR_3_CHANGED:
+                return ("Error Register 3 Changed");
+            case COMMUNICATION_STATUS_CHANGED:
+                return ("Communication Status Changed");
+            case MAXIMUM_CURRENT:
+                return ("Maximum Current");
+            case SAG_CONFIRMED:
+                return ("Sag Confirmed");
+            case SWELL_CONFIRMED:
+                return ("Swell Confirmed");
+            case RECOVERY_AFTER_CURRENT_OVERLIMIT:
+                return ("Consumption Error");
+            case RECOVERY_TIMES_SETTING_CHANGED:
+                return ("Recovery Mechanism Changed");
+            case RECOVERY_MECHANISM_RELEASED:
+                return ("Recovery Mechanism Released");
+            case DISCONNECTOR_STATUS_CHANGED:
+                return ("Disconnector Status Changed");
+            case SECURITY_EVENT:
+                return ("Security Event");
+            case MAXIMUM_DEMAND_EVENT:
+                return ("MAximum Demand Event");
+            case TIME_BEFORE_CHANGE:
+                return ("Time Before Change");
+            case TIME_AFTER_CHANGE:
+                return ("Time After Change");
+            case COMM_PORT_STATUS_CHANGE:
+                return ("Communication Port Status Change");
+            case OUTPUT_VALVE_CONTROL:
+                return ("Output Valve Control");
             case  TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
                 return ("Too high consumption or production of energy.");
             case INDEX_VALUE_DECREASE_OR_RESET:

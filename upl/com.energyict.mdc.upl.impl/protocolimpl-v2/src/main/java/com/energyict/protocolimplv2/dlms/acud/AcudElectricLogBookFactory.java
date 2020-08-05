@@ -6,9 +6,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.dlms.acud.events.DisconnectorControlLog;
-import com.energyict.protocolimplv2.dlms.acud.events.FraudDetectionLog;
-import com.energyict.protocolimplv2.dlms.acud.events.StandardEventLog;
+import com.energyict.protocolimplv2.dlms.acud.events.electric.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +15,7 @@ import java.util.List;
 public class AcudElectricLogBookFactory extends AcudLogBookFactory {
 
     protected static ObisCode POWER_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
-    protected static ObisCode SYNCRO_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
+    protected static ObisCode SYNCHRO_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
     protected static ObisCode COMMON_EVENT_LOG = ObisCode.fromString("0.0.99.98.2.255");
     protected static ObisCode MEMORY_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
     protected static ObisCode TAMPER1_EVENT_LOG = ObisCode.fromString("0.0.99.98.4.255");
@@ -34,7 +32,7 @@ public class AcudElectricLogBookFactory extends AcudLogBookFactory {
 
     private static final ObisCode[] supportedLogBooks = new ObisCode[]{
             POWER_EVENT_LOG,
-            SYNCRO_EVENT_LOG,
+            SYNCHRO_EVENT_LOG,
             COMMON_EVENT_LOG,
             MEMORY_EVENT_LOG,
             TAMPER1_EVENT_LOG,
@@ -56,24 +54,38 @@ public class AcudElectricLogBookFactory extends AcudLogBookFactory {
 
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
         List<MeterEvent> meterEvents;
-        if (logBookObisCode.equals(POWER_EVENT_LOG) ||
-                logBookObisCode.equals(SYNCRO_EVENT_LOG) ||
-                logBookObisCode.equals(COMMON_EVENT_LOG) ||
-                logBookObisCode.equals(MEMORY_EVENT_LOG) ||
-                logBookObisCode.equals(SYNCRO_EVENT_LOG) ||
-                logBookObisCode.equals(COMMUNICATION_EVENT_LOG) ||
-                logBookObisCode.equals(QUALITY_EVENT_LOG) ||
-                logBookObisCode.equals(CUT_EVENT_LOG) ||
-                logBookObisCode.equals(CURRENT_EVENT_LOG) ||
-                logBookObisCode.equals(FIRMWARE_EVENT_LOG) ||
-                logBookObisCode.equals(PASSWORD_EVENT_LOG) ||
-                logBookObisCode.equals(SECURITY_EVENT_LOG) ||
-                logBookObisCode.equals(MAXDEMAND_EVENT_LOG)) {
-            meterEvents = new StandardEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        if (logBookObisCode.equals(POWER_EVENT_LOG)) {
+            meterEvents = new PowerEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(SYNCHRO_EVENT_LOG)) {
+            meterEvents = new SynchroEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(COMMON_EVENT_LOG)) {
+            meterEvents = new CommonEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(MEMORY_EVENT_LOG)) {
+            meterEvents = new MemoryEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(COMMUNICATION_EVENT_LOG)) {
+            meterEvents = new CommEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(QUALITY_EVENT_LOG)) {
+            meterEvents = new QualityEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(CUT_EVENT_LOG)) {
+            meterEvents = new CutEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(CURRENT_EVENT_LOG)) {
+            meterEvents = new CurrentEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(FIRMWARE_EVENT_LOG)) {
+            meterEvents = new FirmwareEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(PASSWORD_EVENT_LOG)) {
+            meterEvents = new PasswordEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(SECURITY_EVENT_LOG)) {
+            meterEvents = new SecurityEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(SYNCHRO_EVENT_LOG)) {
+            meterEvents = new SynchroEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(DISCONNECTOR_EVENT_LOG)) {
-            meterEvents = new DisconnectorControlLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(TAMPER1_EVENT_LOG) || logBookObisCode.equals(TAMPER2_EVENT_LOG)) {
-            meterEvents = new FraudDetectionLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new DisconnectorEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(TAMPER1_EVENT_LOG)) {
+            meterEvents = new Tamper1EventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        }else if(logBookObisCode.equals(TAMPER2_EVENT_LOG)) {
+            meterEvents = new Tamper2EventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(MAXDEMAND_EVENT_LOG)) {
+            meterEvents = new MaxDemandEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else {
             return new ArrayList<>();
         }
