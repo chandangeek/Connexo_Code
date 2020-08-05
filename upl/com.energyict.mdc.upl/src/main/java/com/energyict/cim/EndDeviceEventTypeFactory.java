@@ -1709,9 +1709,9 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getValveConfigurationPgvBit8Changed() { return new EndDeviceEventType("4.4.75.24" ); }
 
-    public static EndDeviceEventType getBatteryConsumptionHigh() { return  new EndDeviceEventType("0.2.123.102"); }
+    public static EndDeviceEventType getBatteryConsumptionHigh() { return new EndDeviceEventType("0.2.123.102"); }
 
-    public static EndDeviceEventType getReverseFlow() { return  new EndDeviceEventType("0.40.48.93"); }
+    public static EndDeviceEventType getReverseFlow() { return new EndDeviceEventType("0.40.48.93"); }
 
     public static EndDeviceEventType getTamperP2() { return new EndDeviceEventType("0.12.147.7"); }
 

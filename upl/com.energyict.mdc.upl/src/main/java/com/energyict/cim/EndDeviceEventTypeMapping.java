@@ -4,8 +4,6 @@
 
 package com.energyict.cim;
 
-import static com.energyict.protocol.MeterEvent.*;
-
 import java.util.Objects;
 
 /**
@@ -385,16 +383,16 @@ public enum EndDeviceEventTypeMapping {
     TEMP_MIN_LIMIT                          (363, EndDeviceEventTypeFactory.getTempMinLimit()),
     TEMP_MAX_LIMIT                          (364, EndDeviceEventTypeFactory.getTempMaxLimit()),
     PULSE_ERROR                             (365, EndDeviceEventTypeFactory.getPulseError()),
-    EDETM_CONSUMPTION_ERROR                 ( CONSUMPTION_ERROR, EndDeviceEventTypeFactory.getConsumptionError()),
-    EDETM_BATTERY_CONSUMPTION_HIGH          ( BATTERY_CONSUMPTION_HIGH, EndDeviceEventTypeFactory.getBatteryConsumptionHigh() ),
-    EDETM_REVERSE_FLOW                      ( REVERSE_FLOW, EndDeviceEventTypeFactory.getReverseFlow() ),
-    EDETM_TAMPER_P2                         ( TAMPER_P2, EndDeviceEventTypeFactory.getTamperP2()),
-    EDETM_TAMPER_P0                         ( TAMPER_P0,EndDeviceEventTypeFactory.getTamperP0()),
-    EDETM_TAMPER_CASE                       ( TAMPER_CASE, EndDeviceEventTypeFactory.getTamperCase()),
-    EDETM_SYSTEM_HW_ERROR                   ( SYSTEM_HW_ERROR ,EndDeviceEventTypeFactory.getSystemHRError()),
-    EDETM_CFG_CALIBRATION_ERROR             ( CFG_CALIBRATION_ERROR, EndDeviceEventTypeFactory.getCFGCalibrationError()),
-    EDETM_TEMPERATURE_SENSOR_ERROR          ( TEMPERATURE_SENSOR_ERROR, EndDeviceEventTypeFactory.getTemperatureSensorError()),
-    EDETM_BINDING_FLAG                      ( BINDING_FLAG, EndDeviceEventTypeFactory.getBindingFlag() ),
+    CONSUMPTION_ERROR                       (366, EndDeviceEventTypeFactory.getConsumptionError()),
+    BATTERY_CONSUMPTION_HIGH                (367, EndDeviceEventTypeFactory.getBatteryConsumptionHigh() ),
+    REVERSE_FLOW                            (368, EndDeviceEventTypeFactory.getReverseFlow() ),
+    TAMPER_P2                               (369, EndDeviceEventTypeFactory.getTamperP2()),
+    TAMPER_P0                               (370, EndDeviceEventTypeFactory.getTamperP0()),
+    TAMPER_CASE                             (371, EndDeviceEventTypeFactory.getTamperCase()),
+    SYSTEM_HW_ERROR                         (372, EndDeviceEventTypeFactory.getSystemHRError()),
+    CFG_CALIBRATION_ERROR                   (373, EndDeviceEventTypeFactory.getCFGCalibrationError()),
+    TEMPERATURE_SENSOR_ERROR                (374, EndDeviceEventTypeFactory.getTemperatureSensorError()),
+    BINDING_FLAG                            (375, EndDeviceEventTypeFactory.getBindingFlag() ),
 
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),
