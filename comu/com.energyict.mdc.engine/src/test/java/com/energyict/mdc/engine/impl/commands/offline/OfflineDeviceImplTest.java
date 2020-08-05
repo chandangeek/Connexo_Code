@@ -337,7 +337,7 @@ public class OfflineDeviceImplTest {
         // Asserts
         assertNotNull(offlineRtu.getAllSlaveDevices());
         assertEquals("Expected three slave devices", 3, offlineRtu.getAllSlaveDevices().size());
-        verify(topologyService, times(7)).findPhysicalConnectedDevices((Device) any());
+        verify(topologyService, times(4)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -381,7 +381,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Expected two loadProfiles on the master", 2, offlineDevice.getMasterOfflineLoadProfiles().size());
         assertNotNull(offlineDevice.getAllOfflineLoadProfiles());
         assertEquals("Expected 9 loadProfiles in total", 9, offlineDevice.getAllOfflineLoadProfiles().size());
-        verify(topologyService, times(7)).findPhysicalConnectedDevices((Device) any());
+        verify(topologyService, times(4)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -432,7 +432,7 @@ public class OfflineDeviceImplTest {
         // asserts
         assertNotNull(offlineRtu.getAllOfflineRegisters());
         assertEquals("Should have gotten 3 registers", 3, offlineRtu.getAllOfflineRegisters().size());
-        verify(topologyService, times(4)).findPhysicalConnectedDevices((Device) any());
+        verify(topologyService, times(3)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -612,7 +612,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Expecting one slave device message", 1, offlineDeviceMessages.size());
         assertEquals("Expecting the serialnumber of the slave", "654654", offlineDeviceMessages.get(0).getDeviceSerialNumber());
         assertEquals("Expecting the DeviceProtocol of the slave", slaveDeviceProtocol, offlineDeviceMessages.get(0).getDeviceProtocol());
-        verify(topologyService, times(4)).findPhysicalConnectedDevices((Device) any());
+        verify(topologyService, times(3)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -696,7 +696,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Expecting one slave device message", 1, offlineDeviceMessages.size());
         assertEquals("Expecting the serialnumber of the slave", "654654", offlineDeviceMessages.get(0).getDeviceSerialNumber());
         assertEquals("Expecting the DeviceProtocol of the slave", slaveDeviceProtocol, offlineDeviceMessages.get(0).getDeviceProtocol());
-        verify(topologyService, times(4)).findPhysicalConnectedDevices((Device) any());
+        verify(topologyService, times(3)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
