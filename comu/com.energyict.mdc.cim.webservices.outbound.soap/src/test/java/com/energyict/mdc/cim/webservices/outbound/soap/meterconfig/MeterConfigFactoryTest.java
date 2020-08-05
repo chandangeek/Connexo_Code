@@ -4,13 +4,12 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.DefaultState;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
@@ -42,8 +41,11 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
-
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -58,18 +60,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -116,8 +111,6 @@ public class MeterConfigFactoryTest {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     private Clock clock;
-    @Mock
-    private NlsService nlsService;
     @Mock
     private Device device;
     @Mock
@@ -171,9 +164,8 @@ public class MeterConfigFactoryTest {
 
     @Before
     public void setUp() {
-        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         mockDevice();
-        meterConfigFactory = new MeterConfigFactoryImpl(customPropertySetService, deviceService, firmwareService, deviceMessageService, deviceMessageSpecificationService, clock, nlsService);
+        meterConfigFactory = new MeterConfigFactoryImpl(customPropertySetService, deviceService, firmwareService, deviceMessageService, deviceMessageSpecificationService, clock, thesaurus);
     }
 
     @Test

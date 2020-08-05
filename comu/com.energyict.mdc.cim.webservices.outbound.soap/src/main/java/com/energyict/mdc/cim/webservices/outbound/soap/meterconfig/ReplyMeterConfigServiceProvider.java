@@ -4,11 +4,19 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
+import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
+import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.Name;
+import ch.iec.tc57._2011.schema.message.ObjectType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -21,20 +29,8 @@ import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
-import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
-import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
-import ch.iec.tc57._2011.schema.message.ErrorType;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.Name;
-import ch.iec.tc57._2011.schema.message.ObjectType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -45,19 +41,17 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
-        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, TranslationKeyProvider.class},
+        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort> implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, TranslationKeyProvider, ApplicationSpecific {
+public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort> implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
-    private static final String COMPONENT_NAME = "SIM";
     private static final String NOUN = "MeterConfig";
     private static final String RESOURCE_WSDL = "/wsdl/meterconfig/ReplyMeterConfig.wsdl";
 
@@ -195,23 +189,6 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 .toEndpoints(endPointConfiguration)
                 .withRelatedAttributes(values)
                 .send(message);
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.SOAP;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
-        return translationKeys;
     }
 
     private MeterConfig createMeterConfig(Collection<Device> devices) {
