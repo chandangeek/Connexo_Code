@@ -224,31 +224,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         setAllKeyAccessors(convertToOfflineKeyAccessors( allSecurityAccessors ));
         setSecurityPropertySetAttributeToKeyAccessorType(this.device);
         if (context.needsPendingMessages()) {
-            try {
-                serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
-                PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
-                List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device, deviceTopologies);
-                List<DeviceMessage> reallyPending = new ArrayList<>();
-                List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
-                pendingMessages
-                        .forEach(deviceMessage -> {
-                            if (validator.isStillValid(deviceMessage)) {
-                                reallyPending.add(deviceMessage);
-                            } else {
-                                deviceMessage.setProtocolInformation(
-                                        this.serviceProvider.thesaurus()
-                                                .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
-                                                .format(
-                                                        validator.failingCalendarNames(deviceMessage),
-                                                        this.device.getDeviceType().getName()));
-                                invalidSinceCreation.add(deviceMessage);
-                            }
-                        });
-                setAllPendingMessages(createOfflineMessageList(reallyPending));
-                setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
-            } catch (MacException e) {
-                this.macException = e;
-            }
+            setAllPendingMessages(deviceTopologies);
         }
         if (context.needsSentMessages()) {
             setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device, deviceTopologies)));
@@ -261,6 +237,38 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         }
         setDeviceCache(serviceProvider);
         this.setCalendars();
+    }
+
+    private void setAllPendingMessages(Map<Device, List<Device>> deviceTopologies) {
+        try {
+            List<DeviceMessage> reallyPending = new ArrayList<>();
+            List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
+            fillReallyPendingAndInvalidMessagesLists(deviceTopologies, reallyPending, invalidSinceCreation);
+            setAllPendingMessages(createOfflineMessageList(reallyPending));
+            setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
+        } catch (MacException e) {
+            this.macException = e;
+        }
+    }
+
+    private void fillReallyPendingAndInvalidMessagesLists(Map<Device, List<Device>> deviceTopologies, List<DeviceMessage> reallyPending, List<DeviceMessage> invalidSinceCreation) {
+        serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
+        PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
+        List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device, deviceTopologies);
+        pendingMessages
+                .forEach(deviceMessage -> {
+                    if (validator.isStillValid(deviceMessage)) {
+                        reallyPending.add(deviceMessage);
+                    } else {
+                        deviceMessage.setProtocolInformation(
+                                this.serviceProvider.thesaurus()
+                                        .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
+                                        .format(
+                                                validator.failingCalendarNames(deviceMessage),
+                                                this.device.getDeviceType().getName()));
+                        invalidSinceCreation.add(deviceMessage);
+                    }
+                });
     }
 
     private List<Device> getPhysicalConnectedDevices(Device device, Map<Device, List<Device>> deviceTopologies) {
