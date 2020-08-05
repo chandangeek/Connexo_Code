@@ -351,13 +351,10 @@ public class OfflineDeviceImplTest {
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
         Device slaveFromSlave1 = createMockedDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Collections.singletonList(slaveFromSlave1));
 
         Device slave2 = createMockedDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slave1, slave2));
 
         ObisCode obisCode1 = ObisCode.fromString("1.0.99.1.0.255");
@@ -384,7 +381,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Expected two loadProfiles on the master", 2, offlineDevice.getMasterOfflineLoadProfiles().size());
         assertNotNull(offlineDevice.getAllOfflineLoadProfiles());
         assertEquals("Expected 9 loadProfiles in total", 9, offlineDevice.getAllOfflineLoadProfiles().size());
-        verify(topologyService, times(10)).findPhysicalConnectedDevices((Device) any());
+        verify(topologyService, times(7)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
