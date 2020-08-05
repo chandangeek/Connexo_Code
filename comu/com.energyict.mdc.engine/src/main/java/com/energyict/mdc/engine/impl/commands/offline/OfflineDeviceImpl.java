@@ -201,7 +201,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
             setSlaveDevices(convertToOfflineRtus(downstreamDevices, deviceTopologies));
 
             for (final Device device : downstreamDevices) {
-                slaveSecurityAccessors.addAll( device.getSecurityAccessors() );
+                slaveSecurityAccessors.addAll(device.getSecurityAccessors());
             }
         }
         if (context.needsMasterLoadProfiles()) {
@@ -218,9 +218,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         }
 
         List<SecurityAccessor> allSecurityAccessors = new ArrayList<>(slaveSecurityAccessors);
-        allSecurityAccessors.addAll( device.getSecurityAccessors() );
+        allSecurityAccessors.addAll(device.getSecurityAccessors());
 
-        setAllKeyAccessors(convertToOfflineKeyAccessors( allSecurityAccessors ));
+        setAllKeyAccessors(convertToOfflineKeyAccessors(allSecurityAccessors));
         setSecurityPropertySetAttributeToKeyAccessorType(device);
         if (context.needsPendingMessages()) {
             setAllPendingMessages(deviceTopologies);
@@ -319,7 +319,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * including the physically connected devices which have the
      * {@link DeviceType#isLogicalSlave()} flag checked.
      *
-     * @param device the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
+     * @param device           the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
      * @param deviceTopologies
      * @return a List of <CODE>LoadProfiles</CODE>
      */
@@ -335,7 +335,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         List<LogBook> allLogBooks = new ArrayList<>(device.getLogBooks());
         getPhysicalConnectedDevices(device, deviceTopologies).stream().
                 filter(this::checkTheNeedToGoOffline).
-                forEach(slave -> allLogBooks.addAll(getAllLogBooksIncludingDownStreams(slave, deviceTopologies )));
+                forEach(slave -> allLogBooks.addAll(getAllLogBooksIncludingDownStreams(slave, deviceTopologies)));
         return allLogBooks;
     }
 
@@ -343,7 +343,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * Converts the given {@link Device}s to {@link OfflineDevice}s if they have the option
      * {@link DeviceType#isLogicalSlave()} checked.
      *
-     * @param downstreamRtus The rtus to go offline
+     * @param downstreamRtus   The rtus to go offline
      * @param deviceTopologies
      * @return a list of OfflineDevice
      */
@@ -448,8 +448,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     public void setLocation(String location) {
         this.location = location;
     }
-    @Override
 
+    @Override
     @XmlAttribute
     public String getUsagePoint() {
         return usagePoint;
@@ -577,7 +577,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * including his slave devices which have the
      * islogicalSlave flag checked.
      *
-     * @param device the Device to collect the pending DeviceMessages from
+     * @param device           the Device to collect the pending DeviceMessages from
      * @param deviceTopologies
      * @return a List of pending DeviceMessages
      */
@@ -595,7 +595,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * including his slave devices which have the
      * islogicalSlave flag checked.
      *
-     * @param device the Device to collect the sent DeviceMessages from
+     * @param device           the Device to collect the sent DeviceMessages from
      * @param deviceTopologies
      * @return a List of sent DeviceMessages
      */
@@ -674,7 +674,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         return deviceProtocolCache;
     }
 
-    @XmlElements( {
+    @XmlElements({
             @XmlElement(type = DeviceIdentifierById.class),
             @XmlElement(type = DeviceIdentifierBySerialNumber.class),
             @XmlElement(type = DeviceIdentifierByMRID.class),
@@ -684,8 +684,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     })
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        if (deviceIdentifier == null && serviceProvider.identificationService() != null)
+        if (deviceIdentifier == null && serviceProvider.identificationService() != null) {
             deviceIdentifier = serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(getId(), getmRID());
+        }
         return deviceIdentifier;
     }
 
