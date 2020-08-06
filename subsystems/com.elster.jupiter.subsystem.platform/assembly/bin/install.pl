@@ -1241,9 +1241,14 @@ sub start_tomcat {
             print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
             postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
 
-            print "\nDeploy MDC processes...\n";
             mkdir "$TOMCAT_BASE/$TOMCAT_DIR/repositories";
             dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            #Extract pom.xml for all copied jar's and rename it to corresponding .pom file.
+            parse_deployed_jars();
+
+            print "\nDeploy MDC processes...\n";
+
             my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
             if(-e $mdcfile){
                 open(INPUT, $mdcfile);
@@ -1261,7 +1266,6 @@ sub start_tomcat {
             }
 
             print "\nDeploy INSIGHT processes...\n";
-            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
             my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
             if(-e $insightfile){
                 open(INPUT, $insightfile);
@@ -1279,6 +1283,68 @@ sub start_tomcat {
             }
 		}
 	}
+}
+
+sub parse_deployed_jars
+{
+    my $homeDir = cwd;
+    #find all jars in directory
+    my $dir = "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie";
+    my @jarFiles;#list of jars that should be parsed.
+    find(\&save_jar_path, $dir);
+    sub save_jar_path
+        {
+        if( $File::Find::name =~ /.jar/)
+            {
+            push @jarFiles, $File::Find::name;
+            }
+        }
+
+    my $ff;
+    foreach $ff (@jarFiles)
+    {
+        my $dirname = dirname($ff);
+        my $filename = fileparse($ff);
+        chdir($dirname);
+        extract_pom($filename);
+        chdir($homeDir);
+    }
+}
+
+#Extract pom.xml file from jar and rename it to jarName.pom and copy it to the same directory where jar file presents.
+sub extract_pom
+{
+    my $jarName;
+    $jarName = $_[0];
+    #Here we get pom.xml from jar and create .pom file.
+    my @files = `jar -tf \"$jarName\"`;
+    my $number =  scalar(@files);
+    my $i = 0;
+    my $neededFile;
+    #Go through files in jar and find pom.xml
+    M1:
+    while($i < $number)
+        {
+            #Check if name of file is pom.xml
+            if (index(@files[$i], "pom.xml") != -1){
+                $neededFile = @files[$i];
+                last M1;
+            }
+            $i = $i + 1;
+        }
+    #extract pom.xml from jar
+    system("jar -xf $jarName $neededFile");
+    chop($neededFile);#remove end of the line symbol from file name.
+
+    #Construct name for pom file
+    my $pomName = $jarName;
+    $pomName =~ s/jar$/pom/;
+
+    copy($neededFile, $pomName);
+    #When we extract pom.xml from jar whole directory tree is extracted as well.
+    #Remove directory after pom.xml file extraction
+    my @treeToRemove = File::Spec->splitdir($neededFile);
+    rmtree(@treeToRemove[0]);
 }
 
 sub final_steps {
