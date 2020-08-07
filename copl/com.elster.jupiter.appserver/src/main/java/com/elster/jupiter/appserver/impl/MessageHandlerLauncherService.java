@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -53,7 +52,6 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", service = MessageHandlerLauncherService.class, immediate = true)
 public class MessageHandlerLauncherService implements IAppService.CommandListener {
-
     private static final Logger LOGGER = Logger.getLogger(MessageHandlerLauncherService.class.getName());
     private final Object configureLock = new Object();
     @GuardedBy("configureLock")
@@ -75,6 +73,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private MessageService messageService;
 
     public MessageHandlerLauncherService() {
+        // for OSGi
     }
 
     @Inject
@@ -219,7 +218,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 .distinct().collect(Collectors.toList());
 
         if (!destinationSpecTypeNames.isEmpty()) {
-            destinationSpecTypeNames.stream().forEach(spec ->
+            destinationSpecTypeNames.forEach(spec ->
                     addNewMessageHandlerFactory(SubscriberKey.of(spec.getName(), spec.getName()), factory));
         }
     }
@@ -313,7 +312,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         } catch (RuntimeException e) {
             // we can't allow corrupt MessageHandlerFactories to disrupt our configuration
             if (submittedFutures.isEmpty()) {
-                executors.remove(factory);
+                executors.remove(key);
                 executorService.shutdownNow();
             }
 
