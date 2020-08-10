@@ -40,7 +40,8 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     public void testNothingToUpdate() {
         User user = mockUser(1L);
         UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
-
+        info.isRoleModified = false;
+        when(userService.getLoggedInUserFromCache(1L)).thenReturn(Optional.empty());
         target("/users/1").request().put(Entity.json(info));
 
         verify(user, VerificationModeFactory.times(0)).setDescription("description");
@@ -54,7 +55,8 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
         info.language = new LocaleInfo();
         info.language.languageTag = Locale.US.toLanguageTag();
-
+        info.isRoleModified = false;
+        when(userService.getLoggedInUserFromCache(1L)).thenReturn(Optional.empty());
         target("/users/1").request().put(Entity.json(info));
 
         verify(user).setLocale(Locale.US);
@@ -66,7 +68,8 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         User user = mockUser(1L);
         UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
         info.language = null;
-
+        info.isRoleModified = false;
+        when(userService.getLoggedInUserFromCache(1L)).thenReturn(Optional.empty());
         target("/users/1").request().put(Entity.json(info));
 
         verify(user).setLocale(null);
@@ -78,7 +81,8 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         User user = mockUser(1L);
         UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
         info.description = "new description";
-
+        info.isRoleModified = false;
+        when(userService.getLoggedInUserFromCache(1L)).thenReturn(Optional.empty());
         target("/users/1").request().put(Entity.json(info));
 
         verify(user).setDescription("new description");
@@ -92,7 +96,8 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         when(userService.findAndLockUserByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
         when(userService.getUser(1L)).thenReturn(Optional.empty());
         UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
-
+        info.isRoleModified = false;
+        when(userService.getLoggedInUserFromCache(1L)).thenReturn(Optional.empty());
         Response response = target("/users/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }

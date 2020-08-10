@@ -208,6 +208,16 @@ public class OfflineUser implements User {
     }
 
     @Override
+    public void setRoleModified(boolean status) {
+
+    }
+
+    @Override
+    public boolean isRoleModified() {
+        return false;
+    }
+
+    @Override
     public boolean isUserLocked(Optional<UserSecuritySettings> userSecuritySettings) {
         return false;
     }
