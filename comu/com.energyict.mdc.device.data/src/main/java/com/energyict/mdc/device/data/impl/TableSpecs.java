@@ -88,6 +88,7 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -128,6 +129,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(com.energyict.mdc.upl.meterdata.Device.class);
             table.map(DeviceImpl.class);
+            table.cache(60000L, 10000L, true);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
@@ -145,7 +147,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG")
                     .on(configuration)
                     .references(DeviceConfiguration.class)
-                    .map(DeviceFields.DEVICECONFIGURATION.fieldName(), DeviceType.class)
+                    .map(DeviceFields.DEVICECONFIGURATION.fieldName())
                     .add();
             table.foreignKey("FK_DDC_DEVICE_DEVICETYPE")
                     .on(deviceType)
@@ -635,8 +637,9 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(ComTaskExecutionFields.LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE.fieldName())
+                    .notAudited()
                     .add();
-            table.column("LASTSESS_SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName()).add();
+            table.column("LASTSESS_SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName()).notAudited().add();
             table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS").
                     on(lastSession).
                     references(DDC_COMTASKEXECSESSION.name()).
@@ -1227,6 +1230,9 @@ public enum TableSpecs {
             table.addRefAnyColumns("TEMPSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName());
             table.addRefAnyColumns("ACTUALPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_ACTUAL.fieldName());
             table.addRefAnyColumns("TEMPPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_TEMP.fieldName());
+            Column actualSimKeyId = table.getColumn("ACTUALSYMKEYID").orElseThrow(()
+                    -> new IllegalArgumentException("Table " + table.getName() + "does not have a column ACTUALSYMKEYID"));
+            table.index("IX_DDC_KEYACCESSOR_SYMKEYID").on(actualSimKeyId).add();
         }
     },
 

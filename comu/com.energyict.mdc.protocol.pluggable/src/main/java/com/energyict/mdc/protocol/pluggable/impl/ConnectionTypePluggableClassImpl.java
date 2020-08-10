@@ -171,7 +171,13 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     public CustomPropertySetValues getPropertiesFor(ConnectionProvider connectionProvider, Instant effectiveTimestamp) {
         return this.newInstance()
                 .getCustomPropertySet()
-                .map(propertySet -> this.customPropertySetService.getUniqueValuesFor(propertySet, connectionProvider, effectiveTimestamp))
+                .map(propertySet -> {
+                    if (propertySet.isVersioned()) {
+                        return this.customPropertySetService.getUniqueValuesFor(propertySet, connectionProvider, effectiveTimestamp);
+                    } else {
+                        return this.customPropertySetService.getUniqueValuesFor(propertySet, connectionProvider);
+                    }
+                })
                 .orElseGet(() -> CustomPropertySetValues.emptyFrom(effectiveTimestamp));
     }
 
@@ -179,7 +185,13 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     public void setPropertiesFor(ConnectionProvider connectionProvider, CustomPropertySetValues values, Instant effectiveTimestamp) {
         this.newInstance()
                 .getCustomPropertySet()
-                .ifPresent(propertySet -> this.customPropertySetService.setValuesFor(propertySet, connectionProvider, values, effectiveTimestamp));
+                .ifPresent(propertySet -> {
+                    if (propertySet.isVersioned()){
+                        this.customPropertySetService.setValuesFor(propertySet, connectionProvider, values, effectiveTimestamp);
+                    } else {
+                        this.customPropertySetService.setValuesFor(propertySet, connectionProvider, values);
+                    }
+                });
     }
 
     @Override

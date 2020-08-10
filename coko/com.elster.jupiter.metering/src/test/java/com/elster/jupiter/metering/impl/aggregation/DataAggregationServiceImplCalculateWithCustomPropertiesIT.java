@@ -28,6 +28,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.impl.LicenseServiceImpl;
@@ -194,6 +195,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             bind(SearchService.class).toInstance(mockSearchService());
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(UpgradeService.class).toInstance(new UpgradeModule.FakeUpgradeService());
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 

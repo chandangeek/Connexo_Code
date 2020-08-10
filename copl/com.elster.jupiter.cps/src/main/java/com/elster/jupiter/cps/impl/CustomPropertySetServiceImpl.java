@@ -251,13 +251,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                Version.version(10, 2), UpgraderV10_2.class,
-                Version.version(10, 4, 8), UpgraderV10_4_8.class,
-                Version.version(10, 6), UpgraderV10_6.class,
-                Version.version(10, 7), UpgraderV10_7.class,
-                Version.version(10, 7, 2), UpgraderV10_7_2.class
-        ));
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(Version.version(10, 2), UpgraderV10_2.class)
+                        .put(Version.version(10, 4, 8), UpgraderV10_4_8.class)
+                        .put(Version.version(10, 6), UpgraderV10_6.class)
+                        .put(Version.version(10, 7), UpgraderV10_7.class)
+                        .put(Version.version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(Version.version(10, 8, 1), UpgraderV10_8_1.class)
+                        .build()
+        );
         this.installed = true;
         this.registerAllCustomPropertySets();
     }
@@ -1113,7 +1118,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             this.tableNameFor(this.customPropertySet),
                             this.customPropertySet.getPersistenceSupport().persistenceClass());
             this.underConstruction.map(this.customPropertySet.getPersistenceSupport().persistenceClass());
-            this.underConstruction.setJournalTableName(this.customPropertySet().getPersistenceSupport().journalTableName());
+            String journalTableName = this.customPropertySet().getPersistenceSupport().journalTableName();
+            if (journalTableName != null) {
+                this.underConstruction.setJournalTableName(journalTableName);
+            }
         }
 
         private void addColumns() {

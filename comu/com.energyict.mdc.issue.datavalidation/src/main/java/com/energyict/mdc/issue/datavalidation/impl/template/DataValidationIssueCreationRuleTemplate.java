@@ -15,8 +15,6 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringTranslationService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -65,8 +63,12 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     private final MeteringTranslationService meteringTranslationService;
 
     @Inject
-    public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
-                                                   NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+    public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService,
+                                                   IssueService issueService,
+                                                   Thesaurus thesaurus,
+                                                   PropertySpecService propertySpecService,
+                                                   DeviceConfigurationService deviceConfigurationService,
+                                                   DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                                    MeteringTranslationService meteringTranslationService) {
         this.issueDataValidationService = issueDataValidationIssueService;
         this.issueService = issueService;
@@ -74,7 +76,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.meteringTranslationService = meteringTranslationService;
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = thesaurus;
     }
 
     @Override

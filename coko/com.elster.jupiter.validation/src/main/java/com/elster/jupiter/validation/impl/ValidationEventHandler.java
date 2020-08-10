@@ -56,42 +56,47 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
         if (event.getType().getTopic().equals(READINGS_CREATED_TOPIC)) {
-            ReadingStorer storer = (ReadingStorer) event.getSource();
-            StorerProcess action = storer.getStorerProcess();
-            if (StorerProcess.CONFIRM != action) {
-                Map<ChannelsContainer, Map<Channel, Range<Instant>>> scopePerChannelPerChannelsContainer
-                        = determineScopePerChannelPerChannelsContainer(storer);
-                Map<Channel, Range<Instant>> dependentScope = scopePerChannelPerChannelsContainer.entrySet().stream()
-                        .flatMap(containerAndScopeByChannelMap -> containerAndScopeByChannelMap.getKey()
-                                .findDependentChannelScope(containerAndScopeByChannelMap.getValue())
-                                .entrySet()
-                                .stream())
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Range::span));
-                resetEstimatedReadingsOnDependentScope(dependentScope);
-                if (StorerProcess.DEFAULT == action) { // we want to revalidate data automatically only if they come from meter, not by editing
-                    scopePerChannelPerChannelsContainer.entrySet().forEach(
-                            containerAndScope -> validationService.validate(containerAndScope.getKey(), containerAndScope.getValue()));
-                } else if (StorerProcess.ESTIMATION != action) {
-                    scopePerChannelPerChannelsContainer.entrySet().forEach(
-                            containerAndScope -> validationService.validate(
-                                    containerAndScope.getKey(), containerAndScope.getValue().entrySet().stream().filter(entry -> !entry.getKey().isRegular())
-                                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))));
-                }
-                validationService.validate(dependentScope);
-            }
+            handleCreatedOrUpdatedReadings((ReadingStorer) event.getSource());
         } else if (event.getType().getTopic().equals(READINGS_REMOVED_TOPIC)) {
-            Channel.ReadingsDeletedEvent deleteEvent = (Channel.ReadingsDeletedEvent) event.getSource();
-            Channel channel = deleteEvent.getChannel();
-            ChannelsContainer channelsContainer = channel.getChannelsContainer();
-            Map<Channel, Range<Instant>> scope = ImmutableMap.of(channel, deleteEvent.getRange());
-            Map<Channel, Range<Instant>> dependentScope = channelsContainer.findDependentChannelScope(scope);
-            resetEstimatedReadingsOnDependentScope(dependentScope);
-            validationService.validate(dependentScope);
+            handleRemovedReadings((Channel.ReadingsDeletedEvent) event.getSource());
         } else if (event.getType().getTopic().equals(METER_ACTIVATION_ADVANCED_TOPIC)) {
             handleAdvancedMeterActivation((EventType.MeterActivationAdvancedEvent) event.getSource());
         } else if (event.getType().getTopic().equals(CHANNELS_CONTAINERS_CLIPPED_TOPIC)) {
             handleClippedChannelsContainers((EventType.ChannelsContainersClippedEvent) event.getSource());
         }
+    }
+
+    private void handleCreatedOrUpdatedReadings(ReadingStorer storer) {
+        StorerProcess action = storer.getStorerProcess();
+        if (StorerProcess.CONFIRM != action) {
+            Map<ChannelsContainer, Map<Channel, Range<Instant>>> scopePerChannelPerChannelsContainer
+                    = determineScopePerChannelPerChannelsContainer(storer);
+            Map<Channel, Range<Instant>> dependentScope = scopePerChannelPerChannelsContainer.entrySet().stream()
+                    .flatMap(containerAndScopeByChannelMap -> containerAndScopeByChannelMap.getKey()
+                            .findDependentChannelScope(containerAndScopeByChannelMap.getValue())
+                            .entrySet()
+                            .stream())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Range::span));
+            resetEstimatedReadingsOnDependentScope(dependentScope);
+            if (StorerProcess.DEFAULT == action) { // we want to revalidate data automatically only if they come from meter, not by editing
+                scopePerChannelPerChannelsContainer.forEach((container, scope) -> validationService.validate(container, scope));
+            } else if (StorerProcess.ESTIMATION != action) {
+                scopePerChannelPerChannelsContainer.forEach((container, scope) -> validationService.validate(container,
+                        scope.entrySet().stream()
+                                .filter(entry -> !entry.getKey().isRegular())
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))));
+            }
+            validationService.validate(dependentScope);
+        }
+    }
+
+    private void handleRemovedReadings(Channel.ReadingsDeletedEvent deleteEvent) {
+        Channel channel = deleteEvent.getChannel();
+        ChannelsContainer channelsContainer = channel.getChannelsContainer();
+        Map<Channel, Range<Instant>> scope = ImmutableMap.of(channel, deleteEvent.getRange());
+        Map<Channel, Range<Instant>> dependentScope = channelsContainer.findDependentChannelScope(scope);
+        resetEstimatedReadingsOnDependentScope(dependentScope);
+        validationService.validate(dependentScope);
     }
 
     private static Map<ChannelsContainer, Map<Channel, Range<Instant>>> determineScopePerChannelPerChannelsContainer(ReadingStorer storer) {

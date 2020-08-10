@@ -38,6 +38,7 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_8_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
@@ -275,7 +276,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
-                        version(10, 7), UpgraderV10_7.class
+                        version(10, 7), UpgraderV10_7.class,
+                        version(10, 8, 1), V10_8_1SimpleUpgrader.class
                 ));
     }
 

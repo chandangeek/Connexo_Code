@@ -214,7 +214,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public String getType() {
-        return getEventType().getName();
+        return deviceEventType;
     }
 
     @Override

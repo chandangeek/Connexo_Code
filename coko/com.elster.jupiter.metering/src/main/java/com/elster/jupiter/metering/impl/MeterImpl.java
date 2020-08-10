@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
@@ -17,6 +16,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -27,11 +27,8 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Comparison;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.Range;
 
@@ -215,14 +212,18 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
+    public ReadingQualityFetcher findReadingQualities() {
+        return new ReadingQualityFetcherImpl(getDataModel(), this);
+    }
+
+    @Override
     public List<? extends ReadingQualityRecord> getReadingQualities(Range<Instant> range) {
         if (!range.hasLowerBound() && !range.hasUpperBound()) {
             throw new IllegalArgumentException();
         }
-        QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, ChannelsContainer.class, MeterActivation.class);
-        Condition condition = Where.where("channel.channelsContainer.meterActivation.meter").isEqualTo(this);
-        condition = condition.and(Where.where("readingTimestamp").in(range));
-        return query.select(condition);
+        return findReadingQualities()
+                .inTimeInterval(range)
+                .collect();
     }
 
     @Override

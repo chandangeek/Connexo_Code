@@ -4,15 +4,14 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.DefaultState;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
@@ -42,8 +41,11 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
-
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -58,18 +60,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -99,8 +94,10 @@ public class MeterConfigFactoryTest {
     private static final Date CALENDAR_ACTIVATION_DATE = Date.from(Instant.from(ZonedDateTime.of(2020, 3, 6, 1, 0, 0, 0, ZoneId.systemDefault())));
     private static final Instant CALENDAR_ACTIVATION_DATE_INSTANT = Instant.from(ZonedDateTime.of(2020, 3, 6, 1, 0, 0, 0, ZoneId.systemDefault()));
     private static final Instant CONTACTOR_STATUS_SENT_DATE = Instant.from(ZonedDateTime.of(2020, 3, 6, 1, 0, 0, 0, ZoneId.systemDefault()));
+    private static final Instant CONTACTOR_STATUS_VERIFIED_SENT_DATE = Instant.from(ZonedDateTime.of(2020, 3, 5, 1, 0, 0, 0, ZoneId.systemDefault()));
     private static final Date CONTACTOR_ACTIVATION_DATE = Date.from(Instant.from(ZonedDateTime.of(2020, 3, 7, 1, 0, 0, 0, ZoneId.systemDefault())));
-    private static final Instant CONTACTOR_ACTIVATION_DATE_INSTANT = Instant.from(ZonedDateTime.of(2020, 3, 7, 1, 0, 0, 0, ZoneId.systemDefault()));
+    private static final Date CONTACTOR_ACTIVATION_DATE_VERIFIED = Date.from(Instant.from(ZonedDateTime.of(2020, 3, 7, 0, 0, 0, 0, ZoneId.systemDefault())));
+    private static final Instant CONTACTOR_ACTIVATION_DATE_VERIFIED_INSTANT = Instant.from(ZonedDateTime.of(2020, 3, 7, 0, 0, 0, 0, ZoneId.systemDefault()));
 
     @Mock
     private CustomPropertySetService customPropertySetService;
@@ -114,8 +111,6 @@ public class MeterConfigFactoryTest {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     private Clock clock;
-    @Mock
-    private NlsService nlsService;
     @Mock
     private Device device;
     @Mock
@@ -145,7 +140,7 @@ public class MeterConfigFactoryTest {
     @Mock
     private FirmwareManagementDeviceUtils versionUtils;
     @Mock
-    private DeviceMessage calendarMessage, contactorMessage;
+    private DeviceMessage calendarMessage, contactorMessage, verifiedContactorMessage;
     @Mock
     private FirmwareVersion firmwareVersion;
     @Mock
@@ -161,7 +156,7 @@ public class MeterConfigFactoryTest {
     @Mock
     private Finder<DeviceMessage> calendarFinder, contactorFinder;
     @Mock
-    private DeviceMessageAttribute deviceMessageAttribute, activationDateAttr, contactorActivationDateAttr;
+    private DeviceMessageAttribute deviceMessageAttribute, activationDateAttr, contactorActivationDateAttr, contactorActivationDateAttrVerified;
     @Mock
     private ActivatedBreakerStatus breakerStatus;
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
@@ -169,9 +164,8 @@ public class MeterConfigFactoryTest {
 
     @Before
     public void setUp() {
-        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         mockDevice();
-        meterConfigFactory = new MeterConfigFactoryImpl(customPropertySetService, deviceService, firmwareService, deviceMessageService, deviceMessageSpecificationService, clock, nlsService);
+        meterConfigFactory = new MeterConfigFactoryImpl(customPropertySetService, deviceService, firmwareService, deviceMessageService, deviceMessageSpecificationService, clock, thesaurus);
     }
 
     @Test
@@ -216,8 +210,8 @@ public class MeterConfigFactoryTest {
         assertThat(meterConfig.getMeter().get(0).getMeterStatus().getCalendarStatus().getUploadDate()).isEqualTo(CALENDAR_UPLOAD_DATE);
         assertThat(meterConfig.getMeter().get(0).getMeterStatus().getCalendarStatus().getActivationDate()).isEqualTo(CALENDAR_ACTIVATION_DATE_INSTANT);
         assertThat(meterConfig.getMeter().get(0).getMeterStatus().getContactorStatus().getStatus()).isEqualTo(BreakerStatus.CONNECTED.toString());
-        assertThat(meterConfig.getMeter().get(0).getMeterStatus().getContactorStatus().getSentDate()).isEqualTo(CONTACTOR_STATUS_SENT_DATE);
-        assertThat(meterConfig.getMeter().get(0).getMeterStatus().getContactorStatus().getActivationDate()).isEqualTo(CONTACTOR_ACTIVATION_DATE_INSTANT);
+        assertThat(meterConfig.getMeter().get(0).getMeterStatus().getContactorStatus().getSentDate()).isEqualTo(CONTACTOR_STATUS_VERIFIED_SENT_DATE);
+        assertThat(meterConfig.getMeter().get(0).getMeterStatus().getContactorStatus().getActivationDate()).isEqualTo(CONTACTOR_ACTIVATION_DATE_VERIFIED_INSTANT);
     }
 
     @Test
@@ -344,10 +338,15 @@ public class MeterConfigFactoryTest {
     private void mockContactorStatus() {
         when(deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(breakerStatus));
         when(breakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.CONNECTED);
+        when(breakerStatus.getLastChecked()).thenReturn(CONTACTOR_STATUS_VERIFIED_SENT_DATE);
         when(contactorCategory.getName()).thenReturn("Contactor");
-        when(contactorFinder.stream()).thenReturn(Stream.of(contactorMessage));
+        when(contactorFinder.stream()).thenReturn(Stream.of(verifiedContactorMessage, contactorMessage));
+        when(verifiedContactorMessage.getSentDate()).thenReturn(Optional.of(CONTACTOR_STATUS_VERIFIED_SENT_DATE));
         when(contactorMessage.getSentDate()).thenReturn(Optional.of(CONTACTOR_STATUS_SENT_DATE));
+        doReturn(Arrays.asList(contactorActivationDateAttrVerified)).when(verifiedContactorMessage).getAttributes();
         doReturn(Arrays.asList(contactorActivationDateAttr)).when(contactorMessage).getAttributes();
+        when(contactorActivationDateAttrVerified.getName()).thenReturn(contactorActivationDateAttributeName);
+        when(contactorActivationDateAttrVerified.getValue()).thenReturn(CONTACTOR_ACTIVATION_DATE_VERIFIED);
         when(contactorActivationDateAttr.getName()).thenReturn(contactorActivationDateAttributeName);
         when(contactorActivationDateAttr.getValue()).thenReturn(CONTACTOR_ACTIVATION_DATE);
     }

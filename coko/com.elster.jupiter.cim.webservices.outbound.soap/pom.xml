@@ -99,6 +99,10 @@
         </dependency>
 		<dependency>
 			<groupId>com.elster.jupiter</groupId>
+			<artifactId>export</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.elster.jupiter</groupId>
 			<artifactId>devtools</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -112,7 +116,7 @@
 			<artifactId>parties</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

@@ -6,16 +6,18 @@ package com.elster.jupiter.orm.associations.impl;
 
 import java.util.AbstractList;
 import java.util.List;
+import java.util.Optional;
 
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 
 public abstract class PersistentList<T> extends AbstractList<T> {
-	
+
 	private List<T> target;
 	private final DataMapperImpl<T> dataMapper;
 	private final Object owner;
@@ -31,16 +33,25 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 		this(constraint,dataMapper,owner);
 		this.target = target;
 	}
-	
+
+	private List<T> loadTarget(){
+		QueryExecutor<T> query = dataMapper.query(constraint.reverseEagers());
+		Condition condition = Where.where(constraint.getFieldName()).isEqualTo(owner);
+		if (constraint.getReverseOrderFieldName() == null) {
+			return query.select(condition);
+		} else {
+			return query.select(condition, Order.ascending(constraint.getReverseOrderFieldName()));
+		}
+	}
+
 	final List<T> getTarget() {
 		if (target == null) {
-			QueryExecutor<T> query = dataMapper.query(constraint.reverseEagers());
-			Condition condition = Where.where(constraint.getFieldName()).isEqualTo(owner);
-			if (constraint.getReverseOrderFieldName() == null) {
-				target = query.select(condition);
-			} else {
-				target = query.select(condition, Order.ascending(constraint.getReverseOrderFieldName()));
-            }
+			target = loadTarget();
+			if (dataMapper.getTable().isCached()) {
+				for (T object : target) {
+					dataMapper.getTable().putToCache(object);
+				}
+			}
 		}
 		return target;
 	}
@@ -52,9 +63,9 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 	DataMapperImpl<T> getDataMapper() {
 		return dataMapper;
 	}
-	
+
 	@Override
-    public final T get(int index) {
+	public final T get(int index) {
 		return getTarget().get(index);
 	}
 

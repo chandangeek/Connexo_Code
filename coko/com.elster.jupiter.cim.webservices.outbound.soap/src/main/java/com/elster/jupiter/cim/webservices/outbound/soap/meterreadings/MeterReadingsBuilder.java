@@ -3,10 +3,12 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TranslationKeys;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -125,6 +127,68 @@ class MeterReadingsBuilder {
                 .map(TranslationKey::getDefaultFormat)
                 .ifPresent(info::setSubCategory);
         return info;
+    }
+
+    MeterReadings buildReadingData(List<MeterReadingData> readingData) {
+        MeterReadings meterReadings = new MeterReadings();
+        List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
+        List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
+        List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> readingQualityTypeList = meterReadings.getReadingQualityType();
+        referencedReadingTypes = new HashSet<>();
+        referencedReadingQualityTypes = new HashSet<>();
+
+        if (!readingData.isEmpty()) {
+            for (MeterReadingData meterReadingData : readingData) {
+                ReadingType readingType = meterReadingData.getItem().getReadingType();
+                IdentifiedObject identifiedObject = meterReadingData.getItem().getDomainObject();
+                Meter meter = identifiedObject instanceof Meter ? (Meter)identifiedObject : null;
+                UsagePoint usagePoint = identifiedObject instanceof UsagePoint ? (UsagePoint)identifiedObject : null;
+                Optional<MeterReading> meterReading = wrapInMeterReading(readingType, meterReadingData.getMeterReading(), meter, usagePoint);
+                if (meterReading.isPresent()) {
+                    meterReadingsList.add(meterReading.get());
+                }
+            }
+        }
+
+        // filled in scope of wrapInMeterReading
+        referencedReadingTypes.stream()
+                .map(MeterReadingsBuilder::createReadingType)
+                .forEach(readingTypeList::add);
+        // filled in scope of wrapInMeterReading
+        referencedReadingQualityTypes.stream()
+                .map(MeterReadingsBuilder::createReadingQualityType)
+                .forEach(readingQualityTypeList::add);
+
+        return meterReadings;
+    }
+
+    private Optional<MeterReading> wrapInMeterReading(ReadingType readingType, com.elster.jupiter.metering.readings.MeterReading mReading, Meter meter, UsagePoint usagePoint) {
+        MeterReading meterReading = new MeterReading();
+        List<IntervalBlock> intervalBlocks = meterReading.getIntervalBlocks();
+        List<Reading> registerReadings = meterReading.getReadings();
+        mReading.getIntervalBlocks().forEach(intervalBlock -> {
+            List<Pair<BaseReading, List<? extends com.elster.jupiter.metering.readings.ReadingQuality>>> readingsWithQualities = new ArrayList<>();
+            intervalBlock.getIntervals().forEach(interval -> {
+                readingsWithQualities.add(Pair.of(interval, interval.getReadingQualities()));
+                // sort readings by timestamp within readingType
+                readingsWithQualities.sort(Comparator.comparing(rPair -> rPair.getFirst().getTimeStamp()));
+            });
+            intervalBlocks.add(createIntervalBlock(readingType, readingsWithQualities));
+        });
+        mReading.getReadings().forEach(reading -> {
+            registerReadings.add(createReading(readingType, Pair.of(reading, reading.getReadingQualities())));
+        });
+        if (intervalBlocks.isEmpty() && registerReadings.isEmpty()) {
+            return Optional.empty();
+        }
+        if (meter != null) {
+            meterReading.setMeter(createMeter(meter));
+        }
+
+        if (usagePoint != null) {
+            meterReading.setUsagePoint(createUsagePoint(usagePoint));
+        }
+        return Optional.of(meterReading);
     }
 
     MeterReadings build(List<ReadingInfo> readingInfos) {

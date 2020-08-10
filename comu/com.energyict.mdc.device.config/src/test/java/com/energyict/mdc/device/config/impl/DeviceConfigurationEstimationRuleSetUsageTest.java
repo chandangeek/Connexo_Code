@@ -124,7 +124,7 @@ public class DeviceConfigurationEstimationRuleSetUsageTest extends PersistenceTe
     
     @Test
     @Transactional
-    public void testFindAllLinkedDeviceConfigurationForEstiamationRuleSet() {
+    public void testFindAllLinkedDeviceConfigurationForEstimationRuleSet() {
         EstimationRuleSet estimationRuleSet = createEstimationRuleSet("RuleSet");
         
         DeviceConfiguration dcA = createDeviceConfiguration("dcA", deviceType);

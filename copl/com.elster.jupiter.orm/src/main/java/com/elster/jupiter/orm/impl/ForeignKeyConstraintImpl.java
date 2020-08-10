@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
@@ -196,7 +197,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
             throw new IllegalTableMappingException("Foreign key " + getName() + " on table "
                     + getTable().getName() + ": the referenced object doesn't have a field named " + reverseFieldName + ".");
         }
-        if (getReferencedTable().isCached() && forwardEagers.length > 0) {
+        if (getReferencedTable().getCacheType() != Table.CacheType.NO_CACHE && forwardEagers.length > 0) {
             throw new IllegalTableMappingException("Table " + getTable().getName() + ": don't specify eager mapping when referencing cached table " + getReferencedTable().getName() + '.');
         }
     }
@@ -281,7 +282,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         if (field != null && Reference.class.isAssignableFrom(field.getType())) {
             List<Class<?>> apiFragments = DomainMapper.extractDomainClassIdentifiers(field);
             DataMapperImpl<?> dataMapper = getReferencedTable().getDataMapper(apiFragments);
-            Reference<?> reference = new PersistentReference<>(keyValue, dataMapper, forwardEagers);
+            Reference<?> reference = new PersistentReference<>(keyValue, dataMapper, forwardEagers, this);
             try {
                 field.set(target, reference);
             } catch (ReflectiveOperationException ex) {

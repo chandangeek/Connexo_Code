@@ -22,7 +22,8 @@ Ext.define('SystemApp.controller.Main', {
         'Bpm.privileges.BpmManagement',
         'Cal.privileges.Calendar',
         'Wss.privileges.Webservices',
-        'Pkj.privileges.CertificateManagement'
+        'Pkj.privileges.CertificateManagement',
+        'Sam.privileges.SystemProperties'
     ],
 
     applicationTitle: 'Connexo Admin',
@@ -43,7 +44,8 @@ Ext.define('SystemApp.controller.Main', {
         Bpm.privileges.BpmManagement.all(),
         Cal.privileges.Calendar.all(),
         Wss.privileges.Webservices.all(),
-        Pkj.privileges.CertificateManagement.all()
+        Pkj.privileges.CertificateManagement.all(),
+        Sam.privileges.SystemProperties.all()
     ),
 
     controllers: [
