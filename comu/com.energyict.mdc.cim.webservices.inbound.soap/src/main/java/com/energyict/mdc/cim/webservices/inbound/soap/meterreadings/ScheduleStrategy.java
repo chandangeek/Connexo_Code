@@ -9,6 +9,7 @@ import java.util.Arrays;
 public enum ScheduleStrategy {
 
     RUN_NOW("Run now"),
+    RUN_WITH_PRIORITY("Run with priority"),
     USE_SCHEDULE("Use schedule");
 
     private final String name;

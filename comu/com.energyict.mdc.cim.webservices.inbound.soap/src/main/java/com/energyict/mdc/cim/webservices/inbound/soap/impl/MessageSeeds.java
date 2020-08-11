@@ -151,6 +151,14 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_IS_NOT_SCHEDULED(6039, "ComTaskIsNotScheduled", "No proper communication task on device ''{0}'' is scheduled.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES(6040, "NoComTaskExecutionForLoadProfileNames", "No communication task execution has been found on device ''{0}'' for load profiles ''{1}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_REGISTER_GROUP(6041, "NoComTaskExecutionForRegisterGroup", "No communication task execution has been found on device ''{0}'' for register groups ''{1}''.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES(6042, "NoPriorityComTaskExecutionForLoadProfileNames",
+            "Running the communication task with priority on device ''{0}'' for load profiles ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_READING_TYPES(6043, "NoPriorityComTaskExecutionForReadingTypes",
+            "Running the communication task with priority on device ''{0}'' for readingTypes ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_REGISTER_GROUP(6044, "NoPriorityComTaskExecutionForRegisterGroup",
+            "Running the communication task with priority on device ''{0}'' for register groups ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILES(6045, "NoPriorityComTaskExecutionForLoadProfiles",
+            "Running the communication task with priority for load profile device messages on device ''{0}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
 
     // master data linkage
     NO_METER_WITH_MRID(7001, "NoMeterWithMRID", "No meter or gateway is found by MRID ''{0}''."),

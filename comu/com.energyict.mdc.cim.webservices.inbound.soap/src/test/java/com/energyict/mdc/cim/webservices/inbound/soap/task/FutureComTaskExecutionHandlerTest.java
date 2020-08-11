@@ -10,13 +10,16 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsDomainExtension;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -48,9 +51,12 @@ public class FutureComTaskExecutionHandlerTest {
     private ServiceCallService serviceCallService = mock(ServiceCallService.class);
     private ServiceCall childServiceCall = mock(ServiceCall.class);
     private ServiceCall subParentServiceCall = mock(ServiceCall.class);
+    private ServiceCall parentServiceCall = mock(ServiceCall.class);
     private DeviceService deviceService = mock(DeviceService.class);
+    private PriorityComTaskService priorityComTaskService = mock(PriorityComTaskService.class);
     private ChildGetMeterReadingsDomainExtension childDomainExtension = mock(ChildGetMeterReadingsDomainExtension.class);
     private SubParentGetMeterReadingsDomainExtension subParentDomainExtension = mock(SubParentGetMeterReadingsDomainExtension.class);
+    private ParentGetMeterReadingsDomainExtension parentDomainExtension = mock(ParentGetMeterReadingsDomainExtension.class);
     private Device device = mock(Device.class);
     private ComTaskExecution loadProfileComTaskExecution = createLoadProfileComTaskExecutionMock();
     private FutureComTaskExecutionHandler futureComTaskExecutionHandler;
@@ -69,14 +75,17 @@ public class FutureComTaskExecutionHandlerTest {
 
         when(subParentDomainExtension.getEndDeviceMrid()).thenReturn(DEVICE_MRID);
         when(subParentServiceCall.getExtension(SubParentGetMeterReadingsDomainExtension.class)).thenReturn(Optional.of(subParentDomainExtension));
+        when(subParentServiceCall.getParent()).thenReturn(Optional.of(parentServiceCall));
+
+        when(parentDomainExtension.getScheduleStrategy()).thenReturn(ScheduleStrategy.RUN_NOW.getName());
+        when(parentServiceCall.getExtension(ParentGetMeterReadingsDomainExtension.class)).thenReturn(Optional.of(parentDomainExtension));
 
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.of(device));
 
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(222));
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(loadProfileComTaskExecution));
 
-
-        futureComTaskExecutionHandler = new FutureComTaskExecutionHandler(clock, serviceCallService, deviceService);
+        futureComTaskExecutionHandler = new FutureComTaskExecutionHandler(clock, serviceCallService, deviceService, priorityComTaskService);
     }
 
     @Test
@@ -105,7 +114,7 @@ public class FutureComTaskExecutionHandlerTest {
             futureComTaskExecutionHandler.execute(null);
             fail("expected IllegalStateException");
         } catch (IllegalStateException e) {
-            assert (e.getMessage().equals("Unable to get domain extension for service call"));
+            assert (e.getMessage().equals("Unable to get domain extension for child service call"));
         }
     }
 

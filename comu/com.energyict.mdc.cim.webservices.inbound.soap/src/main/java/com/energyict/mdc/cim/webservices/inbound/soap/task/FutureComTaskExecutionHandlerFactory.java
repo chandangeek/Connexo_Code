@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -31,6 +32,7 @@ public class FutureComTaskExecutionHandlerFactory implements MessageHandlerFacto
     private volatile Clock clock;
     private volatile ServiceCallService serviceCallService;
     private volatile DeviceService deviceService;
+    private volatile PriorityComTaskService priorityComTaskService;
 
     public FutureComTaskExecutionHandlerFactory() {
         // for OSGi purpose
@@ -38,16 +40,17 @@ public class FutureComTaskExecutionHandlerFactory implements MessageHandlerFacto
 
     @Inject
     public FutureComTaskExecutionHandlerFactory(TaskService taskService, Clock clock, ServiceCallService serviceCallService,
-                                                DeviceService deviceService) {
+                                                DeviceService deviceService, PriorityComTaskService priorityComTaskService) {
         setTaskService(taskService);
         setClock(clock);
         setServiceCallService(serviceCallService);
         setDeviceService(deviceService);
+        setPriorityComTaskService(priorityComTaskService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new FutureComTaskExecutionHandler(clock, serviceCallService, deviceService));
+        return taskService.createMessageHandler(new FutureComTaskExecutionHandler(clock, serviceCallService, deviceService, priorityComTaskService));
     }
 
     @Reference
@@ -68,5 +71,10 @@ public class FutureComTaskExecutionHandlerFactory implements MessageHandlerFacto
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService = priorityComTaskService;
     }
 }
