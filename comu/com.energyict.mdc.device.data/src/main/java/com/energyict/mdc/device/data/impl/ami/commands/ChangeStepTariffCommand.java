@@ -25,6 +25,6 @@ public class ChangeStepTariffCommand extends EndDeviceCommandImpl {
 
     @Override
     public List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
-        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, Instant.now(), Collections.singletonList(DeviceMessageId.CHANGE_STEP_TARIFF_CONFIGURATION));
+        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate, Collections.singletonList(DeviceMessageId.CHANGE_STEP_TARIFF_CONFIGURATION));
     }
 }
