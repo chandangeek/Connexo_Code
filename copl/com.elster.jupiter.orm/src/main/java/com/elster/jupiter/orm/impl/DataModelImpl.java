@@ -499,6 +499,7 @@ public class DataModelImpl implements DataModel {
         return root.with(mappers);
     }
 
+    @Override
     public <T> QueryStream<T> stream(Class<T> api) {
         return new QueryStreamImpl<>(mapper(api));
     }
