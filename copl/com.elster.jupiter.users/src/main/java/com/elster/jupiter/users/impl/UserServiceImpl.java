@@ -198,6 +198,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                             .put(version(10, 4, 8), UpgraderV10_4_8.class)
                             .put(version(10, 4, 9), V10_4_9SimpleUpgrader.class)
                             .put(version(10, 8), UpgraderV10_8.class)
+                            .put(version(10, 9), UpgraderV10_9.class)
                             .build()
             );
         }
