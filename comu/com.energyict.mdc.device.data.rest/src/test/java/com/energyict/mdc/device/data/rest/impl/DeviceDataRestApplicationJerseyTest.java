@@ -325,6 +325,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(meteringZoneService.getByEndDevice(any(EndDevice.class))).thenReturn(endDeviceZoneFinder);
         EndDevice endDevice = mock(EndDevice.class);
         when(meteringService.findEndDeviceByMRID(any(String.class))).thenReturn(Optional.of(endDevice));
+        when(firmwareService.findFirmwareManagementOptions(any())).thenReturn(Optional.empty());
     }
 
     protected void setupTranslations() {
