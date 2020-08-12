@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.ami;
 
 import aQute.bnd.annotation.ConsumerType;
+
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.pki.CertificateType;
@@ -41,4 +42,6 @@ public interface CommandFactory {
     EndDeviceCommand createUpdateCreditAmountCommand(EndDevice endDevice, String creditType, BigDecimal creditAmount) throws UnsupportedCommandException;
 
     EndDeviceCommand createUpdateCreditDaysLimitCommand(EndDevice endDevice, BigDecimal creditDaysLimitFirst, BigDecimal creditDaysLimitScnd) throws UnsupportedCommandException;
+
+    EndDeviceCommand createChangeStepTariffCommand(EndDevice endDevice, StepTariffInfo stepTariffInfo) throws UnsupportedCommandException;
 }
