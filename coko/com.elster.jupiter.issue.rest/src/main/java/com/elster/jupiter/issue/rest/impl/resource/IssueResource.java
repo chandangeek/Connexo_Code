@@ -122,6 +122,7 @@ public class IssueResource extends BaseResource {
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
+        finder = addSorting(finder, params);
         List<? extends Issue> issues = finder.find();
         List<IssueInfo> issueInfos = new ArrayList<>();
         for (Issue baseIssue : issues) {
@@ -143,13 +144,7 @@ public class IssueResource extends BaseResource {
                 });
             }
         }
-        if (issueInfos != null) {
-            // default sort, required if all explicit sorters do not affect the list in any way
-            // (ex. sort by priority and all issues have the same priority)
-            issueInfos.sort(Comparator.comparing(IssueInfo::getId));
-        }
-        List<IssueInfo> issueInfosSorted = sortIssues(issueInfos, params);
-        return PagedInfoList.fromPagedList("data", issueInfosSorted, queryParams);
+        return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
     }
 
     @GET @Transactional
@@ -552,57 +547,12 @@ public class IssueResource extends BaseResource {
     private Finder<? extends Issue> addSorting(Finder<? extends Issue> finder, StandardParametersBean parameters) {
         Order[] orders = parameters.getOrder("");
         for (Order order : orders) {
-            finder.sorted(order.getName(), order.ascending());
+                finder.sorted(order.getName(), order.ascending());
         }
         finder.sorted("id", false);
         return finder;
     }
 
-    private List<IssueInfo> sortIssues(List<IssueInfo> listIssues, StandardParametersBean parameters) {
-        Order[] orders = parameters.getOrder("");
-        Comparator<IssueInfo> comparatorIssue = null;
-        for (Order order : orders) {
-           comparatorIssue = getComparatorIssueInfo(order, comparatorIssue);
-        }
-        if(comparatorIssue != null)
-            listIssues.sort(comparatorIssue);
-        return listIssues;
-    }
-
-    public Comparator<IssueInfo> getComparatorIssueInfo(Order order, Comparator<IssueInfo> comparatorIssue){
-        Comparator<IssueInfo> comparatorIssueTemp = null;
-        switch (order.getName()) {
-            case "device_name":
-                comparatorIssueTemp = Comparator.comparing(IssueInfo::getDeviceName);
-                break;
-            case "usagePoint_name":
-                comparatorIssueTemp = Comparator.comparing(IssueInfo::getUsageName);
-                break;
-            case "priorityTotal":
-                comparatorIssueTemp = Comparator.comparing(IssueInfo::getPriorityTotal);
-                break;
-            case "dueDate":
-                comparatorIssueTemp = Comparator.comparing(IssueInfo::getDueDate);
-                break;
-            case "id":
-                comparatorIssueTemp = Comparator.comparing(IssueInfo::getId);
-                break;
-            case "createDateTime":
-                comparatorIssueTemp = Comparator.comparing(IssueInfo::getCreatedDateTime);
-                break;
-        }
-
-
-        if(comparatorIssueTemp != null && !order.ascending())
-            comparatorIssueTemp = comparatorIssueTemp.reversed();
-
-        if (comparatorIssue == null)
-            comparatorIssue = comparatorIssueTemp;
-        else
-            comparatorIssue = comparatorIssue.thenComparing(comparatorIssueTemp);
-
-        return comparatorIssue;
-    }
     private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         for (Issue issue : issueProvider.apply(response)) {
