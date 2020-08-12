@@ -16,6 +16,12 @@ use Crypt::Cipher::AES;
 use MIME::Base64;
 use Digest::MD5 qw(md5_hex);
 
+use File::Copy;
+use File::Path 'rmtree';
+use File::Spec;
+use File::Find;
+use File::Basename;
+use Cwd qw(cwd);
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
 my $INSTALL_VERSION="v20200405";
