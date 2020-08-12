@@ -648,5 +648,4 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         verify(meteringService, never()).createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
         assertThat(defaultMultiplierType).isNotNull();
     }
-
 }

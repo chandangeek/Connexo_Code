@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.data.impl.ami.commands;
 
 import com.elster.jupiter.metering.EndDevice;
@@ -18,14 +17,14 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-public class UpdateCreditAmountCommand extends EndDeviceCommandImpl {
+public class ChangeStepTariffCommand extends EndDeviceCommandImpl {
 
-    public UpdateCreditAmountCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+    public ChangeStepTariffCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         super(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
     }
 
     @Override
     public List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
-        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate, Collections.singletonList(DeviceMessageId.UPDATE_CREDIT_AMOUNT));
+        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate, Collections.singletonList(DeviceMessageId.CHANGE_STEP_TARIFF_CONFIGURATION));
     }
 }

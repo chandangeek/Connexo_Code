@@ -37,7 +37,7 @@ Ext.define('Isu.view.issues.SortingMenu', {
         {
             itemId: 'issues-sorting-menu-item-by-device',
             text: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
-            action: 'device_name'
+            action: 'device'
         }
     ]
 });
