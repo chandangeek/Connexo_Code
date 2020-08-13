@@ -34,15 +34,14 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class QueryStreamImpl<T> implements QueryStream<T> {
-
     private DataMapperImpl<T> dataMapper;
     private final List<Class<?>> eagers = new ArrayList<>();
     private Condition condition = Condition.TRUE;
-    private Optional<Consumer<T>> peeker = Optional.empty();
+    private Consumer<T> peeker;
     private long limit;
     private long skip;
-    private Order[] orders = new Order[0];
-    private boolean parallel = false;
+    private Order[] orders = Order.NOORDER;
+    private Boolean parallel;
     private final List<Runnable> runnables = new ArrayList<>();
 
     public QueryStreamImpl(DataMapperImpl<T> dataMapper) {
@@ -113,11 +112,11 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
         return stream().sorted(comparator);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public QueryStream<T> peek(Consumer<? super T> action) {
-        Consumer<T> newAction = (Consumer<T>) Objects.requireNonNull(action);
-        peeker = Optional.of(peeker.map(peek -> peek.andThen(newAction)).orElse(newAction));
+        peeker = peeker == null ?
+                (Consumer<T>) Objects.requireNonNull(action) :
+                peeker.andThen(action);
         return this;
     }
 
@@ -138,6 +137,7 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
         select().forEach(action);
     }
 
+    @Override
     public void forEachOrdered(Consumer<? super T> action) {
         select().forEach(action);
     }
@@ -190,8 +190,9 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
     @Override
     public long count() {
-        return peeker.map(consumer -> stream().peek(consumer).count()).orElseGet(() ->
-                dataMapper.query(eagers.toArray(new Class<?>[eagers.size()])).count(condition));
+        return peeker == null ?
+                dataMapper.query(eagers.toArray(new Class<?>[eagers.size()])).count(condition) :
+                stream().peek(peeker).count();
     }
 
     @Override
@@ -241,16 +242,19 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
     @Override
     public QueryStream<T> sequential() {
+        parallel = Boolean.FALSE;
         return this;
     }
 
     @Override
     public QueryStream<T> parallel() {
+        parallel = Boolean.TRUE;
         return this;
     }
 
     @Override
     public QueryStream<T> unordered() {
+        orders = Order.NOORDER;
         return this;
     }
 
@@ -294,7 +298,9 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
     @Override
     public List<T> select() {
         List<T> result = doSelect();
-        peeker.ifPresent(result::forEach);
+        if (peeker != null) {
+            result.forEach(peeker);
+        }
         return result;
     }
 
@@ -311,7 +317,13 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
     private Stream<T> stream() {
         Stream<T> result = doSelect().stream();
-        peeker.ifPresent(result::peek);
-        return parallel ? result.parallel() : result;
+        if (peeker != null) {
+            result = result.peek(peeker);
+        }
+        return parallel == null ?
+                result :
+                parallel ?
+                        result.parallel() :
+                        result.sequential();
     }
 }

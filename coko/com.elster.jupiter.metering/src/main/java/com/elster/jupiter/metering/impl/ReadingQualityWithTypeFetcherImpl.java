@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityIndexFilter;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityTypeFilter;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +43,26 @@ class ReadingQualityWithTypeFetcherImpl implements ReadingQualityWithTypeFetcher
         this.systemsRegexp = systems.stream()
                 .map(system -> Integer.toString(system.ordinal()))
                 .collect(Collectors.joining("|"));
+        return this;
+    }
+
+    @Override
+    public ReadingQualityWithTypeFetcher ofQualityType(ReadingQualityType readingQualityType) {
+        this.systemsRegexp = Integer.toString(readingQualityType.getSystemCode());
+        this.indicesRegexp = Integer.toString(readingQualityType.getCategoryCode()) + "\\." + Integer.toString(readingQualityType.getIndexCode());
+        return this;
+    }
+
+    @Override
+    public ReadingQualityWithTypeFetcher ofQualityTypes(Set<ReadingQualityType> readingQualityTypes) {
+        Iterator<ReadingQualityType> it = readingQualityTypes.iterator();
+        if (it.hasNext()) {
+            ofQualityType(it.next());
+            while (it.hasNext()) {
+                orOfAnotherType();
+                ofQualityType(it.next());
+            }
+        }
         return this;
     }
 

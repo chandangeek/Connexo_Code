@@ -4,19 +4,15 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
-import ch.iec.tc57._2011.getmeterreadings.Reading;
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
@@ -33,11 +29,26 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.SyncReplyIss
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.*;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.*;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
@@ -46,6 +57,14 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
+
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
+import ch.iec.tc57._2011.getmeterreadings.Reading;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -54,7 +73,14 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -315,25 +341,32 @@ public class ServiceCallCommands {
         Device device = findDeviceForEndDevice(meter);
         ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
 
-        Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
+        Set<LoadProfile> loadProfilesSetByNames = getExistedOnDeviceLoadProfiles(device, index, syncReplyIssue);
+        Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
+        Set<Register> registers = getRegistersPresentOnDevice(device, readingTypes);
+        Set<LoadProfile> allLoadProfiles = new HashSet<>();
+        allLoadProfiles.addAll(loadProfilesSetByNames);
+        allLoadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
+
+        Boolean meterReadingRequired = isMeterReadingRequired(reading.getSource(), registers, allLoadProfiles, actualEnd, now,
+                InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay);
+
         if (start != null && end != null) {
-            if (CollectionUtils.isNotEmpty(existedLoadProfiles)
-                    || (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes()))) {
-                processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, end, now,
-                        InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy, reading.getSource(), meter);
+            if (CollectionUtils.isNotEmpty(allLoadProfiles)) {
+                processLoadProfilesForPartialReadRequest(subParentServiceCall, device, index, syncReplyIssue, start, end, now,
+                        InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy, reading.getSource(), allLoadProfiles);
             }
-        } else if (CollectionUtils.isNotEmpty(existedLoadProfiles)) {
-            Set<ReadingType> readingTypes = masterDataService.findAllLoadProfileTypes().stream()
-                    .filter(lp -> existedLoadProfiles.contains(lp.getName()))
+        } else if (CollectionUtils.isNotEmpty(loadProfilesSetByNames)) {
+            Set<ReadingType> lpReadingTypes = masterDataService.findAllLoadProfileTypes().stream()
+                    .filter(loadProfilesSetByNames::contains)
                     .map(LoadProfileType::getChannelTypes)
                     .flatMap(Collection::stream)
                     .map(channelType -> channelType.getReadingType())
                     .collect(Collectors.toSet());
-            syncReplyIssue.addExistedReadingTypes(readingTypes);
-            combinedReadingTypes.addAll(readingTypes);
+            syncReplyIssue.addExistedReadingTypes(lpReadingTypes);
         }
 
-        if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay)) {
+        if (meterReadingRequired) {
             Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
                 if (start != null && actualEnd.isBefore(start)) {
@@ -370,29 +403,17 @@ public class ServiceCallCommands {
         if (!subParentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
             subParentServiceCall.requestTransition(DefaultState.WAITING);
             meterReadingRunning = true;
-        } else if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay)) {
+        } else if (meterReadingRequired) {
             subParentServiceCall.requestTransition(DefaultState.FAILED);
             subParentServiceCall.log(LogLevel.SEVERE, "No child service calls have been created.");
         }
         return meterReadingRunning;
     }
 
-    private void processLoadProfiles(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue,
-                                     Instant start, Instant end, Instant now, int delay, ScheduleStrategy scheduleStrategy, String source, com.elster.jupiter.metering.Meter meter) {
-        Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, index, syncReplyIssue);
-        Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
-        loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
-
+    private void processLoadProfilesForPartialReadRequest(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue,
+                                                          Instant start, Instant end, Instant now, int delay, ScheduleStrategy scheduleStrategy, String source, Set<LoadProfile> loadProfiles) {
         if (CollectionUtils.isNotEmpty(loadProfiles)) {
-            Set<ReadingType> lpReadingTypes = masterDataService.findAllLoadProfileTypes().stream()
-                    .filter(lp -> loadProfiles.stream().map(LoadProfile::getLoadProfileTypeId).collect(Collectors.toSet()).contains(lp.getId()))
-                    .map(LoadProfileType::getChannelTypes)
-                    .flatMap(Collection::stream)
-                    .map(channelType -> channelType.getReadingType())
-                    .collect(Collectors.toSet());
-
-
-            if (isMeterReadingRequired(source, meter, lpReadingTypes, end, now, delay)) {
+            if (isMeterReadingRequired(source, Collections.emptySet(), loadProfiles, end, now, delay)) {
                 ComTaskExecution deviceMessagesComTaskExecution = syncReplyIssue.getDeviceMessagesComTaskExecutionMap()
                         .get(device.getId());
                 if (deviceMessagesComTaskExecution == null) {
@@ -403,7 +424,7 @@ public class ServiceCallCommands {
                 }
                 Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
                 loadProfiles.forEach(loadProfile -> {
-                    if (loadProfile.getLastReading() == null || start.isBefore(loadProfile.getLastReading().toInstant()))  {
+                    if (loadProfile.getLastReading() == null || start.isBefore(loadProfile.getLastReading().toInstant())) {
                         device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update();
                     }
                     ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
@@ -597,6 +618,10 @@ public class ServiceCallCommands {
                 .collect(Collectors.toSet());
     }
 
+    private Set<Register> getRegistersPresentOnDevice(Device device, Set<ReadingType> readingTypes) {
+        return device.getRegisters().stream().filter(register -> readingTypes.contains(register.getReadingType())).collect(Collectors.toSet());
+    }
+
     private Set<ReadingType> getExistedOnDeviceReadingTypes(Device device, SyncReplyIssue syncReplyIssue) {
         Set<String> notFoundReadingTypesMrids = syncReplyIssue.getNotFoundReadingTypesOnDevices().get(device.getName());
         if (CollectionUtils.isEmpty(notFoundReadingTypesMrids)) {
@@ -619,42 +644,29 @@ public class ServiceCallCommands {
         return deviceMessageBuilder.add();
     }
 
-    private boolean isMeterReadingRequired(String source, com.elster.jupiter.metering.Meter meter,
-                                           Set<ReadingType> readingTypes, Instant endTime, Instant now, int delay) {
+    private boolean isMeterReadingRequired(String source, Set<Register> registers, Set<LoadProfile> loadProfiles, Instant endTime, Instant now, int delay) {
         if (ReadingSourceEnum.METER.getSource().equals(source)) {
             return true;
         }
         if (ReadingSourceEnum.HYBRID.getSource().equals(source)) {
             boolean inFutureReading = endTime.plus(delay, ChronoUnit.MINUTES).isAfter(now);
-            return inFutureReading || meter.getChannelsContainers().stream()
-                    .anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
+            boolean lpReadingRequired = CollectionUtils.isNotEmpty(loadProfiles) && isLPMeterReadingRequired(loadProfiles, endTime);
+            boolean registerReadingRequired = CollectionUtils.isNotEmpty(registers) && isRegisterReadingRequired(registers, endTime);
+            return inFutureReading || lpReadingRequired || registerReadingRequired;
         }
         return false;
     }
 
-    private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer, Set<ReadingType> readingTypes,
-                                                      Instant endTime) {
-        Range<Instant> range = channelsContainer.getInterval().toOpenClosedRange();
-        if (!range.lowerEndpoint().isBefore(endTime)) {
-            return false;
-        }
-        if (range.hasUpperBound()) {
-            endTime = endTime.isBefore(range.upperEndpoint()) ? endTime : range.upperEndpoint();
-        }
-        for (Channel channel : channelsContainer.getChannels()) {
-            Instant endInstant = channel.truncateToIntervalLength(endTime);
-            for (ReadingType readingType : channel.getReadingTypes()) {
-                if (readingTypes.contains(readingType)
-                        || (readingType.getCalculatedReadingType().isPresent()
-                        && readingTypes.contains(readingType.getCalculatedReadingType().get()))) {
-                    Instant instant = channel.getLastDateTime();
-                    if (instant == null || instant.isBefore(endInstant)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+    private boolean isLPMeterReadingRequired(Set<LoadProfile> loadProfiles, Instant endTime) {
+        return loadProfiles.stream().anyMatch(lp -> lp.getLastReading() == null
+                || !lp.getLastReading().toInstant().plus(lp.getInterval().asTemporalAmount()).isAfter(endTime));
+    }
+
+    private boolean isRegisterReadingRequired(Set<Register> registers, Instant endTime) {
+        return registers.stream().anyMatch(reg -> {
+            Optional<Instant> lastReading = reg.getLastReadingDate();
+            return !lastReading.isPresent() || lastReading.get().isBefore(endTime);
+        });
     }
 
     private String getReadingTypesString(Set<ReadingType> existedReadingTypes) {

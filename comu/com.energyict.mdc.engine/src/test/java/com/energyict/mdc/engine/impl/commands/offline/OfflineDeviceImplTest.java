@@ -90,6 +90,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -292,6 +294,7 @@ public class OfflineDeviceImplTest {
         assertEquals("The mRID should match", mRID, offlineRtu.getmRID());
         assertEquals("The ID should match", DEVICE_ID, offlineRtu.getId());
         assertNotNull("The DeviceProtocol PluggableClass should not be null", offlineRtu.getDeviceProtocolPluggableClass());
+        verify(topologyService, times(1)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -308,6 +311,7 @@ public class OfflineDeviceImplTest {
         assertEquals(device_propValue3, offlineRtu.getAllProperties().getProperty(device_prop3));
         assertEquals(device_propValue3, offlineRtu.getAllProperties().getProperty(device_prop3));
         assertEquals(offlineRtu.getSerialNumber(), offlineRtu.getAllProperties().getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()));
+        verify(topologyService, times(1)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -333,6 +337,7 @@ public class OfflineDeviceImplTest {
         // Asserts
         assertNotNull(offlineRtu.getAllSlaveDevices());
         assertEquals("Expected three slave devices", 3, offlineRtu.getAllSlaveDevices().size());
+        verify(topologyService, times(4)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -346,13 +351,10 @@ public class OfflineDeviceImplTest {
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
         Device slaveFromSlave1 = createMockedDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Collections.singletonList(slaveFromSlave1));
 
         Device slave2 = createMockedDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slave1, slave2));
 
         ObisCode obisCode1 = ObisCode.fromString("1.0.99.1.0.255");
@@ -379,6 +381,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Expected two loadProfiles on the master", 2, offlineDevice.getMasterOfflineLoadProfiles().size());
         assertNotNull(offlineDevice.getAllOfflineLoadProfiles());
         assertEquals("Expected 9 loadProfiles in total", 9, offlineDevice.getAllOfflineLoadProfiles().size());
+        verify(topologyService, times(4)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -397,6 +400,7 @@ public class OfflineDeviceImplTest {
         // asserts
         assertNotNull(offlineRtu.getAllOfflineRegisters());
         assertEquals("Should have gotten 2 registers", 2, offlineRtu.getAllOfflineRegisters().size());
+        verify(topologyService, times(1)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -428,6 +432,7 @@ public class OfflineDeviceImplTest {
         // asserts
         assertNotNull(offlineRtu.getAllOfflineRegisters());
         assertEquals("Should have gotten 3 registers", 3, offlineRtu.getAllOfflineRegisters().size());
+        verify(topologyService, times(3)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -465,6 +470,7 @@ public class OfflineDeviceImplTest {
 
         // asserts
         assertThat(offlineDevice.getRegistersForRegisterGroupAndMRID(Collections.singletonList(rtuRegisterGroupId), "getRegistersForRegisterGroup")).hasSize(1);
+        verify(topologyService, times(1)).findPhysicalConnectedDevices((Device) any());
     }
 
     private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {
@@ -507,6 +513,7 @@ public class OfflineDeviceImplTest {
         assertNotNull(offlineDevice.getAllPendingDeviceMessages());
         assertEquals("Size of the pending list should be one", 1, offlineDevice.getAllPendingDeviceMessages().size());
         assertEquals("Size of the sent list should be 0", 0, offlineDevice.getAllSentDeviceMessages().size());
+        verify(topologyService, times(2)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -546,6 +553,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Size of the pending list should be zero", 0, offlineDevice.getAllPendingDeviceMessages().size());
         assertEquals("Size of the pending list should be one", 1, offlineDevice.getAllInvalidPendingDeviceMessages().size());
         assertEquals("Size of the sent list should be 0", 0, offlineDevice.getAllSentDeviceMessages().size());
+        verify(topologyService, times(1)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -604,6 +612,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Expecting one slave device message", 1, offlineDeviceMessages.size());
         assertEquals("Expecting the serialnumber of the slave", "654654", offlineDeviceMessages.get(0).getDeviceSerialNumber());
         assertEquals("Expecting the DeviceProtocol of the slave", slaveDeviceProtocol, offlineDeviceMessages.get(0).getDeviceProtocol());
+        verify(topologyService, times(3)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -627,6 +636,7 @@ public class OfflineDeviceImplTest {
         assertNotNull(offlineDevice.getAllSentDeviceMessages());
         assertEquals("Size of the sent list should be one", 1, offlineDevice.getAllSentDeviceMessages().size());
         assertEquals("Size of the pending list should be 0", 0, offlineDevice.getAllPendingDeviceMessages().size());
+        verify(topologyService, times(2)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -686,17 +696,18 @@ public class OfflineDeviceImplTest {
         assertEquals("Expecting one slave device message", 1, offlineDeviceMessages.size());
         assertEquals("Expecting the serialnumber of the slave", "654654", offlineDeviceMessages.get(0).getDeviceSerialNumber());
         assertEquals("Expecting the DeviceProtocol of the slave", slaveDeviceProtocol, offlineDeviceMessages.get(0).getDeviceProtocol());
+        verify(topologyService, times(3)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
     public void deviceProtocolPluggableClassNullTest() {
-        Device
-                device = createMockedDevice();
+        Device device = createMockedDevice();
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         //asserts
         assertThat(offlineDevice.getDeviceProtocolPluggableClass()).isNull();
+        verify(topologyService, times(1)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -721,6 +732,7 @@ public class OfflineDeviceImplTest {
         assertThat(offlineDevice.getAllSlaveDevices()).isNotNull();
         assertThat(offlineDevice.getAllSlaveDevices()).isNotEmpty();
         assertThat(offlineDevice.getAllSlaveDevices().get(0).getId()).isEqualTo(slaveId);
+        verify(topologyService, times(2)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -740,6 +752,7 @@ public class OfflineDeviceImplTest {
         // assert
         assertThat(offlineDevice.getAllSlaveDevices()).isNotEmpty();
         assertThat(offlineDevice.getAllSlaveDevices().get(0).getId()).isEqualTo(slaveId);
+        verify(topologyService, times(2)).findPhysicalConnectedDevices((Device) any());
     }
 
     @Test
@@ -749,6 +762,7 @@ public class OfflineDeviceImplTest {
 
         Object property = offlineDevice.getAllProperties().getProperty(DEVICE_TIMEZONE_PROPERTY);
         assertThat(property).isEqualTo(deviceTimeZone);
+        verify(topologyService, times(0)).findPhysicalConnectedDevices((Device) any());
     }
 
     private DeviceMessageSpec getDeviceMessageSpec(DeviceMessageId deviceMessageId) {
@@ -786,6 +800,7 @@ public class OfflineDeviceImplTest {
         assertNotNull(offlineRtu.getSecurityPropertySetAttributeToKeyAccessorTypeMapping().get("MySecuritySet"));
         assertThat(offlineRtu.getSecurityPropertySetAttributeToKeyAccessorTypeMapping().get("MySecuritySet").getProperty("SecurityProperty1")).isEqualTo("KeyAccessorType_1");
         assertThat(offlineRtu.getSecurityPropertySetAttributeToKeyAccessorTypeMapping().get("MySecuritySet").getProperty("SecurityProperty2")).isEqualTo("KeyAccessorType_2");
+        verify(topologyService, times(1)).findPhysicalConnectedDevices((Device) any());
     }
 
 }

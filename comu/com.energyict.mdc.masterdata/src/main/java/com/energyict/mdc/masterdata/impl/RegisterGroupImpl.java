@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.pubsub.Publisher;
 import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.common.masterdata.RegisterType;
@@ -185,10 +184,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         this.resetChangeNotifier();
     }
 
-    private void cleanRegisterTypeCache() {
-        this.publisher.publish(new InvalidateCacheRequest(MasterDataService.COMPONENTNAME, TableSpecs.MDS_MEASUREMENTTYPE.name()));
-    }
-
     private void touchIfPersistent() {
         if (this.getId() > 0) {
             this.dataModel.touch(this);
@@ -248,14 +243,13 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
         @Override
         public void updated() {
-            cleanRegisterTypeCache();
             touchIfPersistent();
             alreadyNotified();
         }
 
         @Override
         public void deleted() {
-            cleanRegisterTypeCache();
+            //At current moment nothing to do.
         }
     }
 

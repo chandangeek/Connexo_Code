@@ -6,7 +6,6 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.CacheClearedEvent;
 import com.elster.jupiter.orm.Finder;
-import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.pubsub.Publisher;
 
 import com.google.common.cache.Cache;
@@ -75,16 +74,11 @@ interface TableCache<T> {
 			if (recordStats) {
 				cacheBuilder = cacheBuilder.recordStats();
 			}
-			this.cache = cacheBuilder.build();
+			cache = cacheBuilder.build();
 		}
 
-		private void cacheChange() {
-			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
-			publisher.publish(new InvalidateCacheRequest(table.getComponentName(), table.getName()));
-		}
-
-		public synchronized void renew() {
-			this.cache.invalidateAll();
+		public void renew() {
+			cache.invalidateAll();
 			cacheCleared();
 		}
 
@@ -98,21 +92,20 @@ interface TableCache<T> {
 		}
 
 		@Override
-		public synchronized T get(KeyValue key) {
+		public T get(KeyValue key) {
 			return cache.getIfPresent(key);
 		}
 
 		@Override
-		public synchronized void put(KeyValue key, T value) {
+		public void put(KeyValue key, T value) {
 			cache.put(key, value);
 		}
 
 		@Override
-		public synchronized void remove(T entity) {
+		public void remove(T entity) {
 			if (cache != null) {
 				cache.invalidate(getKey(entity));
 			}
-			cacheChange();
 		}
 
 		@Override
@@ -137,16 +130,11 @@ interface TableCache<T> {
 			if (recordStats) {
 				cacheBuilder = cacheBuilder.recordStats();
 			}
-			this.cache = cacheBuilder.build();
+			cache = cacheBuilder.build();
 		}
 
-		private void cacheChange() {
-			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
-			publisher.publish(new InvalidateCacheRequest(table.getComponentName(), table.getName()));
-		}
-
-		public synchronized void renew() {
-			this.cache.invalidateAll();
+		public void renew() {
+			cache.invalidateAll();
 			cacheCleared();
 		}
 
@@ -160,21 +148,20 @@ interface TableCache<T> {
 		}
 
 		@Override
-		public synchronized T get(KeyValue key) {
+		public T get(KeyValue key) {
 			return cache.getIfPresent(key);
 		}
 
 		@Override
-		public synchronized void put(KeyValue key, T value) {
+		public void put(KeyValue key, T value) {
 			cache.put(key, value);
 		}
 
 		@Override
-		public synchronized void remove(T entity) {
+		public void remove(T entity) {
 			if (cache != null) {
 				cache.invalidate(getKey(entity));
 			}
-			cacheChange();
 		}
 
 		@Override

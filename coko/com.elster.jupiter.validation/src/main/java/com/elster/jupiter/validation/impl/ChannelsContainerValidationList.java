@@ -105,16 +105,16 @@ class ChannelsContainerValidationList {
 
     private void markValidationAsSuccessful(final Map<Channel, Range<Instant>> validationScopeByChannelMap) {
         final ValidationScopeImpl validationScope = new ValidationScopeImpl(channelsContainer, validationScopeByChannelMap);
-
         eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), validationScope);
 
         channelsContainer.getMeter().ifPresent(meter -> {
-            // FIXME! CXO-12226
             List<ReadingQualityRecord> listOfSuspectReadings = meter.findReadingQualities()
                     .ofQualityIndex(QualityCodeIndex.SUSPECT)
                     .inScope(validationScopeByChannelMap)
                     .collect();
-            validationService.postSuspectCreatedEvents(listOfSuspectReadings);
+            if (!listOfSuspectReadings.isEmpty()) {
+                eventService.postEvent(EventType.SUSPECT_VALUE_CREATED.topic(), SuspectsCreatedEvent.create(channelsContainer, listOfSuspectReadings));
+            }
         });
     }
 

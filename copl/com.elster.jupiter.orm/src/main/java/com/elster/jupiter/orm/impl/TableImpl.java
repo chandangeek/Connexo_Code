@@ -1386,8 +1386,25 @@ public class TableImpl<T> implements Table<T> {
         return Optional.ofNullable(getCache().get(key));
     }
 
-    public void clearCache() {
-        getCache().renew();
+    public void clearCache(T... objects) {
+        if (objects.length == 0 || getReferenceConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
+            getCache().renew();
+        } else {
+            for (int i = 0; i < objects.length; i++) {
+                getCache().remove(objects[i]);
+            }
+        }
+        clearCacheRecursively(this);
+    }
+
+    public void clearCache(Collection<? extends T> objects) {
+        if (objects.isEmpty() || getReferenceConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
+            getCache().renew();
+        } else {
+            for (T object : objects) {
+                getCache().remove(object);
+            }
+        }
         clearCacheRecursively(this);
     }
 
@@ -1395,7 +1412,7 @@ public class TableImpl<T> implements Table<T> {
      * If we add new object(s) (call {@link DataMapperWriter#persist(Object)} or {@link DataMapperWriter#persist(List)}),
      * it is not needed to clear cache for current table, except case where it has foreign key to itself.
      */
-    void clearCacheOnPersisting() {
+    public void clearCacheOnPersisting() {
         if (getReferenceConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
             getCache().renew();
         }

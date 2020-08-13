@@ -249,4 +249,6 @@ public interface MeteringService {
     Optional<ReadingQualityComment> findReadingQualityComment(long id);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, Subquery subquery);
+
+    Optional<ChannelsContainer> findChannelsContainer(long id);
 }

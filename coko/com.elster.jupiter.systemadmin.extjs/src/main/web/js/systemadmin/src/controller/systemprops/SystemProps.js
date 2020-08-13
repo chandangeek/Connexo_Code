@@ -57,6 +57,7 @@ Ext.define('Sam.controller.systemprops.SystemProps', {
                 }
             },
             callback: function () {
+                me.getPage().down('#sys-prop-attributes-actions-button').setDisabled(false);
                 page.setLoading(false);
             }
         });
@@ -65,9 +66,9 @@ Ext.define('Sam.controller.systemprops.SystemProps', {
     editAttributes: function (form) {
         var me = this;
         var menu = me.getPage().down('#sys-prop-attributes-actions-menu');
-
         menu.down('#edit-system-properties').hide();
         form.switchDisplayMode('edit');
+        me.getPage().down('#sys-prop-attributes-actions-button').setDisabled(true);
     },
 
     cancelEditAttributes: function (form) {
@@ -75,6 +76,7 @@ Ext.define('Sam.controller.systemprops.SystemProps', {
         var menu = me.getPage().down('#sys-prop-attributes-actions-menu');
         menu.down('#edit-system-properties').show();
         form.switchDisplayMode('view');
+        me.getPage().down('#sys-prop-attributes-actions-button').setDisabled(false);
     },
 
     showSystemProps: function () {
@@ -97,6 +99,6 @@ Ext.define('Sam.controller.systemprops.SystemProps', {
             var menu = me.getPage().down('#sys-prop-attributes-actions-menu');
             menu.down('#edit-system-properties').hide();
             me.getPage().down('system-props-view').switchDisplayMode('edit');
-
+            me.getPage().down('#sys-prop-attributes-actions-button').setDisabled(true);
     },
 });

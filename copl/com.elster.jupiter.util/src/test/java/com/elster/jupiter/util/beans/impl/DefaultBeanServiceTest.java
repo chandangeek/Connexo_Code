@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultBeanServiceTest {
 
-    private static final String NAME = "name";
+    private static final String NAME = "name457";
     private static final int AGE = 45;
 
     private BeanService beanService = new DefaultBeanService();

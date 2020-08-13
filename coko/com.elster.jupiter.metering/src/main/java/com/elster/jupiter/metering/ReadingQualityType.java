@@ -28,11 +28,11 @@ public final class ReadingQualityType {
         this.code = Objects.requireNonNull(code);
     }
 
-    public static ReadingQualityType of(QualityCodeSystem system , QualityCodeIndex codeIndex) {
+    public static ReadingQualityType of(QualityCodeSystem system, QualityCodeIndex codeIndex) {
         return of(system, codeIndex.category(), codeIndex.index());
     }
-    
-    public static ReadingQualityType of(QualityCodeSystem system , QualityCodeCategory category, int index) {
+
+    public static ReadingQualityType of(QualityCodeSystem system, QualityCodeCategory category, int index) {
         return new ReadingQualityType(Joiner.on('.').join(system.ordinal(), category.ordinal(), index));
     }
 
@@ -40,7 +40,7 @@ public final class ReadingQualityType {
     public String getCode() {
         return code;
     }
-    
+
     private Optional<Integer> getCode(int index) {
         String[] parts = code.split("\\.");
         if (parts.length >= index) {
@@ -56,7 +56,7 @@ public final class ReadingQualityType {
     public int getSystemCode() {
         return getCode(1).get();
     }
-    
+
     public Optional<QualityCodeSystem> system() {
         return QualityCodeSystem.get(getSystemCode());
     }
@@ -64,7 +64,7 @@ public final class ReadingQualityType {
     public int getCategoryCode() {
         return getCode(2).get();
     }
-    
+
     public Optional<QualityCodeCategory> category() {
         return QualityCodeCategory.get(getCategoryCode());
     }
@@ -72,7 +72,7 @@ public final class ReadingQualityType {
     public int getIndexCode() {
         return getCode(3).get();
     }
-    
+
     public Optional<QualityCodeIndex> qualityIndex() {
         return category().flatMap(category -> category.qualityCodeIndex(getIndexCode()));
     }
@@ -92,7 +92,7 @@ public final class ReadingQualityType {
     public int hashCode() {
         return code.hashCode();
     }
-    
+
     @Override
     public String toString() {
         return "Quality Reading Type " + code;
@@ -134,12 +134,11 @@ public final class ReadingQualityType {
         return hasQualityIndex(QualityCodeIndex.ERRORCODE);
     }
 
-    private boolean hasQualityCodeCategory(QualityCodeCategory cat) {
+    public boolean hasQualityCodeCategory(QualityCodeCategory cat) {
         return category().filter(category -> category.equals(cat)).isPresent();
     }
 
-    private boolean hasQualityIndex(QualityCodeIndex index) {
+    public boolean hasQualityIndex(QualityCodeIndex index) {
         return qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
     }
-
 }

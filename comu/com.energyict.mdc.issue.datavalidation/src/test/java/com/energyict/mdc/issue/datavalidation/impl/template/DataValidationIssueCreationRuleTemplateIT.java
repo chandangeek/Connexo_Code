@@ -119,7 +119,7 @@ public class DataValidationIssueCreationRuleTemplateIT {
     public static void initialize() throws SQLException {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
-        inMemoryPersistence.initializeDatabase("DataValidationIssueCreationRuleTemplateTest", false);
+        inMemoryPersistence.initializeDatabase(false);
         when(inMemoryPersistence.getClock().instant()).thenReturn(fixedTime);
         try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
             inMemoryPersistence.getService(FiniteStateMachineService.class);

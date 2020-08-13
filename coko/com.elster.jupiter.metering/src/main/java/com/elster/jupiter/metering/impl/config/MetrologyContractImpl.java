@@ -202,7 +202,6 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
     public void update() {
         if (this.getId() > 0) {
             this.metrologyConfigurationService.getDataModel().touch(this);
-            this.metrologyConfiguration.getOptional().ifPresent(ServerMetrologyConfiguration::invalidateCache);
         }
     }
 
