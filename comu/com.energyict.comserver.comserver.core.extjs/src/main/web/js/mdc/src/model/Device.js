@@ -48,6 +48,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},
         {name: 'hasValidationRules', type: 'boolean'},
+        {name: 'isFirmwareManagementAllowed', type: 'boolean'},
         {name: 'hasEstimationRules', type: 'boolean'},
         {name: 'usagePoint', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},

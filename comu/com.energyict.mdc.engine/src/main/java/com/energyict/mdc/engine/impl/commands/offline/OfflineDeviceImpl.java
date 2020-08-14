@@ -154,8 +154,6 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     private List<OfflineCalendar> calendars = new ArrayList<>();
 
-    private Map<Device, List<Device>> deviceTopologies = new HashMap<>();
-
     private boolean firmwareManagementAllowed = false;
     private boolean touCalendarAllowed = false;
     private String location = "";
@@ -171,9 +169,13 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
+        this(device, offlineDeviceContext, serviceProvider, new HashMap<>());
+    }
+
+    private OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider, Map<Device, List<Device>> deviceTopologies) {
         this.device = device;
         this.serviceProvider = serviceProvider;
-        goOffline(offlineDeviceContext);
+        goOffline(offlineDeviceContext, deviceTopologies);
     }
 
     /**
@@ -181,87 +183,94 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * from the database into memory so that normal business operations can continue.<br>
      * Note that this may cause recursive calls to other objects that can go offline.
      */
-    private void goOffline(OfflineDeviceContext context) {
+    private void goOffline(OfflineDeviceContext context, Map<Device, List<Device>> deviceTopologies) {
         List<SecurityAccessor> slaveSecurityAccessors = new ArrayList<>();
 
         setLocation(device.getLocation().map(Object::toString).orElse(""));
         setUsagePoint(device.getUsagePoint().map(UsagePoint::getName).orElse(""));
-        setId(this.device.getId());
-        setSerialNumber(this.device.getSerialNumber());
-        setmRID(this.device.getmRID());
-        addProperties(this.device.getDeviceProtocolProperties());
+        setId(device.getId());
+        setSerialNumber(device.getSerialNumber());
+        setmRID(device.getmRID());
+        addProperties(device.getDeviceProtocolProperties());
 
-        if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
-            setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass().get());
+        if (device.getDeviceProtocolPluggableClass().isPresent()) {
+            setDeviceProtocolPluggableClass(device.getDeviceProtocolPluggableClass().get());
         }
         if (context.needsSlaveDevices()) {
-            List<Device> downstreamDevices = getPhysicalConnectedDevices(this.device);
-            setSlaveDevices(convertToOfflineRtus(downstreamDevices));
+            List<Device> downstreamDevices = getPhysicalConnectedDevices(device, deviceTopologies);
+            setSlaveDevices(convertToOfflineRtus(downstreamDevices, deviceTopologies));
 
             for (final Device device : downstreamDevices) {
-                slaveSecurityAccessors.addAll( device.getSecurityAccessors() );
+                slaveSecurityAccessors.addAll(device.getSecurityAccessors());
             }
         }
         if (context.needsMasterLoadProfiles()) {
-            setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles(), serviceProvider.topologyService()));
+            setMasterLoadProfiles(convertToOfflineLoadProfiles(device.getLoadProfiles(), serviceProvider.topologyService(), deviceTopologies));
         }
         if (context.needsAllLoadProfiles()) {
-            setAllLoadProfiles(convertToOfflineLoadProfiles(getAllLoadProfilesIncludingDownStreams(this.device), serviceProvider.topologyService()));
+            setAllLoadProfiles(convertToOfflineLoadProfiles(getAllLoadProfilesIncludingDownStreams(device, deviceTopologies), serviceProvider.topologyService(), deviceTopologies));
         }
         if (context.needsLogBooks()) {
-            //setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
-            setAllLogBooks(convertToOfflineLogBooks(getAllLogBooksIncludingDownStreams(this.device)));
+            setAllLogBooks(convertToOfflineLogBooks(getAllLogBooksIncludingDownStreams(device, deviceTopologies)));
         }
         if (context.needsRegisters()) {
-            setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
+            setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList(deviceTopologies)));
         }
 
         List<SecurityAccessor> allSecurityAccessors = new ArrayList<>(slaveSecurityAccessors);
-        allSecurityAccessors.addAll( this.device.getSecurityAccessors() );
+        allSecurityAccessors.addAll(device.getSecurityAccessors());
 
-        setAllKeyAccessors(convertToOfflineKeyAccessors( allSecurityAccessors ));
-        setSecurityPropertySetAttributeToKeyAccessorType(this.device);
+        setAllKeyAccessors(convertToOfflineKeyAccessors(allSecurityAccessors));
+        setSecurityPropertySetAttributeToKeyAccessorType(device);
         if (context.needsPendingMessages()) {
-            try {
-                serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
-                PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
-                List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
-                List<DeviceMessage> reallyPending = new ArrayList<>();
-                List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
-                pendingMessages
-                        .forEach(deviceMessage -> {
-                            if (validator.isStillValid(deviceMessage)) {
-                                reallyPending.add(deviceMessage);
-                            } else {
-                                deviceMessage.setProtocolInformation(
-                                        this.serviceProvider.thesaurus()
-                                                .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
-                                                .format(
-                                                        validator.failingCalendarNames(deviceMessage),
-                                                        this.device.getDeviceType().getName()));
-                                invalidSinceCreation.add(deviceMessage);
-                            }
-                        });
-                setAllPendingMessages(createOfflineMessageList(reallyPending));
-                setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
-            } catch (MacException e) {
-                this.macException = e;
-            }
+            setAllPendingMessages(deviceTopologies);
         }
         if (context.needsSentMessages()) {
-            setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
+            setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device, deviceTopologies)));
         }
         if (context.needsFirmwareVersions()) {
-            this.firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
+            firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
         }
         if (context.needsTouCalendar()) {
-            this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
+            touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
         }
         setDeviceCache(serviceProvider);
-        this.setCalendars();
+        setCalendars();
     }
 
-    private List<Device> getPhysicalConnectedDevices(Device device) {
+    private void setAllPendingMessages(Map<Device, List<Device>> deviceTopologies) {
+        try {
+            List<DeviceMessage> reallyPending = new ArrayList<>();
+            List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
+            fillReallyPendingAndInvalidMessagesLists(deviceTopologies, reallyPending, invalidSinceCreation);
+            setAllPendingMessages(createOfflineMessageList(reallyPending));
+            setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
+        } catch (MacException e) {
+            macException = e;
+        }
+    }
+
+    private void fillReallyPendingAndInvalidMessagesLists(Map<Device, List<Device>> deviceTopologies, List<DeviceMessage> reallyPending, List<DeviceMessage> invalidSinceCreation) {
+        serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
+        PendingMessagesValidator validator = new PendingMessagesValidator(device);
+        List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device, deviceTopologies);
+        pendingMessages
+                .forEach(deviceMessage -> {
+                    if (validator.isStillValid(deviceMessage)) {
+                        reallyPending.add(deviceMessage);
+                    } else {
+                        deviceMessage.setProtocolInformation(
+                                serviceProvider.thesaurus()
+                                        .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
+                                        .format(
+                                                validator.failingCalendarNames(deviceMessage),
+                                                device.getDeviceType().getName()));
+                        invalidSinceCreation.add(deviceMessage);
+                    }
+                });
+    }
+
+    private List<Device> getPhysicalConnectedDevices(Device device, Map<Device, List<Device>> deviceTopologies) {
         List<Device> connectedDevices = deviceTopologies.get(device);
         if (connectedDevices == null) {
             connectedDevices = serviceProvider.topologyService().findPhysicalConnectedDevices(device);
@@ -293,11 +302,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      *
      * @return the list of all RtuRegisters
      */
-    private List<Register> createCompleteRegisterList() {
+    private List<Register> createCompleteRegisterList(Map<Device, List<Device>> deviceTopologies) {
         List<Register> registers = new ArrayList<>();
-        registers.addAll(this.device.getRegisters());
+        registers.addAll(device.getRegisters());
         registers.addAll(
-                getPhysicalConnectedDevices(device)
+                getPhysicalConnectedDevices(device, deviceTopologies)
                         .stream()
                         .filter(this::checkTheNeedToGoOffline)
                         .flatMap(slave -> slave.getRegisters().stream())
@@ -310,22 +319,23 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * including the physically connected devices which have the
      * {@link DeviceType#isLogicalSlave()} flag checked.
      *
-     * @param device the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
+     * @param device           the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
+     * @param deviceTopologies
      * @return a List of <CODE>LoadProfiles</CODE>
      */
-    private List<LoadProfile> getAllLoadProfilesIncludingDownStreams(Device device) {
+    private List<LoadProfile> getAllLoadProfilesIncludingDownStreams(Device device, Map<Device, List<Device>> deviceTopologies) {
         List<LoadProfile> allLoadProfiles = new ArrayList<>(device.getLoadProfiles());
-        getPhysicalConnectedDevices(device).stream().
+        getPhysicalConnectedDevices(device, deviceTopologies).stream().
                 filter(this::checkTheNeedToGoOffline).
-                forEach(slave -> allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave)));
+                forEach(slave -> allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave, deviceTopologies)));
         return allLoadProfiles;
     }
 
-    private List<LogBook> getAllLogBooksIncludingDownStreams(Device device) {
+    private List<LogBook> getAllLogBooksIncludingDownStreams(Device device, Map<Device, List<Device>> deviceTopologies) {
         List<LogBook> allLogBooks = new ArrayList<>(device.getLogBooks());
-        getPhysicalConnectedDevices(device).stream().
+        getPhysicalConnectedDevices(device, deviceTopologies).stream().
                 filter(this::checkTheNeedToGoOffline).
-                forEach(slave -> allLogBooks.addAll(getAllLogBooksIncludingDownStreams(slave)));
+                forEach(slave -> allLogBooks.addAll(getAllLogBooksIncludingDownStreams(slave, deviceTopologies)));
         return allLogBooks;
     }
 
@@ -333,21 +343,22 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * Converts the given {@link Device}s to {@link OfflineDevice}s if they have the option
      * {@link DeviceType#isLogicalSlave()} checked.
      *
-     * @param downstreamRtus The rtus to go offline
+     * @param downstreamRtus   The rtus to go offline
+     * @param deviceTopologies
      * @return a list of OfflineDevice
      */
-    private List<OfflineDevice> convertToOfflineRtus(List<Device> downstreamRtus) {
+    private List<OfflineDevice> convertToOfflineRtus(List<Device> downstreamRtus, Map<Device, List<Device>> deviceTopologies) {
         List<OfflineDevice> offlineSlaves = new ArrayList<>(downstreamRtus.size());
         for (Device downstreamRtu : downstreamRtus) {
             OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu,
                     new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG, DeviceOfflineFlags.FIRMWARE_VERSIONS_FLAG),
-                    serviceProvider);
+                    serviceProvider, deviceTopologies);
             offlineSlaves.add(offlineDevice);
 
             List<OfflineDevice> slaveDevices = offlineDevice
                     .getAllSlaveDevices()
                     .stream()
-                    .map(this.serviceProvider.protocolPluggableService()::adapt)
+                    .map(serviceProvider.protocolPluggableService()::adapt)
                     .collect(Collectors.toList());
 
             offlineSlaves.addAll(slaveDevices);
@@ -359,7 +370,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         return downstreamRtu.getDeviceType().isLogicalSlave();
     }
 
-    private List<OfflineLoadProfile> convertToOfflineLoadProfiles(final List<LoadProfile> loadProfiles, TopologyService topologyService) {
+    private List<OfflineLoadProfile> convertToOfflineLoadProfiles(final List<LoadProfile> loadProfiles, TopologyService topologyService, Map<Device, List<Device>> deviceTopologies) {
         return loadProfiles
                 .stream()
                 .map(lp -> new OfflineLoadProfileImpl(lp, topologyService, serviceProvider.identificationService(), deviceTopologies))
@@ -393,8 +404,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     @Override
     @XmlAttribute
     public TimeZone getTimeZone() {
-        if (this.device != null) {
-            timeZone = this.device.getTimeZone();
+        if (device != null) {
+            timeZone = device.getTimeZone();
         }
         return timeZone;
     }
@@ -437,8 +448,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     public void setLocation(String location) {
         this.location = location;
     }
-    @Override
 
+    @Override
     @XmlAttribute
     public String getUsagePoint() {
         return usagePoint;
@@ -462,19 +473,19 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     @Override
     @XmlElement(type = OfflineLoadProfileImpl.class)
     public List<OfflineLoadProfile> getMasterOfflineLoadProfiles() {
-        return this.masterLoadProfiles;
+        return masterLoadProfiles;
     }
 
     @Override
     @XmlElement(type = OfflineLoadProfileImpl.class)
     public List<OfflineLoadProfile> getAllOfflineLoadProfiles() {
-        return this.allOfflineLoadProfiles;
+        return allOfflineLoadProfiles;
     }
 
     @Override
     @XmlElement(type = OfflineLogBookImpl.class)
     public List<OfflineLogBook> getAllOfflineLogBooks() {
-        return this.allOfflineLogBooks;
+        return allOfflineLogBooks;
     }
 
     @Override
@@ -484,7 +495,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     private void setAllOfflineRegisters(final List<OfflineRegister> registers) {
-        this.allOfflineRegisters = registers;
+        allOfflineRegisters = registers;
     }
 
     @Override
@@ -514,20 +525,20 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     @XmlAttribute
     @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllPendingDeviceMessages() {
-        return this.pendingDeviceMessages;
+        return pendingDeviceMessages;
     }
 
     @Override
     @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllInvalidPendingDeviceMessages() {
-        return Collections.unmodifiableList(this.pendingInvalidDeviceMessages);
+        return Collections.unmodifiableList(pendingInvalidDeviceMessages);
     }
 
     @Override
     @XmlAttribute
     @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllSentDeviceMessages() {
-        return this.sentDeviceMessages;
+        return sentDeviceMessages;
     }
 
     @Override
@@ -550,15 +561,15 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * @param properties the Properties to add
      */
     void addProperties(TypedProperties properties) {
-        if (this.allProperties == null) {
-            this.allProperties = TypedProperties.empty();
+        if (allProperties == null) {
+            allProperties = TypedProperties.empty();
         }
         // adding the SerialNumber as a property value because legacy protocols check the serialNumber based on the property value
-        this.allProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), getSerialNumber());
+        allProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), getSerialNumber());
         if (properties.getInheritedProperties() != null) {
-            this.allProperties.setAllProperties(properties.getInheritedProperties());
+            allProperties.setAllProperties(properties.getInheritedProperties());
         }
-        this.allProperties.setAllLocalProperties(properties);
+        allProperties.setAllLocalProperties(properties);
     }
 
     /**
@@ -566,15 +577,16 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * including his slave devices which have the
      * islogicalSlave flag checked.
      *
-     * @param device the Device to collect the pending DeviceMessages from
+     * @param device           the Device to collect the pending DeviceMessages from
+     * @param deviceTopologies
      * @return a List of pending DeviceMessages
      */
-    private List<DeviceMessage> getAllPendingMessagesIncludingSlaves(Device device) {
+    private List<DeviceMessage> getAllPendingMessagesIncludingSlaves(Device device, Map<Device, List<Device>> deviceTopologies) {
         List<DeviceMessage> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
-        getPhysicalConnectedDevices(device).stream().
+        getPhysicalConnectedDevices(device, deviceTopologies).stream().
                 filter(this::checkTheNeedToGoOffline).
-                forEach(slave -> allDeviceMessages.addAll(getAllPendingMessagesIncludingSlaves(slave)));
+                forEach(slave -> allDeviceMessages.addAll(getAllPendingMessagesIncludingSlaves(slave, deviceTopologies)));
         return allDeviceMessages;
     }
 
@@ -583,15 +595,16 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * including his slave devices which have the
      * islogicalSlave flag checked.
      *
-     * @param device the Device to collect the sent DeviceMessages from
+     * @param device           the Device to collect the sent DeviceMessages from
+     * @param deviceTopologies
      * @return a List of sent DeviceMessages
      */
-    private List<DeviceMessage> getAllSentMessagesIncludingSlaves(Device device) {
+    private List<DeviceMessage> getAllSentMessagesIncludingSlaves(Device device, Map<Device, List<Device>> deviceTopologies) {
         List<DeviceMessage> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.SENT));
-        getPhysicalConnectedDevices(device).stream().
+        getPhysicalConnectedDevices(device, deviceTopologies).stream().
                 filter(this::checkTheNeedToGoOffline).
-                forEach(slave -> allDeviceMessages.addAll(getAllSentMessagesIncludingSlaves(slave)));
+                forEach(slave -> allDeviceMessages.addAll(getAllSentMessagesIncludingSlaves(slave, deviceTopologies)));
         return allDeviceMessages;
     }
 
@@ -661,7 +674,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         return deviceProtocolCache;
     }
 
-    @XmlElements( {
+    @XmlElements({
             @XmlElement(type = DeviceIdentifierById.class),
             @XmlElement(type = DeviceIdentifierBySerialNumber.class),
             @XmlElement(type = DeviceIdentifierByMRID.class),
@@ -671,14 +684,15 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     })
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        if (deviceIdentifier == null && this.serviceProvider.identificationService() != null)
-            deviceIdentifier = this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(getId(), getmRID());
+        if (deviceIdentifier == null && serviceProvider.identificationService() != null) {
+            deviceIdentifier = serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(getId(), getmRID());
+        }
         return deviceIdentifier;
     }
 
     @Override
     public List<OfflineCalendar> getCalendars() {
-        return Collections.unmodifiableList(this.calendars);
+        return Collections.unmodifiableList(calendars);
     }
 
     @Override
@@ -697,7 +711,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     private void setCalendars() {
-        this.calendars = this.device.getDeviceType().getAllowedCalendars().stream().map(OfflineCalendarImpl::from).collect(Collectors.toList());
+        this.calendars = device.getDeviceType().getAllowedCalendars().stream().map(OfflineCalendarImpl::from).collect(Collectors.toList());
     }
 
     private void setAllKeyAccessors(final List<OfflineKeyAccessor> allKeyAccessors) {
@@ -706,7 +720,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     @Override
     public List<OfflineKeyAccessor> getAllOfflineKeyAccessors() {
-        return Collections.unmodifiableList(this.keyAccessors);
+        return Collections.unmodifiableList(keyAccessors);
     }
 
     @Override

@@ -115,4 +115,12 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass() + "{" +
+                "connectionTaskId=" + connectionTaskId +
+                ", comSessionId=" + comSessionId +
+                ", deviceId="  + super.getDevice().getmRID() + "}";
+    }
 }

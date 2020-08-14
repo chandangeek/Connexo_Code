@@ -69,7 +69,7 @@ public enum Operator {
     NOT_LIKEIGNORECASE("") {
         @Override
         public String getFormat() {
-            return "UPPER(nvl({0}, '''')) NOT LIKE UPPER(?)";
+            return "UPPER(nvl({0}, '''')) NOT LIKE UPPER(?) ESCAPE ''\\''";
         }
     },
     SOUNDSAS("") {

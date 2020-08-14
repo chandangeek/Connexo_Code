@@ -56,7 +56,7 @@ public class AdaptiveQueryTuner implements QueryTuner {
             modifyFactor(queryDuration, jobsSize, nbConnections);
         } else {
             // there is no schedule running, return the lowest possible factor to have the shortest possible query
-            factor = 1;
+            factor = 8;
         }
     }
 

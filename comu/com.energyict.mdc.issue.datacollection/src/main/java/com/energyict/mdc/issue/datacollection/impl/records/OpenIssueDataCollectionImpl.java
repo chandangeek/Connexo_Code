@@ -44,4 +44,9 @@ public class OpenIssueDataCollectionImpl extends IssueDataCollectionImpl impleme
         historicalDataCollectionIssue.save();
         return historicalDataCollectionIssue;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

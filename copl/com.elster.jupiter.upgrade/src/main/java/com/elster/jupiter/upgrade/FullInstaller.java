@@ -9,12 +9,15 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,26 +94,15 @@ public interface FullInstaller {
         });
     }
 
-    default String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval) {
+
+    default String getRefreshJob(String jobName, String jobAction, int minRefreshInterval) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" BEGIN ");
         sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
         sqlBuilder.append(" ( ");
         sqlBuilder.append(" JOB_NAME            => '").append(jobName).append("', ");
         sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => ' ");
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" execute immediate ''DROP TABLE ").append(tableName).append("''; ");
-        sqlBuilder.append(" execute immediate ");
-        sqlBuilder.append(" ''");
-        sqlBuilder.append(createTableStatement.replace("'", "''''"));
-        sqlBuilder.append(" ''; ");
-        sqlBuilder.append(" EXCEPTION ");
-        sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append("       IF SQLCODE != -942 THEN ");
-        sqlBuilder.append("          RAISE; ");
-        sqlBuilder.append("       END IF; ");
-        sqlBuilder.append(" END;', ");
+        sqlBuilder.append(" JOB_ACTION          => '").append(jobAction).append("', ");
         sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
         sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
         sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=").append(minRefreshInterval).append("', ");
@@ -119,6 +111,14 @@ public interface FullInstaller {
         sqlBuilder.append(" AUTO_DROP           => FALSE, ");
         sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
         sqlBuilder.append(" ); ");
+        sqlBuilder.append(" END;");
+        return sqlBuilder.toString();
+    }
+
+    default String getDropJobStatement(String jobName){
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" BEGIN ");
+        sqlBuilder.append(" dbms_scheduler.drop_job(job_name => '" + jobName + "'); ");
         sqlBuilder.append(" END;");
         return sqlBuilder.toString();
     }

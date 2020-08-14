@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * Provides services that relate to {@link Device}s.
  * <p>
- *
+ * <p>
  * Date: 08/05/14
  * Time: 12:01
  */
@@ -60,6 +60,16 @@ public interface EngineService {
     void activateComServer();
 
     boolean isAdaptiveQuery();
+
+    long getPrefetchComTaskTimeDelta();
+
+    long getPrefetchComTaskDelay();
+
+    long getPrefetchComTaskLimit();
+
+    boolean isPrefetchBalanced();
+
+    boolean isPrefetchEnabled();
 
 //    OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
 //
