@@ -246,7 +246,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     if (result) record.set("checkOptions", checkOptions);
 
                     var firmwareUpgradeOptions = me.down('#firmwareUpgradeOptions');
-                    if (!firmwareUpgradeOptions.getValue() || !firmwareUpgradeOptions.getValue().selectedOptions){
+                    if (!firmwareUpgradeOptions.getValue() && !firmwareUpgradeOptions.getValue().selectedOptions){
                         me.down('#firmwareUpgradeOptionsError').show();
                         result = false;
                     }else{
@@ -317,7 +317,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     },
                     {
                         xtype: 'checkboxgroup',
-                        required: false,
                         itemId: 'firmwareTargetFileStatus',
                         columns: 1,
                         vertical: true,
