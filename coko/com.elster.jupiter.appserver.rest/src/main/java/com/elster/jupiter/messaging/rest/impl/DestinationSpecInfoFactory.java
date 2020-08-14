@@ -6,13 +6,18 @@ package com.elster.jupiter.messaging.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.QueueStatus;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.tasks.RecurrentTask;
 
+import aQute.bnd.osgi.resource.FilterParser;
+
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -52,15 +57,16 @@ public class DestinationSpecInfoFactory {
                 .map(rt -> TaskMinInfo.from(rt, thesaurus)).collect(Collectors.toList());
     }
 
-    public DestinationSpecInfo withStats(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<ServiceCallType> allServiceCallTypes) {
+    public DestinationSpecInfo withStats(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<ServiceCallType> allServiceCallTypes, Map<String, QueueStatus> queuesStatuses) {
         DestinationSpecInfo info = from(destinationSpec, allTasks, allServiceCallTypes);
-        info.numberOfMessages = destinationSpec.numberOfMessages();
-        info.numberOFErrors = destinationSpec.errorCount();
+        QueueStatus queueStatus = Optional.ofNullable(queuesStatuses).map(qs -> qs.get(destinationSpec.getName())).orElse(null);
+        info.numberOfMessages = Optional.ofNullable(queueStatus).map(QueueStatus::getMessagesCount).orElseGet(destinationSpec::numberOfMessages);
+        info.numberOFErrors = Optional.ofNullable(queueStatus).map(QueueStatus::getErrorsCount).orElseGet(destinationSpec::errorCount);
         return info;
     }
 
-    public DestinationSpecInfo withAppServers(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<ServiceCallType> allServiceCallTypes) {
-        DestinationSpecInfo info = withStats(destinationSpec, allTasks, allServiceCallTypes);
+    public DestinationSpecInfo withAppServers(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<ServiceCallType> allServiceCallTypes, Map<String, QueueStatus> queuesStatuses) {
+        DestinationSpecInfo info = withStats(destinationSpec, allTasks, allServiceCallTypes, queuesStatuses);
         info.subscriberSpecInfos = destinationSpec.getSubscribers()
                 .stream()
                 .filter(not(SubscriberSpec::isSystemManaged))
