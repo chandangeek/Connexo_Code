@@ -1139,10 +1139,27 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void storeLoadProfile(Optional<OfflineLoadProfile> offlineLoadProfile, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
+        storeLoadProfile(offlineLoadProfile, collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, currentDate );
+    }
+
+    @Override
     public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
+        storeLoadProfile(null, collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, currentDate );
+    }
+
+    private PreStoreLoadProfile.PreStoredLoadProfile getPrestoredLoadProfile(PreStoreLoadProfile loadProfilePreStorer, Optional<OfflineLoadProfile> offlineLoadProfile,
+                                                                             final CollectedLoadProfile collectedLoadProfile, final Instant currentDate){
+        if(offlineLoadProfile != null){
+            return loadProfilePreStorer.preStore(offlineLoadProfile, collectedLoadProfile ,currentDate);
+        }
+        return loadProfilePreStorer.preStore(collectedLoadProfile ,currentDate);
+    }
+
+    public void storeLoadProfile(Optional<OfflineLoadProfile> offlineLoadProfile, final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.serviceProvider.mdcReadingTypeUtilService(), this);
         if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty())) {
-            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, currentDate);
+            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = getPrestoredLoadProfile(loadProfilePreStorer, offlineLoadProfile, collectedLoadProfile, currentDate);
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
                 Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
                 Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
@@ -1170,9 +1187,10 @@ public class ComServerDAOImpl implements ComServerDAO {
                 }
                 Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
                 // do update the loadprofile
+                LoadProfile loadProfile = findLoadProfileOrThrowException(loadProfileIdentifier);
                 lastReadings.forEach((loadProfileId, timestamp) -> {
                     List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
-                    functionList.add(updateLoadProfile(findLoadProfileOrThrowException(loadProfileId), timestamp));
+                    functionList.add(updateLoadProfile(loadProfile, timestamp));
                 });
                 // then do your thing
                 updateMap.forEach((deviceId, functions) -> {

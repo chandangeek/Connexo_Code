@@ -6,6 +6,7 @@ package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
@@ -17,7 +18,9 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.DelayedIssueEventHandler;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.EventType;
 
 import com.google.inject.Injector;
 
@@ -29,11 +32,31 @@ public class UnregisteredFromGatewayEvent extends DataCollectionEvent {
 
     private long deviceIdentifier;
     private long gatewayIdentifier;
-    private long ruleId;
 
     @Inject
-    public UnregisteredFromGatewayEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector, TimeService timeService, EventService eventService, Clock clock) {
-        super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, eventService, timeService, clock, injector);
+    public UnregisteredFromGatewayEvent(IssueDataCollectionService issueDataCollectionService,
+                                        MeteringService meteringService,
+                                        DeviceService deviceService,
+                                        TopologyService topologyService,
+                                        CommunicationTaskService communicationTaskService,
+                                        ConnectionTaskService connectionTaskService,
+                                        Thesaurus thesaurus,
+                                        Injector injector,
+                                        TimeService timeService,
+                                        EventService eventService,
+                                        Clock clock,
+                                        IssueService issueService) {
+        super(issueDataCollectionService,
+                meteringService,
+                deviceService,
+                communicationTaskService,
+                topologyService,
+                thesaurus,
+                eventService,
+                timeService,
+                clock,
+                injector,
+                issueService);
     }
 
     @Override
@@ -79,12 +102,14 @@ public class UnregisteredFromGatewayEvent extends DataCollectionEvent {
         this.gatewayIdentifier = gatewayIdentifier;
     }
 
-    public long getRuleId() {
-        return ruleId;
-    }
+    /**
+     * {@link EventType} and {@link DelayedIssueEventHandler}
+     * use rule id from this event, first when sending a queue message, second when parsing it.
+     * So we need a public getter for a property, corresponding to mentioned in them
+     */
 
-    public void setRuleId(long ruleId) {
-        this.ruleId = ruleId;
+    public long getRuleId() {
+        return super.getCreationRule();
     }
 
     @Override

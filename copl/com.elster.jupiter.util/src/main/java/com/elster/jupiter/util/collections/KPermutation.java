@@ -4,9 +4,6 @@
 
 package com.elster.jupiter.util.collections;
 
-import com.elster.jupiter.util.Counter;
-import com.elster.jupiter.util.Counters;
-
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.ArrayList;
@@ -83,39 +80,23 @@ public final class KPermutation {
     }
 
     public static <T> KPermutation of(List<? extends T> source, List<? super T> result) {
-        Counter counter = Counters.newLenientCounter();
         int[] indices = result.stream()
                 .mapToInt(source::indexOf)
                 .peek(cantBeNegative())
-                .collect(
-                        () -> new int[result.size()],
-                        (array, index) -> {
-                            array[counter.getValue()] = index;
-                            counter.increment();
-                        },
-                        null
-                );
+                .toArray();
         return new KPermutation(indices);
     }
 
     public static <T> KPermutation of(long[] source, long[] result) {
-        Counter counter = Counters.newLenientCounter();
         int[] indices = Arrays.stream(result)
                 .mapToInt(value -> indexOf(source, value))
                 .peek(cantBeNegative())
-                .collect(
-                        () -> new int[result.length],
-                        (array, index) -> {
-                            array[counter.getValue()] = index;
-                            counter.increment();
-                        },
-                        null
-                );
+                .toArray();
         return new KPermutation(indices);
     }
 
     private static int indexOf(long[] array, long value) {
-        return IntStream.rangeClosed(0, array.length)
+        return IntStream.range(0, array.length)
                 .filter(i -> value == array[i])
                 .findFirst()
                 .orElse(-1);
@@ -124,24 +105,16 @@ public final class KPermutation {
     private static IntConsumer cantBeNegative() {
         return i -> {
             if (i < 0) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("At least one of result elements isn't found in the source list.");
             }
         };
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        KPermutation that = (KPermutation) o;
-
-        return Arrays.equals(indices, that.indices);
-
+        return this == o
+                || o instanceof KPermutation
+                && Arrays.equals(indices, ((KPermutation) o).indices);
     }
 
     @Override

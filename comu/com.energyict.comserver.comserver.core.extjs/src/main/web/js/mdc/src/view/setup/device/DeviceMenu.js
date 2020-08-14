@@ -218,7 +218,8 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         {
                             text: Uni.I18n.translate('general.firmware', 'MDC', 'Firmware'),
                             itemId: 'device-firmware-link-menu',
-                            href: '#/devices/' + encodeURIComponent(deviceId) + '/firmware'
+                            href: '#/devices/' + encodeURIComponent(deviceId) + '/firmware',
+                            showCondition: me.device.get('isFirmwareManagementAllowed')
                         },
                         {
                             text: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),

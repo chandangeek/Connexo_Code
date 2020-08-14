@@ -248,6 +248,9 @@ public class ComPortPoolResource {
     }
 
     protected void handlePools(ComPortPoolInfo<? extends ComPortPool> comPortPoolInfo, OutboundComPortPool outboundComPortPool, EngineConfigurationService engineConfigurationService, boolean all) {
+        if(comPortPoolInfo.taskExecutionTimeout != null) {
+            outboundComPortPool.setTaskExecutionTimeout(comPortPoolInfo.taskExecutionTimeout.asTimeDuration());
+        }
         if (!all) {
             updateComPorts(outboundComPortPool, comPortPoolInfo.outboundComPorts, engineConfigurationService);
         } else {

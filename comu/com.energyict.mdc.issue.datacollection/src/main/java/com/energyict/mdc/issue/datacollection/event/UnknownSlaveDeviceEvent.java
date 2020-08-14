@@ -6,6 +6,7 @@ package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
@@ -32,8 +33,28 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     protected String slaveDeviceIdentification;
 
     @Inject
-    public UnknownSlaveDeviceEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector, TimeService timeService, EventService eventService, Clock clock) {
-        super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, eventService, timeService, clock, injector);
+    public UnknownSlaveDeviceEvent(IssueDataCollectionService issueDataCollectionService,
+                                   MeteringService meteringService,
+                                   DeviceService deviceService,
+                                   TopologyService topologyService,
+                                   CommunicationTaskService communicationTaskService,
+                                   Thesaurus thesaurus,
+                                   Injector injector,
+                                   TimeService timeService,
+                                   EventService eventService,
+                                   Clock clock,
+                                   IssueService issueService) {
+        super(issueDataCollectionService,
+                meteringService,
+                deviceService,
+                communicationTaskService,
+                topologyService,
+                thesaurus,
+                eventService,
+                timeService,
+                clock,
+                injector,
+                issueService);
     }
 
     @Override

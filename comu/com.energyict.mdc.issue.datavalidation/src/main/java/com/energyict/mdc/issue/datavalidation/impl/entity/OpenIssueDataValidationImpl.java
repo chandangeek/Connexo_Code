@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -73,16 +74,16 @@ public final class OpenIssueDataValidationImpl extends IssueDataValidationImpl i
                 .filter(block -> block.getReadingType().equals(readingType))
                 .map(block -> Pair.of(Range.openClosed(block.getStartTime(), block.getEndTime()), block))
                 .filter(block -> block.getFirst().isConnected(interval))
-                .sorted((block1, block2) -> block1.getFirst().lowerEndpoint().compareTo(block2.getFirst().lowerEndpoint()))
+                .sorted(Comparator.comparing(block -> block.getFirst().lowerEndpoint()))
                 .collect(Collectors.toList());
 
         Range<Instant> newInterval = connectedBlocks.stream()
-                .map(pair -> pair.getFirst())
-                .reduce((interval1, interval2) -> interval1.span(interval2))
+                .map(Pair::getFirst)
+                .reduce(Range::span)
                 .map(range -> range.span(interval))
                 .orElse(interval);
 
-        connectedBlocks.stream().forEach(block -> notEstimatedBlocks.remove(block.getLast()));
+        connectedBlocks.forEach(block -> notEstimatedBlocks.remove(block.getLast()));
         createNewBlock(channel, readingType, newInterval.lowerEndpoint(), newInterval.upperEndpoint());
     }
 

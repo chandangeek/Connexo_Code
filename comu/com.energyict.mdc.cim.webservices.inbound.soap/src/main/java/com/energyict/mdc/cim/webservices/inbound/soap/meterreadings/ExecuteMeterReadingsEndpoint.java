@@ -100,7 +100,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private static final String DATA_SOURCE_NAME_TYPE = DATA_SOURCE + ".NameType";
     private static final String DATA_SOURCE_NAME_TYPE_NAME = DATA_SOURCE_NAME_TYPE + ".name";
 
-
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory getMeterReadingsMessageObjectFactory = new ObjectFactory();
 
@@ -513,7 +512,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                                         .anyMatch(registerGroup -> registerGroup.getRegisterTypes().stream()
                                                 .anyMatch(registerType -> registerType.getReadingType().equals(readingType))));
                     }
-
                 })
                 .filter(cte -> connectionMethod == null
                         || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod))

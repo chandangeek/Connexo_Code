@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 
 import com.energyict.protocol.ChannelInfo;
 
@@ -42,17 +43,15 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        if (comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier()) != null) {
-            comServerDAO.storeLoadProfile(collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, this.getClock().instant());
+        Optional<OfflineLoadProfile> offlineLoadProfile = comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
+        if (offlineLoadProfile.isPresent()) {
+            comServerDAO.storeLoadProfile(offlineLoadProfile, collectedLoadProfile, this.getClock().instant());
         } else {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(
                             this,
-                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
-                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
-                                    .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
-                                    .orElse("")));
+                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE));
         }
     }
 

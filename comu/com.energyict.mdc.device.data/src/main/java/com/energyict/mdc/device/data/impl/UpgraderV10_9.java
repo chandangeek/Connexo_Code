@@ -41,8 +41,6 @@ public class UpgraderV10_9 implements Upgrader {
     private final DeviceService deviceService;
     private final DataModel dataModel;
 
-    private long id;
-
     @Inject
     UpgraderV10_9(DataModel dataModel, DeviceService deviceService) {
         this.deviceService = deviceService;
@@ -55,7 +53,6 @@ public class UpgraderV10_9 implements Upgrader {
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
             int from = 0;
-            id = executeQuery(statement, "SELECT NVL(MAX(ID),0) FROM " + TABLE, this::toLong);
             List<Device> devices;
             do {
                 devices = deviceService.findAllDevices(Condition.TRUE).paged(from, SIZE).find();
@@ -87,7 +84,6 @@ public class UpgraderV10_9 implements Upgrader {
                     .filter(comTaskEnablement -> !comTaskIdsWithExecution.contains(comTaskEnablement.getComTask().getId()))
                     .collect(Collectors.toList());
             for (ComTaskEnablement comTaskEnablement : comTasksWithoutExecutions) {
-                id++;
                 if (!first) {
                     query.append("UNION ALL");
                 } else {
@@ -123,7 +119,7 @@ public class UpgraderV10_9 implements Upgrader {
     private String insertRowSql(ComTaskEnablement comTaskEnablement, int discriminator, Long connectiontaskid, long deviceid) {
         StringBuilder query = new StringBuilder();
         query
-                .append(" SELECT '").append(id).append("', ")
+                .append(" SELECT '").append("DDC_COMTASKEXECID.nextval").append("', ")
                 .append("'").append(1).append("', ")
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")

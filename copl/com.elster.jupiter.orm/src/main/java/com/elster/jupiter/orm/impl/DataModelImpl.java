@@ -336,10 +336,7 @@ public class DataModelImpl implements DataModel {
                 }
             }
             try (ResultSet resultSet = statement.executeQuery("SELECT * FROM v$option WHERE parameter = 'Partitioning'")) {
-                if (resultSet.next()) {
-                    return resultSet.getBoolean("value");
-                }
-                return false;
+                return resultSet.next() && resultSet.getBoolean("value");
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -355,16 +352,13 @@ public class DataModelImpl implements DataModel {
             return false;
         }
         //The Oracle version should be higher than 12.2...
-        if (Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2) {
-            return false;
-        }
-        return true;
+        return !(Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2);
     }
 
     public Optional<TableImpl<?>> getTable(Class<?> clazz) {
         for (TableImpl<?> table : getTables()) {
             if (table.maps(clazz)) {
-                return Optional.<TableImpl<?>>of(table);
+                return Optional.of(table);
             }
         }
         return Optional.empty();
@@ -416,7 +410,7 @@ public class DataModelImpl implements DataModel {
         allModules[modules.length] = getModule();
         injector = Guice.createInjector(allModules);
         for (TableImpl<?> each : getTables(getVersion())) {
-            each.prepare();
+            each.prepare(ormService.getEvictionTime(), ormService.isCacheEnabled());
         }
         this.ormService.register(this);
         registered = true;
@@ -505,6 +499,7 @@ public class DataModelImpl implements DataModel {
         return root.with(mappers);
     }
 
+    @Override
     public <T> QueryStream<T> stream(Class<T> api) {
         return new QueryStreamImpl<>(mapper(api));
     }

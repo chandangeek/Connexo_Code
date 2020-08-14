@@ -193,6 +193,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     Optional<T> findByPrimaryKey(KeyValue keyValue) {
         TableCache<? super T> cache = getCache();
         Object cacheVersion = cache.get(keyValue);
+        /* When caching of whole table is used it is assumed that all objects from table should be in cache.
+         * In no , it means that cache was invalidated or eviction time was expired. In both cases we have to load table to cache again.*/
+        if (cache.reloadCacheIfNeeded(cacheVersion, (Finder)this, keyValue)){
+            cacheVersion = cache.get(keyValue);
+        }
         if (cacheVersion != null) {
             if (api.isInstance(cacheVersion)) {
                 return Optional.of(api.cast(cacheVersion));
@@ -201,12 +206,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             }
         }
         try {
-            Optional<T> result;
-            if (getTable().isCached()) {
-                result = getEager(keyValue.getKey());
-            } else {
-                result = reader.findByPrimaryKey(keyValue);
-            }
+            Optional<T> result = reader.findByPrimaryKey(keyValue);
             result.ifPresent(t -> cache.put(keyValue, t));
             return result;
         } catch (SQLException ex) {
@@ -298,6 +298,8 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             writer.persist(object);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
+        } finally {
+            getTable().clearCacheOnPersisting();
         }
     }
 
@@ -317,6 +319,8 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             writer.persist(objects);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
+        } finally {
+            getTable().clearCacheOnPersisting();
         }
     }
 
@@ -372,7 +376,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             throw new UnderlyingSQLFailedException(ex);
         } finally {
             //remove object from cache, as we do not know if tx will commit or rollback
-            getCache().remove(object);
+            getTable().clearCache(object);
         }
     }
 
@@ -395,9 +399,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             throw new UnderlyingSQLFailedException(ex);
         } finally {
             //remove objects from cache, as we do not know if tx will commit or rollback
-            for (T each : objects) {
-                getCache().remove(each);
-            }
+            getTable().clearCache(objects);
         }
     }
 
@@ -409,7 +411,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         } finally {
-            getCache().remove(object);
+            getTable().clearCache(object);
         }
     }
 
@@ -424,9 +426,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         } finally {
-            for (T each : objects) {
-                getCache().remove(each);
-            }
+            getTable().clearCache(objects);
         }
     }
 

@@ -28,8 +28,8 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.energyict.mdc.issue.datacollection.impl.templates.MeterRegistrationRuleTemplate;
+
 import com.google.inject.Injector;
-import org.junit.Test;
 import org.osgi.service.event.EventConstants;
 
 import java.time.Clock;
@@ -37,6 +37,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -151,7 +153,7 @@ public class MeterRegistrationRuleTemplateTest extends BaseTest {
         when(master.getmRID()).thenReturn(masterAmrId.toString());
         when(mockDeviceDataService.findDeviceById(amrId)).thenReturn(Optional.of(device));
         when(mockDeviceDataService.findDeviceById(masterAmrId)).thenReturn(Optional.of(master));
-        UnregisteredFromGatewayDelayedEvent event = new UnregisteredFromGatewayDelayedEvent(device, Optional.of(master), getIssueDataCollectionService(), getMeteringService(), mockDeviceDataService, getCommunicationTaskService(), mockTopologyService, getThesaurus(), mock(Injector.class), timeService, getEventService(), clock);
+        UnregisteredFromGatewayDelayedEvent event = new UnregisteredFromGatewayDelayedEvent(device, Optional.of(master), getIssueDataCollectionService(), getMeteringService(), mockDeviceDataService, getCommunicationTaskService(), mockTopologyService, getThesaurus(), mock(Injector.class), timeService, getEventService(), clock, getIssueService());
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId);

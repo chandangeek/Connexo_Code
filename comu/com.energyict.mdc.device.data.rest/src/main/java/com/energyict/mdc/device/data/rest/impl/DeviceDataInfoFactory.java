@@ -90,7 +90,7 @@ public class DeviceDataInfoFactory {
     }
 
     private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
-        return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
+        return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_HALF_UP) : value;
     }
 
     ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {

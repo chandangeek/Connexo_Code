@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -26,7 +26,6 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
-import com.elster.jupiter.users.blacklist.BlackListModule;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.http.whiteboard.TokenModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -65,6 +64,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.blacklist.BlackListModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -130,6 +130,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class InMemoryIntegrationPersistence {
+    public static final String READING_TYPE_MRID = "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static final Clock clock = mock(Clock.class);
 
     private TransactionService transactionService;
@@ -151,7 +152,7 @@ public class InMemoryIntegrationPersistence {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    public void initializeDatabase(String testName, boolean showSqlLogging) throws SQLException {
+    public void initializeDatabase(boolean showSqlLogging) throws SQLException {
         this.bootstrapModule = new InMemoryBootstrapModule();
         LicensedProtocolService licensedProtocolService = mock(LicensedProtocolService.class);
         License license = mock(License.class);
@@ -236,7 +237,7 @@ public class InMemoryIntegrationPersistence {
                 new TopologyModule(),
                 new DeviceLifeCycleModule(),
                 new UsagePointLifeCycleConfigurationModule(),
-                new MeteringModule(),
+                new MeteringModule(READING_TYPE_MRID),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
@@ -277,7 +278,8 @@ public class InMemoryIntegrationPersistence {
                 new FileImportModule(),
                 new MeteringZoneModule(),
                 new TokenModule(),
-                new BlackListModule()
+                new BlackListModule(),
+                new AppServiceModule()
         );
         if (this.deviceConfigurationService == null) {
             modules.add(new DeviceConfigurationModule());
@@ -324,8 +326,7 @@ public class InMemoryIntegrationPersistence {
             bind(KnowledgeBaseFactoryService.class).to(KnowledgeBaseFactoryServiceImpl.class);
             bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
 
-            Thesaurus thesaurus = mock(Thesaurus.class);
-            when(thesaurus.getString(anyString(), anyString())).then(invocation -> invocation.getArgumentAt(1, String.class));
+            Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
@@ -347,8 +348,6 @@ public class InMemoryIntegrationPersistence {
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(DataModel.class).toInstance(mock(DataModel.class));
-            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
-
 }

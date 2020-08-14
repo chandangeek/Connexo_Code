@@ -223,6 +223,16 @@ public class ConsoleUser implements User {
     public void setUnSuccessfulLoginCount(int  unSuccessfulLoginCount){ }
 
     @Override
+    public void setRoleModified(boolean status) {
+
+    }
+
+    @Override
+    public boolean isRoleModified() {
+        return false;
+    }
+
+    @Override
     public boolean isUserLocked(Optional<UserSecuritySettings> userSecuritySettings) { return false; }
 
     @Override

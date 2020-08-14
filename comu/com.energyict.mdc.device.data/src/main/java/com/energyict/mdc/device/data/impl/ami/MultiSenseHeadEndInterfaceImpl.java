@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.CompletionOptionsBuilder;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -210,11 +211,10 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
     }
 
-    @Override
-    public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
-        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice).getDeviceConfiguration());
+    protected EndDeviceCapabilities getCapabilities(Device device) {
+        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(device.getDeviceConfiguration());
 
-        List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
+        List<DeviceMessageId> supportedMessages = device.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .filter(id -> DeviceMessageId.find(id).isPresent())
@@ -228,6 +228,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         return new EndDeviceCapabilities(readingTypes, controlTypes);
     }
 
+    @Override
+    public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
+        return getCapabilities(findDeviceForEndDevice(endDevice));
+    }
+
     public CommandFactory getCommandFactory() {
         return endDeviceCommandFactory;
     }
@@ -237,9 +242,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         return scheduleMeterRead(meter, readingTypes, instant, null);
     }
 
-    @Override
-    public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
-        Device multiSenseDevice = findDeviceForEndDevice(meter);
+    protected CompletionOptions scheduleMeterRead(Device multiSenseDevice, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
         Set<ReadingType> supportedReadingTypes = getSupportedReadingTypes(multiSenseDevice, readingTypes);
 
         ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, getComTaskExecutionsForReadingTypes(multiSenseDevice
@@ -254,6 +257,25 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
 
         return new CompletionOptionsImpl(serviceCall);
+    }
+
+    @Override
+    public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        return scheduleMeterRead(multiSenseDevice, readingTypes, instant, parentServiceCall);
+    }
+
+    @Override
+    public CompletionOptions scheduleMeterRead(Meter meter, Instant instant, ServiceCall serviceCall) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        return scheduleMeterRead(multiSenseDevice, getCapabilities(multiSenseDevice).getConfiguredReadingTypes(), instant, serviceCall);
+    }
+
+    @Override
+    public CompletionOptionsBuilder scheduleMeterRead(Meter meter, Instant instant) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        return new CompletionOptionsBuilderImpl(this, multiSenseDevice, instant)
+                .withReadingTypes(getCapabilities(multiSenseDevice).getConfiguredReadingTypes());
     }
 
     @Override
@@ -392,7 +414,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
-            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
+            scheduleDeviceCommandsComTaskEnablement(multiSenseDevice, deviceMessages);  // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
             return new CompletionOptionsImpl(serviceCall);

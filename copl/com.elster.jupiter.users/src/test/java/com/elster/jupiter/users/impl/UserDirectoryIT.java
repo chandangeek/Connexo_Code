@@ -7,6 +7,8 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -15,8 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -34,18 +34,18 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.security.KeyStore;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -55,63 +55,49 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserDirectoryIT extends EqualsContractTest {
-
     private static final long ID = 0;
     private static final long OTHER_ID = 1;
     private static final String TEST_DOMAIN = "ACD";
-    private Injector injector;
+
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static Injector injector;
+
     private UserDirectory userDir;
     @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
     private DataModel dataModel;
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    @Mock
-    KeyStore keyStore;
 
-    private class MockModule extends AbstractModule {
+    @Rule
+    public TestRule transactional = new TransactionalRule(injector.getInstance(TransactionService.class));
 
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(DataVaultService.class).toInstance(DataVaultModule.FakeDataVaultService.getInstance());
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new DomainUtilModule(),
-                    new H2OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new UserModule(),
-                    new NlsModule());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(UserService.class);
-                return null;
-            }
-        });
+    @BeforeClass
+    public static void classSetUp() throws SQLException {
+        injector = Guice.createInjector(
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new H2OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new UserModule(),
+                new NlsModule());
+        injector.getInstance(TransactionService.class).run(() -> injector.getInstance(UserService.class));
     }
 
-    @Override
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void classTearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
@@ -149,20 +135,16 @@ public class UserDirectoryIT extends EqualsContractTest {
     }
 
     private void setId(Object entity, long id) {
-
         field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 
     @Test
+    @Transactional
     public void testPersistenceInternalDirectory() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            UserDirectory internalDirectory = userService.createInternalDirectory("MyDomain");
-            internalDirectory.setDefault(true);
-            internalDirectory.update();
-            context.commit();
-        }
+        UserDirectory internalDirectory = userService.createInternalDirectory("MyDomain");
+        internalDirectory.setDefault(true);
+        internalDirectory.update();
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
 
         assertThat(found.isPresent()).isTrue();
@@ -174,21 +156,18 @@ public class UserDirectoryIT extends EqualsContractTest {
     }
 
     @Test
+    @Transactional
     public void testPersistenceActiveDirectory() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory activeDirectory = userService.createActiveDirectory("MyDomain");
-            activeDirectory.setDefault(true);
-            activeDirectory.setDirectoryUser("MyUser");
-            activeDirectory.setPassword("MyPassword");
-            activeDirectory.setUrl("MyUrl");
-            activeDirectory.setBaseUser("BaseUser");
-            activeDirectory.setBackupUrl("backupUrl");
-            activeDirectory.setSecurity("NONE");
-            activeDirectory.update();
-            context.commit();
-        }
+        LdapUserDirectory activeDirectory = userService.createActiveDirectory("MyDomain");
+        activeDirectory.setDefault(true);
+        activeDirectory.setDirectoryUser("MyUser");
+        activeDirectory.setPassword("MyPassword");
+        activeDirectory.setUrl("MyUrl");
+        activeDirectory.setBaseUser("BaseUser");
+        activeDirectory.setBackupUrl("backupUrl");
+        activeDirectory.setSecurity("NONE");
+        activeDirectory.update();
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
 
         assertThat(found.isPresent()).isTrue();
@@ -202,21 +181,18 @@ public class UserDirectoryIT extends EqualsContractTest {
     }
 
     @Test
+    @Transactional
     public void testPersistenceApacheDirectory() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("MyDomain");
-            apacheDirectory.setDefault(true);
-            apacheDirectory.setDirectoryUser("MyUser");
-            apacheDirectory.setPassword("MyPassword");
-            apacheDirectory.setUrl("MyUrl");
-            apacheDirectory.setBaseUser("BaseUser");
-            apacheDirectory.setBackupUrl("backupUrl");
-            apacheDirectory.setSecurity("NONE");
-            apacheDirectory.update();
-            context.commit();
-        }
+        LdapUserDirectory apacheDirectory = userService.createApacheDirectory("MyDomain");
+        apacheDirectory.setDefault(true);
+        apacheDirectory.setDirectoryUser("MyUser");
+        apacheDirectory.setPassword("MyPassword");
+        apacheDirectory.setUrl("MyUrl");
+        apacheDirectory.setBaseUser("BaseUser");
+        apacheDirectory.setBackupUrl("backupUrl");
+        apacheDirectory.setSecurity("NONE");
+        apacheDirectory.update();
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
 
         assertThat(found.isPresent()).isTrue();
@@ -231,26 +207,23 @@ public class UserDirectoryIT extends EqualsContractTest {
 
     @Ignore
     @Test
+    @Transactional
     public void testAuthenticateActiveDirectory() {
         //TODO: change credentials according to a valid account
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory activeDirectory = userService.createActiveDirectory("LDAP Active Directory");
-            activeDirectory.setDefault(true);
-            activeDirectory.setDirectoryUser("iancud@rimroe.elster-group.com");
-            activeDirectory.setPassword("xxxxxx");
-            activeDirectory.setUrl("ldap://localhost:389");
-            activeDirectory.setBaseUser("OU=Users,OU=ROGHI01,DC=rimroe,DC=elster-group,DC=com");
-            activeDirectory.setBackupUrl("ldap://localhost:12389");
-            activeDirectory.setSecurity("NONE");
-            activeDirectory.update();
-            Optional<User> user = activeDirectory.authenticate("iancud", "xxxxxx");
-            Optional<User> user1 = activeDirectory.authenticate("iancud", "xxxxxx");
-            List<Group> groups = activeDirectory.getGroups(user1.get());
-            List<Group> groups1 = activeDirectory.getGroups(user1.get());
-            context.commit();
-        }
+        LdapUserDirectory activeDirectory = userService.createActiveDirectory("LDAP Active Directory");
+        activeDirectory.setDefault(true);
+        activeDirectory.setDirectoryUser("iancud@rimroe.elster-group.com");
+        activeDirectory.setPassword("xxxxxx");
+        activeDirectory.setUrl("ldap://localhost:389");
+        activeDirectory.setBaseUser("OU=Users,OU=ROGHI01,DC=rimroe,DC=elster-group,DC=com");
+        activeDirectory.setBackupUrl("ldap://localhost:12389");
+        activeDirectory.setSecurity("NONE");
+        activeDirectory.update();
+        Optional<User> user = activeDirectory.authenticate("iancud", "xxxxxx");
+        Optional<User> user1 = activeDirectory.authenticate("iancud", "xxxxxx");
+        List<Group> groups = activeDirectory.getGroups(user1.get());
+        List<Group> groups1 = activeDirectory.getGroups(user1.get());
 
         Optional<UserDirectory> found = userService.findUserDirectory("LDAP Active Directory");
 
@@ -266,27 +239,24 @@ public class UserDirectoryIT extends EqualsContractTest {
 
     @Ignore
     @Test
+    @Transactional
     public void testAuthenticateApacheDirectory() {
         //TODO: change credentials according to a valid account
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("LDAP Apache Directory");
-            apacheDirectory.setDefault(true);
-            apacheDirectory.setDirectoryUser("uid=admin,ou=system");
-            apacheDirectory.setPassword("admin");
-            apacheDirectory.setUrl("ldap://localhost:10389");
-            apacheDirectory.setBaseUser("ou=users,dc=WSO2,dc=ORG");
-            apacheDirectory.setBaseGroup("ou=Groups,dc=WSO2,dc=ORG");
-            apacheDirectory.setBackupUrl("ldap://localhost:11389");
-            apacheDirectory.setSecurity("NONE");
-            apacheDirectory.update();
-            Optional<User> user = apacheDirectory.authenticate("root", "tester");
-            Optional<User> user1 = apacheDirectory.authenticate("root", "tester");
-            List<Group> groups = apacheDirectory.getGroups(user1.get());
-            List<Group> groups1 = apacheDirectory.getGroups(user1.get());
-            context.commit();
-        }
+        LdapUserDirectory apacheDirectory = userService.createApacheDirectory("LDAP Apache Directory");
+        apacheDirectory.setDefault(true);
+        apacheDirectory.setDirectoryUser("uid=admin,ou=system");
+        apacheDirectory.setPassword("admin");
+        apacheDirectory.setUrl("ldap://localhost:10389");
+        apacheDirectory.setBaseUser("ou=users,dc=WSO2,dc=ORG");
+        apacheDirectory.setBaseGroup("ou=Groups,dc=WSO2,dc=ORG");
+        apacheDirectory.setBackupUrl("ldap://localhost:11389");
+        apacheDirectory.setSecurity("NONE");
+        apacheDirectory.update();
+        Optional<User> user = apacheDirectory.authenticate("root", "tester");
+        Optional<User> user1 = apacheDirectory.authenticate("root", "tester");
+        List<Group> groups = apacheDirectory.getGroups(user1.get());
+        List<Group> groups1 = apacheDirectory.getGroups(user1.get());
 
         Optional<UserDirectory> found = userService.findUserDirectory("LDAP Apache Directory");
 
@@ -301,69 +271,26 @@ public class UserDirectoryIT extends EqualsContractTest {
     }
 
     @Test
+    @Transactional
     public void testEditApacheDirectory() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("MyDomain");
-            apacheDirectory.setDefault(true);
-            apacheDirectory.setDirectoryUser("MyUser");
-            apacheDirectory.setPassword("MyPassword");
-            apacheDirectory.setUrl("MyUrl");
-            apacheDirectory.setBaseUser("BaseUser");
-            apacheDirectory.setBackupUrl("BackupUrl");
-            apacheDirectory.setSecurity("NONE");
-            apacheDirectory.update();
-            context.commit();
-        }
+        LdapUserDirectory apacheDirectory = userService.createApacheDirectory("MyDomain");
+        apacheDirectory.setDefault(true);
+        apacheDirectory.setDirectoryUser("MyUser");
+        apacheDirectory.setPassword("MyPassword");
+        apacheDirectory.setUrl("MyUrl");
+        apacheDirectory.setBaseUser("BaseUser");
+        apacheDirectory.setBackupUrl("BackupUrl");
+        apacheDirectory.setSecurity("NONE");
+        apacheDirectory.update();
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
         assertThat(found.isPresent()).isTrue();
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory apacheDirectory = (LdapUserDirectory) found.get();
-            apacheDirectory.setDirectoryUser("MyUser2");
-            apacheDirectory.setUrl("MyUrl2");
-            apacheDirectory.setBackupUrl("BackupUrl2");
-            apacheDirectory.setSecurity("SSL");
-            apacheDirectory.update();
-            context.commit();
-        }
-        Optional<UserDirectory> foundEdited = userService.findUserDirectory("MyDomain");
-        LdapUserDirectory userDirectory = (LdapUserDirectory) foundEdited.get();
-
-        assertThat(userDirectory).isInstanceOf(ApacheDirectoryImpl.class);
-        assertThat(userDirectory.getDirectoryUser()).isEqualTo("MyUser2");
-        assertThat(userDirectory.getUrl()).isEqualTo("MyUrl2");
-        assertThat(userDirectory.getBackupUrl()).isEqualTo("BackupUrl2");
-        assertThat(userDirectory.getSecurity()).isNotEqualTo("NONE");
-    }
-
-    public void testEditActiveDirectory() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory activeDirectory = userService.createActiveDirectory("MyDomain");
-            activeDirectory.setDefault(true);
-            activeDirectory.setDirectoryUser("MyUser");
-            activeDirectory.setPassword("MyPassword");
-            activeDirectory.setUrl("MyUrl");
-            activeDirectory.setBaseUser("BaseUser");
-            activeDirectory.setBackupUrl("backupUrl");
-            activeDirectory.setSecurity("NONE");
-            activeDirectory.update();
-            context.commit();
-        }
-        Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
-        assertThat(found.isPresent()).isTrue();
-
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory activeDirectory = (LdapUserDirectory) found.get();
-            activeDirectory.setDirectoryUser("MyUser2");
-            activeDirectory.setUrl("MyUrl2");
-            activeDirectory.setBackupUrl("BackupUrl2");
-            activeDirectory.setSecurity("SSL");
-            activeDirectory.update();
-            context.commit();
-        }
+        apacheDirectory = (LdapUserDirectory) found.get();
+        apacheDirectory.setDirectoryUser("MyUser2");
+        apacheDirectory.setUrl("MyUrl2");
+        apacheDirectory.setBackupUrl("BackupUrl2");
+        apacheDirectory.setSecurity("SSL");
+        apacheDirectory.update();
         Optional<UserDirectory> foundEdited = userService.findUserDirectory("MyDomain");
         LdapUserDirectory userDirectory = (LdapUserDirectory) foundEdited.get();
 
@@ -375,128 +302,140 @@ public class UserDirectoryIT extends EqualsContractTest {
     }
 
     @Test
-    public void testChangeDefaultDirectory() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
+    @Transactional
+    public void testEditActiveDirectory() {
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("ApacheDomain");
-            apacheDirectory.setDefault(true);
-            apacheDirectory.setDirectoryUser("ApacheUser");
-            apacheDirectory.setPassword("ApachePassword");
-            apacheDirectory.setUrl("ApacheUrl");
-            apacheDirectory.setBaseUser("ApacheBaseUser");
-            apacheDirectory.setBackupUrl("ApachebackupUrl");
-            apacheDirectory.setSecurity("NONE");
-            apacheDirectory.update();
-            LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
-            activeDirectory.setDefault(false);
-            activeDirectory.setDirectoryUser("ActiveUser");
-            activeDirectory.setPassword("ActivePassword");
-            activeDirectory.setUrl("ActiveUrl");
-            activeDirectory.setBaseUser("ActiveBaseUser");
-            activeDirectory.setBackupUrl("ActivebackupUrl");
-            activeDirectory.setSecurity("NONE");
-            activeDirectory.update();
-            UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
-            internalDirectory.setDefault(false);
-            internalDirectory.update();
-            context.commit();
-        }
+        LdapUserDirectory activeDirectory = userService.createActiveDirectory("MyDomain");
+        activeDirectory.setDefault(true);
+        activeDirectory.setDirectoryUser("MyUser");
+        activeDirectory.setPassword("MyPassword");
+        activeDirectory.setUrl("MyUrl");
+        activeDirectory.setBaseUser("BaseUser");
+        activeDirectory.setBackupUrl("backupUrl");
+        activeDirectory.setSecurity("NONE");
+        activeDirectory.update();
+        Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
+        assertThat(found.isPresent()).isTrue();
+
+        activeDirectory = (LdapUserDirectory) found.get();
+        activeDirectory.setDirectoryUser("MyUser2");
+        activeDirectory.setUrl("MyUrl2");
+        activeDirectory.setBackupUrl("BackupUrl2");
+        activeDirectory.setSecurity("SSL");
+        activeDirectory.update();
+        Optional<UserDirectory> foundEdited = userService.findUserDirectory("MyDomain");
+        LdapUserDirectory userDirectory = (LdapUserDirectory) foundEdited.get();
+
+        assertThat(userDirectory).isInstanceOf(ActiveDirectoryImpl.class);
+        assertThat(userDirectory.getDirectoryUser()).isEqualTo("MyUser2");
+        assertThat(userDirectory.getUrl()).isEqualTo("MyUrl2");
+        assertThat(userDirectory.getBackupUrl()).isEqualTo("BackupUrl2");
+        assertThat(userDirectory.getSecurity()).isNotEqualTo("NONE");
+    }
+
+    @Test
+    @Transactional
+    public void testChangeDefaultDirectory() {
+        UserService userService = injector.getInstance(UserService.class);
+        LdapUserDirectory apacheDirectory = userService.createApacheDirectory("ApacheDomain");
+        apacheDirectory.setDefault(true);
+        apacheDirectory.setDirectoryUser("ApacheUser");
+        apacheDirectory.setPassword("ApachePassword");
+        apacheDirectory.setUrl("ApacheUrl");
+        apacheDirectory.setBaseUser("ApacheBaseUser");
+        apacheDirectory.setBackupUrl("ApachebackupUrl");
+        apacheDirectory.setSecurity("NONE");
+        apacheDirectory.update();
+        LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
+        activeDirectory.setDefault(false);
+        activeDirectory.setDirectoryUser("ActiveUser");
+        activeDirectory.setPassword("ActivePassword");
+        activeDirectory.setUrl("ActiveUrl");
+        activeDirectory.setBaseUser("ActiveBaseUser");
+        activeDirectory.setBackupUrl("ActivebackupUrl");
+        activeDirectory.setSecurity("NONE");
+        activeDirectory.update();
+        UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
+        internalDirectory.setDefault(false);
+        internalDirectory.update();
         Optional<UserDirectory> found = userService.findUserDirectory("ApacheDomain");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get().isDefault()).isTrue();
-        LdapUserDirectory apacheDirectory = (LdapUserDirectory) found.get();
+        apacheDirectory = (LdapUserDirectory) found.get();
         found = userService.findUserDirectory("InternalDomain");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get().isDefault()).isFalse();
-        UserDirectory internalDirectory = found.get();
+        internalDirectory = found.get();
         found = userService.findUserDirectory("ActiveDomain");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get().isDefault()).isFalse();
-        LdapUserDirectory activeDirectory = (LdapUserDirectory) found.get();
+        activeDirectory = (LdapUserDirectory) found.get();
 
-        try (TransactionContext context = transactionService.getContext()) {
-            activeDirectory.setDefault(true);
-            apacheDirectory.setDefault(false);
-            internalDirectory.setDefault(false);
-            activeDirectory.update();
-            context.commit();
-        }
+        activeDirectory.setDefault(true);
+        apacheDirectory.setDefault(false);
+        internalDirectory.setDefault(false);
+        activeDirectory.update();
         assertThat(activeDirectory.isDefault()).isTrue();
         assertThat(internalDirectory.isDefault()).isFalse();
         assertThat(apacheDirectory.isDefault()).isFalse();
 
-        try (TransactionContext context = transactionService.getContext()) {
-            activeDirectory.setDefault(false);
-            apacheDirectory.setDefault(false);
-            internalDirectory.setDefault(true);
-            activeDirectory.update();
-            context.commit();
-        }
+        activeDirectory.setDefault(false);
+        apacheDirectory.setDefault(false);
+        internalDirectory.setDefault(true);
+        activeDirectory.update();
         assertThat(activeDirectory.isDefault()).isFalse();
         assertThat(internalDirectory.isDefault()).isTrue();
         assertThat(apacheDirectory.isDefault()).isFalse();
     }
 
     @Test
+    @Transactional
     public void testViewUserDirectories() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("ApacheDomain");
-            apacheDirectory.setDefault(true);
-            apacheDirectory.setDirectoryUser("ApacheUser");
-            apacheDirectory.setPassword("ApachePassword");
-            apacheDirectory.setUrl("ApacheUrl");
-            apacheDirectory.setBaseUser("ApacheBaseUser");
-            apacheDirectory.setBackupUrl("ApachebackupUrl");
-            apacheDirectory.setSecurity("NONE");
-            apacheDirectory.update();
-            LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
-            activeDirectory.setDefault(false);
-            activeDirectory.setDirectoryUser("ActiveUser");
-            activeDirectory.setPassword("ActivePassword");
-            activeDirectory.setUrl("ActiveUrl");
-            activeDirectory.setBaseUser("ActiveBaseUser");
-            activeDirectory.setBackupUrl("ActivebackupUrl");
-            activeDirectory.setSecurity("NONE");
-            activeDirectory.update();
-            UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
-            internalDirectory.setDefault(false);
-            internalDirectory.update();
-            context.commit();
-        }
+        LdapUserDirectory apacheDirectory = userService.createApacheDirectory("ApacheDomain");
+        apacheDirectory.setDefault(true);
+        apacheDirectory.setDirectoryUser("ApacheUser");
+        apacheDirectory.setPassword("ApachePassword");
+        apacheDirectory.setUrl("ApacheUrl");
+        apacheDirectory.setBaseUser("ApacheBaseUser");
+        apacheDirectory.setBackupUrl("ApachebackupUrl");
+        apacheDirectory.setSecurity("NONE");
+        apacheDirectory.update();
+        LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
+        activeDirectory.setDefault(false);
+        activeDirectory.setDirectoryUser("ActiveUser");
+        activeDirectory.setPassword("ActivePassword");
+        activeDirectory.setUrl("ActiveUrl");
+        activeDirectory.setBaseUser("ActiveBaseUser");
+        activeDirectory.setBackupUrl("ActivebackupUrl");
+        activeDirectory.setSecurity("NONE");
+        activeDirectory.update();
+        UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
+        internalDirectory.setDefault(false);
+        internalDirectory.update();
         List<UserDirectory> userDirectories = userService.getUserDirectories();
         assertThat(userDirectories.isEmpty()).isFalse();
         assertThat(userDirectories.size()).isEqualTo(4);
     }
 
     @Test
+    @Transactional
     public void deleteAlsoDeletesUsers() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
-        UserDirectory internalDirectory;
-        try (TransactionContext context = transactionService.getContext()) {
-            internalDirectory = userService.createInternalDirectory("InternalDomain");
-            internalDirectory.update();
-            User user1 = internalDirectory.newUser("user1", "For testing purposes only", false, true);
-            user1.update();
-            User user2 = internalDirectory.newUser("user2", "For testing purposes only", false, true);
-            user2.update();
-            context.commit();
-        }
+        UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
+        internalDirectory.update();
+        User user1 = internalDirectory.newUser("user1", "For testing purposes only", false, true);
+        user1.update();
+        User user2 = internalDirectory.newUser("user2", "For testing purposes only", false, true);
+        user2.update();
         assertThat(userService.findUser("user1")).isPresent();
         assertThat(userService.findUser("user2")).isPresent();
 
         // Business method
-        try (TransactionContext context = transactionService.getContext()) {
-            internalDirectory.delete();
-            context.commit();
-        }
+        internalDirectory.delete();
 
         // Asserts
         assertThat(userService.findUser("user1")).isEmpty();
         assertThat(userService.findUser("user2")).isEmpty();
     }
-
 }

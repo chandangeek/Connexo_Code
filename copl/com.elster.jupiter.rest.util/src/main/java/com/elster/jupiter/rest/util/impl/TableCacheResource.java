@@ -32,7 +32,16 @@ public class TableCacheResource {
     @Path("/status")
     public Map<String, String> getStatus(){
         return ormService.getDataModels().stream().flatMap(dataModel -> dataModel.getTables().stream())
-                .filter(Table::isCached).filter(table -> Objects.nonNull(((Table) table).getCacheStats()))
+                .filter(Table::isCached).filter(table->((Table) table).getCacheType() == Table.CacheType.TUPLE_CACHE).filter(table -> Objects.nonNull(((Table) table).getCacheStats()))
+                .collect(Collectors.toMap(Table::getName, this::getCacheDetails));
+    }
+
+
+    @GET
+    @Path("/wholecachedtablestatus")
+    public Map<String, String> getWholeCachedTableStatus(){
+        return ormService.getDataModels().stream().flatMap(dataModel -> dataModel.getTables().stream())
+                .filter(Table::isWholeTableCached).filter(table->((Table) table).getCacheType() == Table.CacheType.WHOLE_TABLE_CACHE).filter(table -> Objects.nonNull(((Table) table).getCacheStats()))
                 .collect(Collectors.toMap(Table::getName, this::getCacheDetails));
     }
 

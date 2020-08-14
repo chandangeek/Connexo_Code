@@ -4,7 +4,6 @@
 
 package com.energyict.protocol;
 
-import com.energyict.cim.EndDeviceEventTypeFactory;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 
 import java.io.Serializable;
@@ -780,6 +779,25 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int CONSUMPTION_ERROR = 366;
 
+    public static final int BATTERY_CONSUMPTION_HIGH = 367;
+
+    public static final int REVERSE_FLOW = 368;
+
+    public static final int TAMPER_P2 = 369;
+
+    public static final int TAMPER_P0 = 370;
+
+    public static final int TAMPER_CASE = 371;
+
+    public static final int SYSTEM_HW_ERROR = 372;
+
+    public static final int CFG_CALIBRATION_ERROR = 373;
+
+    public static final int TEMPERATURE_SENSOR_ERROR = 374;
+
+    public static final int BINDING_FLAG = 375;
+
+
     /**
      * Start of Beacon3100 custom codes
      * Range from 100000 to 100129
@@ -1361,7 +1379,25 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Pulse error");
             case CONSUMPTION_ERROR:
                 return ("Consumption Error");
-            case  TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
+            case BATTERY_CONSUMPTION_HIGH:
+                return ("Battery low according to customer setting and expected battery lifetime");
+            case REVERSE_FLOW:
+                return ("Reverse flow above configured limit");
+            case TAMPER_P2:
+                return ("Communication Tamper. Checked at every encrypted M-Bus telegram");
+            case TAMPER_P0:
+                return ("Not used within ESMR spec (No active P0 port on M-Bus device)");
+            case TAMPER_CASE:
+                return ("Mechanical tamper of cover");
+            case SYSTEM_HW_ERROR:
+                return ("Regular check of SW/HW (selfcheck failure)");
+            case CFG_CALIBRATION_ERROR:
+                return ("Set if configuration is changed.");
+            case TEMPERATURE_SENSOR_ERROR:
+                return ("Temp sensor is broken");
+            case BINDING_FLAG:
+                return ("The binding flag is set by the M-Bus device when the device is in installation mode and it has been bound to an E-meter (it received the for this specific M-Bus device intended CNF_IR).");
+            case TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
                 return ("Too high consumption or production of energy.");
             case INDEX_VALUE_DECREASE_OR_RESET:
                 return ("Decreasing index values or reset of index values.");

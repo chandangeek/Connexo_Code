@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
+import com.elster.jupiter.metering.ami.StepTariffInfo;
 import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -258,6 +259,75 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditDaysLimitScnd), creditDaysLimitScnd);
         return command;
     }
+
+    @Override
+    public EndDeviceCommand createChangeStepTariffCommand(EndDevice endDevice, StepTariffInfo stepTariffInfo) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.CHANGE_STEP_TARIFF));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.tariffCode), stepTariffInfo.tariffCode);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep1), stepTariffInfo.chargeStep1);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep1), stepTariffInfo.priceStep1);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep1), stepTariffInfo.recalculationTypeStep1);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep1), stepTariffInfo.graceWarningStep1);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep1), stepTariffInfo.additionalTaxStep1);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep2), stepTariffInfo.chargeStep2);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep2), stepTariffInfo.priceStep2);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep2), stepTariffInfo.recalculationTypeStep2);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep2), stepTariffInfo.graceWarningStep2);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep2), stepTariffInfo.additionalTaxStep2);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep3), stepTariffInfo.chargeStep3);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep3), stepTariffInfo.priceStep3);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep3), stepTariffInfo.recalculationTypeStep3);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep3), stepTariffInfo.graceWarningStep3);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep3), stepTariffInfo.additionalTaxStep3);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep4), stepTariffInfo.chargeStep4);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep4), stepTariffInfo.priceStep4);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep4), stepTariffInfo.recalculationTypeStep4);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep4), stepTariffInfo.graceWarningStep4);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep4), stepTariffInfo.additionalTaxStep4);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep5), stepTariffInfo.chargeStep5);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep5), stepTariffInfo.priceStep5);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep5), stepTariffInfo.recalculationTypeStep5);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep5), stepTariffInfo.graceWarningStep5);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep5), stepTariffInfo.additionalTaxStep5);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep6), stepTariffInfo.chargeStep6);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep6), stepTariffInfo.priceStep6);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep6), stepTariffInfo.recalculationTypeStep6);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep6), stepTariffInfo.graceWarningStep6);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep6), stepTariffInfo.additionalTaxStep6);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep7), stepTariffInfo.chargeStep7);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep7), stepTariffInfo.priceStep7);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep7), stepTariffInfo.recalculationTypeStep7);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep7), stepTariffInfo.graceWarningStep7);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep7), stepTariffInfo.additionalTaxStep7);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep8), stepTariffInfo.chargeStep8);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep8), stepTariffInfo.priceStep8);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep8), stepTariffInfo.recalculationTypeStep8);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep8), stepTariffInfo.graceWarningStep8);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep8), stepTariffInfo.additionalTaxStep8);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep9), stepTariffInfo.chargeStep9);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep9), stepTariffInfo.priceStep9);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep9), stepTariffInfo.recalculationTypeStep9);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep9), stepTariffInfo.graceWarningStep9);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep9), stepTariffInfo.additionalTaxStep9);
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep10), stepTariffInfo.chargeStep10);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep10), stepTariffInfo.priceStep10);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.recalculationTypeStep10), stepTariffInfo.recalculationTypeStep10);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep10), stepTariffInfo.graceWarningStep10);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep10), stepTariffInfo.additionalTaxStep10);
+
+        return command;
+    }
+
 
     private PropertySpec getKeyTypePropertySpec(EndDeviceCommand command) {
         return command.getCommandArgumentSpecs()

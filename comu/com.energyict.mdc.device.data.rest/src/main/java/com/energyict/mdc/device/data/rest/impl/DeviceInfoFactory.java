@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 
 import org.osgi.service.component.annotations.Component;
@@ -188,6 +189,9 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                 .stream().limit(5).map(deviceZones -> endDeviceZoneInfoFactory.from(deviceZones)).collect(Collectors.toList());
         DeviceInfo deviceInfo = DeviceInfo.from(device, slaveDevices, zones, topologyService, multiElementDeviceService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
                 dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock, meteringTranslationService);
+
+        Optional<FirmwareManagementOptions> firmwareMgtOptions = firmwareService.findFirmwareManagementOptions(device.getDeviceType());
+        deviceInfo.isFirmwareManagementAllowed = !firmwareMgtOptions.map(FirmwareManagementOptions::getOptions).orElse(Collections.emptySet()).isEmpty();
         deviceInfo.protocolNeedsImageIdentifierForFirmwareUpgrade = firmwareService.imageIdentifierExpectedAtFirmwareUpload(device.getDeviceType());
         return deviceInfo;
     }

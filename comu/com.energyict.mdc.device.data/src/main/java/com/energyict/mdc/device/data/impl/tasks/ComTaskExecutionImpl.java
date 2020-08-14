@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.ComPort;
@@ -69,6 +70,7 @@ import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -164,6 +166,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private int maxNumberOfTries;
     private TaskStatus taskStatus;
     private int currentTryCount;
+    private boolean usingComTaskExecutionTriggers = true;
 
     public ComTaskExecutionImpl() {
         super();
@@ -175,6 +178,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.clock = clock;
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
+        this.usingComTaskExecutionTriggers = shouldUseComTaskExecutionTriggers(dataModel);
+    }
+
+    private boolean shouldUseComTaskExecutionTriggers(DataModel dataModel){
+        return Optional.ofNullable(dataModel).filter(dm -> dm instanceof DataModelImpl)
+                .map(DataModelImpl.class::cast).map(DataModelImpl::getOrmService)
+                .map(ormService -> ormService.getProperty("com.elster.jupiter.comtaskexecution.useTriggers"))
+                .filter(value -> value.trim().length()>0)
+                .map(Boolean::valueOf)
+                .orElse(true);
+    }
+
+    @Override
+    public boolean isUsingComTaskExecutionTriggers() {
+        return usingComTaskExecutionTriggers;
     }
 
     protected SchedulingService getSchedulingService() {
@@ -723,9 +741,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * @return An optional containing the next execution timestamp, or Optional.empty() in case there were no ComTaskExecutionTriggers for this ComTaskExecution
      */
     private Optional<Instant> calculateNextExecutionTimestampFromTriggers() {
-        Optional<ComTaskExecutionTrigger> earliestComTaskExecutionTrigger = getComTaskExecutionTriggers().stream()
-                .filter(comTaskExecutionTrigger -> getLastExecutionStartTimestamp() == null || comTaskExecutionTrigger.getTriggerTimeStamp().isAfter(getLastExecutionStartTimestamp()))
-                .sorted((e1, e2) -> e1.getTriggerTimeStamp().compareTo(e2.getTriggerTimeStamp())).findFirst();
+        Optional<ComTaskExecutionTrigger> earliestComTaskExecutionTrigger = Optional.empty();
+        if (usingComTaskExecutionTriggers) {
+            earliestComTaskExecutionTrigger = getComTaskExecutionTriggers().stream()
+                    .filter(comTaskExecutionTrigger -> getLastExecutionStartTimestamp() == null || comTaskExecutionTrigger.getTriggerTimeStamp().isAfter(getLastExecutionStartTimestamp()))
+                    .sorted((e1, e2) -> e1.getTriggerTimeStamp().compareTo(e2.getTriggerTimeStamp())).findFirst();
+        }
         return earliestComTaskExecutionTrigger.isPresent() ? Optional.of(earliestComTaskExecutionTrigger.get().getTriggerTimeStamp()) : Optional.empty();
     }
 
@@ -1082,7 +1103,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void addNewComTaskExecutionTrigger(Instant triggerTimeStamp) {
-        if (!getComTaskExecutionTriggers().stream().anyMatch(trigger -> trigger.getTriggerTimeStamp().getEpochSecond() == triggerTimeStamp.getEpochSecond())) {
+        if (usingComTaskExecutionTriggers && !getComTaskExecutionTriggers().stream().anyMatch(trigger -> trigger.getTriggerTimeStamp().getEpochSecond() == triggerTimeStamp.getEpochSecond())) {
             ComTaskExecutionTriggerImpl comTaskExecutionTrigger = ComTaskExecutionTriggerImpl.from(getDataModel(), this, triggerTimeStamp);
             getComTaskExecutionTriggers().add(comTaskExecutionTrigger);
             comTaskExecutionTrigger.notifyCreated();

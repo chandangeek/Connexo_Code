@@ -6,6 +6,7 @@ package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
@@ -34,8 +35,30 @@ public class UnregisteredFromGatewayDelayedEvent extends DataCollectionEvent {
     private String lastGatewayMrid;
 
     @Inject
-    public UnregisteredFromGatewayDelayedEvent(Device device, Optional<Device> gateway, IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector, TimeService timeService, EventService eventService, Clock clock) {
-        super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, eventService, timeService, clock, injector);
+    public UnregisteredFromGatewayDelayedEvent(Device device,
+                                               Optional<Device> gateway,
+                                               IssueDataCollectionService issueDataCollectionService,
+                                               MeteringService meteringService,
+                                               DeviceService deviceService,
+                                               CommunicationTaskService communicationTaskService,
+                                               TopologyService topologyService,
+                                               Thesaurus thesaurus,
+                                               Injector injector,
+                                               TimeService timeService,
+                                               EventService eventService,
+                                               Clock clock,
+                                               IssueService issueService) {
+        super(issueDataCollectionService,
+                meteringService,
+                deviceService,
+                communicationTaskService,
+                topologyService,
+                thesaurus,
+                eventService,
+                timeService,
+                clock,
+                injector,
+                issueService);
         setDevice(device);
         this.deviceMrid = device.getmRID();
         gateway.ifPresent(g -> lastGatewayMrid = g.getmRID());

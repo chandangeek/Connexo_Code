@@ -36,51 +36,36 @@ import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.Expects.expect;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 import static com.elster.jupiter.util.streams.Predicates.not;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GrantPrivilegeIT {
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static Injector injector;
+    private static DataModel dataModel;
 
-    private Injector injector;
-
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private Resource resource;
-    @Mock
-    private PrivilegeCategory privilegeCategory;
-
-    private static final String NAME = "Privilege1";
-    private static final String OTHER_NAME = "Privilege2";
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private class MockModule extends AbstractModule {
-
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
+    @BeforeClass
+    public static void setUp() throws SQLException {
+        dataModel = mock(DataModel.class);
         when(dataModel.getInstance(ResourceImpl.class)).thenAnswer(invocation -> new ResourceImpl(dataModel, getUserService()));
 
         injector = Guice.createInjector(
@@ -96,18 +81,15 @@ public class GrantPrivilegeIT {
                 new UserModule(),
                 new NlsModule(),
                 new DataVaultModule());
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(UserService.class);
-            return null;
-        });
+        injector.getInstance(TransactionService.class).run(() -> injector.getInstance(UserService.class));
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private UserService getUserService() {
+    private static UserService getUserService() {
         return injector.getInstance(UserService.class);
     }
 
@@ -175,10 +157,6 @@ public class GrantPrivilegeIT {
             threadPrincipalService.set(naughty);
             adminsReloaded.grant("TTT", createPrivilege); // should not throw an exception now
             threadPrincipalService.clear();
-
         }
-
-
     }
-
 }

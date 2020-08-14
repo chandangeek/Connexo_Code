@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
+import com.elster.jupiter.metering.ami.StepTariffInfo;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,6 +17,7 @@ public class DeviceCommandInfo {
     private BigDecimal creditDaysLimitScnd;
     private String creditType;
     private BigDecimal creditAmount;
+    private StepTariffInfo stepTariffInfo;
 
     public EndDeviceControlTypeMapping getEndDeviceControlTypeMapping() {
         return endDeviceControlTypeMapping;
@@ -63,5 +65,13 @@ public class DeviceCommandInfo {
 
     public void setCreditAmount(BigDecimal creditAmount) {
         this.creditAmount = creditAmount;
+    }
+
+    public StepTariffInfo getStepTariffInfo() {
+        return stepTariffInfo;
+    }
+
+    public void setStepTariffInfo(StepTariffInfo stepTariffInfo) {
+        this.stepTariffInfo = stepTariffInfo;
     }
 }

@@ -18,7 +18,6 @@ public enum DataValidationEventDescription {
     READINGQUALITY_DELETED("com/elster/jupiter/metering/readingquality/DELETED", SuspectDeletedEvent.class) {
         @Override
         public boolean matches(Map<?, ?> map) {
-            // TODO: refactor to choose proper quality code system when issue management becomes available for MDM
             return super.matches(map)
                     && ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT).getCode()
                     .equals(map.get("readingQualityTypeCode"));
@@ -28,7 +27,7 @@ public enum DataValidationEventDescription {
     private String topic;
     private Class<? extends DataValidationEvent> eventClass;
 
-    private DataValidationEventDescription(String topic, Class<? extends DataValidationEvent> eventClass) {
+    DataValidationEventDescription(String topic, Class<? extends DataValidationEvent> eventClass) {
         this.topic = topic;
         this.eventClass = eventClass;
     }

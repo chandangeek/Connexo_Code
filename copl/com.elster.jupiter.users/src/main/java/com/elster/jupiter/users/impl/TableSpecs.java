@@ -133,6 +133,7 @@ public enum TableSpecs {
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_GROUP").on(idColumn).add();
             table.unique("IDS_U_GROUP").on(nameColumn).add();
+            table.cacheWholeTable(true);
         }
     },
     USR_WORKGROUP {
@@ -192,6 +193,7 @@ public enum TableSpecs {
             table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").notAudited().add();
             table.column("UNSUCCESSFULLOGINCOUNT").number().conversion(NUMBER2INT).map("unSuccessfulLoginCount").notAudited().since(version(10, 4, 9)).installValue("0").add();
             table.addAuditColumns().get(3).since(version(10, 2));
+            table.column("ISROLEMODIFIED").type("char(1)").conversion(CHAR2BOOLEAN).map("isRoleModified").installValue("'N'").add();
             table.primaryKey("USR_PK_USER").on(idColumn).add();
             table.unique("USR_U_USERAUTHNAME").on(userDirColumn, authenticationNameColumn).add();
             table
@@ -228,6 +230,7 @@ public enum TableSpecs {
                 .map("privilege")
                 .on(privilegeIdColumn)
                 .add();
+            table.cacheWholeTable(true);
         }
     },
     USR_USERINWORKGROUP {

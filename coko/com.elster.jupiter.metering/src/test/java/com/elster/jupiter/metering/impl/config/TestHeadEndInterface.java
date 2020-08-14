@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.CompletionOptionsBuilder;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -52,6 +53,16 @@ public class TestHeadEndInterface implements HeadEndInterface{
 
     @Override
     public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall) {
+        return null;
+    }
+
+    @Override
+    public CompletionOptions scheduleMeterRead(Meter meter, Instant instant, ServiceCall serviceCall) {
+        return null;
+    }
+
+    @Override
+    public CompletionOptionsBuilder scheduleMeterRead(Meter meter, Instant instant) {
         return null;
     }
 
