@@ -36,6 +36,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.acud.messages.AcudMessaging;
+import com.energyict.protocolimplv2.dlms.acud.profiledata.AcudLoadProfileDataReader;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
