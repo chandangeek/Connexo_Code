@@ -190,6 +190,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         /*if (!getTable().hasForceJournal() && !deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
             throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journaled table can't have a foreign key with cascade or set null delete rule.");
         }*/
+        
         if (isActual() && !getReferencedTable().getPrimaryKeyConstraint().isPresent()) {
             throw new IllegalTableMappingException("Foreign key " + getName() + " on table " + getTable().getName() + " can't reference a table without primary key.");
         }

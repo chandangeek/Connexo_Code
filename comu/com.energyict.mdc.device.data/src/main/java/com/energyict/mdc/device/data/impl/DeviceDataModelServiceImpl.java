@@ -43,6 +43,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.StopWatch;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.Constants;
 import com.energyict.mdc.common.device.data.KeyAccessorStatus;
@@ -114,6 +115,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -126,7 +129,7 @@ import static com.elster.jupiter.orm.Version.version;
 @Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
 @LiteralSql
 public class DeviceDataModelServiceImpl implements DeviceDataModelService, TranslationKeyProvider, MessageSeedProvider {
-
+    private static final Logger LOGGER = Logger.getLogger(DeviceDataModelServiceImpl.class.getName());// just for time measurement
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -390,6 +393,36 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Override
     public JsonService jsonService() {
         return jsonService;
+    }
+
+    @Override
+    public void executeUpdate(SqlBuilder sqlBuilder) {
+        try (Connection connection = this.dataModel.getConnection(true)) {
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                statement.executeUpdate();
+                // Don't care about how many rows were updated and if that matches the expected number of updates
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    @Override
+    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider) {
+        Map<TaskStatus, Long> counters = new HashMap<>();
+        StopWatch watch = new StopWatch(true);// just for time measurement
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = preparedStatementProvider.prepare(connection)) {
+            watch.stop();// just for time measurement
+            LOGGER.log(Level.WARNING, "CONM1163: method: getConnection and Prepare statement(fetchTaskStatusCounters); " + watch.toString());// just for time measurement
+            watch.start();// just for time measurement
+            this.fetchTaskStatusCounters(statement, counters);
+            watch.stop();// just for time measurement
+            LOGGER.log(Level.WARNING, "CONM1163: method: fetchTaskStatusCounters; " + watch.toString());// just for time measurement
+        } catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+        return counters;
     }
 
     @Override
@@ -832,30 +865,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Override
-    public void executeUpdate(SqlBuilder sqlBuilder) {
-        try (Connection connection = this.dataModel.getConnection(true)) {
-            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
-                statement.executeUpdate();
-                // Don't care about how many rows were updated and if that matches the expected number of updates
-            }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    @Override
-    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider) {
-        Map<TaskStatus, Long> counters = new HashMap<>();
-        try (Connection connection = this.dataModel.getConnection(true);
-             PreparedStatement statement = preparedStatementProvider.prepare(connection)) {
-            this.fetchTaskStatusCounters(statement, counters);
-        } catch (SQLException ex) {
-            throw new UnderlyingSQLFailedException(ex);
-        }
-        return counters;
     }
 
     private void fetchTaskStatusCounters(PreparedStatement statement, Map<TaskStatus, Long> counters) throws SQLException {

@@ -332,6 +332,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
 
     @Override
     public OpenIssueDataCollection createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+
         OpenIssueDataCollectionImpl issue = dataModel.getInstance(OpenIssueDataCollectionImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.device.data.impl;
 
@@ -23,14 +23,12 @@ public class UpgraderV10_8 implements Upgrader {
     private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final DataModel dataModel;
     private final Clock clock;
-    private final InstallerV10_8Impl installerV10_8;
     private final TaskService taskService;
 
     @Inject
-    UpgraderV10_8(DataModel dataModel, Clock clock, InstallerV10_8Impl installerV10_8, TaskService taskService) {
+    public UpgraderV10_8(DataModel dataModel, Clock clock, TaskService taskService) {
         this.dataModel = dataModel;
         this.clock = clock;
-        this.installerV10_8 = installerV10_8;
         this.taskService = taskService;
     }
 
@@ -41,7 +39,6 @@ public class UpgraderV10_8 implements Upgrader {
             removeAllCRL();
         }
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
-        installerV10_8.install(dataModelUpgrader, Logger.getAnonymousLogger());
         if (upgradeCRLneeded) {
             updateCRLTable();
         }
