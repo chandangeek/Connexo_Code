@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.messaging.oracle.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
@@ -12,6 +13,7 @@ import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageSeeds;
+import com.elster.jupiter.messaging.QueueStatus;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
@@ -24,6 +26,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsDestination;
@@ -39,11 +42,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 class DestinationSpecImpl implements DestinationSpec {
 
@@ -515,5 +520,55 @@ class DestinationSpecImpl implements DestinationSpec {
     @Override
     public boolean isPrioritized() {
         return prioritized;
+    }
+
+    private String getQueuesStatusStatement(QueueTableSpec queueTableSpec) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" SELECT  ");
+        sqlBuilder.append("   	Q_NAME name ");
+        sqlBuilder.append("     , count(CASE WHEN Q_NAME IS NOT NULL THEN 1 END) messages  ");
+        sqlBuilder.append("     , count(CASE WHEN EXCEPTION_QUEUE = Q_NAME THEN 1 END) errors  ");
+        sqlBuilder.append(" FROM ");
+        sqlBuilder.append(queueTableSpec.getName());
+        sqlBuilder.append(" group by Q_NAME ");
+        return sqlBuilder.toString();
+    }
+
+    private String getQueuesStatusQueryPrefix() {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" SELECT  ");
+        sqlBuilder.append("   	ds.name ");
+        sqlBuilder.append("   , messages  ");
+        sqlBuilder.append("   , errors  ");
+        sqlBuilder.append(" FROM MSG_DESTINATIONSPEC ds  LEFT JOIN (");
+        return sqlBuilder.toString();
+    }
+
+    private String getQueuesStatusQuerySufix() {
+        return " ) q on UPPER(ds.name)=UPPER(q.name)";
+    }
+
+    @Override
+    public List<QueueStatus> getAllQueuesStatus() {
+        List<QueueStatus> statuses = Lists.newArrayList();
+
+
+        String sqlStatement = DefaultFinder.of(QueueTableSpec.class, dataModel).find().stream()
+                .map(this::getQueuesStatusStatement)
+                .collect(Collectors.joining(" UNION ALL ", getQueuesStatusQueryPrefix(), getQueuesStatusQuerySufix()));
+        try {
+            try (Connection connection = dataModel.getConnection(false)) {
+                try (Statement statement = connection.createStatement()) {
+                    try (ResultSet resultSet = statement.executeQuery(sqlStatement)) {
+                        while (resultSet.next()) {
+                            statuses.add(new QueueStatus(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)));
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        return statuses;
     }
 }
