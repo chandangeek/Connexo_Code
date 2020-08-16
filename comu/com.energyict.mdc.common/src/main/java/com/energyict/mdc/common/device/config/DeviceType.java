@@ -170,6 +170,8 @@ public interface DeviceType extends HasId, HasName {
 
     List<DeviceConfiguration> getConfigurations();
 
+    List<DeviceConfiguration> getConfigurationsWithObsolete();
+
     List<RegisteredCustomPropertySet> getCustomPropertySets();
 
     void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
