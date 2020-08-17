@@ -13,11 +13,7 @@ import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.FiltrableByComTask;
-import com.elster.jupiter.issue.share.IssueCreationValidator;
-import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -154,6 +150,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public Query<CreationRule> getCreationRuleQuery(Class<?>... eagers) {
         Query<CreationRule> query = query(CreationRule.class, eagers);
         query.setRestriction(where("obsoleteTime").isNull());
+        // Resetting the ID and Name values (Fix for CXO-12489)
+        TemplateUtil templateUtil = new TemplateUtil(null, null);
         return query;
     }
 

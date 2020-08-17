@@ -997,10 +997,26 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return ImmutableList.copyOf(getNonObsoleteConfigurations());
     }
 
+    @Override
+    public List<DeviceConfiguration> getConfigurationsWithObsolete() {
+        return ImmutableList.copyOf(getAllDeviceConfigurations());
+    }
+
     private List<ServerDeviceConfiguration> getNonObsoleteConfigurations(){
         return this.deviceConfigurations
                 .stream()
                 .filter(dc -> !dc.isObsolete())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Method to get DeviceConfigurations irrespective of OBSOLETE_DATE value
+     * from DTC_DEVICECONFIG table Fix for CXO-12489
+     * @return
+     */
+    private List<ServerDeviceConfiguration> getAllDeviceConfigurations(){
+        return this.deviceConfigurations
+                .stream()
                 .collect(Collectors.toList());
     }
 
