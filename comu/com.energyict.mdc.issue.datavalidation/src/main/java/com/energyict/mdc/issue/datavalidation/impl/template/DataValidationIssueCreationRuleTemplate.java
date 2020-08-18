@@ -125,14 +125,24 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     @Override
     public List<PropertySpec> getPropertySpecs() {
         // Already existing record. So edit scenario of Issue creation rules. (Fix for CXO-12489)
-        DeviceConfigurationInfo[] possibleValues =
+        DeviceConfigurationInfo[] possibleValues = null;
+        if (TemplateUtil.getRuleId() != null && TemplateUtil.getRuleName() != null) {
+            possibleValues =
                     deviceConfigurationService
                             .findAllDeviceTypes()
                             .stream()
-                            .flatMap(TemplateUtil.getRuleId() != null && TemplateUtil.getRuleName() != null ? type -> type.getConfigurationsWithObsolete().stream() :
-                                    type ->  type.getConfigurations().stream())
+                            .flatMap(type -> type.getConfigurationsWithObsolete().stream())
+                            .map(DeviceConfigurationInfo::new)
+                    .toArray(DeviceConfigurationInfo[]::new);
+        } else {
+            possibleValues =
+                    deviceConfigurationService
+                            .findAllDeviceTypes()
+                            .stream()
+                            .flatMap(type -> type.getConfigurations().stream())
                             .map(DeviceConfigurationInfo::new)
                             .toArray(DeviceConfigurationInfo[]::new);
+        }
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
                 .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService))
