@@ -293,9 +293,6 @@ public class ServiceCallCommands {
         meterConfigDomainExtension.setOperation(operation.getOperation());
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(meterConfigDomainExtension);
-        if (operation == OperationEnum.UPDATE) {
-            serviceCallBuilder.targetObject(findDevice(meterInfo));
-        }
         return serviceCallBuilder.create();
     }
 
