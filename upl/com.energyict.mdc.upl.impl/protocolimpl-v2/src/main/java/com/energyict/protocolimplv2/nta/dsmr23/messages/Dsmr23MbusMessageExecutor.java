@@ -38,14 +38,20 @@ import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import org.xml.sax.SAXException;
+
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
@@ -282,7 +288,17 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
         String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
         Date fromDate = new Date(Long.parseLong(fromDateEpoch));
+
+        Date fromDateFix = fromDate;
+        // only for EnergyICT WebRTU KP Crypto Protocol DLMS (NTA DSMR2.3) V2
+        if (getProtocol() instanceof WebRTUKP) {
+            TimeZone tz = getProtocol().getTimeZone();
+            int offset = tz.getRawOffset();
+            LocalDateTime ldt = LocalDateTime.ofInstant(fromDate.toInstant(), ZoneId.systemDefault()).plusHours(offset);
+            fromDateFix = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        }
         String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage("LoadProfileRegister", AbstractMessageConverter.dateTimeFormatWithTimeZone.format(fromDate), loadProfileContent);
+
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
@@ -292,7 +308,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
+            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDateFix, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
             List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
