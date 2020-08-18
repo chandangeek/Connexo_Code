@@ -126,7 +126,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_USAGE_POINT_WITH_NAME(6014, "NoUsagePointWithName", "No usage point is found by name ''{0}''."),
     WRONG_TIME_PERIOD_COMBINATION(6015, "WrongTimePeriodCombination", "Can''t construct a valid time period with provided start ''{0}'' and the end ''{1}''.", Level.WARNING),
     DIFFERENT_DATA_SOURCES(6016, "DifferentDataSources", "The request contains data sources of different types under element ''{0}''."),
-    SCHEDULE_STRATEGY_NOT_SUPPORTED(6017, "ScheduleStrategyNotSupported", "Schedule strategy ''{0}'' is not supported. The possible values are: ''Run now'' and ''Use schedule''"),
+    SCHEDULE_STRATEGY_NOT_SUPPORTED(6017, "ScheduleStrategyNotSupported", "Schedule strategy ''{0}'' isn''t supported. The possible values are: ''Run now'', ''Run with priority'' and ''Use schedule''."),
     NO_CONNECTION_TASK(6018, "NoConnectionTask", "No connection task has been found for communication task execution of communication task ''{0}''."),
     CONNECTION_METHOD_NOT_FOUND_ON_DEVICE(6019, "ConnectionMethodNotFoundOnDevice", "The required connection method ''{0}'' wasn''t found on the device ''{1}''.", Level.WARNING),
     CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK(6020, "ConnectionMethodNotFoundForComTask", "The required connection method ''{0}'' wasn''t found for communication task ''{1}'' of device ''{2}''.", Level.WARNING),
@@ -202,6 +202,8 @@ public enum MessageSeeds implements MessageSeed {
             "Changes to the end device control request can''t be applied after the processing has started or finished."),
     UNABLE_TO_CANCEL_END_DEVICE_CONTROLS(8018, "UnableToCancelEndDeviceControls", "Unable to cancel end device controls."),
     END_DEVICE_ERROR(8019, "EndDeviceError", "For device {0}: {1}"),
+    EDC_SCHEDULE_STRATEGY_NOT_SUPPORTED(8020, "edcScheduleStrategyNotSupported",
+            "Schedule strategy ''{0}'' isn''t supported under EndDeviceControl[{1}]. The possible values are: ''Run now'' and ''Run with priority''."),
     ;
 
     private final int number;

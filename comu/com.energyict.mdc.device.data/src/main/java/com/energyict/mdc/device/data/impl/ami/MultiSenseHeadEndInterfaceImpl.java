@@ -36,6 +36,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
@@ -62,6 +63,8 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.Communication
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -81,6 +84,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -107,6 +111,9 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile Clock clock;
+    private volatile PriorityComTaskService priorityComTaskService;
+    private volatile EngineConfigurationService engineConfigurationService;
+
     private Optional<String> multiSenseUrl = Optional.empty();
 
     //For OSGI purposes
@@ -116,7 +123,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Inject
     public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus,
                                           ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory,
-                                          ThreadPrincipalService threadPrincipalService, Clock clock, CommunicationTaskService communicationTaskService) {
+                                          ThreadPrincipalService threadPrincipalService, Clock clock, CommunicationTaskService communicationTaskService,
+                                          PriorityComTaskService priorityComTaskService, EngineConfigurationService engineConfigurationService) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -127,6 +135,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.threadPrincipalService = threadPrincipalService;
         this.clock = clock;
         this.communicationTaskService = communicationTaskService;
+        this.priorityComTaskService = priorityComTaskService;
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Reference
@@ -178,6 +188,16 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService = priorityComTaskService;
+    }
+
+    @Reference
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
     }
 
     @Activate
@@ -399,6 +419,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
+        return sendCommand(endDeviceCommand, releaseDate, parentServiceCall, false);
+    }
+
+    @Override
+    public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall, boolean withPriority) {
         Device multiSenseDevice = findDeviceForEndDevice(endDeviceCommand.getEndDevice());
         ServiceCall serviceCall = getServiceCallCommands().createOperationServiceCall(Optional.ofNullable(parentServiceCall),
                 multiSenseDevice, endDeviceCommand.getEndDeviceControlType(), releaseDate);
@@ -414,7 +439,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
-            scheduleDeviceCommandsComTaskEnablement(multiSenseDevice, deviceMessages);  // Intentionally reload the device here
+            boolean needToExecuteComTaskWithPriority = withPriority && releaseDate.isBefore(clock.instant());
+            scheduleDeviceCommandsComTaskEnablement(multiSenseDevice, deviceMessages, needToExecuteComTaskWithPriority);  // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
             return new CompletionOptionsImpl(serviceCall);
@@ -466,7 +492,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
     }
 
-    private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages) {
+    private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages, boolean withPriority) {
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessages.forEach(msg -> deviceMessageIds.add(msg.getDeviceMessageId()));
         getComTaskEnablementsForDeviceMessages(device, deviceMessageIds).forEach(comTaskEnablement -> {
@@ -477,8 +503,19 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
             }
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
+
+            if (withPriority && !canRunWithPriority(comTaskExecution)) {
+                throw NoSuchElementException.comTaskToRunWithPriorityCouldNotBeLocated(thesaurus).get();
+            }
+
             ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
+
+            if (withPriority) {
+                Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(lockedComTaskExecution);
+                priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(lockedComTaskExecution));
+            }
+
             deviceMessages.stream()
                     .map(DeviceMessage::getReleaseDate)
                     .distinct()
@@ -566,7 +603,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public void scheduleRequiredComTasks(Device device, List<DeviceMessage> deviceMessages) {
-        scheduleDeviceCommandsComTaskEnablement(device, deviceMessages);
+        scheduleDeviceCommandsComTaskEnablement(device, deviceMessages, false);
     }
 
     @Override
@@ -596,5 +633,12 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .create();
         serviceCall.requestTransition(DefaultState.PENDING);
         return serviceCall;
+    }
+
+    private boolean canRunWithPriority(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getConnectionTask()
+                .filter(connectionTask -> Objects.nonNull(connectionTask.getComPortPool()) &&
+                        engineConfigurationService.calculateMaxPriorityConnections(connectionTask.getComPortPool(), connectionTask.getComPortPool().getPctHighPrioTasks()) > 0)
+                .isPresent();
     }
 }

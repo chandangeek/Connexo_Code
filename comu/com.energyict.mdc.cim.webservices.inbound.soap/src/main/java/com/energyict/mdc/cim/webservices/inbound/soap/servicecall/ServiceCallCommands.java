@@ -46,7 +46,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFau
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ReadingSourceEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ScheduleStrategy;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.SyncReplyIssue;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.CancellationReason;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsDomainExtension;
@@ -790,6 +790,7 @@ public class ServiceCallCommands {
                 .collect(Collectors.joining(";"));
 
         subParentDomainExtension.setCommandAttributes(commandAttributes);
+        subParentDomainExtension.setScheduleStrategy(endDeviceControlMessage.getScheduleStrategy().getName());
 
         ServiceCall subParentServiceCall = parentServiceCall.newChildCall(serviceCallType).extendedWith(subParentDomainExtension)
                 .create();
@@ -954,6 +955,7 @@ public class ServiceCallCommands {
                         deviceMessage.save();
                         deviceMessages.add(deviceMessage);
                     }
+
                     headEndController.scheduleDeviceCommandsComTask(device, deviceMessages);
 
                     headEndExtension.setReleaseDate(date);
