@@ -7,19 +7,21 @@ package com.energyict.mdc.channels.ip.socket;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.upl.TypedProperties;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.time.Duration;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -127,7 +129,7 @@ public class OutboundTcpIpConnectionTypeTest {
     private OutboundTcpIpConnectionType newTcpIpConnectionType() throws PropertyValidationException {
         OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(propertySpecService);
         TypedProperties properties = TypedProperties.empty();
-        properties.setProperty(OutboundIpConnectionType.HOST_PROPERTY_NAME, "jira.eict.vpdc");
+        properties.setProperty(OutboundIpConnectionType.HOST_PROPERTY_NAME, "jenkins.eict.local");
         properties.setProperty(OutboundIpConnectionType.PORT_PROPERTY_NAME, new BigDecimal(DEFAULT_HTTP_PORT));
         connectionType.setUPLProperties(properties);
         return connectionType;
