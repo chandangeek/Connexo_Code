@@ -91,7 +91,7 @@ public class OutboundTcpIpConnectionTypeTest {
     }
 
     @Test
-    public void testConnectToJira() throws ConnectionException, PropertyValidationException {
+    public void testConnectToHost() throws ConnectionException, PropertyValidationException {
         OutboundTcpIpConnectionType connectionType = this.newTcpIpConnectionType();
 
         ComChannel comChannel = null;
@@ -107,7 +107,7 @@ public class OutboundTcpIpConnectionTypeTest {
     }
 
     @Test
-    public void testTalkToJira() throws ConnectionException, PropertyValidationException {
+    public void testTalkToHost() throws ConnectionException, PropertyValidationException {
         OutboundTcpIpConnectionType connectionType = this.newTcpIpConnectionType();
 
         ComChannel comChannel = null;
