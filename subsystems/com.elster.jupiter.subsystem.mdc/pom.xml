@@ -386,7 +386,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.autoreschedule</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.data.push</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

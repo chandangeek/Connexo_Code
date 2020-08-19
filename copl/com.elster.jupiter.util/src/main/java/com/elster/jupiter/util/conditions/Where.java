@@ -11,7 +11,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 public final class Where {
 
@@ -205,7 +205,7 @@ public final class Where {
         return result;
     }
 
-    public Condition in(List<?> values) {
+    public Condition in(Collection<?> values) {
         return ListOperator.IN.contains(field, values);
     }
 
