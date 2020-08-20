@@ -87,6 +87,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.Me
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
@@ -128,6 +129,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -509,13 +511,15 @@ public class ServiceCallCommands {
                         InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy, reading.getSource(), allLoadProfiles);
             }
         } else if (CollectionUtils.isNotEmpty(loadProfilesSetByNames)) {
-            Set<ReadingType> lpReadingTypes = masterDataService.findAllLoadProfileTypes().stream()
-                    .filter(loadProfilesSetByNames::contains)
+            Set<ReadingType> lpReadingTypes = loadProfilesSetByNames.stream()
+                    .map(LoadProfile::getLoadProfileSpec)
+                    .map(LoadProfileSpec::getLoadProfileType)
                     .map(LoadProfileType::getChannelTypes)
                     .flatMap(Collection::stream)
                     .map(channelType -> channelType.getReadingType())
                     .collect(Collectors.toSet());
             syncReplyIssue.addExistedReadingTypes(lpReadingTypes);
+            combinedReadingTypes.addAll(lpReadingTypes);
         }
 
         if (meterReadingRequired) {
