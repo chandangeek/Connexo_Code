@@ -9,6 +9,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.DateTime;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
@@ -292,7 +293,8 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
                 return new RegisterValue(register, bcd);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
-                return new RegisterValue(register, String.valueOf(abstractDataType.longValue()));
+                String manuf_id_string = convertShortIdManufacturerIDToStringView( abstractDataType.getUnsigned16() );
+                return new RegisterValue( register, manuf_id_string );
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_TYPE)) {
@@ -1049,5 +1051,15 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
 
     private boolean isValidDateTime(AbstractDataType captureStructure) {
         return captureStructure instanceof DateTime && ((DateTime) captureStructure).isValidDate();
+    }
+
+    private String convertShortIdManufacturerIDToStringView( Unsigned16 manufacturer )
+    {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append((char) (((manufacturer.getValue() & 0x7D00) / 32 / 32) + 64));
+        strBuilder.append((char) (((manufacturer.getValue() & 0x03E0) / 32) + 64));
+        strBuilder.append((char) ((manufacturer.getValue() & 0x001F) + 64));
+
+        return strBuilder.toString();
     }
 }
