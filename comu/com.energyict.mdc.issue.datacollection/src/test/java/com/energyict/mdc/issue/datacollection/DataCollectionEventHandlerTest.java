@@ -50,11 +50,16 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DataCollectionEventHandlerTest extends BaseTest {
     protected DeviceType deviceType;
     protected DeviceConfiguration deviceConfiguration;
+    private State state;
+    private Stage stage;
+    private Meter meter;
 
     @Test
     @Transactional
@@ -109,6 +114,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(ConnectionLostEvent.class, UnableToConnectResolvedEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
+        verify(state, times(2)).getStage();
+        verify(meter, times(2)).getState();
     }
 
     @Test
@@ -125,6 +132,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
         assertThat(service.getCounter()).isEqualTo(2);
+        verify(state, times(2)).getStage();
+        verify(meter, times(2)).getState();
     }
 
     @Test
@@ -141,6 +150,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionLostResolvedEvent.class, UnableToConnectResolvedEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
+        verify(state, times(3)).getStage();
+        verify(meter, times(3)).getState();
     }
 
     @Test
@@ -157,6 +168,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
         assertThat(service.getCounter()).isEqualTo(6);
+        verify(state, times(6)).getStage();
+        verify(meter, times(6)).getState();
     }
 
     @Test
@@ -174,6 +187,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
         assertThat(service.getCounter()).isEqualTo(5);
+        verify(state, times(5)).getStage();
+        verify(meter, times(5)).getState();
     }
 
     @Test
@@ -188,6 +203,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnableToConnectEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
+        verify(state, times(1)).getStage();
+        verify(meter, times(1)).getState();
     }
 
     @Test
@@ -248,9 +265,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     private MeteringService mockMeteringService() {
         MeteringService meteringService = mock(MeteringService.class);
         AmrSystem amrSystem = mock(AmrSystem.class);
-        Meter meter = mock(Meter.class);
-        State state = mock(State.class);
-        Stage stage = mock(Stage.class);
+        meter = mock(Meter.class);
+        state = mock(State.class);
+        stage = mock(Stage.class);
         when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(meter.getState()).thenReturn(Optional.of(state));
