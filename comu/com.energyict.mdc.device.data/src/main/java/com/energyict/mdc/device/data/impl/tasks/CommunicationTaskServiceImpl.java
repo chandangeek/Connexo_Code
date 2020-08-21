@@ -633,6 +633,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public Optional<ComTaskExecution> findAndLockComTaskExecutionById(long id) {
+        return Optional.ofNullable(this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lock(id));
+    }
+
+    @Override
     public Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version) {
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockObjectIfVersion(version, id);
     }

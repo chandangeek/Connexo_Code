@@ -169,8 +169,7 @@ public class AbstractContactorOperationServiceCallHandlerTest {
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(comTaskExecution.getId()).thenReturn(999L);
-        when(comTaskExecution.getVersion()).thenReturn(3339L);
-        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(999L, 3339L)).thenReturn(Optional.of(comTaskExecution));
+        when(communicationTaskService.findAndLockComTaskExecutionById(999L)).thenReturn(Optional.of(comTaskExecution));
     }
 
     @Test

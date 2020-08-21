@@ -63,6 +63,8 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadS
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -79,8 +81,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -357,14 +361,14 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {
-        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
+        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId())
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
         lockedComTaskExecution.addNewComTaskExecutionTrigger(instant);
         lockedComTaskExecution.updateNextExecutionTimestamp();
     }
 
-    private Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
-        return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
+    private Optional<ComTaskExecution> getLockedComTaskExecution(long id) {
+        return communicationTaskService.findAndLockComTaskExecutionById(id)
                 .filter(candidate -> !candidate.isObsolete());
     }
 
@@ -467,25 +471,28 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages) {
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessages.forEach(msg -> deviceMessageIds.add(msg.getDeviceMessageId()));
-        getComTaskEnablementsForDeviceMessages(device, deviceMessageIds).forEach(comTaskEnablement -> {
+        Multimap<DeviceMessageId, DeviceMessage> deviceMessageIdsMap = HashMultimap.create();
+        deviceMessages.forEach(msg -> deviceMessageIdsMap.put(msg.getDeviceMessageId(), msg));
+        Multimap<ComTaskEnablement, DeviceMessageId> comTaskEnablementsMap = getComTaskEnablementsForDeviceMessages(device, deviceMessageIdsMap.keySet());
+        for (Map.Entry<ComTaskEnablement, Collection<DeviceMessageId>> comTaskEnablementEntry : comTaskEnablementsMap.asMap().entrySet()) {
             Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                    .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
+                    .filter(cte -> cte.getComTask().getId() == comTaskEnablementEntry.getKey().getComTask().getId())
                     .findFirst();
             if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
                 throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
             }
-            ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
-            ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
+            ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablementEntry.getKey()));
+            ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId())
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
-            deviceMessages.stream()
+            comTaskEnablementEntry.getValue().stream()
+                    .map(deviceMessageIdsMap::get)
+                    .flatMap(Collection::stream)
                     .map(DeviceMessage::getReleaseDate)
                     .distinct()
                     .forEach(lockedComTaskExecution::addNewComTaskExecutionTrigger);
 
             lockedComTaskExecution.updateNextExecutionTimestamp();
-        });
+        }
     }
 
     private ComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
@@ -501,9 +508,9 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         return manuallyScheduledComTaskExecution;
     }
 
-    private Stream<ComTaskEnablement> getComTaskEnablementsForDeviceMessages(Device device, List<DeviceMessageId> deviceMessageIds) {
-        List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
-        deviceMessageIds.forEach(deviceMessageId -> comTaskEnablements.add(device.getDeviceConfiguration()
+    private Multimap<ComTaskEnablement, DeviceMessageId> getComTaskEnablementsForDeviceMessages(Device device, Set<DeviceMessageId> deviceMessageIds) {
+        Multimap<ComTaskEnablement, DeviceMessageId> comTaskEnablements = HashMultimap.create();
+        deviceMessageIds.forEach(deviceMessageId -> comTaskEnablements.put(device.getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
@@ -511,12 +518,10 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                         filter(task -> task instanceof MessagesTask).
                         flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
                         flatMap(category -> category.getMessageSpecifications().stream()).
-                        filter(dms -> dms.getId().equals(deviceMessageId)).
-                        findFirst().
-                        isPresent())
+                        anyMatch(dms -> dms.getId().equals(deviceMessageId)))
                 .findAny()
-                .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus))));
-        return comTaskEnablements.stream().distinct();
+                .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus)), deviceMessageId));
+        return comTaskEnablements;
     }
 
     private void updateCommandServiceCallDomainExtension(ServiceCall serviceCall, List<DeviceMessage> deviceMessages) {

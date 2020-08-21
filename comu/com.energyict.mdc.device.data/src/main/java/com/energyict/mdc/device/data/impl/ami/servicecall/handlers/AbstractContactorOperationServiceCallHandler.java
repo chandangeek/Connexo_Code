@@ -73,7 +73,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         }
         ComTaskExecution existingComTaskExecution = optionalExistingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
 
-        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(existingComTaskExecution.getId(), existingComTaskExecution.getVersion())
+        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(existingComTaskExecution.getId())
                 .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())));
         lockedComTaskExecution.addNewComTaskExecutionTrigger(domainExtension.getReleaseDate());
         lockedComTaskExecution.updateNextExecutionTimestamp();
@@ -136,8 +136,8 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
 
     protected abstract BreakerStatus getDesiredBreakerStatus();
 
-    private Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
-        return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
+    private Optional<ComTaskExecution> getLockedComTaskExecution(long id) {
+        return communicationTaskService.findAndLockComTaskExecutionById(id)
                 .filter(candidate -> !candidate.isObsolete());
     }
 }
