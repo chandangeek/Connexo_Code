@@ -363,6 +363,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     private void cancelFutureTask(CancellableTaskExecutorService executorService) {
         if (futures.isEmpty()) {
+            LOGGER.info("futures is empty for executorService " + executorService);
             return;
         }
         for (Future<?> future : futures.get(executorService)) {

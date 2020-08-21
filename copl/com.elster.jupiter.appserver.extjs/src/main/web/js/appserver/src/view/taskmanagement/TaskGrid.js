@@ -100,7 +100,8 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('taskManagement.pagingtoolbarbottom.itemsPerPage', 'APR', 'Tasks per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                needExtendedData: true
             }
         ];
 

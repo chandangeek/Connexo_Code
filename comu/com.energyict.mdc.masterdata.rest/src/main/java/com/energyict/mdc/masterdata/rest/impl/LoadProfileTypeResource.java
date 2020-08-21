@@ -171,8 +171,8 @@ public class LoadProfileTypeResource {
     public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         List<Long> excludedRegisterTypeIds = filter.getLongList("ids");
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
-         //       .filter(readingTypesWithInterval())
-         //       .filter(filterOnCommodity())
+                //       .filter(readingTypesWithInterval())
+                //       .filter(filterOnCommodity())
                 .filter(registerType -> !excludedRegisterTypeIds.contains(registerType.getId()))
                 .skip(queryParameters.getStart().get())
                 .limit(queryParameters.getLimit().get() + 1);

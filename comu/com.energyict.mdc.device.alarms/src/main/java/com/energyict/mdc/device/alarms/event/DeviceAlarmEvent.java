@@ -381,4 +381,13 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         clone.device = device;
         return clone;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass() + "{" +
+                "deviceId=" + device.getmRID() +
+                ", timestamp=" + timestamp +
+                ", ruleId=" + ruleId +
+                '}';
+    }
 }

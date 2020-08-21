@@ -63,8 +63,8 @@ public interface IssueService {
     /**
      * Creates new status
      *
-     * @param key            unique string id
-     * @param isHistorical   if it is {@code true} then this status can be used for closing an open issue
+     * @param key unique string id
+     * @param isHistorical if it is {@code true} then this status can be used for closing an open issue
      * @param translationKey TranslationKey which contains translation for this status. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
      * @return instance of issue status (it is already saved into database)
      */
@@ -73,9 +73,9 @@ public interface IssueService {
     /**
      * Creates new reason
      *
-     * @param key         unique string id
-     * @param type        for which issue types this reason can be applied (data collection, data validation and so on)
-     * @param name        TranslationKey which contains name for this reason. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
+     * @param key unique string id
+     * @param type for which issue types this reason can be applied (data collection, data validation and so on)
+     * @param name TranslationKey which contains name for this reason. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
      * @param description TranslationKey which contains description for this reason. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
      * @return instance of issue reason (it is already saved into database)
      */
@@ -84,7 +84,7 @@ public interface IssueService {
     /**
      * Creates new issue type (For example: data collection or data validation)
      *
-     * @param key            unique string id
+     * @param key unique string id
      * @param translationKey TraslationKey which contains translation for this issue type. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
      * @return instance of issue type (it is already saved into database)
      */
@@ -135,5 +135,4 @@ public interface IssueService {
     List<IssueGroup> getIssuesGroupList(IssueGroupFilter builder);
 
     void addCreationRuleTemplate(CreationRuleTemplate ruleTemplate);
-
 }

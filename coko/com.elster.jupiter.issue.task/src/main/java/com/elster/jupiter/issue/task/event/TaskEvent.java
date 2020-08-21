@@ -145,4 +145,12 @@ public abstract class TaskEvent implements IssueEvent, Cloneable {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return this.getClass() + "{" +
+                "timestamp=" + timestamp +
+                ", eventDescription=" + eventDescription +
+                ", ruleId=" + ruleId +
+                '}';
+    }
 }

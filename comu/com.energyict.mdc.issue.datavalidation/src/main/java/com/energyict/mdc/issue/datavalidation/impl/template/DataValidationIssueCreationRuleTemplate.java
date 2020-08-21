@@ -7,6 +7,7 @@ package com.energyict.mdc.issue.datavalidation.impl.template;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.TemplateUtil;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -123,13 +124,25 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        DeviceConfigurationInfo[] possibleValues =
-                deviceConfigurationService
-                        .findAllDeviceTypes()
-                        .stream()
-                        .flatMap(type -> type.getConfigurations().stream())
-                        .map(DeviceConfigurationInfo::new)
-                        .toArray(DeviceConfigurationInfo[]::new);
+        // Already existing record. So edit scenario of Issue creation rules. (Fix for CXO-12489)
+        DeviceConfigurationInfo[] possibleValues = null;
+        if (TemplateUtil.getRuleId() != null && TemplateUtil.getRuleName() != null) {
+            possibleValues =
+                    deviceConfigurationService
+                            .findAllDeviceTypes()
+                            .stream()
+                            .flatMap(type -> type.getConfigurationsWithObsolete().stream())
+                            .map(DeviceConfigurationInfo::new)
+                    .toArray(DeviceConfigurationInfo[]::new);
+        } else {
+            possibleValues =
+                    deviceConfigurationService
+                            .findAllDeviceTypes()
+                            .stream()
+                            .flatMap(type -> type.getConfigurations().stream())
+                            .map(DeviceConfigurationInfo::new)
+                            .toArray(DeviceConfigurationInfo[]::new);
+        }
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
                 .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService))

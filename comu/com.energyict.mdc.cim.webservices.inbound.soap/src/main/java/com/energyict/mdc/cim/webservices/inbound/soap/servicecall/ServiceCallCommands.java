@@ -1064,7 +1064,7 @@ public class ServiceCallCommands {
 
     private boolean isLPMeterReadingRequired(Set<LoadProfile> loadProfiles, Instant endTime) {
         return loadProfiles.stream().anyMatch(lp -> lp.getLastReading() == null
-                || !lp.getLastReading().toInstant().plus(lp.getInterval().asTemporalAmount()).isAfter(endTime));
+                || !lp.getLastReading().toInstant().atZone(lp.getDevice().getZone()).plus(lp.getInterval().asTemporalAmount()).toInstant().isAfter(endTime));
     }
 
     private boolean isRegisterReadingRequired(Set<Register> registers, Instant endTime) {
