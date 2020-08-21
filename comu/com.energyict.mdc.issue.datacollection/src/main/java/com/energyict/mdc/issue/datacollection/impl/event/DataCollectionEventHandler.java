@@ -5,11 +5,13 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -76,9 +78,7 @@ public class DataCollectionEventHandler implements MessageHandler {
                 getIssueCreationService().dispatchCreationEvent(events);
             } else {
                 List<IssueEvent> filteredEvents = eventsWithEndDevice.stream()
-                        .filter(e -> e.getEndDevice().get().getState().isPresent())
-                        .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
-                        .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
+                        .filter(e -> isDeviceOperational(e))
                         .collect(Collectors.toList());
 
                 if (!filteredEvents.isEmpty()) {
@@ -86,6 +86,14 @@ public class DataCollectionEventHandler implements MessageHandler {
                 }
             }
         }
+    }
+
+    private boolean isDeviceOperational(IssueEvent issueEvent) {
+        return issueEvent.getEndDevice()
+                .flatMap(EndDevice::getState)
+                .flatMap(State::getStage)
+                .map(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
+                .orElse(Boolean.FALSE);
     }
 
     private List<IssueEvent> createEvents(Map<?, ?> map) {
