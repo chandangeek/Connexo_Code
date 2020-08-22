@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_8_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableMap;
@@ -94,7 +95,7 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
                     InstallerImpl.class,
                     ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
                                     version(10, 7, 1), UpgraderV10_7_1.class,
-                                    version(10, 9), UpgraderV10_9.class));
+                                    version(10, 8, 1), V10_8_1SimpleUpgrader.class));
 
         } catch (Exception e) {
             e.printStackTrace();
