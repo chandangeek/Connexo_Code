@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -292,8 +293,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         Date fromDateFix = fromDate;
         // only for EnergyICT WebRTU KP Crypto Protocol DLMS (NTA DSMR2.3) V2
         if (getProtocol() instanceof WebRTUKP) {
-            TimeZone tz = getProtocol().getTimeZone();
-            int offset = tz.getRawOffset();
+            Integer offset  = ZonedDateTime.now().getOffset().getTotalSeconds() / 3600;
             LocalDateTime ldt = LocalDateTime.ofInstant(fromDate.toInstant(), ZoneId.systemDefault()).plusHours(offset);
             fromDateFix = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
         }
