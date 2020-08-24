@@ -34,7 +34,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.AttributeSetPropertyForm', 
 
             defaults: {
                 resetButtonHidden: true,
-                labelWidth: 250
+                labelWidth: 200
             }
         }
     ],
