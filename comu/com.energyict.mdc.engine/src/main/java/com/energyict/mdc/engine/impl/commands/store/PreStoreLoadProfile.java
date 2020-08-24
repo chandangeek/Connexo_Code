@@ -128,7 +128,7 @@ public class PreStoreLoadProfile {
             return mdcReadingTypeUtilService;
         }
 
-        protected OfflineLoadProfile getOfflineLoadProfile() {
+        public OfflineLoadProfile getOfflineLoadProfile() {
             return this.offlineLoadProfile;
         }
 
