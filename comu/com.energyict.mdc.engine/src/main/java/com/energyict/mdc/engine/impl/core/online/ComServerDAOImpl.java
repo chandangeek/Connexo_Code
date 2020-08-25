@@ -151,6 +151,7 @@ import java.math.BigDecimal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -358,6 +359,18 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         return pendingQueryLimit;
     }
+
+    @Override
+    public List<ComTaskExecution> findExecutableOutboundComTasks(ComServer comServer, Duration delta, long limit, long skip) {
+        List<OutboundComPortPool> outboundComPortPools =
+                getEngineModelService().findContainingComPortPoolsForComServer(comServer)
+                        .stream().filter(ComPortPool::isActive)
+                        .filter(comPortPool -> !comPortPool.isInbound())
+                        .map(OutboundComPortPool.class::cast)
+                        .collect(Collectors.toList());
+        return getCommunicationTaskService().getPendingComTaskExecutionsListFor(comServer, outboundComPortPools, delta, limit, skip);
+    }
+
 
     @Override
     public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
@@ -1512,7 +1525,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device The Device
+     * @param device         The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */

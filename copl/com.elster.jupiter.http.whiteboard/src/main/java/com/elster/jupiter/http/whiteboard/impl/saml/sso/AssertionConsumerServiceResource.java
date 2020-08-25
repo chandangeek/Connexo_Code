@@ -1,23 +1,16 @@
 package com.elster.jupiter.http.whiteboard.impl.saml.sso;
 
-import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
-import com.elster.jupiter.http.whiteboard.MessageSeeds;
-import com.elster.jupiter.http.whiteboard.SamlResponseService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.nimbusds.jose.JOSEException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.opensaml.saml.common.SAMLException;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.xmlsec.signature.Signature;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,13 +21,24 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.opensaml.saml.common.SAMLException;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.xmlsec.signature.Signature;
+
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.MessageSeeds;
+import com.elster.jupiter.http.whiteboard.SamlResponseService;
+import com.elster.jupiter.http.whiteboard.impl.BasicAuthentication;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.nimbusds.jose.JOSEException;
 
 @Path("security")
 public class AssertionConsumerServiceResource {
@@ -93,6 +97,8 @@ public class AssertionConsumerServiceResource {
         if (!StringUtils.isEmpty(token)) {
             Cookie cookie = authenticationService.createTokenCookie(token, "/");
             httpServletResponse.addCookie(cookie);
+            httpServletResponse.addCookie(((BasicAuthentication) authenticationService).createSessionCookie(
+                    Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes()), "/"));
         }
 
         httpServletResponse.sendRedirect(URI.create(relayState).toString());

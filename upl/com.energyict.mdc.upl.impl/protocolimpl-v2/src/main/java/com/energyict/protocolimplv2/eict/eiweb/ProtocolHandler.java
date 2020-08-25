@@ -76,17 +76,17 @@ public class ProtocolHandler {
 
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedData = new ArrayList<>();
-        this.packetBuilder.addCollectedData(collectedData);
         if (this.profileBuilder != null) {
+            this.packetBuilder.addCollectedData(collectedData);
             this.profileBuilder.addCollectedData(collectedData);
-        }
-        collectedData.addAll(this.registerData);
-        if (this.configurationInformation != null) {
-            collectedData.add(this.configurationInformation);
-        }
-        CollectedData logBookEvents = getLogBookEvents();
-        if (logBookEvents != null) {
-            collectedData.add(logBookEvents);
+            collectedData.addAll(this.registerData);
+            if (this.configurationInformation != null) {
+                collectedData.add(this.configurationInformation);
+            }
+            CollectedData logBookEvents = getLogBookEvents();
+            if (logBookEvents != null) {
+                collectedData.add(logBookEvents);
+            }
         }
         return collectedData;
     }

@@ -192,6 +192,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
         Optional<FirmwareManagementOptions> firmwareMgtOptions = firmwareService.findFirmwareManagementOptions(device.getDeviceType());
         deviceInfo.isFirmwareManagementAllowed = !firmwareMgtOptions.map(FirmwareManagementOptions::getOptions).orElse(Collections.emptySet()).isEmpty();
+
         deviceInfo.protocolNeedsImageIdentifierForFirmwareUpgrade = firmwareService.imageIdentifierExpectedAtFirmwareUpload(device.getDeviceType());
         return deviceInfo;
     }

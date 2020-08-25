@@ -51,6 +51,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
         }
     }
 
+    @Override
     public long count(Condition condition) {
         try {
             return new JoinExecutor<>(root.copy(), getEffectiveDate()).count(restriction.and(condition));

@@ -120,4 +120,14 @@ public class TaskFailureEvent extends TaskEvent {
     public Instant getFailureTime() {
         return failureTime;
     }
+
+    @Override
+    public String toString() {
+        return "TaskFailureEvent{" +
+                "taskOccurrenceId=" + taskOccurrenceId +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", failureTime=" + failureTime +
+                ", recurrentTaskId=" + recurrentTaskId +
+                '}';
+    }
 }

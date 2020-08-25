@@ -109,6 +109,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('bpm.task.pagingtoolbarbottom.itemsPerPage', 'BPM', 'Tasks per page'),
                 dock: 'bottom'
             }

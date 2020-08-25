@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Provides an implementation for the {@link CompositeDeviceCommand} interface
@@ -27,6 +28,8 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     private List<DeviceCommand> finalCommands = new ArrayList<>();
     private CreateComSessionDeviceCommand createComSessionDeviceCommand;
     private PublishConnectionTaskEventDeviceCommand publishConnectionTaskEventDeviceCommand;
+
+    private static final Logger LOGGER = Logger.getLogger(ComSessionRootDeviceCommand.class.getName());
 
     public ComSessionRootDeviceCommand() {
         this(ComServer.LogLevel.INFO);
@@ -78,6 +81,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     public void execute (final ComServerDAO comServerDAO) {
         this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
+        LOGGER.info("CXO-11731: Execute all commands"+super.getChildren());
         executeAll(comServerDAO);
     }
 

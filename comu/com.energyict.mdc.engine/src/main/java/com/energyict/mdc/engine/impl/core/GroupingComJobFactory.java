@@ -93,6 +93,20 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     }
 
     @Override
+    public boolean consume(ComTaskExecution comTaskExecution) {
+        if (comTaskExecution != null && continueFetching(comTaskExecution)) {
+            add(comTaskExecution);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<ComJob> getJobs() {
+        return new ArrayList<>(groups.values());
+    }
+
+    @Override
     public List<ComJob> collect(Iterator<ComTaskExecution> comTaskExecutions) {
         while (comTaskExecutions.hasNext()) {
             add(comTaskExecutions.next());
@@ -117,6 +131,8 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
                 return continueFetching;
             }
         } else {
+            // does it ever happen?
+            LOGGER.warning("perf - needMoreJobs was false");
             return false;
         }
     }

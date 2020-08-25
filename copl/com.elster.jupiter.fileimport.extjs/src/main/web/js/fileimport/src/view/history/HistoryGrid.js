@@ -67,6 +67,7 @@ Ext.define('Fim.view.history.HistoryGrid', {
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
+                needCustomExporter: true,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('importService.history.pagingtoolbartop.displayMsg', 'FIM', '{0} - {1} of {2} history lines'),
                 displayMoreMsg: Uni.I18n.translate('importService.history.pagingtoolbartop.displayMoreMsg', 'FIM', '{0} - {1} of more than {2} history lines'),
@@ -77,6 +78,7 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('importService.history.pagingtoolbarbottom.itemsPerPage', 'FIM', 'History lines per page'),
                 dock: 'bottom',
+                needExtendedData: true,
                 deferLoading: true
             }
         ];

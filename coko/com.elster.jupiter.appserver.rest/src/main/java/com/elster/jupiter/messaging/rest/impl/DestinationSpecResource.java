@@ -10,6 +10,7 @@ import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueStatus;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -42,10 +43,16 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Path("/destinationspec")
@@ -85,11 +92,16 @@ public class DestinationSpecResource {
     public PagedInfoList getDestinationSpecs(@BeanParam JsonQueryParameters queryParameters, @QueryParam("state") boolean withState) {
         List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
+        Map<String, List<ServiceCallType>> serviceCallTypes = getServiceCallTypes();
+        Map<String, QueueStatus> queuesStatuses = Optional.ofNullable(destinationSpecs).filter(ds -> withState)
+                .map(Collection::stream).flatMap(s -> s.findFirst()).map(DestinationSpec::getAllQueuesStatus)
+                .map(Collection::stream).map(s->s.collect(Collectors.toMap(QueueStatus::getQueueName, Function.identity())))
+                .orElseGet(HashMap::new);
 
         List<DestinationSpecInfo> destinationSpecInfos = destinationSpecs
                 .stream()
                 .sorted(Comparator.comparing(DestinationSpec::getName))
-                .map((DestinationSpec spec) -> mapToInfo(withState, spec, allTasks, getServiceCallTypes(spec)))
+                .map((DestinationSpec spec) -> mapToInfo(withState, spec, allTasks, serviceCallTypes.getOrDefault(spec.getName(), Collections.<ServiceCallType>emptyList()), queuesStatuses))
                 .skip(queryParameters.getStart().orElse(0))
                 .limit(queryParameters.getLimit().map(i -> i++).orElse(Integer.MAX_VALUE))
                 .collect(Collectors.toList());
@@ -97,9 +109,10 @@ public class DestinationSpecResource {
         return PagedInfoList.fromPagedList("destinationSpecs", destinationSpecInfos, queryParameters);
     }
 
-    private DestinationSpecInfo mapToInfo(@QueryParam("state") boolean withState, DestinationSpec destinationSpec, List<RecurrentTask> tasks, List<ServiceCallType> serviceCallTypes) {
+    private DestinationSpecInfo mapToInfo(@QueryParam("state") boolean withState, DestinationSpec destinationSpec, List<RecurrentTask> tasks, List<ServiceCallType> serviceCallTypes,
+                                          Map<String, QueueStatus> queuesStatuses) {
         return withState
-                ? destinationSpecInfoFactory.withAppServers(destinationSpec, tasks, serviceCallTypes)
+                ? destinationSpecInfoFactory.withAppServers(destinationSpec, tasks, serviceCallTypes, queuesStatuses)
                 : destinationSpecInfoFactory.from(destinationSpec, tasks, serviceCallTypes);
     }
 
@@ -111,7 +124,7 @@ public class DestinationSpecResource {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
         List<ServiceCallType> serviceCallTypes = getServiceCallTypes(destinationSpec);
-        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks, serviceCallTypes);
+        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks, serviceCallTypes, null);
         return destinationSpecInfo;
     }
 
@@ -255,6 +268,11 @@ public class DestinationSpecResource {
 
     private List<ServiceCallType> getServiceCallTypes(DestinationSpec destinationSpec) {
         return serviceCallService.getServiceCallTypes(destinationSpec.getName());
+    }
+
+    private Map<String,List<ServiceCallType>> getServiceCallTypes() {
+        return serviceCallService.getServiceCallTypes().stream()
+                .collect(Collectors.groupingBy(ServiceCallType::getDestinationName));
     }
 
     private Set<String> getUsedDestinationNames() {

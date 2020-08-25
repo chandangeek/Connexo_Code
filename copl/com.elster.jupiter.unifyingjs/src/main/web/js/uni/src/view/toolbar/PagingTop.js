@@ -39,6 +39,13 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     xtype: 'pagingtoolbartop',
     ui: 'pagingtoolbartop',
 
+    requires: [
+        'Uni.util.QueryString',
+        'Uni.util.History',
+        'Ext.ux.exporter.ExporterButton',
+        'Uni.view.toolbar.CustomExporterButton'
+    ],
+
     displayInfo: false,
     usesExactCount: false,
 
@@ -67,6 +74,8 @@ Ext.define('Uni.view.toolbar.PagingTop', {
 
     exportButton: true,
 
+    needCustomExporter: false,
+
     initComponent: function () {
         this.callParent(arguments);
     },
@@ -79,7 +88,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             },
             '->',
             {
-                xtype: 'exporterbutton',
+                xtype: this.needCustomExporter ? 'customexporterbutton' : 'exporterbutton',
                 ui: 'icon',
                 iconCls: 'icon-file-download',
                 text: '',

@@ -86,6 +86,7 @@ Ext.define('Dal.view.Grid', {
             {
                 itemId: 'pagingtoolbartop',
                 xtype: 'pagingtoolbartop',
+                needCustomExporter: true,
                 dock: 'top',
                 store: me.store,
                 displayMsg: Uni.I18n.translate('workspace.alarms.pagingtoolbartop.displayMsg', 'DAL', '{0} - {1} of {2} alarms'),
@@ -93,6 +94,13 @@ Ext.define('Dal.view.Grid', {
                 emptyMsg: Uni.I18n.translate('workspace.alarms.pagingtoolbartop.emptyMsg', 'DAL', 'There are no alarms to display')
                 ,
              items: [
+                 {
+                     xtype: 'button',
+                     itemId: 'alarms-count-action',
+                     text: Uni.I18n.translate('general.title.count', 'DAL', 'Count'),
+                     privileges: Isu.privileges.Issue.closeOrAssing,
+                     action: 'countAlarms'
+                 },
                  {
                      xtype: 'button',
                      itemId: 'alarms-bulk-action',
@@ -110,9 +118,18 @@ Ext.define('Dal.view.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('workspace.alarms.pagingtoolbarbottom.itemsPerPage', 'DAL', 'Alarms per page')
             }
         ];
         me.callParent(arguments);
+
+        me.on('afterrender', function(){
+            var previewContainer = me.up('preview-container');
+            previewContainer.up().down('uni-grid-filterpaneltop').on('applyFilters', function(){
+                previewContainer.down('#alarms-count-action').setDisabled(false);
+                previewContainer.down('#alarms-count-action').setText(Uni.I18n.translate('general.title.count', 'DAL', 'Count'))
+            });
+        })
     }
 });

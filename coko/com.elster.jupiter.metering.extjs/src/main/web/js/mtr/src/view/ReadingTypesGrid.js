@@ -75,6 +75,7 @@ Ext.define('Mtr.view.ReadingTypesGrid', {
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('readingtypesmanagment.pagingtoolbarbottom.itemsPerPage', 'MTR', 'Reading types per page'),
                 dock: 'bottom',
+                needExtendedData: true,
                 deferLoading: true
             }
         ];

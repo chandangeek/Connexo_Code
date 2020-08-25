@@ -18,25 +18,25 @@ import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.device.data.impl.InstallerV10_8Impl.getComTaskDTHeatMapStatement;
 import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComTaskExecType.FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR;
 import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComTaskExecType.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR;
 
 public class UpgraderV10_9 implements Upgrader {
-
+    private static final Logger LOGGER = Logger.getLogger(UpgraderV10_9.class.getName());
     private static final int SIZE = 100;//100 for optimization
     private static final String TABLE = TableSpecs.DDC_COMTASKEXEC.name();
-    private static final int MIN_REFRESH_INTERVAL = 5;
 
     private final DeviceService deviceService;
     private final DataModel dataModel;
@@ -66,7 +66,7 @@ public class UpgraderV10_9 implements Upgrader {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-        recreateJob();
+        updateJobProcedure();
     }
 
     private String createExecutionsList(List<Device> devices) {
@@ -152,32 +152,11 @@ public class UpgraderV10_9 implements Upgrader {
         return query.toString();
     }
 
-    private Long toLong(ResultSet resultSet) throws SQLException {
-        if (resultSet.next()) {
-            return resultSet.getLong(1);
-        } else {
-            return null;
+    private void updateJobProcedure() {
+        try {
+            execute(dataModel, InstallerV10_8_1Impl.getStoredProcedureScript("com_task_dashboard_procedure.sql"));
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Errors on update of dashboard related procedures!", e);
         }
-    }
-
-    private void recreateJob() {
-        execute(dataModel, dropJob("REF_MV_COMTASKDTHEATMAP"));
-        execute(dataModel, getRefreshMvComTaskDTHeatMapJobStatement());
-    }
-
-    private String dropJob(String jobName) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" DBMS_SCHEDULER.DROP_JOB  ");
-        sqlBuilder.append(" ( ");
-        sqlBuilder.append(" JOB_NAME            => '").append(jobName).append("'");
-        sqlBuilder.append(" ); ");
-        sqlBuilder.append(" END;");
-        return sqlBuilder.toString();
-    }
-
-    private String getRefreshMvComTaskDTHeatMapJobStatement() {
-        return dataModel.getRefreshJob("REF_MV_COMTASKDTHEATMAP", "MV_COMTASKDTHEATMAP",
-                getComTaskDTHeatMapStatement(), MIN_REFRESH_INTERVAL);
     }
 }

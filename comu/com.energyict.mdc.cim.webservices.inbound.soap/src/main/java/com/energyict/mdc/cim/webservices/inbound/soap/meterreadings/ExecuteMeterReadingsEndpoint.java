@@ -920,7 +920,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private Set<com.elster.jupiter.metering.Meter> fromEndDevicesWithMRIDsAndNames(Set<String> mRIDs, Set<String> names) throws
             FaultMessage {
         List<com.elster.jupiter.metering.Meter> existedMeters = meteringService.getMeterQuery()
-                .select(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names))));
+                .select(where("obsoleteTime").isNull().and(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names)))));
         if (CollectionUtils.isEmpty(existedMeters)) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICES).get();
         }

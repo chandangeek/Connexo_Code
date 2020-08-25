@@ -111,6 +111,7 @@ Ext.define('Imt.dataquality.view.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('dataQuality.paging.displayMsg', 'IMT', '{0} - {1} of {2} usage points'),
                 displayMoreMsg: Uni.I18n.translate('dataQuality.paging.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} usage points'),
                 emptyMsg: Uni.I18n.translate('dataQuality.paging.emptyMsg', 'IMT', 'There are no usage points to display')
@@ -120,6 +121,7 @@ Ext.define('Imt.dataquality.view.Grid', {
                 store: this.store,
                 deferLoading: true,
                 dock: 'bottom',
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('dataQuality.paging.usagePointsPerPage', 'IMT', 'Usage points per page')
             }
         ];

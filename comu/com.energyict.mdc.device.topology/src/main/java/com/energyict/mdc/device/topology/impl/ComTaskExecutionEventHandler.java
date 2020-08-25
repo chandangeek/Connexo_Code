@@ -63,6 +63,7 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
 
     private void setDefaultConnectionTask(ComTaskExecution comTaskExecution, ConnectionTask dct) {
         if (different(comTaskExecution.getConnectionTask(), dct)) {
+            LOGGER.info("CXO-11731: Update comtask execution from setDefaultConnectionTask");
             comTaskExecution.getUpdater().useDefaultConnectionTask(dct).update();
         }
     }
@@ -74,6 +75,7 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
 
     private void setConnectionTaskHavingConnectionFunction(ComTaskExecution comTaskExecution, ConnectionTask dct) {
         if (different(comTaskExecution.getConnectionTask(), dct)) {
+            LOGGER.info("CXO-11731: Update comtask execution from setConnectionTaskHavingConnectionFunction");
             comTaskExecution.getUpdater().useConnectionTaskBasedOnConnectionFunction(dct).update();
         }
     }
