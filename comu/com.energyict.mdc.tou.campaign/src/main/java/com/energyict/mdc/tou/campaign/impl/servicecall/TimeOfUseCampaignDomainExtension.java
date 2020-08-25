@@ -11,6 +11,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -282,16 +283,17 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         setManuallyCancelled(true);
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
-        List<? extends TimeOfUseCampaignItem> streamOfItems = timeOfUseCampaignService
-                .streamDevicesInCampaigns()
-                .filter(Where.where("parentServiceCallId").isEqualTo(serviceCall.getId()))
-                .select();
-        if (streamOfItems.isEmpty()) {
-            if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                serviceCall.requestTransition(DefaultState.CANCELLED);
+        try(QueryStream<? extends TimeOfUseCampaignItem> streamItems = timeOfUseCampaignService
+                .streamDevicesInCampaigns()){
+            List<? extends TimeOfUseCampaignItem> streamOfItems= streamItems.filter(Where.where("parentServiceCallId").isEqualTo(serviceCall.getId()))
+                    .select();
+            if (streamOfItems.isEmpty()) {
+                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+                    serviceCall.requestTransition(DefaultState.CANCELLED);
+                }
+            } else {
+                streamOfItems.forEach(item -> item.cancel(true));
             }
-        } else {
-            streamOfItems.forEach(item -> item.cancel(true));
         }
     }
 
