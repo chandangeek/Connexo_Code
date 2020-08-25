@@ -71,7 +71,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
             case FAILED:
             case CANCELLED:
             case REJECTED:
-                updateCounter(parentServiceCall, newState);
+                processChildren(parentServiceCall);
                 break;
             default:
                 // No specific action required for these states
@@ -98,24 +98,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
-    private void updateCounter(ServiceCall serviceCall, DefaultState state) {
-        MeterConfigMasterDomainExtension extension = serviceCall.getExtension(MeterConfigMasterDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-
-        // TODO rework these counters http://jira.eict.vpdc:8080/browse/CXO-12510
-        long successfulCalls = extension.getActualNumberOfSuccessfulCalls();
-        long failedCalls = extension.getActualNumberOfFailedCalls();
-        long expectedCalls = extension.getExpectedNumberOfCalls();
-
-        if (DefaultState.SUCCESSFUL.equals(state)) {
-            successfulCalls++;
-            extension.setActualNumberOfSuccessfulCalls(successfulCalls);
-        } else {
-            failedCalls++;
-            extension.setActualNumberOfFailedCalls(failedCalls);
-        }
-        serviceCall.update(extension);
-
+    private void processChildren(ServiceCall serviceCall) {
         List<ServiceCall> children = findChildren(serviceCall);
         if (areAllClosed(children)) {
             if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
@@ -149,8 +132,12 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
             replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
                     getSuccessfullyProcessedDevices(serviceCall),
                     getFailedMeterOperations(serviceCall, false), getFailedMeterOperations(serviceCall, true),
-                    extensionFor.getExpectedNumberOfCalls(), meterStatusRequired, extensionFor.getCorrelationId());
+                    getExpectedNumberOfCalls(serviceCall), meterStatusRequired, extensionFor.getCorrelationId());
         }
+    }
+
+    private long getExpectedNumberOfCalls(ServiceCall serviceCall) {
+        return findChildren(serviceCall).size();
     }
 
     private Map<Device, PingResult> getSuccessfullyProcessedDevices(ServiceCall serviceCall) {
