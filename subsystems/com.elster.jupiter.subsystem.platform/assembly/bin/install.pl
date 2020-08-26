@@ -16,12 +16,6 @@ use Crypt::Cipher::AES;
 use MIME::Base64;
 use Digest::MD5 qw(md5_hex);
 
-use File::Copy;
-use File::Path 'rmtree';
-use File::Spec;
-use File::Find;
-use File::Basename;
-use Cwd qw(cwd);
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
 my $INSTALL_VERSION="v20200405";
@@ -1185,7 +1179,7 @@ sub start_tomcat_service {
 sub postCall {
     my ($command, $msg)=@_;
 
-    #print "Calling:\t$command\n";
+    print "Calling:\t$command\n";
     system($command) == 0 or die "$msg: $?";
     print "\t - command finished.\n"
 }
@@ -1217,10 +1211,8 @@ sub start_tomcat {
 
 			chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
-                } else {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
+            } else {
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
             }
 			unlink("$CONNEXO_DIR/datasource.xml");
@@ -1241,20 +1233,19 @@ sub start_tomcat {
             chdir "$CONNEXO_DIR";
             print "Changing directory to $CONNEXO_DIR\n";
             # using TomCat password here because the filters should not be active yet if SSO is used
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
             postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
             sleep 5;
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
             postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
 
+            print "\nCopy processes to repository...\n";
             mkdir "$TOMCAT_BASE/$TOMCAT_DIR/repositories";
             dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
             dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
-            #Extract pom.xml for all copied jar's and rename it to corresponding .pom file.
-            parse_deployed_jars();
+
+            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
 
             print "\nDeploy MDC processes...\n";
-
             my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
             if(-e $mdcfile){
                 open(INPUT, $mdcfile);
@@ -1264,7 +1255,6 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
                     postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
@@ -1281,7 +1271,6 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
                     postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
@@ -1289,68 +1278,6 @@ sub start_tomcat {
             }
 		}
 	}
-}
-
-sub parse_deployed_jars
-{
-    my $homeDir = cwd;
-    #find all jars in directory
-    my $dir = "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie";
-    my @jarFiles;#list of jars that should be parsed.
-    find(\&save_jar_path, $dir);
-    sub save_jar_path
-        {
-        if( $File::Find::name =~ /.jar/)
-            {
-            push @jarFiles, $File::Find::name;
-            }
-        }
-
-    my $ff;
-    foreach $ff (@jarFiles)
-    {
-        my $dirname = dirname($ff);
-        my $filename = fileparse($ff);
-        chdir($dirname);
-        extract_pom($filename);
-        chdir($homeDir);
-    }
-}
-
-#Extract pom.xml file from jar and rename it to jarName.pom and copy it to the same directory where jar file presents.
-sub extract_pom
-{
-    my $jarName;
-    $jarName = $_[0];
-    #Here we get pom.xml from jar and create .pom file.
-    my @files = `jar -tf \"$jarName\"`;
-    my $number =  scalar(@files);
-    my $i = 0;
-    my $neededFile;
-    #Go through files in jar and find pom.xml
-    M1:
-    while($i < $number)
-        {
-            #Check if name of file is pom.xml
-            if (index(@files[$i], "pom.xml") != -1){
-                $neededFile = @files[$i];
-                last M1;
-            }
-            $i = $i + 1;
-        }
-    #extract pom.xml from jar
-    system("jar -xf $jarName $neededFile");
-    chop($neededFile);#remove end of the line symbol from file name.
-
-    #Construct name for pom file
-    my $pomName = $jarName;
-    $pomName =~ s/jar$/pom/;
-
-    copy($neededFile, $pomName);
-    #When we extract pom.xml from jar whole directory tree is extracted as well.
-    #Remove directory after pom.xml file extraction
-    my @treeToRemove = File::Spec->splitdir($neededFile);
-    rmtree(@treeToRemove[0]);
 }
 
 sub final_steps {
