@@ -32,7 +32,13 @@ public class ProcessDeployer {
 
     public static void main(String args[]) {
         if ("installProcesses".equals(args[0])) {
-            installProcesses(args[1]);
+            if (args.length != 2) {
+                System.out.println("Incorrect syntax. The following parameters are required:");
+                System.out.println("command -- command identifier");
+                System.out.println("repository path -- the path to the kie repository");
+            } else {
+                installProcesses(args[1]);
+            }
             return;
         } else if ((args.length < 4) || (args[0].equals("deployProcess") && (args.length < 5))) {
             System.out.println("Incorrect syntax. The following parameters are required:");
@@ -72,7 +78,7 @@ public class ProcessDeployer {
             try {
                 repo.deployArtifact(new FileInputStream(file), gav, false);
             } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Guvnor deploy artifact is failed .", e);
             }
         }
     }
