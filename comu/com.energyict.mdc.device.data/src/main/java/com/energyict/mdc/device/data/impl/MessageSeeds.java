@@ -229,7 +229,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_SEC_ACC_MAPPED_TO_CERT(2204, "certificate.no.security.accessor", "No security accessor found for certificate {0}"),
     NO_SUCH_DEVICE_MESSAGE_WITH_ID(2205, "NoSuchDeviceMessageWithId", "No such device message with id: {0}."),
     RUN_COMTASK_WITH_PRIO_IMPOSSIBLE(2206, "runComTaskWithPrioImpossible",
-            "Running the communication task to execute the device messages with priority isn''t possible, since there are no priority connections allowed on its communication port pool.");
+            "Running the communication task to execute the device messages with priority isn''t possible, since there are no priority connections allowed on its communication port pool."),
+    RUN_STATUS_INFORMATION_COMTASK_WITH_PRIO_IMPOSSIBLE(2207,
+            "runStatusInformationComTaskWithPrioImpossible",
+            "Running the communication task to read out status information with priority isn''t possible, since there are no priority connections allowed on its communication port pool.");
 
 
     private final int number;

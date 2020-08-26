@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -150,6 +151,12 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
                         .named(CommandServiceCallDomainExtension.FieldNames.STATUS.javaName(), CustomPropertySetsTranslationKeys.STATUS)
                         .describedAs(CustomPropertySetsTranslationKeys.STATUS)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(CommandServiceCallDomainExtension.FieldNames.RUN_WITH_PRIORITY.javaName(), CustomPropertySetsTranslationKeys.RUN_WITH_PRIORITY)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish());
     }
 
@@ -218,6 +225,13 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
                     .varChar()
                     .map(CommandServiceCallDomainExtension.FieldNames.STATUS.javaName())
                     .notNull()
+                    .add();
+            table
+                    .column(CommandServiceCallDomainExtension.FieldNames.RUN_WITH_PRIORITY.databaseName())
+                    .bool()
+                    .map(CommandServiceCallDomainExtension.FieldNames.RUN_WITH_PRIORITY.javaName())
+                    .installValue("'N'")
+                    .since(Version.version(10, 9))
                     .add();
         }
 
