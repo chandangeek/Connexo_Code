@@ -414,16 +414,6 @@ public class SyncReplyIssue {
             errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE_DUE_TO_COM_TASKS, null,
                     String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToComTaskExecutions()))));
         }
-
-        if (asyncFlag && !systemSource && getDeviceRegularComTaskExecutionMap().isEmpty() && getDeviceIrregularComTaskExecutionMap().isEmpty()
-                && getDeviceMessagesComTaskExecutionMap().isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOUND, null));
-        }
-
-        if (asyncFlag && getExistedReadingsIndexes().isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.NO_READINGS_TO_READ, null));
-        }
-
         return errorTypes;
     }
 

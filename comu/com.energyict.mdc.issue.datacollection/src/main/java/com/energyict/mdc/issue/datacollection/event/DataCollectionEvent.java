@@ -362,4 +362,13 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
     public long getCreationRule() {
         return ruleId;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass() + "{" +
+                "deviceId=" + device.getmRID() +
+                ", timestamp=" + timestamp +
+                ", ruleId=" + ruleId +
+                '}';
+    }
 }

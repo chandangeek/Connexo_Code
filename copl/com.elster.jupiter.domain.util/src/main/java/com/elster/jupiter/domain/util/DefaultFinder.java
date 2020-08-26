@@ -201,4 +201,8 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
     }
 
+    @Override
+    public int count() {
+        return (int)query.count(condition);
+    }
 }

@@ -82,9 +82,30 @@ public enum EventType {
     FIRMWARE_COMTASKEXECUTION_STARTED("firmwarecomtaskexecution/STARTED"),
     FIRMWARE_COMTASKEXECUTION_COMPLETED("firmwarecomtaskexecution/COMPLETED"),
     FIRMWARE_COMTASKEXECUTION_FAILED("firmwarecomtaskexecution/FAILED"),
-    MANUAL_COMTASKEXECUTION_STARTED("manualcomtaskexecution/STARTED"),
-    MANUAL_COMTASKEXECUTION_COMPLETED("manualcomtaskexecution/COMPLETED"),
-    MANUAL_COMTASKEXECUTION_FAILED("manualcomtaskexecution/FAILED"),
+    MANUAL_COMTASKEXECUTION_STARTED("manualcomtaskexecution/STARTED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.shouldPublish();
+            return eventTypeBuilder;
+        }
+    },
+    MANUAL_COMTASKEXECUTION_COMPLETED("manualcomtaskexecution/COMPLETED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.shouldPublish();
+            return eventTypeBuilder;
+        }
+    },
+    MANUAL_COMTASKEXECUTION_FAILED("manualcomtaskexecution/FAILED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.shouldPublish();
+            return eventTypeBuilder;
+        }
+    },
     SCHEDULED_COMTASKEXECUTION_STARTED("scheduledcomtaskexecution/STARTED"),
     SCHEDULED_COMTASKEXECUTION_COMPLETED("scheduledcomtaskexecution/COMPLETED"),
     SCHEDULED_COMTASKEXECUTION_FAILED("scheduledcomtaskexecution/FAILED"),

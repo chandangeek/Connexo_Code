@@ -165,7 +165,7 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
 
     @Override
     public Optional<RegisterType> findAndLockRegisterTypeById(long id) {
-        return Optional.ofNullable(this.getDataModel().mapper(RegisterType.class).lock( id));
+        return Optional.ofNullable(this.getDataModel().mapper(RegisterType.class).lock(id));
     }
 
     @Override
@@ -339,10 +339,9 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
 
     private ReadingTypeMridFilter createReadingTypeFilterForUnitAndMultiplier(ReadingType readingType) {
         ReadingTypeMridFilter readingTypeMridFilter = ReadingTypeMridFilter.fromTemplateReadingType(readingType).anyMultiplier().anyUnit();
-        if(readingType.getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)){
+        if (readingType.getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)) {
             readingTypeMridFilter.setCommodity(Commodity.ELECTRICITY_PRIMARY_METERED);
         }
         return readingTypeMridFilter;
     }
-
 }

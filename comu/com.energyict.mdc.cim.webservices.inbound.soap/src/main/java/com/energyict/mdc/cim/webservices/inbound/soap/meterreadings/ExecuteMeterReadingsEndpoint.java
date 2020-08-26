@@ -316,12 +316,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
     private boolean checkComTaskExecutions(Set<Device> devices, String readingItem, SyncReplyIssue syncReplyIssue) {
         for (Device device : devices) {
-            if (syncReplyIssue.getDeviceIrregularComTaskExecutionMap().get(device.getId()) == null
-                    && syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(device.getId()) == null
-                    && syncReplyIssue.getDeviceMessagesComTaskExecutionMap().get(device.getId()) == null) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.NO_COM_TASK_EXECUTION_ON_DEVICE, null,
-                        device.getName(), readingItem));
-            } else {
+            if (syncReplyIssue.getDeviceIrregularComTaskExecutionMap().get(device.getId()) != null
+                    || syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(device.getId()) != null
+                    || syncReplyIssue.getDeviceMessagesComTaskExecutionMap().get(device.getId()) != null) {
                 return true;
             }
         }
@@ -992,7 +989,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private Set<com.elster.jupiter.metering.Meter> fromEndDevicesWithMRIDsAndNames(Set<String> mRIDs, Set<String> names) throws
             FaultMessage {
         List<com.elster.jupiter.metering.Meter> existedMeters = meteringService.getMeterQuery()
-                .select(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names))));
+                .select(where("obsoleteTime").isNull().and(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names)))));
         if (CollectionUtils.isEmpty(existedMeters)) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICES).get();
         }

@@ -121,4 +121,13 @@ public class ServiceCallStateChangedEvent implements IssueEvent {
         }
         return Optional.empty();
     }
+
+    @Override
+    public String toString() {
+        return "ServiceCallStateChangedEvent{" +
+                "serviceCall=" + serviceCall +
+                ", newState=" + newState +
+                ", ruleId=" + ruleId +
+                '}';
+    }
 }

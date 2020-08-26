@@ -62,4 +62,15 @@ public class CannotEstimateDataEvent extends DataValidationEvent {
                     .forEach(rq -> dataValidationIssue.addNotEstimatedBlock(channel, readingType, rq.getReadingTimestamp()));
         }
     }
+
+    @Override
+    public String toString() {
+        return "CannotEstimateDataEvent{" +
+                "startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", channelId=" + channelId +
+                ", readingType='" + readingType + '\'' +
+                ", deviceConfigurationId=" + deviceConfigurationId +
+                '}';
+    }
 }

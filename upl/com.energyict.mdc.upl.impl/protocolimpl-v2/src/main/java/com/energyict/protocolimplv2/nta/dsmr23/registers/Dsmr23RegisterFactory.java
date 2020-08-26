@@ -161,7 +161,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             StringBuilder sb = new StringBuilder();
             sb.append( "Read registers: " );
             for ( CollectedRegister or : collectedRegisters ) {
-                sb.append( or.getRegisterIdentifier().toString() );
+                sb.append( or.getRegisterIdentifier().getRegisterObisCode().toString() );
                 sb.append( "," );
             }
             protocol.journal( sb.substring( 0, sb.length() - 2 ) );

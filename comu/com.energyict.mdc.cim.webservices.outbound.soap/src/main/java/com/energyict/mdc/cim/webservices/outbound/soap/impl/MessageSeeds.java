@@ -7,13 +7,12 @@ package com.energyict.mdc.cim.webservices.outbound.soap.impl;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationInstaller;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    MESSAGE_SENDING_FAILED(1,"MessageSendingFailed", "Message sending has failed via endpoint ''{0}''.");
+    MESSAGE_SENDING_FAILED(1, "MessageSendingFailed", "Failed to send message to the following web service endpoint(s): {0}.");
 
     private final int number;
     private final String key;

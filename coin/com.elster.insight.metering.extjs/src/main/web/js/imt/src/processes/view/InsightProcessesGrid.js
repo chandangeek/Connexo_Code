@@ -114,6 +114,7 @@ Ext.define('Imt.processes.view.InsightProcessesGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('imt.process.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} processes'),
                 displayMoreMsg: Uni.I18n.translate('imt.process.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} processes'),
                 emptyMsg: Uni.I18n.translate('imt.process.pagingtoolbartop.emptyMsg', 'IMT', 'There are no process to display'),
@@ -121,6 +122,7 @@ Ext.define('Imt.processes.view.InsightProcessesGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('imt.process.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Processes per page'),
                 dock: 'bottom'
             }

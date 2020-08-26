@@ -46,14 +46,19 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     private volatile Thesaurus thesaurus;
 
     public MeterConfigMasterCustomPropertySet() {
+        // for OSGi
     }
 
     @Inject
-    public MeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public MeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService,
+                                              CustomPropertySetService customPropertySetService,
+                                              Thesaurus thesaurus,
+                                              ServiceCallService serviceCallService) {
         this();
         this.setPropertySpecService(propertySpecService);
-        this.setCustomPropertySetService(customPropertySetService);
+        setServiceCallService(serviceCallService);
         this.thesaurus = thesaurus;
+        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -66,12 +71,6 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference

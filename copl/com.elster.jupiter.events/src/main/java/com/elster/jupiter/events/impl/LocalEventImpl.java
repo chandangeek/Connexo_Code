@@ -67,7 +67,6 @@ public class LocalEventImpl implements LocalEvent {
     public void publish(int delay) {
         String payload = jsonService.serialize(extractProperties());
         getEventDestination().message(payload).withCorrelationId(getType().getTopic()).withDelay(delay).send();
-
     }
 
     @Override
@@ -109,5 +108,10 @@ public class LocalEventImpl implements LocalEvent {
             }
         }
         return current;
+    }
+
+    @Override
+    public String toString() {
+        return jsonService.serialize(extractProperties());
     }
 }

@@ -63,8 +63,6 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
                 Date now = new Date(currentDeviceTime + timeShift);
                 deviceProtocol.setTime(now);
                 this.timeSet = now;
-            } else {
-                addIssue(getIssueService().newWarning(timeDifference, MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
             }
         } else {
             addIssue(getIssueService().newWarning(timeDifference, MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);

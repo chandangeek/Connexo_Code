@@ -1095,10 +1095,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Optional<Instant> getLowerBound(Range<Instant> range) {
-        if (Optional.ofNullable(range).isPresent()) {
-            return range.hasLowerBound() ? Optional.of(range.lowerEndpoint()) : Optional.empty();
-        }
-        return Optional.empty();
+        return Optional.ofNullable(range)
+                .flatMap(Ranges::lowerBound);
     }
 
     @Override

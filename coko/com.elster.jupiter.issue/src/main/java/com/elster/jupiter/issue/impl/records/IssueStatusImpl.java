@@ -85,4 +85,13 @@ public final class IssueStatusImpl extends EntityImpl implements IssueStatus{
     public int hashCode() {
         return Objects.hash(key);
     }
+
+    @Override
+    public String toString() {
+        return "IssueStatusImpl{" +
+                "key='" + key + '\'' +
+                ", translationKey='" + translationKey + '\'' +
+                ", isHistorical=" + isHistorical +
+                '}';
+    }
 }

@@ -14,7 +14,9 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 
@@ -74,6 +76,10 @@ public interface MeteringService {
 
     Optional<UsagePoint> findUsagePointByName(String name);
 
+    /**
+     * @deprecated Pls directly use {@link UsagePointLifeCycleConfigurationService#findUsagePointLifeCycleByName(String)}.
+     */
+    @Deprecated
     UsagePointLifeCycle findUsagePointLifeCycleByName(String name);
 
     UsagePointLifeCycle findUsagePointLifeCycle(String name);
@@ -90,7 +96,11 @@ public interface MeteringService {
 
     Optional<EndDevice> findEndDeviceByName(String name);
 
-    List<EndDevice> findEndDevices(Set<String> ids);
+    /**
+     * @deprecated Uses quite doubtful logic where the same string can be treated as MRID or as name at the same time.
+     */
+    @Deprecated
+    List<EndDevice> findEndDevices(Set<String> mridsOrNames);
 
     @Deprecated
     Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames);
@@ -248,7 +258,16 @@ public interface MeteringService {
 
     Optional<ReadingQualityComment> findReadingQualityComment(long id);
 
+    /**
+     * @deprecated Not quite generic method by its signature.
+     * Its logic is as specific as filtering of end device events by a range of time and a subquery for end device ids;
+     * same can be achieved by using {@link #streamEndDeviceEvents()} and filtering.
+     * Also it seems to be badly implemented and <b>likely won't work at all</b>.
+     */
+    @Deprecated
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, Subquery subquery);
+
+    QueryStream<EndDeviceEventRecord> streamEndDeviceEvents();
 
     Optional<ChannelsContainer> findChannelsContainer(long id);
 }

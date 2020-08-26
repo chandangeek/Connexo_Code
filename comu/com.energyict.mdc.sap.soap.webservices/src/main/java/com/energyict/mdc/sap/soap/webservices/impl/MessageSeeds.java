@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format. Missing attributes: {0}."),
     MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message with the same ID or UUID is currently being processed."),
     UNEXPECTED_CONFIRMATION_MESSAGE(3, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
-    WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to properly send request to the following web service endpoint(s): {0}."),
+    WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to send message to the following web service endpoint(s): {0}."),
     NO_WEB_SERVICE_ENDPOINTS(6, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
     ERROR_LOADING_PROPERTY(7, "ErrorLoadingProperty", "Error while loading property ''{0}'': ''{1}''."),
     UNEXPECTED_EXCEPTION(8, "UnexpectedException", "Exception occurred while processing request : ''{0}''."),

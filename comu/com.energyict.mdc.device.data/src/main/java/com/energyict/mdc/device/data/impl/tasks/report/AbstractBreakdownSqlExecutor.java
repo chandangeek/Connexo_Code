@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.tasks.TaskStatus;
 
 import java.sql.Connection;
@@ -23,6 +24,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides code reuse opportunities for components that generate and execute SQL
@@ -42,6 +45,7 @@ import java.util.Optional;
  * @since 2015-10-05 (16:45)
  */
 abstract class AbstractBreakdownSqlExecutor {
+    private static final Logger LOGGER = Logger.getLogger(AbstractBreakdownSqlExecutor.class.getName());// just for time measurement
 
     static final int TYPE_COLUMN_NUMBER = 1;
     static final int STATUS_COLUMN_NUMBER = TYPE_COLUMN_NUMBER + 1;
@@ -49,7 +53,7 @@ abstract class AbstractBreakdownSqlExecutor {
     static final int COUNT_COLUMN_NUMBER = TARGET_ID_COLUMN_NUMBER + 1;
 
     private final DataModel dataModel;
-    private final Optional<EndDeviceGroup> deviceGroup;
+    protected final Optional<EndDeviceGroup> deviceGroup;
     private final Optional<AmrSystem> amrSystem;
     private SqlFragment deviceGroupFragment = null;
 
@@ -74,7 +78,7 @@ abstract class AbstractBreakdownSqlExecutor {
         return this.sql().prepare(connection);
     }
 
-    private SqlBuilder sql() {
+    protected SqlBuilder sql() {
         Instant now = this.dataModel.getInstance(Clock.class).instant();
         SqlBuilder sqlBuilder = this.beforeDeviceGroupSql(now);
         this.deviceGroup.ifPresent(deviceGroup -> this.appendDeviceGroupSql(deviceGroup, sqlBuilder));
@@ -105,20 +109,12 @@ abstract class AbstractBreakdownSqlExecutor {
 
     protected abstract String deviceContainerAliasName();
 
-    private void appendDeviceGroupSql(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {
-        SqlFragment fragment;
+    protected void appendDeviceGroupSql(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {
         sqlBuilder.append(" and ");
         sqlBuilder.append(this.deviceContainerAliasName());
-        sqlBuilder.append(".device in (");
-        if (deviceGroup instanceof QueryEndDeviceGroup) {
-            fragment = ((QueryEndDeviceGroup) deviceGroup).toFragment();
-        }
-        else {
-            fragment = ((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(this.amrSystem.get()).toFragment();
-        }
-        sqlBuilder.add(fragment);
-        sqlBuilder.append(")");
-        this.deviceGroupFragment = fragment;
+        sqlBuilder.append(".mrid = '");
+        sqlBuilder.append(deviceGroup.getMRID());
+        sqlBuilder.append("' ");
     }
 
     private List<BreakdownResult> fetchBreakdowns(PreparedStatement statement) throws SQLException {

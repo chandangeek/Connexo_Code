@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 
-import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -351,6 +350,9 @@ public class RunningComServerImplTest {
 
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
         ScheduledComPort scheduledComPort = mock(ScheduledComPort.class);
+        OutboundComPort comPort = mock(OutboundComPort.class);
+        when(comPort.getId()).thenReturn(1L);
+        when(scheduledComPort.getComPort()).thenReturn(comPort);
         when(scheduledComPortFactory.newFor(any(RunningComServer.class), any(OutboundComPort.class))).thenReturn(scheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ComPortListener comPortListener = mock(ComPortListener.class);
@@ -402,6 +404,9 @@ public class RunningComServerImplTest {
 
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
         ScheduledComPort scheduledComPort = mock(ScheduledComPort.class);
+        OutboundComPort comPort = mock(OutboundComPort.class);
+        when(comPort.getId()).thenReturn(1L);
+        when(scheduledComPort.getComPort()).thenReturn(comPort);
         when(scheduledComPort.getStatus()).thenReturn(ServerProcessStatus.STARTED);
         when(scheduledComPortFactory.newFor(any(RunningComServer.class), any(OutboundComPort.class))).thenReturn(scheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);

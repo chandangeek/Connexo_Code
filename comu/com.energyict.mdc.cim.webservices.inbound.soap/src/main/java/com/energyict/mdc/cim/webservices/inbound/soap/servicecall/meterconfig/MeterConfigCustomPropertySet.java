@@ -23,6 +23,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
@@ -36,7 +37,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGWRAPPER;
 
 @Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigCustomPropertySet",
         service = CustomPropertySet.class,
@@ -49,12 +49,19 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
     private volatile Thesaurus thesaurus;
 
     public MeterConfigCustomPropertySet() {
+        // for OSGi
     }
 
     @Inject
-    public MeterConfigCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public MeterConfigCustomPropertySet(PropertySpecService propertySpecService,
+                                        CustomPropertySetService customPropertySetService,
+                                        Thesaurus thesaurus,
+                                        ServiceCallService serviceCallService,
+                                        TaskService taskService) {
         this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
+        setPropertySpecService(propertySpecService);
+        setServiceCallService(serviceCallService);
+        setTaskService(taskService);
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -72,8 +79,8 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
 
     @Reference
     @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
+    public void setTaskService(TaskService taskService) {
+        // to make sure ComTasks are available
     }
 
     @Reference
