@@ -30,6 +30,8 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertyS
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.text.MessageFormat;
@@ -89,11 +91,15 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     @Mock
     Device device;
     @Mock
-    DeviceConfiguration deviceConfiguration;
+    private DeviceConfiguration deviceConfiguration;
     @Mock
     private ComTaskExecution comTaskExecution;
     @Mock
-    CommunicationTaskService communicationTaskService;
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private PriorityComTaskService priorityComTaskService;
+    @Mock
+    private EngineConfigurationService engineConfigurationService;
 
     @Before
     public void setUp() throws Exception {
@@ -175,7 +181,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromPendingToOngoingIgnored() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService);
 
         // Business method
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
@@ -186,7 +193,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingNotAllMessagesConfirmed() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(10);
@@ -201,7 +209,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingAllMessagesConfirmed() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);
@@ -223,7 +232,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     @Test
     @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information can't be located or is inactive.")
     public void testStateChangeFromWaitingToOngoingStatusInformationComTaskEnablementNotFound() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);
@@ -243,7 +253,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingStatusInformationReadBreakerStatusNotFound() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);
@@ -261,7 +272,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingStatusInformationReadBreakerStatusMatches() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);
@@ -280,7 +292,8 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingStatusInformationReadBreakerStatusDoesNotMatches() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService);
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);

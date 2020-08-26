@@ -432,14 +432,14 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         serviceCall.log(LogLevel.INFO, "Handling command " + endDeviceCommand.getEndDeviceControlType());
 
         try {
-            checkComTask(multiSenseDevice);
+            boolean needToExecuteComTaskWithPriority = withPriority && releaseDate.isBefore(clock.instant());
+            checkComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
             if (endDeviceCommand instanceof OpenRemoteSwitchCommand || endDeviceCommand instanceof CloseRemoteSwitchCommand || endDeviceCommand instanceof ArmRemoteSwitchCommand) {
                 // check Status Information com task exists and is manual system for 3 command types which trigger it in service call handlers
-                checkStatusInformationComTask(multiSenseDevice);
+                checkStatusInformationComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
             }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
-            updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
-            boolean needToExecuteComTaskWithPriority = withPriority && releaseDate.isBefore(clock.instant());
+            updateCommandServiceCallDomainExtension(serviceCall, deviceMessages, needToExecuteComTaskWithPriority);
             scheduleDeviceCommandsComTaskEnablement(multiSenseDevice, deviceMessages, needToExecuteComTaskWithPriority);  // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
@@ -456,7 +456,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
     }
 
-    private void checkComTask(Device device) throws NoSuchElementException {
+    private void checkComTask(Device device, boolean withPriority) throws NoSuchElementException {
         // just to check negative case when there is no ManualSystemTask of type MessagesTask
         ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
                 .getComTaskEnablements().stream()
@@ -472,9 +472,14 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
             throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
         }
+
+        ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
+        if (withPriority && !canRunWithPriority(comTaskExecution)) {
+            throw NoSuchElementException.comTaskToRunWithPriorityCouldNotBeLocated(thesaurus).get();
+        }
     }
 
-    private void checkStatusInformationComTask(Device device) throws NoSuchElementException {
+    private void checkStatusInformationComTask(Device device, boolean withPriority) throws NoSuchElementException {
         // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
         ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
                 .getComTaskEnablements().stream()
@@ -490,6 +495,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
             throw NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get();
         }
+
+        ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
+        if (withPriority && !canRunWithPriority(comTaskExecution)) {
+            throw NoSuchElementException.statusInformationComTaskToRunWithPriorityCouldNotBeLocated(thesaurus).get();
+        }
     }
 
     private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages, boolean withPriority) {
@@ -503,10 +513,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
             }
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
-
-            if (withPriority && !canRunWithPriority(comTaskExecution)) {
-                throw NoSuchElementException.comTaskToRunWithPriorityCouldNotBeLocated(thesaurus).get();
-            }
 
             ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId(), comTaskExecution.getVersion())
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
@@ -556,10 +562,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         return comTaskEnablements.stream().distinct();
     }
 
-    private void updateCommandServiceCallDomainExtension(ServiceCall serviceCall, List<DeviceMessage> deviceMessages) {
+    private void updateCommandServiceCallDomainExtension(ServiceCall serviceCall, List<DeviceMessage> deviceMessages, boolean withPriority) {
         CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
         domainExtension.setDeviceMessages(deviceMessages);
         domainExtension.setNrOfUnconfirmedDeviceCommands(deviceMessages.size());
+        domainExtension.setRunWithPriority(withPriority);
         serviceCall.update(domainExtension);
     }
 
