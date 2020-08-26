@@ -882,8 +882,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     public ConnectionTask<?, ?> executionCompleted(final ConnectionTask connectionTask) {
         ConnectionTask updatedConnectionTask = null;
         try {
-            connectionTask.executionCompleted();
-            updatedConnectionTask = connectionTask;
+            if (connectionTask instanceof InboundConnectionTask) {
+                Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
+                if (lockedConnectionTask.isPresent()) {
+                    ConnectionTask task = lockedConnectionTask.get();
+                    task.executionCompleted();
+                    updatedConnectionTask = task;
+                } else {
+                    throw new IllegalStateException("Can't find inbound connection task");
+                }
+            } else {
+                connectionTask.executionCompleted();
+                updatedConnectionTask = connectionTask;
+            }
         } catch (OptimisticLockException e) {
             final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
             if (reloaded.isPresent()) {
@@ -898,8 +909,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     public ConnectionTask<?, ?> executionFailed(final ConnectionTask connectionTask) {
         ConnectionTask updatedConnectionTask = null;
         try {
-            connectionTask.executionFailed();
-            updatedConnectionTask = connectionTask;
+            if (connectionTask instanceof InboundConnectionTask) {
+                Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
+                if (lockedConnectionTask.isPresent()) {
+                    ConnectionTask task = lockedConnectionTask.get();
+                    task.executionFailed();
+                    updatedConnectionTask = task;
+                } else {
+                    throw new IllegalStateException("Can't find inbound connection task");
+                }
+            } else {
+                connectionTask.executionFailed();
+                updatedConnectionTask = connectionTask;
+            }
         } catch (OptimisticLockException e) {
             final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
             if (reloaded.isPresent()) {
