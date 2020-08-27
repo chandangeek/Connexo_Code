@@ -1,3 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
+Private-Package: com.elster.jupiter.bpm.impl
 Export-Package: com.elster.jupiter.bpm, com.elster.jupiter.bpm.security
