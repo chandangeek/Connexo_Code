@@ -146,9 +146,8 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .forEach(child -> {
-                    MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    Optional<Device> device = findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
-                    device.ifPresent(value -> map.put(value, PingResult.valueFor(extensionFor.getPingResult())));
+                    Optional<Device> device = (Optional<Device>)child.getTargetObject();
+                    device.ifPresent(value -> map.put(value, PingResult.valueFor(child.getExtensionFor(new MeterConfigCustomPropertySet()).get().getPingResult())));
                 });
         return map;
     }
@@ -195,9 +194,5 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
 
     private boolean areAllClosed(List<ServiceCall> serviceCalls) {
         return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
-    }
-
-    private Optional<Device> findDevice(String mrid, String deviceName) {
-        return (mrid != null && !mrid.isEmpty()) ? deviceService.findDeviceByMrid(mrid) : deviceService.findDeviceByName(deviceName);
     }
 }
