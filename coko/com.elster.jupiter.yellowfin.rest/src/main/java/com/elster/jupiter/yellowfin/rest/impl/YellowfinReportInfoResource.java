@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/report")
 public class YellowfinReportInfoResource {
@@ -33,60 +34,60 @@ public class YellowfinReportInfoResource {
 
 
     @Inject
-    private YellowfinReportInfoResource(YellowfinService yellowfinService, Thesaurus thesaurus){
+    private YellowfinReportInfoResource(YellowfinService yellowfinService, Thesaurus thesaurus) {
         this.yellowfinService = yellowfinService;
         this.thesaurus = thesaurus;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/info")
     @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public ReportInfos getReportsInfo(@QueryParam("category") String category,
                                       @QueryParam("subCategory") String subCategory,
                                       @QueryParam("reportUUID") String reportUUID,
-                                      @Context SecurityContext securityContext){
+                                      @Context SecurityContext securityContext) {
 
-        User user = (User) securityContext.getUserPrincipal();
-        String found = yellowfinService.getUser(user.getName()).
+        String userName = getName((User) securityContext.getUserPrincipal());
+        String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
-        if(found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(user.getName()).
+        if (found.equals("NOT_FOUND")) {
+            found = yellowfinService.createUser(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 
-        if(found.equals("SUCCESS")) {
+        if (found.equals("SUCCESS")) {
             ReportInfos reportInfos = new ReportInfos();
             reportInfos.addAll(
-                    yellowfinService.getUserReports(user.getName(), category, subCategory, reportUUID).
+                    yellowfinService.getUserReports(userName, category, subCategory, reportUUID).
                             orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build())));
 
             return reportInfos;
-        }
-        else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build());
+        } else {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE_ENHANCED).format(found)).build());
         }
     }
+
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/filter")
     @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public FilterInfos getFiltersInfo(@QueryParam("reportId") int reportId,
                                       @QueryParam("reportUUID") String reportUUID,
                                       @QueryParam("listAll") boolean listAll,
-                                      @Context SecurityContext securityContext){
+                                      @Context SecurityContext securityContext) {
         FilterInfos filterInfos = new FilterInfos();
-        User user = (User) securityContext.getUserPrincipal();
-        String found = yellowfinService.getUser(user.getName()).
+        String userName = getName((User) securityContext.getUserPrincipal());
+        String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
-        if(found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(user.getName()).
+        if (found.equals("NOT_FOUND")) {
+            found = yellowfinService.createUser(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 
-        if(found.equals("SUCCESS")) {
+        if (found.equals("SUCCESS")) {
             if (reportId != 0) {
                 filterInfos.addAll(
                         yellowfinService.getReportFilters(reportId).orElseThrow(() -> new WebApplicationException(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format(), Response.Status.SERVICE_UNAVAILABLE)));
@@ -94,7 +95,7 @@ public class YellowfinReportInfoResource {
                 if (reportUUID != null) {
                     ReportInfos reportInfos = new ReportInfos();
                     reportInfos.addAll(
-                            yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
+                            yellowfinService.getUserReports(userName, null, null, reportUUID).
                                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build())));
                     if (reportInfos.total > 0) {
                         List<ReportInfo> reportInfo = reportInfos.reports;
@@ -105,30 +106,30 @@ public class YellowfinReportInfoResource {
                 }
             }
             return filterInfos;
-        }
-        else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build());
+        } else {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE_ENHANCED).format(found)).build());
         }
     }
+
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/filterlistitems")
     @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public FilterListItemInfos getFiltersInfo(@QueryParam("reportId") int reportId,
-                                      @QueryParam("reportUUID") String reportUUID,
-                                      @QueryParam("filterId") String filterId,
-                                      @Context SecurityContext securityContext){
+                                              @QueryParam("reportUUID") String reportUUID,
+                                              @QueryParam("filterId") String filterId,
+                                              @Context SecurityContext securityContext) {
         FilterListItemInfos filterInfos = new FilterListItemInfos();
-        User user = (User) securityContext.getUserPrincipal();
-        String found = yellowfinService.getUser(user.getName()).
+        String userName = getName((User) securityContext.getUserPrincipal());
+        String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
-        if(found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(user.getName()).
+        if (found.equals("NOT_FOUND")) {
+            found = yellowfinService.createUser(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 
-        if(found.equals("SUCCESS")) {
+        if (found.equals("SUCCESS")) {
             if (reportId != 0) {
                 filterInfos.addAll(
                         yellowfinService.getFilterListItems(filterId, reportId).orElseThrow(() -> new WebApplicationException(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format(), Response.Status.SERVICE_UNAVAILABLE)));
@@ -136,7 +137,7 @@ public class YellowfinReportInfoResource {
                 if (reportUUID != null) {
                     ReportInfos reportInfos = new ReportInfos();
                     reportInfos.addAll(
-                            yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
+                            yellowfinService.getUserReports(userName, null, null, reportUUID).
                                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build())));
                     if (reportInfos.total > 0) {
                         List<ReportInfo> reportInfo = new ArrayList<>();
@@ -148,9 +149,16 @@ public class YellowfinReportInfoResource {
                 }
             }
             return filterInfos;
+        } else {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE_ENHANCED).format(found)).build());
         }
-        else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build());
+    }
+
+    private String getName(User user) {
+        String userName = user.getName();
+        if (! user.getPrivileges("YFN").stream().anyMatch(p -> p.getName().equals("privilege.design.reports") || p.getName().equals("privilege.administrate.reports"))) {
+            userName = YellowfinResource.USER_REPORTS_VIEWER;
         }
+        return userName;
     }
 }

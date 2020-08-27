@@ -25,7 +25,7 @@ import javax.ws.rs.core.SecurityContext;
 
 @Path("/user")
 public class YellowfinResource {
-
+    public static final String USER_REPORTS_VIEWER = "reportsViewer";
     private final YellowfinService yellowfinService;
     private final Thesaurus thesaurus;
 
@@ -53,21 +53,20 @@ public class YellowfinResource {
     @Path("/login")
     @RolesAllowed({Privileges.Constants.VIEW_REPORTS, Privileges.Constants.DESIGN_REPORTS})
     public YellowfinInfo login(HttpServletResponse response, @Context SecurityContext securityContext) {
-        User user = (User) securityContext.getUserPrincipal();
-
-        String found = yellowfinService.getUser(user.getName()).
+        String userName = getName((User) securityContext.getUserPrincipal());
+        String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
         if (found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(user.getName()).
+            found = yellowfinService.createUser(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         } else if (found.equals("SUCCESS")) {
-            yellowfinService.logout(user.getName()).
+            yellowfinService.logout(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 
         if (found.equals("SUCCESS")) {
-            String webServiceLoginToken = yellowfinService.login(user.getName()).
+            String webServiceLoginToken = yellowfinService.login(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
             YellowfinInfo info = new YellowfinInfo();
@@ -75,7 +74,7 @@ public class YellowfinResource {
             info.url = yellowfinService.getYellowfinUrl();
             return info;
         } else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE_ENHANCED).format(found)).build());
         }
     }
 
@@ -84,18 +83,17 @@ public class YellowfinResource {
     @Path("/token")
     @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public YellowfinInfo token(HttpServletResponse response, @Context SecurityContext securityContext) {
-        User user = (User) securityContext.getUserPrincipal();
-
-        String found = yellowfinService.getUser(user.getName()).
+        String userName = getName((User) securityContext.getUserPrincipal());
+        String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
         if (found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(user.getName()).
+            found = yellowfinService.createUser(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 
         if (found.equals("SUCCESS")) {
-            String webServiceLoginToken = yellowfinService.login(user.getName()).
+            String webServiceLoginToken = yellowfinService.login(userName).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
             YellowfinInfo info = new YellowfinInfo();
@@ -103,8 +101,15 @@ public class YellowfinResource {
             info.url = yellowfinService.getYellowfinUrl();
             return info;
         } else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE_ENHANCED).format(found)).build());
         }
     }
 
+    private String getName(User user) {
+        String userName = user.getName();
+        if (! user.getPrivileges("YFN").stream().anyMatch(p -> p.getName().equals("privilege.design.reports") || p.getName().equals("privilege.administrate.reports"))) {
+            userName = USER_REPORTS_VIEWER;
+        }
+        return userName;
+    }
 }
