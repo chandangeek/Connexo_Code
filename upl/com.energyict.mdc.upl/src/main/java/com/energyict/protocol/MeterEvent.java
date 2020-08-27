@@ -1422,7 +1422,6 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Temp sensor is broken");
             case BINDING_FLAG:
                 return ("The binding flag is set by the M-Bus device when the device is in installation mode and it has been bound to an E-meter (it received the for this specific M-Bus device intended CNF_IR).");
-            case TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
             case EOB_RESET:
                 return ("EOB Reset");
             case MANUAL_RESET:
