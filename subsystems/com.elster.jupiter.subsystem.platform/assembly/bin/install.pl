@@ -1234,11 +1234,11 @@ sub start_tomcat {
             if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                 # classpath separator on Windows is ;
                 print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
-                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;bundles/lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
             } else {
                 # classpath separator on Linux is :
                 print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
-                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*:bundles/lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.bpm.install.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
 
             }
             print "\nDeploy MDC processes...\n";
