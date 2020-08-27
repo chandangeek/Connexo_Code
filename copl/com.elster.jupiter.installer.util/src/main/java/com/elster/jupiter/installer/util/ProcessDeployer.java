@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20120 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.installer.util;
