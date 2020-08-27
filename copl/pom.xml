@@ -685,8 +685,8 @@
                 <scope>provided</scope>
             </dependency>
 			<dependency>
-				<groupId>com.elster.installer.util</groupId>
-				<artifactId>launcher</artifactId>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>installer.util</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
