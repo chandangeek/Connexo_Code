@@ -47,7 +47,7 @@ public class CryptoHS3300 extends HS3300 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-06-07 10:00:00 +0200 (Fri, 7 Jun 2019)$";
+        return "$Date: 2020-08-27$";
     }
 
     @Override
