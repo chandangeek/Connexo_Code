@@ -20,16 +20,6 @@
             <artifactId>org.osgi.core</artifactId>
         </dependency>
         <dependency>
-            <!--the dependency used only during installation step
-            TODO: https://jira.eict.vpdc/browse/CONM-1553
-            -->
-            <groupId>org.guvnor</groupId>
-            <artifactId>guvnor-m2repo-editor-backend</artifactId>
-            <version>6.4.0.Final</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
