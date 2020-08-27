@@ -6,6 +6,7 @@ package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fileimport.FileImportHistory;
 import com.elster.jupiter.fileimport.FileImportHistoryBuilder;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
@@ -304,9 +305,20 @@ public class FileImportScheduleResource {
                                                       @PathParam("id") long importServiceId,
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context SecurityContext securityContext) {
-        List<FileImportOccurrence> fileImportOccurrences = getFileImportOccurrences(queryParameters, filter, applicationName, importServiceId);
+        List<FileImportOccurrence> fileImportOccurrences = getFileImportOccurrences(filter, applicationName, importServiceId).from(queryParameters).find();
         List<FileImportOccurrenceInfo> data = fileImportOccurrences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
+    }
+
+    @GET
+    @Path("/{id}/history/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
+    public Response getImportScheduleOccurrencesCount(@BeanParam JsonQueryFilter filter,
+                                                      @PathParam("id") long importServiceId,
+                                                      @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                      @Context SecurityContext securityContext) {
+        return Response.ok(getFileImportOccurrences(filter, applicationName, importServiceId).count()).build();
     }
 
     @GET
@@ -317,14 +329,23 @@ public class FileImportScheduleResource {
                                                            @BeanParam JsonQueryFilter filter,
                                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                            @Context SecurityContext securityContext) {
-        List<FileImportOccurrence> fileImportOccurrences = getFileImportOccurrences(queryParameters, filter, applicationName, null);
+        List<FileImportOccurrence> fileImportOccurrences = getFileImportOccurrences(filter, applicationName, null).from(queryParameters).find();
         List<FileImportOccurrenceInfo> data = fileImportOccurrences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
-    private List<FileImportOccurrence> getFileImportOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long importServiceId) {
-        FileImportOccurrenceFinderBuilder finderBuilder = fileImportService.getFileImportOccurrenceFinderBuilder(applicationName, importServiceId);
+    @GET
+    @Path("/history/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.VIEW_HISTORY})
+    public Response geAllImportOccurrencesOccurrencesCount(@BeanParam JsonQueryFilter filter,
+                                                           @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                           @Context SecurityContext securityContext) {
+        return Response.ok(getFileImportOccurrences(filter, applicationName, null).count()).build();
+    }
 
+    private Finder<FileImportOccurrence> getFileImportOccurrences(JsonQueryFilter filter, String applicationName, Long importServiceId) {
+        FileImportOccurrenceFinderBuilder finderBuilder = fileImportService.getFileImportOccurrenceFinderBuilder(applicationName, importServiceId);
         if (filter.hasProperty("startedOnFrom")) {
             if (filter.hasProperty("startedOnTo")) {
                 finderBuilder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
@@ -354,8 +375,9 @@ public class FileImportScheduleResource {
                     .stream()
                     .map(Status::valueOf)
                     .collect(Collectors.toList()));
+
         }
-        return finderBuilder.build().from(queryParameters).find();
+        return finderBuilder.build();
     }
 
 
@@ -481,6 +503,7 @@ public class FileImportScheduleResource {
         fileImportHistoryBuilder.setUploadTime(clock.instant());
         return fileImportHistoryBuilder.create();
     }
+
     private class FileInfo {
 
         private String importFolder;

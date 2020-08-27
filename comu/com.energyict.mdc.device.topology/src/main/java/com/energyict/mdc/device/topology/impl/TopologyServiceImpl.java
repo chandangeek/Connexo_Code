@@ -99,6 +99,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -129,6 +130,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile UserService userService;
     private RegisteredDevicesKpiService registeredDevicesKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+
+    private static final Logger LOGGER = Logger.getLogger(TopologyServiceImpl.class.getName());
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -238,6 +241,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
+            LOGGER.info("CXO-11731: Update comtask execution from setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology");
             comTaskExecutionUpdater.update();
         }
     }
@@ -271,6 +275,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
                 comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask);
+                LOGGER.info("CXO-11731: Update comtask execution from setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology");
                 comTaskExecutionUpdater.update();
             }
         }
@@ -288,6 +293,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             } else {
                 comTaskExecutionUpdater.setConnectionFunction(connectionFunction); // Set to use a ConnectionFunction not used on any ConnectionTask
             }
+            LOGGER.info("CXO-11731: Update comtask execution from recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology");
             comTaskExecutionUpdater.update();
         }
     }
@@ -981,6 +987,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             } else {
                 comTaskExecutionUpdater.useDefaultConnectionTask(true);
             }
+            LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNewDefaultConnectionTask");
             comTaskExecutionUpdater.update();
         }
     }
@@ -995,6 +1002,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 } else {
                     comTaskExecutionUpdater.setConnectionFunction(connectionFunction);
                 }
+                LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction");
                 comTaskExecutionUpdater.update();
             }
         });
@@ -1004,6 +1012,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(true);
+            LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNonExistingDefaultConnectionTask");
             comTaskExecutionUpdater.update();
         }
     }
@@ -1014,6 +1023,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         for (ComTaskExecution comTaskExecution : allComtaskExecutions) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.setConnectionFunction(comTaskExecution.getConnectionFunction().orElse(null));
+            LOGGER.info("CXO-11731: Update comtask execution from updateComTasksToUseNonExistingConnectionTaskBasedOnConnectionFunction");
             comTaskExecutionUpdater.update();
         }
     }

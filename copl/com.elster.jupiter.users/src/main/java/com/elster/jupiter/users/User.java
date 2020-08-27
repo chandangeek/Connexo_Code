@@ -100,4 +100,7 @@ public interface User extends Principal, HasName, HasExternalId {
     int getUnSuccessfulLoginCount();
 
     void setUnSuccessfulLoginCount(int unSuccessfulLoginCount);
+
+    void setRoleModified(boolean status);
+    boolean isRoleModified();
 }

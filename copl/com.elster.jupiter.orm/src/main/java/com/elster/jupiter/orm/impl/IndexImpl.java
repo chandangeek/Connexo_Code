@@ -123,6 +123,24 @@ public class IndexImpl implements Index {
             index.getTable().add(index);
             return index;
         }
+
+        @Override
+        public Builder since(Version version) {
+            index.since(version);
+            return this;
+        }
+
+        @Override
+        public Builder upTo(Version version) {
+            index.upTo(version);
+            return this;
+        }
+
+        @Override
+        public Builder during(Range... ranges) {
+            index.during(ranges);
+            return this;
+        }
     }
 
     @Override

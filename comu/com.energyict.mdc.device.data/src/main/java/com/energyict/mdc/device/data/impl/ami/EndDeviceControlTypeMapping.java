@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.ChangeStepTariffCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.GenerateCSRCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.GenerateKeyPairCommand;
@@ -70,6 +71,13 @@ public enum EndDeviceControlTypeMapping {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new UpdateCreditAmountCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    CHANGE_STEP_TARIFF("0.20.140.13", Collections.singletonList(DeviceMessageId.CHANGE_STEP_TARIFF_CONFIGURATION)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new ChangeStepTariffCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
         }
     },
 

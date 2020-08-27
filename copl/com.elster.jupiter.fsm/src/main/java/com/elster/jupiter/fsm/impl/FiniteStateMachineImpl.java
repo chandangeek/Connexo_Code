@@ -23,7 +23,6 @@ import com.elster.jupiter.fsm.impl.constraints.ExactlyOneInitialState;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pubsub.Publisher;
@@ -280,7 +279,6 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     public void update() {
         Save.UPDATE.save(this.dataModel, this);
         this.eventService.postEvent(EventType.FSM_UPDATED.topic(),this);
-        invalidateCache();
     }
 
     @Override
@@ -288,7 +286,6 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         this.obsoleteTimestamp = this.clock.instant();
         this.obsoleteAllStates();
         this.dataModel.update(this, Fields.OBSOLETE_TIMESTAMP.fieldName());
-        invalidateCache();
     }
 
     private void obsoleteAllStates() {
@@ -338,9 +335,5 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    private void invalidateCache() {
-        this.publisher.publish(new InvalidateCacheRequest(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name()));
     }
 }

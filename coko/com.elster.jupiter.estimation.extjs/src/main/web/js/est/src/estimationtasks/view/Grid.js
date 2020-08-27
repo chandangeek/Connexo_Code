@@ -79,6 +79,7 @@ Ext.define('Est.estimationtasks.view.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('estimationtasks.pagingtoolbarbottom.itemsPerPage', 'EST', 'Estimation tasks per page'),
                 dock: 'bottom'
             }

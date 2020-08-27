@@ -62,6 +62,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Boolean isMultiElementDevice;
     public String multiElementDeviceName; // only available when we are a multi-element slave
     public Boolean isMultiElementSlave;
+    public Boolean isFirmwareManagementAllowed;
     public String serviceCategory;
     public String usagePoint;
     public EstimationStatusInfo estimationStatus;

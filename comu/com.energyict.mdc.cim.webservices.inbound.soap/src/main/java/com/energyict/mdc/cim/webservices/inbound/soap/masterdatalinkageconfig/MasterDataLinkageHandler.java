@@ -359,17 +359,18 @@ public class MasterDataLinkageHandler {
     private List<ErrorType> collectWarnings() {
         List<ErrorType> warnings = new ArrayList<>();
         if (meterNodes.size() > 1) {
-            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
+            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null,
                     MasterDataLinkageMessageValidator.METER_LIST_ELEMENT));
         }
         if (usagePointNodes.size() > 1) {
-            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
+            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null,
                     MasterDataLinkageMessageValidator.USAGE_POINT_LIST_ELEMENT));
         }
         if (endDeviceNodes.size() > 1) {
-            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
+            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null,
                     MasterDataLinkageMessageValidator.END_DEVICE_LIST_ELEMENT));
         }
         return warnings;
     }
+
 }

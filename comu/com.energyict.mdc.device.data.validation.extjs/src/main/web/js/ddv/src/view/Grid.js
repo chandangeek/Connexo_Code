@@ -101,6 +101,7 @@ Ext.define('Ddv.view.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('dataQuality.paging.displayMsg', 'DDV', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('dataQuality.paging.displayMoreMsg', 'DDV', '{0} - {1} of more than {2} devices'),
                 emptyMsg: Uni.I18n.translate('dataQuality.paging.emptyMsg', 'DDV', 'There are no devices to display')
@@ -110,6 +111,7 @@ Ext.define('Ddv.view.Grid', {
                 store: this.store,
                 deferLoading: true,
                 dock: 'bottom',
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('dataQuality.paging.devicesPerPage', 'DDV', 'Devices per page')
             }
         ];

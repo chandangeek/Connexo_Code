@@ -37,6 +37,7 @@ import static java.util.stream.Collectors.toList;
  * @since 2014-01-30 (15:42)
  */
 public class Installer implements FullInstaller, PrivilegesProvider {
+    private static final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -60,12 +61,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
+            logger.info("Adding subscriber " + TranslationKeys.DEVICE_TYPES_CHANGES_EVENT_SUBSC.getKey());
             destinationSpec.subscribe(
                     TranslationKeys.DEVICE_TYPES_CHANGES_EVENT_SUBSC,
                     DeviceConfigurationService.COMPONENTNAME,
                     Layer.DOMAIN,
                     whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/CREATED")
-                            .or(whereCorrelationId().isEqualTo("com/elster/jupiter/metering/enddeviceevent/CREATED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/DELETED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/dlc/UPDATED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/lifecycle/config/dlc/update"))

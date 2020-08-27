@@ -378,4 +378,25 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     public final int hashCode() {
         return Objects.hash(id);
     }
+
+    @Override
+    public String toString() {
+        return "IssueDataCollectionImpl{" +
+                "baseIssue=" + baseIssue +
+                ", comTask=" + comTask +
+                ", connectionTask=" + connectionTask +
+                ", comSession=" + comSession +
+                ", deviceMRID='" + deviceMRID + '\'' +
+                ", lastGatewayMRID='" + lastGatewayMRID + '\'' +
+                ", firstConnectionAttemptTimestamp=" + firstConnectionAttemptTimestamp +
+                ", lastConnectionAttemptTimestamp=" + lastConnectionAttemptTimestamp +
+                ", connectionAttempt=" + connectionAttempt +
+                ", id=" + id +
+                ", version=" + version +
+                ", createTime=" + createTime +
+                ", modTime=" + modTime +
+                ", userName='" + userName + '\'' +
+                ", dataModel=" + dataModel +
+                '}';
+    }
 }

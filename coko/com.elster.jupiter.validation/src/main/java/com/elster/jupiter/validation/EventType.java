@@ -19,7 +19,7 @@ public enum EventType {
     VALIDATIONRULESETVERSION_CREATED("validationrulesetversion/CREATED", false),
     VALIDATIONRULESETVERSION_UPDATED("validationrulesetversion/UPDATED", false),
     VALIDATIONRULESETVERSION_DELETED("validationrulesetversion/DELETED", false),
-    VALIDATION_PERFORMED("validation/PERFORMED", false) {
+    VALIDATION_PERFORMED("validation/PERFORMED") {
         @Override
         public void install(EventService eventService) {
             eventService.buildEventTypeWithTopic(topic())
@@ -30,7 +30,7 @@ public enum EventType {
                     .create();
         }
     },
-    VALIDATION_RESET("validation/RESET", false) {
+    VALIDATION_RESET("validation/RESET") {
         @Override
         public void install(EventService eventService) {
             eventService.buildEventTypeWithTopic(topic())
@@ -41,7 +41,7 @@ public enum EventType {
                     .create();
         }
     },
-    SUSPECT_VALUE_CREATED("suspect/CREATED", false) {
+    SUSPECT_VALUE_CREATED("suspect/CREATED") {
         @Override
         public void install(EventService eventService) {
             eventService.buildEventTypeWithTopic(topic())
@@ -49,9 +49,8 @@ public enum EventType {
                     .component(ValidationService.COMPONENTNAME)
                     .category("Crud")
                     .scope("System")
-                    .withProperty("channelId", ValueType.LONG, "channelId")
-                    .withProperty("readingType", ValueType.STRING, "readingType")
-                    .withProperty("readingTimeStamp", ValueType.LONG, "readingTimeStamp")
+                    .withProperty("channelsContainerId", ValueType.LONG, "channelsContainerId")
+                    .withProperty("suspectedScope", ValueType.MAP, "suspectedScope")
                     .shouldPublish()
                     .create();
         }
@@ -65,9 +64,9 @@ public enum EventType {
         this.topic = topic;
     }
 
-    EventType(String topic, boolean mRID) {
+    EventType(String topic, boolean hasMRID) {
         this.topic = topic;
-        this.hasMRID = mRID;
+        this.hasMRID = hasMRID;
     }
 
     public String topic() {

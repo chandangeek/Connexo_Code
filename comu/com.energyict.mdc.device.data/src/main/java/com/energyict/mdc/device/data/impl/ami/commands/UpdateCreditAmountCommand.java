@@ -26,6 +26,6 @@ public class UpdateCreditAmountCommand extends EndDeviceCommandImpl {
 
     @Override
     public List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
-        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, Instant.now(), Collections.singletonList(DeviceMessageId.UPDATE_CREDIT_AMOUNT));
+        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate, Collections.singletonList(DeviceMessageId.UPDATE_CREDIT_AMOUNT));
     }
 }

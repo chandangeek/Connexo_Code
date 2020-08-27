@@ -42,7 +42,7 @@ public class CannotEstimateDataEvent extends DataValidationEvent {
             this.channelId = ((Number) jsonPayload.get("channelId")).longValue();
             this.readingType = (String) jsonPayload.get("readingType");
         } catch (Exception e) {
-            throw new UnableToCreateIssueException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
+            throw new UnableToCreateIssueException(thesaurus, MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }
     }
     
@@ -61,5 +61,16 @@ public class CannotEstimateDataEvent extends DataValidationEvent {
                     .collect()
                     .forEach(rq -> dataValidationIssue.addNotEstimatedBlock(channel, readingType, rq.getReadingTimestamp()));
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CannotEstimateDataEvent{" +
+                "startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", channelId=" + channelId +
+                ", readingType='" + readingType + '\'' +
+                ", deviceConfigurationId=" + deviceConfigurationId +
+                '}';
     }
 }

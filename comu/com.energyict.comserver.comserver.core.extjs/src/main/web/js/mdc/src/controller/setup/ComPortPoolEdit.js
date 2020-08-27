@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
     ],
 
     requires: [
-        'Mdc.store.DeviceDiscoveryProtocols'
+        'Mdc.store.DeviceDiscoveryProtocols',
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
     ],
 
     views: [
@@ -21,7 +22,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         'Mdc.store.ComPortPools',
         'Mdc.store.ComPortTypes',
         'Mdc.store.ComPortTypesWithOutServlet',
-        'Mdc.store.DeviceDiscoveryProtocols'
+        'Mdc.store.DeviceDiscoveryProtocols',
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
     ],
 
     refs: [
@@ -60,6 +62,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             protocolDetectionCombo = widget.down('combobox[name=discoveryProtocolPluggableClassId]'),
             pctHighPrioTasks = widget.down('[name=pctHighPrioTasks]') ,
             maxPriorityConnections =  widget.down('[name=maxPriorityConnections]'),
+            taskExecutionTimeout = widget.down('#taskExecutionTimeout'),
             isInbound = false,
             form,
             title;
@@ -86,9 +89,13 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             protocolDetectionCombo.getStore().load();
             pctHighPrioTasks.hide();
             maxPriorityConnections.hide();
+            taskExecutionTimeout.hide();
+            taskExecutionTimeout.disable();
         } else {
             protocolDetectionCombo.hide();
             protocolDetectionCombo.disable();
+            taskExecutionTimeout.show();
+            taskExecutionTimeout.enable();
         }
 
         model.set('direction', type);
@@ -99,6 +106,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         form.down('[name=discoveryProtocolPluggableClassId]').setVisible(isInbound);
         form.down('[name=discoveryProtocolPluggableClassId]').setDisabled(!isInbound);
         form.loadRecord(model);
+        me.modelToForm(model, form);
     },
 
     loadProperties: function (combo, selectedRecords) {
@@ -166,11 +174,50 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                         form.down('#protocolDetectionDetails').setVisible(false);
                     }
                     form.down('[name=comPortType]').setValue(record.get('comPortType').id);
+                    me.modelToForm(record, form);
                 },
                 callback: function () {
                     widget.setLoading(false);
                 }
             });
+        });
+    },
+
+    formToModel: function (form, model) {
+            var queryString = Ext.Object.toQueryString(form.getValues()),
+                values = Ext.Object.fromQueryString(queryString, true);
+            if (form.isValid()){
+                model.beginEdit();
+                model.set(values);
+                model.endEdit();
+            }else{
+                throw Uni.I18n.translate('comServer.form.invalid', 'MDC', 'Form contains invalid values.')
+            }
+    },
+
+    modelToForm: function (model, form) {
+        var me = this,
+            basicForm = form.getForm(),
+            timeUnitsStore = me.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
+            values = {};
+        timeUnitsStore.load(function () {
+            taskExecutionTimeoutUnit = this.findRecord('timeUnit', model.get('taskExecutionTimeout').timeUnit);
+            if (taskExecutionTimeoutUnit) {
+                taskExecutionTimeout = {count: model.get('taskExecutionTimeout').count, timeUnit: taskExecutionTimeoutUnit.get('localizedValue')},
+                model.beginEdit();
+                model.set('taskExecutionTimeout', taskExecutionTimeout);
+                model.endEdit();
+            }
+            Ext.Object.each(model.getData(), function (key, value) {
+                if (Ext.isObject(value)) {
+                    Ext.Object.each(value, function (valKey, valValue) {
+                        values[key + '[' + valKey + ']'] = valValue;
+                    });
+                } else {
+                    values[key] = value;
+                }
+            });
+            basicForm.setValues(values);
         });
     },
 
@@ -194,8 +241,13 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                 record.set('properties', form.down('property-form').getFieldValues().properties);
             }
         }
+        me.formToModel(this.getComPortPoolEditPage().down('form'), record);
         button.setDisabled(true);
         page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
+        record.setTaskExecutionTimeout(Ext.create('Mdc.model.field.TimeInfo', {
+                        count: record.get('taskExecutionTimeout').count,
+                        timeUnit: record.get('taskExecutionTimeout').timeUnit
+        }));
         record.set('comPortType', form.down('#cbo-comportpool-type').findRecordByValue(form.down('#cbo-comportpool-type').getValue()).getData());
         record.save({
             backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comportpools').buildUrl(),

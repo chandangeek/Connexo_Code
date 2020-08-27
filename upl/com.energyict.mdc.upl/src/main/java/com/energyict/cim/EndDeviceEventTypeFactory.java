@@ -1787,4 +1787,21 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getValveConfigurationPgvBit8Changed() { return new EndDeviceEventType("4.4.75.24" ); }
 
+    public static EndDeviceEventType getBatteryConsumptionHigh() { return new EndDeviceEventType("0.2.123.102"); }
+
+    public static EndDeviceEventType getReverseFlow() { return new EndDeviceEventType("0.40.48.93"); }
+
+    public static EndDeviceEventType getTamperP2() { return new EndDeviceEventType("0.12.147.7"); }
+
+    public static EndDeviceEventType getTamperP0() { return new EndDeviceEventType("0.12.147.8"); }
+
+    public static EndDeviceEventType getTamperCase() { return new EndDeviceEventType("0.12.29.212"); }
+
+    public static EndDeviceEventType getSystemHRError() { return new EndDeviceEventType("0.11.100.79"); }
+
+    public static EndDeviceEventType getCFGCalibrationError() { return new EndDeviceEventType("0.21.18.79"); }
+
+    public static EndDeviceEventType getTemperatureSensorError() { return new EndDeviceEventType("0.35.0.79"); }
+
+    public static EndDeviceEventType getBindingFlag() { return new EndDeviceEventType("0.6.5.58"); }
 }

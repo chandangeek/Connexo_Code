@@ -264,7 +264,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
             commandCreator.createCommands(
                     groupedDeviceCommand,
-                    getProtocolDialectTypedProperties(getComServerDAO(), getConnectionTask(), comTaskExecution),
+                    getProtocolDialectTypedProperties(getConnectionTask()),
                     super.preparationContext.getComChannelPlaceHolder(),
                     protocolTasks,
                     deviceProtocolSecurityPropertySet,

@@ -24,6 +24,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_5SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
@@ -35,6 +36,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.*;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -93,30 +95,44 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public ValidationServiceImpl() {
+        // for OSGi
     }
 
     @Inject
-    ValidationServiceImpl(BundleContext bundleContext, Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
-                          OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService, KpiService kpiService, MetrologyConfigurationService metrologyConfigurationService, SearchService searchService) {
+    ValidationServiceImpl(BundleContext bundleContext,
+                          Clock clock,
+                          MessageService messageService,
+                          EventService eventService,
+                          TaskService taskService,
+                          MeteringService meteringService,
+                          MeteringGroupsService meteringGroupsService,
+                          OrmService ormService,
+                          QueryService queryService,
+                          NlsService nlsService,
+                          UserService userService,
+                          Publisher publisher,
+                          UpgradeService upgradeService,
+                          KpiService kpiService,
+                          MetrologyConfigurationService metrologyConfigurationService,
+                          SearchService searchService) {
         this();
-        this.clock = clock;
-        this.messageService = messageService;
-        this.setMetrologyConfigurationService(metrologyConfigurationService);
-        this.setSearchService(searchService);
+        setClock(clock);
+        setMetrologyConfigurationService(metrologyConfigurationService);
+        setSearchService(searchService);
         setMessageService(messageService);
-        this.eventService = eventService;
-        this.meteringService = meteringService;
-        this.meteringGroupsService = meteringGroupsService;
-        this.taskService = taskService;
+        setEventService(eventService);
+        setMeteringService(meteringService);
+        setMeteringGroupsService(meteringGroupsService);
+        setTaskService(taskService);
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
-        this.setKpiService(kpiService);
+        setKpiService(kpiService);
         setUpgradeService(upgradeService);
         activate(bundleContext);
 
-        // subscribe manually when not using OSGI
+        // subscribe manually when not using OSGi
         ValidationEventHandler handler = new ValidationEventHandler();
         handler.setValidationService(this);
         publisher.addSubscriber(handler);
@@ -124,7 +140,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Activate
     public final void activate(BundleContext context) {
-        LOGGER.log(Level.INFO, "Validation service activated" );
+        LOGGER.log(Level.INFO, "Validation service activated");
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -144,7 +160,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
-                bind(MessageService.class).toInstance(messageService);
                 bind(SearchService.class).toInstance(searchService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
             }
@@ -153,18 +168,19 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                 dataModel,
                 InstallerImpl.class,
-                ImmutableMap.of(
-                        Version.version(10, 2), UpgraderV10_2.class,
-                        Version.version(10, 3), UpgraderV10_3.class,
-                        Version.version(10, 5), V10_5SimpleUpgrader.class,
-                        Version.version(10, 7), UpgraderV10_7.class,
-                        Version.version(10, 7, 2), UpgraderV10_7_2.class
-                ));
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(Version.version(10, 2), UpgraderV10_2.class)
+                        .put(Version.version(10, 3), UpgraderV10_3.class)
+                        .put(Version.version(10, 5), V10_5SimpleUpgrader.class)
+                        .put(Version.version(10, 7), UpgraderV10_7.class)
+                        .put(Version.version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(Version.version(10, 8, 1), UpgraderV10_8_1.class)
+                        .build());
     }
 
     @Deactivate
     public void deactivate() {
-        LOGGER.log(Level.INFO, "Validation service deactivated" );
+        LOGGER.log(Level.INFO, "Validation service deactivated");
     }
 
     @Reference
@@ -615,7 +631,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         persistedChannelsContainerValidations.stream()
                 .filter(channelsContainerValidation -> {
                     ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
-                    return !ruleSets.entrySet().stream().anyMatch(e -> e.getKey().equals(validationRuleSet))
+                    return ruleSets.entrySet().stream().noneMatch(e -> e.getKey().equals(validationRuleSet))
                             && (validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(validationRuleSet.getQualityCodeSystem()))
                             && (validationRuleSet.getObsoleteDate() != null || !isValidationRuleSetInUse(validationRuleSet));
                 })
@@ -776,14 +792,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    void postSuspectCreatedEvents(final List<ReadingQualityRecord> listOfSuspectReadings) {
-        listOfSuspectReadings.forEach(this::postSuspectCreatedEvent);
-    }
-
-    private void postSuspectCreatedEvent(final ReadingQualityRecord readingQualityRecord) {
-        eventService.postEvent(EventType.SUSPECT_VALUE_CREATED.topic(), SuspectValueCreatedEventDTO.fromMeterAndReadingQualityRecord(readingQualityRecord));
     }
 
     class DefaultValidatorCreator implements ValidatorCreator {
@@ -989,5 +997,10 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
+    }
+
+    @Override
+    public List<ValidationRule> findValidationRules(Collection<Long> ids) {
+        return dataModel.mapper(ValidationRule.class).select(Where.where("id").in(new ArrayList<>(ids)));
     }
 }

@@ -74,6 +74,7 @@ public final class UserImpl implements User {
     @Size(max = 64, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_64 + "}")
     private String languageTag;
     private Reference<UserDirectory> userDirectory = ValueReference.absent();
+    private boolean isRoleModified;
 
     // transient
     private List<UserInGroup> memberships;
@@ -460,5 +461,14 @@ public final class UserImpl implements User {
     public List<WorkGroup> getWorkGroups() {
         return dataModel.mapper(UsersInWorkGroup.class).find("userId", this.getId())
                 .stream().map(UsersInWorkGroup::getWorkGroup).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isRoleModified() {
+        return isRoleModified;
+    }
+    @Override
+    public void setRoleModified(boolean roleModified) {
+        isRoleModified = roleModified;
     }
 }

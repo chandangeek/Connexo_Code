@@ -180,7 +180,12 @@ public class InjectOnly implements DataModel {
     }
 
     @Override
-    public String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval) {
+    public String getRefreshJobStatement(String jobName, String jobAction, int minRefreshInterval) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getDropJobStatement(String jobName) {
         throw new UnsupportedOperationException();
     }
 }

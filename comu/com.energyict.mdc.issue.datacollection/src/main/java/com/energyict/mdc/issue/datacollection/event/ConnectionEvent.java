@@ -7,6 +7,7 @@ package com.energyict.mdc.issue.datacollection.event;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.FiltrableByComTask;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
@@ -24,10 +25,11 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+
 import com.google.inject.Injector;
 
-import java.util.List;
 import java.time.Clock;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,19 +41,19 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     private Optional<Long> comSessionId;
     private final ConnectionTaskService connectionTaskService;
 
-    public ConnectionEvent(
-            IssueDataCollectionService issueDataCollectionService,
-            MeteringService meteringService,
-            DeviceService deviceService,
-            TopologyService topologyService,
-            CommunicationTaskService communicationTaskService,
-            ConnectionTaskService connectionTaskService,
-            Thesaurus thesaurus,
-            Injector injector,
-            TimeService timeService,
-            EventService eventService,
-            Clock clock) {
-        super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, eventService, timeService, clock, injector);
+    public ConnectionEvent(IssueDataCollectionService issueDataCollectionService,
+                           MeteringService meteringService,
+                           DeviceService deviceService,
+                           TopologyService topologyService,
+                           CommunicationTaskService communicationTaskService,
+                           ConnectionTaskService connectionTaskService,
+                           Thesaurus thesaurus,
+                           Injector injector,
+                           TimeService timeService,
+                           EventService eventService,
+                           Clock clock,
+                           IssueService issueService) {
+        super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, eventService, timeService, clock, injector, issueService);
         this.connectionTaskService = connectionTaskService;
     }
 
@@ -112,5 +114,13 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass() + "{" +
+                "connectionTaskId=" + connectionTaskId +
+                ", comSessionId=" + comSessionId +
+                ", deviceId="  + super.getDevice().getmRID() + "}";
     }
 }

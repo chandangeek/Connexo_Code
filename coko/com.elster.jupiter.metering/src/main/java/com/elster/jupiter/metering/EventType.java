@@ -117,6 +117,7 @@ public enum EventType {
                     .component(MeteringService.COMPONENTNAME)
                     .category("Crud")
                     .scope("System")
+                    .shouldPublish()
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
                     .withProperty("eventTimestamp", ValueType.LONG, "createdDateTimeMillis")

@@ -224,6 +224,19 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
+    public Optional<String> getRegisteredSapDeviceId(EndDevice endDevice) {
+        Subquery deviceSubquery = getDataModel(DeviceDataServices.COMPONENT_NAME)
+                .query(Device.class)
+                .asSubquery(Where.where("meter").isEqualTo(endDevice), "id");
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .filter(ListOperator.IN.contains(deviceSubquery, DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName())
+                        .and(Where.where(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()).isEqualTo(true)))
+                .findAny()
+                .flatMap(DeviceSAPInfoDomainExtension::getDeviceIdentifier);
+    }
+
+    @Override
     public Optional<String> getSapDeviceId(String deviceName) {
         return deviceService.findDeviceByName(deviceName)
                 .flatMap(this::getSapDeviceId);
@@ -1082,10 +1095,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Optional<Instant> getLowerBound(Range<Instant> range) {
-        if (Optional.ofNullable(range).isPresent()) {
-            return range.hasLowerBound() ? Optional.of(range.lowerEndpoint()) : Optional.empty();
-        }
-        return Optional.empty();
+        return Optional.ofNullable(range)
+                .flatMap(Ranges::lowerBound);
     }
 
     @Override

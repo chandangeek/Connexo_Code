@@ -54,7 +54,7 @@ public interface MasterDataService {
     /**
      * Creates a new LogBookType based on the given parameters.
      *
-     * @param name     the name of the LogBookType
+     * @param name the name of the LogBookType
      * @param obisCode the ObisCode of the LogBookType
      * @return the newly created LogBookType
      */
@@ -69,6 +69,7 @@ public interface MasterDataService {
     Optional<RegisterGroup> findRegisterGroup(long id);
 
     Optional<RegisterGroup> findAndLockRegisterGroupByIdAndVersion(long id, long version);
+
     /**
      * Creates a new {@link RegisterGroup} with the specified name.
      * Note that the RegisterGroup is only saved in the database
@@ -83,8 +84,11 @@ public interface MasterDataService {
     public Finder<RegisterGroup> findAllRegisterGroups();
 
     public Finder<MeasurementType> findAllMeasurementTypes();
+
     public Finder<RegisterType> findAllRegisterTypes();
+
     public Finder<ChannelType> findAllChannelTypes();
+
     public Finder<LogBookType> findAllLogBookTypes();
 
     /**
@@ -103,7 +107,9 @@ public interface MasterDataService {
 
 
     public Optional<MeasurementType> findMeasurementTypeByReadingType(ReadingType readingType);
+
     public Optional<RegisterType> findRegisterTypeByReadingType(ReadingType readingType);
+
     public Optional<ChannelType> findChannelTypeByReadingType(ReadingType readingType);
 
     /**
@@ -112,7 +118,7 @@ public interface MasterDataService {
      * i.e. there can only be 1 RegisterType for every ObisCode.
      *
      * @param readingType The reading type
-     * @param obisCode    The ObisCode
+     * @param obisCode The ObisCode
      * @return The new RegisterType
      * @see MeasurementType#save()
      */
@@ -123,8 +129,8 @@ public interface MasterDataService {
      * The provided RegisterType will serve as a template-register
      *
      * @param templateMeasurementType the model for the new channelType
-     * @param interval                the interval of the channelType
-     * @param readingType             the readingType for the channelType
+     * @param interval the interval of the channelType
+     * @param readingType the readingType for the channelType
      * @return the newly created ChannelType
      */
     public ChannelType newChannelType(RegisterType templateMeasurementType, TimeDuration interval, ReadingType readingType);
@@ -139,7 +145,7 @@ public interface MasterDataService {
     /**
      * Creates a new LoadProfileType based on the given parameters
      *
-     * @param name     the Name of the LoadProfileType
+     * @param name the Name of the LoadProfileType
      * @param obisCode the ObisCode of the LoadProfileType
      * @param interval the interval of the LoadProfileType
      * @param registerTypes Collection of register types used by the load profile type

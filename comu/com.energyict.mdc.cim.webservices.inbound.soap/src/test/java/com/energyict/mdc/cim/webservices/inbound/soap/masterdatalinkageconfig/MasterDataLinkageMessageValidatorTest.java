@@ -194,7 +194,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER,
                     MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
-                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.Meter[0]' for identification purpose.");
+                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.Meter' for identification purpose.");
         }
     }
 
@@ -210,7 +210,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER,
                     MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
-                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.Meter[0]' for identification purpose.");
+                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.Meter' for identification purpose.");
         }
     }
 
@@ -226,7 +226,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER,
                     MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
-                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.UsagePoint[0]' for identification purpose.");
+                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.UsagePoint' for identification purpose.");
         }
     }
 
@@ -242,7 +242,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         } catch (FaultMessage e) {
             verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER,
                     MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
-                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.UsagePoint[0]' for identification purpose.");
+                    "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.UsagePoint' for identification purpose.");
         }
     }
 }

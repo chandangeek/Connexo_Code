@@ -7,8 +7,12 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ConfigPropertiesService;
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -17,6 +21,7 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OutboundComPort;
@@ -57,6 +62,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -92,6 +98,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private final PriorityComTaskService priorityComTaskService;
     private final ConfigPropertiesService configPropertiesService;
     private final BundleContext bundleContext;
+    private final ComTaskExecutionBalancing comTaskExecutionBalancing = new ComTaskExecutionBalancing();
+    private boolean isTrueMinimizedOn;
+    private boolean isRandomizationOn;
 
     @Inject
     public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, ConfigPropertiesService configPropertiesService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
@@ -152,7 +161,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private ServerComTaskExecution refreshComTaskExecution(ComTaskExecution comTaskExecution) {
-        ServerComTaskExecution freshComTaskExecution = (ServerComTaskExecution)deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", comTaskExecution.getId()).get();
+        ServerComTaskExecution freshComTaskExecution = (ServerComTaskExecution) deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", comTaskExecution.getId()).get();
         Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(comTaskExecution);
         if (priorityComTaskExecutionLink.isPresent()) {
             return new PriorityComTaskExecutionImpl(freshComTaskExecution, (ServerPriorityComTaskExecutionLink) priorityComTaskExecutionLink.get());
@@ -662,7 +671,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public boolean attemptUnlockComTaskExecution(ComTaskExecution comTaskExecution) {
         Optional<ComTaskExecution> lockResult = deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockNoWait(comTaskExecution.getId());
         if (lockResult.isPresent()) {
-            getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            //getServerComTaskExecution(lockResult.get()).setLockedComPort(null);
+            unlockComTaskExecution(comTaskExecution);
             return true;
         }
 
@@ -671,8 +681,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
+        try {
+            getServerComTaskExecution(comTaskExecution).setLockedComPort(null);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
+        }
     }
 
     @Override
@@ -729,29 +742,52 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder initComTaskExecFinderSqlBuilder(DataMapper<ComTaskExecution> mapper) {
-        SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1) LEADING(cte) USE_NL(ct)");
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT ");
+        sqlBuilder.append("t.ID, t.VERSIONCOUNT, t.CREATETIME, t.MODTIME, " +
+                "t.USERNAME, t.DISCRIMINATOR, t.DEVICE, t.COMTASK, t.COMSCHEDULE, t.NEXTEXECUTIONSPECS, " +
+                "t.LASTEXECUTIONTIMESTAMP, t.NEXTEXECUTIONTIMESTAMP, t.COMPORT, t.OBSOLETE_DATE, t.PRIORITY, " +
+                "t.USEDEFAULTCONNECTIONTASK, t.CURRENTRETRYCOUNT, t.PLANNEDNEXTEXECUTIONTIMESTAMP, t.EXECUTIONPRIORITY, " +
+                "t.EXECUTIONSTART, t.LASTSUCCESSFULCOMPLETION, t.LASTEXECUTIONFAILED, t.ONHOLD, t.CONNECTIONTASK, " +
+                "t.IGNORENEXTEXECSPECS, t.CONNECTIONFUNCTION, t.LASTSESSION, t.LASTSESS_HIGHESTPRIOCOMPLCODE, " +
+                "t.LASTSESS_SUCCESSINDICATOR");
+        sqlBuilder.append(" FROM (");
+        sqlBuilder.append(mapper.builderWithAdditionalColumns("cte", "row_number() over (ORDER BY cte.nextexecutiontimestamp, cte.priority, cte.connectiontask) as rn").toString());
+        sqlBuilder.append(" LEFT JOIN ");
+        sqlBuilder.append(TableSpecs.DDC_HIPRIOCOMTASKEXEC.name());
+        sqlBuilder.append(" hpcte on cte.ID = hpcte.COMTASKEXECUTION");
         sqlBuilder.append(", ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
-        sqlBuilder.append(" where ct.status = 0");
+        sqlBuilder.append(" WHERE hpcte.COMTASKEXECUTION is null");
+        sqlBuilder.append("   and ct.status = 0");
         sqlBuilder.append("   and ct.comport is null");
         sqlBuilder.append("   and ct.obsolete_date is null");
         return sqlBuilder;
     }
 
     @Override
-    public List<ComTaskExecution>  getPendingComTaskExecutionsListFor(OutboundComPort comPort, int factor) {
+    public List<ComTaskExecution> getPendingComTaskExecutionsListFor(OutboundComPort comPort, int factor) {
         Instant nowInSeconds = this.deviceDataModelService.clock().instant();
         List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(nowInSeconds);
         List<ComTaskExecution> pendingComTasks = getPendingComTaskExecutions(comPort, nowInSeconds, factor);
+
+        return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
+    }
+
+
+    @Override
+    public List<ComTaskExecution> getPendingComTaskExecutionsListFor(ComServer comServer, List<OutboundComPortPool> comPortPools, Duration delta, long limit, long skip) {
+        Instant timeInSeconds = Instant.now().plus(delta);
+        List<PriorityComTaskExecutionLink> pendingPrioComTasks = getPendingPrioComTaskExecutions(timeInSeconds);
+        List<ComTaskExecution> pendingComTasks = getPendingComTaskExecutions(comServer, comPortPools, timeInSeconds, limit, skip);
         return filterOutPendingPrioComTasks(pendingPrioComTasks, pendingComTasks);
     }
 
     private List<PriorityComTaskExecutionLink> getPendingPrioComTaskExecutions(Instant nowInSeconds) {
-        return deviceDataModelService.dataModel(). stream(PriorityComTaskExecutionLink.class)
-                    .filter(where(PriorityComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds)
-                            .and(where(PriorityComTaskExecutionFields.COMPORT.fieldName()).isNull()))
-                            .select();
+        return deviceDataModelService.dataModel().stream(PriorityComTaskExecutionLink.class)
+                .filter(where(PriorityComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds)
+                        .and(where(PriorityComTaskExecutionFields.COMPORT.fieldName()).isNull()))
+                .select();
     }
 
     private List<ComTaskExecution> getPendingComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds, int factor) {
@@ -767,8 +803,69 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask);
         if (factor > 0) {
             comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
+            // one comport is starting at row 1, the other at limit + 1
+            if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
+                comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
+            }
         }
-        return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
+        initCommunicationParameters();
+        return sortComTaskExecutions(connectionTask, comTasks);
+    }
+
+    private void initCommunicationParameters() {
+        isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
+        isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
+    }
+
+    private List<ComTaskExecution> sortComTaskExecutions(String connectionTask, QueryStream<ComTaskExecution> comTasks) {
+        long start = System.currentTimeMillis();
+        List<ComTaskExecution> comTaskExecutions = comTasks.sorted(Order.ascending(connectionTask + ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()),
+                getOrderForPlannedComTaskExecutionsList(connectionTask))
+                .select();
+        long queryDuration = System.currentTimeMillis() - start;
+
+        start = System.currentTimeMillis();
+        comTaskExecutions.sort((cte1, cte2) -> {
+            int result = cte1.getNextExecutionTimestamp().compareTo(cte2.getNextExecutionTimestamp());
+            if (result != 0)
+                return result;
+
+            if (isRandomizationOn) {
+                if (cte1.getConnectionTaskId() % 100 < cte2.getConnectionTaskId() % 100)
+                    return -1;
+                if (cte1.getConnectionTaskId() % 100 > cte2.getConnectionTaskId() % 100)
+                    return 1;
+            }
+
+            if (isTrueMinimizedOn) {
+                if (cte1.getConnectionTaskId() < cte2.getConnectionTaskId())
+                    return -1;
+                if (cte1.getConnectionTaskId() > cte2.getConnectionTaskId())
+                    return 1;
+            }
+
+            return cte1.getPlannedPriority() - cte2.getPlannedPriority();
+        });
+        long sortDuration = System.currentTimeMillis() - start;
+        LOGGER.warning("perf - pendingQuery: " + queryDuration + " ms; sort: " + sortDuration + " ms");
+        return comTaskExecutions;
+    }
+
+    private List<ComTaskExecution> getPendingComTaskExecutions(ComServer comServer, List<OutboundComPortPool> comPortPools, Instant timeInSeconds, long limit, long skip) {
+        long msSinceMidnight = timeInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
+        String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
+        QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(timeInSeconds, msSinceMidnight, comPortPools, connectionTask);
+        if (limit > 0) {
+            comTasks.limit(limit);
+            if (skip >= 0) {
+                comTasks.skip(skip);
+            }
+        }
+        List<ComServer> comServers = this.deviceDataModelService
+                .engineConfigurationService().findAllComServers().sorted("id", true).find();
+        initCommunicationParameters();
+        return comTasks.sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                getOrderForPlannedComTaskExecutionsList(connectionTask))
                 .select();
     }
 
@@ -782,9 +879,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .filter(ComPortPool::isActive)
                         .collect(Collectors.toList());
         String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
+        List<OutboundComPort> comPorts = this.deviceDataModelService
+                .engineConfigurationService().findAllOutboundComPorts();
+        initCommunicationParameters();
         return getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)
                 .limit(comPort.getNumberOfSimultaneousConnections() * 2)
-                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()), getOrderForPlannedComTaskExecutionsList())
+                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                        getOrderForPlannedComTaskExecutionsList(connectionTask))
                 .select();
     }
 
@@ -808,27 +909,21 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 );
     }
 
-    private Order[] getOrderForPlannedComTaskExecutionsList() {
+    private Order[] getOrderForPlannedComTaskExecutionsList(String connectionTask) {
         List<Order> orderList = new ArrayList<>(3);
-        boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
-        boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
         if (isRandomizationOn) {
-            orderList.add(Order.ascending("mod(" + ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ",100)"));
+            // the ORM can't resolve the table alias from a field inside a function - providing it hardcoded (ct)
+            orderList.add(Order.ascending("mod(ct." + ConnectionTaskFields.ID.fieldName() + ",100)"));
         }
         if (isTrueMinimizedOn) {
-            orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
-            orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
-        } else {
-            orderList.add(Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
-            orderList.add(Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+            orderList.add(Order.ascending(connectionTask + ConnectionTaskFields.ID.fieldName()));
         }
-
         return orderList.toArray(new Order[orderList.size()]);
     }
 
     private List<ComTaskExecution> filterOutPendingPrioComTasks(List<PriorityComTaskExecutionLink> pendingPrioComTasks, List<ComTaskExecution> pendingComTasks) {
-        List<Long> prioIds = pendingPrioComTasks.stream().map(pct -> pct. getComTaskExecution().getId()).collect(Collectors.toList());
+        List<Long> prioIds = pendingPrioComTasks.stream().map(pct -> pct.getComTaskExecution().getId()).collect(Collectors.toList());
         pendingComTasks.removeIf(cte -> prioIds.contains(cte.getId()));
 
         return pendingComTasks;
@@ -870,6 +965,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" and (NVL(ct.comwindowend, 99999000) > "); // max possible value of milisecondsSinceMidnight is 86399000
             sqlBuilder.addLong(msSinceMidnight);
             sqlBuilder.append(" or ct.comwindowend = 0) ");
+            sqlBuilder.append(") t");
+            sqlBuilder.append(" WHERE rn <= ");
+            sqlBuilder.addLong(1300L);
             sqlBuilder.append(getOrderForPlannedComTaskExecutions());
             return mapper.fetcher(sqlBuilder);
         } else {
@@ -877,19 +975,19 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         }
     }
 
-    private String getOrderForPlannedComTaskExecutions(){
+    private String getOrderForPlannedComTaskExecutions() {
         String orderClause = "";
         boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
         boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
         if (!isTrueMinimizedOn && !isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";
+            orderClause = " order by t.nextexecutiontimestamp, t.priority, t.connectiontask";
         } else if (isTrueMinimizedOn && !isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, cte.connectiontask, cte.priority";
+            orderClause = " order by t.nextexecutiontimestamp, t.connectiontask, t.priority";
         } else if (!isTrueMinimizedOn && isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.priority, cte.connectiontask";
+            orderClause = " order by t.nextexecutiontimestamp, mod(t.connectiontask, 100), t.priority, t.connectiontask";
         } else if (isTrueMinimizedOn && isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.connectiontask, cte.priority";
+            orderClause = " order by t.nextexecutiontimestamp, mod(t.connectiontask, 100), t.connectiontask, t.priority";
         }
         return orderClause;
     }
@@ -973,29 +1071,46 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void executionCompletedFor(ComTaskExecution comTaskExecution) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).executionCompleted();
+        try {
+            getServerComTaskExecution(comTaskExecution).executionCompleted();
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionCompleted();
+        }
     }
 
     @Override
     public void executionFailedFor(ComTaskExecution comTaskExecution) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).executionFailed();
+        try {
+            getServerComTaskExecution(comTaskExecution).executionFailed();
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionFailed();
+        }
     }
 
     @Override
     public void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort) {
-        //Avoid OptimisticLockException
-        refreshComTaskExecution(comTaskExecution).executionStarted(comPort);
+        try {
+            getServerComTaskExecution(comTaskExecution).executionStarted(comPort);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionStarted(comPort);
+        }
     }
 
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
-        refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+        try {
+            getServerComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+        }
     }
 
     public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
-        refreshComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+        try {
+            getServerComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+        } catch(OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+        }
     }
 
     @Override

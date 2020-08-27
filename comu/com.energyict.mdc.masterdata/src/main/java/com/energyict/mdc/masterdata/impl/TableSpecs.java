@@ -42,6 +42,7 @@ public enum TableSpecs {
             table.column("INTERVALUNIT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.unique("UK_MDS_LOADPROFILETYPE").on(name).add();
             table.primaryKey("PK_MDS_LOADPROFILETYPE").on(id).add();
+            table.cacheWholeTable(true);
         }
     },
 
@@ -136,6 +137,7 @@ public enum TableSpecs {
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             table.unique("UK_MDS_LOGBOOKTYPE").on(name).add();
             table.primaryKey("PK_MDS_LOGBOOKTYPE").on(id).add();
+            table.cacheWholeTable(true);
         }
     };
 

@@ -133,6 +133,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>export</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -198,6 +202,16 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

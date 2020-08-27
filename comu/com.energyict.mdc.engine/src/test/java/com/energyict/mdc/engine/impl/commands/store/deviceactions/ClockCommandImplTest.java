@@ -291,26 +291,6 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     }
 
     @Test
-    public void clockCommandSynchronizeBelowMinTest() {
-        Clock systemTime = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        Clock meterTime = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 12, 111).toDate().toInstant(), ZoneId.systemDefault());   // 1 second behind the system time
-        when(commandRootServiceProvider.clock()).thenReturn(systemTime);
-        ClockTask clockTask = getSynchronizeClockTask();
-        ClockCommand clockCommand = new ClockCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), clockTask, comTaskExecution);
-        long deviceTime = systemTime.millis() - ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
-        when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference is smaller than the min difference
-        clockCommand.execute(deviceProtocol, newTestExecutionContext());
-
-        // asserts
-        assertThat(clockCommand.getIssues()).isNotNull();
-        assertThat(clockCommand.getIssues()).hasSize(1);
-        assertThat(clockCommand.getWarnings()).hasSize(1);
-        assertThat(clockCommand.getProblems()).isEmpty();
-        assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
-    }
-
-    @Test
     public void clockCommandSynchronizeClockWithNegativeDiffTest() {
         final long timeDifferenceInMillis = -3000L;
         Clock systemTime = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
@@ -358,26 +338,6 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
         assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
-    }
-
-    @Test
-    public void clockCommandSynchronizeBelowMinWithNegativeDifferenceTest() {
-        final long timeDifferenceInMillis = -(MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
-        Clock systemTime = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
-        when(commandRootServiceProvider.clock()).thenReturn(systemTime);
-        ClockTask clockTask = getSynchronizeClockTask();
-        ClockCommand clockCommand = new ClockCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), clockTask, comTaskExecution);
-        long deviceTime = systemTime.millis() - timeDifferenceInMillis;
-        when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference below min difference
-        clockCommand.execute(deviceProtocol, newTestExecutionContext());
-
-        // asserts
-        assertThat(clockCommand.getIssues()).isNotNull();
-        assertThat(clockCommand.getIssues()).hasSize(1);
-        assertThat(clockCommand.getWarnings()).hasSize(1);
-        assertThat(clockCommand.getProblems()).isEmpty();
-        assertThat(clockCommand.getIssues().get(0).isWarning()).isTrue();
-        assertThat(clockCommand.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
     }
 
     @Test

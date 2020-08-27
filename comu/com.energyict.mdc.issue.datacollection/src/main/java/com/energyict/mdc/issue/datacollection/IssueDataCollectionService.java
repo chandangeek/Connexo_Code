@@ -9,16 +9,20 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.orm.QueryStream;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface IssueDataCollectionService {
 
     String COMPONENT_NAME = "IDC";
@@ -36,6 +40,8 @@ public interface IssueDataCollectionService {
     OpenIssueDataCollection createIssue(OpenIssue baseIssue, IssueEvent issueEvent);
 
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
+
+    <T extends Entity> QueryStream<T> stream(Class<T> clazz, Class<?>... eagers);
 
     Finder<? extends IssueDataCollection> findIssues(IssueDataCollectionFilter filter, Class<?>... eagers);
 

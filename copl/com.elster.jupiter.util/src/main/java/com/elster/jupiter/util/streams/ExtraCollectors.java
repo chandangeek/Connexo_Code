@@ -12,12 +12,14 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public enum ExtraCollectors {
     ;
@@ -110,5 +112,9 @@ public enum ExtraCollectors {
                 return ImmutableSet.of(Characteristics.UNORDERED);
             }
         };
+    }
+
+    public static <T extends Comparable<? super T>> Collector<T, ?, Optional<Range<T>>> spanning() {
+        return Collectors.mapping(Range::singleton, Collectors.reducing(Range::span));
     }
 }

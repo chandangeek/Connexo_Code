@@ -798,6 +798,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(auditInfoFactory).to(AuditInfoFactory.class);
             bind(ComTaskExecutionPrivilegeCheck.class).to(ComTaskExecutionPrivilegeCheck.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(DataLoggerInfoFactory.class).to(DataLoggerInfoFactory.class);
+            bind(MultiElementInfoFactory.class).to(MultiElementInfoFactory.class);
 
         }
     }

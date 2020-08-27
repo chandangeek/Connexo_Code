@@ -4,23 +4,10 @@
 
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.audit.AuditService;
-import com.elster.jupiter.audit.impl.AuditServiceModule;
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -29,32 +16,12 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.h2.H2OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.impl.SearchModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
@@ -70,12 +37,6 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.http.HttpService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -88,11 +49,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,91 +69,38 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationOnStoreIT {
-
     private static final String MIN_MAX = "minMax";
     private static final String CONSECUTIVE_ZEROES = "consecutiveZeroes";
     private static final String MY_RULE_SET = "MyRuleSet";
     private static final String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
     private static final String MIN = "min";
     private static final String MAX = "max";
-    public static final ZonedDateTime ZONED_DATE_TIME = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault());
+    private static final ZonedDateTime ZONED_DATE_TIME = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault());
     private static final Instant date1 = ZONED_DATE_TIME.toInstant();
 
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private Injector injector;
+    private static ValidationInMemoryBootstrapModule inMemoryBootstrapModule = new ValidationInMemoryBootstrapModule(
+            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    private static ValidationService validationService;
+    private static ReadingType deltaReadingType, bulkReadingType;
+    private static Meter meter;
+    private static MeterActivation meterActivation;
+    private static ValidationRule minMaxRule, zeroesRule;
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private ValidatorFactory validatorFactory;
-    @Mock
-    private Validator minMax;
-    @Mock
-    private Validator conseqZero;
-    @Mock
-    private PropertySpec min, max, conZero;
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.get(TransactionService.class));
 
-    private BigDecimalFactory valueFactory = new BigDecimalFactory();
-    private MeterActivation meterActivation;
-    private TransactionService transactionService;
-    private Meter meter;
-    private ReadingType deltaReadingType;
-    private ReadingType bulkReadingType;
-    private ValidationRule minMaxRule;
-    private ValidationRule zeroesRule;
+    @BeforeClass
+    public static void setUp() {
+        inMemoryBootstrapModule.activate();
+        validationService = inMemoryBootstrapModule.get(ValidationService.class);
 
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(mock(HttpService.class));
-        }
-    }
-
-    @Before
-    public void setUp() {
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new IdsModule(),
-                    new UserModule(),
-                    new BpmModule(),
-                    new FiniteStateMachineModule(),
-                    new UsagePointLifeCycleConfigurationModule(),
-                    new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
-                    new BasicPropertiesModule(),
-                    new TimeModule(),
-                    new MeteringGroupsModule(),
-                    new SearchModule(),
-                    new TaskModule(),
-                    new PartyModule(),
-                    new EventsModule(),
-                    new DomainUtilModule(),
-                    new H2OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new KpiModule(),
-                    new ValidationModule(),
-                    new NlsModule(),
-                    new CalendarModule(),
-                    new DataVaultModule(),
-                    new CustomPropertySetsModule(),
-                    new AuditServiceModule(),
-                    new WebServicesModule()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        ValidatorFactory validatorFactory = mock(ValidatorFactory.class);
+        Validator minMax = mock(Validator.class);
+        Validator conseqZero = mock(Validator.class);
+        PropertySpec min = mock(PropertySpec.class);
+        PropertySpec max = mock(PropertySpec.class);
+        PropertySpec conZero = mock(PropertySpec.class);
+        BigDecimalFactory valueFactory = new BigDecimalFactory();
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, CONSECUTIVE_ZEROES));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.createTemplate(eq(CONSECUTIVE_ZEROES))).thenReturn(conseqZero);
@@ -211,85 +119,76 @@ public class ValidationOnStoreIT {
         when(conseqZero.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Collections.singletonList(conZero));
         when(conZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(conZero.getValueFactory()).thenReturn(valueFactory);
+        validationService.addValidatorFactory(validatorFactory);
 
-        transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(AuditService.class);
-                injector.getInstance(FiniteStateMachineService.class);
-                MeteringService meteringService = injector.getInstance(MeteringService.class);
-                deltaReadingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                bulkReadingType = meteringService.getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                meter = amrSystem.newMeter("2331", "myName").create();
-                meterActivation = meter.activate(date1);
-                meterActivation.getChannelsContainer().createChannel(bulkReadingType);
+        MeteringService meteringService = inMemoryBootstrapModule.get(MeteringService.class);
+        deltaReadingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        bulkReadingType = meteringService.getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
 
-                ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
-                validationService.addResource(validatorFactory);
+        inMemoryBootstrapModule.get(TransactionService.class).run(() -> {
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            meter = amrSystem.newMeter("2331", "myName").create();
+            meterActivation = meter.activate(date1);
+            meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
-                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
-                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-                zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros")
-                        .withReadingType(deltaReadingType)
-                        .withReadingType(bulkReadingType)
-                        .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
-                        .active(true)
-                        .create();
-                minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax")
-                        .withReadingType(bulkReadingType)
-                        .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
-                        .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
-                        .active(true)
-                        .create();
+            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
+            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
+            zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros")
+                    .withReadingType(deltaReadingType)
+                    .withReadingType(bulkReadingType)
+                    .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
+                    .active(true)
+                    .create();
+            minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax")
+                    .withReadingType(bulkReadingType)
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                    .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
+                    .active(true)
+                    .create();
 
-                validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
-                    @Override
-                    public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
-                        RangeSet<Instant> rangeSet = TreeRangeSet.create();
-                        rangeSet.add(Range.atLeast(date1));
-                        return Collections.singletonMap(validationRuleSet, rangeSet);
-                    }
+            validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
+                @Override
+                public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                    RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                    rangeSet.add(Range.atLeast(date1));
+                    return Collections.singletonMap(validationRuleSet, rangeSet);
+                }
 
-                    @Override
-                    public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
-                        return false;
-                    }
+                @Override
+                public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+                    return false;
+                }
 
-                    @Override
-                    public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
-                        return true;
-                    }
+                @Override
+                public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
+                    return true;
+                }
 
-                    @Override
-                    public boolean canHandleRuleSetStatus() {
-                        return true;
-                    }
-                });
+                @Override
+                public boolean canHandleRuleSetStatus() {
+                    return true;
+                }
+            });
 
-                validationService.activateValidation(meter);
-                validationService.enableValidationOnStorage(meter);
-                return null;
-            }
+            validationService.activateValidation(meter);
+            validationService.enableValidationOnStorage(meter);
         });
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testValidationFailsOnMinMax() {
-        transactionService.execute(VoidTransaction.of(() -> {
-            IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), Collections.emptySet());
-            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
-            intervalBlock.addIntervalReading(intervalReading);
-            meterReading.addIntervalBlock(intervalBlock);
-            meter.store(QualityCodeSystem.MDC, meterReading);
-        }));
+        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), Collections.emptySet());
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+        intervalBlock.addIntervalReading(intervalReading);
+        meterReading.addIntervalBlock(intervalBlock);
+        meter.store(QualityCodeSystem.MDC, meterReading);
 
         List<ReadingQualityType> readingQualityTypes = meter.getReadingQualities(Range.singleton(ZONED_DATE_TIME.plusHours(1).toInstant())).stream()
                 .map(ReadingQualityRecord::getType)

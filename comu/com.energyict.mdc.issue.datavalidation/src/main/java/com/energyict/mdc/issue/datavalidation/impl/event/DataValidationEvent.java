@@ -32,11 +32,11 @@ public abstract class DataValidationEvent implements IssueEvent {
     protected Long deviceConfigurationId;
     private int ruleId;
 
-    private final Thesaurus thesaurus;
-    private final MeteringService meteringService;
-    private final DeviceService deviceService;
-    private final IssueDataValidationService issueDataValidationService;
-    private final IssueService issueService;
+    protected final Thesaurus thesaurus;
+    protected final MeteringService meteringService;
+    protected final DeviceService deviceService;
+    protected final IssueDataValidationService issueDataValidationService;
+    protected final IssueService issueService;
 
     @Inject
     public DataValidationEvent(Thesaurus thesaurus, MeteringService meteringService, DeviceService deviceService, IssueDataValidationService issueDataValidationService, IssueService issueService) {
@@ -104,18 +104,24 @@ public abstract class DataValidationEvent implements IssueEvent {
     }
 
     private Optional<Meter> findMeter() {
-        return findChannel().flatMap(channel -> channel.getChannelsContainer().getMeter());
+        return findChannelsContainer().flatMap(ChannelsContainer::getMeter);
     }
 
     protected Device getDevice() {
         return findMeter().map(Meter::getAmrId).map(Long::valueOf).flatMap(deviceService::findDeviceById).orElse(null);
     }
 
-    protected Thesaurus getThesaurus() {
-        return thesaurus;
-    }
-
     protected List<LoadProfile> getLoadProfiles() {
         return getDevice().getLoadProfiles();
+    }
+
+    @Override
+    public String toString() {
+        return "DataValidationEvent{" +
+                "channelId=" + channelId +
+                ", readingType='" + readingType + '\'' +
+                ", deviceConfigurationId=" + deviceConfigurationId +
+                ", ruleId=" + ruleId +
+                '}';
     }
 }

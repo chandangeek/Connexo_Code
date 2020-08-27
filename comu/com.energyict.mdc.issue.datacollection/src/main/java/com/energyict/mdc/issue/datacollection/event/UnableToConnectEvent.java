@@ -5,6 +5,7 @@
 package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
@@ -28,8 +29,30 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UnableToConnectEvent extends ConnectionEvent {
     @Inject
-    public UnableToConnectEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector, TimeService timeService, EventService eventService, Clock clock) {
-        super(issueDataCollectionService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector, timeService, eventService, clock);
+    public UnableToConnectEvent(IssueDataCollectionService issueDataCollectionService,
+                                MeteringService meteringService,
+                                DeviceService deviceService,
+                                TopologyService topologyService,
+                                CommunicationTaskService communicationTaskService,
+                                ConnectionTaskService connectionTaskService,
+                                Thesaurus thesaurus,
+                                Injector injector,
+                                TimeService timeService,
+                                EventService eventService,
+                                Clock clock,
+                                IssueService issueService) {
+        super(issueDataCollectionService,
+                meteringService,
+                deviceService,
+                topologyService,
+                communicationTaskService,
+                connectionTaskService,
+                thesaurus,
+                injector,
+                timeService,
+                eventService,
+                clock,
+                issueService);
     }
 
 

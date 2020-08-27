@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
@@ -49,6 +50,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,6 +63,7 @@ import java.util.stream.Stream;
  */
 @LiteralSql
 public class CommunicationTaskReportServiceImpl implements CommunicationTaskReportService {
+    private static final Logger LOGGER = Logger.getLogger(CommunicationTaskReportServiceImpl.class.getName());// just for time measurement
 
     private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
     private static final String DEVICE_STAGE_ALIAS_NAME = "enddevices";
@@ -91,21 +95,17 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     @Override
     public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter) {
-        ClauseAwareSqlBuilder sqlBuilder = null;
-        for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
-            // Check first pass
-            if (sqlBuilder == null) {
-                SqlBuilder withClause = new SqlBuilder("select * from MV_COMTASKEXWITHDEVSTS where ");
-                DeviceStageSqlBuilder
-                        .forExcludeStages("", EndDeviceStage.fromKeys(filter.restrictedDeviceStages))
-                        .appendRestrictedStages(withClause);
-                sqlBuilder = ClauseAwareSqlBuilder.with(withClause.getText(), "ctes");
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
-            } else {
-                sqlBuilder.unionAll();
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
-            }
+        SqlBuilder selectClause = new SqlBuilder("STATUS, SUM(\"COUNT\") ");
+        selectClause.append("FROM DASHBOARD_COMTASK ");
+        selectClause.append("WHERE QUERYTYPE = 'COMTASK_Q1' ");
+        selectClause.append("AND  TASKTYPE = 'None' ");
+        if(filter != null && filter.deviceGroups != null && !filter.deviceGroups.isEmpty()){
+            selectClause.append(filter.deviceGroups.stream().map(EndDeviceGroup::getMRID).map(value -> String.format("'%s'",value))
+                    .collect(Collectors.joining(","," AND  MRID in (",") ")));
         }
+        selectClause.append("GROUP BY STATUS");
+
+        ClauseAwareSqlBuilder sqlBuilder = ClauseAwareSqlBuilder.select(selectClause.toString());
         return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
     }
 
@@ -150,12 +150,22 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     }
 
     @Override
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
+        return this.getComTasksDeviceTypeHeatMap(null);
+    }
+
+    @Override
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("select DEVICETYPE, lastsess_highestpriocomplcode, count(*) from ( ");
-        sqlBuilder.append(" select * from  MV_COMTASKDTHEATMAP cte where 1=1 ");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        sqlBuilder.append(") group by devicetype, lastsess_highestpriocomplcode");
+        sqlBuilder.append("select DEVICETYPE, LASTSESSHIGHESTCOMPCODE, HEATMAPCOUNT ");
+        sqlBuilder.append("FROM DASHBOARD_COMTASK ");
+        sqlBuilder.append("WHERE QUERYTYPE = 'COMTASK_Q2'");
+        if(deviceGroup != null) {
+            sqlBuilder.append(" AND MRID = '");
+            sqlBuilder.append(deviceGroup.getMRID());
+            sqlBuilder.append("'");
+        }
+
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters);
     }
@@ -291,11 +301,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             emptyBreakdown.put(breakDown, emptyCounters);
         }
         return emptyBreakdown;
-    }
-
-    @Override
-    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
-        return this.getComTasksDeviceTypeHeatMap(null);
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<CompletionCode, Long>> partialCounters) {

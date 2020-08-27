@@ -107,6 +107,7 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
                 store: me.store,
                 dock: 'bottom',
                 defaultPageSize: 50,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('general.commandsPerPage', 'MDC', 'Commands per page')
             }
         ];

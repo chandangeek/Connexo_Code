@@ -115,7 +115,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "ESMR 5.0 - 2020-07-14";
+        return "ESMR 5.0 - 2020-08-20";
     }
 
     @Override

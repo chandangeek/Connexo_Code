@@ -9,12 +9,11 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.DefaultState;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
+import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationInstaller;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
@@ -85,8 +84,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory", service = MeterConfigFactory.class)
 public class MeterConfigFactoryImpl implements MeterConfigFactory {
 
-    private static final String COMPONENT_NAME = "SIM";
-
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceService deviceService;
     private volatile FirmwareService firmwareService;
@@ -104,14 +101,14 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     public MeterConfigFactoryImpl(CustomPropertySetService customPropertySetService, DeviceService deviceService,
                                   FirmwareService firmwareService, DeviceMessageService deviceMessageService,
                                   DeviceMessageSpecificationService deviceMessageSpecificationService,
-                                  Clock clock, NlsService nlsService) {
+                                  Clock clock, Thesaurus thesaurus) {
         setCustomPropertySetService(customPropertySetService);
         setDeviceService(deviceService);
         setFirmwareService(firmwareService);
         setDeviceMessageService(deviceMessageService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setClock(clock);
-        setNlsService(nlsService);
+        this.thesaurus = thesaurus;
     }
 
     @Reference
@@ -145,8 +142,8 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.SOAP);
+    public void setThesaurus(TranslationInstaller translationInstaller) {
+        this.thesaurus = translationInstaller.getThesaurus();
     }
 
     @Override
@@ -364,7 +361,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                 .max(Comparator.comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
     }
 
-    private Optional<DeviceMessage> getContactorCommand(Device device) {
+    private Optional<DeviceMessage> getContactorCommand(Device device, ActivatedBreakerStatus breakerStatus) {
         DeviceMessageCategory deviceMessageCategory = deviceMessageSpecificationService.allCategories().stream()
                 .filter(m -> m.getName().equals("Contactor"))
                 .findFirst()
@@ -376,6 +373,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         return deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .stream()
                 .filter(dm -> dm.getSentDate().isPresent())
+                .filter(dm -> !dm.getSentDate().get().isAfter(breakerStatus.getLastChecked()))
                 .max(Comparator.comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
 
     }
@@ -383,7 +381,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     private ContactorStatus getContactorStatus(Device device, ActivatedBreakerStatus breakerStatus) {
         ContactorStatus contactorStatus = new ContactorStatus();
         contactorStatus.setStatus(breakerStatus.getBreakerStatus().toString());
-        Optional<DeviceMessage> command = getContactorCommand(device);
+        Optional<DeviceMessage> command = getContactorCommand(device, breakerStatus);
         if (command.isPresent()) {
             Optional<Instant> sentDate = command.get().getSentDate();
             sentDate.ifPresent(contactorStatus::setSentDate);

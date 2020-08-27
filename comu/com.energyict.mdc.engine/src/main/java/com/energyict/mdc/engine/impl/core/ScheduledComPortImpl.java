@@ -35,7 +35,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,6 +76,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private LoggerHolder loggerHolder;
     private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
+    private BlockingQueue<ComTaskExecution> executableOutBoundComTaskPool = new LinkedBlockingQueue();
+    private Set<Long> fetchedNotProcessed = ConcurrentHashMap.newKeySet();
+    private Set<Long> fetchedProcessed = ConcurrentHashMap.newKeySet();
+
     ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(runningComServer, comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
     }
@@ -196,7 +204,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
     }
 
-
     protected void interrupt() {
         LOGGER.info("[" + Thread.currentThread().getName() + "] - sending interrupt request to [" + self.getName() + "]");
         self.interrupt();
@@ -225,6 +232,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             }
         }
         status = ServerProcessStatus.SHUTDOWN;
+    }
+
+    @Override
+    public void reload(OutboundComPort comPort) {
     }
 
     private void cleanupBusyTasks() {
@@ -273,15 +284,68 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         return now.until(nextExecutionMoment, ChronoUnit.MILLIS);
     }
 
+    @Override
+    public void addTaskToExecute(ComTaskExecution comTaskExecution) {
+        if (comTaskExecution != null && fetchedNotProcessed.add(comTaskExecution.getId())) {
+            executableOutBoundComTaskPool.offer(comTaskExecution);
+        }
+    }
+
+    private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {
+        // Zero is not allowed, i.e. rejected by the OutboundComPortImpl validation methods
+        if (comPort.getNumberOfSimultaneousConnections() == 1) {
+            return new SingleThreadedComJobFactory();
+        } else {
+            return new MultiThreadedComJobFactory(comPort.getNumberOfSimultaneousConnections());
+        }
+    }
+
+    private List<ComJob> getJobsForFetchedTasks() {
+        ComJobFactory comJobFactory = getComJobFactoryFor(getComPort());
+        fetchedProcessed.clear();
+        boolean consumed = false;
+        LOGGER.info("Prefetch: fetchedNotProcessed:" + fetchedNotProcessed);
+        do {
+            ComTaskExecution comTaskExecution = executableOutBoundComTaskPool.peek();
+            if (comTaskExecution == null) {
+                break;
+            }
+
+            if (Optional.of(comTaskExecution).map(ComTaskExecution::getNextExecutionTimestamp)
+                    .map(Instant::toEpochMilli)
+                    .filter(timestamp -> timestamp <= Instant.now().toEpochMilli()).isPresent()) {
+                consumed = comJobFactory.consume(comTaskExecution);
+                if (consumed) {
+                    executableOutBoundComTaskPool.poll();
+                    fetchedProcessed.add(comTaskExecution.getId());
+                }
+            }
+        } while (consumed);
+        LOGGER.info("Prefetch: fetchedProcessed:" + fetchedProcessed);
+        return comJobFactory.getJobs();
+    }
+
+    private List<ComJob> getJobsToSchedule() {
+        if (serviceProvider.engineService().isPrefetchEnabled()) {
+            List<ComJob> jobs = getJobsForFetchedTasks();
+            if (jobs.size() > 0) {
+                LOGGER.info("Prefetch: Fetch data from pool. Returned jobs: " + jobs.size() + " - PoolSize after fetch:" + executableOutBoundComTaskPool.size());
+                return jobs;
+            }
+        }
+        return getComServerDAO().findExecutableOutboundComTasks(getComPort());
+    }
+
     final void executeTasks() {
         int storeTaskQueueLoadPercentage = deviceCommandExecutor.getCurrentLoadPercentage();
         if (storeTaskQueueLoadPercentage < 100) {
             getLogger().lookingForWork(getThreadName());
             LOGGER.warning("perf - [" + Thread.currentThread().getName() + "] looking for work");
             long start = System.currentTimeMillis();
-            List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
+            List<ComJob> jobs = getJobsToSchedule();
             queriedForTasks();
             scheduleAll(jobs, start);
+            fetchedNotProcessed.removeAll(fetchedProcessed);
         } else {
             getLogger().storeTaskQueueIsFull(storeTaskQueueLoadPercentage);
             try {

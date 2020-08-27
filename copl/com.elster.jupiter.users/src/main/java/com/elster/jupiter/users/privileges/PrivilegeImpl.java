@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class PrivilegeImpl extends AbstractPrivilege {
+public final class PrivilegeImpl extends AbstractPrivilege {
 
     public PrivilegeImpl() {
     }

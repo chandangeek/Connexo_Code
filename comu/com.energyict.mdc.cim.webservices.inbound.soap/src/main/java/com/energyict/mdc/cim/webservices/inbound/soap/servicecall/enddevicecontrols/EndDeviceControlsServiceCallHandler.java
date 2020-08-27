@@ -5,7 +5,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols;
 
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -122,7 +121,7 @@ public class EndDeviceControlsServiceCallHandler implements ServiceCallHandler {
                 DeviceCommandInfo deviceCommandInfo = headEndController.checkOperation(parentExtension.getCommandCode(), attributes);
 
                 headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, extension.getTriggerDate());
-            } catch (LocalizedException ex) {
+            } catch (Exception ex) {
                 failServiceCall(serviceCall, extension, ex.getLocalizedMessage());
                 return;
             }

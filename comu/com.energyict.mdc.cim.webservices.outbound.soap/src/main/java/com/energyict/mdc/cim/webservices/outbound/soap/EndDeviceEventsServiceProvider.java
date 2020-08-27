@@ -17,7 +17,7 @@ public interface EndDeviceEventsServiceProvider {
 
     String NAME = "CIM SendEndDeviceEvents";
 
-    void call(EndDeviceEventRecord record);
+    void call(EndDeviceEventRecord record, EndPointConfiguration... endPointConfigurations);
 
     void call(List<EndDeviceEvent> events, List<ErrorType> errorTypes,
               EndPointConfiguration endPointConfiguration, String correlationId);

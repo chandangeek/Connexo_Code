@@ -15,7 +15,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     EMPTY_LIST(1, "NoElementsInList", "The list of ''{0}'' can''t be empty."),
-    UNSUPPORTED_BULK_OPERATION(2, "UnsupportedBulkOperation", "Bulk operation isn''t supported on ''{0}'', only first element is processed", Level.WARNING),
+    UNSUPPORTED_BULK_OPERATION(2, "UnsupportedBulkOperation", "Bulk operation isn''t supported for ''{0}'', only first element is processed.", Level.WARNING),
     MISSING_ELEMENT(3, "NoRequiredElement", "Element ''{0}'' is required."),
     ELEMENT_BY_REFERENCE_NOT_FOUND(4, "ElementByRefNotFound", "Element by reference ''{0}'' is not found in ''{1}''"),
     UNSUPPORTED_LIST_SIZE(5, "UnsupportedListSize", "The list of ''{0}'' has unsupported size. Must be of size {1}"),
@@ -142,10 +142,7 @@ public enum MessageSeeds implements MessageSeed {
     SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES(6030, "SystemSourceDoesntSupportLoadProfiles", "''System'' source doesn''t support ''Load profile'' data source. Element ''{0}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_READING_TYPES(6031, "NoComTaskExecutionForReadingTypes", "No communication task execution has been found on device ''{0}'' for readingTypes ''{1}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES(6032, "NoComTaskExecutionForLoadProfiles", "No communication task execution has been found for load profile device messages on device ''{0}''.", Level.WARNING),
-    NO_COM_TASK_EXECUTION_ON_DEVICE(6033, "NoComTaskExecutionOnDevice", "No proper communication task execution has been found for device ''{0}'' under element ''{1}''.", Level.WARNING),
-    NO_COM_TASK_EXECUTION_FOUND(6034, "NoComTaskExecutionFound", "No proper communication task execution has been found."),
     LOAD_PROFILES_NOT_FOUND_ON_DEVICE(6035, "LoadProfilesNotFoundOnDevice", "LoadProfile(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
-    NO_READINGS_TO_READ(6036, "NoReadingsToRead", "Couldn''t find any correct  ''GetMeterReadings.Reading'' to read."),
     READING_NOT_APPLICABLE(6037, "ReadingNotApplicable", "''{0}'' will be skipped due to issue in the element ''{1}''.", Level.WARNING),
     READING_NOT_APPLICABLE_DUE_TO_COM_TASKS(6038, "ReadingNotApplicableDueToComTasks", "''{0}'' will be skipped due to inability to find proper communication tasks.", Level.WARNING),
     COM_TASK_IS_NOT_SCHEDULED(6039, "ComTaskIsNotScheduled", "No proper communication task on device ''{0}'' is scheduled.", Level.WARNING),

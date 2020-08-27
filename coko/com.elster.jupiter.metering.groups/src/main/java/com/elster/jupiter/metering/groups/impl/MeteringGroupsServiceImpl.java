@@ -58,7 +58,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -70,9 +69,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
         property = "name=" + MeteringGroupsService.COMPONENTNAME,
         immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, TranslationKeyProvider {
-
-    private static final Logger LOGGER = Logger.getLogger(MeteringGroupsServiceImpl.class.getSimpleName());
-
     private volatile DataModel dataModel;
     private volatile MeteringService meteringService;
     private volatile QueryService queryService;

@@ -81,6 +81,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('deviceGroup.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device groups per page')
             }
         ];

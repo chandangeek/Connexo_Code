@@ -185,6 +185,7 @@ Ext.define('Imt.issue.view.IssueFilter', {
         }
 
         Ext.apply(options.params, params);
+        store.filterParams = params;
         me.down('button[action=clearAll]').setDisabled(!((options.params.filter && Ext.decode(options.params.filter).length)));
     },
 

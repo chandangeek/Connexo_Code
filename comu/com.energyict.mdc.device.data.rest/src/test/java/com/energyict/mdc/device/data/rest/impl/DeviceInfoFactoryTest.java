@@ -459,6 +459,7 @@ public class DeviceInfoFactoryTest {
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
         when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(any(DeviceType.class))).thenReturn(false);
         when(firmwareService.isResumeFirmwareUploadEnabled(any(DeviceType.class))).thenReturn(false);
+        when(firmwareService.findFirmwareManagementOptions(any(DeviceType.class))).thenReturn(Optional.empty());
 
         Finder<EndDeviceZone> endDeviceZoneFinder = mock(Finder.class);
         doReturn(Stream.of(new EndDeviceZone[]{})).when(endDeviceZoneFinder).stream();

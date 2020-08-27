@@ -30,12 +30,30 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
     ],
 
     init: function () {
+        this.timeUnitsStore = this.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
+        this.timeUnitsStore.load();
         this.control({
             'comPortPoolOverview comportpool-actionmenu': {
                 click: this.chooseAction,
                 show: this.configureMenu
             }
         });
+    },
+    modelToForm: function (model, form) {
+        var me = this,
+            basicForm = form.getForm(),
+            values = {},
+            taskExecutionTimeoutUnit = me.timeUnitsStore.findRecord('timeUnit', model.get('taskExecutionTimeout').timeUnit);
+        if (taskExecutionTimeoutUnit) {
+            taskExecutionTimeout = {count: model.get('taskExecutionTimeout').count, timeUnit: taskExecutionTimeoutUnit.get('localizedValue')},
+            model.beginEdit();
+            model.set('taskExecutionTimeout', taskExecutionTimeout);
+            model.endEdit();
+        }
+        Ext.Object.each(model.getData(), function (key, value) {
+                values[key] = value;
+        });
+        basicForm.setValues(values);
     },
 
     showOverview: function (id) {
@@ -54,11 +72,13 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
             success: function (record) {
                 var form = widget.down('form');
                 form.loadRecord(record);
+                me.modelToForm(record, form);
                 if (record.get('direction').toLowerCase() === 'outbound') {
                     form.down('[name=discoveryProtocolPluggableClassId]').hide();
                 } else if (record.properties().count() > 0) {
                     form.down('[name=pctHighPrioTasks]').hide();
                     form.down('[name=maxPriorityConnections]').hide();
+                    form.down('[name=taskExecutionTimeout]').hide();
 
                     form.down('#protocolDetectionDetails').show();
                     form.down('property-form').show();

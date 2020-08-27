@@ -323,6 +323,8 @@ public abstract class AbstractCimChannel implements CimChannel {
     private Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> cleanObsoleteQualitiesWhenEditingOrEstimating(Collection<ReadingQualityRecord> currentQualityRecords) {
         return cleanObsoleteQualities(currentQualityRecords,
                 either(ReadingQualityType::isSuspect)
+                        .or(qualityType -> qualityType.hasQualityIndex(QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
+                        .or(qualityType -> qualityType.hasQualityIndex(QualityCodeIndex.REVERSEROTATION))
                         .or(qualityType -> qualityType.hasEditCategory()
                                 && qualityType.getIndexCode() != QualityCodeIndex.ADDED.index()
                                 && qualityType.getIndexCode() != QualityCodeIndex.REJECTED.index())
@@ -330,8 +332,8 @@ public abstract class AbstractCimChannel implements CimChannel {
                         .or(ReadingQualityType::isConfirmed),
                 either(ReadingQualityType::hasValidationCategory)
                         .or(ReadingQualityType::isMissing)
-                        .or(qualityType -> qualityType.getIndexCode() == QualityCodeIndex.ADDED.index())
-                        .or(qualityType -> qualityType.getIndexCode() == QualityCodeIndex.REJECTED.index())
+                        .or(qualityType -> qualityType.hasQualityIndex(QualityCodeIndex.ADDED))
+                        .or(qualityType -> qualityType.hasQualityIndex(QualityCodeIndex.REJECTED))
                         .or(ReadingQualityType::hasProjectedCategory));
     }
 
