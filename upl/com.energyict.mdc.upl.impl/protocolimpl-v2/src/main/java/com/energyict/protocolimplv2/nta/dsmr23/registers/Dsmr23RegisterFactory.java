@@ -139,7 +139,6 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
                 if (rv != null) {
                     CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
-                    // Fix for COMMUNICATION-3438
                     ObisCode rObisCode = getCorrectedRegisterObisCode(register);
                     if (rObisCode.equalsIgnoreBChannel(ESMR50RegisterFactory.MBUS_DEVICE_CONFIGURATION)) {
                         deviceRegister.setCollectedData(rv.getText());
