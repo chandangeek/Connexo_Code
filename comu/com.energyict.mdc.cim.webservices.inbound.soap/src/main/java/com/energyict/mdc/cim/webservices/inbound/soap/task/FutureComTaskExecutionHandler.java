@@ -39,41 +39,41 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
     @Override
     public void execute(TaskOccurrence occurrence) {
         findFutureServiceCalls().stream()
-            .forEach(serviceCall -> {
-                SubParentGetMeterReadingsDomainExtension extension = serviceCall.getParent().get().getExtension(SubParentGetMeterReadingsDomainExtension.class)
-                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-                ChildGetMeterReadingsDomainExtension childExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
-                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-                String deviceMrid = extension.getEndDeviceMrid();
-                String comTaksName = childExtension.getCommunicationTask();
-                Instant triggerDate = childExtension.getTriggerDate();
-                if (clock.instant().isAfter(triggerDate)) {
-                    Optional<Device> deviceOptional = deviceService.findDeviceByMrid(deviceMrid);
-                    Device device;
-                    if (deviceOptional.isPresent()) {
-                        device = deviceOptional.get();
-                    } else {
-                        serviceCall.log(LogLevel.SEVERE, "Unable to get device for mrid " + deviceMrid);
-                        serviceCall.requestTransition(DefaultState.ONGOING);
-                        serviceCall.requestTransition(DefaultState.FAILED);
-                        return;
-                    }
+                .forEach(serviceCall -> {
+                    SubParentGetMeterReadingsDomainExtension subParentExtension = serviceCall.getParent().get().getExtension(SubParentGetMeterReadingsDomainExtension.class)
+                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for sub parent service call"));
+                    ChildGetMeterReadingsDomainExtension childExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
+                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for child service call"));
+                    String deviceMrid = subParentExtension.getEndDeviceMrid();
+                    String comTaksName = childExtension.getCommunicationTask();
+                    Instant triggerDate = childExtension.getTriggerDate();
+                    if (clock.instant().isAfter(triggerDate)) {
+                        Optional<Device> deviceOptional = deviceService.findDeviceByMrid(deviceMrid);
+                        Device device;
+                        if (deviceOptional.isPresent()) {
+                            device = deviceOptional.get();
+                        } else {
+                            serviceCall.log(LogLevel.SEVERE, "Unable to get device for mrid " + deviceMrid);
+                            serviceCall.requestTransition(DefaultState.ONGOING);
+                            serviceCall.requestTransition(DefaultState.FAILED);
+                            return;
+                        }
 
-                    Optional<ComTaskExecution> comTaskExecutionOptional = device.getComTaskExecutions().stream()
-                            .filter(cte -> cte.getComTask().getName().equals(comTaksName))
-                            .findFirst();
-                    if (comTaskExecutionOptional.isPresent()) {
-                        serviceCall.requestTransition(DefaultState.PENDING);
-                        serviceCall.requestTransition(DefaultState.ONGOING);
-                        serviceCall.requestTransition(DefaultState.WAITING);
-                        comTaskExecutionOptional.get().runNow();
-                    } else {
-                        serviceCall.log(LogLevel.SEVERE, "The communication task required for the read-out not found on the device");
-                        serviceCall.requestTransition(DefaultState.ONGOING);
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        Optional<ComTaskExecution> comTaskExecutionOptional = device.getComTaskExecutions().stream()
+                                .filter(cte -> cte.getComTask().getName().equals(comTaksName))
+                                .findFirst();
+                        if (comTaskExecutionOptional.isPresent()) {
+                            serviceCall.requestTransition(DefaultState.PENDING);
+                            serviceCall.requestTransition(DefaultState.ONGOING);
+                            serviceCall.requestTransition(DefaultState.WAITING);
+                            comTaskExecutionOptional.get().runNow();
+                        } else {
+                            serviceCall.log(LogLevel.SEVERE, "The communication task required for the read-out not found on the device");
+                            serviceCall.requestTransition(DefaultState.ONGOING);
+                            serviceCall.requestTransition(DefaultState.FAILED);
+                        }
                     }
-                }
-            });
+                });
     }
 
     private Finder<ServiceCall> findFutureServiceCalls() {

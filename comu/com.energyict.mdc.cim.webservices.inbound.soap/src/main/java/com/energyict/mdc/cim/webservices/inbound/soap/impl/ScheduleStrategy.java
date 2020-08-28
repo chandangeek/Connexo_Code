@@ -2,13 +2,14 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
+package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import java.util.Arrays;
 
 public enum ScheduleStrategy {
 
     RUN_NOW("Run now"),
+    RUN_WITH_PRIORITY("Run with priority"),
     USE_SCHEDULE("Use schedule");
 
     private final String name;
