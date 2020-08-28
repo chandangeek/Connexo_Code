@@ -418,6 +418,38 @@ public class AssociationControlServiceElement {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
                                             throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x03) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Calling AP title not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x04) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Calling AP invocation identifier not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x05) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Calling AE qualifier not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x06) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Calling AE invocation identifier not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x07) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Called AP title not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x08) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Called AP invocation identifier not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x09) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Called AE qualifier not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        } else if (responseData[i + 5] == 0x0A) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Called AE invocation identifier not recognized";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0B) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
                                             throw new ProtocolException("Application Association Establishment Failed"
@@ -665,7 +697,13 @@ public class AssociationControlServiceElement {
 
         if (userInformationData != null) {
             if (!getSecurityContext().getSecurityPolicy().isRequestPlain()) {
-                rlrq[t++] = (byte) (userInformationData.length + 4); // total length
+                rlrq[t++] = (byte) (userInformationData.length + 4 + 3); // total length
+
+                // Release-Request-Reason
+                rlrq[t++] = DLMSCOSEMGlobals.RLRQ_REASON_TAG;
+                rlrq[t++] = 0x01; // Integer
+                rlrq[t++] = 0x00; // OK
+
                 rlrq[t++] = DLMSCOSEMGlobals.RLRQ_USER_INFORMATION;
                 rlrq[t++] = (byte) (userInformationData.length + 2); // Total length of the userInformation (including the following 2 bytes)
                 rlrq[t++] = 0x04; // OctetString

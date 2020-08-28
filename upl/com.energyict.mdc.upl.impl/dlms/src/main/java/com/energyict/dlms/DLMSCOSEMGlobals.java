@@ -330,6 +330,7 @@ public interface DLMSCOSEMGlobals {
 	byte DLMS_PDU_INITIATE_RESPONSE 		= 	(byte)0x08;
 	byte DLMS_PDU_CONFIRMED_SERVICE_ERROR	=	(byte)0x0E;
 	byte RLRQ_TAG							= 	(byte)0x62;
+	byte RLRQ_REASON_TAG                    =   (byte)0x80;
 	byte RLRQ_USER_INFORMATION 				= 	(byte)0xBE;
 	byte RLRE_TAG							=	(byte)0x63;
 	/** Not sure it's correct, we assume this is the value by looking at the results*/
