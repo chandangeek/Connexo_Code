@@ -60,7 +60,7 @@ public class WebServiceCallOccurrenceInfoFactory {
             transformer.transform(xmlInput, xmlOutput);
             info.payload = xmlOutput.getWriter().toString();
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.BAD_FORMAT).format(), e);
             info.payload = input;
         }
     }
