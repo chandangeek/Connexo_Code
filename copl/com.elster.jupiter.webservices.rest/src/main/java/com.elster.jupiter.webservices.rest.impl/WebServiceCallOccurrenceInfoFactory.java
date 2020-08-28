@@ -14,10 +14,13 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WebServiceCallOccurrenceInfoFactory {
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final Thesaurus thesaurus;
+    private static final Logger LOGGER = Logger.getLogger(WebServiceCallOccurrenceInfoFactory.class.getName());
 
     @Inject
     public WebServiceCallOccurrenceInfoFactory(EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, Thesaurus thesaurus) {
@@ -57,6 +60,7 @@ public class WebServiceCallOccurrenceInfoFactory {
             transformer.transform(xmlInput, xmlOutput);
             info.payload = xmlOutput.getWriter().toString();
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
             info.payload = input;
         }
     }
