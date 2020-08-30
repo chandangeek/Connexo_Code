@@ -14,10 +14,13 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WebServiceCallOccurrenceInfoFactory {
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final Thesaurus thesaurus;
+    private static final Logger LOGGER = Logger.getLogger(WebServiceCallOccurrenceInfoFactory.class.getName());
 
     @Inject
     public WebServiceCallOccurrenceInfoFactory(EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, Thesaurus thesaurus) {
@@ -36,7 +39,7 @@ public class WebServiceCallOccurrenceInfoFactory {
         endPointOccurrence.getApplicationName().ifPresent(applicationName -> info.applicationName = applicationName);
 
         if (withPayload) {
-            endPointOccurrence.getPayload().ifPresent(payload -> info.payload = prettyFormatXML(payload,4));
+            endPointOccurrence.getPayload().ifPresent(payload -> appendPayload(info, payload, 4));
         }
         if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null) {
             info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
@@ -44,8 +47,9 @@ public class WebServiceCallOccurrenceInfoFactory {
         return info;
     }
 
-    private String prettyFormatXML(String input, int indent) {
+    private void appendPayload(WebServiceCallOccurrenceInfo info, String input, int indent) {
         try {
+            // prettyFormatXML
             Source xmlInput = new StreamSource(new StringReader(input));
             StreamResult xmlOutput = new StreamResult(new StringWriter());
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -54,9 +58,10 @@ public class WebServiceCallOccurrenceInfoFactory {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             transformer.transform(xmlInput, xmlOutput);
-            return xmlOutput.getWriter().toString();
+            info.payload = xmlOutput.getWriter().toString();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.BAD_FORMAT).format(), e);
+            info.payload = input;
         }
     }
 }

@@ -585,8 +585,15 @@ public class InboundCommunicationHandler {
             this.connectionTask = null;
             return false;
         } else {
-            // There is at most one InboundConnectionTask for every device
-            this.connectionTask = (InboundConnectionTask) this.deviceComTaskExecutions.get(0).getConnectionTask().orElse(null);
+            this.connectionTask = deviceComTaskExecutions.stream()
+                    .filter(comTaskExecution -> comTaskExecution.getExecutingComPort() == null)
+                    .map(ComTaskExecution::getConnectionTask)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(task -> task.getExecutingComPort() == null)
+                    .findAny()
+                    .map(InboundConnectionTask.class::cast)
+                    .orElseGet(() ->(InboundConnectionTask) deviceComTaskExecutions.get(0).getConnectionTask().get());
             return true;
         }
     }
