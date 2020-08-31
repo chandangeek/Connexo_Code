@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -18,12 +19,15 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by bvn on 7/29/14.
  */
 @Path("/connectionoverview")
 public class ConnectionOverviewResource {
+    private static final Logger LOGGER = Logger.getLogger(ConnectionOverviewResource.class.getName());// just for time measurement
 
     private final ConnectionOverviewInfoFactory connectionOverviewInfoFactory;
     private final MeteringGroupsService meteringGroupService;

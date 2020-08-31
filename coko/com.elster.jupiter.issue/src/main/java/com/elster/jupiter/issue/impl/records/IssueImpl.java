@@ -339,5 +339,22 @@ public class IssueImpl extends EntityImpl implements Issue {
     protected IssueService getIssueService() {
         return issueService;
     }
+
+    @Override
+    public String toString() {
+        return "IssueImpl{" +
+                "dueDate=" + dueDate +
+                ", reason=" + reason +
+                ", status=" + status +
+                ", type=" + type +
+                ", priority=" + priority +
+                ", overdue=" + overdue +
+                ", user=" + user +
+                ", workGroup=" + workGroup +
+                ", device=" + device +
+                ", usagePoint=" + usagePoint +
+                ", rule=" + rule +
+                '}';
+    }
 }
 

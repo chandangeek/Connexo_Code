@@ -18,7 +18,8 @@ public enum CustomPropertySetsTranslationKeys implements TranslationKey {
     NR_OF_UNCONFIRMED_DEVICE_COMMANDS("Number of unconfirmed device commands"),
     STATUS("Status"),
     DESTINATION_SPEC("Destination spec"),
-    DESTINATION_IDENTIFICATION("Destination identification");
+    DESTINATION_IDENTIFICATION("Destination identification"),
+    RUN_WITH_PRIORITY("Run with priority");
 
     private String defaultFormat;
 

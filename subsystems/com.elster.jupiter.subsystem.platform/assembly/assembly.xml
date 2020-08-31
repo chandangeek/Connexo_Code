@@ -126,6 +126,7 @@
             </includes>
             <excludes>
                 <exclude>com.elster.jupiter:launcher</exclude>
+                <exclude>com.elster.jupiter:installer.util</exclude>
                 <exclude>com.elster.jupiter:yellowfin.installer</exclude>
                 <exclude>com.elster.jupiter:drools-integration:pom</exclude>
             </excludes>
@@ -143,6 +144,7 @@
             <scope>provided</scope>
             <includes>
                 <include>com.elster.jupiter:launcher</include>
+                <include>com.elster.jupiter:installer.util</include>
             </includes>
             <unpack>false</unpack>
             <outputFileNameMapping>

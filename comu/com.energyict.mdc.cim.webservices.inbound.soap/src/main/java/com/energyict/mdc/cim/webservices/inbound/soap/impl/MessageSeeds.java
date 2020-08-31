@@ -126,7 +126,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_USAGE_POINT_WITH_NAME(6014, "NoUsagePointWithName", "No usage point is found by name ''{0}''."),
     WRONG_TIME_PERIOD_COMBINATION(6015, "WrongTimePeriodCombination", "Can''t construct a valid time period with provided start ''{0}'' and the end ''{1}''.", Level.WARNING),
     DIFFERENT_DATA_SOURCES(6016, "DifferentDataSources", "The request contains data sources of different types under element ''{0}''."),
-    SCHEDULE_STRATEGY_NOT_SUPPORTED(6017, "ScheduleStrategyNotSupported", "Schedule strategy ''{0}'' is not supported. The possible values are: ''Run now'' and ''Use schedule''"),
+    SCHEDULE_STRATEGY_NOT_SUPPORTED(6017, "ScheduleStrategyNotSupported", "Schedule strategy ''{0}'' isn''t supported. The possible values are: ''Run now'', ''Run with priority'' and ''Use schedule''."),
     NO_CONNECTION_TASK(6018, "NoConnectionTask", "No connection task has been found for communication task execution of communication task ''{0}''."),
     CONNECTION_METHOD_NOT_FOUND_ON_DEVICE(6019, "ConnectionMethodNotFoundOnDevice", "The required connection method ''{0}'' wasn''t found on the device ''{1}''.", Level.WARNING),
     CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK(6020, "ConnectionMethodNotFoundForComTask", "The required connection method ''{0}'' wasn''t found for communication task ''{1}'' of device ''{2}''.", Level.WARNING),
@@ -148,6 +148,14 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_IS_NOT_SCHEDULED(6039, "ComTaskIsNotScheduled", "No proper communication task on device ''{0}'' is scheduled.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES(6040, "NoComTaskExecutionForLoadProfileNames", "No communication task execution has been found on device ''{0}'' for load profiles ''{1}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_REGISTER_GROUP(6041, "NoComTaskExecutionForRegisterGroup", "No communication task execution has been found on device ''{0}'' for register groups ''{1}''.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES(6042, "NoPriorityComTaskExecutionForLoadProfileNames",
+            "Running the communication task with priority on device ''{0}'' for load profiles ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_READING_TYPES(6043, "NoPriorityComTaskExecutionForReadingTypes",
+            "Running the communication task with priority on device ''{0}'' for readingTypes ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_REGISTER_GROUP(6044, "NoPriorityComTaskExecutionForRegisterGroup",
+            "Running the communication task with priority on device ''{0}'' for register groups ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILES(6045, "NoPriorityComTaskExecutionForLoadProfiles",
+            "Running the communication task with priority for load profile device messages on device ''{0}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
 
     // master data linkage
     NO_METER_WITH_MRID(7001, "NoMeterWithMRID", "No meter or gateway is found by MRID ''{0}''."),
@@ -191,6 +199,8 @@ public enum MessageSeeds implements MessageSeed {
             "Changes to the end device control request can''t be applied after the processing has started or finished."),
     UNABLE_TO_CANCEL_END_DEVICE_CONTROLS(8018, "UnableToCancelEndDeviceControls", "Unable to cancel end device controls."),
     END_DEVICE_ERROR(8019, "EndDeviceError", "For device {0}: {1}"),
+    EDC_SCHEDULE_STRATEGY_NOT_SUPPORTED(8020, "edcScheduleStrategyNotSupported",
+            "Schedule strategy ''{0}'' isn''t supported under EndDeviceControl[{1}]. The possible values are: ''Run now'' and ''Run with priority''."),
     ;
 
     private final int number;

@@ -1,11 +1,17 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.bpm.install;
+package com.elster.jupiter.installer.util;
+
+import org.guvnor.common.services.project.model.GAV;
+import org.guvnor.m2repo.backend.server.GuvnorM2Repository;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Collections;
 
 /**
  * Main class to deploy the predefined processes during Connexo install
@@ -24,7 +31,16 @@ public class ProcessDeployer {
     private static final String orgUnitName = "Honeywell";
 
     public static void main(String args[]) {
-        if ((args.length < 4) || (args[0].equals("deployProcess") && (args.length < 5))) {
+        if ("installProcesses".equals(args[0])) {
+            if (args.length != 2) {
+                System.out.println("Incorrect syntax. The following parameters are required:");
+                System.out.println("command -- command identifier");
+                System.out.println("repository path -- the path to the kie repository");
+            } else {
+                installProcesses(args[1]);
+            }
+            return;
+        } else if ((args.length < 4) || (args[0].equals("deployProcess") && (args.length < 5))) {
             System.out.println("Incorrect syntax. The following parameters are required:");
             System.out.println("command -- command identifier");
             System.out.println("user -- a Connexo Flow user with administrative privileges");
@@ -49,6 +65,22 @@ public class ProcessDeployer {
     private static void createRepository(String arg, String authString, String payload) {
         String url = arg + "/rest/repositories/";
         doPostAndWait(url, authString, payload);
+    }
+
+    private static void installProcesses(String repository) {
+        System.setProperty("org.guvnor.m2repo.dir", repository);
+        GuvnorM2Repository repo = new GuvnorM2Repository();
+        repo.init();
+        File root = new File(repository);
+        for (File file : repo.listFiles(null, Collections.singletonList("jar"))) {
+            String relative = root.toURI().relativize(file.toURI()).getPath();
+            GAV gav = repo.loadGAVFromJar(relative);
+            try {
+                repo.deployArtifact(new FileInputStream(file), gav, false);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Guvnor deploy artifact is failed .", e);
+            }
+        }
     }
 
     private static void createOrganizationalUnit(String arg, String authString, String payload) {
@@ -99,7 +131,7 @@ public class ProcessDeployer {
             }
         }
 
-        if(responseCode == 404){
+        if (responseCode == 404) {
             return false;
         }
         return true;
@@ -199,7 +231,7 @@ public class ProcessDeployer {
                 Thread.sleep(timeout);
                 result = doGet(url, authString);
             } catch (RuntimeException e) {
-                if(maxSteps == 0) {
+                if (maxSteps == 0) {
                     throw e;
                 }
             } catch (InterruptedException e) {
@@ -220,11 +252,10 @@ public class ProcessDeployer {
                 Thread.sleep(timeout);
                 result = doPost(url, authString, payload);
             } catch (RuntimeException e) {
-                if(maxSteps == 0) {
+                if (maxSteps == 0) {
                     throw e;
                 }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }

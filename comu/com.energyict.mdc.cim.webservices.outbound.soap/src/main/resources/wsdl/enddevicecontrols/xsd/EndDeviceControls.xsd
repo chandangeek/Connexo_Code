@@ -126,6 +126,7 @@
                 <xs:element name="PanPricing" type="m:PanPricing"
                             sawsdl:modelReference=""/>
             </xs:choice>
+            <xs:element name="scheduleStrategy" type="xs:string" minOccurs="0"/> <!-- specifically added for Connexo -->
             <xs:element name="EndDeviceControlType"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#EndDeviceControl.EndDeviceControlType">
                 <xs:complexType sawsdl:modelReference="">

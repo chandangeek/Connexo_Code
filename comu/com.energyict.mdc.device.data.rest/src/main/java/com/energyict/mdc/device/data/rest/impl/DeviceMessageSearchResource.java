@@ -24,6 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
@@ -61,6 +62,15 @@ public class DeviceMessageSearchResource {
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfoFactory.asFasterInfo(deviceMessages, uriInfo), queryParameters);
+    }
+
+    @GET
+    @Path("/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response getDeviceMessagesCount(@BeanParam JsonQueryFilter jsonQueryFilter) {
+        DeviceMessageQueryFilterImpl deviceMessageQueryFilter = getDomainFilterFromExtjsQueryParams(jsonQueryFilter);
+        return Response.ok(deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter).count()).build();
     }
 
     @GET

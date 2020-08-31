@@ -32,6 +32,8 @@ import java.util.*;
 
 public class AcudLoadProfileDataReader {
 
+    private final ObisCode ELECTRICITY_MAXIMUM_DEMAND_LP = ObisCode.fromString("1.0.98.1.3.255");
+
     private final IssueFactory issueFactory;
     private final OfflineDevice offlineDevice;
     protected final AbstractDlmsProtocol protocol;
@@ -57,8 +59,18 @@ public class AcudLoadProfileDataReader {
                         .createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
                 ProfileGeneric profileGeneric = this.protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(loadProfileReader.getProfileObisCode());
                 List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
-                List<ChannelInfo>  channelInfos = getChannelInfo(captureObjects, loadProfileConfiguration.getMeterSerialNumber());
-                getChannelInfosMap().put(loadProfileReader, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
+                List<ChannelInfo> channelInfos = getChannelInfo(captureObjects, loadProfileConfiguration.getMeterSerialNumber());
+
+                if (loadProfileConfiguration.getObisCode().equals(ELECTRICITY_MAXIMUM_DEMAND_LP)) {
+                    // remap duplicated timestamp channel to 1.5.x.x.x.255
+                    channelInfos.stream().filter(
+                            ci -> ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
+                    ).forEach(
+                            ci -> ci.setName( ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 2, 5).toString() )
+                    );
+                }
+
+                getChannelInfosMap().put(loadProfileReader, channelInfos); // Remember these, they are re-used in method #getLoadProfileData();
                 loadProfileConfiguration.setProfileInterval(readIntervalFromDevice(loadProfileReader.getProfileObisCode()));
                 loadProfileConfiguration.setChannelInfos(channelInfos);
                 loadProfileConfiguration.setSupportedByMeter(true);
@@ -124,32 +136,28 @@ public class AcudLoadProfileDataReader {
     }
 
     private List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber) throws IOException {
-        Map<ObisCode, Unit> unitMap = new HashMap<>();
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        List<ObisCode> channelObisCodes = new ArrayList<>();
-
-        for (CapturedObject capturedObject : capturedObjects) {
-            if(isRealChannelData(capturedObject)) {
-                Unit u = readUnitFromDevice(capturedObject);
-                if (u.isUndefined()) {
-                    u = Unit.get(BaseUnit.NOTAVAILABLE, u.getScale());
-                }
-                u = Unit.get(u.getBaseUnit().getDlmsCode(), 0); // SET SCALE to ZERO since it's already applied and converted to Engineering Unit by the protocol
-                unitMap.put(capturedObject.getLogicalName().getObisCode(), u);
-                channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
-            }
-        }
 
         int counter = 0;
-        for (ObisCode obisCode : channelObisCodes) {
-            Unit unit = unitMap.get(obisCode);
-            ChannelInfo channelInfo = new ChannelInfo(counter, obisCode.toString(), unit == null ? Unit.get(BaseUnit.UNITLESS) : unit, serialNumber);
-            if (isCumulative(obisCode)) {
-                channelInfo.setCumulative();
+        for (CapturedObject capturedObject : capturedObjects) {
+            if (isRealChannelData(capturedObject)) {
+                final ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
+                Unit unit = readUnitFromDevice(capturedObject);
+                if (unit.isUndefined()) {
+                    unit = Unit.get(BaseUnit.NOTAVAILABLE, unit.getScale());
+                }
+                unit = Unit.get(unit.getBaseUnit().getDlmsCode(), 0); // SET SCALE to ZERO since it's already applied and converted to Engineering Unit by the protocol
+
+                ChannelInfo channelInfo = new ChannelInfo(counter, obisCode.toString(), unit, serialNumber);
+                if (isCumulative(obisCode)) {
+                    channelInfo.setCumulative();
+                }
+                channelInfos.add(channelInfo);
+
+                counter++;
             }
-            channelInfos.add(channelInfo);
-            counter++;
         }
+
         return channelInfos;
     }
 

@@ -91,9 +91,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -204,6 +206,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile NlsService nlsService;
     private volatile TopologyService topologyService;
     private volatile ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
+    private volatile EngineConfigurationService engineConfigurationService;
+    private volatile PriorityComTaskService priorityComTaskService;
 
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -238,7 +242,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          TopologyService topologyService,
                                          ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
                                          MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet,
-                                         MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet) {
+                                         MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet,
+                                         EngineConfigurationService engineConfigurationService,
+                                         PriorityComTaskService priorityComTaskService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -281,6 +287,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setMasterDataLinkageConfigMasterCustomPropertySet(masterDataLinkageConfigMasterCustomPropertySet);
         setMasterDataLinkageConfigCustomPropertySet(masterDataLinkageConfigCustomPropertySet);
         setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
+        setEngineConfigurationService(engineConfigurationService);
+        setPriorityComTaskService(priorityComTaskService);
     }
 
 
@@ -334,6 +342,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(InboundSoapEndpointsActivator.class).toInstance(InboundSoapEndpointsActivator.this);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(ReplyMasterDataLinkageConfigWebService.class).toInstance(replyMasterDataLinkageConfigWebService);
+                bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
+                bind(PriorityComTaskService.class).toInstance(priorityComTaskService);
             }
         };
     }
@@ -741,6 +751,16 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setReplyMasterDataLinkageConfigWebService(ReplyMasterDataLinkageConfigWebService webService) {
         replyMasterDataLinkageConfigWebService = webService;
+    }
+
+    @Reference
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
+    }
+
+    @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService = priorityComTaskService;
     }
 
     @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")

@@ -36,53 +36,26 @@ class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
         return new ConnectionTaskBreakdownSqlExecutor(dataModel, Optional.of(deviceGroup), Optional.of(mdcAmrSystem));
     }
 
+
     @Override
-    protected SqlBuilder beforeDeviceGroupSql(Instant now) {
-        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
-        sqlBuilder.append(" alldata as ( ");
-        sqlBuilder.append(" select * from MV_CONTASKBREAKDOWN ");
-        sqlBuilder.append(this.deviceContainerAliasName());
-        sqlBuilder.append(" where 1=1 ");
+    protected SqlBuilder sql() {
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT GROUPERBY, TASKSTATUS, ITEM, NVL(SUM(\"COUNT\"),0) ");
+        sqlBuilder.append("FROM DASHBOARD_CONTASKBREAKDOWN ct ");
+        sqlBuilder.append(" WHERE 1=1 ");
+        this.deviceGroup.ifPresent(deviceGroup -> this.appendDeviceGroupSql(deviceGroup, sqlBuilder));
+        sqlBuilder.append(" GROUP BY GROUPERBY, TASKSTATUS, ITEM ");
+        sqlBuilder.append(" ORDER BY GROUPERBY, TASKSTATUS");
         return sqlBuilder;
     }
 
     @Override
+    protected SqlBuilder beforeDeviceGroupSql(Instant now) {
+        return new SqlBuilder("");
+    }
+
+    @Override
     protected SqlBuilder taskStatusSql(Instant now) {
-        SqlBuilder sqlBuilder = new SqlBuilder("),");
-        sqlBuilder.append("grouped as (");
-        sqlBuilder.append("  SELECT connectiontypepluggableclass,");
-        sqlBuilder.append("         comportpool,");
-        sqlBuilder.append("         devicetype,");
-        sqlBuilder.append("         taskStatus,");
-        sqlBuilder.append("         count(*) as counter");
-        sqlBuilder.append("    FROM alldata");
-        sqlBuilder.append("   GROUP BY connectiontypepluggableclass, comportpool, devicetype, taskstatus");
-        sqlBuilder.append(")");
-        sqlBuilder.append("SELECT '");
-        sqlBuilder.append(BreakdownType.None.name());
-        sqlBuilder.append("', taskStatus, null as item, nvl(sum(counter), 0)");
-        sqlBuilder.append("  FROM grouped");
-        sqlBuilder.append(" GROUP BY taskStatus ");
-        sqlBuilder.append("UNION ALL ");
-        sqlBuilder.append("SELECT '");
-        sqlBuilder.append(BreakdownType.ComPortPool.name());
-        sqlBuilder.append("', taskStatus, comportpool, nvl(sum(counter), 0)");
-        sqlBuilder.append("  FROM grouped");
-        sqlBuilder.append(" GROUP BY taskStatus, comportpool ");
-        sqlBuilder.append("UNION ALL ");
-        sqlBuilder.append("SELECT '");
-        sqlBuilder.append(BreakdownType.ConnectionType.name());
-        sqlBuilder.append("', taskStatus, connectiontypepluggableclass, nvl(sum(counter), 0)");
-        sqlBuilder.append("  FROM grouped");
-        sqlBuilder.append(" GROUP BY taskStatus, connectiontypepluggableclass ");
-        sqlBuilder.append("UNION ALL ");
-        sqlBuilder.append("SELECT '");
-        sqlBuilder.append(BreakdownType.DeviceType.name());
-        sqlBuilder.append("', taskStatus, devicetype, nvl(sum(counter), 0)");
-        sqlBuilder.append("  FROM grouped");
-        sqlBuilder.append(" GROUP BY taskStatus, devicetype");
-        sqlBuilder.append(" ORDER BY 1, 2, 3");
-        return sqlBuilder;
+        return new SqlBuilder("");
     }
 
     @Override

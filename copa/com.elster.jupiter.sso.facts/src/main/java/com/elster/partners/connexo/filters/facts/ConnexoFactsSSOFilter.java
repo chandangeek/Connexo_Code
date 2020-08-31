@@ -14,9 +14,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
+    private final String USER_REPORTS_VIEWER = "reportsViewer";
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws
@@ -100,13 +103,20 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
         ConnexoFactsWebServiceManager manager = new ConnexoFactsWebServiceManager(request.getLocalPort(), request
                 .getContextPath(), request.getProtocol());
 
-        Optional<String> result = manager.getUser(principal.getName(), principal.getPrivileges());
+        String userName = principal.getName();
+        List<String> privileges = principal.getPrivileges();
+        if (principal.getPrivileges().contains("privilege.view.reports") &&
+                !(principal.getPrivileges().contains("privilege.design.reports") || principal.getPrivileges().contains("privilege.administrate.reports"))) {
+            userName = USER_REPORTS_VIEWER;
+            privileges = Collections.singletonList("privilege.view.reports");
+        }
+        Optional<String> result = manager.getUser(userName, privileges);
         if (!result.isPresent() || !result.get().equals("SUCCESS")) {
-            result = manager.createUser(principal.getName(), principal.getPrivileges());
+            result = manager.createUser(userName, privileges);
         }
 
         if (result.isPresent() && result.get().equals("SUCCESS")) {
-            result = manager.login(principal.getName());
+            result = manager.login(userName);
 
             if (result.isPresent()) {
                 response.sendRedirect(request.getRequestURL()

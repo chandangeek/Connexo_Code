@@ -23,7 +23,6 @@ import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
-import com.elster.jupiter.issue.share.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
@@ -35,9 +34,16 @@ import com.elster.jupiter.issue.rest.transactions.BulkSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.UnassignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.*;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.IssueGroupInfo;
+import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.IssueResourceUtility;
+import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationService;
@@ -50,8 +56,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.WorkGroup;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
@@ -73,11 +77,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
@@ -130,15 +137,16 @@ public class IssueResource extends BaseResource {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
                 issueRef.ifPresent(issue -> {
                     IssueInfo issueInfo = IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue).from(issue));
-                    if ( !issueFilter.getUsagePoints().isEmpty()) {
+                    if (!issueFilter.getUsagePoints().isEmpty()) {
                         issueFilter.getUsagePoints().stream().forEach(usagePoint -> {
-                            try{
-                                if ( usagePoint.getId() == issueInfo.usagePointInfo.getId() ){
+                            try {
+                                if (usagePoint.getId() == issueInfo.usagePointInfo.getId()) {
                                     issueInfos.add(issueInfo);
                                 }
-                            }catch(NullPointerException e){}
+                            } catch (NullPointerException e) {
+                            }
                         });
-                    }else{
+                    } else {
                         issueInfos.add(issueInfo);
                     }
                 });
@@ -147,7 +155,17 @@ public class IssueResource extends BaseResource {
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
     }
 
-    @GET @Transactional
+    @GET
+    @Path("/count")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
+    public Response getAllIssuesCount(@BeanParam JsonQueryFilter filter) {
+        return Response.ok(getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter)).count()).build();
+    }
+
+    @GET
+    @Transactional
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -340,17 +358,17 @@ public class IssueResource extends BaseResource {
 
         Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
         List<? extends Issue> issues = finder.find();
-        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length()-1);
+        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length() - 1);
         List<IssueGroupInfo> infos = issueResourceUtility.getIssueGroupList(issues, value);
 
-        if(filter.getString(IssueRestModuleConst.FIELD).equals(IssueRestModuleConst.LOCATION)) {
+        if (filter.getString(IssueRestModuleConst.FIELD).equals(IssueRestModuleConst.LOCATION)) {
             // replace location id with location name for group name
             List<IssueGroupInfo> replacedInfos = new LinkedList<>();
-            for (IssueGroupInfo info: infos) {
+            for (IssueGroupInfo info : infos) {
                 String groupName = info.description;
-                if(isNumericValue(groupName)) {
+                if (isNumericValue(groupName)) {
                     Optional<Location> location = locationService.findLocationById(Long.valueOf(groupName));
-                    if(location.isPresent()) {
+                    if (location.isPresent()) {
                         groupName = location.get().toString();
                     }
                 }
@@ -552,6 +570,7 @@ public class IssueResource extends BaseResource {
         finder.sorted("id", false);
         return finder;
     }
+
 
     private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();

@@ -85,6 +85,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('dataExportTasks.history.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} history lines'),
                 displayMoreMsg: Uni.I18n.translate('dataExportTasks.history.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} history lines'),
                 emptyMsg: Uni.I18n.translate('dataExportTasks.history.pagingtoolbartop.emptyMsg', 'DES', 'There are no history lines to display')
@@ -94,7 +95,8 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.history.pagingtoolbarbottom.itemsPerPage', 'DES', 'History lines per page'),
                 dock: 'bottom',
-                deferLoading: true
+                deferLoading: true,
+                needExtendedData: true
             }
         ];
 

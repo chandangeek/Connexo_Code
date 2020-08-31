@@ -61,6 +61,7 @@ Ext.define('Mtr.view.GroupsGrid', {
                 store: this.store,
                 itemsPerPageMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbarbottom.itemsPerPage', 'MTR', 'Reading type sets per page'),
                 dock: 'bottom',
+                needExtendedData: true,
                 deferLoading: true
             }
         ];

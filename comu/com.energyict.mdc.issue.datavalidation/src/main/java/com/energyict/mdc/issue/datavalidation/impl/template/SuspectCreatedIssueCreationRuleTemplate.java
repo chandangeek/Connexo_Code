@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datavalidation.impl.template;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.TemplateUtil;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -204,12 +205,22 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
     }
 
     private DeviceConfigurationInfo[] getPossibleValuesForDeviceConfiguration() {
-        return deviceConfigurationService
-                .findAllDeviceTypes()
-                .stream()
-                .flatMap(type -> type.getConfigurations().stream())
-                .map(DeviceConfigurationInfo::new)
-                .toArray(DeviceConfigurationInfo[]::new);
+        // Already existing record. So edit scenario of Issue creation rules. (Fix for CXO-12489)
+        if (TemplateUtil.getRuleId() != null && TemplateUtil.getRuleName() != null) {
+            return deviceConfigurationService
+                    .findAllDeviceTypes()
+                    .stream()
+                    .flatMap(type -> type.getConfigurationsWithObsolete().stream())
+                    .map(DeviceConfigurationInfo::new)
+                    .toArray(DeviceConfigurationInfo[]::new);
+        } else {
+            return deviceConfigurationService
+                    .findAllDeviceTypes()
+                    .stream()
+                    .flatMap(type -> type.getConfigurations().stream())
+                    .map(DeviceConfigurationInfo::new)
+                    .toArray(DeviceConfigurationInfo[]::new);
+        }
     }
 
     private ValidationRuleInfo[] getPossibleValuesForValidationRule() {

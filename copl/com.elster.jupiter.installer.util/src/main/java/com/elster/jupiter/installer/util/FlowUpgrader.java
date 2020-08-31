@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.bpm.install;
+package com.elster.jupiter.installer.util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

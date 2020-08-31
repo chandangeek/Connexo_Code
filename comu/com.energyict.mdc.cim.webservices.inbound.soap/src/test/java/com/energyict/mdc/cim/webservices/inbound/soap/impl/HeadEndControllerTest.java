@@ -142,7 +142,7 @@ public class HeadEndControllerTest {
     public void testInvalidDevice() throws Exception {
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> headEndController.performOperations(endDevice, serviceCall, new DeviceCommandInfo(), NOW_DATE))
+        assertThatThrownBy(() -> headEndController.performOperations(endDevice, serviceCall, new DeviceCommandInfo(), NOW_DATE, false))
                 .isInstanceOf(LocalizedException.class)
                 .hasMessage("Couldn't find the head-end interface for end device with MRID 'endDeviceMRID'.");
     }
@@ -156,11 +156,11 @@ public class HeadEndControllerTest {
         when(commandFactory.createConnectCommand(endDevice, null)).thenReturn(endDeviceCommand);
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE);
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
 
         // Asserts
         verify(commandFactory).createConnectCommand(endDevice, null);
-        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 
     @Test
@@ -181,11 +181,11 @@ public class HeadEndControllerTest {
         when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.singletonList(dateTimeSpec));
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE);
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
 
         // Asserts
         verify(commandFactory).createConnectCommand(endDevice, NOW_DATE);
-        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 
     @Test
@@ -197,11 +197,11 @@ public class HeadEndControllerTest {
         when(commandFactory.createDisconnectCommand(endDevice, null)).thenReturn(endDeviceCommand);
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE);
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
 
         // Asserts
         verify(commandFactory).createDisconnectCommand(endDevice, null);
-        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 
     @Test
@@ -222,11 +222,11 @@ public class HeadEndControllerTest {
         when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.singletonList(dateTimeSpec));
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE);
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
 
         // Asserts
         verify(commandFactory).createDisconnectCommand(endDevice, NOW_DATE);
-        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 
     @Test
@@ -258,11 +258,11 @@ public class HeadEndControllerTest {
         when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(propertySpecs);
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE);
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
 
         // Asserts
         verify(commandFactory).createUpdateCreditAmountCommand(endDevice, "Import Credit", BigDecimal.valueOf(1));
-        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 
     @Test
@@ -294,11 +294,11 @@ public class HeadEndControllerTest {
         when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(propertySpecs);
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE);
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
 
         // Asserts
         verify(commandFactory).createUpdateCreditDaysLimitCommand(endDevice, BigDecimal.valueOf(1), BigDecimal.valueOf(2));
-        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 
     private void mockEndDeviceControlType(String mRID) {
