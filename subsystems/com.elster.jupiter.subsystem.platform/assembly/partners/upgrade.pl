@@ -34,10 +34,10 @@ sub upgrade_flow {
     # For upgrading from 10.1 to 10.2, Flow database needs to be upgraded
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
         # classpath separator on Windows is ;
-        system("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar;partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.bpm.install.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") == 0 or die "Cannot execute Flow upgrade script!";
+        system("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar;partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.installer.util.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") == 0 or die "Cannot execute Flow upgrade script!";
     } else {
         # classpath separator on Linux is :
-        system("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar:partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.bpm.install.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") == 0 or die "Cannot execute Flow upgrade script!";
+        system("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar:partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.installer.util.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") == 0 or die "Cannot execute Flow upgrade script!";
     }
 }
 
