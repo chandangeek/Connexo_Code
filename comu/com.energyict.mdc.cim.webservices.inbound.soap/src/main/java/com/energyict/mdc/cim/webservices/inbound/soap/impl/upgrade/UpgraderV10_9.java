@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InstallerV1;
@@ -15,8 +16,14 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCom
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.List;
 
 import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes.DATA_LINKAGE_CONFIG;
 import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes.MASTER_DATA_LINKAGE_CONFIG;
@@ -47,6 +54,7 @@ public class UpgraderV10_9 implements Upgrader {
         updateServiceCall(MASTER_DATA_LINKAGE_CONFIG, MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_ID);
         updateServiceCall(DATA_LINKAGE_CONFIG, MasterDataLinkageConfigCustomPropertySet.CUSTOM_PROPERTY_SET_ID);
         migrateSql();
+        dropCountersFromMeterConfig();
     }
 
     private void updateServiceCall(ServiceCallCommands.ServiceCallTypes type, String customPropertySetId) {
@@ -75,6 +83,30 @@ public class UpgraderV10_9 implements Upgrader {
                         "END; ";
 
         execute(dataModel, sql1, sql2);
+    }
+
+    private void dropCountersFromMeterConfig() {
+        List<String> oldColumnsSql = ImmutableList.<String>builder()
+                .add("ALTER TABLE MCP_SCS_CNT DROP COLUMN EXPECTED_CALLS")
+                .add("ALTER TABLE MCP_SCS_CNT DROP COLUMN SUCCESS_CALLS")
+                .add("ALTER TABLE MCP_SCS_CNT DROP COLUMN FAILED_CALLS")
+                .add("ALTER TABLE MCP_SCS_CNTJRNL DROP COLUMN EXPECTED_CALLS")
+                .add("ALTER TABLE MCP_SCS_CNTJRNL DROP COLUMN SUCCESS_CALLS")
+                .add("ALTER TABLE MCP_SCS_CNTJRNL DROP COLUMN FAILED_CALLS")
+                .build();
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             Statement statement = connection.createStatement()) {
+            oldColumnsSql.forEach(oldColumn -> {
+                try {
+                    execute(statement, oldColumn);
+                } catch (Exception e) {
+                    // no action if column already not exists
+                }
+            });
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 }
 
