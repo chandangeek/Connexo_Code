@@ -119,7 +119,7 @@ public class UpgraderV10_9 implements Upgrader {
     private String insertRowSql(ComTaskEnablement comTaskEnablement, int discriminator, Long connectiontaskid, long deviceid) {
         StringBuilder query = new StringBuilder();
         query
-                .append(" SELECT '").append("DDC_COMTASKEXECID.nextval").append("', ")
+                .append(" SELECT ").append("DDC_COMTASKEXECID.nextval").append(", ")
                 .append("'").append(1).append("', ")
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")
