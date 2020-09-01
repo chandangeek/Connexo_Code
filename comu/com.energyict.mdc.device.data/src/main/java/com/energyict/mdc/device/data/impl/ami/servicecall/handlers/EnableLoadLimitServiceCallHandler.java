@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 
 import org.osgi.service.component.annotations.Component;
@@ -37,8 +38,9 @@ public class EnableLoadLimitServiceCallHandler extends AbstractOperationServiceC
     }
 
     // Constructor only to be used in JUnit tests
-    public EnableLoadLimitServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack) {
-        super(messageService, thesaurus, completionOptionsCallBack);
+    public EnableLoadLimitServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack,
+                                             DeviceMessageService deviceMessageService) {
+        super(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
     }
 
     @Reference
@@ -54,5 +56,10 @@ public class EnableLoadLimitServiceCallHandler extends AbstractOperationServiceC
     @Reference
     public void setNlsService(NlsService nlsService) {
         super.setThesaurus(nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        super.setDeviceMessageService(deviceMessageService);
     }
 }

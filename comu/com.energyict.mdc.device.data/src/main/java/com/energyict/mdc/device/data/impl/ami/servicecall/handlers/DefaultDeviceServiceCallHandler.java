@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,8 +34,9 @@ public class DefaultDeviceServiceCallHandler extends AbstractOperationServiceCal
     }
 
     // Constructor only to be used in JUnit tests
-    public DefaultDeviceServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack) {
-        super(messageService, thesaurus, completionOptionsCallBack);
+    public DefaultDeviceServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack,
+                                           DeviceMessageService deviceMessageService) {
+        super(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
     }
 
     @Reference
@@ -50,5 +52,10 @@ public class DefaultDeviceServiceCallHandler extends AbstractOperationServiceCal
     @Reference
     public void setNlsService(NlsService nlsService) {
         super.setThesaurus(nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        super.setDeviceMessageService(deviceMessageService);
     }
 }

@@ -65,7 +65,7 @@ public class DeviceMessageUpdateEventHandlerTest {
         CommandServiceCallDomainExtension commandServiceCallDomainExtension = new CommandServiceCallDomainExtension();
         commandServiceCallDomainExtension.setNrOfUnconfirmedDeviceCommands(1);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(commandServiceCallDomainExtension));
-        when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
+        when(serviceCallService.lockServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
     }
 
     @Test
