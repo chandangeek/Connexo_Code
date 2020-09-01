@@ -34,6 +34,7 @@ import com.google.common.collect.Sets;
 import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -142,6 +143,7 @@ public class WebServiceDestinationImplTest {
         when(changeEndPoint.getWebServiceName()).thenReturn(WEB_SERVICE_CHANGE);
         when(dataExportService.getExportWebService(WEB_SERVICE_CREATE)).thenReturn(Optional.of(webServiceCreate));
         when(dataExportService.getExportWebService(WEB_SERVICE_CHANGE)).thenReturn(Optional.of(webServiceChange));
+        when(dataExportService.shouldCombineCreatedAndUpdatedDataInOneWebRequest()).thenReturn(true);
 
         when(serviceCallType.startServiceCallAsync(eq("uuidCr"), eq(1L), anyMapOf(ReadingTypeDataExportItem.class, String.class))).thenReturn(createServiceCall);
         doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCr", 1, data1))
@@ -286,6 +288,31 @@ public class WebServiceDestinationImplTest {
         verifyNoMoreInteractions(webServiceChange);
         verifyZeroInteractions(webServiceCreate);
         verify(serviceCallType, times(1)).startServiceCallAsync("uuidCh", 2, data2);
+        verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
+        verifyNoMoreInteractions(serviceCallType);
+    }
+
+    @Test
+    public void testSendToOneEndpointNotCombineData() {
+        when(dataExportService.shouldCombineCreatedAndUpdatedDataInOneWebRequest()).thenReturn(false);
+
+        WebServiceDestinationImpl destination = getDestination(changeEndPoint, changeEndPoint);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
+
+        verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
+        verify(webServiceChange, times(2)).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
+        List<ExportData> allValues = new ArrayList<>();
+        dataStreamCaptor.getAllValues().forEach(value -> allValues.addAll(value.collect(Collectors.toList())));
+        assertThat(allValues).containsOnly(newData, updatedData);
+        verifyNoMoreInteractions(webServiceChange);
+        verifyZeroInteractions(webServiceCreate);
+        verify(serviceCallType, times(2)).startServiceCallAsync("uuidCh", 2, data2);
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verifyNoMoreInteractions(serviceCallType);
     }
