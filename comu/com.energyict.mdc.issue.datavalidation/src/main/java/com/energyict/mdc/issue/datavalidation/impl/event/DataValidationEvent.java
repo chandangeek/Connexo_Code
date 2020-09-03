@@ -114,4 +114,14 @@ public abstract class DataValidationEvent implements IssueEvent {
     protected List<LoadProfile> getLoadProfiles() {
         return getDevice().getLoadProfiles();
     }
+
+    @Override
+    public String toString() {
+        return "DataValidationEvent{" +
+                "channelId=" + channelId +
+                ", readingType='" + readingType + '\'' +
+                ", deviceConfigurationId=" + deviceConfigurationId +
+                ", ruleId=" + ruleId +
+                '}';
+    }
 }

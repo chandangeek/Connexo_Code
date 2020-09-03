@@ -868,6 +868,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public QueryStream<EndDeviceEventRecord> streamEndDeviceEvents() {
+        return dataModel.stream(EndDeviceEventRecord.class)
+                .join(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
+    }
+
+    @Override
     public Optional<ChannelsContainer> findChannelsContainer(long id) {
         return dataModel.mapper(ChannelsContainer.class).getOptional(id);
     }

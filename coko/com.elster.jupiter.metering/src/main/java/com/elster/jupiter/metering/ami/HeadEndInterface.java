@@ -38,5 +38,7 @@ public interface HeadEndInterface {
 
     CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall);
 
+    CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall, boolean withPriority);
+
     String getAmrSystem();
 }

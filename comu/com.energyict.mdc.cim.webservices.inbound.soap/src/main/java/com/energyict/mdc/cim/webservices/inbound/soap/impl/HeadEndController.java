@@ -127,7 +127,7 @@ public class HeadEndController {
         return deviceCommandInfo;
     }
 
-    public void performOperations(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Instant releaseDate) {
+    public void performOperations(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Instant releaseDate, boolean withPriority) {
         HeadEndInterface headEndInterface = getHeadEndInterface(endDevice);
         EndDeviceCommand deviceCommand;
         switch (deviceCommandInfo.getEndDeviceControlTypeMapping()) {
@@ -154,7 +154,7 @@ public class HeadEndController {
 
         headEndInterface.sendCommand(deviceCommand,
                 releaseDate.isBefore(clock.instant()) ? clock.instant() : releaseDate,
-                serviceCall);
+                serviceCall, withPriority);
     }
 
     public void scheduleDeviceCommandsComTask(Device device, List<DeviceMessage> deviceMessages) {

@@ -3,16 +3,6 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
-import ch.iec.tc57._2011.meterreadings.MeterReadings;
-import ch.iec.tc57._2011.meterreadings.UsagePoint;
-import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
-import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsPayloadType;
-import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsResponseMessageType;
-import ch.iec.tc57._2011.meterreadingsmessage.ObjectFactory;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
-import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
-import ch.iec.tc57._2011.sendmeterreadings.SendMeterReadings;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.export.DataExportService;
@@ -33,6 +23,17 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
+import ch.iec.tc57._2011.meterreadings.UsagePoint;
+import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
+import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsPayloadType;
+import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsResponseMessageType;
+import ch.iec.tc57._2011.meterreadingsmessage.ObjectFactory;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
+import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
+import ch.iec.tc57._2011.sendmeterreadings.SendMeterReadings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -169,7 +170,7 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
                         .send(message);
 
                 if (response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((MeterReadingsResponseMessageType) response.get(endPointConfiguration)).getReply().getResult()) {
-                    throw new MessageSendingFailed(thesaurus, MessageSeeds.MESSAGE_SENDING_FAILED, endPointConfiguration.getName());
+                    throw new MessageSendingFailed(thesaurus, endPointConfiguration);
                 }
             }
         }
@@ -242,14 +243,13 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
             });
         });
 
-        Map response = using(method)
+        Map<EndPointConfiguration, ?> response = using(method)
                 .toEndpoints(endPointConfiguration)
                 .withRelatedAttributes(values)
                 .send(message);
-        if (response == null || response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((MeterReadingsResponseMessageType) response.get(endPointConfiguration)).getReply().getResult()) {
-            return false;
-        }
-        return true;
+        return response != null
+                && response.get(endPointConfiguration) != null
+                && ReplyType.Result.OK == ((MeterReadingsResponseMessageType) response.get(endPointConfiguration)).getReply().getResult();
     }
 
     protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType header) {

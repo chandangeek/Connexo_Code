@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
+
 import ch.iec.tc57._2011.enddevicecontrols.EndDeviceControlAttribute;
 
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 public class EndDeviceControlMessage {
     private String commandCode;
     private List<EndDeviceControlAttribute> attributes;
+    private ScheduleStrategy scheduleStrategy;
 
     private List<EndDeviceMessage> endDeviceMessages = new ArrayList<>();
 
@@ -29,6 +32,14 @@ public class EndDeviceControlMessage {
 
     public void setAttributes(List<EndDeviceControlAttribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public ScheduleStrategy getScheduleStrategy() {
+        return scheduleStrategy;
+    }
+
+    public void setScheduleStrategy(ScheduleStrategy scheduleStrategy) {
+        this.scheduleStrategy = scheduleStrategy;
     }
 
     public List<EndDeviceMessage> getEndDeviceMessages() {

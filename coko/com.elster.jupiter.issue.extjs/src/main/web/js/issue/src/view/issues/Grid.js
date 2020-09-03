@@ -101,10 +101,18 @@ Ext.define('Isu.view.issues.Grid', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issues'),
                 displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issues'),
                 emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issues to display'),
                 items: [
+                    {
+                        xtype: 'button',
+                        itemId: 'issues-count-action',
+                        text: Uni.I18n.translate('general.title.count', 'ISU', 'Count'),
+                        privileges: Isu.privileges.Issue.closeOrAssing,
+                        action: 'countIssues'
+                    },
                     {
                         xtype: 'button',
                         itemId: 'issues-bulk-action',
@@ -130,9 +138,18 @@ Ext.define('Isu.view.issues.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Issues per page')
             }
         ];
         me.callParent(arguments);
+
+        me.on('afterrender', function(){
+            var previewContainer = me.up('preview-container');
+            previewContainer.up().down('uni-grid-filterpaneltop').on('applyFilters', function(){
+                previewContainer.down('#issues-count-action').setDisabled(false);
+                previewContainer.down('#issues-count-action').setText(Uni.I18n.translate('general.title.count', 'DAL', 'Count'))
+            });
+        })
     }
 });

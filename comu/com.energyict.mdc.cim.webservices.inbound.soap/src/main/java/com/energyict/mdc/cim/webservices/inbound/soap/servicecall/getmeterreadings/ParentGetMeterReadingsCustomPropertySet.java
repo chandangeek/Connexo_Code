@@ -165,7 +165,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRATEGY.javaName(), TranslationKeys.SCHEDULE_STRAGEGY)
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRATEGY.javaName(), TranslationKeys.SCHEDULE_STRATEGY)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService

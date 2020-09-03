@@ -75,12 +75,14 @@ Ext.define('Dxp.view.datasources.Grid', {
                 store: me.store,
                 dock: 'top',
                 usesExactCount: true,
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('dataSources.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} data sources'),
                 displayMoreMsg: Uni.I18n.translate('dataSources.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} data sources'),
                 emptyMsg: Uni.I18n.translate('dataSources.pagingtoolbartop.emptyMsg', 'DES', 'There are no data sources to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
+                needExtendedData: true,
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('dataSources.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data sources per page'),
                 dock: 'bottom'

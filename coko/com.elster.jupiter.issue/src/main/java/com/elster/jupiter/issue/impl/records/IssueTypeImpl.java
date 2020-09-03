@@ -82,4 +82,13 @@ public final class IssueTypeImpl extends EntityImpl implements IssueType {
     public int hashCode() {
         return Objects.hash(key);
     }
+
+    @Override
+    public String toString() {
+        return "IssueTypeImpl{" +
+                "key='" + key + '\'' +
+                ", translationKey='" + translationKey + '\'' +
+                ", prefix='" + prefix + '\'' +
+                '}';
+    }
 }

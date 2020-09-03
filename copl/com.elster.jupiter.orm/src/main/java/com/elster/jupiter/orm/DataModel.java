@@ -180,5 +180,7 @@ public interface DataModel {
         }
     }
 
-    String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval);
+    String getRefreshJobStatement(String jobName, String jobAction, int minRefreshInterval);
+
+    String getDropJobStatement(String jobName);
 }

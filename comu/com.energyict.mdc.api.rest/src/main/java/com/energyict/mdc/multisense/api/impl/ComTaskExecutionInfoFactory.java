@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
 
@@ -51,6 +52,8 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
     private final Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider;
     private final Provider<ComScheduleInfoFactory> comScheduleInfoFactoryProvider;
     private final Provider<ConnectionFunctionInfoFactory> connectionFunctionInfoFactoryProvider;
+
+    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionInfoFactory.class.getName());
 
     @Inject
     public ComTaskExecutionInfoFactory(ExceptionFactory exceptionFactory, ConnectionTaskService connectionTaskService,
@@ -323,6 +326,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
     public ComTaskExecution updateSharedScheduledComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, ComTaskExecution comTaskExecution) {
         ComTaskExecutionUpdater updater = comTaskExecution.getUpdater();
         updateCommonFields(comTaskExecutionInfo, updater);
+        LOGGER.info("CXO-11731: Update comtask execution from updateSharedScheduledComtaskExecution.");
         return updater.update();
     }
 
@@ -334,6 +338,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         } else {
             updater.removeSchedule();
         }
+        LOGGER.info("CXO-11731: Update comtask execution from updateManuallyScheduledComTaskExecution.");
         return updater.update();
     }
 
@@ -345,6 +350,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         } else {
             updater.removeSchedule();
         }
+        LOGGER.info("CXO-11731: Update comtask execution from updateAdHocComTaskExecution.");
         return updater.update();
     }
 

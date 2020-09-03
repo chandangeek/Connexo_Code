@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+  -->
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>platform</artifactId>
+        <version>1.0.0-Kratos-SNAPSHOT</version>
+    </parent>
+    <artifactId>installer.util</artifactId>
+    <packaging>jar</packaging>
+    <name>[Jupiter] com.elster.jupiter.installer.util</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.guvnor</groupId>
+            <artifactId>guvnor-m2repo-editor-backend</artifactId>
+            <version>6.4.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>copy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- do not copy since this is not a bundle -->
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

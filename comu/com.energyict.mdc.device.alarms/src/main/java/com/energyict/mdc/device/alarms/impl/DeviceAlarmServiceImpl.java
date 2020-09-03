@@ -14,7 +14,6 @@ import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -66,9 +65,10 @@ import com.energyict.mdc.device.alarms.impl.install.Installer;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
-import org.osgi.framework.BundleContext;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -77,7 +77,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -113,6 +112,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile EndPointConfigurationService endPointConfigurationService;
     private final List<IssueWebServiceClient> alarmWebServiceClients = new ArrayList<>();
     private static BundleContext bundleContext;
+
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
     }
@@ -203,11 +203,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
-    public void setBundleContext(BundleContext bundleContext){
+    public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 
-    public Optional<BundleContext> getBundleContext(){
+    public Optional<BundleContext> getBundleContext() {
         return Optional.of(bundleContext);
     }
 
@@ -505,6 +505,4 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
             return 0;
         }
     }
-
-
 }

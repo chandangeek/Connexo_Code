@@ -115,6 +115,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DSH', '{0} - {1} of {2} communications'),
                 displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
                 emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display'),
@@ -139,6 +140,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 store: me.store,
                 dock: 'bottom',
                 deferLoading: true,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('communication.widget.details.itemsPerPage', 'DSH', 'Communications per page')
             }
         ];

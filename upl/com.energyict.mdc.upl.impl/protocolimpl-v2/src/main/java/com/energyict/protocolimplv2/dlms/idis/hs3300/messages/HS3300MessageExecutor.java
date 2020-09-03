@@ -2,7 +2,13 @@ package com.energyict.protocolimplv2.dlms.idis.hs3300.messages;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -11,13 +17,6 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -37,12 +36,15 @@ import static com.energyict.dlms.aso.SecurityPolicy.REQUESTS_SIGNED_FLAG;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.G3_PLC_BANDPLAN;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.PSK_KEK_RENEWAL_OBISCODE;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.PSK_RENEWAL_OBISCODE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKKEKAttributeName;
 
 public class HS3300MessageExecutor extends AbstractMessageExecutor {
 
     private static final ObisCode ADP_LQI_RANGE = ObisCode.fromString("0.0.94.33.16.255");
+    protected static final ObisCode PLC_CLIENT_SECURITY_SETUP = ObisCode.fromString("0.0.43.0.4.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -56,7 +58,7 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED); // Optimistic
             try {
                 CollectedMessage plcMessageResult = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
                 if (plcMessageResult != null) {
@@ -102,6 +104,14 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
             changePSK(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PSK_KEK)) {
             changePSKKEK(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE)) {
+            importClientEndDeviceCertificate(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER)) {
+            deleteCertificateBySerialNumber(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY)) {
+            collectedMessage = agreeNewKey(collectedMessage, 0);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY)) {
+            collectedMessage = agreeNewKey(collectedMessage, 2);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WRITE_ADP_LQI_RANGE)) {
             writeADPLQIRange(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
@@ -114,7 +124,7 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
         return collectedMessage;
     }
 
-        private void writeG3PLCBandplan(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void writeG3PLCBandplan(OfflineDeviceMessage pendingMessage) throws IOException {
         final PLCConfigurationDeviceMessage.PLCBandplanType bandplan = PLCConfigurationDeviceMessage.PLCBandplanType.entryForDescription(
                 MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.G3_PLC_BANDPLAN).getValue()
         );
@@ -149,6 +159,43 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
         } finally {
             getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().unsetBit(REQUESTS_SIGNED_FLAG);
         }
+    }
+
+    protected void importClientEndDeviceCertificate(OfflineDeviceMessage pendingMessage) throws IOException {
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
+        if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid encoded value");
+        }
+
+        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
+
+        try {
+            getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().setBit(REQUESTS_SIGNED_FLAG);
+            getCosemObjectFactory().getSecuritySetup(PLC_CLIENT_SECURITY_SETUP).importCertificate(encodedCertificate);
+        } finally {
+            getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().unsetBit(REQUESTS_SIGNED_FLAG);
+        }
+    }
+
+    protected void deleteCertificateBySerialNumber(OfflineDeviceMessage pendingMessage) throws IOException {
+        String serialNumber = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, meterSerialNumberAttributeName).getValue();
+        String certificateIssuer = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateIssuerAttributeName).getValue();
+
+        try {
+            getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().setBit(REQUESTS_SIGNED_FLAG);
+            getCosemObjectFactory().getSecuritySetup(PLC_CLIENT_SECURITY_SETUP).deleteCertificate(serialNumber, certificateIssuer);
+        } finally {
+            getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().unsetBit(REQUESTS_SIGNED_FLAG);
+        }
+    }
+
+    /**
+     * Override method in {@link CryptoHS3300MessageExecutor}
+     */
+    protected CollectedMessage agreeNewKey(CollectedMessage collectedMessage, int keyId) throws IOException {
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol, please use the Crypto protocol variant.");
+        return collectedMessage;
     }
 
     private void writeADPLQIRange(OfflineDeviceMessage pendingMessage) throws IOException {

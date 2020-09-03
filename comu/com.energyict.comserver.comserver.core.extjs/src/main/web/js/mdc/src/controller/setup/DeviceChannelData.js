@@ -658,8 +658,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (Ext.isFunction(getConfirmationWindow)) {
             getConfirmationWindow().close();
         }
-        viewport.setLoading();
+
         if (!Ext.isEmpty(changedData)) {
+            viewport.setLoading();
             Ext.Ajax.request({
                 url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.deviceId), router.arguments.channelId),
                 method: 'PUT',

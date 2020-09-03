@@ -428,4 +428,34 @@ public class ObisCode implements Serializable {
     public void setB(int b) {
         this.b = b;
     }
+
+    public static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
+        final String[] obisLetters = obisCode.toString().split("\\.");
+        final String letter = String.valueOf(value);
+
+        switch (fieldNo) {
+            case 1:
+                obisLetters[0] = letter;
+                break;
+            case 2:
+                obisLetters[1] = letter;
+                break;
+            case 3:
+                obisLetters[2] = letter;
+                break;
+            case 4:
+                obisLetters[3] = letter;
+                break;
+            case 5:
+                obisLetters[4] = letter;
+                break;
+            case 6:
+                obisLetters[5] = letter;
+                break;
+            default:
+                break;
+        }
+
+        return ObisCode.fromString( String.join(".", obisLetters) );
+    }
 }

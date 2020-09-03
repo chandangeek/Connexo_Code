@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provides an implementation for the {@link ComServer} interface.
@@ -57,6 +58,8 @@ public abstract class ComServerImpl implements ComServer {
     protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
     protected static final String OFFLINE_COMSERVER_DISCRIMINATOR = "1";
     protected static final String REMOTE_COMSERVER_DISCRIMINATOR = "2";
+
+    private static final Logger LOGGER = Logger.getLogger(ComServerImpl.class.getName());
 
     static final Map<String, Class<? extends ComServer>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComServer>>of(
@@ -489,6 +492,7 @@ public abstract class ComServerImpl implements ComServer {
 
     public void setActive(boolean active) {
         this.active = active;
+        LOGGER.info("ComServer " + name + " status set to " + active);
     }
 
     public void setServerLogLevel(LogLevel serverLogLevel) {
@@ -609,6 +613,8 @@ public abstract class ComServerImpl implements ComServer {
         @Override
         public CSB active(boolean active) {
             comServerInstance.setActive(active);
+            LOGGER.info("ComServer " + comServerInstance.getName() + " status set to " + active);
+            Thread.dumpStack();
             return me;
         }
 

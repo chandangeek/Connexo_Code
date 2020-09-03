@@ -219,6 +219,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
         if (Ext.isDefined(me.store)) {
             me.store.load();
         }
+        me.fireEvent('applyFilters');
     },
 
     clearFilters: function () {
@@ -319,6 +320,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
         }
 
         Ext.apply(options.params, params);
+        store.filterParams = params;
         me.enableClearAll(Ext.decode(options.params.filter, true) || []);
     },
 

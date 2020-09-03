@@ -82,6 +82,44 @@ public final class KeyUtils {
         return 2 * getEcParameterSpec(curve).getOrder().bitLength() / Byte.SIZE;
     }
 
+    /**
+     * Utility method to uncompress a {@link ECPublicKey}
+     * @param publicKey to uncompress
+     * @return the uncompressed byte[] of the ECPublicKey prefixed with 0x04 (uncompressed point indicator)
+     */
+    public static byte[] toUncompressedPoint(final ECPublicKey publicKey) {
+        try {
+            int keySizeBytes = (publicKey.getParams().getOrder().bitLength() + Byte.SIZE - 1) / Byte.SIZE;
+
+            final byte[] uncompressedPoint = new byte[1 + 2 * keySizeBytes];
+            int offset = 0;
+            uncompressedPoint[offset++] = 0x04; // uncompressed point indicator
+
+            final byte[] x = publicKey.getW().getAffineX().toByteArray();
+            if (x.length <= keySizeBytes) {
+                System.arraycopy(x, 0, uncompressedPoint, offset + keySizeBytes - x.length, x.length);
+            } else if (x.length == keySizeBytes + 1 && x[0] == 0) {
+                System.arraycopy(x, 1, uncompressedPoint, offset, keySizeBytes);
+            } else {
+                throw new IllegalStateException("x value is too large");
+            }
+            offset += keySizeBytes;
+
+            final byte[] y = publicKey.getW().getAffineY().toByteArray();
+            if (y.length <= keySizeBytes) {
+                System.arraycopy(y, 0, uncompressedPoint, offset + keySizeBytes - y.length, y.length);
+            } else if (y.length == keySizeBytes + 1 && y[0] == 0) {
+                System.arraycopy(y, 1, uncompressedPoint, offset, keySizeBytes);
+            } else {
+                throw new IllegalStateException("y value is too large");
+            }
+
+            return uncompressedPoint;
+        } catch (IllegalStateException e) {
+            throw DataParseException.generalParseException(e);
+        }
+    }
+
     public static ECParameterSpec getEcParameterSpec(ECCCurve curve) {
         try {
             final AlgorithmParameters parameters = AlgorithmParameters.getInstance(ECC_ALGORITHM, SUN_EC_PROVIDER);

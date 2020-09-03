@@ -46,14 +46,19 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     private volatile Thesaurus thesaurus;
 
     public MeterConfigMasterCustomPropertySet() {
+        // for OSGi
     }
 
     @Inject
-    public MeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public MeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService,
+                                              CustomPropertySetService customPropertySetService,
+                                              Thesaurus thesaurus,
+                                              ServiceCallService serviceCallService) {
         this();
         this.setPropertySpecService(propertySpecService);
-        this.setCustomPropertySetService(customPropertySetService);
+        setServiceCallService(serviceCallService);
         this.thesaurus = thesaurus;
+        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -66,12 +71,6 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -123,24 +122,6 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.propertySpecService
-                        .longSpec()
-                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(), TranslationKeys.CALLS_SUCCESS)
-                        .describedAs(TranslationKeys.CALLS_SUCCESS)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(), TranslationKeys.CALLS_ERROR)
-                        .describedAs(TranslationKeys.CALLS_ERROR)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(), TranslationKeys.CALLS_EXPECTED)
-                        .describedAs(TranslationKeys.CALLS_EXPECTED)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALL_BACK_URL)
@@ -212,18 +193,21 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName())
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
+                    .upTo(Version.version(10, 9))
                     .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName())
                     .number()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName())
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
+                    .upTo(Version.version(10, 9))
                     .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName())
                     .number()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName())
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
+                    .upTo(Version.version(10, 9))
                     .add();
             Column oldColumn = table.column(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName())
                     .varChar()

@@ -4,6 +4,27 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents;
 
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportWebService;
+import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.MeterEventData;
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.util.streams.Predicates;
+import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
+import com.energyict.mdc.cim.webservices.outbound.soap.impl.MessageSendingFailed;
+import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationInstaller;
+import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+
 import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
@@ -18,26 +39,6 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.sendenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.sendenddeviceevents.SendEndDeviceEvents;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportWebService;
-import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.MeterEventData;
-import com.elster.jupiter.issue.share.IssueWebServiceClient;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.MessageSendingFailed;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationInstaller;
-import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -47,7 +48,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.xml.ws.Service;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,9 +64,8 @@ import java.util.stream.Stream;
         service = {DataExportWebService.class, EndDeviceEventsServiceProvider.class, IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + EndDeviceEventsServiceProvider.NAME})
-public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPointProvider<EndDeviceEventsPort> implements DataExportWebService, EndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider, ApplicationSpecific {
-
-    private volatile Thesaurus thesaurus;
+public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPointProvider<EndDeviceEventsPort>
+        implements DataExportWebService, EndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider, ApplicationSpecific {
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
     private static final String END_DEVICE_NAME_TYPE = "EndDevice";
     private static final String DEVICE_PROTOCOL_CODE_LABEL = "DeviceProtocolCode";
@@ -73,27 +75,32 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
     private final ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory endDeviceEventsMessageObjectFactory
             = new ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory();
 
+    private volatile Thesaurus thesaurus;
+    private volatile EndPointConfigurationService endPointConfigurationService;
+
     public EndDeviceEventsServiceProviderImpl() {
-        // for OSGI purposes
+        // for OSGi purposes
     }
 
+    // for tests
     @Inject
-    public EndDeviceEventsServiceProviderImpl(Thesaurus thesaurus) {
+    public EndDeviceEventsServiceProviderImpl(Thesaurus thesaurus, EndPointConfigurationService endPointConfigurationService) {
         this.thesaurus = thesaurus;
+        setEndPointConfigurationService(endPointConfigurationService);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addReplyEndDeviceEvents(EndDeviceEventsPort events, Map<String, Object> properties) {
+    public void addEndpoint(EndDeviceEventsPort events, Map<String, Object> properties) {
         super.doAddEndpoint(events, properties);
     }
 
-    public void removeReplyEndDeviceEvents(EndDeviceEventsPort events) {
+    public void removeEndpoint(EndDeviceEventsPort events) {
         super.doRemoveEndpoint(events);
     }
 
     @Reference
-    public void addWebServicesService(WebServicesService webServicesService) {
-        // Just to inject WebServicesService
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Reference
@@ -112,7 +119,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
     }
 
     @Override
-    public Class getService() {
+    public Class<EndDeviceEventsPort> getService() {
         return EndDeviceEventsPort.class;
     }
 
@@ -139,9 +146,8 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
                     String deviceMrid = structurePath.get(0);
                     String deviceName = structurePath.get(1);
 
-                    eventData.getMeterReading().getEvents().stream().forEach(event -> {
-                        endDeviceEvents.getEndDeviceEvent().add(createEndDeviceEvent(event, deviceMrid, deviceName));
-                    });
+                    eventData.getMeterReading().getEvents().forEach(event -> endDeviceEvents.getEndDeviceEvent()
+                            .add(createEndDeviceEvent(event, deviceMrid, deviceName)));
                     values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
                             deviceMrid);
                     values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
@@ -160,8 +166,8 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
                         .toEndpoints(endPointConfiguration)
                         .send(responseMessage);
 
-                if (response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((EndDeviceEventsResponseMessageType) response.get(endPointConfiguration)).getReply().getResult()) {
-                    throw new MessageSendingFailed(thesaurus, MessageSeeds.MESSAGE_SENDING_FAILED, endPointConfiguration.getName());
+                if (!extractResult((EndDeviceEventsResponseMessageType) response.get(endPointConfiguration)).filter(ReplyType.Result.OK::equals).isPresent()) {
+                    throw new MessageSendingFailed(thesaurus, endPointConfiguration);
                 }
             }
         }
@@ -236,19 +242,41 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
     }
 
     @Override
-    public void call(EndDeviceEventRecord record) {
+    public void call(EndDeviceEventRecord record, EndPointConfiguration... endPointConfigurations) {
         EndDeviceEventsEventMessageType message = createResponseMessage(record);
 
         SetMultimap<String, String> values = HashMultimap.create();
-
         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
                 record.getEndDevice().getName());
         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
                 record.getEndDevice().getMRID());
 
-        using("createdEndDeviceEvents")
-                .withRelatedAttributes(values)
-                .send(message);
+        Set<EndPointConfiguration> requestedEndPoints = endPointConfigurations.length == 0 ?
+                new HashSet<>(endPointConfigurationService.getEndPointConfigurationsForWebService(EndDeviceEventsServiceProvider.NAME)) :
+                Arrays.stream(endPointConfigurations).collect(Collectors.toSet());
+        RequestSender sender = using("createdEndDeviceEvents")
+                .withRelatedAttributes(values);
+        if (!requestedEndPoints.isEmpty()) {
+            sender = sender.toEndpoints(requestedEndPoints);
+        }
+        Set<EndPointConfiguration> processedEndPoints = sender.send(message)
+                .entrySet()
+                .stream()
+                .filter(entry -> extractResult((EndDeviceEventsResponseMessageType) entry.getValue()).filter(ReplyType.Result.OK::equals).isPresent())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+        EndPointConfiguration[] unprocessedEndPoints = requestedEndPoints.stream()
+                .filter(Predicates.not(processedEndPoints::contains))
+                .toArray(EndPointConfiguration[]::new);
+        if (unprocessedEndPoints.length != 0) {
+            throw new MessageSendingFailed(thesaurus, unprocessedEndPoints);
+        }
+    }
+
+    private static Optional<ReplyType.Result> extractResult(EndDeviceEventsResponseMessageType response) {
+        return Optional.ofNullable(response)
+                .map(EndDeviceEventsResponseMessageType::getReply)
+                .map(ReplyType::getResult);
     }
 
     @Override

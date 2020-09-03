@@ -75,6 +75,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('usagepointgroup.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Usage point groups per page')
             }
         ];

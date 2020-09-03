@@ -40,7 +40,7 @@ public enum TranslationKeys implements TranslationKey {
     READING_TYPES("readingTypes", "Reading types"),
     LOAD_PROFILES("loadProfiles", "Load profiles"),
     REGISTER_GROUP("registerGroup", "Register group"),
-    SCHEDULE_STRAGEGY("scheduleStrategy", "Schedule strategy"),
+    SCHEDULE_STRATEGY("scheduleStrategy", "Schedule strategy"),
     CONNECTION_METHOD("connectionMethod", "Connection method name"),
     COMMUNICATION_TASK("communicationTask", "Communication task name"),
     TRIGGER_DATE("triggerDate", "Trigger date"),

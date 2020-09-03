@@ -33,7 +33,8 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         RELEASE_DATE("releaseDate", "release_date"),
         DEVICE_MSG("deviceMessages", "device_msg"),
         NR_OF_UNCONFIRMED_DEVICE_COMMANDS("nrOfUnconfirmedDeviceCommands", "unconfirmed_commands"),
-        STATUS("status", "status");
+        STATUS("status", "status"),
+        RUN_WITH_PRIORITY("runWithPriority", "RUN_WITH_PRIORITY");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -60,6 +61,7 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
     private int nrOfUnconfirmedDeviceCommands;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String status;
+    private boolean runWithPriority;
 
     public CommandServiceCallDomainExtension() {
         super();
@@ -122,6 +124,14 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         this.status = status;
     }
 
+    public boolean isRunWithPriority() {
+        return runWithPriority;
+    }
+
+    public void setRunWithPriority(boolean runWithPriority) {
+        this.runWithPriority = runWithPriority;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -129,6 +139,7 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         this.setDeviceMessages((String) propertyValues.getProperty(FieldNames.DEVICE_MSG.javaName));
         this.setNrOfUnconfirmedDeviceCommands((Integer) propertyValues.getProperty(FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName()));
         this.setStatus((String) propertyValues.getProperty(FieldNames.STATUS.javaName));
+        this.setRunWithPriority((boolean) propertyValues.getProperty(FieldNames.RUN_WITH_PRIORITY.javaName));
     }
 
     @Override
@@ -137,6 +148,7 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         propertySetValues.setProperty(FieldNames.DEVICE_MSG.javaName(), this.getDeviceMessages());
         propertySetValues.setProperty(FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName(), this.getNrOfUnconfirmedDeviceCommands());
         propertySetValues.setProperty(FieldNames.STATUS.javaName(), this.getStatus());
+        propertySetValues.setProperty(FieldNames.RUN_WITH_PRIORITY.javaName(), this.isRunWithPriority());
     }
 
     @Override

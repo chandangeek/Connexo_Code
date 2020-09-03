@@ -42,6 +42,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -138,7 +139,12 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
                 if (rv != null) {
                     CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
-                    deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
+                    ObisCode rObisCode = getCorrectedRegisterObisCode(register);
+                    if (rObisCode.equalsIgnoreBChannel(ESMR50RegisterFactory.MBUS_DEVICE_CONFIGURATION)) {
+                        deviceRegister.setCollectedData(rv.getText());
+                    } else {
+                        deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
+                    }
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
                 } else {
@@ -161,7 +167,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             StringBuilder sb = new StringBuilder();
             sb.append( "Read registers: " );
             for ( CollectedRegister or : collectedRegisters ) {
-                sb.append( or.getRegisterIdentifier().toString() );
+                sb.append( or.getRegisterIdentifier().getRegisterObisCode().toString() );
                 sb.append( "," );
             }
             protocol.journal( sb.substring( 0, sb.length() - 2 ) );

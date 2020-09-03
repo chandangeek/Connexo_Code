@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
@@ -96,6 +97,7 @@ public class ServiceCallCommandsTest {
     private static final Instant START = Instant.now().minus(16, ChronoUnit.MINUTES);
     private static final Instant END = Instant.now().plus(16, ChronoUnit.MINUTES);
     private static final String CORRELATION_ID = "CorrelationID";
+
     static {
         DATE_TIME_INTERVAL.setStart(START);
         DATE_TIME_INTERVAL.setEnd(END);
@@ -142,32 +144,26 @@ public class ServiceCallCommandsTest {
     private InboundSoapEndpointsActivator inboundSoapEndpointsActivator;
     @Mock
     private MultiSenseHeadEndInterface multiSenseHeadEndInterface;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private MasterDataLinkageConfigRequestMessageType linkageConfig;
-
     @Mock
     private EndPointConfiguration endPointConfiguration;
-
     @Mock
     private ServiceCallType masterServiceCallType, childServiceCallType;
-
     @Mock
     private ServiceCall parentServiceCall, childServiceCall;
-
     @Mock
     private MasterDataLinkageFaultMessageFactory masterDataLinkageFaultMessageFactory;
-
     @Mock
     private ServiceCallBuilder parentServiceCallBuilder, childServiceCallBuilder;
-
-    private ServiceCallCommands testable;
-
     @Mock
     private com.elster.jupiter.metering.Meter endDevice;
-
     @Mock
     private ReadingType readingType;
+    @Mock
+    private PriorityComTaskService priorityComTaskService;
+
+    private ServiceCallCommands testable;
 
     @Before
     public void setUp() {
@@ -192,7 +188,7 @@ public class ServiceCallCommandsTest {
                 .thenReturn(configurationEvent);
         when(serviceCallService.findServiceCallType(ServiceCallCommands.ServiceCallTypes.MASTER_DATA_LINKAGE_CONFIG.getTypeName(),
                 ServiceCallCommands.ServiceCallTypes.MASTER_DATA_LINKAGE_CONFIG.getTypeVersion()))
-                        .thenReturn(Optional.of(masterServiceCallType));
+                .thenReturn(Optional.of(masterServiceCallType));
         when(serviceCallService.findServiceCallType(ServiceCallCommands.ServiceCallTypes.DATA_LINKAGE_CONFIG.getTypeName(),
                 ServiceCallCommands.ServiceCallTypes.DATA_LINKAGE_CONFIG.getTypeVersion())).thenReturn(Optional.of(childServiceCallType));
         when(endPointConfiguration.getUrl()).thenReturn(CALLBACK_URL);
@@ -224,7 +220,7 @@ public class ServiceCallCommandsTest {
         testable = new ServiceCallCommands(deviceService, jsonService, meterConfigParser, meterConfigFaultMessageFactory,
                 serviceCallService, endDeviceEventsBuilder, FakeThesaurus.INSTANCE, faultMessageFactory, clock,
                 masterDataService, communicationTaskService, meteringService, replyTypeFactory, headEndController, ormService,
-                deviceMessageService, inboundSoapEndpointsActivator, multiSenseHeadEndInterface);
+                deviceMessageService, inboundSoapEndpointsActivator, multiSenseHeadEndInterface, priorityComTaskService);
     }
 
     @Test
@@ -300,7 +296,7 @@ public class ServiceCallCommandsTest {
                 .thenReturn(Arrays.asList(usagePoint, new UsagePoint()));
         when(masterDataLinkageFaultMessageFactory.createMasterDataLinkageFaultMessage(MasterDataLinkageAction.CREATE,
                 MessageSeeds.DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS, 1, 2))
-                        .thenReturn(new FaultMessage("", new MasterDataLinkageConfigFaultMessageType()));
+                .thenReturn(new FaultMessage("", new MasterDataLinkageConfigFaultMessageType()));
         try {
             testable.createMasterDataLinkageConfigMasterServiceCall(linkageConfig, Optional.of(endPointConfiguration),
                     MasterDataLinkageAction.CREATE, masterDataLinkageFaultMessageFactory);

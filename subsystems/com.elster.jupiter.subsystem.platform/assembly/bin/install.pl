@@ -1179,7 +1179,7 @@ sub start_tomcat_service {
 sub postCall {
     my ($command, $msg)=@_;
 
-    #print "Calling:\t$command\n";
+    print "Calling:\t$command\n";
     system($command) == 0 or die "$msg: $?";
     print "\t - command finished.\n"
 }
@@ -1211,10 +1211,8 @@ sub start_tomcat {
 
 			chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
-                } else {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
+            } else {
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
             }
 			unlink("$CONNEXO_DIR/datasource.xml");
@@ -1222,28 +1220,28 @@ sub start_tomcat {
 
 		if ("$INSTALL_FLOW" eq "yes") {
 			print "\nInstalling Connexo Flow content...\n";
-
-			opendir(DIR,"$CONNEXO_DIR/bundles");
-            my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
-            closedir(DIR);
-
-            my $BPM_BUNDLE;
-            foreach my $file (@files) {
-                $BPM_BUNDLE="$file";
-            }
-
             chdir "$CONNEXO_DIR";
             print "Changing directory to $CONNEXO_DIR\n";
             # using TomCat password here because the filters should not be active yet if SSO is used
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
             sleep 5;
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
 
-            print "\nDeploy MDC processes...\n";
+            print "\nCopy processes to repository...\n";
             mkdir "$TOMCAT_BASE/$TOMCAT_DIR/repositories";
             dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+                # classpath separator on Windows is ;
+                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
+            } else {
+                # classpath separator on Linux is :
+                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
+
+            }
+            print "\nDeploy MDC processes...\n";
             my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
             if(-e $mdcfile){
                 open(INPUT, $mdcfile);
@@ -1253,15 +1251,13 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);
             }
 
             print "\nDeploy INSIGHT processes...\n";
-            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
             my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
             if(-e $insightfile){
                 open(INPUT, $insightfile);
@@ -1271,8 +1267,7 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);

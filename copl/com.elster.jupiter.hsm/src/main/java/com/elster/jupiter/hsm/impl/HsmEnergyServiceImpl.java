@@ -3,33 +3,6 @@
  */
 package com.elster.jupiter.hsm.impl;
 
-import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyCapability;
-import com.elster.jupiter.hsm.HsmEncryptionService;
-import com.elster.jupiter.hsm.HsmEnergyService;
-import com.elster.jupiter.hsm.HsmProtocolService;
-import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
-import com.elster.jupiter.hsm.model.FUAKPassiveGenerationNotSupportedException;
-import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.Message;
-import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
-import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
-import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
-import com.elster.jupiter.hsm.model.keys.HsmKey;
-import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
-import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
-import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
-import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag;
-import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTagImpl;
-import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse;
-import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponseImpl;
-import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse;
-import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse;
-import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponseImpl;
-import com.elster.jupiter.hsm.model.response.protocols.MacResponse;
-
-import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponseImpl;
-import com.elster.jupiter.hsm.model.response.protocols.MacResponseImpl;
-
 import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.basecrypto.BlockMode;
 import com.atos.worldline.jss.api.basecrypto.ChainingValue;
@@ -46,6 +19,8 @@ import com.atos.worldline.jss.api.custom.energy.Energy;
 import com.atos.worldline.jss.api.custom.energy.KeyIDForAgree;
 import com.atos.worldline.jss.api.custom.energy.KeyRenewalResponse;
 import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKey;
+import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyCapability;
+import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyType;
 import com.atos.worldline.jss.api.custom.energy.SecurityControl;
 import com.atos.worldline.jss.api.custom.energy.SecurityControlExtended;
 import com.atos.worldline.jss.api.custom.energy.SecuritySuite;
@@ -57,6 +32,31 @@ import com.atos.worldline.jss.api.key.PrivateKeyToken;
 import com.atos.worldline.jss.api.key.SecretKey;
 import com.atos.worldline.jss.api.key.derivation.CertificateChainX509KeyDerivation;
 import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
+import com.elster.jupiter.hsm.HsmEncryptionService;
+import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.hsm.HsmProtocolService;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.FUAKPassiveGenerationNotSupportedException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
+import com.elster.jupiter.hsm.model.Message;
+import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmKey;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
+import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
+import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
+import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag;
+import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTagImpl;
+import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse;
+import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponseImpl;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponseImpl;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponseImpl;
+import com.elster.jupiter.hsm.model.response.protocols.MacResponse;
+import com.elster.jupiter.hsm.model.response.protocols.MacResponseImpl;
 import org.apache.commons.lang3.SerializationUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.osgi.service.component.annotations.Component;
@@ -85,6 +85,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     private static final Logger logger = LoggerFactory.getLogger(HsmEnergyServiceImpl.class);
 
     private static final int AES_KEY_LENGTH = 16;
+    private static final int AES256_KEY_LENGTH = 32;
 
     /**
      * Size of the frame counter when encoded.
@@ -146,14 +147,14 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             } else {
                 final ProtectedSessionKeyCapability keyCapability = renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability();
 
-                if (keyCapability.equals( ProtectedSessionKeyCapability.SM_WK_MBUSFWAUTH_RENEWAL )) {
+                if (keyCapability.equals(ProtectedSessionKeyCapability.SM_WK_MBUSFWAUTH_RENEWAL)) {
                     throw new FUAKPassiveGenerationNotSupportedException("FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.");
                 }
 
                 KeyRenewalResponse response = Energy.cosemKeyRenewal(keyCapability,
                         protectedSessionKey,
                         newLabel,
-                        renewKeyRequest.getHsmKeyType().getSessionKeyType());
+                        getSessionKeyType(renewKeyRequest.getHsmKeyType()));
                 ProtectedSessionKey psk = response.getMdmStorageKey();
                 String kekLabel = ((KeyLabel) psk.getKek()).getValue();
                 return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
@@ -161,6 +162,24 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
+    }
+
+    private ProtectedSessionKeyType getSessionKeyType(HsmKeyType hsmKeyType) throws HsmBaseException {
+        int keySize = hsmKeyType.getKeySize();
+        /**
+         * This might be wrong but with no specs this is all I could do :)
+         * Somehow it works E2E for 16 and 32 bytes. What we do for other sizes!? Hell knows!
+         */
+        if (HsmJssKeyType.AES.equals(hsmKeyType.getHsmJssKeyType())) {
+            if (keySize == AES_KEY_LENGTH) {
+                return ProtectedSessionKeyType.AES;
+            }
+            if (keySize == AES256_KEY_LENGTH) {
+                return ProtectedSessionKeyType.AES_256;
+            }
+            throw new HsmBaseException("Could not determine session key type for key length (expected 16 or 32):" + keySize);
+        }
+        throw new HsmBaseException("Only AES device key accepted:" + keySize);
     }
 
     @Override
@@ -564,7 +583,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             com.atos.worldline.jss.api.custom.energy.KeyRenewalMBusResponse response = Energy.renewMBusUserKey(toProtectedSessionKey(encrKey), method7apdu, initializationVector, toProtectedSessionKey(authKey), toProtectedSessionKey(defaultKey), getAtosSecuritySuite(securitySuite));
             ProtectedSessionKey protectedSessionKey = response.getMdmSmWK();
             HsmIrreversibleKey mdmSmWK = null;
-            if (protectedSessionKey!=null) {
+            if (protectedSessionKey != null) {
                 mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
             }
             return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), mdmSmWK, response.getMBusAuthTag());
@@ -599,7 +618,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     public MacResponse generateMacFirstBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] data) throws HsmBaseException {
         try {
             com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacFirstBlock(toProtectedSessionKey(firmwareUpdateAuthKey), data);
-            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+            return new MacResponseImpl(macResponse.getData(), macResponse.getInitVector());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
         }
@@ -607,8 +626,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     public MacResponse generateMacMiddleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] state) throws HsmBaseException {
         try {
-            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacMiddleBlock(toProtectedSessionKey(firmwareUpdateAuthKey),clearData, state);
-            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacMiddleBlock(toProtectedSessionKey(firmwareUpdateAuthKey), clearData, state);
+            return new MacResponseImpl(macResponse.getData(), macResponse.getInitVector());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
         }
@@ -616,8 +635,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     public MacResponse generateMacLastBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv, byte[] state) throws HsmBaseException {
         try {
-            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacLastBlock(toProtectedSessionKey(firmwareUpdateAuthKey),clearData, new ChainingValue(icv), state);
-            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacLastBlock(toProtectedSessionKey(firmwareUpdateAuthKey), clearData, new ChainingValue(icv), state);
+            return new MacResponseImpl(macResponse.getData(), macResponse.getInitVector());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
         }
@@ -625,8 +644,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     public MacResponse generateMacSingleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv) throws HsmBaseException {
         try {
-            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacSingleBlock(toProtectedSessionKey(firmwareUpdateAuthKey),clearData, new ChainingValue(icv));
-            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacSingleBlock(toProtectedSessionKey(firmwareUpdateAuthKey), clearData, new ChainingValue(icv));
+            return new MacResponseImpl(macResponse.getData(), macResponse.getInitVector());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
         }

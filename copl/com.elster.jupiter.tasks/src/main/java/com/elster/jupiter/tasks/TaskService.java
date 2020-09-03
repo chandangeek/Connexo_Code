@@ -35,6 +35,8 @@ public interface TaskService {
 
     TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification, int start, int limit);
 
+    TaskFinder getTaskFinderWithoutPagination(RecurrentTaskFilterSpecification filterSpecification);
+
     Optional<TaskOccurrence> getOccurrence(Long id);
 
     List<TaskOccurrence> getOccurrences(RecurrentTask recurrentTask, Range<Instant> period);

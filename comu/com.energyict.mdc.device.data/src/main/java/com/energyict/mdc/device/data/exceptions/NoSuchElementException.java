@@ -56,6 +56,14 @@ public class NoSuchElementException extends LocalizedException implements Suppli
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_COMTASK_FOR_COMMAND);
     }
 
+    public static NoSuchElementException comTaskToRunWithPriorityCouldNotBeLocated(Thesaurus thesaurus) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.RUN_COMTASK_WITH_PRIO_IMPOSSIBLE);
+    }
+
+    public static NoSuchElementException statusInformationComTaskToRunWithPriorityCouldNotBeLocated(Thesaurus thesaurus) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.RUN_STATUS_INFORMATION_COMTASK_WITH_PRIO_IMPOSSIBLE);
+    }
+
     public static NoSuchElementException statusInformationComTaskCouldNotBeLocated(Thesaurus thesaurus) {
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_STATUS_INFORMATION_COMTASK);
     }
