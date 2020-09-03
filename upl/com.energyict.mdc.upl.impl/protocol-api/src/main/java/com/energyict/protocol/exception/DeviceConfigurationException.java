@@ -89,6 +89,22 @@ public final class DeviceConfigurationException extends com.energyict.protocol.e
     }
 
     /**
+     * Creates a {@link DeviceConfigurationException} indicating the MBus is empty but should be fill.
+     * This usually means a you should perform update topology task.
+     */
+    public static DeviceConfigurationException emptyMBusSet() {
+        return new DeviceConfigurationException(ProtocolExceptionMessageSeeds.EMPTY_MBUS_SET, "", "");
+    }
+
+    /**
+     * Creates a {@link DeviceConfigurationException} indicating the MBus is empty but should be fill.
+     * This usually means a you should perform update topology task.
+     */
+    public static DeviceConfigurationException SerialNumberNotFound(final String expectedMBus, final String mbusStrigDescr ) {
+        return new DeviceConfigurationException(ProtocolExceptionMessageSeeds.NOT_FOUND_SERIAL_NUMBER, expectedMBus, mbusStrigDescr);
+    }
+
+    /**
      * Creates a {@link DeviceConfigurationException} indicating it is not allowed to execute the given command
      * Use for example when trying to execute a three-phase command on a mono-phase configured device or
      * when trying to modify parts of the device config restricted by higher security rights
