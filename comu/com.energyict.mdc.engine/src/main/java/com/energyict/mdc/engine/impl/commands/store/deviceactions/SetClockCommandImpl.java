@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -50,7 +51,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
             addIssue(getIssueService().newWarning(timeDifference,MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
         } else if (!belowMinimum(timeDifference)) {
             Date now = Date.from(getCommandRoot().getServiceProvider().clock().instant());
-            deviceProtocol.setTime(Date.from(getCommandRoot().getServiceProvider().clock().instant()));
+            deviceProtocol.setTime(Date.from(getCommandRoot().getServiceProvider().clock().instant()), DeviceClockSupport.ClockChangeMode.SET);
             this.timeSet = now;
         }
     }
