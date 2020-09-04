@@ -184,8 +184,9 @@ public class MeterTopology extends AbstractMeterTopology {
             return 0;   // the 'Master' has physicalAddress 0
         }
 
-        if(this.mbusMap.isEmpty())
+        if (this.mbusMap.isEmpty()) {
             throw DeviceConfigurationException.emptyMBusSet();
+        }
 
         for (DeviceMapping dm : this.mbusMap) {
             if (dm.getSerialNumber().equals(serialNumber)) {
@@ -198,7 +199,7 @@ public class MeterTopology extends AbstractMeterTopology {
         for (DeviceMapping dm : this.mbusMap) {
             sb.append( dm.getSerialNumber() ).append(", ");
         }
-        throw DeviceConfigurationException.SerialNumberNotFound(serialNumber, sb.substring(0, sb.length() - 2));
+        throw DeviceConfigurationException.mbusSerialNumberNotFound(serialNumber, sb.substring(0, sb.length() - 2));
     }
 
     @Override

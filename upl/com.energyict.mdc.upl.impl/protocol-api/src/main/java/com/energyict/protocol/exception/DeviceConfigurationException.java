@@ -100,8 +100,8 @@ public final class DeviceConfigurationException extends com.energyict.protocol.e
      * Creates a {@link DeviceConfigurationException} indicating the MBus is empty but should be fill.
      * This usually means a you should perform update topology task.
      */
-    public static DeviceConfigurationException SerialNumberNotFound(final String expectedMBus, final String mbusStrigDescr ) {
-        return new DeviceConfigurationException(ProtocolExceptionMessageSeeds.NOT_FOUND_SERIAL_NUMBER, expectedMBus, mbusStrigDescr);
+    public static DeviceConfigurationException mbusSerialNumberNotFound(final String expectedMBus, final String mbusStrigDescr) {
+        return new DeviceConfigurationException(ProtocolExceptionMessageSeeds.NOT_FOUND_MBUS_SERIAL_NUMBER, expectedMBus, mbusStrigDescr);
     }
 
     /**
