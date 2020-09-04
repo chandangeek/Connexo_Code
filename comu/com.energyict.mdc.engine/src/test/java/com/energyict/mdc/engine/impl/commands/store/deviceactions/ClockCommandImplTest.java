@@ -21,6 +21,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import org.fest.assertions.api.Assertions;
 import org.joda.time.DateTime;
 
@@ -136,7 +137,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.SET));
         assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
     }
 
@@ -202,9 +203,9 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.SET));
         // time difference is between boundaries, should set the frozenClock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.SET));
     }
 
     @Test
@@ -262,7 +263,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // As the ClockCommand is a ForceClockTask, verify that getTime is not called
         verify(deviceProtocol, times(0)).getTime();
         // time difference is outside boundaries, but as the ClockCommand is a ForceClockTask it should set the frozenClock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.FORCE));
         // The journal message should mention the ClockTaskType
         assertEquals("Executed clock protocol task {clockTaskType: FORCECLOCK}", journalEntry);
     }
@@ -285,7 +286,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.SYNC));
         // verify the timedifference
         assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
     }
@@ -310,7 +311,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the Clock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.SYNC));
         // verify the timedifference
         assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
     }
@@ -335,7 +336,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the Clock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.SYNC));
         // verify the timedifference
         assertThat(clockCommand.getTimeDifference().get()).isEqualTo(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS));
     }
@@ -429,7 +430,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
-        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
+        verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()), Matchers.eq(DeviceClockSupport.ClockChangeMode.FORCE));
     }
 
     /**

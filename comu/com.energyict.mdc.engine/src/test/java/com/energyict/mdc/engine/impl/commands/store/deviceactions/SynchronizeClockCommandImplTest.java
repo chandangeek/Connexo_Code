@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
@@ -123,7 +124,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
-        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate());
+        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate(), DeviceClockSupport.ClockChangeMode.SYNC);
     }
 
     @Test
@@ -154,7 +155,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
-        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 9, 50, 0).toDate());
+        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 9, 50, 0).toDate(), DeviceClockSupport.ClockChangeMode.SYNC);
     }
 
     @Test
@@ -185,7 +186,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
-        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 10, 30, 0).toDate());
+        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 10, 30, 0).toDate(), DeviceClockSupport.ClockChangeMode.SYNC);
     }
 
     @Test
