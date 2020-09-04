@@ -124,7 +124,15 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 typeAhead: true,
                                 msgTarget: 'under',
                                 disabled: true,
-                                required: false
+                                required: false,
+                                tpl: Ext.create('Ext.XTemplate',
+                                    '<ul class="x-list-plain"><tpl for=".">',
+                                    '<li role="option" class="x-boundlist-item">' +
+                                    '<tpl if="active"><strong></tpl>',
+                                    '{name}',
+                                    '<tpl if="active"></strong></tpl>',
+                                    '</tpl></ul>'
+                                ),
                             },
                             {
                                 xtype: 'combobox',
