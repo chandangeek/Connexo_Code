@@ -28,6 +28,7 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(callingAPTitlePropertySpec());
         propertySpecs.add(limitMaxNumberOfDaysPropertySpec());
+        propertySpecs.add(timeIntervalOverClockSync());
         return propertySpecs;
     }
 
