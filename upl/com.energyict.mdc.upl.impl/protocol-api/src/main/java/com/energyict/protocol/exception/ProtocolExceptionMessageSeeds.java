@@ -74,8 +74,8 @@ public enum ProtocolExceptionMessageSeeds implements MessageSeed {
     COMMUNICATION_WITH_HSM("communicationWithHsmFailed", "An exception occurred during communication with the HSM: '{0}'"),
     UNEXPECTED_HSM_KEY_FORMAT("unexpectedHSMKeyFormat", "HSM key has an invalid format. Expected format is 'keyLabel:irreversibleKey'"),
     FAILED_TO_SETUP_HSM_KEY_MANAGER("failedToSetupKeyManager", "Failed to setup HSM Key Manager, TLS connection will not be setup."),
-    EMPTY_MBUS_SET( "EmptyMBus", "MBus set shouldn't be empty. Please update topology" ),
-    NOT_FOUND_SERIAL_NUMBER( "NotFoundSerialNUmber", "Not found device {1} in MBus set: {2}." );
+    EMPTY_MBUS_SET("emptyMBus", "MBus set shouldn't be empty. Please update topology"),
+    NOT_FOUND_MBUS_SERIAL_NUMBER("notFoundMBusSerialNumber", "Not found device {1} in MBus set: {2}.");
 
     private final String key;
     private final String defaultTranslation;
