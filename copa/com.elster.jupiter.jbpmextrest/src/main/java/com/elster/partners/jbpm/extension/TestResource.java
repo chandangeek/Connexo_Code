@@ -18,7 +18,7 @@ public class TestResource {
     @Path("/hello")
     @Produces("application/json")
     public String test(@Context UriInfo uriInfo){
-        return "{\"Hello world\":[]}";
+        return "{\"Hello world BUSINESS-CENTRAL\":[]}";
     }
 
 }

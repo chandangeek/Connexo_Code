@@ -32,7 +32,7 @@ public class CustomJbpmResource {
     @Path("/hello")
     @Produces("application/json")
     public Response test(@Context UriInfo uriInfo){
-        String content = "{\"Hello world\":[]}";
+        String content = "{\"Hello world KIE-SERVER\":[]}";
         return Response.ok().entity(content).build();
     }
 
