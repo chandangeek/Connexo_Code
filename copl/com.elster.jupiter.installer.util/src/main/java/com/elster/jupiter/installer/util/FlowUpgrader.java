@@ -13,13 +13,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Main class to perform jBPM database upgrades
@@ -56,7 +54,7 @@ public class FlowUpgrader {
             throw new RuntimeException("Could not read SQL commands from the file!");
         } else {
             try {
-                connection = getConnection(jdbc, user, password);
+                connection = Utils.getConnection(jdbc, user, password);
                 connection.setAutoCommit(true);
                 statement = connection.createStatement();
 
@@ -152,19 +150,5 @@ public class FlowUpgrader {
         } catch (Exception e) {
             throw new RuntimeException("Exception reading SQL XML file: " + e.getMessage(), e);
         }
-    }
-
-    private static Connection getConnection(String jdbc, String user, String password) throws SQLException {
-
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", user);
-        connectionProps.put("password", password);
-
-        try {
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Oracle database driver not found!", e);
-        }
-        return DriverManager.getConnection(jdbc, connectionProps);
     }
 }
