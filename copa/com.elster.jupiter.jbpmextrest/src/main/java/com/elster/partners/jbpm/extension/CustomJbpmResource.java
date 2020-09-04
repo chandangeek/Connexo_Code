@@ -1,42 +1,17 @@
 package com.elster.partners.jbpm.extension;
 
-import org.jbpm.kie.services.impl.FormManagerService;
-import org.jbpm.services.api.DeploymentService;
-import org.jbpm.services.api.RuntimeDataService;
-import org.jbpm.services.cdi.Selectable;
-import org.jbpm.services.cdi.producer.UserGroupInfoProducer;
 import org.kie.api.KieServices;
-import org.kie.api.command.BatchExecutionCommand;
-import org.kie.api.command.Command;
 import org.kie.api.command.KieCommands;
-import org.kie.api.runtime.ExecutionResults;
-import org.kie.api.task.TaskService;
-import org.kie.server.api.marshalling.Marshaller;
-import org.kie.server.api.marshalling.MarshallingFormat;
-import org.kie.server.services.api.KieContainerInstance;
 import org.kie.server.services.api.KieServerRegistry;
-import org.kie.server.services.drools.RulesExecutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.inject.Instance;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
 
 @Path("/tasks")
 public class CustomJbpmResource {
@@ -46,34 +21,6 @@ public class CustomJbpmResource {
     private KieCommands commandsFactory = KieServices.Factory.get().getCommands();
 
     private KieServerRegistry registry;
-
-
-    private static final String PROPERTY = "property";
-    private static final String DEFAULT_SORTING = " order by p.START_DATE DESC";
-
-    @Inject
-    @PersistenceUnit(unitName = "org.jbpm.domain")
-    private EntityManagerFactory emf;
-
-    @Inject
-    TaskService taskService;
-
-//    @Inject
-//    protected ProcessRequestBean processRequestBean;
-
-    @Inject
-    RuntimeDataService runtimeDataService;
-
-    @Inject
-    DeploymentService deploymentService;
-
-    @Inject
-    FormManagerService formManagerService;
-
-    @Inject
-    @Selectable
-    private Instance<UserGroupInfoProducer> userGroupInfoProducers;
-
 
     public CustomJbpmResource() {}
 
