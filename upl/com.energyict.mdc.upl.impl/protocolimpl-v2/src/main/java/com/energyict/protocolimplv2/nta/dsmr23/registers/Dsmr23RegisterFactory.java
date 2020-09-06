@@ -218,7 +218,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             if (attribute!=null){
                 if (attribute.isOctetString()){
                     DateTimeOctetString dateTimeOctetString = attribute.getOctetString().getDateTime(protocolTimeZone);
-                    return dateTimeOctetString.getValue().getTime();
+                    if(dateTimeOctetString != null) {
+                        return dateTimeOctetString.getValue().getTime();
+                    }
                 }
             }
         }
