@@ -95,6 +95,8 @@ public interface CommunicationTaskService {
      */
     Optional<ComTaskExecution> findComTaskExecution(long id);
 
+    Optional<ComTaskExecution> findAndLockComTaskExecutionById(long id);
+
     public Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version);
 
     /**

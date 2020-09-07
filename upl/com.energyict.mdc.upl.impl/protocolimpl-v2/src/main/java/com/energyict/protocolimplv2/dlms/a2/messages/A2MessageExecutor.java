@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -311,7 +312,7 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
 
     private void synchronizeTime() {
         Date date = new Date();
-        getProtocol().setTime(date);
+        getProtocol().setTime(date, DeviceClockSupport.ClockChangeMode.SYNC);
     }
 
     private void setTimezone(OfflineDeviceMessage pendingMessage) throws IOException {

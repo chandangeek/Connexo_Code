@@ -9697,6 +9697,7 @@ PR1;DOMAIN;upl.property.sdksample.activeCommunicationFirmwareVersion.description
 PR1;DOMAIN;upl.property.skdsample.passiveCommunicationFirmwareVersion.description;Passive communication firmware version;Firmwareversion für passive Übertragung;;;;;
 PR1;DOMAIN;upl.property.v2.nta.checkNumberOfBlocksDuringFirmwareResume.description;Check number of blocks during firmware resume;Anzahl an Blöcken beim Firmwarereaktivierung überprüfen;;;;;
 PR1;DOMAIN;upl.property.v2.elster.publicClientAssociationPreEstablished.description;Public client association pre-established;Anbindung an öffentliche Clients vorbereitet;;;;;
+PR1;DOMAIN;upl.property.v2.eict.TIME_INTERVAL_OVER_CLOCK_SYNC;Skip clock synchronization around time intervals;Überspringen Sie die Uhrzeitsynchronisation in Zeitintervallen;;;;;
 PR1;DOMAIN;;public authentication key;Öffentliches Passwort;;;;;
 PR1;;;public authentication key;Öffentliches Passwort;;;;;
 PSP;DOMAIN;ValueShouldHaveLengthX;This field should have a length of {1} characters.;Dieses Feld sollte eine Länge von {1} Zeichen haben.;;;;;

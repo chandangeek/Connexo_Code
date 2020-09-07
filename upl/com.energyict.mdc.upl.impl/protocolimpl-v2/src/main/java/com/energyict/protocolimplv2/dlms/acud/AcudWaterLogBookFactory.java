@@ -6,8 +6,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.dlms.acud.events.FraudDetectionLog;
-import com.energyict.protocolimplv2.dlms.acud.events.StandardEventLog;
+import com.energyict.protocolimplv2.dlms.acud.events.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,19 +46,24 @@ public class AcudWaterLogBookFactory extends AcudLogBookFactory {
 
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
         List<MeterEvent> meterEvents;
-        if (logBookObisCode.equals(TIME_CHANGE_FROM_EVENT_LOG) ||
-                logBookObisCode.equals(TIME_CHANGE_UPTO_EVENT_LOG) ||
-                logBookObisCode.equals(EOB_RESET_EVENT_LOG) ||
-                logBookObisCode.equals(COMM_PORT_EVENT_LOG) ||
-                logBookObisCode.equals(POWER_LINE_CUT_EVENT_LOG) ||
-                logBookObisCode.equals(VALVE_CONTROL_EVENT_LOG) ||
-                logBookObisCode.equals(PASSWORD_CHANGES_EVENT_LOG) ||
-                logBookObisCode.equals(VALVE_CONTROL_STATE_EVENT_LOG) ||
-                logBookObisCode.equals(SECURITY_ASSOCIATION_EVENT_LOG) ||
-                logBookObisCode.equals(DISPLAY_ROLL_OVER_EVENT_LOG)) {
-            meterEvents = new StandardEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(TAMPER1_EVENT_LOG)) {
-            meterEvents = new FraudDetectionLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        if (logBookObisCode.equals(TIME_CHANGE_FROM_EVENT_LOG)) {
+            meterEvents = new TimeBeforeChangeEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if(logBookObisCode.equals(TIME_CHANGE_UPTO_EVENT_LOG)){
+            meterEvents = new TimeAfterChangeEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if(logBookObisCode.equals(EOB_RESET_EVENT_LOG)) {
+            meterEvents = new EOBResetEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        } else if(logBookObisCode.equals(COMM_PORT_EVENT_LOG)) {
+            meterEvents = new CommPortEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        }else if(logBookObisCode.equals(POWER_LINE_CUT_EVENT_LOG)) {
+            meterEvents = new EOBResetEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        }else if(logBookObisCode.equals(VALVE_CONTROL_EVENT_LOG)) {
+            meterEvents = new OutputValveControlEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        }else if(logBookObisCode.equals(SECURITY_ASSOCIATION_EVENT_LOG)) {
+            meterEvents = new SecurityEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        }else if(logBookObisCode.equals(DISPLAY_ROLL_OVER_EVENT_LOG)) {
+            meterEvents = new RollOverToZeroEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+        }else if(logBookObisCode.equals(TAMPER1_EVENT_LOG)) {
+            meterEvents = new Tamper1EventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else {
             return new ArrayList<>();
         }

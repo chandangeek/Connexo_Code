@@ -26,6 +26,7 @@ import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -127,6 +128,7 @@ public class DataExportServiceImplIT {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 

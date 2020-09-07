@@ -797,6 +797,31 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int BINDING_FLAG = 375;
 
+    public static final int EOB_RESET = 376;
+    public static final int MANUAL_RESET = 377;
+    public static final int AUTO_RESET = 378;
+    public static final int ROLL_OVER_TO_ZERO = 379;
+    public static final int SELECTION_OF_INPUTS_SIGNALS = 380;
+    public static final int OUTPUT_RELAY_CONTROL_SIGNALS_STATE_CHANGE = 381;
+    public static final int ERROR_REGISTR_1_CHANGED = 382;
+    public static final int ERROR_REGISTR_2_CHANGED = 383;
+    public static final int ERROR_REGISTR_3_CHANGED = 384;
+    public static final int COMMUNICATION_STATUS_CHANGED = 385;
+    public static final int MAXIMUM_CURRENT = 386;
+    public static final int SAG_CONFIRMED = 387;
+    public static final int SWELL_CONFIRMED = 388;
+    public static final int RECOVERY_AFTER_CURRENT_OVERLIMIT = 389;
+    public static final int RECOVERY_TIMES_SETTING_CHANGED = 390;
+    public static final int RECOVERY_MECHANISM_RELEASED = 391;
+    public static final int DISCONNECTOR_STATUS_CHANGED = 392;
+    public static final int SECURITY_EVENT = 393;
+    public static final int MAXIMUM_DEMAND_EVENT = 394;
+
+    public static final int TIME_BEFORE_CHANGE = 395;
+    public static final int TIME_AFTER_CHANGE = 396;
+    public static final int COMM_PORT_STATUS_CHANGE = 397;
+    public static final int OUTPUT_VALVE_CONTROL = 398;
+
 
     /**
      * Start of Beacon3100 custom codes
@@ -1397,7 +1422,53 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Temp sensor is broken");
             case BINDING_FLAG:
                 return ("The binding flag is set by the M-Bus device when the device is in installation mode and it has been bound to an E-meter (it received the for this specific M-Bus device intended CNF_IR).");
-            case TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
+            case EOB_RESET:
+                return ("EOB Reset");
+            case MANUAL_RESET:
+                return ("Manual Reset");
+            case AUTO_RESET:
+                return ("Auto Reset");
+            case ROLL_OVER_TO_ZERO:
+                return ("Roll Over To Zero");
+            case SELECTION_OF_INPUTS_SIGNALS:
+                return ("Selection Of Input Signals");
+            case OUTPUT_RELAY_CONTROL_SIGNALS_STATE_CHANGE:
+                return ("Output Relay Control Signals State Change");
+            case ERROR_REGISTR_1_CHANGED:
+                return ("Error Register 1 Changed");
+            case ERROR_REGISTR_2_CHANGED:
+                return ("Error Register 2 Changed");
+            case ERROR_REGISTR_3_CHANGED:
+                return ("Error Register 3 Changed");
+            case COMMUNICATION_STATUS_CHANGED:
+                return ("Communication Status Changed");
+            case MAXIMUM_CURRENT:
+                return ("Maximum Current");
+            case SAG_CONFIRMED:
+                return ("Sag Confirmed");
+            case SWELL_CONFIRMED:
+                return ("Swell Confirmed");
+            case RECOVERY_AFTER_CURRENT_OVERLIMIT:
+                return ("Consumption Error");
+            case RECOVERY_TIMES_SETTING_CHANGED:
+                return ("Recovery Mechanism Changed");
+            case RECOVERY_MECHANISM_RELEASED:
+                return ("Recovery Mechanism Released");
+            case DISCONNECTOR_STATUS_CHANGED:
+                return ("Disconnector Status Changed");
+            case SECURITY_EVENT:
+                return ("Security Event");
+            case MAXIMUM_DEMAND_EVENT:
+                return ("MAximum Demand Event");
+            case TIME_BEFORE_CHANGE:
+                return ("Time Before Change");
+            case TIME_AFTER_CHANGE:
+                return ("Time After Change");
+            case COMM_PORT_STATUS_CHANGE:
+                return ("Communication Port Status Change");
+            case OUTPUT_VALVE_CONTROL:
+                return ("Output Valve Control");
+            case  TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
                 return ("Too high consumption or production of energy.");
             case INDEX_VALUE_DECREASE_OR_RESET:
                 return ("Decreasing index values or reset of index values.");

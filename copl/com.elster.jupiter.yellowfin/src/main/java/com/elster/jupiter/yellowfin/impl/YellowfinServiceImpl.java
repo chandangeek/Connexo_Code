@@ -73,6 +73,8 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
     private static final String DEFAULT_YELLOWFIN_USER = "admin";
     private static final String DEFAULT_YELLOWFIN_PASSWORD = "admin";
+    private static final String EXCEPTION_PREFIX = "Exception occured: ";
+    private static final String ERROR_CODE_PREFIX = "Error code: ";
 
     private String yellowfinUrl = DEFAULT_YELLOWFIN_URL;
     private String yellowfinExternalUrl = DEFAULT_YELLOWFIN_URL;
@@ -200,6 +202,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
         } catch (ServiceException e) {
             e.printStackTrace();
+            return Optional.of(EXCEPTION_PREFIX + e.getLocalizedMessage());
         }
 
         AdministrationPerson person = new AdministrationPerson();
@@ -220,13 +223,13 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                         return Optional.of("SUCCESS");
                     }
                     if (rs.getErrorCode() == 9) { // license breach
-                        return Optional.of("LICENSE_BREACH");
+                        return Optional.of(ERROR_CODE_PREFIX + "LICENSE_BREACH");
                     }
                     return Optional.of("NOT_FOUND");
                 }
-
             } catch (RemoteException e) {
                 e.printStackTrace();
+                return Optional.of(EXCEPTION_PREFIX + e.getLocalizedMessage());
             }
         }
 
@@ -243,6 +246,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
         } catch (ServiceException e) {
             e.printStackTrace();
+            return Optional.of(EXCEPTION_PREFIX + e.getLocalizedMessage());
         }
 
         AdministrationPerson person = new AdministrationPerson();
@@ -268,12 +272,14 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                         return Optional.of("SUCCESS");
                     }
                     if (rs.getErrorCode() == 9) { // license breach
-                        return Optional.of("LICENSE_BREACH");
+                        return Optional.of(ERROR_CODE_PREFIX + "LICENSE_BREACH");
                     }
+                    return Optional.of(ERROR_CODE_PREFIX + rs.getErrorCode());
                 }
 
             } catch (RemoteException e) {
                 e.printStackTrace();
+                return Optional.of(EXCEPTION_PREFIX + e.getLocalizedMessage());
             }
         }
 

@@ -75,7 +75,6 @@ public class FutureComTaskExecutionHandlerTest {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(222));
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(loadProfileComTaskExecution));
 
-
         futureComTaskExecutionHandler = new FutureComTaskExecutionHandler(clock, serviceCallService, deviceService);
     }
 
@@ -105,7 +104,7 @@ public class FutureComTaskExecutionHandlerTest {
             futureComTaskExecutionHandler.execute(null);
             fail("expected IllegalStateException");
         } catch (IllegalStateException e) {
-            assert (e.getMessage().equals("Unable to get domain extension for service call"));
+            assert (e.getMessage().equals("Unable to get domain extension for child service call"));
         }
     }
 

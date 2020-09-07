@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -31,12 +32,18 @@ public class CreateDeviceMessageMessageHandlerFactory implements MessageHandlerF
     private volatile DeviceService deviceService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile SecurityManagementService securityManagementService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(CreateDeviceMessageMessageHandler.class).
-                init(jsonService, deviceService, deviceMessageSpecificationService, threadPrincipalService);
+                init(jsonService, deviceService, deviceMessageSpecificationService, threadPrincipalService, securityManagementService);
+    }
+
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference

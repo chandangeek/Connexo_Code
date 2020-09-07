@@ -56,9 +56,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -182,6 +184,10 @@ public abstract class AbstractMockActivator {
     protected TopologyService topologyService;
     @Mock
     protected ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
+    @Mock
+    protected EngineConfigurationService engineConfigurationService;
+    @Mock
+    protected PriorityComTaskService priorityComTaskService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -261,6 +267,8 @@ public abstract class AbstractMockActivator {
         activator.setMultiSenseHeadEndInterface(multiSenseHeadEndInterface);
         activator.setTopologyService(topologyService);
         activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
+        activator.setEngineConfigurationService(engineConfigurationService);
+        activator.setPriorityComTaskService(priorityComTaskService);
         activator.activate(mock(BundleContext.class));
     }
 

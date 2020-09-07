@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.common.IrreversibleKeyImpl;
@@ -47,7 +48,7 @@ public class CryptoHS3300 extends HS3300 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-06-07 10:00:00 +0200 (Fri, 7 Jun 2019)$";
+        return "$Date: 2020-08-27$";
     }
 
     @Override
@@ -56,6 +57,14 @@ public class CryptoHS3300 extends HS3300 {
             dlmsProperties = new CryptoHS3300Properties(getPropertySpecService(), getNlsService(), getCertificateWrapperExtractor());
         }
         return (CryptoHS3300Properties) dlmsProperties;
+    }
+
+    @Override
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new CryptoHS3300ConfigurationSupport(this.getPropertySpecService());
+        }
+        return dlmsConfigurationSupport;
     }
 
     @Override
@@ -120,7 +129,7 @@ public class CryptoHS3300 extends HS3300 {
         if (this.deviceMessaging == null) {
             this.deviceMessaging = new CryptoHS3300Messaging(this, getCollectedDataFactory(), getIssueFactory(),
                     getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor(),
-                    getCertificateWrapperExtractor(), this.getMessageFileExtractor(), this.getKeyAccessorTypeExtractor());
+                    this.getCertificateWrapperExtractor(), this.getMessageFileExtractor(), this.getKeyAccessorTypeExtractor());
         }
         return this.deviceMessaging;
     }

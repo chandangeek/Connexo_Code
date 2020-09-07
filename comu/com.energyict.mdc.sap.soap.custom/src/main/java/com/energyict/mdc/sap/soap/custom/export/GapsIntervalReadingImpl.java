@@ -105,6 +105,7 @@ public class GapsIntervalReadingImpl implements IntervalReadingRecord {
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
+        // the class is used in custom SAP data selector, which always forces 1 hour reading export and overrides reading type interval with it.
         return Optional.of(Range.openClosed(timeStamp.minus(1, ChronoUnit.HOURS), timeStamp));
     }
 

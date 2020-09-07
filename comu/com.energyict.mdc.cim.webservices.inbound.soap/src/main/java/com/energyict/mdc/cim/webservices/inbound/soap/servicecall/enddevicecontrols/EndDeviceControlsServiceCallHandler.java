@@ -120,7 +120,8 @@ public class EndDeviceControlsServiceCallHandler implements ServiceCallHandler {
 
                 DeviceCommandInfo deviceCommandInfo = headEndController.checkOperation(parentExtension.getCommandCode(), attributes);
 
-                headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, extension.getTriggerDate());
+                headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, extension.getTriggerDate(),
+                        parentExtension.hasRunWithPriorityStrategy());
             } catch (Exception ex) {
                 failServiceCall(serviceCall, extension, ex.getLocalizedMessage());
                 return;

@@ -12,9 +12,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -126,6 +124,11 @@ public class SubMasterEndDeviceControlsPropertySet implements CustomPropertySet<
                         .stringSpec()
                         .named(SubMasterEndDeviceControlsDomainExtension.FieldNames.COMMAND_ATTRIBUTES.javaName(), TranslationKeys.COMMAND_ATTRIBUTES)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(SubMasterEndDeviceControlsDomainExtension.FieldNames.SCHEDULE_STRATEGY.javaName(), TranslationKeys.SCHEDULE_STRATEGY)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -179,6 +182,10 @@ public class SubMasterEndDeviceControlsPropertySet implements CustomPropertySet<
             table.column(SubMasterEndDeviceControlsDomainExtension.FieldNames.COMMAND_ATTRIBUTES.databaseName())
                     .varChar()
                     .map(SubMasterEndDeviceControlsDomainExtension.FieldNames.COMMAND_ATTRIBUTES.javaName())
+                    .add();
+            table.column(SubMasterEndDeviceControlsDomainExtension.FieldNames.SCHEDULE_STRATEGY.databaseName())
+                    .varChar()
+                    .map(SubMasterEndDeviceControlsDomainExtension.FieldNames.SCHEDULE_STRATEGY.javaName())
                     .add();
         }
 

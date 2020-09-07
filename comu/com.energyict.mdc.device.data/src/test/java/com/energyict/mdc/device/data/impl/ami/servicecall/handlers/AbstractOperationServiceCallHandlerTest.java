@@ -116,6 +116,7 @@ public class AbstractOperationServiceCallHandlerTest {
         CommandServiceCallDomainExtension commandServiceCallDomainExtension = new CommandServiceCallDomainExtension();
         commandServiceCallDomainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         commandServiceCallDomainExtension.setNrOfUnconfirmedDeviceCommands(1);
+        commandServiceCallDomainExtension.setRunWithPriority(false);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(commandServiceCallDomainExtension));
         when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
     }

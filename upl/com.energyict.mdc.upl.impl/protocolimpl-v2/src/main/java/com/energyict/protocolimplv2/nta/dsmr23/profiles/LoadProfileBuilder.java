@@ -51,7 +51,6 @@ import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40Load
 import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_DAILY;
 import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_HOURLY;
 import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY;
-import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.setFieldAndGet;
 
 /**
  * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.mdc.upl.DeviceProtocol}
@@ -190,7 +189,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
                                 ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_LP_DUPLICATED_CHANNEL) &&
                                         ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                         ).forEach(
-                                ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
+                                ci -> ci.setName( ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
                         );
                     }
 

@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.messagehandlers;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
@@ -22,12 +23,13 @@ import com.energyict.mdc.device.data.tasks.DeviceMessageQueueMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *Creates a single DeviceMessage for a single device with the provided attributes
+ * Creates a single DeviceMessage for a single device with the provided attributes
  * Created by bvn on 3/25/15.
  */
 public class CreateDeviceMessageMessageHandler implements MessageHandler {
@@ -36,11 +38,12 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
     private DeviceService deviceService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private ThreadPrincipalService threadPrincipalService;
+    private SecurityManagementService securityManagementService;
 
     @Override
     public void process(Message message) {
         DeviceMessageQueueMessage queueMessage = jsonService.deserialize(message.getPayload(), DeviceMessageQueueMessage.class);
-        threadPrincipalService.set(()->queueMessage.createdByUser);
+        threadPrincipalService.set(() -> queueMessage.createdByUser);
         Optional<Device> deviceOptional = deviceService.findDeviceById(queueMessage.deviceId);
         if (deviceOptional.isPresent()) {
             Optional<DeviceMessageSpec> deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(queueMessage.deviceMessageId.dbValue());
@@ -51,6 +54,10 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                 for (PropertySpec propertySpec : deviceMessageSpec.get().getPropertySpecs()) {
                     if (queueMessage.properties.containsKey(propertySpec.getName())) {
                         Object value = queueMessage.properties.get(propertySpec.getName());
+                        if (value instanceof LinkedHashMap && ((LinkedHashMap) value).containsKey("hsmKeyType") && ((LinkedHashMap) value).containsKey("name")) {
+                            String name = ((LinkedHashMap) value).get("name").toString();
+                            value = securityManagementService.findSecurityAccessorTypeByName(name).orElseThrow(() -> new RuntimeException("No such security accessor type: " + name));
+                        }
                         try {
                             Object marshalPropertyValue = propertySpec.getValueFactory().fromStringValue(String.valueOf(value));
                             deviceMessageBuilder.addProperty(propertySpec.getName(), marshalPropertyValue);
@@ -61,12 +68,12 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                     }
                 }
                 DeviceMessage deviceMessage = deviceMessageBuilder.add();
-                if(queueMessage.trigger){
+                if (queueMessage.trigger) {
                     Device device = deviceOptional.get();
                     Optional<ComTaskEnablement> messageEnabledComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablements().stream().filter(comTaskEnablement -> canPerformDeviceCommand(comTaskEnablement, deviceMessage.getDeviceMessageId())).findAny();
                     messageEnabledComTaskEnablement.ifPresent(comTaskEnablement -> {
                         Optional<ComTaskExecution> messageEnabledComTask = device.getComTaskExecutions().stream().filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()).findAny();
-                        if(messageEnabledComTask.isPresent()){
+                        if (messageEnabledComTask.isPresent()) {
                             messageEnabledComTask.get().runNow();
                         } else {
                             ComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement).add();
@@ -78,10 +85,10 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                 }
                 LOGGER.info(String.format("Added device command '%s' on device '%s'", queueMessage.deviceMessageId, deviceOptional.get().getName()));
             } else {
-                LOGGER.log(Level.SEVERE, "Could not find device message spec with db value "+queueMessage.deviceMessageId.dbValue());
+                LOGGER.log(Level.SEVERE, "Could not find device message spec with db value " + queueMessage.deviceMessageId.dbValue());
             }
         } else {
-            LOGGER.log(Level.SEVERE, "Could not find device with id "+queueMessage.deviceId);
+            LOGGER.log(Level.SEVERE, "Could not find device with id " + queueMessage.deviceId);
         }
     }
 
@@ -95,11 +102,12 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
 
     }
 
-    public MessageHandler init(JsonService jsonService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, ThreadPrincipalService threadPrincipalService) {
+    public MessageHandler init(JsonService jsonService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, ThreadPrincipalService threadPrincipalService, SecurityManagementService securityManagementService) {
         this.jsonService = jsonService;
         this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.threadPrincipalService = threadPrincipalService;
+        this.securityManagementService = securityManagementService;
         return this;
     }
 }

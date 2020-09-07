@@ -93,6 +93,7 @@ Ext.define('Uni.util.customexport.CustomExporterWindow', {
                     xtype: 'container',
                     width: '100%',
                     margin: '6 10 5 70',
+                    itemId: 'exporttype-customrows-start-row-container',
                     layout: {
                         type: 'hbox',
                         align: 'stretch'
@@ -116,6 +117,9 @@ Ext.define('Uni.util.customexport.CustomExporterWindow', {
                                 }else if (value < 0){
                                     field.setValue(0);
                                 }
+                            },
+                            blur: function(field){
+                                if (!field.getValue()) field.setValue(0);
                             }
                         }
                     },
@@ -155,6 +159,19 @@ Ext.define('Uni.util.customexport.CustomExporterWindow', {
                             }
                         }
                     }
+                },
+                {
+                        xtype: 'progressbar',
+                        itemId: 'export-progressbar',
+                        width: 310,
+                        margin: '5 0 15 10',
+                        hidden: true,
+
+                },
+                {
+                    xtype: 'component',
+                    itemId: 'exporttype-waitmessage',
+                    margin: '5 0 15 10'
                 }
              ]
         },
@@ -162,30 +179,42 @@ Ext.define('Uni.util.customexport.CustomExporterWindow', {
         me.bbar = [
             {
                 xtype: 'container',
-                width: 100
-            },
-            {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.customExport','UNI','Export'),
-                ui: 'action',
-                itemId: 'export-table-button',
-                listeners: {
-                    click: this.exportTable
+                width: '100%',
+                margin: '0 0 0 10',
+                layout: {
+                    type: 'hbox',
+                    align: 'left'
                 },
-                scope: me
-            },
-            {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.cancel','UNI','Cancel'),
-                action: 'cancel',
-                ui: 'link',
-                listeners: {
-                    click: {
-                        fn: function () {
-                            this.up('#exportTypeWindow').destroy();
+                items: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.customExport','UNI','Export'),
+                        ui: 'action',
+                        itemId: 'export-table-button',
+                        listeners: {
+                            click: this.exportTable
+                        },
+                        scope: me
+                    },
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.cancel','UNI','Cancel'),
+                        action: 'cancel',
+                        ui: 'link',
+                        listeners: {
+                            click: {
+                                fn: function () {
+                                    if ( this.up('#exportTypeWindow').exportInProgress){
+                                       var appName = Uni.util.Application.getAppNamespace();
+                                       window[appName].app.fireEvent('acknowledge', Uni.I18n.translate('export.exportGrid.cancelled','UNI', 'Export has been aborted'));
+                                    }
+                                    this.up('#exportTypeWindow').cancelled = true;
+                                    this.up('#exportTypeWindow').destroy();
+                                }
+                            }
                         }
                     }
-                }
+                ]
             }
         ],
         me.callParent(arguments);
@@ -213,30 +242,31 @@ Ext.define('Uni.util.customexport.CustomExporterWindow', {
              params.sort = queryString.sort;
          }
 
-         /*var result = [];
-         for (var dataIndex in queryString) {
-                if (dataIndex === 'sort' || dataIndex === 'start' || dataIndex === 'limit'){
-                    continue;
-                }
-                var value = queryString[dataIndex];
+         return params;
+    },
+    handleInProgressState : function(inProgress){
+         var form = this.down('form');
+         this.exportInProgress = inProgress;
+         var progressbar = form.down('#export-progressbar');
+         progressbar.setVisible(inProgress);
 
-                if (queryString.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
-                    if(!Ext.isArray(value)){
-                        value = [value];
-                    }
-                    var filter = {
-                        property: dataIndex,
-                        value: isNaN(value) ? value : parseInt(value)
-                    };
+         progressbar.wait({
+                interval: 50,
+                increment: 20
+         });
 
-                    result.push(filter);
-                }
-            }
-            if (result.length > 0) {
-                params.filter = Ext.encode(result);
-            }*/
+         var startTime = Uni.DateTime.formatDateTimeLong((new Date()).getTime());
 
-            return params;
+         var waitMessage = form.down('#exporttype-waitmessage');
+         if (inProgress){
+            waitMessage.update('<span>' + Uni.I18n.translate('general.startedOn', 'UNI', 'Started on') + ': ' + startTime + '</spzn><br>' +'<span>' + Uni.I18n.translate('export.exportType.keepPopup.', 'UNI', 'Keep this pop-up window open while export is ongoing') + '</spzn>');
+         } else {
+            waitMessage.update('');
+         }
+         form.down('#exporttype-customrows-type-combo').setDisabled(inProgress);
+         form.down('#exporttype-customrows-start-row').setDisabled(inProgress);
+         form.down('#exporttype-customrows-end-row').setDisabled(inProgress);
+         form.up('#exportTypeWindow').down('#export-table-button').setDisabled(inProgress);
     },
     exportTable : function(){
 
@@ -254,43 +284,25 @@ Ext.define('Uni.util.customexport.CustomExporterWindow', {
               errMsgPanel.show();
               return;
          }
-         var progressbar = form.add({
-                xtype: 'progressbar',
-                itemId: 'snooze-progressbar',
-                margin: '5 0 15 0'
-         });
-         progressbar.wait({
-            duration: 10000,
-            interval: 100
-         });
 
-         var startTime = Uni.DateTime.formatDateTimeLong(new Date());
+         exportWindow.handleInProgressState(true);
 
-         var waitMessage = form.add({
-                xtype: 'component',
-                itemId: 'exporttype-waitmessage',
-                html: '<span>' + Uni.I18n.translate('general.startedOn', 'UNI', 'Started on') + ':' + startTime + '</spzn><br>' +
-                      '<span>' + Uni.I18n.translate('export.exportType.keepPopup.', 'UNI', 'Keep this pop-up window open while export is ongoing') + '</spzn>',
-                margin: '5 0 15 0'
-         });
-         exportWindow.down('#export-table-button').setDisabled(true);
-         form.setDisabled(true);
          var options = {
             start : startRow,
             limit : rowsCount,
             params : {},
             callback : function(records, operation, success){
-                if (success === true){
+                if (success === true && !exportWindow.cancelled){
                     exportWindow.saveDataToFile(Ext.ux.exporter.Exporter.exportAny(exportGrid, "csv", {title: title}));
-                    //exportWindow.getController('Uni.controller.history.Router').getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureImportServicesSuccess', 'APR', 'Import services saved'));
+                    exportWindow.handleInProgressState(false);
+                    var appName = Uni.util.Application.getAppNamespace();
+                    window[appName].app.fireEvent('acknowledge', Uni.I18n.translate('export.exportGrid.success','UNI', 'Table successfully exported'));
                     exportWindow.destroy();
                 }else{
-                    exportWindow.down('#export-table-button').setDisabled(false);
-                    form.setDisabled(false);
-                    form.remove(progressbar);
-                    form.remove(waitMessage);
-                    errMsgPanel.setText(Uni.I18n.translate('export.exportType.exportFailed', 'UNI', 'Data export was failed'));
-                    errMsgPanel.show();
+                    exportWindow.handleInProgressState(false);
+                    var appName = Uni.util.Application.getAppNamespace();
+                    window[appName].app.fireEvent('acknowledge', Uni.I18n.translate('export.exportGrid.failed','UNI', 'Export failed due to an unexpected error'));
+                    exportWindow.destroy();
 
                 }
             }

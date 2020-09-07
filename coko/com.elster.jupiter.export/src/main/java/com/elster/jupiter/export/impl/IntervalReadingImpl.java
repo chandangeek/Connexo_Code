@@ -47,8 +47,8 @@ class IntervalReadingImpl implements IntervalReading {
 
     @Override
     public BigDecimal getValue() {
-        Quantity qty = decorated.getQuantity(readingType);
-        return qty == null ? null : decorated.getQuantity(readingType).getValue();
+        Quantity quantity = decorated.getQuantity(readingType);
+        return quantity == null ? null : quantity.getValue();
     }
 
     @Override

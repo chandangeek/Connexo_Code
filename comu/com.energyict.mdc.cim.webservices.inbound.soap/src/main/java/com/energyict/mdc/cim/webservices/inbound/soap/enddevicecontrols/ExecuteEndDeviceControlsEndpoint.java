@@ -17,6 +17,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.CIMWebservicesException;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 
@@ -104,7 +105,7 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                     validateEndpointsForCreateRequest(replyAddress);
                     Optional<Long> maxExecTime = getMaxExecTime(requestMessage);
 
-                    EndDeviceControlsRequestMessage edcRequestMessage = parseControls(listOfControls, true);
+                    EndDeviceControlsRequestMessage edcRequestMessage = parseControls(listOfControls, true, true);
 
                     List<ErrorType> errorTypes = edcRequestMessage.getErrorTypes();
                     if (errorTypes.isEmpty()) {
@@ -166,7 +167,6 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
         String operationName = isCancel ? CANCEL_END_DEVICE_CONTROLS_ITEM : CHANGE_END_DEVICE_CONTROLS_ITEM;
 
         try {
-
             List<EndDeviceControl> listOfControls = extractEndDeviceControls(requestMessage, operationName);
 
             saveWebserviceOccurrenceAttributes(listOfControls);
@@ -178,7 +178,7 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
             String correlationId = header.getCorrelationID();
             checkIfMissingOrIsEmpty(correlationId, fullHeaderItem + "." + CORRELATION_ITEM);
 
-            EndDeviceControlsRequestMessage edcRequestMessage = parseControls(listOfControls, !isCancel);
+            EndDeviceControlsRequestMessage edcRequestMessage = parseControls(listOfControls, !isCancel, false);
             List<ErrorType> errorTypes = edcRequestMessage.getErrorTypes();
             if (errorTypes.isEmpty()) {
                 edcRequestMessage.setCorrelationId(correlationId);
@@ -245,9 +245,11 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                 .orElseThrow(CIMWebservicesException.missingEndpoint(thesaurus, EndDeviceEventsServiceProvider.NAME, url));
     }
 
-    private EndDeviceControlsRequestMessage parseControls(List<EndDeviceControl> listOfControls, boolean needsReleaseDate) {
+    private EndDeviceControlsRequestMessage parseControls(List<EndDeviceControl> listOfControls, boolean needsReleaseDate,
+                                                          boolean needsScheduleStrategy) {
         EndDeviceControlsRequestMessage edcRequestMessage = new EndDeviceControlsRequestMessage();
         Instant releaseDate = null;
+        ScheduleStrategy scheduleStrategy = ScheduleStrategy.RUN_NOW;
 
         for (int i = 0; i < listOfControls.size(); ++i) {
             List<ErrorType> errorTypes = new ArrayList<>();
@@ -262,6 +264,18 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                 releaseDate = getReleaseDateDate(endDeviceControl);
                 if (releaseDate == null) {
                     errorTypes.add(replyTypeFactory.errorType(MessageSeeds.RELEASE_DATE_MISSING, null, i));
+                }
+            }
+
+            if (needsScheduleStrategy) {
+                String strScheduleStrategy = getScheduleStrategy(endDeviceControl);
+                if (strScheduleStrategy != null) {
+                    ScheduleStrategy scheduleStrategyEnum = ScheduleStrategy.getByName(strScheduleStrategy);
+                    if (scheduleStrategyEnum == ScheduleStrategy.RUN_NOW || scheduleStrategyEnum == ScheduleStrategy.RUN_WITH_PRIORITY) {
+                        scheduleStrategy = scheduleStrategyEnum;
+                    } else {
+                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.EDC_SCHEDULE_STRATEGY_NOT_SUPPORTED, null, strScheduleStrategy, i));
+                    }
                 }
             }
 
@@ -287,6 +301,9 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                 if (errorTypes.isEmpty()) {
                     endDeviceControlMessage.setCommandCode(ref);
                     endDeviceControlMessage.setAttributes(endDeviceControl.getEndDeviceControlAttribute());
+                    if (needsScheduleStrategy) {
+                        endDeviceControlMessage.setScheduleStrategy(scheduleStrategy);
+                    }
 
                     edcRequestMessage.addEndDeviceControlMessage(endDeviceControlMessage);
                 } else {
@@ -311,6 +328,13 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                 .map(EndDeviceControl::getPrimaryDeviceTiming)
                 .map(EndDeviceTiming::getInterval)
                 .map(DateTimeInterval::getStart)
+                .orElse(null);
+    }
+
+    private String getScheduleStrategy(EndDeviceControl endDeviceControl) {
+        return Optional.ofNullable(endDeviceControl)
+                .map(EndDeviceControl::getScheduleStrategy)
+                .filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
                 .orElse(null);
     }
 

@@ -46,7 +46,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFau
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ReadingSourceEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ScheduleStrategy;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.SyncReplyIssue;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.CancellationReason;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsDomainExtension;
@@ -87,6 +87,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.Me
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
@@ -94,12 +95,14 @@ import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.ICommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
@@ -128,6 +131,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -208,6 +212,7 @@ public class ServiceCallCommands {
     private final DeviceMessageService deviceMessageService;
     private final InboundSoapEndpointsActivator inboundSoapEndpointsActivator;
     private final MultiSenseHeadEndInterface multiSenseHeadEndInterface;
+    private final PriorityComTaskService priorityComTaskService;
 
     private Map<ServiceCallTypes, ServiceCallType> serviceCallTypes = new HashMap<>();
 
@@ -219,7 +224,8 @@ public class ServiceCallCommands {
                                MasterDataService masterDataService, CommunicationTaskService communicationTaskService,
                                MeteringService meteringService, ReplyTypeFactory replyTypeFactory,
                                HeadEndController headEndController, OrmService ormService, DeviceMessageService deviceMessageService,
-                               InboundSoapEndpointsActivator inboundSoapEndpointsActivator, MultiSenseHeadEndInterface multiSenseHeadEndInterface) {
+                               InboundSoapEndpointsActivator inboundSoapEndpointsActivator, MultiSenseHeadEndInterface multiSenseHeadEndInterface,
+                               PriorityComTaskService priorityComTaskService) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -238,6 +244,7 @@ public class ServiceCallCommands {
         this.deviceMessageService = deviceMessageService;
         this.inboundSoapEndpointsActivator = inboundSoapEndpointsActivator;
         this.multiSenseHeadEndInterface = multiSenseHeadEndInterface;
+        this.priorityComTaskService = priorityComTaskService;
     }
 
     @TransactionRequired
@@ -246,9 +253,6 @@ public class ServiceCallCommands {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_METER_CONFIG);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
-        meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(0l);
-        meterConfigMasterDomainExtension.setActualNumberOfFailedCalls(0l);
-        meterConfigMasterDomainExtension.setExpectedNumberOfCalls(Long.valueOf(meterConfig.getMeter().size()));
         meterConfigMasterDomainExtension.setCorrelationId(correlationId);
         setCallBackUrl(meterConfigMasterDomainExtension, outboundEndPointConfiguration);
         meterConfigMasterDomainExtension.setMeterStatusSource(meterConfig.getMeterStatusSource());
@@ -509,13 +513,15 @@ public class ServiceCallCommands {
                         InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy, reading.getSource(), allLoadProfiles);
             }
         } else if (CollectionUtils.isNotEmpty(loadProfilesSetByNames)) {
-            Set<ReadingType> lpReadingTypes = masterDataService.findAllLoadProfileTypes().stream()
-                    .filter(loadProfilesSetByNames::contains)
+            Set<ReadingType> lpReadingTypes = loadProfilesSetByNames.stream()
+                    .map(LoadProfile::getLoadProfileSpec)
+                    .map(LoadProfileSpec::getLoadProfileType)
                     .map(LoadProfileType::getChannelTypes)
                     .flatMap(Collection::stream)
                     .map(channelType -> channelType.getReadingType())
                     .collect(Collectors.toSet());
             syncReplyIssue.addExistedReadingTypes(lpReadingTypes);
+            combinedReadingTypes.addAll(lpReadingTypes);
         }
 
         if (meterReadingRequired) {
@@ -529,8 +535,12 @@ public class ServiceCallCommands {
                 }
                 Instant trigger = getTriggerDate(actualEnd, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, comTaskExecution, scheduleStrategy);
 
-                // run now
-                if (scheduleStrategy == ScheduleStrategy.RUN_NOW) {
+                // use schedule
+                if (scheduleStrategy == ScheduleStrategy.USE_SCHEDULE) {
+                    scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
+                            start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
+                    // wait next task execution
+                } else { // run now and run with priority
                     if (start == null && end == null) {
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
                                 start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
@@ -540,15 +550,11 @@ public class ServiceCallCommands {
                                 start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                     } else if (!trigger.isAfter(now)) {
                         scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
-                                start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, true);
+                                start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
                     } else if (trigger.isAfter(now)) {
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
                                 start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                     }
-                } else { // use schedule
-                    scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
-                            start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, false);
-                    // wait next task execution
                 }
             }
         }
@@ -584,20 +590,25 @@ public class ServiceCallCommands {
                     DeviceMessage deviceMessage = createDeviceMessage(device, childServiceCall, loadProfile, trigger, start, end);
                     childServiceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is linked to service call",
                             deviceMessage.getSpecification().getName(), deviceMessage.getId(), trigger));
-                    if (scheduleStrategy == ScheduleStrategy.RUN_NOW) {
-                        if (trigger.isAfter(now)) { // use recurrent task
-                            childServiceCall.requestTransition(DefaultState.SCHEDULED);
-                        } else { // run now
-                            childServiceCall.requestTransition(DefaultState.PENDING);
-                            childServiceCall.requestTransition(DefaultState.ONGOING);
-                            childServiceCall.requestTransition(DefaultState.WAITING);
-                            // avoid OptimisticLockException
-                            communicationTaskService.findComTaskExecution(deviceMessagesComTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
-                        }
-                    } else { // use schedule
+                    // use schedule
+                    if (scheduleStrategy == ScheduleStrategy.USE_SCHEDULE) {
                         childServiceCall.requestTransition(DefaultState.PENDING);
                         childServiceCall.requestTransition(DefaultState.ONGOING);
                         childServiceCall.requestTransition(DefaultState.WAITING);
+                    } else {
+                        if (trigger.isAfter(now)) { // use recurrent task
+                            childServiceCall.requestTransition(DefaultState.SCHEDULED);
+                        } else { // run now and run with priority
+                            childServiceCall.requestTransition(DefaultState.PENDING);
+                            childServiceCall.requestTransition(DefaultState.ONGOING);
+                            childServiceCall.requestTransition(DefaultState.WAITING);
+                            if (scheduleStrategy.equals(ScheduleStrategy.RUN_NOW)) {
+                                // avoid OptimisticLockException
+                                communicationTaskService.findComTaskExecution(deviceMessagesComTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
+                            } else if (scheduleStrategy.equals(ScheduleStrategy.RUN_WITH_PRIORITY)) {
+                                communicationTaskService.findComTaskExecution(deviceMessagesComTaskExecution.getId()).ifPresent(this::runWithPriority);
+                            }
+                        }
                     }
                 });
             }
@@ -684,15 +695,17 @@ public class ServiceCallCommands {
     private void scheduleOrRunNowComTaskExecution(ServiceCall subParentServiceCall,
                                                   ComTaskExecution comTaskExecution, Instant trigger,
                                                   Instant actualStart, Instant actualEnd,
-                                                  ServiceCallTypes serviceCallTypes, boolean runNow) {
+                                                  ServiceCallTypes serviceCallTypes, ScheduleStrategy scheduleStrategy) {
         ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
                 serviceCallTypes, comTaskExecution, trigger, actualStart, actualEnd);
         childServiceCall.requestTransition(DefaultState.PENDING);
         childServiceCall.requestTransition(DefaultState.ONGOING);
         childServiceCall.requestTransition(DefaultState.WAITING);
-        if (runNow) {
+        if (scheduleStrategy.equals(ScheduleStrategy.RUN_NOW)) {
             // avoid OptimisticLockException
             communicationTaskService.findComTaskExecution(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
+        } else if (scheduleStrategy.equals(ScheduleStrategy.RUN_WITH_PRIORITY)) {
+            communicationTaskService.findComTaskExecution(comTaskExecution.getId()).ifPresent(this::runWithPriority);
         }
     }
 
@@ -775,6 +788,7 @@ public class ServiceCallCommands {
                 .collect(Collectors.joining(";"));
 
         subParentDomainExtension.setCommandAttributes(commandAttributes);
+        subParentDomainExtension.setScheduleStrategy(endDeviceControlMessage.getScheduleStrategy().getName());
 
         ServiceCall subParentServiceCall = parentServiceCall.newChildCall(serviceCallType).extendedWith(subParentDomainExtension)
                 .create();
@@ -939,6 +953,7 @@ public class ServiceCallCommands {
                         deviceMessage.save();
                         deviceMessages.add(deviceMessage);
                     }
+
                     headEndController.scheduleDeviceCommandsComTask(device, deviceMessages);
 
                     headEndExtension.setReleaseDate(date);
@@ -1103,5 +1118,11 @@ public class ServiceCallCommands {
     private ServiceCall lock(ServiceCall serviceCall) {
         return serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    private void runWithPriority(ComTaskExecution comTaskExecution) {
+        Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(comTaskExecution);
+        priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(comTaskExecution));
+        comTaskExecution.runNow();
     }
 }

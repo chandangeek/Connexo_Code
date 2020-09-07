@@ -16,12 +16,6 @@ use Crypt::Cipher::AES;
 use MIME::Base64;
 use Digest::MD5 qw(md5_hex);
 
-use File::Copy;
-use File::Path 'rmtree';
-use File::Spec;
-use File::Find;
-use File::Basename;
-use Cwd qw(cwd);
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
 my $INSTALL_VERSION="v20200405";
@@ -86,7 +80,14 @@ my $SMTP_PASSWORD;
 my $SMTP_HOST;
 my $SMTP_PORT;
 my $SMTP_USER;
-my $SMTP_FROM;				  
+my $SMTP_FROM;
+my $CLASSPATH_SEPARATOR;
+
+if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+	$CLASSPATH_SEPARATOR=";";
+} else {
+	$CLASSPATH_SEPARATOR=":";
+}
 
 # Function Definitions
 sub dircopy {
@@ -601,9 +602,9 @@ sub install_tomcat {
 		print "==========================================================================\n";
 
 		if ("$ACTIVATE_SSO" eq "yes") {
-			$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
+			$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA;-Djbpm.quartz.enabled=true;-Dorg.quartz.properties=\"$CATALINA_HOME/conf/quartz.properties\"";
 		} else {
-			$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dcom.elster.jupiter.url=$CONNEXO_URL;-Dcom.elster.jupiter.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dcom.elster.jupiter.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
+			$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dcom.elster.jupiter.url=$CONNEXO_URL;-Dcom.elster.jupiter.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dcom.elster.jupiter.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA;-Djbpm.quartz.enabled=true;-Dorg.quartz.properties=\"$CATALINA_HOME/conf/quartz.properties\"";
 		}
 
 		chdir "$TOMCAT_BASE";
@@ -687,6 +688,8 @@ sub install_tomcat {
         add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
         add_to_file($catalina, "javax.net.ssl.keyStore=$CONNEXO_DIR/ssl/connexo-keystore.p12");
         add_to_file($catalina, "javax.net.ssl.keyStorePassword=zorro2020");
+        add_to_file($catalina, "jbpm.quartz.enabled=true");
+        add_to_file($catalina, "org.quartz.properties=$replaceHOME/conf/quartz.properties");
 
         if ("$ACTIVATE_SSO" ne "yes") {
             add_to_file($catalina, "# Connexo properties required for non-SSO setup");
@@ -869,6 +872,16 @@ sub install_flow {
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
+		#enable quartz
+		copy("$CONNEXO_DIR/partners/flow/quartz.properties","$CATALINA_HOME/conf/quartz.properties");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{jdbc\}',"$FLOW_JDBC_URL");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{user\}',"$FLOW_DB_USER");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{password\}',"$FLOW_DB_PASSWORD");
+		copy("$CONNEXO_DIR/partners/flow/commons-dbcp-1.4.jar","$FLOW_DIR/WEB-INF/lib/commons-dbcp-1.4.jar");
+		copy("$CONNEXO_DIR/partners/flow/commons-pool-1.6.jar","$FLOW_DIR/WEB-INF/lib/commons-pool-1.6.jar");
+		copy("$CONNEXO_DIR/partners/flow/quartz-oracle-1.8.5.jar","$FLOW_DIR/WEB-INF/lib/quartz-oracle-1.8.5.jar");
+		create_quartz_tables();
+
         #set system identifier in the header
 		if ("$SYSTEM_IDENTIFIER" ne "") {
 		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
@@ -900,6 +913,10 @@ sub install_flow {
 	} else {
 		print "\n\nSkip installation of Connexo Flow\n";
 	}
+}
+
+sub create_quartz_tables {
+    system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/lib/com.elster.jupiter.installer.util.jar$CLASSPATH_SEPARATOR$CONNEXO_DIR/partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.installer.util.QuartzTablesCreator $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $CONNEXO_DIR/partners/flow/quartz_tables_oracle.sql") == 0 or die "Couldn't execute quartz tables creation script!";
 }
 
 sub activate_sso_filters{
@@ -1185,7 +1202,7 @@ sub start_tomcat_service {
 sub postCall {
     my ($command, $msg)=@_;
 
-    #print "Calling:\t$command\n";
+    print "Calling:\t$command\n";
     system($command) == 0 or die "$msg: $?";
     print "\t - command finished.\n"
 }
@@ -1217,10 +1234,8 @@ sub start_tomcat {
 
 			chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
-                } else {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
+            } else {
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
             }
 			unlink("$CONNEXO_DIR/datasource.xml");
@@ -1228,33 +1243,28 @@ sub start_tomcat {
 
 		if ("$INSTALL_FLOW" eq "yes") {
 			print "\nInstalling Connexo Flow content...\n";
-
-			opendir(DIR,"$CONNEXO_DIR/bundles");
-            my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
-            closedir(DIR);
-
-            my $BPM_BUNDLE;
-            foreach my $file (@files) {
-                $BPM_BUNDLE="$file";
-            }
-
             chdir "$CONNEXO_DIR";
             print "Changing directory to $CONNEXO_DIR\n";
             # using TomCat password here because the filters should not be active yet if SSO is used
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
             sleep 5;
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
 
+            print "\nCopy processes to repository...\n";
             mkdir "$TOMCAT_BASE/$TOMCAT_DIR/repositories";
             dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
             dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
-            #Extract pom.xml for all copied jar's and rename it to corresponding .pom file.
-            parse_deployed_jars();
+            if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+                # classpath separator on Windows is ;
+                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
+            } else {
+                # classpath separator on Linux is :
+                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
 
+            }
             print "\nDeploy MDC processes...\n";
-
             my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
             if(-e $mdcfile){
                 open(INPUT, $mdcfile);
@@ -1264,8 +1274,7 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);
@@ -1281,76 +1290,13 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);
             }
 		}
 	}
-}
-
-sub parse_deployed_jars
-{
-    my $homeDir = cwd;
-    #find all jars in directory
-    my $dir = "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie";
-    my @jarFiles;#list of jars that should be parsed.
-    find(\&save_jar_path, $dir);
-    sub save_jar_path
-        {
-        if( $File::Find::name =~ /.jar/)
-            {
-            push @jarFiles, $File::Find::name;
-            }
-        }
-
-    my $ff;
-    foreach $ff (@jarFiles)
-    {
-        my $dirname = dirname($ff);
-        my $filename = fileparse($ff);
-        chdir($dirname);
-        extract_pom($filename);
-        chdir($homeDir);
-    }
-}
-
-#Extract pom.xml file from jar and rename it to jarName.pom and copy it to the same directory where jar file presents.
-sub extract_pom
-{
-    my $jarName;
-    $jarName = $_[0];
-    #Here we get pom.xml from jar and create .pom file.
-    my @files = `jar -tf \"$jarName\"`;
-    my $number =  scalar(@files);
-    my $i = 0;
-    my $neededFile;
-    #Go through files in jar and find pom.xml
-    M1:
-    while($i < $number)
-        {
-            #Check if name of file is pom.xml
-            if (index(@files[$i], "pom.xml") != -1){
-                $neededFile = @files[$i];
-                last M1;
-            }
-            $i = $i + 1;
-        }
-    #extract pom.xml from jar
-    system("jar -xf $jarName $neededFile");
-    chop($neededFile);#remove end of the line symbol from file name.
-
-    #Construct name for pom file
-    my $pomName = $jarName;
-    $pomName =~ s/jar$/pom/;
-
-    copy($neededFile, $pomName);
-    #When we extract pom.xml from jar whole directory tree is extracted as well.
-    #Remove directory after pom.xml file extraction
-    my @treeToRemove = File::Spec->splitdir($neededFile);
-    rmtree(@treeToRemove[0]);
 }
 
 sub final_steps {

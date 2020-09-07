@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TestHeadEndInterface implements HeadEndInterface{
+public class TestHeadEndInterface implements HeadEndInterface {
     private List<ReadingType> supportedReadingTypes;
 
     public TestHeadEndInterface(ReadingType... supported) {
@@ -83,6 +83,11 @@ public class TestHeadEndInterface implements HeadEndInterface{
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
+        return null;
+    }
+
+    @Override
+    public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall, boolean withPriority) {
         return null;
     }
 
