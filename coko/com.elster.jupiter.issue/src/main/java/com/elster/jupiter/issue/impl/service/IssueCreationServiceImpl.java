@@ -33,6 +33,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
@@ -165,7 +166,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             actionsList = dataModel.query(CreationRuleAction.class, IssueActionType.class, IssueType.class)
                     .select(condition);
         } else {
-            actionsList = dataModel.stream(CreationRuleAction.class).select();
+            try(QueryStream<CreationRuleAction> actionList= dataModel.stream(CreationRuleAction.class)) {
+                actionsList = actionList.select();
+            }
         }
         final List<CreationRuleAction> filteredActions = actionsList.stream().filter(action -> {
             if (action.getProperties().containsKey(propertyKey)) {
