@@ -33,6 +33,7 @@ import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
+import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -120,6 +121,7 @@ public class DataExportServiceCallIT {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
+            bind(TokenService.class).toInstance(mock(TokenService.class));
         }
     }
 
@@ -269,8 +271,8 @@ public class DataExportServiceCallIT {
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         assertProperties(serviceCall, DefaultState.ONGOING, UUID, TIMEOUT, null);
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.ONGOING);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.ONGOING);
 
         assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
@@ -296,8 +298,8 @@ public class DataExportServiceCallIT {
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
 
         assertProperties(serviceCall, DefaultState.ONGOING, UUID, TIMEOUT, null);
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.ONGOING);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.ONGOING);
 
         assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
@@ -343,8 +345,8 @@ public class DataExportServiceCallIT {
         assertThat(dataExportServiceCallType.findServiceCall(UUID)).contains(serviceCall);
         assertThat(dataExportServiceCallType.findServiceCall(ANOTHER_UUID)).isEmpty();
 
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.ONGOING);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.ONGOING);
 
         assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
@@ -378,8 +380,8 @@ public class DataExportServiceCallIT {
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, "Another error!");
         assertProperties(serviceCall, DefaultState.FAILED, UUID, TIMEOUT, error);
 
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.FAILED);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.FAILED);
         assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
             return properties.getDeviceName().equals(DEVICE_NAME_1) &&
@@ -393,6 +395,41 @@ public class DataExportServiceCallIT {
                     properties.getReadingTypeMRID().equals(MRID_2) &&
                     properties.getDataSourceId() == dataSourceId2;
         }).findFirst()).isPresent();
+    }
+
+    @Test
+    @Transactional
+    public void testPartiallyFailServiceCall() {
+        String error = "Errorrrr";
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, data);
+        List<ServiceCall> srvCallChildren = serviceCall.findChildren().stream().collect(Collectors.toList());
+        assertThat(srvCallChildren).hasSize(2);
+        dataExportServiceCallType.tryPartiallyPassingServiceCall(serviceCall, Collections.singletonList(srvCallChildren.get(0)), error);
+
+        assertProperties(serviceCall, DefaultState.PARTIAL_SUCCESS, UUID, TIMEOUT, error);
+
+        // check that further operations don't change the state
+        dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+        assertProperties(serviceCall, DefaultState.PARTIAL_SUCCESS, UUID, TIMEOUT, error);
+
+        dataExportServiceCallType.tryFailingServiceCall(serviceCall, "Another error!");
+        assertProperties(serviceCall, DefaultState.PARTIAL_SUCCESS, UUID, TIMEOUT, error);
+
+        assertThat(srvCallChildren.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChildren.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
+        assertThat(dataExportServiceCallType.getStatus(srvCallChildren.get(0)).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(dataExportServiceCallType.getStatus(srvCallChildren.get(1)).getState()).isEqualTo(DefaultState.FAILED);
     }
 
     @Test
@@ -443,8 +480,8 @@ public class DataExportServiceCallIT {
         assertThat(status.isSuccessful()).isFalse();
         assertThat(status.getErrorMessage()).isEmpty();
 
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.ONGOING);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.ONGOING);
         assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
             return properties.getDeviceName().equals(DEVICE_NAME_1) &&
@@ -509,8 +546,8 @@ public class DataExportServiceCallIT {
         assertThat(status.isSuccessful()).isFalse();
         assertThat(status.getErrorMessage()).contains(error);
 
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.FAILED);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.FAILED);
         assertThat(srvCallChild.stream().filter(srvCallChd -> {
             WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
             return properties.getDeviceName().equals(DEVICE_NAME_1) &&
@@ -541,8 +578,8 @@ public class DataExportServiceCallIT {
         assertThat(status.isSuccessful()).isFalse();
         assertThat(status.getErrorMessage()).isEmpty();
 
-        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.ONGOING);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.ONGOING);
     }
 
     @Test
