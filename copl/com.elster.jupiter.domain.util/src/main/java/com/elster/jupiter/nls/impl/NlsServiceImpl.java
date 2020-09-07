@@ -387,13 +387,13 @@ public class NlsServiceImpl implements NlsService {
 
         try(QueryStream<NlsEntry> nlsEntryQueryStream = this.dataModel
                 .stream(NlsEntry.class).join(NlsKey.class)) {
-            List<NlsEntry> select = nlsEntryQueryStream
+            List<NlsEntry> nlsEntries = nlsEntryQueryStream
                     .filter(condition)
                     .select();
-            if (select.isEmpty()) {
+            if (nlsEntries.isEmpty()) {
                 this.uninstalledKeysMap.put(key, newKey);
             } else {
-                select.forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
+                nlsEntries.forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
             }
             this.dataModel.mapper(NlsKey.class).persist(newKey);
             this.invalidate(targetComponent, targetLayer);

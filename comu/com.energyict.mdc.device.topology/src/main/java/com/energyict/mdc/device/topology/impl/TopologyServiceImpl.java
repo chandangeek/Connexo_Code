@@ -1145,8 +1145,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private List<ServerTopologyTimeslice> findRecentPhysicallyReferencingDevicesFor(Device device, int maxRecentCount) {
         Condition condition = this.getDevicesInTopologyCondition(device);
-        try(QueryStream<PhysicalGatewayReferenceImpl> steams = this.dataModel.stream(PhysicalGatewayReferenceImpl.class)){
-            List<PhysicalGatewayReferenceImpl> gatewayReferences= steams.filter(condition).sorted(Order.descending("interval.start"))
+        try(QueryStream<PhysicalGatewayReferenceImpl> steams = this.dataModel.stream(PhysicalGatewayReferenceImpl.class)) {
+            List<PhysicalGatewayReferenceImpl> gatewayReferences = steams.filter(condition).sorted(Order.descending("interval.start"))
                     .limit(maxRecentCount)
                     .select();
             return this.toTopologyTimeslices(gatewayReferences);

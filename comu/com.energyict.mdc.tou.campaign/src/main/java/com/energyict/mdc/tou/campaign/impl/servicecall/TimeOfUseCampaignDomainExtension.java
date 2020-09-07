@@ -284,15 +284,15 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
         try(QueryStream<? extends TimeOfUseCampaignItem> streamItems = timeOfUseCampaignService
-                .streamDevicesInCampaigns()){
-            List<? extends TimeOfUseCampaignItem> streamOfItems= streamItems.filter(Where.where("parentServiceCallId").isEqualTo(serviceCall.getId()))
+                .streamDevicesInCampaigns()) {
+            List<? extends TimeOfUseCampaignItem> items= streamItems.filter(Where.where("parentServiceCallId").isEqualTo(serviceCall.getId()))
                     .select();
-            if (streamOfItems.isEmpty()) {
+            if (items.isEmpty()) {
                 if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
             } else {
-                streamOfItems.forEach(item -> item.cancel(true));
+                items.forEach(item -> item.cancel(true));
             }
         }
     }

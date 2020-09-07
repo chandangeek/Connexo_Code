@@ -352,15 +352,15 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
         FirmwareCampaignServiceImpl firmwareCampaignService = firmwareService.getFirmwareCampaignService();
-        try(QueryStream<? extends DeviceInFirmwareCampaign> streamItems= firmwareCampaignService.streamDevicesInCampaigns()) {
-            List<? extends DeviceInFirmwareCampaign> streamOfItems = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
+        try(QueryStream<? extends DeviceInFirmwareCampaign> streamItems = firmwareCampaignService.streamDevicesInCampaigns()) {
+            List<? extends DeviceInFirmwareCampaign> items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
                     .select();
-            if (streamOfItems.isEmpty()) {
+            if (items.isEmpty()) {
                 if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
             } else {
-                streamOfItems.forEach(item -> item.cancel(true));
+                items.forEach(item -> item.cancel(true));
             }
         }
     }
