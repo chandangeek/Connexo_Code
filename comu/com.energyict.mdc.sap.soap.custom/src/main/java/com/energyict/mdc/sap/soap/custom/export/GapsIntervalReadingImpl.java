@@ -18,8 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-public class GapsIntervalReadingImpl implements IntervalReadingRecord {
-
+public final class GapsIntervalReadingImpl implements IntervalReadingRecord {
     private final IntervalReadingRecord decorated;
     private final Instant timeStamp;
 
