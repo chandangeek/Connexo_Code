@@ -52,12 +52,14 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     public void perform(ExecutionContext executionContext) {
         if (hasCommandsToExecute()) {
+            commandRoot.connectionExecuted(true);
             if (!commandRoot.hasConnectionSetupError()) {
                 performAfterConnectionSetup(executionContext);
             } else {
                 executeForConnectionSetupError(executionContext);
             }
         } else {
+            commandRoot.connectionExecuted(false);
             executeForNoCommands(executionContext);
         }
     }
@@ -198,7 +200,6 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     void executeForNoCommands(ExecutionContext executionContext) {
-        commandRoot.connectionNotExecuted();
         executeAsNotExecuted(executionContext, MessageSeeds.NOT_EXECUTED_BECAUSE_COMMAND_NOT_PRESENT);
     }
 
