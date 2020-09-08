@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -27,12 +25,10 @@ public class UpgraderV10_4_5 implements Upgrader {
     private static final int NB_MONTHS = 12;
 
     private final DataModel dataModel;
-    private final MessageService messageService;
 
     @Inject
-    public UpgraderV10_4_5(DataModel dataModel, MessageService messageService) {
+    public UpgraderV10_4_5(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.messageService =messageService;
     }
 
     @Override
@@ -48,7 +44,7 @@ public class UpgraderV10_4_5 implements Upgrader {
             logger.warning("Partitioning not enabled - won't partition new tables (" +
                     "DDC_COMTASKEXECJOURNALENTRY," +
                     "DDC_COMSESSIONJOURNALENTRY" +
-            ")");
+                    ")");
 
             return;
         }
@@ -105,18 +101,4 @@ public class UpgraderV10_4_5 implements Upgrader {
         sb.append(") ");
         return sb;
     }
-
-    private void createUnsubscriberForMessageQueue() {
-        this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS)
-                .ifPresent(jupiterEvents -> {
-                    boolean subscriberExists = jupiterEvents.getSubscribers()
-                            .stream()
-                            .anyMatch(s -> s.getName().equals(SubscriberTranslationKeys.IPV6ADDRESS_SUBSCRIBER.getKey()));
-
-                    if (subscriberExists) {
-                        jupiterEvents.unSubscribe(SubscriberTranslationKeys.IPV6ADDRESS_SUBSCRIBER.getKey());
-                    }
-                });
-    }
-
 }
