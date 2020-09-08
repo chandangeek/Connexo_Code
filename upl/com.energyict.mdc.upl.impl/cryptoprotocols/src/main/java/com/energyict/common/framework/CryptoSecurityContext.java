@@ -19,7 +19,7 @@ import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.HsmException;
+import com.energyict.protocol.exceptions.HsmException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100SecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
@@ -74,7 +74,7 @@ public class CryptoSecurityContext extends SecurityContext {
             }
             return createSecuredApdu(encryptedRequest == null ? plainText : encryptedRequest, tag);
         } catch (HsmException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unexpectedHsmProtocolError(new NestedIOException(e));
         } finally {
             incFrameCounter();
         }
@@ -131,21 +131,21 @@ public class CryptoSecurityContext extends SecurityContext {
                 return Services.hsmService().verifyAuthenticationDecryptApduWithAAD(cipheredAPDU, generalCipheringHeader, authTag, iv, ak, ek, getSecuritySuite());
             }
         } catch (HsmException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unexpectedHsmProtocolError(new NestedIOException(e));
         }
     }
 
     @Override
-    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo, boolean includeRequestLength) throws UnsupportedException {
+    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo, boolean includeRequestLength) {
         byte[] generalCipheringHeader = createGeneralCipheringHeader(dateTime, otherInfo);
         byte[] requestData = includeRequestLength ? ProtocolTools.concatByteArrays(DLMSUtils.getAXDRLengthEncoding(securedRequest.length), securedRequest) : securedRequest;
         byte[] dataToSign = ProtocolTools.concatByteArrays(generalCipheringHeader, requestData);
         final String keyLabel = getGeneralCipheringSecurityProvider().getClientPrivateSigningKeyLabel();
-        byte[] signature = new byte[0];
+        byte[] signature;
         try {
             signature = Services.hsmService().cosemGenerateSignature(SECURITY_SUITE_1, keyLabel, dataToSign);
         } catch (HsmException e) {
-            throw new UnsupportedException("Unable to sign data using HSM! " + e.getMessage());
+            throw ConnectionCommunicationException.unexpectedHsmProtocolError(new NestedIOException(e, "Unable to sign data using HSM! " + e.getMessage()));
         }
 
         return ProtocolTools.concatByteArrays(
