@@ -163,6 +163,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(amrSystem.getId()).thenReturn(KnownAmrSystem.MDC.getId());
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
         when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
         when(device.getName()).thenReturn(DEVICE_NAME);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
