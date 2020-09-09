@@ -1878,7 +1878,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-validated-data').setVisible(false);
         page.down('#data-selector-export-complete').setVisible(false);
         page.down('#updated-data-container').setVisible(false);
-        page.down('#continuous-data-container').setVisible(true);
+        page.down('#continuous-data-container').setVisible(false);
         Ext.resumeLayouts(true);
     },
 
@@ -1894,7 +1894,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-validated-data').setVisible(false);
         page.down('#data-selector-export-complete').setVisible(false);
         page.down('#updated-data-container').setVisible(false);
-        page.down('#continuous-data-container').setVisible(true);
+        page.down('#continuous-data-container').setVisible(false);
         Ext.resumeLayouts(true);
     },
 
