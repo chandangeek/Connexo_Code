@@ -180,7 +180,7 @@ final class GroupImpl implements Group {
         }
         PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, applicationName, privilege);
         privilegeInGroup.persist();
-        getPrivilegeInGroups(applicationName).add(privilegeInGroup);
+        getPrivilegeInGroups().add(privilegeInGroup);
         publisher.publish(this, privilege);
         return false;
     }

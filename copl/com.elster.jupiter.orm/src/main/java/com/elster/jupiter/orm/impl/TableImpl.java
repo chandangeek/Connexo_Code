@@ -1386,19 +1386,20 @@ public class TableImpl<T> implements Table<T> {
         return Optional.ofNullable(getCache().get(key));
     }
 
-    public void clearCache(T... objects) {
-        if (objects.length == 0 || getReferenceConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
+    @SafeVarargs
+    public final void clearCache(T... objects) {
+        if (objects.length == 0 || getForeignKeyConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
             getCache().renew();
         } else {
-            for (int i = 0; i < objects.length; i++) {
-                getCache().remove(objects[i]);
+            for (T object : objects) {
+                getCache().remove(object);
             }
         }
         clearCacheRecursively(this);
     }
 
-    public void clearCache(Collection<? extends T> objects) {
-        if (objects.isEmpty() || getReferenceConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
+    public final void clearCache(Collection<? extends T> objects) {
+        if (objects.isEmpty() || getForeignKeyConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
             getCache().renew();
         } else {
             for (T object : objects) {
@@ -1412,15 +1413,15 @@ public class TableImpl<T> implements Table<T> {
      * If we add new object(s) (call {@link DataMapperWriter#persist(Object)} or {@link DataMapperWriter#persist(List)}),
      * it is not needed to clear cache for current table, except case where it has foreign key to itself.
      */
-    public void clearCacheOnPersisting() {
-        if (getReferenceConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
+    public final void clearCacheOnPersisting() {
+        if (getForeignKeyConstraints().stream().anyMatch(fk -> fk.getReferencedTable().equals(this))) {
             getCache().renew();
         }
         clearCacheRecursively(this);
     }
 
     private void clearCacheRecursively(TableImpl<?> childTable) {
-        List<ForeignKeyConstraintImpl> childTableReferenceConstraints = childTable.getReferenceConstraints();
+        List<ForeignKeyConstraintImpl> childTableReferenceConstraints = childTable.getForeignKeyConstraints();
         for (ForeignKeyConstraintImpl foreignKeyConstraint : childTableReferenceConstraints) {
             String reverseFieldName = foreignKeyConstraint.getReverseFieldName();
             TableImpl<?> ownerTable = foreignKeyConstraint.getReferencedTable();
