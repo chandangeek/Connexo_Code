@@ -398,7 +398,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
-        Device multiSenseDevice = findDeviceForEndDevice(endDeviceCommand.getEndDevice());
+        Device multiSenseDevice = findAndLockDeviceForEndDevice(endDeviceCommand.getEndDevice());
         ServiceCall serviceCall = getServiceCallCommands().createOperationServiceCall(Optional.ofNullable(parentServiceCall),
                 multiSenseDevice, endDeviceCommand.getEndDeviceControlType(), releaseDate);
         serviceCall.requestTransition(DefaultState.PENDING);
@@ -413,7 +413,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
-            scheduleDeviceCommandsComTaskEnablement(multiSenseDevice, deviceMessages);  // Intentionally reload the device here
+            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages); // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
             return new CompletionOptionsImpl(serviceCall);
@@ -482,7 +482,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                     .map(DeviceMessage::getReleaseDate)
                     .distinct()
                     .forEach(lockedComTaskExecution::addNewComTaskExecutionTrigger);
-
             lockedComTaskExecution.updateNextExecutionTimestamp();
         });
     }
@@ -532,6 +531,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
+    }
+
+    private Device findAndLockDeviceForEndDevice(EndDevice endDevice) {
+        long deviceId = Long.parseLong(endDevice.getAmrId());
+        return deviceService.findAndLockDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {
