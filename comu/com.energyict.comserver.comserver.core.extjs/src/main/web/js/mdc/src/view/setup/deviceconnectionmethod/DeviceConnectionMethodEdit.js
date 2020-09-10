@@ -128,11 +128,16 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 tpl: Ext.create('Ext.XTemplate',
                                     '<ul class="x-list-plain"><tpl for=".">',
                                     '<li role="option" class="x-boundlist-item">' +
-                                    '<tpl if="active"><strong></tpl>',
+                                    '<tpl if="active">','<strong>',
                                     '{name}',
-                                    '<tpl if="active"></strong></tpl>',
+                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolName', 'MDC', 'Active')+')',
+                                    '</strong>','</tpl>',
+                                    '<tpl if="!active">',
+                                    '{name}',
+                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolName', 'MDC', 'Inactive')+')',
+                                    '</tpl>',
                                     '</tpl></ul>'
-                                ),
+                                )
                             },
                             {
                                 xtype: 'combobox',
