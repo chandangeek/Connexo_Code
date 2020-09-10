@@ -221,6 +221,10 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     if(dateTimeOctetString != null) {
                         return dateTimeOctetString.getValue().getTime();
                     }
+                    else {
+                        this.protocol.journal(Level.SEVERE,
+                                "Dsmr23RegisterFactory::readComposedRegisterEventTime: the event time must be not null: " + attribute.getOctetString().toString());
+                    }
                 }
             }
         }
