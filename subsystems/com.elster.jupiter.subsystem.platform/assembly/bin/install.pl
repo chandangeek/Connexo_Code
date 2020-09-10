@@ -80,7 +80,14 @@ my $SMTP_PASSWORD;
 my $SMTP_HOST;
 my $SMTP_PORT;
 my $SMTP_USER;
-my $SMTP_FROM;				  
+my $SMTP_FROM;
+my $CLASSPATH_SEPARATOR;
+
+if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+	$CLASSPATH_SEPARATOR=";";
+} else {
+	$CLASSPATH_SEPARATOR=":";
+}
 
 # Function Definitions
 sub dircopy {
@@ -621,7 +628,8 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"user\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
-        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 9.0 ","set DISPLAYNAME=");
+        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=AshareTransactionConnectionspache Tomcat 9.0 ","set DISPLAYNAME=");
+        add_to_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/btm-config.properties", "\nbitronix.tm.2pc.warnAboutZeroResourceTransactions=false");
 
         (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
         (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
@@ -681,6 +689,12 @@ sub install_tomcat {
         add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
         add_to_file($catalina, "javax.net.ssl.keyStore=$CONNEXO_DIR/ssl/connexo-keystore.p12");
         add_to_file($catalina, "javax.net.ssl.keyStorePassword=zorro2020");
+        #Quartz is disabled because we faced with performance issues there. And also some processes were still hanging after tomcat restart.
+        #add_to_file($catalina, "jbpm.quartz.enabled=true");
+        #add_to_file($catalina, "org.quartz.properties=$replaceHOME/conf/quartz.properties");
+        add_to_file($catalina, "org.jbpm.timer.thread.retries=100");
+        add_to_file($catalina, "org.jbpm.timer.thread.delay=60000");
+
 
         if ("$ACTIVATE_SSO" ne "yes") {
             add_to_file($catalina, "# Connexo properties required for non-SSO setup");
@@ -863,6 +877,16 @@ sub install_flow {
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
+		#add quartz support
+		copy("$CONNEXO_DIR/partners/flow/quartz.properties","$CATALINA_HOME/conf/quartz.properties");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{jdbc\}',"$FLOW_JDBC_URL");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{user\}',"$FLOW_DB_USER");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{password\}',"$FLOW_DB_PASSWORD");
+		copy("$CONNEXO_DIR/partners/flow/commons-dbcp-1.4.jar","$FLOW_DIR/WEB-INF/lib/commons-dbcp-1.4.jar");
+		copy("$CONNEXO_DIR/partners/flow/commons-pool-1.6.jar","$FLOW_DIR/WEB-INF/lib/commons-pool-1.6.jar");
+		copy("$CONNEXO_DIR/partners/flow/quartz-oracle-1.8.5.jar","$FLOW_DIR/WEB-INF/lib/quartz-oracle-1.8.5.jar");
+		create_quartz_tables();
+
         #set system identifier in the header
 		if ("$SYSTEM_IDENTIFIER" ne "") {
 		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
@@ -876,6 +900,12 @@ sub install_flow {
 		if (-e "$CONNEXO_DIR/partners/flow/flow.filter.jar") {
             print "    $CONNEXO_DIR/partners/flow/flow.filter.jar -> $FLOW_DIR/WEB-INF/lib/flow.filter.jar\n";
 		    copy("$CONNEXO_DIR/partners/flow/flow.filter.jar","$FLOW_DIR/WEB-INF/lib/flow.filter.jar");
+        }
+        print "Replacing jar files\n";
+        #see subsystems/com.elster.jupiter.subsystem.platform/assembly/partners/flow/honeywell_changes/readme.txt
+		if (-e "$CONNEXO_DIR/partners/flow/jbpm-flow-6.4.0.Final.jar") {
+            print "    $CONNEXO_DIR/partners/flow/flow.filter.jar -> $FLOW_DIR/WEB-INF/lib/flow.filter.jar\n";
+		    copy("$CONNEXO_DIR/partners/flow/jbpm-flow-6.4.0.Final.jar","$FLOW_DIR/WEB-INF/lib/jbpm-flow-6.4.0.Final.jar");
         }
 		print "Connexo Flow successfully deployed\n";
         print "Preparing URLs in $config_file\n";
@@ -894,6 +924,10 @@ sub install_flow {
 	} else {
 		print "\n\nSkip installation of Connexo Flow\n";
 	}
+}
+
+sub create_quartz_tables {
+    system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/lib/com.elster.jupiter.installer.util.jar$CLASSPATH_SEPARATOR$CONNEXO_DIR/partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.installer.util.SqlExecutor $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $CONNEXO_DIR/partners/flow/quartz_tables_oracle.sql");
 }
 
 sub activate_sso_filters{
@@ -1272,6 +1306,9 @@ sub start_tomcat {
                 }
                 close(INPUT);
             }
+
+            #create indexes in flow db to speed up performance
+            system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/lib/com.elster.jupiter.installer.util.jar$CLASSPATH_SEPARATOR$CONNEXO_DIR/partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.installer.util.SqlExecutor $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $CONNEXO_DIR/partners/flow/flow_add_indexes.sql");
 		}
 	}
 }
