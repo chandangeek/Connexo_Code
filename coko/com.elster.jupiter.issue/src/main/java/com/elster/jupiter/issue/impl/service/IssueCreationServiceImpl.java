@@ -64,6 +64,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -217,6 +218,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                 ksession.setGlobal(EVENT_SERVICE, eventService);
                 ksession.setGlobal(LOGGER, LOG);
             } catch (RuntimeException ex) {
+                LOG.log(Level.WARNING, ex.getMessage(), ex);
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
                         "issues will be created! Check that at least one rule contains string 'global com.elster.jupiter." +
                         "issue.share.service.IssueCreationService issueCreationService;' and this rule calls " +
