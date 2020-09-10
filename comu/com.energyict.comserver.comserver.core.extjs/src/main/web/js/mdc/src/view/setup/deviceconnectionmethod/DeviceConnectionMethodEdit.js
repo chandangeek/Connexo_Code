@@ -130,11 +130,11 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                     '<li role="option" class="x-boundlist-item">' +
                                     '<tpl if="active">','<strong>',
                                     '{name}',
-                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolName', 'MDC', 'Active')+')',
+                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolNameActive', 'MDC', 'Active')+')',
                                     '</strong>','</tpl>',
                                     '<tpl if="!active">',
                                     '{name}',
-                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolName', 'MDC', 'Inactive')+')',
+                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolNameInactive', 'MDC', 'Inactive')+')',
                                     '</tpl>',
                                     '</tpl></ul>'
                                 )
