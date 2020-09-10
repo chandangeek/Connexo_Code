@@ -60,7 +60,7 @@ public class CryptoBeaconPSKProvider extends BeaconPSKProvider {
             byte[] wrappedKey = context.getHsmProtocolService().wrapMeterKeyForConcentrator(IrreversibleKeyImpl.fromByteArray(pskBytes), IrreversibleKeyImpl.fromByteArray(pskEncryptionKeyBytes));
             return OctetString.fromByteArray(wrappedKey);
         } catch (HsmException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unexpectedHsmProtocolError(new NestedIOException(e));
         }
     }
 

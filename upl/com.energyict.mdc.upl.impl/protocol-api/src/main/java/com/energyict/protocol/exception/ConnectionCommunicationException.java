@@ -90,6 +90,15 @@ public class ConnectionCommunicationException extends com.energyict.protocol.exc
     }
 
     /**
+     * Wraps {@link com.energyict.protocol.exceptions.HsmException} to {@link ConnectionCommunicationException}.
+     * @param e the {@link IOException} to wrap
+     * @return {@link ConnectionCommunicationException} with appropriate message seed
+     */
+    public static ConnectionCommunicationException unexpectedHsmProtocolError(IOException e) {
+        return new ConnectionCommunicationException(CONNECTION_STILL_INTACT, e, ProtocolExceptionMessageSeeds.COMMUNICATION_WITH_HSM, e.getMessage());
+    }
+
+    /**
      * Creates an exception, indication of any error related to the ciphering of data.<\br>
      * <i>(e.g.: errors popping up while encrypting data with an AES128 algorithm).</i>
      * <p>

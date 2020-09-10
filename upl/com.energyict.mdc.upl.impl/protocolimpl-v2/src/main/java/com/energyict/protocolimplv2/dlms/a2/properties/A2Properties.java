@@ -41,6 +41,10 @@ public class A2Properties extends DlmsProperties {
         ).longValue();
     }
 
+    public boolean isTimeIntervalOverClockSync(){
+        return getProperties().<Boolean>getTypedProperty(A2ConfigurationSupport.TIME_INTERVAL_OVER_CLOCK_SYNC, true);
+    }
+
     /**
      * The security policy of suite 1 and 2 are not backwards compatible.
      * It is now a byte where every bit is a flag:
