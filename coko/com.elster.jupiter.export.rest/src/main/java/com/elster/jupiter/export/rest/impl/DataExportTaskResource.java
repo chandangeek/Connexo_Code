@@ -640,7 +640,7 @@ public class DataExportTaskResource {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
             }
         }
-
+        occurrencesFinder.setOrder(queryParameters.getSortingColumns());
         History<ExportTask> history = task.getHistory();
         List<DataExportTaskHistoryInfo> infos = occurrencesFinder.stream()
                 .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(history, occurrence))

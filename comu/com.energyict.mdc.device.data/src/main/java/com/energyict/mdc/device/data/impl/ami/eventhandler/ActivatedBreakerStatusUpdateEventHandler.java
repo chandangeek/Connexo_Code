@@ -78,9 +78,7 @@ public class ActivatedBreakerStatusUpdateEventHandler implements TopicHandler {
 
     private void handle(ServiceCall serviceCall, ActivatedBreakerStatus breakerStatus) {
         if (breakerStatusUpdatedAsPartOfContactorOperation(serviceCall, breakerStatus)) {
-            if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
-                serviceCall.requestTransition(DefaultState.ONGOING);
-            }
+            serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
         }
     }
 

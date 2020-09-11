@@ -41,4 +41,6 @@ public interface IDataExportService extends DataExportService {
     CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> getServiceCallCPS();
 
     boolean isUsedAsADestination(EndPointConfiguration endPointConfiguration);
+
+    boolean shouldCombineCreatedAndUpdatedDataInOneWebRequest();
 }

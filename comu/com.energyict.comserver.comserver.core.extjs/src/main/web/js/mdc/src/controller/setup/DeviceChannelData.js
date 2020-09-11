@@ -702,6 +702,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
             });
         }
+        else{
+            router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
+        }
     },
 
     undoChannelDataChanges: function () {

@@ -70,6 +70,7 @@ public class CommunicationTestEventHandlerTest {
         when(serviceCall.getType()).thenReturn(serviceCallType);
         when(serviceCallType.getName()).thenReturn(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         when(serviceCall.canTransitionTo(any(DefaultState.class))).thenReturn(true);
+        when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
         communicationTestServiceCallDomainExtension = new CommunicationTestServiceCallDomainExtension();
         communicationTestServiceCallDomainExtension.setExpectedTasks(BigDecimal.ONE);
         communicationTestServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
@@ -77,7 +78,7 @@ public class CommunicationTestEventHandlerTest {
         communicationTestServiceCallDomainExtension.setTriggerDate(Instant.MIN);
         when(serviceCall.getExtensionFor(any(CommunicationTestServiceCallCustomPropertySet.class))).thenReturn(Optional.of(communicationTestServiceCallDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(communicationTestServiceCallDomainExtension));
-        when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
+        when(serviceCallService.lockServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
         when(serviceCallService.findServiceCalls(eq(device), any())).thenReturn(Collections.singleton(serviceCall));
         when(serviceCallService.getServiceCallFinder(any())).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.singletonList(serviceCall));

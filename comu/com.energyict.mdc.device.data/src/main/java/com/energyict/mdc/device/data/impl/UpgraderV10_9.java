@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -37,24 +39,28 @@ import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComT
 public class UpgraderV10_9 implements Upgrader {
     private static final Logger LOGGER = Logger.getLogger(UpgraderV10_9.class.getName());
     private static final int SIZE = 100;//100 for optimization
+    private final static String IPV6ADDRESS_SUBSCRIBER = "IPv6AddressSubscriber";
     private static final String TABLE = TableSpecs.DDC_COMTASKEXEC.name();
     private static final String ID_SEQUENCE_NAME = "ddc_comtaskexecid";
     private static final int MIN_REFRESH_INTERVAL = 5;
 
     private final DeviceService deviceService;
     private final DataModel dataModel;
+    private final MessageService messageService;
 
     private long id;
 
     @Inject
-    UpgraderV10_9(DataModel dataModel, DeviceService deviceService) {
+    UpgraderV10_9(DataModel dataModel, DeviceService deviceService, MessageService messageService) {
         this.deviceService = deviceService;
         this.dataModel = dataModel;
+        this.messageService = messageService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
+        createUnsubscriberForMessageQueue();
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
             int from = 0;
@@ -176,4 +182,19 @@ public class UpgraderV10_9 implements Upgrader {
             return null;
         }
     }
+
+    private void createUnsubscriberForMessageQueue() {
+        execute(dataModel, "delete from APS_SUBSCRIBEREXECUTIONSPEC where SUBSCRIBERSPEC = '" + IPV6ADDRESS_SUBSCRIBER + "'");
+        messageService.getDestinationSpec(EventService.JUPITER_EVENTS)
+                .ifPresent(jupiterEvents -> {
+                    boolean subscriberExists = jupiterEvents.getSubscribers()
+                            .stream()
+                            .anyMatch(s -> s.getName().equals(IPV6ADDRESS_SUBSCRIBER));
+
+                    if (subscriberExists) {
+                        jupiterEvents.unSubscribe(IPV6ADDRESS_SUBSCRIBER);
+                    }
+                });
+    }
+
 }

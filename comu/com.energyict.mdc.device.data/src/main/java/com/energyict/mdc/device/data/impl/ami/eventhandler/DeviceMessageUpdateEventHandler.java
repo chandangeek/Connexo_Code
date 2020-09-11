@@ -151,7 +151,7 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
     }
 
     private ServiceCall getServiceCallIfRelatedToHeadEndInterface(DeviceMessage deviceMessage) {
-        Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(Long.parseLong(deviceMessage.getTrackingId()));
+        Optional<ServiceCall> serviceCallOptional = serviceCallService.lockServiceCall(Long.parseLong(deviceMessage.getTrackingId()));
         if (serviceCallOptional.isPresent()) {
             for (ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping : ServiceCallCommands.ServiceCallTypeMapping.values()) {
                 if (serviceCallTypeMapping.getTypeName().equals(serviceCallOptional.get().getType().getName())) {
