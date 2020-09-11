@@ -104,8 +104,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/runtime")
 public class BpmResource {
 
-    public static final String APP_KEY = "MDC";
-
     private static final String ME = "me";
     private static final String LIKE = "like";
 
@@ -1076,29 +1074,12 @@ public class BpmResource {
                     .build());
         }
         ProcessInstanceInfos runningProcessInfos = new ProcessInstanceInfos(arr, "");
-        if (!appKey.equals(APP_KEY)) {
-            filterByActiveProcesses(total, queryParameters, appKey, runningProcessInfos);
-        } else {
-            setTotalRunningProcessInfos(total, queryParameters, runningProcessInfos, runningProcessInfos.processes);
-        }
-        return runningProcessInfos;
-    }
-
-    private void filterByActiveProcesses(int total, QueryParameters queryParameters,  String appKey, ProcessInstanceInfos runningProcessInfos){
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
-        List<ProcessInstanceInfo> runningProcessesList = runningProcessInfos.processes.stream()
-                .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
-                .collect(Collectors.toList());
-        runningProcessInfos.processes = runningProcessesList;
-        setTotalRunningProcessInfos(total, queryParameters, runningProcessInfos, runningProcessesList);
-    }
-
-    private void setTotalRunningProcessInfos(int total, QueryParameters queryParameters, ProcessInstanceInfos runningProcessInfos, List<ProcessInstanceInfo> processes){
         if (total == Integer.valueOf(queryParameters.get("page").get(0)) * runningProcessInfos.total + 1) {
             runningProcessInfos.total = total;
         } else {
-            runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + processes.size();
+            runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessInfos.processes.size();
         }
+        return runningProcessInfos;
     }
 
     @GET
