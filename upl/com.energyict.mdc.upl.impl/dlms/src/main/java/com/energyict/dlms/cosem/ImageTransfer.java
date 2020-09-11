@@ -323,7 +323,12 @@ public class ImageTransfer extends AbstractCosemObject {
     public final void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier) throws IOException {
         this.dataSupplier = dataSupplier;
         this.size = new Unsigned32(dataSupplier.getSize());
-
+        // TODO - add a flag to force transfer from zero, else we can lock ourselves out and keep trying
+        int lastTransferredBlockNumber = readFirstNotTransferedBlockNumber().intValue();
+        if (lastTransferredBlockNumber > 0) {
+            getLogger().log(Level.INFO, "Resuming session, starting from block " + (lastTransferredBlockNumber-1));
+            setStartIndex(lastTransferredBlockNumber - 1);
+        }
         // Step1: Get the maximum image block size
         // and calculate the amount of blocks in one step
         final long blockSize = readImageBlockSize().getValue();
