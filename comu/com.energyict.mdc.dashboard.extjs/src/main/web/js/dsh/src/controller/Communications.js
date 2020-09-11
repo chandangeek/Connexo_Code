@@ -110,6 +110,9 @@ Ext.define('Dsh.controller.Communications', {
             case 'viewConnections':
                 me.viewConnections(menu.record);
                 break;
+            case 'viewHistory':
+                me.viewHistory(menu);
+                break;
         }
     },
 
@@ -263,5 +266,16 @@ Ext.define('Dsh.controller.Communications', {
 
     viewConnections: function (record) {
         location.href = '#/workspace/connections/details?device=' + encodeURIComponent(record.get('connectionTask').device.name);
+    },
+    viewHistory: function (menu) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('devices/device/communicationtasks/history').forward(
+            {
+                deviceId: encodeURIComponent(menu.record.get('device').name),
+                comTaskId: menu.record.get('comTask').id
+            }
+        );
     }
 });
