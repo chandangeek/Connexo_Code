@@ -100,6 +100,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         String itemDescription = item.getDescription();
+        // force 1 hour reading export; also done in ZeroIntervalReadingImpl & GapsIntervalReadingImpl
         item.overrideReadingInterval(TimeDuration.hours(1));
 
         if (sapCustomPropertySets.isRegistered((Meter) item.getDomainObject())) {

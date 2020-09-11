@@ -17,6 +17,7 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
 
     public static final String CALLING_AP_TITLE_PROPERTY = "CallingAPTitle";
     public static final String LIMIT_MAX_NR_OF_DAYS_PROPERTY = "LimitMaxNrOfDays";
+    public static final String TIME_INTERVAL_OVER_CLOCK_SYNC = "TimeIntervalOverClockSync";
 
     public A2ConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -27,6 +28,7 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(callingAPTitlePropertySpec());
         propertySpecs.add(limitMaxNumberOfDaysPropertySpec());
+        propertySpecs.add(timeIntervalOverClockSync());
         return propertySpecs;
     }
 
@@ -36,6 +38,10 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec callingAPTitlePropertySpec() {
         return this.fixedLengthHexStringPropertySpec(CALLING_AP_TITLE_PROPERTY, 16, PropertyTranslationKeys.V2_DLMS_IDIS_CALLING_AP_TITLE);
+    }
+
+    private PropertySpec timeIntervalOverClockSync() {
+        return this.booleanSpecBuilder(TIME_INTERVAL_OVER_CLOCK_SYNC, true, PropertyTranslationKeys.TIME_INTERVAL_OVER_CLOCK_SYNC);
     }
 
     protected PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {

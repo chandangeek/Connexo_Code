@@ -43,7 +43,7 @@ public class CryptoAssociationControlServiceElement extends AssociationControlSe
         try {
             dataAndAuthenticationTag = Services.hsmService().authenticateEncryptApduWithAAD(userInformation, new byte[0], getInitialVector(), ak, ek, getSecurityContext().getSecuritySuite());
         } catch (HsmException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unexpectedHsmProtocolError(new NestedIOException(e));
         }
 
         byte[] part = ProtocolTools.concatByteArrays(generateSecurityHeader(), dataAndAuthenticationTag.getData(), dataAndAuthenticationTag.getAuthenticationTag());
@@ -65,7 +65,7 @@ public class CryptoAssociationControlServiceElement extends AssociationControlSe
         try {
             return Services.hsmService().verifyAuthenticationDecryptApduWithAAD(cipheredText, new byte[0], authenticationTag, getInitialVector(getRespondingAPTtitle(), frameCounter), ak, ek, getSecurityContext().getSecuritySuite());
         } catch (HsmException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unexpectedHsmProtocolError(new NestedIOException(e));
         }
     }
 

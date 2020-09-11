@@ -32,7 +32,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 
 public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
 
@@ -297,7 +296,7 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
         }
 
         @Override
-        public void connectionNotExecuted() {
+        public void connectionExecuted(boolean executed) {
         }
 
         @Override

@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -1144,14 +1145,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private List<ServerTopologyTimeslice> findRecentPhysicallyReferencingDevicesFor(Device device, int maxRecentCount) {
         Condition condition = this.getDevicesInTopologyCondition(device);
-        List<PhysicalGatewayReferenceImpl> gatewayReferences =
-                this.dataModel
-                        .stream(PhysicalGatewayReferenceImpl.class)
-                        .filter(condition)
-                        .sorted(Order.descending("interval.start"))
-                        .limit(maxRecentCount)
-                        .select();
-        return this.toTopologyTimeslices(gatewayReferences);
+        try(QueryStream<PhysicalGatewayReferenceImpl> steams = this.dataModel.stream(PhysicalGatewayReferenceImpl.class)) {
+            List<PhysicalGatewayReferenceImpl> gatewayReferences = steams.filter(condition).sorted(Order.descending("interval.start"))
+                    .limit(maxRecentCount)
+                    .select();
+            return this.toTopologyTimeslices(gatewayReferences);
+        }
     }
 
     @Override
