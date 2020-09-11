@@ -118,21 +118,6 @@ public class CSRImporterFactoryIT {
 
     @Test
     @Transactional
-    public void testTrustStoreValues() {
-        assertThat(getPropertySpec(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE).isReference()).isTrue();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE); // no values
-        TrustStore ts1 = securityManagementService.newTrustStore("Broken")
-                .add();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE, ts1);
-        TrustStore ts2 = securityManagementService.newTrustStore("Fixed")
-                .add();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE, ts1, ts2);
-        ts1.delete();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE, ts2);
-    }
-
-    @Test
-    @Transactional
     public void testNoSecurityAccessorValues() {
         assertThat(getPropertySpec(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR).isReference()).isTrue();
         assertThat(getPropertySpec(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR).isReference()).isTrue();

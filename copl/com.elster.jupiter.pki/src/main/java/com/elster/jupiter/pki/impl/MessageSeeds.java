@@ -100,7 +100,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_LABEL(1085, Keys.INVALID_LABEL, "This label is invalid (non empty label required)"),
     SKIPPING_SIGNATURE_VERIFICATION(1086, "SkipSignatureVerification", "Skipping signature verification"),
     PROCESSING_CSR(1087, "ProcessingCSR", "Processing CSR for serial {0} and alias {1}" , Level.INFO),
-    FUAK_RENEW_NOT_SUPPORTED(1088, "FUAKRenewNotSupported", "FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.", Level.INFO);
+    FUAK_RENEW_NOT_SUPPORTED(1088, "FUAKRenewNotSupported", "FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.", Level.INFO),
+    ALIAS_NOT_FOUND_EXCEPTION(1089, "AliasNotFound", "Alias not found: {0}", Level.WARNING),
+    ALIAS_NOT_UNIQUE_EXCEPTION(1090, "AliasNotUnique", "Alias {0} is not unique", Level.WARNING),
+    CANNOT_EXTRACT_COMMON_NAME(1091, "CannotExtractCommonName", "Cannot extract CN from {0}", Level.WARNING );
 
     private final int number;
     private final String key;

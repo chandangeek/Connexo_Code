@@ -19,8 +19,8 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     EXPORT_SECURITY_ACCESSOR("exportSecurityAccessor", "Signing security accessor"),
     EXPORT_SECURITY_ACCESSOR_DESCRIPTION("exportSecurityAccessor.description", "Security accessor used to sign the exported zip. " +
             "Must contain client certificate with private key of type RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH + '.'),
-    EXPORT_TRUST_STORE("exportTrustStore", "Trust store"),
-    EXPORT_TRUST_STORE_DESCRIPTION("exportTrustStore.description", "All certificates from this trust store are added to the exported zip file"),
+    CLIENT_TRUSTSTORE_MAPPING("exportClientCertificatesMapping", "Export client trust-store mapping"),
+    CLIENT_TRUSTSTORE_MAPPING_DESCRIPTION("exportClientCertificatesMapping.description","JSON string with mapping of client and trust chain certificates aliases and the exported file name"),
     EXPORT_SFTP_HOSTNAME("exportHostname", "SFTP Hostname"),
     EXPORT_SFTP_HOSTNAME_DESCRIPTION("exportHostname.description", "Destination hostname"),
     EXPORT_SFTP_PORT("exportPort", "SFTP Port"),
@@ -62,7 +62,9 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     CSR_MAPPING("csr.filename.mapping", "Mapping JSON"),
     CSR_MAPPING_DESCRIPTION("csr.filename.mapping.description", "JSON string containing the mapping between the CSR filename prefixes and PKI settings."),
     CHECK_FILE_SIGNATURE("csr.import.check.signature", "Check input file signature"),
-    CHECK_FILE_SIGNATURE_DESCRIPTION("csr.import.check.signature.description", "If checked, the signature trust will be checked agains the trusted certificates");
+    CHECK_FILE_SIGNATURE_DESCRIPTION("csr.import.check.signature.description", "If checked, the signature trust will be checked against the trusted certificates"),
+    SAVE_CERTIFICATE("csr.import.save.certificate", "Save the signed certificate in Connexo"),
+    SAVE_CERTIFICATE_DESCRIPTION("csr.import.save.certificate.description", "After the CSR is signed by the PKI, the resulting certificate will be saved in the Connexo storage for later use. (Certificate Importer will create a duplicate and will automatically link the device to the imported certificate).");
 
     private final String key;
     private final String defaultFormat;

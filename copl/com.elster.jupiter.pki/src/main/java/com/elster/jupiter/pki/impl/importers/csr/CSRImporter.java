@@ -80,11 +80,11 @@ class CSRImporter implements FileImporter {
 
             if (deepSize(csrMap) == deepSize(certificateMap)) {
                 if (shouldExportFolder){
-                    new CertificateExportProcessor(properties, new CertificateFolderExporterDestination(clock, properties), logger)
+                    new CertificateExportProcessor(properties, new CertificateFolderExporterDestination(clock, properties),securityManagementService, logger)
                             .processExport(certificateMap);
                 }
                 if (shouldExportSFTP) {
-                    new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties), logger)
+                    new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties),securityManagementService, logger)
                             .processExport(certificateMap);
                 }
             } else {

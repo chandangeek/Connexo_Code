@@ -37,6 +37,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
 import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -417,6 +419,21 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @Override
     public String getSubject() {
         return subject;
+    }
+
+    @Override
+    public Optional<String> getSubjectCN() {
+        try {
+            LdapName ldapName = new LdapName(getSubject());
+            for (Rdn rdn : ldapName.getRdns()) {
+                if (rdn.getType().equalsIgnoreCase("CN")) {
+                    return Optional.of( rdn.getValue().toString() );
+                }
+            }
+        } catch (Exception ex){
+            //swallow
+        }
+        return Optional.empty();
     }
 
     public void setSubject(String subject) {

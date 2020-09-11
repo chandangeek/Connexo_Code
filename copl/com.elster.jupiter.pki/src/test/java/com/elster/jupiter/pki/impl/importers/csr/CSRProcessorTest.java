@@ -52,7 +52,7 @@ public class CSRProcessorTest {
     private static final String PRESENT_ALIAS = PRESENT_SERIAL + '-' + PRESENT_NAME;
     private static final String ABSENT_ALIAS = PRESENT_SERIAL + '-' + ABSENT_NAME;
     private static final TimeDuration TIMEOUT = TimeDuration.seconds(1);
-    private static final Map<String, Object> properties = ImmutableMap.of(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey(), TIMEOUT);
+    private static final Map<String, Object> properties =  new HashMap<>();
     @Mock
     private SecurityManagementService securityManagementService;
     @Mock
@@ -73,6 +73,8 @@ public class CSRProcessorTest {
 
     @Before
     public void setUp() {
+        properties.put(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey(), TIMEOUT);
+        properties.put(CSRImporterTranslatedProperty.SAVE_CERTIFICATE.getPropertyKey(), true);
         when(logger.getThesaurus()).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
         when(securityManagementService.findCertificateWrapper(anyString())).thenReturn(Optional.empty());
         when(securityManagementService.findCertificateWrapper(PRESENT_ALIAS)).thenReturn(Optional.of(wrapper));
