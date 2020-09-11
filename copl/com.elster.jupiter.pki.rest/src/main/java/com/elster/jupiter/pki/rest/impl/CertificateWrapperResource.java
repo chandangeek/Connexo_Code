@@ -88,7 +88,6 @@ import static java.util.stream.Collectors.toList;
 @Path("/certificates")
 public class CertificateWrapperResource {
     private static final Logger LOGGER = Logger.getLogger(CertificateWrapperResource.class.getName());
-    private static final long MAX_FILE_SIZE = 2048;
     private static final long DEFAULT_TIMEOUT = 30000;
 
     private final SecurityManagementService securityManagementService;
@@ -236,9 +235,6 @@ public class CertificateWrapperResource {
             @FormDataParam("file") InputStream certificateInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("alias") String alias) {
-        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
-        }
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper(alias);
         doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
@@ -445,9 +441,6 @@ public class CertificateWrapperResource {
             @FormDataParam("version") long version) {
         if (contentDispositionHeader == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
-        }
-        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
         }
         // TODO: why is conflict check implemented only here? A lot of methods above can change certificate wrapper.
         CertificateWrapper certificateWrapper = securityManagementService.findAndLockCertificateWrapper(certificateWrapperId, version)

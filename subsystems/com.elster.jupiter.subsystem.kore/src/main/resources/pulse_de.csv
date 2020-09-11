@@ -4230,7 +4230,7 @@ PKJ;REST;general.certificateManagement;Certificate management;Zertifikatverwaltu
 PKJ;REST;general.csrAttribute.locality;Locality (L);Ort (L);;;;;
 PKJ;REST;general.selectCertificateType;Select a certificate type...;Zertifikattyp auswählen ...;;;;;
 PKJ;REST;trustedCertificate.remove.msg;Removing this trusted certificate could break a trust chain.;Durch das Entfernen dieses vertrauenswürdigen Zertifikats könnte eine Vertrauenskette unterbrochen werden.;;;;;
-PKJ;REST;general.maxCertificateFileSize;Maximum file size is 2 kB and file should be DER-encoded;Die maximale Dateigröße beträgt 2 KB, und die Datei sollte DER-codiert sein.;;;;;
+PKJ;REST;general.maxCertificateFileSize;File should be DER-encoded;Die Datei sollte DER-codiert sein.;;;;;
 PKJ;REST;certificates.empty.list.reason1;No certificates have been defined yet.;Es wurden noch keine Zertifikate definiert.;;;;;
 PKJ;REST;certificates.empty.list.reason2;No certificates comply with the filter.;Es stimmen keine Zertifikate mit dem Filter überein.;;;;;
 PKJ;REST;general.certificateUploadFailed;Failed to upload file;Fehler beim Hochladen der Datei.;;;;;
