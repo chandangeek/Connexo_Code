@@ -133,6 +133,19 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 forceSelection: true,
                                 typeAhead: true,
                                 msgTarget: 'under',
+                                tpl: Ext.create('Ext.XTemplate',
+                                    '<ul class="x-list-plain"><tpl for=".">',
+                                    '<li role="option" class="x-boundlist-item">' +
+                                    '<tpl if="active">','<strong>',
+                                    '{name}',
+                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolNameActive', 'MDC', 'Active')+')',
+                                    '</strong>','</tpl>',
+                                    '<tpl if="!active">',
+                                    '{name}',
+                                    ' ('+Uni.I18n.translate('deviceconnectionmethod.ComPortPoolNameInactive', 'MDC', 'Inactive')+')',
+                                    '</tpl>',
+                                    '</tpl></ul>'
+                                ),
                                 listeners: {
                                     'change': function (combo, newValue) {
                                         if (newValue === null || newValue === '')
