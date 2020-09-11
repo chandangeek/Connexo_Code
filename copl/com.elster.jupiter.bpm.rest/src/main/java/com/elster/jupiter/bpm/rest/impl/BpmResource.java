@@ -1076,9 +1076,9 @@ public class BpmResource {
                     .build());
         }
         ProcessInstanceInfos runningProcessInfos = new ProcessInstanceInfos(arr, "");
-        if(!appKey.equals(APP_KEY)) {
+        if (!appKey.equals(APP_KEY)) {
             filterByActiveProcesses(total, queryParameters, appKey, runningProcessInfos);
-        }else{
+        } else {
             setTotalRunningProcessInfos(total, queryParameters, runningProcessInfos, runningProcessInfos.processes);
         }
         return runningProcessInfos;
