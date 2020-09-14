@@ -24,7 +24,6 @@ import com.elster.jupiter.bpm.rest.ProcessAssociationInfos;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionWithVariablesInfo;
-import com.elster.jupiter.bpm.rest.ProcessDefinitionWithVariablesInfos;
 import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
 import com.elster.jupiter.bpm.rest.ProcessVariable;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
@@ -732,19 +731,7 @@ public class BpmResource {
         List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
                 .getPropertySpecs() : Collections.emptyList();
         List<Errors> err = new ArrayList<>();
-        ProcessDefinitionWithVariablesInfos processDefinitionInfos = getBpmProcessDefinitionsWithVariables(auth);
-
-        Optional<ProcessDefinitionWithVariablesInfo> processDefinitionInfo =
-                processDefinitionInfos.processes
-                        .stream()
-                        .filter(p -> p.name.equals(info.name)) // search after process name
-                        .filter(p -> p.version.equals(info.version))  // and process version
-                        .findFirst();
-        if (!processDefinitionInfo.isPresent()) {
-            err.add(new Errors("startOn", MessageSeeds.PROCESS_NOT_AVAILABLE.getDefaultFormat()));
-            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
-        }
-
+        ProcessDefinitionWithVariablesInfo processDefinitionWithVariablesInfo = getBpmProcessDefinitionsWithVariables(auth,info);
         /**
          * TODO: make this pluggable via {@link ProcessAssociationProvider}
          */
@@ -761,7 +748,7 @@ public class BpmResource {
 
         String requiredVariable = connexoFlowHashMap.get(info.type);
 
-        Optional<ProcessVariable> processVariable = processDefinitionInfo.get()
+        Optional<ProcessVariable> processVariable = processDefinitionWithVariablesInfo
                 .variables
                 .stream()
                 .filter(v -> v.name.equals(requiredVariable))
@@ -825,7 +812,6 @@ public class BpmResource {
 
             doUpdatePrivileges(process, targetPrivileges, oldPrivileges);
         }
-
         return Response.ok().build();
     }
 
@@ -964,11 +950,11 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10&sortOrder=true", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
+                arr = jsnobject.getJSONArray("processes");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
@@ -980,16 +966,35 @@ public class BpmResource {
         return new ProcessDefinitionInfos(arr);
     }
 
-    private ProcessDefinitionWithVariablesInfos getBpmProcessDefinitionsWithVariables(String auth) {
-        String jsonContent;
+    private ProcessDefinitionWithVariablesInfo getBpmProcessDefinitionsWithVariables(String auth,ProcessDefinitionInfo info) {
+        String processjsonContent;
+        String processwithVarJsonContent;
         JSONArray arr = null;
+        List<Errors> err = new ArrayList<>();
+        ProcessDefinitionInfos processDefinitionInfos=new ProcessDefinitionInfos();
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
-            //if (!"".equals(jsonContent)) {
-            if (jsonContent != null && !"".equals(jsonContent)) {
-                JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
+            processjsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10&sortOrder=true", auth);
+            if (processjsonContent != null && !"".equals(processjsonContent)) {
+                JSONObject jsnobject = new JSONObject(processjsonContent);
+                arr = jsnobject.getJSONArray("processes");
+                processDefinitionInfos=new ProcessDefinitionInfos(arr);
             }
+            Optional<ProcessDefinitionInfo> processDefinitionInfo =
+                    processDefinitionInfos.processes
+                            .stream()
+                            .filter(p -> p.name.equals(info.name) && p.version.equals(info.version)) // search after process name
+                            .findFirst();
+
+            if (!processDefinitionInfo.isPresent()) {
+                err.add(new Errors("startOn", MessageSeeds.PROCESS_NOT_AVAILABLE.getDefaultFormat()));
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(MessageSeeds.PROCESS_NOT_AVAILABLE.getDefaultFormat()).build());
+            }
+
+            String url = "/services/rest/server/containers/" + processDefinitionInfo.get().deploymentId + "/processes/definitions/"+processDefinitionInfo.get().processId;
+            processwithVarJsonContent = bpmService.getBpmServer().doGet(url,auth);
+            JSONObject jsnobject = new JSONObject(processwithVarJsonContent);
+            ProcessDefinitionWithVariablesInfo processDefinitionWithVariablesInfo=new ProcessDefinitionWithVariablesInfo(jsnobject);
+            return processDefinitionWithVariablesInfo;
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
@@ -997,7 +1002,6 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        return new ProcessDefinitionWithVariablesInfos(arr);
     }
 
     @GET
