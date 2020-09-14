@@ -76,10 +76,10 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
         if (nlsService.isPresent()) {
             String module            = getMessageSeed().getModule();
             Thesaurus thesaurus      = nlsService.get().getThesaurus(module);
-            MessageSeed message_seed = getMessageSeed();
-            if (module != null && thesaurus != null && message_seed != null)
+            MessageSeed messageSeed  = getMessageSeed();
+            if (module != null && thesaurus != null && messageSeed != null)
             {
-                return thesaurus.getFormat(message_seed).format(getMessageArguments());
+                return thesaurus.getFormat(messageSeed).format(getMessageArguments());
             }
         }
 
