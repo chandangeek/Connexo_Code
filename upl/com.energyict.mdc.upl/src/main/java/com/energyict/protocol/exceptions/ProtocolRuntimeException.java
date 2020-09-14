@@ -6,6 +6,7 @@ package com.energyict.protocol.exceptions;
 
 import com.energyict.mdc.upl.nls.MessageSeed;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 
 import java.text.MessageFormat;
 import java.util.Optional;
@@ -72,8 +73,16 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
 
     @Override
     public String getLocalizedMessage() {
-        return nlsService.isPresent()
-                ? nlsService.get().getThesaurus(getMessageSeed().getModule()).getFormat(getMessageSeed()).format(getMessageArguments())
-                : super.getLocalizedMessage();
+        if (nlsService.isPresent()) {
+            String module            = getMessageSeed().getModule();
+            Thesaurus thesaurus      = nlsService.get().getThesaurus(module);
+            MessageSeed messageSeed  = getMessageSeed();
+            if (module != null && thesaurus != null && messageSeed != null)
+            {
+                return thesaurus.getFormat(messageSeed).format(getMessageArguments());
+            }
+        }
+
+        return super.getLocalizedMessage();
     }
 }
