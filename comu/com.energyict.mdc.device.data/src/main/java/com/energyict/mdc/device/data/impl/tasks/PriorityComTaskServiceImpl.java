@@ -7,6 +7,9 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -20,6 +23,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
@@ -59,13 +63,17 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
     private final DeviceDataModelService deviceDataModelService;
     private final EngineConfigurationService engineConfigurationService;
     private final ConnectionTaskService connectionTaskService;
+    private final TransactionService transactionService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
     public PriorityComTaskServiceImpl(DeviceDataModelService deviceDataModelService, EngineConfigurationService engineConfigurationService,
-                                      ConnectionTaskService connectionTaskService) {
+                                      ConnectionTaskService connectionTaskService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
         this.deviceDataModelService = deviceDataModelService;
         this.engineConfigurationService = engineConfigurationService;
         this.connectionTaskService = connectionTaskService;
+        this.transactionService = transactionService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     private PriorityComTaskExecutionLink construct(ResultSet resultSet, ScheduledConnectionTask connectionTask) throws SQLException {
@@ -111,7 +119,7 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
                     try (Connection connection = deviceDataModelService.dataModel().getConnection(false);
                          PreparedStatement preparedStatement = findExecutableSqlBuilder(comServer, maximumNumberOfTaskForComPortPoolList, comPorts, date).prepare(connection);
                          ResultSet resultSet = preparedStatement.executeQuery()) {
-                        return new GroupingComJobService(comServer.getName(), maximumNumberOfTaskForComPortPoolList).consume(resultSet);
+                        return new GroupingComJobService(comServer.getName(), maximumNumberOfTaskForComPortPoolList, transactionService, threadPrincipalService).consume(resultSet);
                     }
                 }
             }
@@ -314,14 +322,19 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
     private class GroupingComJobService implements ComJobService {
 
         private final String comServer;
+        private final TransactionService transactionService;
+        private final ThreadPrincipalService threadPrincipalService;
         private final Map<Long, Integer> remainingNumberOfTasksPerPool;
         private List<HighPriorityComJob> jobs = new ArrayList<>();
         private final Map<Integer, ScheduledConnectionTask> connectionTaskCache = new HashMap<>();
         private Map<OutboundConnectionTask, HighPriorityComTaskExecutionGroup> groups = new HashMap<>();
         private int currentConnectionTaskId = 0;
 
-        private GroupingComJobService(String comServer, List<MaximumNumberOfTaskForComPortPool> maximumNumberOfTaskForComPortPoolList) {
+        private GroupingComJobService(String comServer, List<MaximumNumberOfTaskForComPortPool> maximumNumberOfTaskForComPortPoolList,
+                                      TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
             this.comServer = comServer;
+            this.transactionService = transactionService;
+            this.threadPrincipalService = threadPrincipalService;
             remainingNumberOfTasksPerPool = new HashMap<>();
             for (MaximumNumberOfTaskForComPortPool maximumNumberOfTaskForComPortPool : maximumNumberOfTaskForComPortPoolList) {
                 remainingNumberOfTasksPerPool.put(
@@ -403,7 +416,22 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
                     groups.put(connectionTask, group);
                     addHighPriorityComJob(group, comPortPoolId);
                 } else {
-                    logIgnoringTask(highPriorityComTaskExecution.getId(), comPortPoolId);
+                    if (connectionTask.getComPortPool().getPctHighPrioTasks() == 0) {
+                        LOGGER.warning(MessageFormat.format(
+                                "Failing HighPriorityComTaskExecution (id={0}) for com server ''{1}'' because comport pool ''{2}'' can''t execute high priority tasks.",
+                                highPriorityComTaskExecution.getId(), comServer, connectionTask.getComPortPool().getName()));
+                        try {
+                            threadPrincipalService.set(() -> "batch executor");
+                            try (TransactionContext context = transactionService.getContext()) {
+                                ((ServerComTaskExecution) highPriorityComTaskExecution.getComTaskExecution()).executionFailed();
+                                context.commit();
+                            }
+                        } finally {
+                            threadPrincipalService.clear();
+                        }
+                    } else {
+                        logIgnoringTask(highPriorityComTaskExecution.getId(), comPortPoolId);
+                    }
                     return;
                 }
             }
