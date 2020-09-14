@@ -107,7 +107,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         List<ExportData> createList = new ArrayList<>();
         List<ExportData> changeList = new ArrayList<>();
         boolean isCreateAndChange = false;
-        if (getChangeWebServiceEndpoint().filter(Predicates.not(createEndPoint::equals)).isPresent()) {
+        if (getChangeWebServiceEndpoint().filter(Predicates.not(createEndPoint::equals)).isPresent()
+                || (getChangeWebServiceEndpoint().isPresent() && !getDataExportService().shouldCombineCreatedAndUpdatedDataInOneWebRequest())) {
             EndPointConfiguration changeEndPoint = getChangeWebServiceEndpoint().get();
             DataExportWebService changeService = getExportWebService(changeEndPoint);
             TimeDuration changeTimeout = getTimeout(changeEndPoint);

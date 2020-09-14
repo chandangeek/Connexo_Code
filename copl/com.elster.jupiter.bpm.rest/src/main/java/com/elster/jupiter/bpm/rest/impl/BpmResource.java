@@ -1060,7 +1060,6 @@ public class BpmResource {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
-            //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
@@ -1074,16 +1073,11 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
         ProcessInstanceInfos runningProcessInfos = new ProcessInstanceInfos(arr, "");
-        List<ProcessInstanceInfo> runningProcessesList = runningProcessInfos.processes.stream()
-                .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
-                .collect(Collectors.toList());
-        runningProcessInfos.processes = runningProcessesList;
         if (total == Integer.valueOf(queryParameters.get("page").get(0)) * runningProcessInfos.total + 1) {
             runningProcessInfos.total = total;
         } else {
-            runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessesList.size();
+            runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessInfos.processes.size();
         }
         return runningProcessInfos;
     }

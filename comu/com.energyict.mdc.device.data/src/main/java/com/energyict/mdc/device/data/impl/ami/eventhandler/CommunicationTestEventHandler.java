@@ -53,6 +53,8 @@ public class CommunicationTestEventHandler implements MessageHandler {
     }
 
     private void handle(ServiceCall serviceCall, Map<String, Object> messageProperties) {
+        long id = serviceCall.getId();
+        serviceCall = serviceCallService.lockServiceCall(id).orElseThrow(() -> new IllegalStateException("Unable to lock service call with id " + id));
         CommunicationTestServiceCallDomainExtension extension = serviceCall.getExtension(CommunicationTestServiceCallDomainExtension.class)
                 .orElseThrow(IllegalStateException::new);
         long successfulTasks = extension.getSuccessfulTasks().longValue();

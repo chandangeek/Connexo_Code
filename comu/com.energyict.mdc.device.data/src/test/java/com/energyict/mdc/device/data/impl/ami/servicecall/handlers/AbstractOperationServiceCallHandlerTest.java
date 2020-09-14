@@ -18,6 +18,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
@@ -71,6 +72,8 @@ public class AbstractOperationServiceCallHandlerTest {
     @Mock
     MessageService messageService;
     @Mock
+    DeviceMessageService deviceMessageService;
+    @Mock
     private ServiceCall serviceCall;
     @Mock
     private ServiceCallType serviceCallType;
@@ -123,7 +126,7 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromPendingToOngoingIgnored() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
 
         // Business method
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
@@ -135,7 +138,7 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingNotAllMessagesConfirmed() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(10);
@@ -150,7 +153,7 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingAllMessagesConfirmed() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);
@@ -165,7 +168,7 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeToSuccessful() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
         CompletionOptionsServiceCallDomainExtension domainExtension = new CompletionOptionsServiceCallDomainExtension();
         domainExtension.setDestinationSpec(DESTINATION_SPEC);
         domainExtension.setDestinationIdentification(DESTIONATION_MSG);
@@ -188,6 +191,9 @@ public class AbstractOperationServiceCallHandlerTest {
         when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
         when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
         when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);
+        when(deviceMessageService.findAndLockDeviceMessageById(DEVICE_MESSAGE_ID_1)).thenReturn(Optional.of(deviceMessage1));
+        when(deviceMessageService.findAndLockDeviceMessageById(DEVICE_MESSAGE_ID_2)).thenReturn(Optional.of(deviceMessage2));
+        when(deviceMessageService.findAndLockDeviceMessageById(DEVICE_MESSAGE_ID_3)).thenReturn(Optional.of(deviceMessage3));
         when(deviceMessage1.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(deviceMessage2.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(deviceMessage3.getStatus()).thenReturn(DeviceMessageStatus.WAITING);
@@ -195,7 +201,7 @@ public class AbstractOperationServiceCallHandlerTest {
         when(device.getMessagesByState(DeviceMessageStatus.WAITING)).thenReturn(new ArrayList<>(Collections.singletonList(deviceMessage2)));
         doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
 
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(2);
@@ -221,6 +227,9 @@ public class AbstractOperationServiceCallHandlerTest {
         when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
         when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
         when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);
+        when(deviceMessageService.findAndLockDeviceMessageById(DEVICE_MESSAGE_ID_1)).thenReturn(Optional.of(deviceMessage1));
+        when(deviceMessageService.findAndLockDeviceMessageById(DEVICE_MESSAGE_ID_2)).thenReturn(Optional.of(deviceMessage2));
+        when(deviceMessageService.findAndLockDeviceMessageById(DEVICE_MESSAGE_ID_3)).thenReturn(Optional.of(deviceMessage3));
         when(deviceMessage1.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(deviceMessage2.getStatus()).thenReturn(DeviceMessageStatus.WAITING);
         when(deviceMessage3.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
@@ -233,7 +242,7 @@ public class AbstractOperationServiceCallHandlerTest {
         when(device.getMessagesByState(DeviceMessageStatus.WAITING)).thenReturn(new ArrayList<>(Collections.singletonList(deviceMessage2)));
         doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
 
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack, deviceMessageService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(2);
