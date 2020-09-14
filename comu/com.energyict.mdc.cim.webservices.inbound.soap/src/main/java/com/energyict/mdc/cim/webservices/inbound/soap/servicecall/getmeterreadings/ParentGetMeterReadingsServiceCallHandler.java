@@ -140,6 +140,9 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         if (timePeriodEnd == null) {
             timePeriodEnd = calculateEndDateFromChild(getChildDomainExtension(serviceCall));
         }
+        if (timePeriodStart == null) {
+            timePeriodStart = calculateStartDateFromChild(getChildDomainExtension(serviceCall));
+        }
         RangeSet<Instant> timeRangeSet = TreeRangeSet.create();
         if (timePeriodStart != null) {
             timeRangeSet = getTimeRangeSet(timePeriodStart, timePeriodEnd);
@@ -336,6 +339,11 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     private Instant calculateEndDateFromChild(ChildGetMeterReadingsDomainExtension extension) {
         return Optional.ofNullable(extension.getActualEndDate())
                 .orElseThrow(() -> new IllegalStateException("Unable to get actual end date for child service call"));
+    }
+
+    private Instant calculateStartDateFromChild(ChildGetMeterReadingsDomainExtension extension) {
+        return Optional.ofNullable(extension.getActualStartDate())
+                .orElseThrow(() -> new IllegalStateException("Unable to get actual start date for child service call"));
     }
 
     private HeaderType getHeader(String correlationId, String comment) {
