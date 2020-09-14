@@ -138,6 +138,8 @@ public interface Channel {
 
     ZoneId getZoneId();
 
+    void updateZoneId(ZoneId zoneId);
+
     Optional<CimChannel> getCimChannel(ReadingType readingType);
 
 
