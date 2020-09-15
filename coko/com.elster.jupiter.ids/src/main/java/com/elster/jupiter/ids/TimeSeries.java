@@ -68,6 +68,8 @@ public interface TimeSeries {
 
     ZoneId getZoneId();
 
+    void updateZoneId(ZoneId zoneId);
+
     void removeEntries(Range<Instant> range);
 
     default void removeEntry(Instant instant) {

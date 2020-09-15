@@ -128,11 +128,16 @@ public final class ChannelImpl implements SimpleChannelContract {
     }
 
     @Override
-    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, Optional<Integer> hourOffset) {
-        return init(channelsContainer, readingTypes, hourOffset, this::determineRule);
+    public ChannelImpl init(ChannelsContainer channelsContainer, ZoneId zoneId, List<IReadingType> readingTypes, Optional<Integer> hourOffset) {
+        return init(channelsContainer, zoneId, readingTypes, hourOffset, this::determineRule);
     }
 
-    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, Optional<Integer> hourOffset, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
+    @Override
+    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, Optional<Integer> hourOffset) {
+        return init(channelsContainer, null, readingTypes, hourOffset, this::determineRule);
+    }
+
+    public ChannelImpl init(ChannelsContainer channelsContainer, ZoneId zoneId, List<IReadingType> readingTypes, Optional<Integer> hourOffset, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
         this.channelsContainer.set(channelsContainer);
         this.mainReadingType.set(readingTypes.get(0));
         for (int index = 0; index < readingTypes.size(); index++) {
@@ -151,7 +156,7 @@ public final class ChannelImpl implements SimpleChannelContract {
                 this.readingTypeInChannels.add(readingTypeInChannel);
             }
         }
-        this.timeSeries.set(createTimeSeries(channelsContainer.getZoneId(), hourOffset));
+        this.timeSeries.set(createTimeSeries(zoneId == null ? clock.getZone() : zoneId, hourOffset));
         return this;
     }
 
@@ -253,6 +258,11 @@ public final class ChannelImpl implements SimpleChannelContract {
     }
 
     @Override
+    public void updateZoneId(ZoneId zoneId) {
+        timeSeries.get().updateZoneId(zoneId);
+    }
+
+    @Override
     public Instant getLastDateTime() {
         return timeSeries.get().getLastDateTime();
     }
@@ -301,8 +311,8 @@ public final class ChannelImpl implements SimpleChannelContract {
         RecordSpec recordSpec = getRecordSpec();
         TimeZone timeZone = TimeZone.getTimeZone(zoneId);
         return isRegular() ?
-                    vault.createRegularTimeSeries(recordSpec, timeZone, getIntervalLength().get(), hourOffset.orElse(0)) :
-                    vault.createIrregularTimeSeries(recordSpec, timeZone);
+                vault.createRegularTimeSeries(recordSpec, timeZone, getIntervalLength().get(), hourOffset.orElse(0)) :
+                vault.createIrregularTimeSeries(recordSpec, timeZone);
     }
 
     @Override

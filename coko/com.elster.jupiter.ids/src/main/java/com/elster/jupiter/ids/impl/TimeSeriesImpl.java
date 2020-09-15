@@ -171,6 +171,13 @@ public final class TimeSeriesImpl implements TimeSeries {
     }
 
     @Override
+    public void updateZoneId(ZoneId zoneId) {
+        this.zoneId = zoneId;
+        this.timeZoneName = zoneId.getId();
+        dataModel.update(this);
+    }
+
+    @Override
     public boolean isRegular() {
         return regular;
     }
