@@ -1277,7 +1277,7 @@ public class BpmResource {
         String jsonContent;
         JSONObject obj = null;
         try {
-            String rest = "/rest/tasks/process/" + deploymentId + "/content/" + id;
+            String rest = "/services/rest/tasks/process/" + deploymentId + "/content/" + id;
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if ("Undeployed".equals(jsonContent)) {
                 throw conflictFactory.conflict()

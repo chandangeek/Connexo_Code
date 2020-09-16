@@ -8,11 +8,13 @@ package com.elster.partners.jbpm.extension;
 import org.drools.core.util.StringUtils;
 import org.jbpm.services.task.commands.TaskContext;
 import org.jbpm.services.task.commands.UserGroupCallbackTaskCommand;
+//import org.kie.api.runtime.Context;
+import org.kie.api.runtime.KieContext;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.PeopleAssignments;
 import org.kie.api.task.model.User;
-import org.kie.internal.command.Context;
+//import org.kie.internal.command.Context;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.kie.internal.task.api.model.InternalTask;
@@ -40,7 +42,8 @@ public class ComplexAssigneeForwardTaskCommand extends UserGroupCallbackTaskComm
         this.groupId = groupId;
     }
 
-    public Void execute(Context cntxt) {
+    //@Override
+    public Void execute(KieContext cntxt) {
         TaskContext context = (TaskContext)cntxt;
         PeopleAssignments peopleAssignments = context.getPersistenceContext()
                 .findTask(taskId)
