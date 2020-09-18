@@ -35,7 +35,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -152,7 +151,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
         return this.mappedChannels;
     }
 
-    private AggregatedChannel createAggregatedChannel(ChannelContract channelContract, ReadingTypeDeliverable deliverable){
+    private AggregatedChannel createAggregatedChannel(ChannelContract channelContract, ReadingTypeDeliverable deliverable) {
         return getMeteringService().getDataModel().getInstance(AggregatedChannelImpl.class)
                 .init(channelContract,
                         deliverable,
@@ -161,7 +160,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
                         this);
     }
 
-    private EffectiveMetrologyConfigurationOnUsagePoint getMetrologyConfigurationOnUsagePoint(){
+    private EffectiveMetrologyConfigurationOnUsagePoint getMetrologyConfigurationOnUsagePoint() {
         return this.effectiveMetrologyContract.get(0).getMetrologyConfigurationOnUsagePoint();
     }
 

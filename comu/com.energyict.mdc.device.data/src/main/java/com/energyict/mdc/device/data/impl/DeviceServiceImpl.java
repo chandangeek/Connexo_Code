@@ -306,7 +306,7 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public DeviceBuilder newDeviceBuilder(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
-        return new DeviceBuilderImpl(deviceConfiguration, name, startDate, deviceDataModelService);
+        return new DeviceBuilderImpl(deviceConfiguration, name, startDate, deviceDataModelService, clock);
     }
 
     private DataMapper<Device> getDeviceMapper() {

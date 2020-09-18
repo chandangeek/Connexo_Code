@@ -246,7 +246,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(mapping -> mapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll))
                 .map(this::findEndDeviceControlType)
                 .collect(Collectors.toList());
-        return new EndDeviceCapabilities(readingTypes, controlTypes);
+        return new EndDeviceCapabilities(readingTypes, controlTypes, device.getZone());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
+import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -49,7 +50,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.ObservationTimestampProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;
@@ -281,7 +281,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                     //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
-                    CollectedTopology.ObservationTimestampProperty lastSeenDateInfo = ObservationTimestampProperties.from(g3Node.getLastSeenDate(), G3Properties.PROP_LASTSEENDATE);
+                    ObservationDateProperty lastSeenDateInfo = new ObservationDateProperty(G3Properties.PROP_LASTSEENDATE, g3Node.getLastSeenDate());
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
                     deviceTopology.addAdditionalCollectedDeviceInfo(
                             this.collectedDataFactory.createCollectedDeviceProtocolProperty(
@@ -347,7 +347,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                 getLogger().finest(" - setting LSD from " + deviceIdentifier.toString() + ", to 01/01/2000 because the LSD appears " + count + " times. (" + getDateString(currentValue) + ")");
                 //iterator.remove(); // -> this will remove this device from gateway, we don't want this
                 // instead put an old date, to keep it attached to current gateway, or move it to a different gateway with a newer LSD
-                CollectedTopology.ObservationTimestampProperty oldLastSeenDate = ObservationTimestampProperties.from(new Date(100, 0, 1), "LastSeenDate"); // 2000 Jan 01
+                ObservationDateProperty oldLastSeenDate = new ObservationDateProperty("LastSeenDate", new Date(100, 0, 1)); // 2000 Jan 01
                 deviceTopology.getSlaveDeviceIdentifiers().put(deviceIdentifier, oldLastSeenDate);
             }
         }

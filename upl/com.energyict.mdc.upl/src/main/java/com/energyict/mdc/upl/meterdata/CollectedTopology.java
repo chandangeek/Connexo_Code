@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl.meterdata;
 
+import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
@@ -26,12 +27,12 @@ public interface CollectedTopology extends CollectedData {
      * <p/>
      * If this device has no attached slaves, the return list is empty.
      */
-    Map<DeviceIdentifier, ObservationTimestampProperty> getSlaveDeviceIdentifiers();
+    Map<DeviceIdentifier, ObservationDateProperty> getSlaveDeviceIdentifiers();
 
     /**
      * @return the list of slave devices which joined the network.
      */
-    Map<DeviceIdentifier, ObservationTimestampProperty> getJoinedSlaveDeviceIdentifiers();
+    Map<DeviceIdentifier, ObservationDateProperty> getJoinedSlaveDeviceIdentifiers();
 
     /**
      * @return the list of lost device identifiers.
@@ -48,7 +49,7 @@ public interface CollectedTopology extends CollectedData {
     /**
      * Adds a joined slave device to the topology. If a list of joined devices is present, only those will be processed.
      */
-    void addJoinedSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty lastSeenDateInfo);
+    void addJoinedSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationDateProperty lastSeenDateInfo);
 
     /**
      * Adds a lost slave device to the topology. If a list of lost devices is present, only those will be processed.
@@ -62,7 +63,7 @@ public interface CollectedTopology extends CollectedData {
      * @param slaveIdentifier              the device identifier of the slave device
      * @param observationTimestampProperty information on when this slave device was last seen by the gateway/DC.
      */
-    void addSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty observationTimestampProperty);
+    void addSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationDateProperty observationTimestampProperty);
 
     /**
      * Remove a slave device from the topology
@@ -109,15 +110,4 @@ public interface CollectedTopology extends CollectedData {
 
     G3TopologyDeviceAddressInformation getG3TopologyDeviceAddressInformation();
 
-    /**
-     * Models the timestamp on which a slave device was last observed.
-     *
-     * @author Rudi Vankeirsbilck (rudi)
-     * @since 2016-11-25 (13:51)
-     */
-    interface ObservationTimestampProperty {
-        String getName();
-
-        Date getValue();
-    }
 }

@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
-import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -146,8 +145,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         if (meter.isPresent()) {
             meter.get().getHeadEndInterface()
                     .map(headEndInterface -> headEndInterface.getCapabilities(meter.get()))
-                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
-                    .ifPresent(this::createChannels);
+                    .ifPresent(endDeviceCapabilities -> createChannels(endDeviceCapabilities.getConfiguredReadingTypes(), endDeviceCapabilities.getZoneId()));
         }
         return this;
     }
@@ -177,7 +175,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         return this.meterRole.getOptional();
     }
 
-    private void createChannels(List<ReadingType> readingTypes) {
+    private void createChannels(List<ReadingType> readingTypes, ZoneId zoneId) {
         Stream<MultiplierUsage> meterMultipliers = getMeter()
                 .flatMap(meter -> meter.getConfiguration(getStart()))
                 .map(MeterConfiguration::getReadingTypeConfigs)
@@ -197,7 +195,7 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .filter(not(readingType -> isDeltaDeltaOfOther(readingType, readingTypes)))
                 .filter(not(readingType -> isDeltaDeltaOfOther(readingType, calculatedReadingTypes))) // if the calculated reading type is a bulk, automatically the deltadelta will be added
                 .distinct().collect(Collectors.toList());
-        collect.forEach(this.getChannelsContainer()::createChannel);
+        collect.forEach(readingType -> getChannelsContainer().createChannel(zoneId, readingType));
     }
 
     private boolean isDeltaDeltaOfOther(ReadingType readingType, Collection<ReadingType> readingTypes) {
