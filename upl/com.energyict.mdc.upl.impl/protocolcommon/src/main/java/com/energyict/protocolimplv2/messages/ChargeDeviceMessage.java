@@ -186,7 +186,16 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.additionalTaxStep10, DeviceMessageConstants.additionalTaxStep10DefaultTranslation, new BigDecimal(0))
             );
         }
-    }
+    },
+    CHANGE_CHARGE_MODE(41008, "Change charge mode prepaid/postpaid") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.chargeModeAttributeName, DeviceMessageConstants.chargeModeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeMode.getDescriptionValues()),
+                    this.dateTimeSpec(service, DeviceMessageConstants.modeActivationDateAttributeName, DeviceMessageConstants.modeActivationDateAttributeNameDefaultTranslation)
+            );
+        }
+    },
    ;
     private final long id;
     private final String defaultNameTranslation;
@@ -271,6 +280,44 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
 
         public static String[] getDescriptionValues() {
             RecalculationType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum ChargeMode {
+        Prepaid_charge(0, "Prepaid"),
+        Postpaid_charge(1, "Postpaid");
+
+        private final int id;
+        private final String description;
+
+        ChargeMode(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static ChargeMode entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            ChargeMode[] allObjects = values();
             String[] result = new String[allObjects.length];
             for (int index = 0; index < allObjects.length; index++) {
                 result[index] = allObjects[index].getDescription();

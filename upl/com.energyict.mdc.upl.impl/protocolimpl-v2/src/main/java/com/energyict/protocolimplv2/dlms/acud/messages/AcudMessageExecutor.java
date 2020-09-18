@@ -1,10 +1,8 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.ChargeSetup;
-import com.energyict.dlms.cosem.CreditSetup;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
@@ -39,9 +37,14 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     public static final ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
     public static final ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
 
+    private static final ObisCode CHARGE_MODE = ObisCode.fromString("0.0.15.0.8.255");
     private static final ObisCode CHARGE_TOU_IMPORT = ObisCode.fromString("0.0.19.20.0.255");
     private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
     private static final ObisCode CHARGE_MONTHLY_TAX = ObisCode.fromString("0.0.19.20.2.255");
+
+    private static final int OBIS_DATA_TYPE = 1;
+    private static final ObisCode PREPAID_MODE = ObisCode.fromString("0.0.10.0.2.255");
+    private static final ObisCode POSTPAID_MODE = ObisCode.fromString("0.0.10.0.2.255");
 
     private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
     private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
@@ -109,6 +112,8 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             changePassiveUnitChargeWithActivationDate(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.UPDATE_UNIT_CHARGE)) {
             updateUnitCharge(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_MODE)) {
+            changeChargeMode(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_PERIOD)) {
             changeChargePeriod(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION)) {
@@ -125,6 +130,17 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
         }
         return collectedMessage;
+    }
+
+    private ObisCode getChargeModeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeModeAttributeName);
+        int chargeMode = ChargeDeviceMessage.ChargeMode.entryForDescription(description).getId();
+        switch (chargeMode) {
+            case 0:
+                return PREPAID_MODE;
+            default:
+                return POSTPAID_MODE;
+        }
     }
 
     private ObisCode getCreditTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
@@ -212,16 +228,16 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     private void changePassiveUnitChargeWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
         ObisCode chargeObisCode = getChargeTypeObiscode(pendingMessage);
         ChargeSetup chargeSetup = getCosemObjectFactory().getChargeSetup(chargeObisCode);
-        OctetString activationTimeInSec = createActivationTimeInSec(pendingMessage);
+        OctetString activationTimeInSec = attributeTimeInSec(pendingMessage, DeviceMessageConstants.passiveUnitChargeActivationTime);
         chargeSetup.writeChargeAttribute(ChargeSetupAttributes.UNIT_CHARGE_ACTIVATION_TIME, activationTimeInSec);
         Structure passiveUnitChargeStructure = createPassiveUnitCharge(pendingMessage);
         chargeSetup.writeChargeAttribute(ChargeSetupAttributes.UNIT_CHARGE_PASSIVE, passiveUnitChargeStructure);
     }
 
-    private OctetString createActivationTimeInSec(OfflineDeviceMessage pendingMessage) {
-        String passiveUnitChargeActivationTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passiveUnitChargeActivationTime).getValue();
+    private OctetString attributeTimeInSec(OfflineDeviceMessage pendingMessage, String attributeName) {
+        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, attributeName).getValue();
         Calendar activationTime = Calendar.getInstance(getProtocol().getTimeZone());
-        activationTime.setTimeInMillis(Long.valueOf(passiveUnitChargeActivationTime));
+        activationTime.setTimeInMillis(Long.valueOf(attributeTime));
         return new OctetString(ProtocolTools.getBytesFromLong(activationTime.getTime().getTime() / 1000, TIME_LENGTH_IN_SEC));
     }
 
@@ -269,6 +285,19 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     private void updateUnitCharge(OfflineDeviceMessage pendingMessage) throws IOException {
         ObisCode chargeObisCode = getChargeTypeObiscode(pendingMessage);
         getCosemObjectFactory().getChargeSetup(chargeObisCode).invokeChargeMethod(ChargeSetupMethods.UPDATE_UNIT_CHARGE);
+    }
+
+    private void changeChargeMode(OfflineDeviceMessage pendingMessage) throws IOException {
+        ObisCode chargeObisCode = getChargeModeObiscode(pendingMessage);
+        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modeActivationDateAttributeName).getValue();
+        Calendar activationTime = Calendar.getInstance(getProtocol().getTimeZone());
+        activationTime.setTimeInMillis(Long.valueOf(attributeTime));
+        SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(CHARGE_MODE);
+        Structure scriptStruct = new Structure();
+        scriptStruct.addDataType(new OctetString(chargeObisCode.getLN()));
+        scriptStruct.addDataType(new Unsigned16(OBIS_DATA_TYPE));
+        singleActionSchedule.writeExecutedScript(scriptStruct);
+        singleActionSchedule.writeExecutionTime(convertDateToDLMSArray(activationTime));
     }
 
     private void changeChargePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
