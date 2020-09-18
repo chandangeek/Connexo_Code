@@ -51,7 +51,6 @@ public class ObisCode implements Serializable {
     public static final int CODE_C_POWERFACTOR = 13;
     public static final int CODE_C_UNITLESS = 82;
 
-
     private int a;
     private int b;
     private int c;
@@ -61,11 +60,10 @@ public class ObisCode implements Serializable {
     private boolean relativeBillingPeriod;
     private boolean invalid = false;
 
-    //needed for Flex synchronization
-
     public ObisCode() {
+        this(0,0,0,0,0,0);
+        this.invalid = true;
     }
-
 
     public ObisCode(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod) {
         if (a < 0 || a > 255) {
@@ -134,10 +132,6 @@ public class ObisCode implements Serializable {
         return invalid;
     }
 
-    public void setInvalid(boolean invalid) {
-        this.invalid = invalid;
-    }
-
     public boolean useRelativeBillingPeriod() {
         return relativeBillingPeriod;
     }
@@ -178,39 +172,34 @@ public class ObisCode implements Serializable {
         return buffer.toString();
     }
 
-    public boolean equals(Object o) {
+    public boolean equals(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, true, true, true, true, true, true);
     }
 
-    public boolean equalsIgnoreBChannel(Object o) {
+    public boolean equalsIgnoreBChannel(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, false, true, true, true, true, true);
     }
 
-    public boolean equalsIgnoreBAndEChannel(Object o) {
+    public boolean equalsIgnoreBAndEChannel(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, false, true, true, false, true, true);
     }
 
-    public boolean equalsIgnoreBillingField(Object o) {
+    public boolean equalsIgnoreBillingField(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, true, true, true, true, false, true);
     }
 
-    private boolean equalsSelectiveFieldsCheck(Object o, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean relative) {
+    private boolean equalsSelectiveFieldsCheck(ObisCode o, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean relative) {
         if (o == null) {
             return false;
         }
-        try {
-            ObisCode other = (ObisCode) o;
-            return
-                    ((this.a == other.a) || !a) &&
-                            ((this.b == other.b) || !b) &&
-                            ((this.c == other.c) || !c) &&
-                            ((this.d == other.d) || !d) &&
-                            ((this.e == other.e) || !e) &&
-                            ((this.f == other.f) || !f) &&
-                            ((this.relativeBillingPeriod == other.relativeBillingPeriod) || !relative);
-        } catch (ClassCastException ex) {
-            return false;
-        }
+        return
+                ((this.a == o.a) || !a) &&
+                        ((this.b == o.b) || !b) &&
+                        ((this.c == o.c) || !c) &&
+                        ((this.d == o.d) || !d) &&
+                        ((this.e == o.e) || !e) &&
+                        ((this.f == o.f) || !f) &&
+                        ((this.relativeBillingPeriod == o.relativeBillingPeriod) || !relative);
     }
 
     public int hashCode() {
@@ -281,28 +270,23 @@ public class ObisCode implements Serializable {
     // KV 12102004
 
     public static ObisCode fromByteArray(byte[] ln) {
-        boolean hasRelativeBillingPoint = false;
         int a = ln[0] & 0xFF;
         int b = ln[1] & 0xFF;
         int c = ln[2] & 0xFF;
         int d = ln[3] & 0xFF;
         int e = ln[4] & 0xFF;
         int f = ln[5] & 0xFF;
-        return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
+        return new ObisCode(a, b, c, d, e, f, false);
     }
 
     public static ObisCode fromString(String codeString) {
-        boolean invalid = false;
         List<String> obisFields = new ArrayList<>();
         if(codeString != null && codeString.length()>0) {
             obisFields = new ArrayList<>(Arrays.asList(codeString.split("\\."))).stream().map(s -> s.trim()).collect(Collectors.toList());
         }
 
         if(obisFields.size() != 6){
-            invalid = true;
-            while(obisFields.size() < 6){
-                obisFields.add("0");
-            }
+            return new ObisCode();
         }
         try {
             int a = Integer.parseInt(obisFields.get(0));
@@ -325,15 +309,9 @@ public class ObisCode implements Serializable {
             } else {
                 f = Integer.parseInt(obisFields.get(5));
             }
-            ObisCode o = new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
-            if(invalid){
-                o.setInvalid(invalid);
-            }
-            return o;
+            return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
         } catch(Exception e) {
-            ObisCode o = new ObisCode(0, 0, 0, 0, 0, 0, false);
-            o.setInvalid(true);
-            return o;
+            return new ObisCode();
         }
 
     }
@@ -457,5 +435,20 @@ public class ObisCode implements Serializable {
         }
 
         return ObisCode.fromString( String.join(".", obisLetters) );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ObisCode obisCode = (ObisCode) o;
+        return a == obisCode.a &&
+                b == obisCode.b &&
+                c == obisCode.c &&
+                d == obisCode.d &&
+                e == obisCode.e &&
+                f == obisCode.f &&
+                relativeBillingPeriod == obisCode.relativeBillingPeriod &&
+                invalid == obisCode.invalid;
     }
 }
