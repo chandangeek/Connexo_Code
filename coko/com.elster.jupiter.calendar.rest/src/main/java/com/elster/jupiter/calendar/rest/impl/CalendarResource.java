@@ -14,11 +14,13 @@ import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.PathVerification;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -40,6 +42,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/calendars")
 public class CalendarResource {
@@ -62,10 +65,13 @@ public class CalendarResource {
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAllCalendars(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         CalendarFilter calendarFilter = calendarService.newCalendarFilter();
         if (filter.hasProperty("status")) {
-            Status status = Status.valueOf(filter.getString("status"));
-            calendarFilter.setStatus(status);
+            if(Stream.of(Status.values()).anyMatch(v -> v.name().equals(filter.getString("status")))) {
+                Status status = Status.valueOf(filter.getString("status"));
+                calendarFilter.setStatus(status);
+            }
         }
         if (filter.hasProperty("category")) {
             Category category = calendarService.findCategoryByName(filter.getString("category"))
