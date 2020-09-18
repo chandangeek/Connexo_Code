@@ -247,17 +247,11 @@ public class CommunicationResource {
         }
 
         if (jsonQueryFilter.latestResults != null) {
-            boolean containsNeverStarted = jsonQueryFilter.latestResults.contains(NEVER_STARTED_COMPLETION_CODE.getKey());
             jsonQueryFilter.latestResults =
                     jsonQueryFilter.latestResults
                             .stream()
-                            .filter(resutl -> !resutl.equals(NEVER_STARTED_COMPLETION_CODE.getKey()))
-                            .map(CompletionCode::valueOf)
-                            .map(Enum::name)
+                            .map(result -> result.equals(NEVER_STARTED_COMPLETION_CODE.getKey()) ? null : CompletionCode.valueOf(result).name())
                             .collect(toSet());
-            if (containsNeverStarted) {
-                jsonQueryFilter.latestResults.add(null);
-            }
         }
 
         return jsonQueryFilter;

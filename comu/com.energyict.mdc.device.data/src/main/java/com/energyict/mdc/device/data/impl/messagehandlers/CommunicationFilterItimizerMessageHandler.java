@@ -28,7 +28,6 @@ import com.energyict.mdc.tasks.TaskService;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -115,10 +114,10 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
 
         filter.latestResults = EnumSet.noneOf(CompletionCode.class);
         if (primitiveFilter.latestResults != null) {
-            filter.latestResults = primitiveFilter.latestResults.stream().filter(Objects::nonNull).map(CompletionCode::valueOf).collect(toSet());
-            if (primitiveFilter.latestResults.contains(null)) {
-                filter.latestResults.add(null);
-            }
+            filter.latestResults = primitiveFilter.latestResults
+                    .stream()
+                    .map(result -> result == null ? null : CompletionCode.valueOf(result))
+                    .collect(toSet());
         }
 
         filter.deviceTypes = new HashSet<>();
