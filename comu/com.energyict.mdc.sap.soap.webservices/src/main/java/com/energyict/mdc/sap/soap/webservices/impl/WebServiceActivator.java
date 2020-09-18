@@ -456,7 +456,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                         version(10, 7), UpgraderV10_7.class,
                         version(10, 7, 1), UpgraderV10_7_1.class,
                         version(10, 7, 2), UpgraderV10_7_2.class,
-                        version(10, 8), UpgraderV10_8.class
+                        version(10, 8), UpgraderV10_8.class,
+                        version(10, 8, 1), UpgraderV10_8_1.class
                 ));
 
         registerServices(bundleContext);

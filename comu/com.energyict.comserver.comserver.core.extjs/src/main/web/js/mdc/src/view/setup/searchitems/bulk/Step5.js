@@ -77,6 +77,38 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5', {
     },
 
 
+    showSentSAPNotificationsSuccess: function (devicesCnt) {
+        var widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: Uni.I18n.translate('searchItems.bulk.registeredNotificationsHaveBeenSent', 'MDC', '{0} registered notifications have been sent', devicesCnt),
+            type: 'success'
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
+    },
+    showSentSAPNotificationsFailure: function (text) {
+        var widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: Uni.I18n.translate('searchItems.bulk.registeredNotificationsNotSent', 'MDC', 'Registered notifications have not been sent due to the next error:'),
+            type: 'error',
+            additionalItems: [
+                {
+                    xtype: 'container',
+                    html: '<span style="color: #EB5642;">'+ text + '</span>',
+                }
+            ]
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
+    },
+
+
 
     initComponent: function () {
         this.callParent(arguments);
