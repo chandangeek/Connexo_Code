@@ -57,6 +57,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
+import static com.energyict.mdc.dashboard.rest.status.impl.TranslationKeys.NEVER_STARTED_COMPLETION_CODE;
 import static java.util.stream.Collectors.toSet;
 
 @Path("/communications")
@@ -246,12 +247,17 @@ public class CommunicationResource {
         }
 
         if (jsonQueryFilter.latestResults != null) {
+            boolean containsNeverStarted = jsonQueryFilter.latestResults.contains(NEVER_STARTED_COMPLETION_CODE.getKey());
             jsonQueryFilter.latestResults =
                     jsonQueryFilter.latestResults
                             .stream()
+                            .filter(resutl -> !resutl.equals(NEVER_STARTED_COMPLETION_CODE.getKey()))
                             .map(CompletionCode::valueOf)
                             .map(Enum::name)
                             .collect(toSet());
+            if (containsNeverStarted) {
+                jsonQueryFilter.latestResults.add(null);
+            }
         }
 
         return jsonQueryFilter;
@@ -346,7 +352,7 @@ public class CommunicationResource {
     }
 
     private static CompletionCode completionCodeFrom(String name) {
-        return name.equals(TranslationKeys.NEVER_STARTED_COMPLETION_CODE.getKey()) ? null : CompletionCode.valueOf(name);
+        return name.equals(NEVER_STARTED_COMPLETION_CODE.getKey()) ? null : CompletionCode.valueOf(name);
     }
 
     private <H extends HasId> Collection<H> getObjectsByIdFromList(List<Long> ids, List<H> objects) {

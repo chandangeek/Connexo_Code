@@ -28,6 +28,7 @@ import com.energyict.mdc.tasks.TaskService;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,12 +90,12 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
     private ComTaskExecutionFilterSpecification buildFilterFromJsonQuery(ComTaskExecutionFilterSpecificationMessage primitiveFilter) {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-        if (primitiveFilter.currentStates!=null) {
+        if (primitiveFilter.currentStates != null) {
             filter.taskStatuses.addAll(primitiveFilter.currentStates.stream().map(TaskStatus::valueOf).collect(toList()));
         }
 
         filter.comSchedules = new HashSet<>();
-        if (primitiveFilter.comSchedules!=null) {
+        if (primitiveFilter.comSchedules != null) {
             // already optimized
             for (ComSchedule comSchedule : schedulingService.getAllSchedules()) {
                 filter.comSchedules.addAll(primitiveFilter.comSchedules.stream().
@@ -104,7 +105,7 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
             }
         }
 
-        if (primitiveFilter.comTasks !=null) {
+        if (primitiveFilter.comTasks != null) {
             filter.comTasks = primitiveFilter.comTasks
                     .stream()
                     .map(taskService::findComTask)
@@ -113,12 +114,15 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
         }
 
         filter.latestResults = EnumSet.noneOf(CompletionCode.class);
-        if (primitiveFilter.latestResults!=null) {
-            filter.latestResults=primitiveFilter.latestResults.stream().map(CompletionCode::valueOf).collect(toSet());
+        if (primitiveFilter.latestResults != null) {
+            filter.latestResults = primitiveFilter.latestResults.stream().filter(Objects::nonNull).map(CompletionCode::valueOf).collect(toSet());
+            if (primitiveFilter.latestResults.contains(null)) {
+                filter.latestResults.add(null);
+            }
         }
 
         filter.deviceTypes = new HashSet<>();
-        if (primitiveFilter.deviceTypes!=null) {
+        if (primitiveFilter.deviceTypes != null) {
             filter.deviceTypes.addAll(
                     primitiveFilter.deviceTypes.stream()
                             .map(deviceConfigurationService::findDeviceType)
@@ -127,7 +131,7 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
         }
 
         filter.deviceGroups = new HashSet<>();
-        if (primitiveFilter.deviceGroups!=null) {
+        if (primitiveFilter.deviceGroups != null) {
             filter.deviceGroups.addAll(primitiveFilter.deviceGroups.stream().
                     map(meteringGroupsService::findEndDeviceGroup).
                     filter(java.util.Optional::isPresent).
@@ -135,14 +139,14 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
                     collect(toSet()));
         }
 
-        if (primitiveFilter.startIntervalFrom!=null || primitiveFilter.startIntervalTo!=null) {
+        if (primitiveFilter.startIntervalFrom != null || primitiveFilter.startIntervalTo != null) {
             filter.lastSessionStart = Interval.of(primitiveFilter.startIntervalFrom, primitiveFilter.startIntervalTo);
         }
 
-        if (primitiveFilter.finishIntervalFrom!= null || primitiveFilter.finishIntervalTo!=null) {
+        if (primitiveFilter.finishIntervalFrom != null || primitiveFilter.finishIntervalTo != null) {
             filter.lastSessionEnd = Interval.of(primitiveFilter.finishIntervalFrom, primitiveFilter.finishIntervalTo);
         }
-        if(primitiveFilter.device != null && !primitiveFilter.device.equals("")) {
+        if (primitiveFilter.device != null && !primitiveFilter.device.equals("")) {
             filter.deviceName = primitiveFilter.device;
         }
 
