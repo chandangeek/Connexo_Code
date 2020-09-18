@@ -25,6 +25,7 @@ public enum TableSpecs {
             table.column("START_DATE").map("from.relativeDate").varChar(256).notNull().add();
             table.column("END_DATE").map("to.relativeDate").varChar(256).notNull().add();
             table.addAuditColumns();
+            table.cacheWholeTable(true);
 
             table.primaryKey("TME_PK_RELATIVE_PERIOD").on(idColumn).add();
             table.unique("TME_UQ_R_PERIOD_NAME").on(nameColumn).add();
