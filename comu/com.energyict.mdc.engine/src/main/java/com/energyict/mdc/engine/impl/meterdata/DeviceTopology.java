@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -43,7 +44,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
      * A list containing the unique device identifiers of all attached slave devices.
      * If this device has no attached slaves, the list is empty.
      */
-    private final Map<DeviceIdentifier, ObservationTimestampProperty> slaveDeviceIdentifiers;
+    private final Map<DeviceIdentifier, ObservationDateProperty> slaveDeviceIdentifiers;
 
     /**
      * A list containing additional info that is collected for (some of) the devices
@@ -53,7 +54,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     /**
      * A list containing only the nodes which joined the network
      */
-    private Map<DeviceIdentifier, ObservationTimestampProperty> joinedSlaveDeviceIdentifiers;
+    private Map<DeviceIdentifier, ObservationDateProperty> joinedSlaveDeviceIdentifiers;
 
     /**
      * A list containing only the nodes which were lost from the network
@@ -79,7 +80,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
         this(deviceIdentifier, new HashMap<>());
     }
 
-    public DeviceTopology(DeviceIdentifier deviceIdentifier, Map<DeviceIdentifier, ObservationTimestampProperty> slaveDeviceIdentifiers) {
+    public DeviceTopology(DeviceIdentifier deviceIdentifier, Map<DeviceIdentifier, ObservationDateProperty> slaveDeviceIdentifiers) {
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.slaveDeviceIdentifiers = slaveDeviceIdentifiers;
@@ -106,12 +107,12 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     }
 
     @Override
-    public Map<DeviceIdentifier, ObservationTimestampProperty> getSlaveDeviceIdentifiers() {
+    public Map<DeviceIdentifier, ObservationDateProperty> getSlaveDeviceIdentifiers() {
         return Collections.unmodifiableMap(this.slaveDeviceIdentifiers);
     }
 
     @Override
-    public Map<DeviceIdentifier, ObservationTimestampProperty> getJoinedSlaveDeviceIdentifiers() {
+    public Map<DeviceIdentifier, ObservationDateProperty> getJoinedSlaveDeviceIdentifiers() {
         return this.joinedSlaveDeviceIdentifiers;
     }
 
@@ -126,12 +127,12 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     }
 
     @Override
-    public void addSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty observationTimestampProperty) {
+    public void addSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationDateProperty observationTimestampProperty) {
         slaveDeviceIdentifiers.put(slaveIdentifier, observationTimestampProperty);
     }
 
     @Override
-    public void addJoinedSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty lastSeenDateInfo) {
+    public void addJoinedSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationDateProperty lastSeenDateInfo) {
         if (joinedSlaveDeviceIdentifiers == null) {
             joinedSlaveDeviceIdentifiers = new HashMap<>();
         }
