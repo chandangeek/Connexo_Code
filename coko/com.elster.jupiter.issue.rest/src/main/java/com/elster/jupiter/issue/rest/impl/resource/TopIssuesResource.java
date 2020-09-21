@@ -103,7 +103,7 @@ public class TopIssuesResource extends BaseResource {
                                 or(conditionNullUser.
                                         and(conditionWG))), 1, 7, new Order[]{
                                                 Order.descending(PRIORITYTOTAL),
-                                                Order.ascending(DUEDATE),
+                                                Order.descending(DUEDATE),
                                                 Order.ascending(CREATIONDATE),
                                                 Order.ascending(DEVICE),
                                                 Order.ascending(USAGEPOINT),
