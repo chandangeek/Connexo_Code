@@ -22,6 +22,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.search.SearchDomainExtension;
@@ -42,6 +43,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
@@ -156,7 +158,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -452,13 +453,14 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::addCustomPropertySet);
 
         upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
-                ImmutableMap.of(
-                        version(10, 7), UpgraderV10_7.class,
-                        version(10, 7, 1), UpgraderV10_7_1.class,
-                        version(10, 7, 2), UpgraderV10_7_2.class,
-                        version(10, 8), UpgraderV10_8.class,
-                        version(10, 8, 1), UpgraderV10_8_1.class
-                ));
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 7), UpgraderV10_7.class)
+                        .put(version(10, 7, 1), UpgraderV10_7_1.class)
+                        .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(version(10, 7, 3), UpgraderV10_7_3.class)
+                        .put(version(10, 8), UpgraderV10_8.class)
+                        .put(version(10, 9), UpgraderV10_9.class)
+                        .build());
 
         registerServices(bundleContext);
 

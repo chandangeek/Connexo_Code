@@ -11,7 +11,7 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_8_1 implements Upgrader {
+public class UpgraderV10_9 implements Upgrader {
 
     private final DataModel dataModel;
     private final MessageService messageService;
@@ -19,7 +19,7 @@ public class UpgraderV10_8_1 implements Upgrader {
 
 
     @Inject
-    public UpgraderV10_8_1(DataModel dataModel, MessageService messageService, Installer installer) {
+    public UpgraderV10_9(DataModel dataModel, MessageService messageService, Installer installer) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.installer = installer;
@@ -27,7 +27,7 @@ public class UpgraderV10_8_1 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 7, 3));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
         installer.createMessageHandlers();
     }
 }
