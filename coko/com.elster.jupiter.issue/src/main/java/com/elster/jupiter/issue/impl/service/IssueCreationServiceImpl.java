@@ -466,6 +466,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     private boolean canEvaluateRules() {
         createKnowledgeBase();
-        return knowledgeBase != null;
+        return knowledgeBase != null && !knowledgeBase.getKnowledgePackages().isEmpty();
     }
 }

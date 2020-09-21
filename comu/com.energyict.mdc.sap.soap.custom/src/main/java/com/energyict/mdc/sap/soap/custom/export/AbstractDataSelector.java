@@ -5,16 +5,19 @@
 package com.energyict.mdc.sap.soap.custom.export;
 
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -49,7 +52,14 @@ abstract class AbstractDataSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        occurrence.getDefaultSelectorOccurrence().ifPresent(o -> o.updateExportedDataRange(Range.closed(Instant.EPOCH, o.getExportedDataInterval().upperEndpoint())));
+        occurrence.getDefaultSelectorOccurrence().ifPresent(o -> {
+            if (occurrence.getTask().getReadingDataSelectorConfig()
+                    .map(ReadingDataSelectorConfig::getStrategy)
+                    .filter(DataExportStrategy::isExportContinuousData)
+                    .isPresent()) {
+                o.updateExportedDataRange(Range.closed(Instant.EPOCH, o.getExportedDataInterval().upperEndpoint()));
+            }
+        });
         Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
         Map<Long, Optional<Instant>> previousSuccessfulRuns = activeItems.stream()
                 .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedChangedData));

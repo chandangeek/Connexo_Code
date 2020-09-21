@@ -259,7 +259,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     private RangeSet<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getInterval().toOpenClosedRange() : Range.all();
         Range<Instant> exportWindowInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
-        Optional<Instant> exportStart = item.getLastExportedNewData();
+        Optional<Instant> exportStart = item.getSelector().isExportContinuousData() ?
+                item.getLastExportedNewData() :
+                Optional.empty(); // previous export not taken into account if continuous data is not requested
         RangeSet<Instant> profileIdIntervals = exportStart.map(start -> getRangeSinceRequestedDate(exportWindowInterval, start)) // start from the previous period end if exists
                 .orElse(Optional.of(exportWindowInterval))
                 .map(interval -> getAllProfileIdsRangeSet(item, interval)) // take only the intervals where profile id is set
