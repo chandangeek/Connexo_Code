@@ -9,6 +9,12 @@ import com.elster.jupiter.util.conditions.Order;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Validate JSONQueryParameters
+ * @author M R
+ * @since 21-Sep-2020
+ */
+
 public class JSONQueryValidator {
     public static void validateJSONQueryParameters(JsonQueryParameters jsonQueryParameters) {
         String like = jsonQueryParameters.getLike();
@@ -27,8 +33,5 @@ public class JSONQueryValidator {
                     }
                 }
         }
-    }
-    public boolean validateJsonQueryFilter(JsonQueryFilter jsonQueryFilter) {
-        return true;
     }
 }
