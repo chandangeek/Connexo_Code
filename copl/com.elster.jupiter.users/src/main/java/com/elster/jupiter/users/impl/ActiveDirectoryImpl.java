@@ -29,7 +29,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -150,8 +149,9 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         LOGGER.info("AUTH: TLS applied\n");
 
         StartTlsResponse tls = null;
+        LdapContext ctx = null;
         try {
-            LdapContext ctx = new InitialLdapContext(
+            ctx = new InitialLdapContext(
                     createEnvironment(urls.get(0), getUserNameForAuthentication(name), password), null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
@@ -168,6 +168,14 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
                 return Optional.empty();
             }
         } finally {
+            if(ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException ex) {
+                    LOGGER.severe(ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
             if (tls != null) {
                 try {
                     tls.close();
