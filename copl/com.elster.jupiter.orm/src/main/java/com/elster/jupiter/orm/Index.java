@@ -34,11 +34,17 @@ public interface Index {
     Index during(Range... ranges);
 
     @ProviderType
-    public interface Builder {
+    interface Builder {
         Builder on(Column... columns);
 
         Builder compress(int number);
 
         Index add();
+
+        Builder since(Version version);
+
+        Builder upTo(Version version);
+
+        Builder during(Range... ranges);
     }
 }

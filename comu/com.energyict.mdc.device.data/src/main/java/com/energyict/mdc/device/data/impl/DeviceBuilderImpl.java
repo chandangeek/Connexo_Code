@@ -6,9 +6,12 @@ import com.energyict.mdc.device.data.DeviceBuilder;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import sun.util.calendar.ZoneInfo;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,15 +27,17 @@ public class DeviceBuilderImpl implements DeviceBuilder {
     private String modelVersion;
     private BigDecimal multiplier;
     private Integer yearOfCertification;
+    private Clock clock;
 
     private DeviceDataModelService deviceDataModelService;
     private Multimap<String, String> zones = ArrayListMultimap.create();
 
-    public DeviceBuilderImpl(DeviceConfiguration deviceConfiguration, String name, Instant startDate, DeviceDataModelService deviceDataModelService) {
+    public DeviceBuilderImpl(DeviceConfiguration deviceConfiguration, String name, Instant startDate, DeviceDataModelService deviceDataModelService, Clock clock) {
         this.deviceConfiguration = deviceConfiguration;
         this.name = name;
         this.startDate = startDate;
         this.deviceDataModelService = deviceDataModelService;
+        this.clock = clock;
     }
 
     @Override
@@ -94,6 +99,12 @@ public class DeviceBuilderImpl implements DeviceBuilder {
         Optional.ofNullable(modelVersion).ifPresent(device::setModelVersion);
         Optional.ofNullable(multiplier).ifPresent(mul -> device.setMultiplier(mul, startDate));
         Optional.ofNullable(yearOfCertification).ifPresent(device::setYearOfCertification);
+        ZoneInfo zoneInfo = (ZoneInfo) device.getDeviceConfiguration().getDeviceProtocolProperties().getProperty(DeviceImpl.TIME_ZONE_PROPERTY_NAME);
+        if (zoneInfo != null) {
+            device.setZone(ZoneId.of(zoneInfo.getID()));
+        } else {
+            device.setZone(clock.getZone());
+        }
         device.save();
         Optional.ofNullable(batch).ifPresent(b -> this.deviceDataModelService.batchService().findOrCreateBatch(b).addDevice(device));
         for (Map.Entry<String, String> zone : zones.entries()) { device.addZone(zone.getKey(), zone.getValue());}

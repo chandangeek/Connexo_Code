@@ -468,10 +468,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         inject(AbstractInboundEndPoint.class, executeMeterReadingsEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeMeterReadingsEndpoint, "webServicesService", webServicesService);
         inject(AbstractInboundEndPoint.class, executeMeterReadingsEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer(){
+        when(transactionService.execute(any())).then(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
             }
         });
         when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
@@ -648,7 +648,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         when(mock.getComTask()).thenReturn(comTask);
     }
 
-    private void mockComTask(ComTask mock){
+    private void mockComTask(ComTask mock) {
         when(mock.getId()).thenReturn(1L);
         when(mock.isManualSystemTask()).thenReturn(true);
         when(mock.getName()).thenReturn("comTaskName");
@@ -942,7 +942,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
                 .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
-                .withEndDevice(END_DEVICE1_MRID,END_DEVICE1_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
                 .get();
         HeaderType headerType = new HeaderType();
         headerType.setAsyncReplyFlag(true);
@@ -1330,7 +1330,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("SIM0002")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("Bulk operation isn't supported on 'GetMeterReadings.EndDevice', only first element is processed")));
+                .anyMatch(error -> error.getDetails().equals("Bulk operation isn't supported for 'GetMeterReadings.EndDevice', only first element is processed.")));
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -1380,7 +1380,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
 
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.SCHEDULE_STRATEGY_NOT_SUPPORTED.getErrorCode(),
-                "Schedule strategy 'Something wrong' is not supported. The possible values are: 'Run now' and 'Use schedule'");
+                "Schedule strategy 'Something wrong' isn't supported. The possible values are: 'Run now', 'Run with priority' and 'Use schedule'.");
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
@@ -1529,7 +1529,8 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("SIM6022")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("At least one correct 'GetMeterReadings.ReadingType' or 'GetMeterReadings.Reading.dataSource' must be specified in the request under element 'GetMeterReadings.Reading[0]'")));
+                .anyMatch(error -> error.getDetails()
+                        .equals("At least one correct 'GetMeterReadings.ReadingType' or 'GetMeterReadings.Reading.dataSource' must be specified in the request under element 'GetMeterReadings.Reading[0]'")));
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 

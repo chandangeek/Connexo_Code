@@ -19,6 +19,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -61,10 +62,8 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
             if (timeShift != 0) {
                 long currentDeviceTime = getCommandRoot().getServiceProvider().clock().millis() - timeDifference;
                 Date now = new Date(currentDeviceTime + timeShift);
-                deviceProtocol.setTime(now);
+                deviceProtocol.setTime(now, DeviceClockSupport.ClockChangeMode.SYNC);
                 this.timeSet = now;
-            } else {
-                addIssue(getIssueService().newWarning(timeDifference, MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
             }
         } else {
             addIssue(getIssueService().newWarning(timeDifference, MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);

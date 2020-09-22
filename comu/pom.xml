@@ -501,6 +501,18 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.engine.monitor</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.data.push</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!-- third parties -->
             <!-- Logging -->
@@ -554,13 +566,6 @@
                 <artifactId>commons-logging</artifactId>
                 <version>1.1.1</version>
             </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.engine.monitor</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
 
 			<!-- Remoting libraries -->
 			<dependency>
@@ -751,6 +756,7 @@
         <module>com.energyict.mdc.tasks</module>
         <module>com.energyict.mdc.tasks.rest</module>
         <module>com.energyict.mdc.usagepoint.data.rest</module>
+        <module>com.energyict.mdc.data.push</module>
         <!-- Test modules -->
         <module>com.energyict.demo</module>
         <module>com.energyict.mdc.device.cps.examples</module>
@@ -758,7 +764,6 @@
         <module>com.energyict.mdc.servicecall.examples</module>
         <module>com.energyict.mdc.test.api.rest</module>
         <module>com.energyict.mdc.demo.customtask</module>
-        <module>com.energyict.mdc.webservices.demo</module>
         <module>com.energyict.mdc.sap.soap.custom</module>
     </modules>
 </project>

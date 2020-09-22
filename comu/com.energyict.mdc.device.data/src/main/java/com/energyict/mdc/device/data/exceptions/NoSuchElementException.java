@@ -32,12 +32,20 @@ public class NoSuchElementException extends LocalizedException implements Suppli
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_DEVICE, deviceId);
     }
 
+    public static NoSuchElementException deviceWithIdAndVersionNotFound(Thesaurus thesaurus, long deviceId, long deviceVersion) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.INCORRECT_DEVICE_VERSION, deviceId, deviceVersion);
+    }
+
     public static NoSuchElementException comTaskEnablementWithIdNotFound(Thesaurus thesaurus, long comTaskEnablementId) {
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_COMTASK_ENABLEMENT, comTaskEnablementId);
     }
 
     public static NoSuchElementException endDeviceControlTypeWithMRIDNotFound(Thesaurus thesaurus, String mRID) {
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_END_DEVICE_CONTROL_TYPE, mRID);
+    }
+
+    public static NoSuchElementException deviceMessageWithIdNotFound(Thesaurus thesaurus, long deviceMessageId) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_DEVICE_MESSAGE_WITH_ID, deviceMessageId);
     }
 
     public static NoSuchElementException deviceMessageSpecWithIdNotFound(Thesaurus thesaurus, long deviceMessageId) {
@@ -48,15 +56,15 @@ public class NoSuchElementException extends LocalizedException implements Suppli
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_COMTASK_FOR_COMMAND);
     }
 
-    public static NoSuchElementException comTaskExecutionCouldNotBeLocated(Thesaurus thesaurus) {
-        return new NoSuchElementException(thesaurus, MessageSeeds.NO_COMTASK_EXECUTION);
+    public static NoSuchElementException comTaskToRunWithPriorityCouldNotBeLocated(Thesaurus thesaurus) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.RUN_COMTASK_WITH_PRIO_IMPOSSIBLE);
+    }
+
+    public static NoSuchElementException statusInformationComTaskToRunWithPriorityCouldNotBeLocated(Thesaurus thesaurus) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.RUN_STATUS_INFORMATION_COMTASK_WITH_PRIO_IMPOSSIBLE);
     }
 
     public static NoSuchElementException statusInformationComTaskCouldNotBeLocated(Thesaurus thesaurus) {
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_STATUS_INFORMATION_COMTASK);
-    }
-
-    public static NoSuchElementException statusInformationComTaskExecutionCouldNotBeLocated(Thesaurus thesaurus) {
-        return new NoSuchElementException(thesaurus, MessageSeeds.NO_STATUS_INFORMATION_COMTASK_EXECUTION);
     }
 }

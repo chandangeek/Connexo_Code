@@ -2,19 +2,9 @@ package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
@@ -39,19 +29,11 @@ import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_LP_DUPLICATED_CHANNEL;
-import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_DAILY;
-import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_HOURLY;
-import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.AMR_PROFILE_STATUS_CODE_MBUS_MONTHLY;
-import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.setFieldAndGet;
+import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.*;
 
 /**
  * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.mdc.upl.DeviceProtocol}
@@ -190,7 +172,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
                                 ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_LP_DUPLICATED_CHANNEL) &&
                                         ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                         ).forEach(
-                                ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
+                                ci -> ci.setName( ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
                         );
                     }
 
@@ -241,7 +223,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
     {
         // special case for combined load profile
         if( obisCode.equalsIgnoreBChannel(MBUS_MONTHLY_LP_OBISCODE) || obisCode.equalsIgnoreBChannel(MBUS_DAILY_LP_OBISCODE) ) {
-            obisCode.setB(0);
+            obisCode = obisCode.setB(0);
         }
 
         return obisCode;

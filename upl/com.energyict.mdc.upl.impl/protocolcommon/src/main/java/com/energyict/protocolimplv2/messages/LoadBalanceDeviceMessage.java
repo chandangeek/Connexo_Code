@@ -343,6 +343,61 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                     this.durationSpec(service, emergencyProfileDurationAttributeName, emergencyProfileDurationAttributeDefaultTranslation)
             );
         }
+    },
+    SET_CURRENT_OVER_LIMIT_THRESHOLD(12024, "Set current over limit threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.CurrentOverLimitThresholdAttributeName, DeviceMessageConstants.CurrentOverLimitThresholdAttributeDefaultTranslation).setDefaultValue(new BigDecimal(1200)).finish()
+            );
+        }
+    },
+    SET_CURRENT_OVER_LIMIT_TIME_THRESHOLD(12025, "Set current over limit time threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.CurrentOverLimitTimeThresholdAttributeName, DeviceMessageConstants.CurrentOverLimitTimeThresholdAttributeDefaultTranslation).setDefaultValue(new BigDecimal(1)).finish()
+            );
+        }
+    },
+    SET_VOLTAGE_UNDER_LIMIT_THRESHOLD(12026, "Set voltage under limit threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.VoltageUnderLimitThresholdAttributeName, DeviceMessageConstants.VoltageUnderLimitThresholdAttributeDefaultTranslation).setDefaultValue(new BigDecimal(5000)).finish()
+            );
+        }
+    },
+    SET_VOLTAGE_UNDER_LIMIT_TIME_THRESHOLD(12027, "Set voltage under limit time threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.VoltageUnderLimitTimeThresholdAttributeName, DeviceMessageConstants.VoltageUnderLimitTimeThresholdAttributeDefaultTranslation).setDefaultValue(new BigDecimal(1)).finish()
+            );
+        }
+    },
+    SET_LIPF_UNDER_LIMIT_THRESHOLD(12028, "Set LiPf under limit threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.LiPfUnderLimitThresholdAttributeName, DeviceMessageConstants.LiPfUnderLimitThresholdAttributeDefaultTranslation).setDefaultValue(new BigDecimal(0)).finish()
+            );
+        }
+    },
+    SET_LIPF_UNDER_LIMIT_TIME_THRESHOLD(12029, "Set LiPf under limit time threshold") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.LiPfUnderLimitTimeThresholdAttributeName, DeviceMessageConstants.LiPfUnderLimitTimeThresholdAttributeDefaultTranslation).setDefaultValue(new BigDecimal(1)).finish()
+            );
+        }
+    },
+    UPDATE_LOAD_LIMITS(12030, "Update the load limits") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(this.stringSpecBuilder(service, DeviceMessageConstants.loadLimitArray, DeviceMessageConstants.loadLimitArrayDefaultTranslation).finish()
+            );
+        }
     };
 
     private final long id;

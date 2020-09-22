@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.CompletionOptionsBuilder;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TestHeadEndInterface implements HeadEndInterface{
+public class TestHeadEndInterface implements HeadEndInterface {
     private List<ReadingType> supportedReadingTypes;
 
     public TestHeadEndInterface(ReadingType... supported) {
@@ -56,6 +57,16 @@ public class TestHeadEndInterface implements HeadEndInterface{
     }
 
     @Override
+    public CompletionOptions scheduleMeterRead(Meter meter, Instant instant, ServiceCall serviceCall) {
+        return null;
+    }
+
+    @Override
+    public CompletionOptionsBuilder scheduleMeterRead(Meter meter, Instant instant) {
+        return null;
+    }
+
+    @Override
     public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes) {
         return null;
     }
@@ -72,6 +83,11 @@ public class TestHeadEndInterface implements HeadEndInterface{
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
+        return null;
+    }
+
+    @Override
+    public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall, boolean withPriority) {
         return null;
     }
 

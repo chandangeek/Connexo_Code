@@ -13,6 +13,7 @@ import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.scheduling.ComSchedule;
@@ -24,6 +25,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +60,7 @@ public interface CommunicationTaskService {
      * Gets all {@link ComTaskExecution}s of the specified {@link Device}
      * that are using the specified {@link ConnectionFunction}
      *
-     * @param device The Device
+     * @param device             The Device
      * @param connectionFunction the ConnectionFunction
      * @return The List of ComTaskExecution
      */
@@ -92,6 +94,8 @@ public interface CommunicationTaskService {
      * @return the requested ComTaskExecution
      */
     Optional<ComTaskExecution> findComTaskExecution(long id);
+
+    Optional<ComTaskExecution> findAndLockComTaskExecutionById(long id);
 
     public Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version);
 
@@ -181,7 +185,7 @@ public interface CommunicationTaskService {
      * @param device the Device for which to search for
      * @return a map containing the list of ComTaskExecutions per ConnectionFunction
      */
-    Map<ConnectionFunction,List<ComTaskExecution>> findComTasksUsingConnectionFunction(Device device);
+    Map<ConnectionFunction, List<ComTaskExecution>> findComTasksUsingConnectionFunction(Device device);
 
     @Deprecated
     /**
@@ -194,14 +198,29 @@ public interface CommunicationTaskService {
     /**
      * Finds all pending communication tasks with the given ComPort belonging to the ComPortPool of the associated connection method.
      * The advantage over getPlannedComTaskExecutionsFor is that connectionTasks are fetched too, so no roundtrip needed for each of them
+     *
      * @param comPort
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
     List<ComTaskExecution> getPendingComTaskExecutionsListFor(OutboundComPort comPort, int factor);
 
     /**
+     * Finds all pending communication tasks with the given ComPortPools of the associated connection method.
+     * The advantage over getPlannedComTaskExecutionsFor is that connectionTasks are fetched too, so no roundtrip needed for each of them
+     *
+     * @param comServer
+     * @param comPortPools
+     * @param delta        - duration to add to current time
+     * @param limit        - nr of entries to be returned.
+     * @param skip         - nr of entries to skip.
+     * @return a list of ComTaskExecutions already having the connectionTask fetched
+     */
+    List<ComTaskExecution> getPendingComTaskExecutionsListFor(ComServer comServer, List<OutboundComPortPool> comPortPools, Duration delta, long limit, long skip);
+
+    /**
      * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds
-     * @param deviceIds list of device IDs to search for
+     *
+     * @param deviceIds  list of device IDs to search for
      * @param comTaskIds list of ComTask IDs to search for
      * @return a fetcher for the ComTaskExecutions found
      */
@@ -226,8 +245,8 @@ public interface CommunicationTaskService {
      * communication errors of the specified type
      * that have occurred in the specified {@link Interval}.
      *
-     * @param devices The List of Devices that are used for counting
-     * @param interval The Interval during which the communication errors have occurred
+     * @param devices                   The List of Devices that are used for counting
+     * @param interval                  The Interval during which the communication errors have occurred
      * @param successIndicatorCondition The condition that specifies the type of communication error
      * @return The number of communication errors
      */
@@ -240,7 +259,6 @@ public interface CommunicationTaskService {
      * other ComTaskExecutions which are running with regular priority)
      *
      * @param comTaskExecution
-     *
      * @return A flag that indicates if this ComTaskExecution will be executed with regular or high priority
      */
     boolean shouldExecuteWithPriority(ComTaskExecution comTaskExecution);

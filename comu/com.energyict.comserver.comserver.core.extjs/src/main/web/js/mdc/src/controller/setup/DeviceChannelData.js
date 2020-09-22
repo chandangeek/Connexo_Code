@@ -658,8 +658,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (Ext.isFunction(getConfirmationWindow)) {
             getConfirmationWindow().close();
         }
-        viewport.setLoading();
+
         if (!Ext.isEmpty(changedData)) {
+            viewport.setLoading();
             Ext.Ajax.request({
                 url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.deviceId), router.arguments.channelId),
                 method: 'PUT',
@@ -700,6 +701,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     }
                 }
             });
+        }
+        else{
+            router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
         }
     },
 

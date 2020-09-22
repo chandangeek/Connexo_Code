@@ -40,4 +40,8 @@ public interface ReadingQualityTypeFilter extends ReadingQualityIndexFilter {
      * @return The self to proceed with search criteria definition or collect the results.
      */
     ReadingQualityWithTypeFetcher ofQualitySystems(Set<QualityCodeSystem> systems);
+
+    ReadingQualityWithTypeFetcher ofQualityType(ReadingQualityType readingQualityType);
+
+    ReadingQualityWithTypeFetcher ofQualityTypes(Set<ReadingQualityType> readingQualityTypes);
 }

@@ -7,6 +7,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -72,16 +74,17 @@ public class StartRecurringCommunicationTest {
     @Test
     public void executeSchedulesAllCommunicationTasks() {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(Instant.ofEpochMilli(123456789));
+        comTaskExecution1.putOnHold();
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        when(comTaskExecution2.isOnHold()).thenReturn(true);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+        when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         StartRecurringCommunication microAction = this.getTestInstance();
-
-        // Business method
         microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
-        // Asserts
-        verify(comTaskExecution1).scheduleNow();
-        verify(comTaskExecution2).scheduleNow();
+        Assert.assertFalse(comTaskExecution1.isOnHold());
+        Assert.assertTrue(comTaskExecution2.isOnHold());
     }
 
     private StartRecurringCommunication getTestInstance() {

@@ -4,7 +4,6 @@
 
 package com.energyict.protocol;
 
-import com.energyict.cim.EndDeviceEventTypeFactory;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 
 import java.io.Serializable;
@@ -780,6 +779,50 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int CONSUMPTION_ERROR = 366;
 
+    public static final int BATTERY_CONSUMPTION_HIGH = 367;
+
+    public static final int REVERSE_FLOW = 368;
+
+    public static final int TAMPER_P2 = 369;
+
+    public static final int TAMPER_P0 = 370;
+
+    public static final int TAMPER_CASE = 371;
+
+    public static final int SYSTEM_HW_ERROR = 372;
+
+    public static final int CFG_CALIBRATION_ERROR = 373;
+
+    public static final int TEMPERATURE_SENSOR_ERROR = 374;
+
+    public static final int BINDING_FLAG = 375;
+
+    public static final int EOB_RESET = 376;
+    public static final int MANUAL_RESET = 377;
+    public static final int AUTO_RESET = 378;
+    public static final int ROLL_OVER_TO_ZERO = 379;
+    public static final int SELECTION_OF_INPUTS_SIGNALS = 380;
+    public static final int OUTPUT_RELAY_CONTROL_SIGNALS_STATE_CHANGE = 381;
+    public static final int ERROR_REGISTR_1_CHANGED = 382;
+    public static final int ERROR_REGISTR_2_CHANGED = 383;
+    public static final int ERROR_REGISTR_3_CHANGED = 384;
+    public static final int COMMUNICATION_STATUS_CHANGED = 385;
+    public static final int MAXIMUM_CURRENT = 386;
+    public static final int SAG_CONFIRMED = 387;
+    public static final int SWELL_CONFIRMED = 388;
+    public static final int RECOVERY_AFTER_CURRENT_OVERLIMIT = 389;
+    public static final int RECOVERY_TIMES_SETTING_CHANGED = 390;
+    public static final int RECOVERY_MECHANISM_RELEASED = 391;
+    public static final int DISCONNECTOR_STATUS_CHANGED = 392;
+    public static final int SECURITY_EVENT = 393;
+    public static final int MAXIMUM_DEMAND_EVENT = 394;
+
+    public static final int TIME_BEFORE_CHANGE = 395;
+    public static final int TIME_AFTER_CHANGE = 396;
+    public static final int COMM_PORT_STATUS_CHANGE = 397;
+    public static final int OUTPUT_VALVE_CONTROL = 398;
+
+
     /**
      * Start of Beacon3100 custom codes
      * Range from 100000 to 100129
@@ -1361,6 +1404,70 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Pulse error");
             case CONSUMPTION_ERROR:
                 return ("Consumption Error");
+            case BATTERY_CONSUMPTION_HIGH:
+                return ("Battery low according to customer setting and expected battery lifetime");
+            case REVERSE_FLOW:
+                return ("Reverse flow above configured limit");
+            case TAMPER_P2:
+                return ("Communication Tamper. Checked at every encrypted M-Bus telegram");
+            case TAMPER_P0:
+                return ("Not used within ESMR spec (No active P0 port on M-Bus device)");
+            case TAMPER_CASE:
+                return ("Mechanical tamper of cover");
+            case SYSTEM_HW_ERROR:
+                return ("Regular check of SW/HW (selfcheck failure)");
+            case CFG_CALIBRATION_ERROR:
+                return ("Set if configuration is changed.");
+            case TEMPERATURE_SENSOR_ERROR:
+                return ("Temp sensor is broken");
+            case BINDING_FLAG:
+                return ("The binding flag is set by the M-Bus device when the device is in installation mode and it has been bound to an E-meter (it received the for this specific M-Bus device intended CNF_IR).");
+            case EOB_RESET:
+                return ("EOB Reset");
+            case MANUAL_RESET:
+                return ("Manual Reset");
+            case AUTO_RESET:
+                return ("Auto Reset");
+            case ROLL_OVER_TO_ZERO:
+                return ("Roll Over To Zero");
+            case SELECTION_OF_INPUTS_SIGNALS:
+                return ("Selection Of Input Signals");
+            case OUTPUT_RELAY_CONTROL_SIGNALS_STATE_CHANGE:
+                return ("Output Relay Control Signals State Change");
+            case ERROR_REGISTR_1_CHANGED:
+                return ("Error Register 1 Changed");
+            case ERROR_REGISTR_2_CHANGED:
+                return ("Error Register 2 Changed");
+            case ERROR_REGISTR_3_CHANGED:
+                return ("Error Register 3 Changed");
+            case COMMUNICATION_STATUS_CHANGED:
+                return ("Communication Status Changed");
+            case MAXIMUM_CURRENT:
+                return ("Maximum Current");
+            case SAG_CONFIRMED:
+                return ("Sag Confirmed");
+            case SWELL_CONFIRMED:
+                return ("Swell Confirmed");
+            case RECOVERY_AFTER_CURRENT_OVERLIMIT:
+                return ("Consumption Error");
+            case RECOVERY_TIMES_SETTING_CHANGED:
+                return ("Recovery Mechanism Changed");
+            case RECOVERY_MECHANISM_RELEASED:
+                return ("Recovery Mechanism Released");
+            case DISCONNECTOR_STATUS_CHANGED:
+                return ("Disconnector Status Changed");
+            case SECURITY_EVENT:
+                return ("Security Event");
+            case MAXIMUM_DEMAND_EVENT:
+                return ("MAximum Demand Event");
+            case TIME_BEFORE_CHANGE:
+                return ("Time Before Change");
+            case TIME_AFTER_CHANGE:
+                return ("Time After Change");
+            case COMM_PORT_STATUS_CHANGE:
+                return ("Communication Port Status Change");
+            case OUTPUT_VALVE_CONTROL:
+                return ("Output Valve Control");
             case  TOO_HIGH_CONSUMPTION_OR_PRODUCTION:
                 return ("Too high consumption or production of energy.");
             case INDEX_VALUE_DECREASE_OR_RESET:

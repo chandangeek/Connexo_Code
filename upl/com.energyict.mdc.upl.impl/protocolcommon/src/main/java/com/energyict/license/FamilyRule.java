@@ -51,7 +51,8 @@ public enum FamilyRule implements ProtocolFamily {
     ELSTER_GARNET(33),      // Elster GARNET
     G3_PLC(34),             // G3 PLC
     EICT_SUBMETER_EMS(35),  // EnergyICT Submeter EMS
-    EICT_THEMISUNO(36);     // Elster THEMISUNO
+    EICT_THEMISUNO(36),     // Elster THEMISUNO
+    ACUD(37);               // ACUD Devices
     private int code;
 
     FamilyRule (int code) {

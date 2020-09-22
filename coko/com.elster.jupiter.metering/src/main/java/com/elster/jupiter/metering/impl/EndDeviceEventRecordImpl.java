@@ -31,13 +31,13 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     static class EndDeviceEventDetailRecord {
         @SuppressWarnings("unused")
-		private EndDeviceEventRecord eventRecord;
+        private EndDeviceEventRecord eventRecord;
         @SuppressWarnings("unused")
-		private String eventTypeCode;
+        private String eventTypeCode;
         @SuppressWarnings("unused")
-		private long endDeviceId;
+        private long endDeviceId;
         @SuppressWarnings("unused")
-		private Instant createdDateTime;
+        private Instant createdDateTime;
 
         private String key;
         private String value;
@@ -72,16 +72,16 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private Instant createdDateTime;
     private Instant readingDateTime;
     private long createdDateTimeMillis;
-    
+
     @SuppressWarnings("unused")
-	private long version;
+    private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
 
     private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
     private final Reference<EndDevice> endDevice = ValueReference.absent();
-    
+
     private Map<String, String> properties = new HashMap<>();
     private final List<EndDeviceEventDetailRecord> detailRecords = new ArrayList<>();
 
@@ -96,17 +96,17 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         EndDeviceEventRecordImpl that = (EndDeviceEventRecordImpl) o;
-
-        return createdDateTime.equals(that.createdDateTime) && getEndDevice().equals(that.getEndDevice()) && getEventType().equals(that.getEventType());
+        return createdDateTime.equals(that.createdDateTime)
+                && getEndDevice().equals(that.getEndDevice())
+                && getEventType().equals(that.getEventType())
+                && Objects.equals(deviceEventType, that.deviceEventType);
     }
-    
+
     @Override
     public int hashCode() {
-        return Objects.hash(getEndDevice(),getEventType(),createdDateTime);
+        return Objects.hash(getEndDevice(), getEventType(), deviceEventType, createdDateTime);
     }
-
 
     @Override
     public String getAliasName() {
@@ -214,7 +214,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public String getType() {
-        return getEventType().getName();
+        return deviceEventType;
     }
 
     @Override
@@ -306,7 +306,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         this.endDevice.set(endDevice);
         this.createdDateTime = createdDateTime;
         this.createdDateTimeMillis = createdDateTime.toEpochMilli();
-        this.eventType.set(eventType);        
+        this.eventType.set(eventType);
         return this;
     }
 
@@ -328,21 +328,21 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
             }
         }
     }
-    
-    @Override 
-    public boolean updateProperties(Map<String,String> props) {
-    	if (this.properties.equals(props)) {
-    		return false;
-    	}
-    	Set<String> keysToRemove = new HashSet<>(this.properties.keySet()); // make a copy of keySet, as we do not want to change the map when removing.
-    	for (Map.Entry<String, String> entry : props.entrySet()) {
-    		addProperty(entry.getKey(), entry.getValue());
-    		keysToRemove.remove(entry.getKey());
-    	}
-    	for (String key : keysToRemove) {
-    		removeProperty(key);
-    	}
-    	return true;
+
+    @Override
+    public boolean updateProperties(Map<String, String> props) {
+        if (this.properties.equals(props)) {
+            return false;
+        }
+        Set<String> keysToRemove = new HashSet<>(this.properties.keySet()); // make a copy of keySet, as we do not want to change the map when removing.
+        for (Map.Entry<String, String> entry : props.entrySet()) {
+            addProperty(entry.getKey(), entry.getValue());
+            keysToRemove.remove(entry.getKey());
+        }
+        for (String key : keysToRemove) {
+            removeProperty(key);
+        }
+        return true;
     }
 
     @Override

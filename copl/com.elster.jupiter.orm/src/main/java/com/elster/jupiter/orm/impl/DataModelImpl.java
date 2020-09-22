@@ -336,10 +336,7 @@ public class DataModelImpl implements DataModel {
                 }
             }
             try (ResultSet resultSet = statement.executeQuery("SELECT * FROM v$option WHERE parameter = 'Partitioning'")) {
-                if (resultSet.next()) {
-                    return resultSet.getBoolean("value");
-                }
-                return false;
+                return resultSet.next() && resultSet.getBoolean("value");
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -355,16 +352,13 @@ public class DataModelImpl implements DataModel {
             return false;
         }
         //The Oracle version should be higher than 12.2...
-        if (Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2) {
-            return false;
-        }
-        return true;
+        return !(Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2);
     }
 
     public Optional<TableImpl<?>> getTable(Class<?> clazz) {
         for (TableImpl<?> table : getTables()) {
             if (table.maps(clazz)) {
-                return Optional.<TableImpl<?>>of(table);
+                return Optional.of(table);
             }
         }
         return Optional.empty();
@@ -416,7 +410,7 @@ public class DataModelImpl implements DataModel {
         allModules[modules.length] = getModule();
         injector = Guice.createInjector(allModules);
         for (TableImpl<?> each : getTables(getVersion())) {
-            each.prepare();
+            each.prepare(ormService.getEvictionTime(), ormService.isCacheEnabled());
         }
         this.ormService.register(this);
         registered = true;
@@ -505,6 +499,7 @@ public class DataModelImpl implements DataModel {
         return root.with(mappers);
     }
 
+    @Override
     public <T> QueryStream<T> stream(Class<T> api) {
         return new QueryStreamImpl<>(mapper(api));
     }
@@ -641,26 +636,14 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public String getRefreshJob(String jobName, String tableName, String createTableStatement, int minRefreshInterval) {
+    public String getRefreshJobStatement(String jobName, String jobAction, int minRefreshInterval) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB  ");
+        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB ");
         sqlBuilder.append(" ( ");
         sqlBuilder.append(" JOB_NAME            => '").append(jobName).append("', ");
         sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => ' ");
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" execute immediate ''DROP TABLE ").append(tableName).append("''; ");
-        sqlBuilder.append(" execute immediate ");
-        sqlBuilder.append(" ''");
-        sqlBuilder.append(createTableStatement.replace("'", "''''"));
-        sqlBuilder.append(" ''; ");
-        sqlBuilder.append(" EXCEPTION ");
-        sqlBuilder.append("    WHEN OTHERS THEN ");
-        sqlBuilder.append("       IF SQLCODE != -942 THEN ");
-        sqlBuilder.append("          RAISE; ");
-        sqlBuilder.append("       END IF; ");
-        sqlBuilder.append(" END;', ");
+        sqlBuilder.append(" JOB_ACTION          => '").append(jobAction).append("', ");
         sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
         sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
         sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=").append(minRefreshInterval).append("', ");
@@ -669,6 +652,15 @@ public class DataModelImpl implements DataModel {
         sqlBuilder.append(" AUTO_DROP           => FALSE, ");
         sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
         sqlBuilder.append(" ); ");
+        sqlBuilder.append(" END;");
+        return sqlBuilder.toString();
+    }
+
+    @Override
+    public String getDropJobStatement(String jobName) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(" BEGIN ");
+        sqlBuilder.append(" dbms_scheduler.drop_job(job_name => '").append(jobName).append("'); ");
         sqlBuilder.append(" END;");
         return sqlBuilder.toString();
     }

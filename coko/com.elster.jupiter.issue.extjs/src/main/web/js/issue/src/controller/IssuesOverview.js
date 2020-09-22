@@ -75,6 +75,10 @@ Ext.define('Isu.controller.IssuesOverview', {
             ref: 'previewActionMenu',
             selector: '#issues-preview issues-action-menu'
         },
+        {
+            ref: 'countButton',
+            selector: '#issues-overview #issues-count-action'
+        },
     ],
 
     extendedBy: null,
@@ -110,6 +114,9 @@ Ext.define('Isu.controller.IssuesOverview', {
             },
             '#create-group-from-issues-button': {
                 click: this.createGroupFromIssuesAction
+            },
+            '#issues-overview #issues-count-action': {
+                click: this.countIssues
             }
         });
     },
@@ -420,5 +427,66 @@ Ext.define('Isu.controller.IssuesOverview', {
             pagingToolbarBottom.store.currentPage = 1;
             pagingToolbarBottom.initPageNavItems(pagingToolbarBottom.child('#pageNavItem'), 1, pagingToolbarBottom.totalPages);
         }
+    },
+    countIssues: function(){
+        var me = this;
+        me.fireEvent('loadingcount');
+        Ext.Ajax.suspendEvent('requestexception');
+        me.getCountButton().up('panel').setLoading(true);
+        var filters = [];
+        var queryStringValues = Uni.util.QueryString.getQueryStringValues(false);
+        for (property in queryStringValues){
+            if (property !== 'sort'){
+                filters.push({'property' : property, value: queryStringValues[property] })
+            }
+        };
+        filters.push({'property' : 'application', value: 'MultiSense' })
+
+        Ext.Ajax.request({
+            url: Ext.getStore('Isu.store.Issues').getProxy().url + '/count',
+            timeout: 120000,
+            method: 'GET',
+            params: {
+                 filter: JSON.stringify(filters)
+            },
+            success: function (response) {
+                me.getCountButton().setText(response.responseText);
+                me.getCountButton().setDisabled(true);
+                me.getCountButton().up('panel').setLoading(false);
+            },
+            failure: function (response, request) {
+                var box = Ext.create('Ext.window.MessageBox', {
+                    buttons: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.close', 'ISU', 'Close'),
+                            action: 'close',
+                            name: 'close',
+                            ui: 'remove',
+                            handler: function () {
+                                box.close();
+                            }
+                        }
+                    ],
+                    listeners: {
+                        beforeclose: {
+                            fn: function () {
+                                me.getCountButton().setDisabled(true);
+                                me.getCountButton().up('panel').setLoading(false);
+                            }
+                        }
+                    }
+                });
+
+                box.show({
+                    title: Uni.I18n.translate('general.timeOut', 'ISU', 'Time out'),
+                    msg: Uni.I18n.translate('general.timeOutMessageIssues', 'ISU', 'Counting the issues took too long.'),
+                    modal: false,
+                    ui: 'message-error',
+                    icon: 'icon-warning2',
+                    style: 'font-size: 34px;'
+                });
+            }
+        });
     }
 });

@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class MeterConfigExtendedDataFactoryProvider implements MeterConfigExtend
     }
 
     @Override
-    public MeterConfig extendData(List<Device> fromDevices, MeterConfig toMeterConfig) {
+    public MeterConfig extendData(Collection<Device> fromDevices, MeterConfig toMeterConfig) {
         toMeterConfig.getMeter().forEach(meter -> {
             fromDevices.stream()
                     .filter(fromDevice -> fromDevice.getmRID().equals(meter.getMRID()))

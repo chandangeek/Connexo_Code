@@ -63,6 +63,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
         {
             xtype: 'pagingtoolbarbottom',
             dock: 'bottom',
+            needExtendedData: true,
             itemsPerPageMsg: Uni.I18n.translate('loadProfileTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Load profile types per page')
         }
     ],

@@ -6,32 +6,35 @@ package com.energyict.mdc.device.data.impl.ami.servicecall;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.device.data.ami.ICommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author sva
  * @since 03/06/2016 - 15:39
  */
-public class CommandServiceCallDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class CommandServiceCallDomainExtension extends AbstractPersistentDomainExtension implements ICommandServiceCallDomainExtension {
+    private static final String DEVICE_MSG_DELIMITER = ", ";
 
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
         RELEASE_DATE("releaseDate", "release_date"),
         DEVICE_MSG("deviceMessages", "device_msg"),
         NR_OF_UNCONFIRMED_DEVICE_COMMANDS("nrOfUnconfirmedDeviceCommands", "unconfirmed_commands"),
-        STATUS("status", "status");
+        STATUS("status", "status"),
+        RUN_WITH_PRIORITY("runWithPriority", "RUN_WITH_PRIORITY");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -58,6 +61,7 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
     private int nrOfUnconfirmedDeviceCommands;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String status;
+    private boolean runWithPriority;
 
     public CommandServiceCallDomainExtension() {
         super();
@@ -81,6 +85,11 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
 
     public String getDeviceMessages() {
         return deviceMessages;
+    }
+
+    public List<Long> getDeviceMessageIds() {
+        return Arrays.stream(deviceMessages.substring(1, deviceMessages.length() - 1).split(DEVICE_MSG_DELIMITER))
+                .map(Long::valueOf).collect(Collectors.toList());
     }
 
     public void setDeviceMessages(String deviceMessages) {
@@ -115,6 +124,14 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         this.status = status;
     }
 
+    public boolean isRunWithPriority() {
+        return runWithPriority;
+    }
+
+    public void setRunWithPriority(boolean runWithPriority) {
+        this.runWithPriority = runWithPriority;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -122,6 +139,7 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         this.setDeviceMessages((String) propertyValues.getProperty(FieldNames.DEVICE_MSG.javaName));
         this.setNrOfUnconfirmedDeviceCommands((Integer) propertyValues.getProperty(FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName()));
         this.setStatus((String) propertyValues.getProperty(FieldNames.STATUS.javaName));
+        this.setRunWithPriority((boolean) propertyValues.getProperty(FieldNames.RUN_WITH_PRIORITY.javaName));
     }
 
     @Override
@@ -130,6 +148,7 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         propertySetValues.setProperty(FieldNames.DEVICE_MSG.javaName(), this.getDeviceMessages());
         propertySetValues.setProperty(FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName(), this.getNrOfUnconfirmedDeviceCommands());
         propertySetValues.setProperty(FieldNames.STATUS.javaName(), this.getStatus());
+        propertySetValues.setProperty(FieldNames.RUN_WITH_PRIORITY.javaName(), this.isRunWithPriority());
     }
 
     @Override

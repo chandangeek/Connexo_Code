@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,7 +102,6 @@ public class OrmCacheTest {
     public void instanceTearDown() throws SQLException {
     	inMemoryBootstrapModule.deactivate();
     }
-    
 
     @Test
     public void testEventTypeCache() {
@@ -110,7 +110,7 @@ public class OrmCacheTest {
     		com.elster.jupiter.events.EventType eventType = eventService.getEventType(EventType.PARTY_CREATED.topic()).get();
     		assertThat(eventType.getPropertyTypes()).isNotEmpty();
     		ctx.commit();
-    		assertThat(ctx.getStats().getSqlCount()).isEqualTo(1);
+    		assertThat(ctx.getStats().getSqlCount()).isEqualTo(2);
     	}
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
     		com.elster.jupiter.events.EventType eventType = eventService.getEventType(EventType.PARTY_CREATED.topic()).get();

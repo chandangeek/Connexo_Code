@@ -52,7 +52,7 @@ public interface DataExportServiceCallType {
     Optional<ServiceCall> findServiceCall(String uuid);
 
     /**
-     * @param states EnumSet<DefaultState> set of the service call states.
+     * @param states {@code EnumSet<DefaultState>} set of the service call states.
      * @return {@link List} of found service calls.
      */
     List<ServiceCall> findServiceCalls(EnumSet<DefaultState> states);

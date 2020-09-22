@@ -266,7 +266,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             }
         });
 
-        Ext.Array.each(['currentStates'], function(prop) {
+        Ext.Array.each(['currentStates', 'latestResults'], function(prop) {
             if (filterObject.hasOwnProperty(prop)) {
                 if (!Ext.isArray(filterObject[prop])) {
                     filterObject[prop] = [filterObject[prop]];

@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 
+import com.energyict.mdc.common.device.config.GatewayType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -180,7 +181,7 @@ public class MasterDataLinkageHandler {
 
     private void linkGatewayToDevice(Device gateway, Device slave)
             throws FaultMessage {
-        if (!gateway.getDeviceConfiguration().canActAsGateway()) {
+        if (GatewayType.NONE.equals(gateway.getConfigurationGatewayType())) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
                     MessageSeeds.NOT_SUPPORTED_MASTER, gateway.getName(), gateway.getSerialNumber());
         }
@@ -359,17 +360,18 @@ public class MasterDataLinkageHandler {
     private List<ErrorType> collectWarnings() {
         List<ErrorType> warnings = new ArrayList<>();
         if (meterNodes.size() > 1) {
-            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
+            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null,
                     MasterDataLinkageMessageValidator.METER_LIST_ELEMENT));
         }
         if (usagePointNodes.size() > 1) {
-            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
+            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null,
                     MasterDataLinkageMessageValidator.USAGE_POINT_LIST_ELEMENT));
         }
         if (endDeviceNodes.size() > 1) {
-            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
+            warnings.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null,
                     MasterDataLinkageMessageValidator.END_DEVICE_LIST_ELEMENT));
         }
         return warnings;
     }
+
 }

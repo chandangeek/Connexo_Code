@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -15,11 +16,15 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-
-import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,13 +32,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -50,7 +48,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SmartMeterProtocolRegisterAdapterTest {
 
-    private static final ObisCode OBIS_CODE = mock(ObisCode.class);
+    private static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final String METER_SERIAL_NUMBER = "METER_SERIAL_NUMBER";
 
     private final Date fromDate = new Date(1389612600000L); // Mon, 13 Jan 2014 11:30:00 GMT
@@ -163,7 +161,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         RegisterValue registerValue = getMockedRegisterValue();
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Collections.singletonList(registerValue));
+        when(smartMeterProtocol.readRegisters(Matchers.any())).thenReturn(Collections.singletonList(registerValue));
 
         SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
 
@@ -192,7 +190,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         when(registerValue2.getObisCode()).thenReturn(ObisCode.fromString("2.2.2.2.2.2"));
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Arrays.asList(registerValue1, registerValue2));
+        when(smartMeterProtocol.readRegisters(Matchers.any())).thenReturn(Arrays.asList(registerValue1, registerValue2));
 
 
         SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);

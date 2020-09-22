@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
+
 import com.google.common.cache.CacheStats;
 import com.google.common.collect.Range;
 
@@ -23,12 +24,17 @@ import java.util.stream.Stream;
  */
 @ProviderType
 public interface Table<T> {
-
     int NAME_LENGTH = 80;
     int SHORT_DESCRIPTION_LENGTH = 256;
     int MAX_STRING_LENGTH = 4000;
     int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
     int UUID_LENGTH = 36; // Any UUID is 36 characters long
+
+    enum CacheType {
+        NO_CACHE,
+        TUPLE_CACHE,
+        WHOLE_TABLE_CACHE
+    }
 
     // datamodel construction api
     Column.Builder column(String name);
@@ -157,6 +163,10 @@ public interface Table<T> {
 
     void cache(long cacheTtl, long maximumSize, boolean recordStat);
 
+    void cacheWholeTable(boolean recordStat);
+
+    void cacheWholeTable(boolean recordStat, long evictionTime);
+
     CacheStats getCacheStats();
 
     void indexOrganized(int compressCount);
@@ -187,7 +197,7 @@ public interface Table<T> {
     boolean hasJournal(Version version);
 
     boolean isCached();
-
+    boolean isWholeTableCached();
     boolean isIndexOrganized();
 
     String getQualifiedName(Version version);
@@ -264,4 +274,11 @@ public interface Table<T> {
         void during(Range<Version>... ranges);
     }
 
+    void changeEvictionTime(long cacheTtl);
+
+    void disableCache();
+
+    void enableCache();
+
+    CacheType getCacheType();
 }

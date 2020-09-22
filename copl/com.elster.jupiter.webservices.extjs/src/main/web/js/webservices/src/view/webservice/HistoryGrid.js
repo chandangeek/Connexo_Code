@@ -84,6 +84,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 flex: 7,
                 header: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
+                name: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
                 renderer: function (value, metaData, record) {
                     if (!record.get('endTime')) {
                         return '-';
@@ -104,6 +105,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate(
                     'webservices.history.pagingtoolbartop.displayMsg',
                     'WSS',
@@ -124,6 +126,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 deferLoading: true,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate(
                     'webservices.history.pagingtoolbarbottom.itemsPerPage',
                     'WSS',

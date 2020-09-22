@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.GatewayType;
 import com.energyict.mdc.common.device.data.Device;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
@@ -42,7 +43,6 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -86,7 +86,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     @Mock
     private MeterActivation meterActivation;
     @Mock
-    private DeviceConfiguration deviceConfiguration1, deviceConfiguration2;
+    private DeviceConfiguration deviceConfiguration;
 
 
     @Before
@@ -170,10 +170,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .build();
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
 
         //Act
@@ -198,10 +197,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .build();
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
 
         //Act
@@ -231,10 +229,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(usagePointMeterActivator.activate(CREATED_DATE_TIME, meter, meterRole)).thenReturn(usagePointMeterActivator);
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
 
         //Act
@@ -266,10 +263,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(usagePointMeterActivator.activate(CREATED_DATE_TIME, meter, meterRole)).thenReturn(usagePointMeterActivator);
         when(deviceService.findDeviceByName(METER_NAME)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
 
         //Act
@@ -518,10 +514,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .build();
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);
@@ -548,8 +543,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .eraseUsagePointList()
                 .build();
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);
 
@@ -574,8 +568,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .build();
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.NONE);
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);
 
@@ -600,10 +593,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .build();
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(true);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);
@@ -687,10 +679,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
         when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
 
         //Act
@@ -717,10 +708,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
         when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
 
         //Act
@@ -745,10 +735,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
         when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
         when(meteringService.findUsagePointByMRID(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
@@ -783,10 +772,9 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(deviceService.findDeviceByName(METER_NAME)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
         when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
-        when(meterDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration1);
-        when(deviceConfiguration1.canActAsGateway()).thenReturn(true);
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(meterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.LOCAL_AREA_NETWORK);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(meterDevice));
         when(meteringService.findMeterByName(METER_NAME)).thenReturn(Optional.of(meter));
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
@@ -962,8 +950,8 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 .build();
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.empty());
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);
@@ -1016,8 +1004,8 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         when(deviceService.findDeviceByMrid(METER_MRID)).thenReturn(Optional.of(meterDevice));
         when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(endDevice));
         when(deviceService.findAndLockDeviceById(END_DEVICE_ID)).thenReturn(Optional.of(endDevice));
-        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration2);
-        when(deviceConfiguration2.isDirectlyAddressable()).thenReturn(false);
+        when(endDevice.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.isDirectlyAddressable()).thenReturn(false);
         when(topologyService.getPhysicalGateway(endDevice)).thenReturn(Optional.of(gateway));
         when(meterDevice.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(meterDevice.getName()).thenReturn(METER_NAME);

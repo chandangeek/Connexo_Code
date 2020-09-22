@@ -115,4 +115,14 @@ public final class IssueReasonImpl extends EntityImpl implements IssueReason {
     public int hashCode() {
         return Objects.hash(key);
     }
+
+    @Override
+    public String toString() {
+        return "IssueReasonImpl{" +
+                "key='" + key + '\'' +
+                ", translationKey='" + translationKey + '\'' +
+                ", descrTranslationKey='" + descrTranslationKey + '\'' +
+                ", issueType=" + issueType +
+                '}';
+    }
 }

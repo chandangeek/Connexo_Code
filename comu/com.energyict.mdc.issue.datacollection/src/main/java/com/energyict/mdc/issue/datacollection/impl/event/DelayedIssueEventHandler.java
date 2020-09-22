@@ -6,6 +6,7 @@ package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.MeteringService;
@@ -18,6 +19,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.event.UnregisteredFromGatewayDelayedEvent;
+
 import com.google.inject.Injector;
 
 import java.time.Clock;
@@ -75,6 +77,10 @@ public class DelayedIssueEventHandler implements MessageHandler {
         return injector.getInstance(Thesaurus.class);
     }
 
+    public IssueService getIssieService() {
+        return injector.getInstance(IssueService.class);
+    }
+
     @Override
     public void process(Message message) {
         Map<?, ?> map = getJsonService().deserialize(message.getPayload(), Map.class);
@@ -90,7 +96,7 @@ public class DelayedIssueEventHandler implements MessageHandler {
         Optional<Device> physicalGateway = getTopologyService().getPhysicalGateway(device);
         if (!physicalGateway.isPresent()) {
             UnregisteredFromGatewayDelayedEvent unregisteredFromGatewayDelayedEvent = new UnregisteredFromGatewayDelayedEvent(device, gateway, getIssueDataCollectionService(), getMeteringService(), getDeviceService(),
-                    getCommunicationTaskService(), getTopologyService(), getThesaurus(), injector, getTimeService(), getEventService(), getClock());
+                    getCommunicationTaskService(), getTopologyService(), getThesaurus(), injector, getTimeService(), getEventService(), getClock(), getIssieService());
             getIssueCreationService().processIssueCreationEvent(ruleId, unregisteredFromGatewayDelayedEvent);
         }
     }

@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -30,7 +31,7 @@ public class ForceClockCommandImpl extends SimpleComCommand implements ForceCloc
 
     public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         Date now = Date.from(getCommandRoot().getServiceProvider().clock().instant());
-        deviceProtocol.setTime(now);
+        deviceProtocol.setTime(now, DeviceClockSupport.ClockChangeMode.FORCE);
         this.timeSet = now;
     }
 

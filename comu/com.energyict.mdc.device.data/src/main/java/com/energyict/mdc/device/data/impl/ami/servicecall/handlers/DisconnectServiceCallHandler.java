@@ -10,9 +10,12 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import org.osgi.service.component.annotations.Component;
@@ -40,12 +43,17 @@ public class DisconnectServiceCallHandler extends AbstractContactorOperationServ
 
     // Constructor only to be used in JUnit tests
     public DisconnectServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus,
-                                        CompletionOptionsCallBack completionOptionsCallBack, CommunicationTaskService communicationTaskService) {
+                                        CompletionOptionsCallBack completionOptionsCallBack, CommunicationTaskService communicationTaskService,
+                                        EngineConfigurationService engineConfigurationService, PriorityComTaskService priorityComTaskService,
+                                        DeviceMessageService deviceMessageService) {
         super.setMessageService(messageService);
         super.setDeviceService(deviceService);
         super.setThesaurus(thesaurus);
         super.setCompletionOptionsCallBack(completionOptionsCallBack);
         super.setCommunicationTaskService(communicationTaskService);
+        super.setEngineConfigurationService(engineConfigurationService);
+        super.setPriorityComTaskService(priorityComTaskService);
+        super.setDeviceMessageService(deviceMessageService);
     }
 
     @Reference
@@ -71,6 +79,21 @@ public class DisconnectServiceCallHandler extends AbstractContactorOperationServ
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         super.setCommunicationTaskService(communicationTaskService);
+    }
+
+    @Reference
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        super.setEngineConfigurationService(engineConfigurationService);
+    }
+
+    @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        super.setPriorityComTaskService(priorityComTaskService);
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        super.setDeviceMessageService(deviceMessageService);
     }
 
     @Override

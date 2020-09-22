@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.sap.soap.webservices.impl.messagehandlers.SAPRegisteredNotificationOnDeviceMessageHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationCustomPropertySet;
@@ -75,7 +76,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_TYPE("deviceType", "Device type"),
     SHIPMENT_DATE("shipmentDate", "Shipment date"),
     MANUFACTURER("manufacturer", "Manufacturer"),
-    MODEL_NUMBER("modelNumber", "Model number"),
+    MANUFACTURER_SERIAL_ID("manufacturerSerialId", "Manufacturer serial id"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
     MATERIAL_ID("materialId", "Material id"),
     NEXT_READING_ATTEMPT_DATE("nextReadingAttemptDate", "Next reading attempt date"),
@@ -125,6 +126,8 @@ public enum TranslationKeys implements TranslationKey {
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
     AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
     AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one Logical Register Number was set on the device"),
+
+    SAPREGISTEREDNOTIFICATION_SUBSCRIBER(SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_SUBSCRIBER, SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DISPLAYNAME)
     ;
 
     private final String key;

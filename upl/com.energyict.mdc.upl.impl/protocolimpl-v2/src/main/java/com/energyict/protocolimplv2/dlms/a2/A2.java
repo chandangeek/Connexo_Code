@@ -53,9 +53,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -281,6 +279,34 @@ public class A2 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.asList(new InboundIpConnectionType(), new SioOpticalConnectionType(getPropertySpecService()), new RxTxOpticalConnectionType(getPropertySpecService()));
+    }
+
+    @Override
+    public void setTime(Date timeToSet, ClockChangeMode changeMode) {
+        try {
+            if (ClockChangeMode.SYNC.equals(changeMode)) {
+                if (isTimeIntervalOverClockSync() && isTimeSyncAroundInterval(timeToSet)) {
+                    getLogger().info("Time sync not performed due to hourly interval change on the meter");
+                    return;
+                }
+            }
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+        }
+    }
+
+    protected boolean isTimeIntervalOverClockSync() throws IOException {
+        return getDlmsSessionProperties().isTimeIntervalOverClockSync();
+    }
+
+    protected boolean isTimeSyncAroundInterval(Date timeToSet) throws IOException {
+        Calendar calToSet = Calendar.getInstance();
+        Calendar calToGet = Calendar.getInstance();
+        calToSet.setTime(timeToSet);
+        calToGet.setTime(getDlmsSession().getCosemObjectFactory().getClock().getDateTime());
+        if (calToSet.get(Calendar.HOUR_OF_DAY) == calToGet.get(Calendar.HOUR_OF_DAY))
+            return false;
+        return true;
     }
 
     @Override

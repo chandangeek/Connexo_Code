@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.TemplateUtil;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
@@ -251,6 +252,8 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         CreationRuleTemplate template = getTemplate();
+        // Fix for CXO-12489
+        TemplateUtil templateUtil = new TemplateUtil(this.getId(), this.getName());
         return template != null ? template.getPropertySpecs() : Collections.emptyList();
     }
 

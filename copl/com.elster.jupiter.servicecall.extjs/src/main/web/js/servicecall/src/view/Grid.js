@@ -83,6 +83,7 @@ Ext.define('Scs.view.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.displayMsg', 'SCS', '{0} - {1} of {2} service calls'),
                 displayMoreMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.displayMoreMsg', 'SCS', '{0} - {1} of more than {2} service calls'),
                 emptyMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.emptyMsg', 'SCS', 'There are no service calls to display'),
@@ -103,6 +104,7 @@ Ext.define('Scs.view.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('serviceCalls.pagingtoolbarbottom.itemsPerPage', 'SCS', 'Service calls per page'),
                 dock: 'bottom',
                 defaultPageSize: me.defaultPageSize

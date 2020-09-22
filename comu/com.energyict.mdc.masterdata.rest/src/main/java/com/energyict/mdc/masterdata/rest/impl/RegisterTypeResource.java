@@ -58,7 +58,8 @@ public class RegisterTypeResource {
     /**
      * We should filter out the ChannelTypes from the RegisterTypes list as these have an interval.
      */
-    @GET @Transactional
+    @GET
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
@@ -68,19 +69,20 @@ public class RegisterTypeResource {
             // case for remote filtering for buffered store
             List<Long> registerTypesAlreadyInUse = filter.getLongList("ids");
             registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
-                .filter(regType -> !registerTypesAlreadyInUse.contains(regType.getId()))
-                .skip(queryParameters.getStart().get())
-                .limit(queryParameters.getLimit().get() + 1);
+                    .filter(regType -> !registerTypesAlreadyInUse.contains(regType.getId()))
+                    .skip(queryParameters.getStart().get())
+                    .limit(queryParameters.getLimit().get() + 1);
         } else {
             registerTypeStream = this.masterDataService.findAllRegisterTypes().from(queryParameters).stream();
         }
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
-            .map(registerType -> registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
-            .collect(toList());
+                .map(registerType -> registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
@@ -89,7 +91,8 @@ public class RegisterTypeResource {
         return registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}")
     @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -99,7 +102,8 @@ public class RegisterTypeResource {
         return Response.ok().build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
@@ -111,7 +115,8 @@ public class RegisterTypeResource {
         return registerTypeInfoFactory.asInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

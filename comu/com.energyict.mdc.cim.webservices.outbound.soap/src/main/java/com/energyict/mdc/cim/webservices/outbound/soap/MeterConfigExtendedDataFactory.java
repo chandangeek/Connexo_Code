@@ -8,12 +8,12 @@ import com.energyict.mdc.common.device.data.Device;
 import aQute.bnd.annotation.ConsumerType;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 
-import java.util.List;
+import java.util.Collection;
 
 @ConsumerType
 public interface MeterConfigExtendedDataFactory {
 
     String NAME = "MeterConfigExtendedDataFactory";
 
-    MeterConfig extendData(List<Device> fromDevices, MeterConfig toMeterConfig);
+    MeterConfig extendData(Collection<Device> fromDevices, MeterConfig toMeterConfig);
 }

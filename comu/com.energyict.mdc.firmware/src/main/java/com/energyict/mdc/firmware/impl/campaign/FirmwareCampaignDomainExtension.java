@@ -12,6 +12,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -350,16 +351,17 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         setManuallyCancelled(true);
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
-        List<? extends DeviceInFirmwareCampaign> streamOfItems = firmwareService.getFirmwareCampaignService()
-                .streamDevicesInCampaigns()
-                .filter(Where.where("parent").isEqualTo(serviceCall))
-                .select();
-        if (streamOfItems.isEmpty()) {
-            if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                serviceCall.requestTransition(DefaultState.CANCELLED);
+        FirmwareCampaignServiceImpl firmwareCampaignService = firmwareService.getFirmwareCampaignService();
+        try(QueryStream<? extends DeviceInFirmwareCampaign> streamItems = firmwareCampaignService.streamDevicesInCampaigns()) {
+            List<? extends DeviceInFirmwareCampaign> items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
+                    .select();
+            if (items.isEmpty()) {
+                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+                    serviceCall.requestTransition(DefaultState.CANCELLED);
+                }
+            } else {
+                items.forEach(item -> item.cancel(true));
             }
-        } else {
-            streamOfItems.forEach(item -> item.cancel(true));
         }
     }
 

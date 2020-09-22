@@ -63,14 +63,15 @@ class ForwardedDeviceEventTypesFormatter {
         if (eventType == null) {
             return Optional.empty(); // this event type is either not present in mapping file, or has 'forwarded' = false
         }
-        Optional<String> sapDeviceId = sapCustomPropertySets.getSapDeviceId(eventRecord.getEndDevice());
+        Optional<String> sapDeviceId = sapCustomPropertySets.getRegisteredSapDeviceId(eventRecord.getEndDevice());
         if (!sapDeviceId.isPresent()) {
-            LOGGER.warning("SAP device id isn't found for device '" + eventRecord.getEndDevice().getName() + "'.");
+            LOGGER.warning("No id found on 'SAP device info' CAS of device '" + eventRecord.getEndDevice().getName() + "' with registered flag set to 'Yes'.");
             return Optional.empty();
         }
         if (!sapCustomPropertySets.isAnyLrnPresentForDate(Long.parseLong(eventRecord.getEndDevice().getAmrId()), eventRecord.getCreatedDateTime())) {
             return Optional.empty();
         }
+
         UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt info = objectFactory.createUtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt();
         info.setUtilitiesDeviceID(formatDeviceId(sapDeviceId.get()));
         info.setID(formatEventId(sapDeviceId.get(), eventType, eventRecord.getCreatedDateTime()));

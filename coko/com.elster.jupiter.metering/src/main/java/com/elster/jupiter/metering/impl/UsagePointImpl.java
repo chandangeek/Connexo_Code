@@ -1139,10 +1139,8 @@ public class UsagePointImpl implements ServerUsagePoint {
         if (meter.isPresent()) {
             if (!configuredReadingTypes.isEmpty()) {
                 return meter.get().getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter.get()
-                                , configuredReadingTypes.stream().filter(headEndInterface.getCapabilities(meter.get())
-                                        .getConfiguredReadingTypes()::contains).collect(Collectors.toList())
-                                , when));
+                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter.get(), when)
+                                .filterReadingTypes(configuredReadingTypes).build());
             }
         }
         return Optional.empty();

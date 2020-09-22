@@ -9,16 +9,17 @@ import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class ZeroIntervalReadingImpl implements IntervalReadingRecord {
-
+public final class ZeroIntervalReadingImpl implements IntervalReadingRecord {
     private final ReadingType readingType;
     private final Instant timeStamp;
 
@@ -58,27 +59,32 @@ public class ZeroIntervalReadingImpl implements IntervalReadingRecord {
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        return Optional.empty();
+        // the class is used in custom SAP data selector, which always forces 1 hour reading export and overrides reading type interval with it.
+        return Optional.of(Range.openClosed(timeStamp.minus(1, ChronoUnit.HOURS), timeStamp));
     }
 
     @Override
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override
     public List<Quantity> getQuantities() {
-        return null;
+        return Collections.singletonList(doGetQuantity());
     }
 
     @Override
     public Quantity getQuantity(int offset) {
-        return null;
+        return doGetQuantity();
     }
 
     @Override
     public Quantity getQuantity(ReadingType readingType) {
-        return null;
+        return doGetQuantity();
+    }
+
+    private Quantity doGetQuantity() {
+        return readingType.getUnit().getUnit().amount(BigDecimal.ZERO, readingType.getMultiplier().getMultiplier());
     }
 
     @Override
@@ -93,20 +99,21 @@ public class ZeroIntervalReadingImpl implements IntervalReadingRecord {
 
     @Override
     public List<? extends ReadingType> getReadingTypes() {
-        return null;
+        return Collections.singletonList(readingType);
     }
 
     @Override
     public ProcessStatus getProcessStatus() {
-        return null;
+        return new ProcessStatus(0);
     }
 
     @Override
     public void setProcessingFlags(ProcessStatus.Flag... flags) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public IntervalReadingRecord filter(ReadingType readingType) {
-        return null;
+        return this;
     }
 }

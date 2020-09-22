@@ -20,8 +20,6 @@ import java.util.List;
  */
 public class MK6ConfigurationSupport implements HasDynamicProperties {
 
-    public static final String CONNECTION_MODE = "ConnectionMode";
-    public static final ConnectionMode DEFAULT_CONNECTION_MODE = ConnectionMode.EXTENDED_COMMAND_LINE;
     public static final String PREVENT_CROSSING_INTERVAL_BOUNDARY_WHEN_READING_PROFILES = "PreventCrossingIntervalBoundaryWhenReadingProfiles";
 
     private PropertySpecService propertySpecService;
@@ -33,7 +31,6 @@ public class MK6ConfigurationSupport implements HasDynamicProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                connectionModePropertySpec(),
                 preventCrossingIntervalBoundaryWhenReadingPropertySpec(),
                 timeZonePropertySpec(),
                 deviceIdPropertySpec(),
@@ -58,38 +55,8 @@ public class MK6ConfigurationSupport implements HasDynamicProperties {
         return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, PropertyTranslationKeys.V2_ELSTER_CALL_HOME_ID, propertySpecService::stringSpec).finish();
     }
 
-    private PropertySpec connectionModePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(CONNECTION_MODE, false, PropertyTranslationKeys.V2_DLMS_CONNECTION_MODE, propertySpecService::stringSpec)
-                .addValues(Arrays.asList(ConnectionMode.EXTENDED_COMMAND_LINE.getName(), ConnectionMode.MINI_E_COMMAND_LINE.getName()))
-                .setDefaultValue(DEFAULT_CONNECTION_MODE.getName())
-                .finish();
-    }
-
     protected PropertySpec timeZonePropertySpec() {
         return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.TIMEZONE, false, PropertyTranslationKeys.V2_ELSTER_TIMEZONE, propertySpecService::timeZoneSpec).finish();
     }
 
-    public enum ConnectionMode {
-        EXTENDED_COMMAND_LINE("Extended command line"),
-        MINI_E_COMMAND_LINE("Mini-E command line");
-
-        private final String name;
-
-        ConnectionMode(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public static ConnectionMode fromName(String name) {
-            for (ConnectionMode connectionMode : values()) {
-                if (connectionMode.getName().equals(name)) {
-                    return connectionMode;
-                }
-            }
-            return ConnectionMode.EXTENDED_COMMAND_LINE;
-        }
-    }
 }

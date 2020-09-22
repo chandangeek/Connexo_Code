@@ -51,7 +51,7 @@ import java.util.logging.Logger;
 public class CustomSAPDeviceEventHandler implements TopicHandler {
     public static final String COMPONENT_NAME = "CSE";
     static final String APPLICATION_NAME = "MultiSense";
-    static final String NAME = "com.energyict.mdc.webservices.demo.eventhandlers.CustomSapDeviceEventHandler";
+    static final String NAME = "com.energyict.mdc.sap.soap.custom.eventhandlers.CustomSAPDeviceEventHandler";
     private static final Logger LOGGER = Logger.getLogger(NAME);
     private static final Function<EndDeviceEventRecord, Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt>> NO_MAPPING_FORMATTER = event -> {
         throw new RuntimeException("Failed to send notification about event " + toString(event) + ": mapping csv hadn't been loaded properly.");

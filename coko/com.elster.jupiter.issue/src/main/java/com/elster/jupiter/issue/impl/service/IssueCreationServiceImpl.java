@@ -18,6 +18,7 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.FiltrableByComTask;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.TemplateUtil;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -37,6 +38,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
@@ -68,6 +70,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -154,12 +157,14 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public Query<CreationRule> getCreationRuleQuery(Class<?>... eagers) {
         Query<CreationRule> query = query(CreationRule.class, eagers);
         query.setRestriction(where("obsoleteTime").isNull());
+        // Resetting the ID and Name values (Fix for CXO-12489)
+        TemplateUtil templateUtil = new TemplateUtil(null, null);
         return query;
     }
 
     @Override
     public List<CreationRuleAction> findActionsByMultiValueProperty(List<IssueTypes> issueTypes, String propertyKey,
-            List<String> groupIdsList) {
+                                                                    List<String> groupIdsList) {
         final List<CreationRuleAction> actionsList;
         if (issueTypes != null && !issueTypes.isEmpty()) {
             final Condition condition = Where.where("type.issueType.key")
@@ -167,7 +172,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             actionsList = dataModel.query(CreationRuleAction.class, IssueActionType.class, IssueType.class)
                     .select(condition);
         } else {
-            actionsList = dataModel.stream(CreationRuleAction.class).select();
+            try (QueryStream<CreationRuleAction> actionList = dataModel.stream(CreationRuleAction.class)) {
+                actionsList = actionList.select();
+            }
         }
         final List<CreationRuleAction> filteredActions = actionsList.stream().filter(action -> {
             if (action.getProperties().containsKey(propertyKey)) {
@@ -219,6 +226,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                 ksession.setGlobal(EVENT_SERVICE, eventService);
                 ksession.setGlobal(LOGGER, LOG);
             } catch (RuntimeException ex) {
+                LOG.log(Level.WARNING, ex.getMessage(), ex);
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
                         "issues will be created! Check that at least one rule contains string 'global com.elster.jupiter." +
                         "issue.share.service.IssueCreationService issueCreationService;' and this rule calls " +
@@ -233,6 +241,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     @Override
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
         // Sometimes we need to restrict issue creation due to global reasons (common for all type of issues)
+        LOG.fine("Processing issue creation event: rule id:" + ruleId + " issue event class:" + event.getClass());
         if (event.getEndDevice().isPresent() && restrictIssueCreation(event)) {
             LOG.info("Issue creation for "
                     + event.getEndDevice().map(EndDevice::getName).orElse(event.getUsagePoint().isPresent() ? event.getUsagePoint().get().getName() : "UNKNOWN")
@@ -256,8 +265,11 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             CreationRuleTemplate template = firedRule.getTemplate();
             Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
             if (existingIssue.isPresent()) {
-                template.updateIssue(existingIssue.get(), event);
+                OpenIssue openIssue = existingIssue.get();
+                LOG.fine("Updating issue:" + openIssue.getIssueId());
+                template.updateIssue(openIssue, event);
             } else {
+                LOG.fine("Creating new issue with template:" + template.getClass());
                 createNewIssue(firedRule, event, template);
             }
         });
@@ -266,6 +278,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public void processAlarmCreationEvent(int ruleId, IssueEvent event, boolean logOnSameAlarm) {
+        LOG.fine("Process alarm creation event:" + event + " on ruleId:" + ruleId);
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
                     CreationRuleTemplate template = firedRule.getTemplate();
                     if (logOnSameAlarm) {
@@ -296,6 +309,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
+        LOG.fine("Processing create issue based on event:" + event);
         try {
             batchUser = userService.findUser("batch executor");
         } catch (FoundUserIsNotActiveException e) {
@@ -316,6 +330,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
         OpenIssue newIssue = template.createIssue(baseIssue, event);
+        LOG.fine("New issue created:" + newIssue);
         newIssue.autoAssign();
         executeCreationActions(newIssue);
     }
@@ -353,6 +368,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public void processIssueResolutionEvent(long ruleId, IssueEvent event) {
+        LOG.fine("Processing resolution event:" + event);
         findCreationRuleById(ruleId).get().getTemplate().resolveIssue(event);
     }
 
@@ -366,6 +382,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public void closeAllOpenIssuesResolutionEvent(long ruleId, IssueEvent event) throws OperationNotSupportedException {
+        LOG.fine("Processing close all:" + event);
         findCreationRuleById(ruleId).get().getTemplate().closeAllOpenIssues(event);
     }
 
@@ -449,6 +466,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     private boolean canEvaluateRules() {
         createKnowledgeBase();
-        return knowledgeBase != null;
+        return knowledgeBase != null && !knowledgeBase.getKnowledgePackages().isEmpty();
     }
 }

@@ -80,7 +80,14 @@ my $SMTP_PASSWORD;
 my $SMTP_HOST;
 my $SMTP_PORT;
 my $SMTP_USER;
-my $SMTP_FROM;				  
+my $SMTP_FROM;
+my $CLASSPATH_SEPARATOR;
+
+if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+	$CLASSPATH_SEPARATOR=";";
+} else {
+	$CLASSPATH_SEPARATOR=":";
+}
 
 # Function Definitions
 sub dircopy {
@@ -621,7 +628,8 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"user\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
-        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 9.0 ","set DISPLAYNAME=");
+        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=AshareTransactionConnectionspache Tomcat 9.0 ","set DISPLAYNAME=");
+        add_to_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/btm-config.properties", "\nbitronix.tm.2pc.warnAboutZeroResourceTransactions=false");
 
         (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
         (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
@@ -681,6 +689,12 @@ sub install_tomcat {
         add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
         add_to_file($catalina, "javax.net.ssl.keyStore=$CONNEXO_DIR/ssl/connexo-keystore.p12");
         add_to_file($catalina, "javax.net.ssl.keyStorePassword=zorro2020");
+        #Quartz is disabled because we faced with performance issues there. And also some processes were still hanging after tomcat restart.
+        #add_to_file($catalina, "jbpm.quartz.enabled=true");
+        #add_to_file($catalina, "org.quartz.properties=$replaceHOME/conf/quartz.properties");
+        add_to_file($catalina, "org.jbpm.timer.thread.retries=100");
+        add_to_file($catalina, "org.jbpm.timer.thread.delay=60000");
+
 
         if ("$ACTIVATE_SSO" ne "yes") {
             add_to_file($catalina, "# Connexo properties required for non-SSO setup");
@@ -863,6 +877,16 @@ sub install_flow {
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
+		#add quartz support
+		copy("$CONNEXO_DIR/partners/flow/quartz.properties","$CATALINA_HOME/conf/quartz.properties");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{jdbc\}',"$FLOW_JDBC_URL");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{user\}',"$FLOW_DB_USER");
+		replace_in_file("$CATALINA_HOME/conf/quartz.properties",'\$\{password\}',"$FLOW_DB_PASSWORD");
+		copy("$CONNEXO_DIR/partners/flow/commons-dbcp-1.4.jar","$FLOW_DIR/WEB-INF/lib/commons-dbcp-1.4.jar");
+		copy("$CONNEXO_DIR/partners/flow/commons-pool-1.6.jar","$FLOW_DIR/WEB-INF/lib/commons-pool-1.6.jar");
+		copy("$CONNEXO_DIR/partners/flow/quartz-oracle-1.8.5.jar","$FLOW_DIR/WEB-INF/lib/quartz-oracle-1.8.5.jar");
+		create_quartz_tables();
+
         #set system identifier in the header
 		if ("$SYSTEM_IDENTIFIER" ne "") {
 		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
@@ -876,6 +900,12 @@ sub install_flow {
 		if (-e "$CONNEXO_DIR/partners/flow/flow.filter.jar") {
             print "    $CONNEXO_DIR/partners/flow/flow.filter.jar -> $FLOW_DIR/WEB-INF/lib/flow.filter.jar\n";
 		    copy("$CONNEXO_DIR/partners/flow/flow.filter.jar","$FLOW_DIR/WEB-INF/lib/flow.filter.jar");
+        }
+        print "Replacing jar files\n";
+        #see subsystems/com.elster.jupiter.subsystem.platform/assembly/partners/flow/honeywell_changes/readme.txt
+		if (-e "$CONNEXO_DIR/partners/flow/jbpm-flow-6.4.0.Final.jar") {
+            print "    $CONNEXO_DIR/partners/flow/flow.filter.jar -> $FLOW_DIR/WEB-INF/lib/flow.filter.jar\n";
+		    copy("$CONNEXO_DIR/partners/flow/jbpm-flow-6.4.0.Final.jar","$FLOW_DIR/WEB-INF/lib/jbpm-flow-6.4.0.Final.jar");
         }
 		print "Connexo Flow successfully deployed\n";
         print "Preparing URLs in $config_file\n";
@@ -894,6 +924,10 @@ sub install_flow {
 	} else {
 		print "\n\nSkip installation of Connexo Flow\n";
 	}
+}
+
+sub create_quartz_tables {
+    system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/lib/com.elster.jupiter.installer.util.jar$CLASSPATH_SEPARATOR$CONNEXO_DIR/partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.installer.util.SqlExecutor $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $CONNEXO_DIR/partners/flow/quartz_tables_oracle.sql");
 }
 
 sub activate_sso_filters{
@@ -1179,7 +1213,7 @@ sub start_tomcat_service {
 sub postCall {
     my ($command, $msg)=@_;
 
-    #print "Calling:\t$command\n";
+    print "Calling:\t$command\n";
     system($command) == 0 or die "$msg: $?";
     print "\t - command finished.\n"
 }
@@ -1211,10 +1245,8 @@ sub start_tomcat {
 
 			chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
-                } else {
-                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
+            } else {
                 postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
             }
 			unlink("$CONNEXO_DIR/datasource.xml");
@@ -1222,28 +1254,28 @@ sub start_tomcat {
 
 		if ("$INSTALL_FLOW" eq "yes") {
 			print "\nInstalling Connexo Flow content...\n";
-
-			opendir(DIR,"$CONNEXO_DIR/bundles");
-            my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
-            closedir(DIR);
-
-            my $BPM_BUNDLE;
-            foreach my $file (@files) {
-                $BPM_BUNDLE="$file";
-            }
-
             chdir "$CONNEXO_DIR";
             print "Changing directory to $CONNEXO_DIR\n";
             # using TomCat password here because the filters should not be active yet if SSO is used
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
             sleep 5;
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow", "Installing Connexo Flow content failed");
 
-            print "\nDeploy MDC processes...\n";
+            print "\nCopy processes to repository...\n";
             mkdir "$TOMCAT_BASE/$TOMCAT_DIR/repositories";
             dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+                # classpath separator on Windows is ;
+                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*;partners/tomcat/webapps/flow/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
+            } else {
+                # classpath separator on Linux is :
+                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*:partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie \n";
+                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/tomcat/lib/*:partners/tomcat/webapps/flow/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $TOMCAT_BASE/$TOMCAT_DIR/repositories/kie", "Installing Connexo Flow content failed");
+
+            }
+            print "\nDeploy MDC processes...\n";
             my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
             if(-e $mdcfile){
                 open(INPUT, $mdcfile);
@@ -1253,15 +1285,13 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid", "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);
             }
 
             print "\nDeploy INSIGHT processes...\n";
-            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
             my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
             if(-e $insightfile){
                 open(INPUT, $insightfile);
@@ -1271,12 +1301,14 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     print "Deploying: $name\n";
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
                     sleep 2;
                 }
                 close(INPUT);
             }
+
+            #create indexes in flow db to speed up performance
+            system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/lib/com.elster.jupiter.installer.util.jar$CLASSPATH_SEPARATOR$CONNEXO_DIR/partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.installer.util.SqlExecutor $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $CONNEXO_DIR/partners/flow/flow_add_indexes.sql");
 		}
 	}
 }

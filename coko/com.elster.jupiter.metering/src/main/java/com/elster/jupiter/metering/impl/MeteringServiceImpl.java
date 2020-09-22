@@ -840,7 +840,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return dataModel.mapper(MeterRole.class).find();
     }
 
-
     @Override
     public boolean isCalendarEffectiveForAnyUsagePoint(Calendar calendar) {
         return this.getCalendarUsagesStream(calendar).anyMatch(effectiveNowOfInFutureCondition());
@@ -866,5 +865,16 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     private Condition inRange(Range<Instant> range) {
         return where("endDevice").isEqualTo(this).and(where("createdDateTime").in(range));
+    }
+
+    @Override
+    public QueryStream<EndDeviceEventRecord> streamEndDeviceEvents() {
+        return dataModel.stream(EndDeviceEventRecord.class)
+                .join(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
+    }
+
+    @Override
+    public Optional<ChannelsContainer> findChannelsContainer(long id) {
+        return dataModel.mapper(ChannelsContainer.class).getOptional(id);
     }
 }

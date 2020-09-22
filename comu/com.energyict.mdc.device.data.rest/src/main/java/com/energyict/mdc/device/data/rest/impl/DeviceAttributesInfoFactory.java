@@ -45,15 +45,26 @@ public class DeviceAttributesInfoFactory {
     private final ThreadPrincipalService threadPrincipalService;
     private final LocationService locationService;
     private final MeteringTranslationService meteringTranslationService;
+    private final DataLoggerInfoFactory dataLoggerInfoFactory;
+    private final MultiElementInfoFactory multiElementInfoFactory;
 
     @Inject
-    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, LocationService locationService, MeteringTranslationService meteringTranslationService) {
+    public DeviceAttributesInfoFactory(BatchService batchService,
+                                       MeteringService meteringService,
+                                       Thesaurus thesaurus,
+                                       ThreadPrincipalService threadPrincipalService,
+                                       LocationService locationService,
+                                       MeteringTranslationService meteringTranslationService,
+                                       DataLoggerInfoFactory dataLoggerInfoFactory,
+                                       MultiElementInfoFactory multiElementInfoFactory) {
         this.batchService = batchService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.threadPrincipalService = threadPrincipalService;
         this.locationService = locationService;
         this.meteringTranslationService = meteringTranslationService;
+        this.dataLoggerInfoFactory = dataLoggerInfoFactory;
+        this.multiElementInfoFactory = multiElementInfoFactory;
     }
 
     public DeviceAttributesInfo from(Device device) {
@@ -163,6 +174,17 @@ public class DeviceAttributesInfoFactory {
         fillAvailableAndEditable(info.decommissioningDate, DeviceAttribute.DECOMMISSIONING_DATE, state, false);
 
         info.deviceIcon = Base64.getEncoder().encodeToString(device.getDeviceType().getDeviceIcon());
+
+        info.dataLoggerInfo = new DeviceAttributeInfo<>();
+        DataLoggerInfo loggerInfo = dataLoggerInfoFactory.fromDevice(device);
+        info.dataLoggerInfo.displayValue = loggerInfo;
+        fillAvailableAndEditable(info.dataLoggerInfo, DeviceAttribute.DATA_LOGGER, state, true);
+
+        info.multiElementInfo = new DeviceAttributeInfo<>();
+        MultiElementInfo multiElementInfo = multiElementInfoFactory.fromDevice(device);
+        info.multiElementInfo.displayValue = multiElementInfo;
+        fillAvailableAndEditable(info.multiElementInfo, DeviceAttribute.MULTI_ELEMENT, state, true);
+
         return info;
     }
 

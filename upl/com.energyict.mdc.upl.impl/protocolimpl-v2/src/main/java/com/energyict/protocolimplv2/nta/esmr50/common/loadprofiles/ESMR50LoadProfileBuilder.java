@@ -246,42 +246,12 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
                         ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_LP_DUPLICATED_CHANNEL) &&
                               ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                 ).forEach(
-                        ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
+                        ci -> ci.setName( ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
                 );
             }
         }
 
         return loadProfileConfigurationList;
-    }
-
-    public static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
-        final String[] obisLetters = obisCode.toString().split("\\.");
-        final String letter = String.valueOf(value);
-
-        switch (fieldNo) {
-            case 1:
-                obisLetters[0] = letter;
-                break;
-            case 2:
-                obisLetters[1] = letter;
-                break;
-            case 3:
-                obisLetters[2] = letter;
-                break;
-            case 4:
-                obisLetters[3] = letter;
-                break;
-            case 5:
-                obisLetters[4] = letter;
-                break;
-            case 6:
-                obisLetters[5] = letter;
-                break;
-            default:
-                break;
-        }
-
-        return ObisCode.fromString( String.join(".", obisLetters) );
     }
 
     protected List<ChannelInfo> getLTEMonitoringChannelInfos(CollectedLoadProfileConfiguration lpc) {

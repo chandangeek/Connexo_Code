@@ -684,6 +684,12 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>installer.util</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>loaderjs</artifactId>
@@ -865,6 +871,18 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>systemproperties</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>systemproperties.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks.rest</artifactId>
@@ -1205,12 +1223,12 @@
             <groupId>biz.aQute.bnd</groupId>
             <artifactId>bndlib</artifactId>
         </dependency>
-    </dependencies>
+	</dependencies>
 
 
     <properties>
         <javadoc.excluded.package.names>
-            com.elster.jupiter.bpm.install:com.elster.jupiter.fsm.handler:com.elster.jupiter.fileimport.*:com.elster.jupiter.launcher:com.elster.connexo.user:com.elster.jupiter.install.reports:${line.separator}
+            com.elster.jupiter.installer.util:com.elster.jupiter.fsm.handler:com.elster.jupiter.fileimport.*:com.elster.jupiter.launcher:com.elster.connexo.user:com.elster.jupiter.install.reports:${line.separator}
             com.elster.jupiter.loaderjs:com.elster.jupiter.oracle.stats:com.elster.jupiter.orm.callback.InstallService:com.elster.jupiter.orm.schema:com.elster.jupiter.orm.schema.*:${line.separator}
             com.elster.jupiter.schema.oracle:com.elster.jupiter.theme.skyline:com.elster.jupiter.unifyingjs:com.elster.jupiter.util.gogo:${line.separator}
             com.elster.jupiter.appserver.security:com.elster.jupiter.bpm.security:com.elster.jupiter.fileimport.security:com.elster.jupiter.license.security:com.elster.jupiter.servicecall.security:${line.separator}
@@ -1254,6 +1272,7 @@
         <module>com.elster.jupiter.http.whiteboard</module>
         <module>com.elster.jupiter.hsm</module>
         <module>com.elster.jupiter.launcher</module>
+		<module>com.elster.jupiter.installer.util</module>
         <module>com.elster.jupiter.loaderjs</module>
         <module>com.elster.jupiter.login.app</module>
         <module>com.elster.jupiter.mail</module>
@@ -1281,27 +1300,29 @@
         <module>com.elster.jupiter.servicecall.extjs</module>
         <module>com.elster.jupiter.servicecall.rest</module>
         <module>com.elster.jupiter.servicecalltype.extjs</module>
-        <module>com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
-        <module>com.elster.jupiter.system</module>
-		<!-- todo rename to license -->
-		<module>com.elster.jupiter.systemadmin</module>
-		<module>com.elster.jupiter.tasks</module>
-		<module>com.elster.jupiter.tasks.rest</module>
-		<module>com.elster.jupiter.theme.skyline</module>
-		<module>com.elster.jupiter.time</module>
-		<module>com.elster.jupiter.time.extjs</module>
-		<module>com.elster.jupiter.time.rest</module>
-		<module>com.elster.jupiter.transaction</module>
-		<module>com.elster.jupiter.unifyingjs</module>
-		<module>com.elster.jupiter.upgrade</module>
-		<module>com.elster.jupiter.users</module>
-		<module>com.elster.jupiter.users.extjs</module>
-		<module>com.elster.jupiter.users.rest</module>
-		<module>com.elster.jupiter.util</module>
-		<module>com.elster.jupiter.webservice.inbound.rest.scim</module>
-		<module>com.elster.jupiter.webservices.extjs</module>
-		<module>com.elster.jupiter.webservices.rest</module>
-		<module>com.elster.jupiter.yellowfin</module>
+		<module>com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
+		<module>com.elster.jupiter.system</module>
+        <!-- todo rename to license -->
+        <module>com.elster.jupiter.systemadmin</module>
+        <module>com.elster.jupiter.systemproperties</module>
+        <module>com.elster.jupiter.systemproperties.rest</module>
+        <module>com.elster.jupiter.tasks</module>
+        <module>com.elster.jupiter.tasks.rest</module>
+        <module>com.elster.jupiter.theme.skyline</module>
+        <module>com.elster.jupiter.time</module>
+        <module>com.elster.jupiter.time.extjs</module>
+        <module>com.elster.jupiter.time.rest</module>
+        <module>com.elster.jupiter.transaction</module>
+        <module>com.elster.jupiter.unifyingjs</module>
+        <module>com.elster.jupiter.upgrade</module>
+        <module>com.elster.jupiter.users</module>
+        <module>com.elster.jupiter.users.extjs</module>
+        <module>com.elster.jupiter.users.rest</module>
+        <module>com.elster.jupiter.util</module>
+        <module>com.elster.jupiter.webservice.inbound.rest.scim</module>
+        <module>com.elster.jupiter.webservices.extjs</module>
+        <module>com.elster.jupiter.webservices.rest</module>
+        <module>com.elster.jupiter.yellowfin</module>
         <module>com.elster.jupiter.yellowfin.app</module>
         <module>com.elster.jupiter.yellowfin.installer</module>
         <module>com.elster.jupiter.drools-integration</module>

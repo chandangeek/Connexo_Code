@@ -13,6 +13,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +29,8 @@ import java.util.Optional;
 public interface ChannelsContainer extends ReadingContainer, Effectivity, HasId {
 
     Channel createChannel(ReadingType main, ReadingType... readingTypes);
+
+    Channel createChannel(ZoneId zoneId, ReadingType main, ReadingType... readingTypes);
 
     List<Channel> getChannels();
 
@@ -48,6 +51,7 @@ public interface ChannelsContainer extends ReadingContainer, Effectivity, HasId 
     /**
      * Finds aggregated {@link Channel Channels} dependent on the provided scope channel data and returns them
      * mapped with {@link Range Ranges} of time where data from the provided channels is actually used to calculate aggregated data.
+     *
      * @param scope The scope of channel data defined by {@link Channel}/{@link Range} of time.
      * The behavior is not guaranteed if these channels do not belong to this channels container.
      * @return Dependent {@link Channel Channels} mapped to {@link Range Ranges} of time

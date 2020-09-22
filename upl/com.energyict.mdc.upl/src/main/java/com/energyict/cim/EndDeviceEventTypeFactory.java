@@ -1448,6 +1448,84 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("4.21.87.79");
     }
 
+    public static EndDeviceEventType getEOBReset() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.BILLING, EndDeviceSubdomain.CALCULATION, EndDeviceEventOrAction.RESET);
+    }
+
+    public static EndDeviceEventType getManualReset() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.MAINTMODE, EndDeviceEventOrAction.RESET);
+    }
+
+    public static EndDeviceEventType getAutoReset() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.RESET);
+    }
+
+    public static EndDeviceEventType getRollOverToZero() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.RESTARTED);
+    }
+
+    public static EndDeviceEventType getSelectionOfInputsSignals() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.INPUT, EndDeviceEventOrAction.CHANGE);
+    }
+
+    public static EndDeviceEventType getOutputRelayControlSignalState() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.RELAY, EndDeviceEventOrAction.CHANGED);
+    }
+
+    public static EndDeviceEventType getRegister1() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.EVENT, EndDeviceEventOrAction.TAMPERDETECTED);
+    }
+
+    public static EndDeviceEventType getRegister2() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.EVENT, EndDeviceEventOrAction.TAMPERDETECTED);
+    }
+
+    public static EndDeviceEventType getRegister3() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.EVENT, EndDeviceEventOrAction.TAMPERDETECTED);
+    }
+
+    public static EndDeviceEventType getCommunicationStatus() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.COMMUNICATION, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.CHANGED);
+    }
+
+    public static EndDeviceEventType getMaximumCurrent() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.LOADCONTROL, EndDeviceSubdomain.EVENT, EndDeviceEventOrAction.MAXLIMITREACHED);
+    }
+
+    public static EndDeviceEventType getSagConfirmed() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.LOADCONTROL, EndDeviceSubdomain.VOLTAGE, EndDeviceEventOrAction.SAGSTARTED);
+    }
+
+    public static EndDeviceEventType getSwellConfirmed() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.LOADCONTROL, EndDeviceSubdomain.VOLTAGE, EndDeviceEventOrAction.SWELLSTARTED);
+    }
+
+    public static EndDeviceEventType getRecoveryAfterCurrentOverlimit() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.LOADCONTROL, EndDeviceSubdomain.RECOVERY, EndDeviceEventOrAction.RESTORED);
+    }
+
+    public static EndDeviceEventType getRecoveryTimesSetting() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.RECOVERY, EndDeviceEventOrAction.CHANGED);
+    }
+
+    public static EndDeviceEventType getRecoveryMechanismReleased() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.LOADCONTROL, EndDeviceSubdomain.RECOVERY, EndDeviceEventOrAction.RELEASED);
+    }
+
+    public static EndDeviceEventType getDisconnectorStatusChanged() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.RELAY, EndDeviceEventOrAction.CHANGE);
+    }
+
+    public static EndDeviceEventType getSecurityEvent() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.SECURITY, EndDeviceSubdomain.DATA, EndDeviceEventOrAction.CHANGE);
+    }
+
+    public static EndDeviceEventType getMaximumDemand(){ return new EndDeviceEventType(EndDeviceType.ELECTRICMETER, EndDeviceDomain.LOADCONTROL, EndDeviceSubdomain.EVENT, EndDeviceEventOrAction.ACTIVATED); }
+
+    public static EndDeviceEventType getTimeBeforeChangeEvent(){ return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.BILLING, EndDeviceSubdomain.TIME,EndDeviceEventOrAction.START); }
+    public static EndDeviceEventType getTimeAfterChangeEvent(){ return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.BILLING, EndDeviceSubdomain.TIME,EndDeviceEventOrAction.STOP); }
+    public static EndDeviceEventType getValveControlSignalEvent(){ return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.CHANGED); }
+
     /// https://jira.eict.vpdc/secure/attachment/92046/CIM%20Codes%20A2_EI6_7_v1.xlsx
     /// Standard Event Logbook
     public static EndDeviceEventType getLogReset() { return new EndDeviceEventType("4.14.0.214"); }
@@ -1709,4 +1787,21 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getValveConfigurationPgvBit8Changed() { return new EndDeviceEventType("4.4.75.24" ); }
 
+    public static EndDeviceEventType getBatteryConsumptionHigh() { return new EndDeviceEventType("0.2.123.102"); }
+
+    public static EndDeviceEventType getReverseFlow() { return new EndDeviceEventType("0.40.48.93"); }
+
+    public static EndDeviceEventType getTamperP2() { return new EndDeviceEventType("0.12.147.7"); }
+
+    public static EndDeviceEventType getTamperP0() { return new EndDeviceEventType("0.12.147.8"); }
+
+    public static EndDeviceEventType getTamperCase() { return new EndDeviceEventType("0.12.29.212"); }
+
+    public static EndDeviceEventType getSystemHRError() { return new EndDeviceEventType("0.11.100.79"); }
+
+    public static EndDeviceEventType getCFGCalibrationError() { return new EndDeviceEventType("0.21.18.79"); }
+
+    public static EndDeviceEventType getTemperatureSensorError() { return new EndDeviceEventType("0.35.0.79"); }
+
+    public static EndDeviceEventType getBindingFlag() { return new EndDeviceEventType("0.6.5.58"); }
 }

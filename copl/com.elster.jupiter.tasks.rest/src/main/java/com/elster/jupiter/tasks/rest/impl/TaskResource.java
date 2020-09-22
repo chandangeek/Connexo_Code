@@ -75,6 +75,26 @@ public class TaskResource {
         if (!queryParams.getStart().isPresent() || !queryParams.getLimit().isPresent()) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
+        TaskFinder finder = taskService.getTaskFinder(filterSpec(filter, queryParams), queryParams.getStart().get(), queryParams.getLimit().get() + 1);
+
+        List<? extends RecurrentTask> list = finder.find();
+        Principal principal = (Principal) securityContext.getUserPrincipal();
+        Locale locale = determineLocale(principal);
+
+        List<TaskInfo> taskInfos = list.stream().map(t -> new TaskInfo(t, thesaurus, timeService, locale, clock)).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("tasks", taskInfos, queryParams);
+    }
+
+    @GET
+    @Path("/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
+    public Response getTasksCount(@BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext) {
+        TaskFinder finder = taskService.getTaskFinderWithoutPagination(filterSpec(filter, null));
+        return Response.ok(finder.count()).build();
+    }
+
+    private RecurrentTaskFilterSpecification filterSpec(JsonQueryFilter filter, JsonQueryParameters queryParams) {
         RecurrentTaskFilterSpecification filterSpec = new RecurrentTaskFilterSpecification();
         if (filter != null) {
             filterSpec.applications.addAll(filter.getStringList("application"));
@@ -89,16 +109,11 @@ public class TaskResource {
                 applyFilterWithOperator(filter, "priority", filterSpec.priority);
                 validateNumberBetweenFilterOrThrowException(filterSpec.priority);
             }
-            filterSpec.sortingColumns = queryParams.getSortingColumns();
+            if (queryParams != null) {
+                filterSpec.sortingColumns = queryParams.getSortingColumns();
+            }
         }
-        TaskFinder finder = taskService.getTaskFinder(filterSpec, queryParams.getStart().get(), queryParams.getLimit().get() + 1);
-
-        List<? extends RecurrentTask> list = finder.find();
-        Principal principal = (Principal) securityContext.getUserPrincipal();
-        Locale locale = determineLocale(principal);
-
-        List<TaskInfo> taskInfos = list.stream().map(t -> new TaskInfo(t, thesaurus, timeService, locale, clock)).collect(Collectors.toList());
-        return PagedInfoList.fromPagedList("tasks", taskInfos, queryParams);
+        return filterSpec;
     }
 
     @GET

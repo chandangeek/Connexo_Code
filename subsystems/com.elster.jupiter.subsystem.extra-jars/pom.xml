@@ -117,11 +117,6 @@
         <!-- COMU -->
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.webservices.demo</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.sap.soap.custom</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.cim.webservices.inbound.soap.task.EndDeviceControlsCancellationHandlerFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
@@ -16,10 +17,13 @@ public enum TranslationKeys implements TranslationKey {
     METER_CONFIG("meterConfig", "Meter config"),
     METER_MRID("meterMrid", "Meter mrid"),
     METER_NAME("meterName", "Meter name"),
+    METER_STATUS_SOURCE("meterStatusSource", "Meter status source"),
     METERS("meters", "Meters"),
     DEVICE_GROUPS("deviceGroups", "Device groups"),
     EVENT_TYPES("eventTypes", "Event types"),
     PARENT_SERVICE_CALL("parentServiceCall", "Parent service call"),
+    PING("ping", "Ping"),
+    PING_RESULT("pingResult", "Ping result"),
     ERROR_MESSAGE("errorMessage", "Error message"),
     ERROR_CODE("errorCode", "Error code"),
     OPERATION("operation", "Operation"),
@@ -36,7 +40,7 @@ public enum TranslationKeys implements TranslationKey {
     READING_TYPES("readingTypes", "Reading types"),
     LOAD_PROFILES("loadProfiles", "Load profiles"),
     REGISTER_GROUP("registerGroup", "Register group"),
-    SCHEDULE_STRAGEGY("scheduleStrategy", "Schedule strategy"),
+    SCHEDULE_STRATEGY("scheduleStrategy", "Schedule strategy"),
     CONNECTION_METHOD("connectionMethod", "Connection method name"),
     COMMUNICATION_TASK("communicationTask", "Communication task name"),
     TRIGGER_DATE("triggerDate", "Trigger date"),
@@ -49,7 +53,16 @@ public enum TranslationKeys implements TranslationKey {
     SGMR_CPS("GM2.name", "SubParent get meter readings custom property set"),
     CGMR_CPS("GM3.name", "Child get meter readings custom property set"),
     FUTURE_COM_TASK_EXECUTION_NAME(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
-                                               FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+            FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+    END_DEVICE_CONTROLS_CANCELLATION_NAME(EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_SUBSCRIBER,
+            EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_DISPLAYNAME),
+    COMMAND_CODE("commandCode", "Command code"),
+    COMMAND_ATTRIBUTES("commandAttributes", "Command attributes"),
+    DEVICE_NAME("deviceName", "Device name"),
+    DEVICE_MRID("deviceMrid", "Device MRID"),
+    CANCELLATION_REASON("cancellationReason", "Cancellation reason"),
+    ERROR("error", "Error"),
+    MAX_EXEC_TIME("maxExecTime", "Maximum execution time"),
 
     CARD_FORMAT("property.cardformat", "Card format"),
     CARD_FORMAT_FULL_SIZE("property.cardformat.fullsize", "Full-size (1FF)"),
@@ -70,6 +83,10 @@ public enum TranslationKeys implements TranslationKey {
     USAGE_POINT_INFO("usagePointInfo", "Usage point info"),
     CONFIGURATION_EVENT("configurationEvent", "Configuration event"),
     CALLBACK_URL("callbackUrl", "Callback URL"),
+
+    MEDC_CPS("servicecall.cps.master.end.device.controls", "Master end device controls custom property set"),
+    SEDC_CPS("servicecall.cps.submaster.end.device.controls", "SubMaster end device controls custom property set"),
+    CEDC_CPS("servicecall.cps.child.end.device.controls", "Child end device controls custom property set"),
     ;
 
     private final String key;

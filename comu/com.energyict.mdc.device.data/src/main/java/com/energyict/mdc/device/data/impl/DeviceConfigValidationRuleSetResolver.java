@@ -19,6 +19,7 @@ import com.google.common.collect.TreeRangeSet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
@@ -28,9 +29,18 @@ import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.config.validationruleSetResolver", service = ValidationRuleSetResolver.class)
 public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetResolver {
-
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+
+    public DeviceConfigValidationRuleSetResolver() {
+        // for OSGi
+    }
+
+    @Inject
+    public DeviceConfigValidationRuleSetResolver(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService) {
+        setDeviceService(deviceService);
+        setDeviceConfigurationService(deviceConfigurationService);
+    }
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {

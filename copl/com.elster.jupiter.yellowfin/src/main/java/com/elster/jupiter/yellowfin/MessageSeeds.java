@@ -13,7 +13,8 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
 
-    FACTS_NOT_AVAILABLE(1001, Keys.FACTS_UNAVAILABLE, "Connexo Facts is not available.");
+    FACTS_NOT_AVAILABLE(1001, Keys.FACTS_UNAVAILABLE, "Connexo Facts isn''t available."),
+    FACTS_NOT_AVAILABLE_ENHANCED(1002, Keys.FACTS_UNAVAILABLE_ENHANCED, "Connexo Facts isn''t available: {0}");
 
     private final int number;
     private final String key;
@@ -69,5 +70,6 @@ public enum MessageSeeds implements MessageSeed {
     public enum Keys {
         ;
         public static final String FACTS_UNAVAILABLE = "error.facts.unavailable";
+        public static final String FACTS_UNAVAILABLE_ENHANCED = "facts.unavailable.enhanced";
     }
 }

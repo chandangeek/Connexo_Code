@@ -18,10 +18,13 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECPoint;
 import java.util.Optional;
 
 /**
@@ -224,30 +227,25 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
         }
         if (!(certificate instanceof X509Certificate)) {
             throw DeviceConfigurationException.invalidPropertyFormat(
-                    propertyName,
-                    propertyValue,
+                    propertyName, propertyValue,
                     "The certificate must be of type X.509 v3");
         }
 
         X509Certificate x509Certificate = (X509Certificate) certificate;
 
         if (x509Certificate.getPublicKey() instanceof ECPublicKey) {
-            ECPoint ecPoint = ((ECPublicKey) x509Certificate.getPublicKey()).getW();
+            final ECPublicKey publicKey = (ECPublicKey) x509Certificate.getPublicKey();
+            final byte[] uncompressedPoint = KeyUtils.toUncompressedPoint(publicKey);
 
-            int componentSize = KeyUtils.getKeySize(getECCCurve()) / 2;
-            byte[] xBytes = trim(ecPoint.getAffineX().toByteArray(), componentSize);
-            byte[] yBytes = trim(ecPoint.getAffineY().toByteArray(), componentSize);
-
-            if ((xBytes.length + yBytes.length) != KeyUtils.getKeySize(getECCCurve())) {
+            // first byte is the uncompressed point indicator thus - 1
+            if ((uncompressedPoint.length - 1) != KeyUtils.getKeySize(getECCCurve())) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
-                        propertyName,
-                        propertyValue,
+                        propertyName, propertyValue,
                         "The public key of the certificate should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
             }
         } else {
             throw DeviceConfigurationException.invalidPropertyFormat(
-                    propertyName,
-                    propertyValue,
+                    propertyName, propertyValue,
                     "The public key of the certificate should be for elliptic curve cryptography");
         }
 

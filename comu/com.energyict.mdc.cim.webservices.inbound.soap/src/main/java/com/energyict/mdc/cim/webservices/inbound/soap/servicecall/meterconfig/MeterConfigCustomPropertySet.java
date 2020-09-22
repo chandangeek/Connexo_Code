@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -21,6 +22,9 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -45,12 +49,19 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
     private volatile Thesaurus thesaurus;
 
     public MeterConfigCustomPropertySet() {
+        // for OSGi
     }
 
     @Inject
-    public MeterConfigCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public MeterConfigCustomPropertySet(PropertySpecService propertySpecService,
+                                        CustomPropertySetService customPropertySetService,
+                                        Thesaurus thesaurus,
+                                        ServiceCallService serviceCallService,
+                                        TaskService taskService) {
         this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
+        setPropertySpecService(propertySpecService);
+        setServiceCallService(serviceCallService);
+        setTaskService(taskService);
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -68,8 +79,8 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
 
     @Reference
     @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
+    public void setTaskService(TaskService taskService) {
+        // to make sure ComTasks are available
     }
 
     @Reference
@@ -140,6 +151,11 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .referenceSpec(ComTask.class)
+                        .named(MeterConfigDomainExtension.FieldNames.COMMUNICATION_TASK.javaName(), TranslationKeys.COMMUNICATION_TASK)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .bigDecimalSpec()
                         .named(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName(), TranslationKeys.PARENT_SERVICE_CALL)
                         .describedAs(TranslationKeys.PARENT_SERVICE_CALL)
@@ -161,6 +177,11 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .stringSpec()
                         .named(MeterConfigDomainExtension.FieldNames.OPERATION.javaName(), TranslationKeys.OPERATION)
                         .describedAs(TranslationKeys.OPERATION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterConfigDomainExtension.FieldNames.PING_RESULT.javaName(), TranslationKeys.PING_RESULT)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
@@ -220,6 +241,16 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.METER_NAME.javaName())
                     .add();
+            Column comTask = table.column(MeterConfigDomainExtension.FieldNames.COMMUNICATION_TASK.databaseName())
+                    .number()
+                    .since(Version.version(10, 9))
+                    .add();
+            table.foreignKey(FK + "_COMTASK")
+                    .on(comTask)
+                    .references(ComTask.class)
+                    .map(MeterConfigDomainExtension.FieldNames.COMMUNICATION_TASK.javaName())
+                    .since(Version.version(10, 9))
+                    .add();
             table.column(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName())
                     .number()
                     .map(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName())
@@ -238,6 +269,11 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.OPERATION.javaName())
                     .notNull()
+                    .add();
+            table.column(MeterConfigDomainExtension.FieldNames.PING_RESULT.databaseName())
+                    .varChar()
+                    .map(MeterConfigDomainExtension.FieldNames.PING_RESULT.javaName())
+                    .since(Version.version(10, 9))
                     .add();
         }
 

@@ -12,16 +12,21 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
@@ -38,6 +43,8 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
 
     private volatile DeviceService deviceService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile PriorityComTaskService priorityComTaskService;
+    private volatile EngineConfigurationService engineConfigurationService;
 
     public static final String APPLICATION = "MDC";
 
@@ -52,6 +59,14 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         this.communicationTaskService = communicationTaskService;
     }
 
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService = priorityComTaskService;
+    }
+
+    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
+        this.engineConfigurationService = engineConfigurationService;
+    }
+
     @Override
     protected void handleAllDeviceCommandsExecutedSuccessfully(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
         triggerStatusInformationTask(serviceCall, domainExtension);
@@ -64,19 +79,31 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         serviceCall.update(domainExtension);
 
+        boolean withPriority = domainExtension.isRunWithPriority();
+
         ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device, serviceCall);
         Optional<ComTaskExecution> optionalExistingComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         if (optionalExistingComTaskExecution.isPresent() && optionalExistingComTaskExecution.get().isOnHold()) {
-            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK_EXECUTION).format());
+            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK).format());
         }
         ComTaskExecution existingComTaskExecution = optionalExistingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
 
-        getLockedComTaskExecution(existingComTaskExecution.getId(), existingComTaskExecution.getVersion())
-                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())))
-                .scheduleNow();
+        if (withPriority && !canRunWithPriority(existingComTaskExecution)) {
+            throw NoSuchElementException.comTaskToRunWithPriorityCouldNotBeLocated(getThesaurus()).get();
+        }
 
+        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(existingComTaskExecution.getId(), existingComTaskExecution.getVersion())
+                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())));
+
+        if (withPriority) {
+            Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(lockedComTaskExecution);
+            priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(lockedComTaskExecution));
+        }
+
+        lockedComTaskExecution.addNewComTaskExecutionTrigger(domainExtension.getReleaseDate());
+        lockedComTaskExecution.updateNextExecutionTimestamp();
     }
 
     private ComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
@@ -139,5 +166,12 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
     private Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
         return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
                 .filter(candidate -> !candidate.isObsolete());
+    }
+
+    private boolean canRunWithPriority(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getConnectionTask()
+                .filter(connectionTask -> Objects.nonNull(connectionTask.getComPortPool()) &&
+                        engineConfigurationService.calculateMaxPriorityConnections(connectionTask.getComPortPool(), connectionTask.getComPortPool().getPctHighPrioTasks()) > 0)
+                .isPresent();
     }
 }

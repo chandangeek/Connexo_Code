@@ -161,7 +161,7 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
         Optional.ofNullable(webServiceActivator.getDeviceTypesMap().get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
         childDomainExtension.setShipmentDate(message.getShipmentDate());
         childDomainExtension.setManufacturer(message.getManufacturer());
-        childDomainExtension.setModelNumber(message.getModelNumber());
+        childDomainExtension.setManufacturerSerialId(message.getManufacturerSerialId());
 
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)

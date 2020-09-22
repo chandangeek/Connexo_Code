@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.google.inject.AbstractModule;
@@ -46,13 +47,22 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     private volatile IssueDataValidationService issueDataValidationService;
     private volatile TimeService timeService;
     private volatile Clock clock;
+    private volatile ValidationService validationService;
 
-    //for OSGI
     public DataValidationEventHandlerFactory() {
+        // for OSGi
     }
 
     @Inject
-    public DataValidationEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, DeviceService deviceService, IssueDataValidationService issueDataValidationService, TimeService timeService, Clock clock) {
+    public DataValidationEventHandlerFactory(JsonService jsonService,
+                                             IssueService issueService,
+                                             NlsService nlsService,
+                                             MeteringService meteringService,
+                                             DeviceService deviceService,
+                                             IssueDataValidationService issueDataValidationService,
+                                             TimeService timeService,
+                                             Clock clock,
+                                             ValidationService validationService) {
         setJsonService(jsonService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -61,6 +71,7 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
         setIssueDataValidationService(issueDataValidationService);
         setTimeService(timeService);
         setClock(clock);
+        setValidationService(validationService);
     }
 
     @Override
@@ -77,6 +88,7 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
                 bind(IssueDataValidationService.class).toInstance(issueDataValidationService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(Clock.class).toInstance(clock);
+                bind(ValidationService.class).toInstance(validationService);
             }
         });
         return new DataValidationEventHandler(injector);
@@ -121,5 +133,10 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 }

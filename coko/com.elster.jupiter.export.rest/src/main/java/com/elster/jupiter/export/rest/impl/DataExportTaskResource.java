@@ -228,7 +228,29 @@ public class DataExportTaskResource {
         occurrencesFinder.setLimit(queryParameters.getLimit().orElse(0) + 1);
         occurrencesFinder.setOrder(queryParameters.getSortingColumns());
 
-        return PagedInfoList.fromPagedList("data", getHistoryFromTasks(filter, occurrencesFinder, taskIds), queryParameters);
+        return PagedInfoList.fromPagedList("data",
+                getHistoryFromTasks(filter, occurrencesFinder, taskIds)
+                        .find()
+                        .stream()
+                        .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(occurrence.getTask().getHistory(), occurrence))
+                        .collect(Collectors.toList()),
+                queryParameters);
+    }
+
+    @GET
+    @Path("/history/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
+    public Response getAllDataExportTaskHistoryCount(@BeanParam JsonQueryFilter filter, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        String applicationName = getApplicationNameFromCode(appCode);
+        DataExportOccurrenceFinder occurrencesFinder = dataExportService.getDataExportOccurrenceFinder();
+        List<Long> taskIds = dataExportService.findExportTasks().ofApplication(applicationName)
+                .stream()
+                .map(ExportTask::getId)
+                .collect(Collectors.toList());
+
+        return Response.ok(getHistoryFromTasks(filter, occurrencesFinder, taskIds).stream().count()).build();
     }
 
     private String getApplicationNameFromCode(String appCode) {
@@ -591,7 +613,8 @@ public class DataExportTaskResource {
         ExportTask task = findTaskOrThrowException(id, appCode);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart().orElse(0))
-                .setLimit(queryParameters.getLimit().orElse(0) + 1);
+                .setLimit(queryParameters.getLimit().orElse(0) + 1)
+                .setOrder(queryParameters.getSortingColumns());
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
@@ -618,7 +641,7 @@ public class DataExportTaskResource {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
             }
         }
-
+        occurrencesFinder.setOrder(queryParameters.getSortingColumns());
         History<ExportTask> history = task.getHistory();
         List<DataExportTaskHistoryInfo> infos = occurrencesFinder.stream()
                 .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(history, occurrence))
@@ -663,271 +686,268 @@ public class DataExportTaskResource {
                                 .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
 
                         dataExportOccurrence.setToFailed();
-                    }});
-                    return Response.status(Response.Status.OK).build();
-                }
-
-        @GET
-        @Path("/{id}/datasources")
-        @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
-        public PagedInfoList getDataSources ( @PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode){
-            ExportTask task = findTaskOrThrowException(id, appCode);
-            List<DataSourceInfo> infos = new ArrayList<>();
-            task.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
-                    new DataSelectorConfig.DataSelectorConfigVisitor() {
-                        @Override
-                        public void visit(MeterReadingSelectorConfig config) {
-                            infos.addAll(getDataSources(config));
-                        }
-
-                        @Override
-                        public void visit(UsagePointReadingSelectorConfig config) {
-                            infos.addAll(getDataSources(config));
-                        }
-
-                        @Override
-                        public void visit(EventSelectorConfig config) {
-                            // no data sources
-                        }
-
-                        private List<DataSourceInfo> getDataSources(ReadingDataSelectorConfig config) {
-                            return fetchDataSources(config, queryParameters).stream()
-                                    .map(dataSourceInfoFactory::asInfo)
-                                    .collect(Collectors.toList());
-                        }
                     }
-            ));
-            return PagedInfoList.fromPagedList("dataSources", infos, queryParameters);
-        }
+                });
+        return Response.status(Response.Status.OK).build();
+    }
 
-        private List<? extends ReadingTypeDataExportItem> fetchDataSources (ReadingDataSelectorConfig readingDataSelectorConfig, JsonQueryParameters queryParameters){
-            List<ReadingTypeDataExportItem> activeExportItems = readingDataSelectorConfig.getExportItems().stream()
-                    .filter(ReadingTypeDataExportItem::isActive)
-                    .filter(item -> item.getLastRun().isPresent())
-                    .collect(Collectors.toList());
-            return ListPager.of(activeExportItems).from(queryParameters).find();
-        }
+    @GET
+    @Path("/{id}/datasources")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    public PagedInfoList getDataSources(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        ExportTask task = findTaskOrThrowException(id, appCode);
+        List<DataSourceInfo> infos = new ArrayList<>();
+        task.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
+                new DataSelectorConfig.DataSelectorConfigVisitor() {
+                    @Override
+                    public void visit(MeterReadingSelectorConfig config) {
+                        infos.addAll(getDataSources(config));
+                    }
 
-        @GET
-        @Path("/{id}/history/{occurrenceId}")
-        @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
-        public DataExportOccurrenceLogInfos getDataExportTaskHistory ( @PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-        @Context SecurityContext securityContext, @Context UriInfo uriInfo, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode){
-            QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-            ExportTask task = findTaskOrThrowException(id, appCode);
-            DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task);
-            LogEntryFinder finder = occurrence.getLogsFinder()
-                    .setStart(queryParameters.getStartInt())
-                    .setLimit(queryParameters.getLimit());
+                    @Override
+                    public void visit(UsagePointReadingSelectorConfig config) {
+                        infos.addAll(getDataSources(config));
+                    }
 
-            List<? extends LogEntry> occurrences = finder.find();
+                    @Override
+                    public void visit(EventSelectorConfig config) {
+                        // no data sources
+                    }
 
-            DataExportOccurrenceLogInfos infos = new DataExportOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
-            infos.total = queryParameters.determineTotal(occurrences.size());
-            return infos;
-        }
+                    private List<DataSourceInfo> getDataSources(ReadingDataSelectorConfig config) {
+                        return fetchDataSources(config, queryParameters).stream()
+                                .map(dataSourceInfoFactory::asInfo)
+                                .collect(Collectors.toList());
+                    }
+                }
+        ));
+        return PagedInfoList.fromPagedList("dataSources", infos, queryParameters);
+    }
 
-        @GET
-        @Path("/history/{occurrenceId}/logs")
-        @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
-        @Transactional
-        public PagedInfoList getDataExportLogByOccurrence ( @PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters){
-            LogEntryFinder finder = findDataExportOccurrenceOrThrowException(occurrenceId).getLogsFinder();
-            queryParameters.getStart().ifPresent(finder::setStart);
-            queryParameters.getLimit().ifPresent(finder::setLimit);
-            List<DataExportOccurrenceLogInfo> infos = finder.find()
-                    .stream()
-                    .map(DataExportOccurrenceLogInfo::from)
-                    .collect(Collectors.toList());
+    private List<? extends ReadingTypeDataExportItem> fetchDataSources(ReadingDataSelectorConfig readingDataSelectorConfig, JsonQueryParameters queryParameters) {
+        List<ReadingTypeDataExportItem> activeExportItems = readingDataSelectorConfig.getExportItems().stream()
+                .filter(ReadingTypeDataExportItem::isActive)
+                .filter(item -> item.getLastRun().isPresent())
+                .collect(Collectors.toList());
+        return ListPager.of(activeExportItems).from(queryParameters).find();
+    }
 
-            return PagedInfoList.fromPagedList("data", infos, queryParameters);
-        }
+    @GET
+    @Path("/{id}/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+                                                                 @Context SecurityContext securityContext, @Context UriInfo uriInfo, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        ExportTask task = findTaskOrThrowException(id, appCode);
+        DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task);
+        LogEntryFinder finder = occurrence.getLogsFinder()
+                .setStart(queryParameters.getStartInt())
+                .setLimit(queryParameters.getLimit());
 
-        @GET
-        @Path("/history/{occurrenceId}")
-        @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
-        @Transactional
-        public DataExportTaskHistoryInfo getDataExportOccurrence ( @PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters){
-            return dataExportTaskHistoryInfoFactory.asInfo(findDataExportOccurrenceOrThrowException(occurrenceId));
-        }
+        List<? extends LogEntry> occurrences = finder.find();
 
-        private ExportTask findTaskOrThrowException ( long id, String appCode){
-            String application = getApplicationNameFromCode(appCode);
-            return dataExportService.findExportTask(id)
-                    .filter(exportTask -> application.equals(exportTask.getApplication()))
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        }
+        DataExportOccurrenceLogInfos infos = new DataExportOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
 
-        private ExportTask findTaskByRecurrentTaskIdOrThrowException ( long id, String appCode){
-            String application = getApplicationNameFromCode(appCode);
-            return dataExportService.findExportTaskByRecurrentTask(id)
-                    .filter(exportTask -> application.equals(exportTask.getApplication()))
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        }
+    @GET
+    @Path("/history/{occurrenceId}/logs")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
+    public PagedInfoList getDataExportLogByOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
+        LogEntryFinder finder = findDataExportOccurrenceOrThrowException(occurrenceId).getLogsFinder();
+        queryParameters.getStart().ifPresent(finder::setStart);
+        queryParameters.getLimit().ifPresent(finder::setLimit);
+        List<DataExportOccurrenceLogInfo> infos = finder.find()
+                .stream()
+                .map(DataExportOccurrenceLogInfo::from)
+                .collect(Collectors.toList());
 
-        private ExportTask findAndLockExportTask (DataExportTaskInfo info){
-            return dataExportService.findAndLockExportTask(info.id, info.version)
-                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                            .withActualVersion(() -> dataExportService.findExportTask(info.id)
-                                    .map(ExportTask::getVersion)
-                                    .orElse(null))
-                            .supplier());
-        }
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
+    }
 
-        private void updateProperties (DataExportTaskInfo info, ExportTask task){
-            List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
-            List<PropertySpec> propertiesSpecsOfCurrentTask = task.getDataFormatterFactory().getPropertySpecs();
-            propertiesSpecsOfCurrentTask.forEach(task::removeProperty);
+    @GET
+    @Path("/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
+    public DataExportTaskHistoryInfo getDataExportOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
+        return dataExportTaskHistoryInfoFactory.asInfo(findDataExportOccurrenceOrThrowException(occurrenceId));
+    }
 
-            task.setDataFormatterFactoryName(info.dataProcessor.name);
-            propertiesSpecsForDataProcessor
+    private ExportTask findTaskOrThrowException(long id, String appCode) {
+        String application = getApplicationNameFromCode(appCode);
+        return dataExportService.findExportTask(id)
+                .filter(exportTask -> application.equals(exportTask.getApplication()))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private ExportTask findTaskByRecurrentTaskIdOrThrowException(long id, String appCode) {
+        String application = getApplicationNameFromCode(appCode);
+        return dataExportService.findExportTaskByRecurrentTask(id)
+                .filter(exportTask -> application.equals(exportTask.getApplication()))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private ExportTask findAndLockExportTask(DataExportTaskInfo info) {
+        return dataExportService.findAndLockExportTask(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> dataExportService.findExportTask(info.id)
+                                .map(ExportTask::getVersion)
+                                .orElse(null))
+                        .supplier());
+    }
+
+    private void updateProperties(DataExportTaskInfo info, ExportTask task) {
+        List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
+        List<PropertySpec> propertiesSpecsOfCurrentTask = task.getDataFormatterFactory().getPropertySpecs();
+        propertiesSpecsOfCurrentTask.forEach(task::removeProperty);
+
+        task.setDataFormatterFactoryName(info.dataProcessor.name);
+        propertiesSpecsForDataProcessor
+                .forEach(spec -> {
+                    Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
+                    task.setProperty(spec.getName(), value);
+                });
+        if (info.dataSelector.selectorType == SelectorType.CUSTOM) {
+            List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
+            propertiesSpecsForDataSelector
                     .forEach(spec -> {
-                        Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
+                        Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
                         task.setProperty(spec.getName(), value);
                     });
-            if (info.dataSelector.selectorType == SelectorType.CUSTOM) {
-                List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
-                propertiesSpecsForDataSelector
-                        .forEach(spec -> {
-                            Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
-                            task.setProperty(spec.getName(), value);
-                        });
-            }
-        }
-
-        private void updateDestinations (DataExportTaskInfo info, ExportTask task){
-            // remove the ones no longer in the info
-            task.getDestinations().stream()
-                    .filter(destination -> info.destinations.stream()
-                            .noneMatch(destinationInfo -> destinationInfo.id == destination.getId()))
-                    .collect(Collectors.toList())
-                    .forEach(task::removeDestination);
-            // create the new ones
-            info.destinations.stream()
-                    .filter(isNewDestination())
-                    .forEach(destinationInfo -> destinationInfo.type.create(serviceLocator, task, destinationInfo));
-            // update the ones that stay
-            info.destinations.stream()
-                    .filter(isNewDestination().negate())
-                    .forEach(destinationInfo -> task.getDestinations().stream()
-                            .filter(destination -> destination.getId() == destinationInfo.id)
-                            .findAny()
-                            .ifPresent(destination -> destinationInfo.type.update(serviceLocator, destination, destinationInfo)));
-        }
-
-        private List<DataExportTaskHistoryInfo> getHistoryFromTasks (JsonQueryFilter filter, DataExportOccurrenceFinder occurrencesFinder, List < Long > exportTaskIds){
-            if (filter.hasProperty("startedOnFrom")) {
-                if (filter.hasProperty("startedOnTo")) {
-                    occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
-                } else {
-                    occurrencesFinder.withStartDateIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
-                }
-            } else if (filter.hasProperty("startedOnTo")) {
-                occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
-            }
-            if (filter.hasProperty("finishedOnFrom")) {
-                if (filter.hasProperty("finishedOnTo")) {
-                    occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
-                } else {
-                    occurrencesFinder.withEndDateIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
-                }
-            } else if (filter.hasProperty("finishedOnTo")) {
-                occurrencesFinder.withEndDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
-            }
-            if (filter.hasProperty("exportTask")) {
-                occurrencesFinder.withExportTask(filter.getLongList("exportTask"));
-            }
-            if (filter.hasProperty("status")) {
-                try {
-                    occurrencesFinder.withExportStatus(filter.getStringList("status")
-                            .stream()
-                            .map(DataExportStatus::valueOf)
-                            .collect(Collectors.toList()));
-                } catch (Exception ex) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
-                }
-            }
-            return occurrencesFinder
-                    .withExportTask(exportTaskIds)
-                    .find()
-                    .stream()
-                    .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(occurrence.getTask().getHistory(), occurrence))
-                    .collect(Collectors.toList());
-        }
-
-        private Predicate<DestinationInfo> isNewDestination () {
-            return destinationInfo -> destinationInfo.id == 0;
-        }
-
-        private ScheduleExpression getScheduleExpression (DataExportTaskInfo info){
-            return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
-        }
-
-        private EndDeviceGroup endDeviceGroup (Object endDeviceGroupId){
-            return meteringGroupsService.findEndDeviceGroup(((Number) endDeviceGroupId).longValue()).orElse(null);
-        }
-
-        private UsagePointGroup usagePointGroup (Object usagePointGroupId){
-            return meteringGroupsService.findUsagePointGroup(((Number) usagePointGroupId).longValue()).orElse(null);
-        }
-
-        private MetrologyPurpose metrologyPurpose (Object purposeId){
-            return metrologyConfigurationService.findMetrologyPurpose(((Number) purposeId).longValue()).orElse(null);
-        }
-
-        private RelativePeriod getRelativePeriod (RelativePeriodInfo relativePeriodInfo){
-            if ((relativePeriodInfo == null) || (relativePeriodInfo.id == null)) {
-                return null;
-            }
-            return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
-        }
-
-        private DataExportOccurrence fetchDataExportOccurrence ( long id, ExportTask task){
-            return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        }
-
-        private DataExportOccurrence findDataExportOccurrenceOrThrowException ( long occurrenceId){
-            return dataExportService.findDataExportOccurrence(occurrenceId)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        }
-
-        private void validateExportWindow (RestValidationBuilder validationBuilder, DataExportTaskRunInfo runInfo, ExportTask exportTask){
-            Optional<DataSelectorConfig> selector = exportTask.getStandardDataSelectorConfig();
-            validationBuilder.notEmpty(runInfo.exportWindowEnd, "exportWindowEnd");
-            if (selector.isPresent() && !selector.get().isExportContinuousData()) {
-                validationBuilder.notEmpty(runInfo.exportWindowStart, "exportWindowStart");
-                if ((runInfo.exportWindowStart != null) && (runInfo.exportWindowEnd != null) && runInfo.exportWindowStart.isAfter(runInfo.exportWindowEnd)) {
-                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "exportWindowEnd"));
-                }
-            }
-        }
-
-        private void validateUpdateData (RestValidationBuilder validationBuilder, DataExportTaskRunInfo runInfo, ExportTask exportTask){
-            exportTask.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
-                    new DataSelectorConfig.DataSelectorConfigVisitor() {
-                        @Override
-                        public void visit(MeterReadingSelectorConfig config) {
-                            if (config.getStrategy().isExportUpdate()) {
-                                validationBuilder.notEmpty(runInfo.updateDataStart, "updateDataStart");
-                                validationBuilder.notEmpty(runInfo.updateDataEnd, "updateDataEnd");
-                                if ((runInfo.updateDataStart != null) && (runInfo.updateDataEnd != null) && runInfo.updateDataStart.isAfter(runInfo.updateDataEnd)) {
-                                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "updateDataEnd"));
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void visit(UsagePointReadingSelectorConfig config) {
-                        }
-
-                        @Override
-                        public void visit(EventSelectorConfig config) {
-                        }
-                    }
-            ));
         }
     }
+
+    private void updateDestinations(DataExportTaskInfo info, ExportTask task) {
+        // remove the ones no longer in the info
+        task.getDestinations().stream()
+                .filter(destination -> info.destinations.stream()
+                        .noneMatch(destinationInfo -> destinationInfo.id == destination.getId()))
+                .collect(Collectors.toList())
+                .forEach(task::removeDestination);
+        // create the new ones
+        info.destinations.stream()
+                .filter(isNewDestination())
+                .forEach(destinationInfo -> destinationInfo.type.create(serviceLocator, task, destinationInfo));
+        // update the ones that stay
+        info.destinations.stream()
+                .filter(isNewDestination().negate())
+                .forEach(destinationInfo -> task.getDestinations().stream()
+                        .filter(destination -> destination.getId() == destinationInfo.id)
+                        .findAny()
+                        .ifPresent(destination -> destinationInfo.type.update(serviceLocator, destination, destinationInfo)));
+    }
+
+    private DataExportOccurrenceFinder getHistoryFromTasks(JsonQueryFilter filter, DataExportOccurrenceFinder occurrencesFinder, List<Long> exportTaskIds) {
+        if (filter.hasProperty("startedOnFrom")) {
+            if (filter.hasProperty("startedOnTo")) {
+                occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
+            } else {
+                occurrencesFinder.withStartDateIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+            }
+        } else if (filter.hasProperty("startedOnTo")) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
+        }
+        if (filter.hasProperty("finishedOnFrom")) {
+            if (filter.hasProperty("finishedOnTo")) {
+                occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
+            } else {
+                occurrencesFinder.withEndDateIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+            }
+        } else if (filter.hasProperty("finishedOnTo")) {
+            occurrencesFinder.withEndDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+        }
+        if (filter.hasProperty("exportTask")) {
+            occurrencesFinder.withExportTask(filter.getLongList("exportTask"));
+        }
+        if (filter.hasProperty("status")) {
+            try {
+                occurrencesFinder.withExportStatus(filter.getStringList("status")
+                        .stream()
+                        .map(DataExportStatus::valueOf)
+                        .collect(Collectors.toList()));
+            } catch (Exception ex) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
+            }
+        }
+        return occurrencesFinder
+                .withExportTask(exportTaskIds);
+    }
+
+    private Predicate<DestinationInfo> isNewDestination() {
+        return destinationInfo -> destinationInfo.id == 0;
+    }
+
+    private ScheduleExpression getScheduleExpression(DataExportTaskInfo info) {
+        return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
+    }
+
+    private EndDeviceGroup endDeviceGroup(Object endDeviceGroupId) {
+        return meteringGroupsService.findEndDeviceGroup(((Number) endDeviceGroupId).longValue()).orElse(null);
+    }
+
+    private UsagePointGroup usagePointGroup(Object usagePointGroupId) {
+        return meteringGroupsService.findUsagePointGroup(((Number) usagePointGroupId).longValue()).orElse(null);
+    }
+
+    private MetrologyPurpose metrologyPurpose(Object purposeId) {
+        return metrologyConfigurationService.findMetrologyPurpose(((Number) purposeId).longValue()).orElse(null);
+    }
+
+    private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
+        if ((relativePeriodInfo == null) || (relativePeriodInfo.id == null)) {
+            return null;
+        }
+        return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
+    }
+
+    private DataExportOccurrence fetchDataExportOccurrence(long id, ExportTask task) {
+        return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private DataExportOccurrence findDataExportOccurrenceOrThrowException(long occurrenceId) {
+        return dataExportService.findDataExportOccurrence(occurrenceId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private void validateExportWindow(RestValidationBuilder validationBuilder, DataExportTaskRunInfo runInfo, ExportTask exportTask) {
+        Optional<DataSelectorConfig> selector = exportTask.getStandardDataSelectorConfig();
+        validationBuilder.notEmpty(runInfo.exportWindowEnd, "exportWindowEnd");
+        if (selector.isPresent() && !selector.get().isExportContinuousData()) {
+            validationBuilder.notEmpty(runInfo.exportWindowStart, "exportWindowStart");
+            if ((runInfo.exportWindowStart != null) && (runInfo.exportWindowEnd != null) && runInfo.exportWindowStart.isAfter(runInfo.exportWindowEnd)) {
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "exportWindowEnd"));
+            }
+        }
+    }
+
+    private void validateUpdateData(RestValidationBuilder validationBuilder, DataExportTaskRunInfo runInfo, ExportTask exportTask) {
+        exportTask.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
+                new DataSelectorConfig.DataSelectorConfigVisitor() {
+                    @Override
+                    public void visit(MeterReadingSelectorConfig config) {
+                        if (config.getStrategy().isExportUpdate()) {
+                            validationBuilder.notEmpty(runInfo.updateDataStart, "updateDataStart");
+                            validationBuilder.notEmpty(runInfo.updateDataEnd, "updateDataEnd");
+                            if ((runInfo.updateDataStart != null) && (runInfo.updateDataEnd != null) && runInfo.updateDataStart.isAfter(runInfo.updateDataEnd)) {
+                                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "updateDataEnd"));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void visit(UsagePointReadingSelectorConfig config) {
+                    }
+
+                    @Override
+                    public void visit(EventSelectorConfig config) {
+                    }
+                }
+        ));
+    }
+}

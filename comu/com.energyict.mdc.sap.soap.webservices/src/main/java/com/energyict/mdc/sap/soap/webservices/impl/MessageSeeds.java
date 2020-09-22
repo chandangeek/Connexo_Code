@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format. Missing attributes: {0}."),
     MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message with the same ID or UUID is currently being processed."),
     UNEXPECTED_CONFIRMATION_MESSAGE(3, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
-    WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to properly send request to the following web service endpoint(s): {0}."),
+    WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to send message to the following web service endpoint(s): {0}."),
     NO_WEB_SERVICE_ENDPOINTS(6, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
     ERROR_LOADING_PROPERTY(7, "ErrorLoadingProperty", "Error while loading property ''{0}'': ''{1}''."),
     UNEXPECTED_EXCEPTION(8, "UnexpectedException", "Exception occurred while processing request : ''{0}''."),
@@ -94,6 +94,8 @@ public enum MessageSeeds implements MessageSeed {
             "Error while processing meter location notification: ''{0}''."),
     ERROR_PROCESSING_METER_POD_NOTIFICATION(4037, "ErrorProcessingMeterPodNotification",
             "Error while processing meter pod notification: ''{0}''."),
+    DIFFERENT_DEVICE_TYPE(4038, "DifferentDeviceType", "Existent device has different device type than the one mapped to material id ''{0}''." +
+            " Please check ''com.elster.jupiter.sap.device.types.mapping'' property."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -133,7 +135,13 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_NO_ERROR_MESSAGE_PROVIDED(8002, "EventNoErrorMessageProvided", "No message provided."),
 
     // Micro checks
-    AT_LEAST_ONE_LRN_WAS_SET(10001, "AtLeastOneLrnWasSet", "No LRN has been set on the device.");
+    AT_LEAST_ONE_LRN_WAS_SET(10001, "AtLeastOneLrnWasSet", "No LRN has been set on the device."),
+
+    NO_REGISTERED_NOTIFICATION_ENDPOINT(10101, "NoRegisteredNotificationEndPoint", "No registered notification end point is found by id ''{0}''."),
+    DEVICE_ID_ATTRIBUTE_IS_NOT_SET(10102, "DeviceIdAttributeIsNotSet", "''Device identifier'' attribute isn''t set on Device SAP info CAS."),
+    NO_LRN(10103, "NoLrn", "No LRN is available on current or future data sources on the device."),
+    REQUEST_SENDING_HAS_FAILED(10104, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),
+    ;
 
     private final int number;
     private final String key;

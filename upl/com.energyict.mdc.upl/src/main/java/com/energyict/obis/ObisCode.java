@@ -4,18 +4,15 @@
 
 package com.energyict.obis;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 @XmlRootElement
@@ -51,47 +48,20 @@ public class ObisCode implements Serializable {
     public static final int CODE_C_POWERFACTOR = 13;
     public static final int CODE_C_UNITLESS = 82;
 
-
-    private int a;
-    private int b;
-    private int c;
-    private int d;
-    private int e;
-    private int f;
-    private boolean relativeBillingPeriod;
-    private boolean invalid = false;
-
-    //needed for Flex synchronization
+    private final int a;
+    private final int b;
+    private final int c;
+    private final int d;
+    private final int e;
+    private final int f;
+    private final boolean relativeBillingPeriod;
+    private final boolean invalid;
 
     public ObisCode() {
+        this(0,0,0,0,0,0, false, true);
     }
 
-
     public ObisCode(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod) {
-        if (a < 0 || a > 255) {
-            this.invalid = true;
-        }
-        if (b < -1 || b > 255) {
-            this.invalid = true;
-        }
-        if (c < 0 || c > 255) {
-            this.invalid = true;
-        }
-        if (d < 0 || d > 255) {
-            this.invalid = true;
-        }
-        if (e < 0 || e > 255) {
-            this.invalid = true;
-        }
-        if (relativeBillingPeriod) {
-            if (f < -99 || f > 1) {
-                this.invalid = true;
-            }
-        } else {
-            if (f < 0 || f > 255) {
-                this.invalid = true;
-            }
-        }
         this.a = a;
         this.b = b;
         this.c = c;
@@ -99,10 +69,22 @@ public class ObisCode implements Serializable {
         this.e = e;
         this.f = f;
         this.relativeBillingPeriod = relativeBillingPeriod;
+        this.invalid = validate(a, b, c, d, e, f, relativeBillingPeriod);
+    }
+
+    public ObisCode(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod, boolean forceInvalid) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+        this.d = d;
+        this.e = e;
+        this.f = f;
+        this.relativeBillingPeriod = relativeBillingPeriod;
+        this.invalid = forceInvalid? true:  validate(a, b, c, d, e, f, relativeBillingPeriod);
     }
 
     public ObisCode(int a, int b, int c, int d, int e, int f) {
-        this(a, b, c, d, e, f, false);
+        this(a, b, c, d, e, f, false, false);
     }
 
     public ObisCode(ObisCode base, int channelIndex) {
@@ -113,7 +95,7 @@ public class ObisCode implements Serializable {
                 base.getD(),
                 base.getE(),
                 base.getF(),
-                base.useRelativeBillingPeriod());
+                base.isRelativeBillingPeriod(), false);
     }
 
     public ObisCode(ObisCode base, int channelIndex, int billingPeriodIndex) {
@@ -123,10 +105,38 @@ public class ObisCode implements Serializable {
                 base.getC(),
                 base.getD(),
                 base.getE(),
-                base.useRelativeBillingPeriod() ?
+                base.isCurrentBillingPeriod() ?
                         ((billingPeriodIndex + base.getF()) % 100) :
                         base.getF(),
-                false);
+                base.isRelativeBillingPeriod(), false);
+    }
+
+    private boolean validate(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod) {
+        if (a < 0 || a > 255) {
+            return true;
+        }
+        if (b < -1 || b > 255) {
+            return true;
+        }
+        if (c < 0 || c > 255) {
+            return true;
+        }
+        if (d < 0 || d > 255) {
+            return true;
+        }
+        if (e < 0 || e > 255) {
+            return true;
+        }
+        if (relativeBillingPeriod) {
+            if (f < -99 || f > 1) {
+                return true;
+            }
+        } else {
+            if (f < 0 || f > 255) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @XmlAttribute
@@ -134,87 +144,39 @@ public class ObisCode implements Serializable {
         return invalid;
     }
 
-    public void setInvalid(boolean invalid) {
-        this.invalid = invalid;
-    }
-
-    public boolean useRelativeBillingPeriod() {
-        return relativeBillingPeriod;
-    }
-
     @XmlAttribute
     public boolean isRelativeBillingPeriod() {
         return relativeBillingPeriod;
     }
 
-    public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(a);
-        buffer.append(".");
-        if (b < 0) {
-            buffer.append("x");
-        } else {
-            buffer.append(b);
-        }
-        buffer.append(".");
-        buffer.append(c);
-        buffer.append(".");
-        buffer.append(d);
-        buffer.append(".");
-        buffer.append(e);
-        buffer.append(".");
-        if (useRelativeBillingPeriod()) {
-            buffer.append("VZ");
-            if (f > 0) {
-                buffer.append("+");
-                buffer.append(f);
-            }
-            if (f < 0) {
-                buffer.append(f);
-            }
-        } else {
-            buffer.append(f);
-        }
-        return buffer.toString();
-    }
-
-    public boolean equals(Object o) {
+    public boolean equals(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, true, true, true, true, true, true);
     }
 
-    public boolean equalsIgnoreBChannel(Object o) {
+    public boolean equalsIgnoreBChannel(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, false, true, true, true, true, true);
     }
 
-    public boolean equalsIgnoreBAndEChannel(Object o) {
+    public boolean equalsIgnoreBAndEChannel(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, false, true, true, false, true, true);
     }
 
-    public boolean equalsIgnoreBillingField(Object o) {
+    public boolean equalsIgnoreBillingField(ObisCode o) {
         return equalsSelectiveFieldsCheck(o, true, true, true, true, true, false, true);
     }
 
-    private boolean equalsSelectiveFieldsCheck(Object o, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean relative) {
+    private boolean equalsSelectiveFieldsCheck(ObisCode o, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean relative) {
         if (o == null) {
             return false;
         }
-        try {
-            ObisCode other = (ObisCode) o;
-            return
-                    ((this.a == other.a) || !a) &&
-                            ((this.b == other.b) || !b) &&
-                            ((this.c == other.c) || !c) &&
-                            ((this.d == other.d) || !d) &&
-                            ((this.e == other.e) || !e) &&
-                            ((this.f == other.f) || !f) &&
-                            ((this.relativeBillingPeriod == other.relativeBillingPeriod) || !relative);
-        } catch (ClassCastException ex) {
-            return false;
-        }
-    }
-
-    public int hashCode() {
-        return toString().hashCode();
+        return
+                ((this.a == o.a) || !a) &&
+                        ((this.b == o.b) || !b) &&
+                        ((this.c == o.c) || !c) &&
+                        ((this.d == o.d) || !d) &&
+                        ((this.e == o.e) || !e) &&
+                        ((this.f == o.f) || !f) &&
+                        ((this.relativeBillingPeriod == o.relativeBillingPeriod) || !relative);
     }
 
     /**
@@ -265,44 +227,109 @@ public class ObisCode implements Serializable {
     @JsonIgnore
     @XmlTransient
     public boolean isCurrentBillingPeriod() {
-        return useRelativeBillingPeriod() && f == 1;
+        return isLastBillingPeriod() && f == 1;
     }
 
     @JsonIgnore
     @XmlTransient
     public boolean isLastBillingPeriod() {
-        return useRelativeBillingPeriod() && f == 0;
+        return isCurrentBillingPeriod() && f == 0;
     }
 
     public boolean hasBillingPeriod() {
-        return useRelativeBillingPeriod() || f < 100;
+        return isRelativeBillingPeriod() || f < 100;
     }
 
-    // KV 12102004
+    @JsonIgnore
+    @XmlTransient
+    public Unit getUnitElectricity(int scaler) {
+        return ObisCodeUnitMapper.getUnitElectricity(this, scaler);
+    }
 
+    @JsonIgnore
+    @XmlTransient
+    public String getValue() {
+        return toString();
+    }
+
+    public ObisCode nextB () {
+        return new ObisCode(this.a, this.b + 1, this.c, this.d, this.e, this.f, this.relativeBillingPeriod, false);
+    }
+
+    public ObisCode setB(int b) {
+        return new ObisCode(this.a, this.b, this.c, this.d, this.e, this.f, this.relativeBillingPeriod, false);
+    }
+
+    public String toString() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(a);
+        buffer.append(".");
+        if (b < 0) {
+            buffer.append("x");
+        } else {
+            buffer.append(b);
+        }
+        buffer.append(".");
+        buffer.append(c);
+        buffer.append(".");
+        buffer.append(d);
+        buffer.append(".");
+        buffer.append(e);
+        buffer.append(".");
+        if (isRelativeBillingPeriod()) {
+            buffer.append("VZ");
+            if (f > 0) {
+                buffer.append("+");
+                buffer.append(f);
+            }
+            if (f < 0) {
+                buffer.append(f);
+            }
+        } else {
+            buffer.append(f);
+        }
+        return buffer.toString();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ObisCode obisCode = (ObisCode) o;
+        return a == obisCode.a &&
+                b == obisCode.b &&
+                c == obisCode.c &&
+                d == obisCode.d &&
+                e == obisCode.e &&
+                f == obisCode.f &&
+                relativeBillingPeriod == obisCode.relativeBillingPeriod &&
+                invalid == obisCode.invalid;
+    }
+
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    // all build methods should/can be extracted to a builder class: this needs to be done when all peer developers are aware since it affects most of the classes
     public static ObisCode fromByteArray(byte[] ln) {
-        boolean hasRelativeBillingPoint = false;
         int a = ln[0] & 0xFF;
         int b = ln[1] & 0xFF;
         int c = ln[2] & 0xFF;
         int d = ln[3] & 0xFF;
         int e = ln[4] & 0xFF;
         int f = ln[5] & 0xFF;
-        return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
+        return new ObisCode(a, b, c, d, e, f, false, false);
     }
 
     public static ObisCode fromString(String codeString) {
-        boolean invalid = false;
         List<String> obisFields = new ArrayList<>();
         if(codeString != null && codeString.length()>0) {
             obisFields = new ArrayList<>(Arrays.asList(codeString.split("\\."))).stream().map(s -> s.trim()).collect(Collectors.toList());
         }
 
         if(obisFields.size() != 6){
-            invalid = true;
-            while(obisFields.size() < 6){
-                obisFields.add("0");
-            }
+            return new ObisCode();
         }
         try {
             int a = Integer.parseInt(obisFields.get(0));
@@ -325,107 +352,41 @@ public class ObisCode implements Serializable {
             } else {
                 f = Integer.parseInt(obisFields.get(5));
             }
-            ObisCode o = new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
-            if(invalid){
-                o.setInvalid(invalid);
-            }
-            return o;
+            return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint, false);
         } catch(Exception e) {
-            ObisCode o = new ObisCode(0, 0, 0, 0, 0, 0, false);
-            o.setInvalid(true);
-            return o;
+            return new ObisCode();
         }
 
     }
 
-    private static String nextToken(StringTokenizer tokenizer) {
-        return tokenizer.nextToken().trim();
-    }
 
-    // first 20 C field codes, applied to electricity related codes
-    static Unit[] units = {Unit.get(""), // General purpose objects
-            Unit.get(BaseUnit.WATT), // active import Q1+Q4
-            Unit.get(BaseUnit.WATT), // active export Q2+Q3
-            Unit.get(BaseUnit.VOLTAMPEREREACTIVE), // reactive import Q1+Q2
-            Unit.get(BaseUnit.VOLTAMPEREREACTIVE), // reactive export Q3+Q4
-            Unit.get(BaseUnit.VOLTAMPEREREACTIVE), // reactive Q1
-            Unit.get(BaseUnit.VOLTAMPEREREACTIVE), // reactive Q2
-            Unit.get(BaseUnit.VOLTAMPEREREACTIVE), // reactive Q3
-            Unit.get(BaseUnit.VOLTAMPEREREACTIVE), // reactive Q4
-            Unit.get(BaseUnit.VOLTAMPERE), // apparent import Q1+Q4 of Q1+Q2+Q3+Q4
-            Unit.get(BaseUnit.VOLTAMPERE), // apparent export Q2+Q3
-            Unit.get(BaseUnit.AMPERE), // current any phase
-            Unit.get(BaseUnit.VOLT), // // voltage any phase
-            Unit.get(""), // power factor
-            Unit.get(BaseUnit.HERTZ), // supply frequency
-            Unit.get(BaseUnit.WATT), // active power abs(Q1+Q4) + abs(Q2+Q3)
-            Unit.get(BaseUnit.WATT), // active power abs(Q1+Q4) - abs(Q2+Q3)
-            Unit.get(BaseUnit.WATT), // active Q1
-            Unit.get(BaseUnit.WATT), // active Q2
-            Unit.get(BaseUnit.WATT), // active Q3
-            Unit.get(BaseUnit.WATT)}; // active Q4
+    public static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
+        final String[] obisLetters = obisCode.toString().split("\\.");
+        final String letter = String.valueOf(value);
 
-    @JsonIgnore
-    @XmlTransient
-    public Unit getUnitElectricity(int scaler) {
-        Unit unit = doGetUnitElectricity(scaler);
-        if (((getD() >= 8) && (getD() <= 10)) || ((getD() >= 29) && (getD() <= 30))) {
-            return unit.getVolumeUnit();
-        } else {
-            return unit;
-        }
-    }
-
-    public Unit doGetUnitElectricity(int scaler) {
-        Unit unit = Unit.get("");
-        if (getC() == 0) {
-            unit = Unit.get("");
-        } else if ((getC() >= 0) && (getC() <= 20)) {
-            unit = units[getC()];
-        } else if ((getC() >= 21) && (getC() <= 40)) {
-            unit = units[(getC() % 21) + 1];
-        } else if ((getC() >= 41) && (getC() <= 60)) {
-            unit = units[(getC() % 41) + 1];
-        } else if ((getC() >= 61) && (getC() <= 80)) {
-            unit = units[(getC() % 61) + 1];
-        } else if (getC() == 81) // angles
-        {
-            unit = Unit.get(BaseUnit.DEGREE);
-        } else if (getC() == 91) // angles
-        {
-            unit = Unit.get(BaseUnit.AMPERE);
-        } else if (getC() == 92) // angles
-        {
-            unit = Unit.get(BaseUnit.VOLT);
+        switch (fieldNo) {
+            case 1:
+                obisLetters[0] = letter;
+                break;
+            case 2:
+                obisLetters[1] = letter;
+                break;
+            case 3:
+                obisLetters[2] = letter;
+                break;
+            case 4:
+                obisLetters[3] = letter;
+                break;
+            case 5:
+                obisLetters[4] = letter;
+                break;
+            case 6:
+                obisLetters[5] = letter;
+                break;
+            default:
+                break;
         }
 
-        return Unit.get(unit.getDlmsCode(), scaler);
-
-    }
-
-    @JsonIgnore
-    @XmlTransient
-    public String getValue() {
-        return toString();
-    }
-
-
-    public void setValue(String value) throws ParseException {
-        ObisCode obisCode = ObisCode.fromString(value);
-        this.a = obisCode.getA();
-        this.b = obisCode.getB();
-        this.c = obisCode.getC();
-        this.d = obisCode.getD();
-        this.e = obisCode.getE();
-        this.f = obisCode.getF();
-        this.relativeBillingPeriod = obisCode.useRelativeBillingPeriod();
-    }
-
-    public ObisCode nextB () {
-        return new ObisCode(this.a, this.b + 1, this.c, this.d, this.e, this.f);
-    }
-
-    public void setB(int b) {
-        this.b = b;
+        return ObisCode.fromString( String.join(".", obisLetters) );
     }
 }

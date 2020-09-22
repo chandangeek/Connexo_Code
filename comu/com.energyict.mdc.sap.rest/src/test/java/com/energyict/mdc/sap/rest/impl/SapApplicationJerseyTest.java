@@ -4,10 +4,14 @@
 
 package com.energyict.mdc.sap.rest.impl;
 
+import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
@@ -39,6 +43,18 @@ public class SapApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     protected UtilitiesDeviceRegisteredNotification utilitiesDeviceRegisteredNotification;
 
     @Mock
+    protected AppServerHelper appServerHelper;
+
+    @Mock
+    protected JsonService jsonService;
+
+    @Mock
+    protected MessageService messageService;
+
+    @Mock
+    protected SearchService searchService;
+
+    @Mock
     protected Clock clock;
 
     @Override
@@ -52,6 +68,9 @@ public class SapApplicationJerseyTest extends FelixRestApplicationJerseyTest {
         application.setSAPCustomPropertySets(sapCustomPropertySets);
         application.setEndPointConfigurationService(endPointConfigurationService);
         application.setUtilitiesDeviceRegisteredNotification(utilitiesDeviceRegisteredNotification);
+        application.setJsonService(jsonService);
+        application.setMessageService(messageService);
+        application.setSearchService(searchService);
         application.setClock(clock);
         application.setTransactionService(transactionService);
 

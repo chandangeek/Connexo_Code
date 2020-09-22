@@ -31,7 +31,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -84,12 +83,14 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
                                      QueryService queryService,
                                      NlsService nlsService,
                                      UpgradeService upgradeService,
-                                     Clock clock) {
+                                     Clock clock,
+                                     TransactionService transactionService) {
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         setClock(clock);
+        setTransactionService(transactionService);
         activate();
     }
     @Activate
@@ -104,7 +105,7 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
             protected void configure() {
                 bind(NlsService.class).toInstance(nlsService);
                 bind(QueryService.class).toInstance(queryService);
-                bind(BlackListTokenService.class).to(BlackListTokenServiceImpl.class).in(Scopes.SINGLETON);
+                bind(BlackListTokenService.class).toInstance(BlackListTokenServiceImpl.this);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(Clock.class).toInstance(clock);
