@@ -76,7 +76,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_TYPE("deviceType", "Device type"),
     SHIPMENT_DATE("shipmentDate", "Shipment date"),
     MANUFACTURER("manufacturer", "Manufacturer"),
-    MODEL_NUMBER("modelNumber", "Model number"),
+    MANUFACTURER_SERIAL_ID("manufacturerSerialId", "Manufacturer serial id"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
     MATERIAL_ID("materialId", "Material id"),
     NEXT_READING_ATTEMPT_DATE("nextReadingAttemptDate", "Next reading attempt date"),
