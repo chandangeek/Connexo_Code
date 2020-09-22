@@ -145,7 +145,9 @@ public final class MeterActivationImpl implements IMeterActivation {
         if (meter.isPresent()) {
             meter.get().getHeadEndInterface()
                     .map(headEndInterface -> headEndInterface.getCapabilities(meter.get()))
-                    .ifPresent(endDeviceCapabilities -> createChannels(endDeviceCapabilities.getConfiguredReadingTypes(), endDeviceCapabilities.getZoneId()));
+                    .ifPresent(endDeviceCapabilities -> createChannels(
+                            endDeviceCapabilities.getReadingTypeOffsetMap(),
+                            endDeviceCapabilities.getZoneId()));
         }
         return this;
     }
@@ -175,7 +177,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         return this.meterRole.getOptional();
     }
 
-    private void createChannels(List<ReadingType> readingTypes, ZoneId zoneId) {
+    private void createChannels(Map<ReadingType, Long> readingTypeOffsetMap, ZoneId zoneId) {
         Stream<MultiplierUsage> meterMultipliers = getMeter()
                 .flatMap(meter -> meter.getConfiguration(getStart()))
                 .map(MeterConfiguration::getReadingTypeConfigs)
@@ -190,12 +192,12 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .map(MultiplierUsage.class::cast);
         Set<ReadingType> calculatedReadingTypes = Stream.concat(meterMultipliers, usagePointMultipliers).map(MultiplierUsage::getCalculated).flatMap(Functions.asStream()).collect(Collectors.toSet());
 
-        List<ReadingType> collect = readingTypes.stream()
+        List<ReadingType> collect = readingTypeOffsetMap.keySet().stream()
                 .filter(not(calculatedReadingTypes::contains))
-                .filter(not(readingType -> isDeltaDeltaOfOther(readingType, readingTypes)))
+                .filter(not(readingType -> isDeltaDeltaOfOther(readingType, readingTypeOffsetMap.keySet())))
                 .filter(not(readingType -> isDeltaDeltaOfOther(readingType, calculatedReadingTypes))) // if the calculated reading type is a bulk, automatically the deltadelta will be added
                 .distinct().collect(Collectors.toList());
-        collect.forEach(readingType -> getChannelsContainer().createChannel(zoneId, readingType));
+        collect.forEach(readingType -> getChannelsContainer().createChannel(zoneId, readingTypeOffsetMap.get(readingType), readingType));
     }
 
     private boolean isDeltaDeltaOfOther(ReadingType readingType, Collection<ReadingType> readingTypes) {
@@ -542,11 +544,11 @@ public final class MeterActivationImpl implements IMeterActivation {
         // create the same channels for the new activation
         getChannelsContainer().getChannels().forEach(channel -> {
             ReadingType collectedReadingType;
-            if(channel.getBulkQuantityReadingType().isPresent()){
+            if (channel.getBulkQuantityReadingType().isPresent()) {
                 collectedReadingType = channel.getBulkQuantityReadingType().get();
             } else {
                 List<? extends ReadingType> readingTypes = channel.getReadingTypes();
-                collectedReadingType = readingTypes.get(readingTypes.size()-1);
+                collectedReadingType = readingTypes.get(readingTypes.size() - 1);
             }
             newActivation.getChannelsContainer().createChannel(collectedReadingType);
         });

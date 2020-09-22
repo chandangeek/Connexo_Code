@@ -49,6 +49,7 @@ public class ChannelInfoFactory {
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = readingTypeInfoFactory.from(readingType1));
         channel.getChannelSpec().getOverflow().ifPresent(channelSpecOverflow -> info.overflowValue = channelSpecOverflow);
         channel.getOverflow().ifPresent(overruledOverflowValue -> info.overruledOverflowValue = overruledOverflowValue);
+        info.endOfInterval = channel.getOffset();
         info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getChannelSpec().getDeviceObisCode();
         info.overruledObisCode = channel.getObisCode();

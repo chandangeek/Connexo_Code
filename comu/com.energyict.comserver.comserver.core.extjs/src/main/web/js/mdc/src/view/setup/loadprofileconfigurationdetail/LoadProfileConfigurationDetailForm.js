@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     loadProfileConfigurationId: null,
     deviceConfigurationId: null,
     deviceTypeId: null,
+    timeUnitsStore: null,
     requires: [
         'Uni.form.field.Obis',
         'Uni.form.field.ReadingTypeDisplay',
@@ -137,6 +138,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         width: 650,
                         hidden: true,
                         submitValue: false
+                    },
+                    {
+                        xtype: 'timeInHoursAndMinutes',
+                        margin: '10 0 0 0',
+                        fieldLabel: Uni.I18n.translate('general.endOfInterval', 'MDC', 'End of interval'),
+                        name: 'endOfInterval',
+                        itemId: 'mdc-channel-config-end-of-interval',
+                        hidden: true
                     },
                     {
                         xtype: 'fieldcontainer',

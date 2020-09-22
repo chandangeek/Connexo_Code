@@ -51,7 +51,7 @@ public final class TimeSeriesImpl implements TimeSeries {
     private boolean regular;
     private int intervalLength;
     private IntervalLengthUnit intervalLengthUnit;
-    private int offset;
+    private long offset;
     private long version;
     private Instant createTime;
     private Instant modTime;
@@ -83,11 +83,11 @@ public final class TimeSeriesImpl implements TimeSeries {
         return this;
     }
 
-    TimeSeriesImpl init(IVault vault, RecordSpec recordSpec, ZoneId zoneId, TemporalAmount interval, int offsetInHours) {
+    TimeSeriesImpl init(IVault vault, RecordSpec recordSpec, ZoneId zoneId, TemporalAmount interval, long offset) {
         init(vault, recordSpec, zoneId);
         this.regular = true;
         setInterval(interval);
-        this.offset = offsetInHours;
+        this.offset = offset;
         return this;
     }
 
@@ -178,6 +178,12 @@ public final class TimeSeriesImpl implements TimeSeries {
     }
 
     @Override
+    public void updateOffset(long offset) {
+        this.offset = offset;
+        dataModel.update(this);
+    }
+
+    @Override
     public boolean isRegular() {
         return regular;
     }
@@ -188,7 +194,7 @@ public final class TimeSeriesImpl implements TimeSeries {
     }
 
     @Override
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
@@ -252,7 +258,11 @@ public final class TimeSeriesImpl implements TimeSeries {
         result.add(intervalLengthUnit.getCalendarCode(), -intervalLength);
         if (getOffset() != 0) {
             // use set instead of add, because calendar behavior is unexpected for adding hours to midnight on a DST transition day.
-            result.set(Calendar.HOUR_OF_DAY, offset);
+            ParsedOffset parsedOffset = getParsedOffset();
+            result.set(Calendar.DAY_OF_MONTH, parsedOffset.days);
+            result.set(Calendar.HOUR_OF_DAY, parsedOffset.hours);
+            result.set(Calendar.MINUTE, parsedOffset.minutes);
+            result.set(Calendar.SECOND, parsedOffset.seconds);
         }
         return result;
     }
@@ -264,6 +274,7 @@ public final class TimeSeriesImpl implements TimeSeries {
     }
 
     private boolean isValid(Instant instant) {
+        ParsedOffset offset = getParsedOffset();
         if (lockTime != null && !instant.isAfter(lockTime)) {
             return false;
         }
@@ -272,8 +283,8 @@ public final class TimeSeriesImpl implements TimeSeries {
         }
         ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, getZoneId());
         if (intervalLengthUnit == MINUTE) {
-            return dateTime.getMinute() % intervalLength == 0
-                    && dateTime.getSecond() == 0
+            return dateTime.getMinute() % intervalLength == offset.minutes
+                    && dateTime.getSecond() == offset.seconds
                     && dateTime.getNano() == 0;
         }
         if (!validTimeOfDay(dateTime)) {
@@ -286,18 +297,24 @@ public final class TimeSeriesImpl implements TimeSeries {
         if (isValid(instant)) {
             return instant;
         }
+        ParsedOffset parsedOffset = getParsedOffset();
         ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, getZoneId());
         if (intervalLengthUnit == MINUTE) {
-            dateTime = dateTime.truncatedTo(ChronoUnit.MINUTES);
-            if (dateTime.getMinute() % intervalLength != 0) {
-                dateTime = dateTime.withMinute((dateTime.getMinute() / intervalLength) * intervalLength);
+            dateTime = dateTime.withSecond(parsedOffset.seconds).truncatedTo(ChronoUnit.SECONDS);
+            if (dateTime.getMinute() % intervalLength != parsedOffset.minutes) {
+                dateTime = dateTime
+                        .withMinute((dateTime.getMinute() / intervalLength) * intervalLength + parsedOffset.minutes);
             }
             return next(dateTime.toInstant(), 1);
         } else {
-            if (dateTime.getHour() < getOffset()) {
+            if (dateTime.getHour() < parsedOffset.hours) {
                 dateTime = dateTime.minusDays(1);
             }
-            dateTime = dateTime.withHour(getOffset()).truncatedTo(ChronoUnit.HOURS);
+            dateTime = dateTime
+                    .withHour(parsedOffset.hours)
+                    .withMinute(parsedOffset.minutes)
+                    .withSecond(parsedOffset.seconds)
+                    .truncatedTo(ChronoUnit.SECONDS);
             switch (intervalLengthUnit) {
                 case DAY: {
                     return next(dateTime.toInstant(), 1);
@@ -318,8 +335,13 @@ public final class TimeSeriesImpl implements TimeSeries {
         }
     }
 
+    private ParsedOffset getParsedOffset() {
+        return new ParsedOffset(offset);
+    }
+
     private boolean validTimeOfDay(ZonedDateTime dateTime) {
-        return dateTime.getMinute() == 0 && dateTime.getSecond() == 0 && dateTime.getNano() == 0 && dateTime.getHour() == getOffset();
+        ParsedOffset offset = getParsedOffset();
+        return dateTime.getMinute() == offset.minutes && dateTime.getSecond() == offset.seconds && dateTime.getNano() == 0 && dateTime.getHour() == offset.hours;
     }
 
     @Override
@@ -452,6 +474,23 @@ public final class TimeSeriesImpl implements TimeSeries {
             return next(validInstantOnOrAfter(instant), -1);
         }
         return next(instant, -1);
+    }
+
+    class ParsedOffset {
+        int days;
+        int hours;
+        int minutes;
+        int seconds;
+
+        public ParsedOffset(long offset) {
+            seconds = (int) (offset % 60);
+            offset /= 60;
+            minutes = (int) (offset % 60);
+            offset /= 60;
+            hours = (int) (offset % 24);
+            offset /= 24;
+            days = (int) offset;
+        }
     }
 
 }
