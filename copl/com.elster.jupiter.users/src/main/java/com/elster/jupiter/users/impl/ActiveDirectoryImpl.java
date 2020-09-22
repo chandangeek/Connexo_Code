@@ -103,9 +103,9 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
     private Optional<User> authenticateSimple(String name, String password, List<String> urls) {
         LOGGER.info("AUTH: No security applied\n");
-
         try {
-            new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password));
+            DirContext context = new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password));
+            context.close();
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             LOGGER.severe("AUTH: Simple authetication failed\n");
