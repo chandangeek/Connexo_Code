@@ -408,7 +408,7 @@ public class CTRPrimitiveParser {
         if (x == 0x13 && y == 7) {
             def = new Default[]{new Default(1, values[0].getUnit())};
         }
-        if (x == 0x0E && y == 0x0A) {
+        if (x == 0x0E && y == 0x0A && x == 0) {
             def = new Default[]{new Default(0, values[0].getUnit())};
         }
         if (x == 0x0C && y == 1) {
