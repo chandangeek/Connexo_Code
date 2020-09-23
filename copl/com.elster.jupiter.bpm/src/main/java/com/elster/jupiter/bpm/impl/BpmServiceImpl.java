@@ -227,7 +227,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         String errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
         String errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         try {
-            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10");
+            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10&sortOrder=true");
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processes");
@@ -238,11 +238,11 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
             for (int i = 0; i < arr.length(); i++) {
                 try {
                     JSONObject task = arr.getJSONObject(i);
-                    String processName = task.getString("name");
-                    String version = task.getString("version");
+                    String processName = task.getString("process-name");
+                    String version = task.getString("process-version");
                     if (processName.equals(bpmProcessDefinition.getProcessName()) && version.equals(bpmProcessDefinition.getVersion())) {
                         checkProcessIsAlreadyRunning(processName, version, parameters, null);
-                        return runProcess(task.getString("deploymentId"), task.getString("id"), parameters);
+                        return runProcess(task.getString("container-id"), task.getString("process-id"), parameters);
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
