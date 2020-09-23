@@ -432,13 +432,13 @@ public class BpmResource {
                                           @PathParam("processInstanceId") long processInstanceId) {
         String jsonContent;
         try {
-            final String getUrl = "/rest/history/instance/" + processInstanceId;
+            final String getUrl = "/services/rest/tasks/process/instance/" + processInstanceId + "/log";
             jsonContent = bpmService.getBpmServer().doGet(getUrl, auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsonObject = new JSONObject(jsonContent);
                 long parentProcessInstanceId = jsonObject.getLong("parentProcessInstanceId");
                 if (parentProcessInstanceId > 0) {
-                    final String getParentUrl = "/rest/history/instance/" + parentProcessInstanceId;
+                    final String getParentUrl = "/services/rest/tasks/process/instance/" + parentProcessInstanceId + "/log";
                     final String parentProcessJson = bpmService.getBpmServer().doGet(getParentUrl, auth);
                     JSONObject parentJsonObject = new JSONObject(parentProcessJson);
                     if (parentJsonObject != null) {
@@ -465,7 +465,7 @@ public class BpmResource {
         JSONObject jsnobject = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/history/instance/" + processInstanceId + "/child",
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/log/child",
                     auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
@@ -491,12 +491,12 @@ public class BpmResource {
         JSONObject jsnobject = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/" + processInstanceId + "/node",
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/node",
                     auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
                 nodeInfoList = new ProcessInstanceNodeInfos(jsnobject, thesaurus);
-                jsonContent = bpmService.getBpmServer().doGet("/rest/history/instance/" + processInstanceId + "/child",
+                jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/log/child",
                         auth);
                 if (jsonContent != null && !"".equals(jsonContent)) {
                     jsnobject = new JSONObject(jsonContent);
@@ -964,11 +964,11 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
+                arr = jsnobject.getJSONArray("processes");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
@@ -984,11 +984,11 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
+                arr = jsnobject.getJSONArray("processes");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
