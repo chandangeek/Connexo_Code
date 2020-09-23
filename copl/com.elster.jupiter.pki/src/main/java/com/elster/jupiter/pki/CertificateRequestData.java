@@ -22,7 +22,7 @@ public class CertificateRequestData {
 
     private JSONObject mappingJson;
     private String prefix;
-
+    private String subjectDNfields;
 
 
     public CertificateRequestData(String caName, String endEntityName,String certificateProfileName) {
@@ -35,7 +35,7 @@ public class CertificateRequestData {
         this.prefix = "";
     }
 
-    public CertificateRequestData(String mappingJson, String caName, String endEntityName,String certificateProfileName) {
+    public CertificateRequestData(String mappingJson, String caName, String endEntityName,String certificateProfileName, String subjectDNfields) {
         if (isEmpty(mappingJson)) {
             if (isEmpty(caName) || isEmpty(endEntityName) || isEmpty(certificateProfileName)) {
                 throw new RuntimeException("Invalid certificate request data ca name:" + caName + " end entity name:" + endEntityName + " profile name:" + certificateProfileName);
@@ -51,6 +51,7 @@ public class CertificateRequestData {
         this.caName = caName;
         this.endEntityName = endEntityName;
         this.certificateProfileName = certificateProfileName;
+        this.subjectDNfields = subjectDNfields;
     }
 
     public void setPrefix(String prefix){
@@ -96,7 +97,8 @@ public class CertificateRequestData {
                 (String)properties.get(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()),
                 (String)properties.get(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()),
                 (String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()),
-                (String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()));
+                (String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()),
+                (String)properties.get(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey()));
     }
 
     private boolean isEmpty(String caName) {
@@ -120,5 +122,9 @@ public class CertificateRequestData {
             }
         }
         return "";
+    }
+
+    public String getSubjectDNfields() {
+        return subjectDNfields;
     }
 }

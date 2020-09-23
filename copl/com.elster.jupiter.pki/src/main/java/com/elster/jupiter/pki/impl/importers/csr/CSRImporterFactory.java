@@ -298,6 +298,10 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish(),
+                propertySpecService.stringSpec().named(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey(), CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS)
+                        .describedAs(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
                 propertySpecService.stringSpec().named(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey(), CSRImporterTranslatedProperty.CSR_MAPPING)
                         .describedAs(CSRImporterTranslatedProperty.CSR_MAPPING_DESCRIPTION)
                         .fromThesaurus(thesaurus)

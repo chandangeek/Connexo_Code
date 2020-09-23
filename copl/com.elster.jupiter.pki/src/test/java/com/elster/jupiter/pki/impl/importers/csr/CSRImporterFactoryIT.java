@@ -330,6 +330,7 @@ public class CSRImporterFactoryIT {
                 .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
                 .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
                 .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
+                .addProperty(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey()).withValue("")
                 .create();
     }
 
@@ -383,6 +384,7 @@ public class CSRImporterFactoryIT {
                 .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
                 .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
                 .addProperty(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()).withValue("{}")
+                .addProperty(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey()).withValue("")
                 .create();
     }
 

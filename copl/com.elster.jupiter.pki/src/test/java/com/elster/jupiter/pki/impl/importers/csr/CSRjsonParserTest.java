@@ -29,7 +29,7 @@ public class CSRjsonParserTest {
     @Test
     public void testJsonParsing() {
         String jsonParam = "{\"dlms-signature\":{\"ca\":\"SM-GW-BEACON-SUBCA\",\"cp\":\"SM-GW-BEACON-DLMSSERVER-DIGSIGN\",\"ee\":\"EE-SM-GW-BEACON\"},\"dlms-agreement\":{\"ca\":\"SM-GW-BEACON-SUBCA\",\"cp\":\"SM-GW-BEACON-DLMSSERVER-KA\",\"ee\":\"EE-SM-GW-BEACON\"},\"dlms-tls-\":{\"ca\":\"SM-GW-BEACON-SUBCA\",\"cp\":\"SM-GW-BEACON-DLMSSERVER-TLS\",\"ee\":\"EE-SM-GW-BEACON\"},\"tls\":{\"ca\":\"SM-GW-BEACON-SUBCA\",\"cp\":\"SM-GW-BEACON-WEBSERVER-TLS\",\"ee\":\"EE-SM-GW-BEACON\"}}";
-        CertificateRequestData requestData = new CertificateRequestData(jsonParam, "defaultCA", "defaultEE", "defaultCP");
+        CertificateRequestData requestData = new CertificateRequestData(jsonParam, "defaultCA", "defaultEE", "defaultCP","");
 
         assertThat(requestData.getCaName()).isEqualTo("defaultCA");
 
@@ -42,7 +42,7 @@ public class CSRjsonParserTest {
         String jsonParam = "xxxinvalid";
 
         try{
-            new CertificateRequestData(jsonParam, "defaultCA", "defaultEE", "defaultCP");
+            new CertificateRequestData(jsonParam, "defaultCA", "defaultEE", "defaultCP","");
             fail("JSON is ivalid, the parser should throw an exception");
         } catch (Exception ex){
             assertThat(ex.getClass()).isEqualTo(RuntimeException.class);

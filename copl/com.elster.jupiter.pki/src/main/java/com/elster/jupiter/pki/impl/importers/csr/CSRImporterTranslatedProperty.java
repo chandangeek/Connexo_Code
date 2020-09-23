@@ -61,6 +61,8 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     CA_PROFILE_NAME_DESCRIPTION("certificate.profile.name.description", "Certificate profile name"),
     CSR_MAPPING("csr.filename.mapping", "Mapping JSON"),
     CSR_MAPPING_DESCRIPTION("csr.filename.mapping.description", "JSON string containing the mapping between the CSR filename prefixes and PKI settings."),
+    SUBJECT_DN_FIELDS("csr.subjectdn.fields", "Subject DN fields"),
+    SUBJECT_DN_FIELDS_DESCRIPTION("csr.subjectdn.fields.description", "SubjectDN fields to include in request (ex: CN). If empty, all fields will be included."),
     CHECK_FILE_SIGNATURE("csr.import.check.signature", "Check input file signature"),
     CHECK_FILE_SIGNATURE_DESCRIPTION("csr.import.check.signature.description", "If checked, the signature trust will be checked against the trusted certificates"),
     SAVE_CERTIFICATE("csr.import.save.certificate", "Save the signed certificate in Connexo"),
