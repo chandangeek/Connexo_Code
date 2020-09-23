@@ -84,7 +84,7 @@ public class MeteringMessageHandler implements MessageHandler {
     private List<String> getUsagePointProcessSignalUrls(String usagePointMrid) {
         ProcessInstanceInfos activeProcesses = bpmService.getRunningProcesses(null, "?variableid=usagePointId&variablevalue=" + usagePointMrid);
 
-        List<ProcessDefinitionInfo> processes = getDeployments().map(processDefinitionInfos -> processDefinitionInfos.processDefinitionList)
+        List<ProcessDefinitionInfo> processes = getDeployments().map(processDefinitionInfos -> processDefinitionInfos.processes)
                 .orElse(Collections.emptyList());
 
         return activeProcesses.processes.stream()
