@@ -31,7 +31,7 @@ import java.util.List;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
 
-    public static final ObisCode STEP_TARIFF_CONFIGURATION = ObisCode.fromString("0.0.94.20.74.255");
+    public static final ObisCode STEP_TARIFF_CONFIGURATION = ObisCode.fromString("0.0.94.20.75.255");
     public static final ObisCode CREDIT_DAYS_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
     public static final ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
     public static final ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
@@ -316,20 +316,28 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
     private void changeStepTariffConfig(OfflineDeviceMessage pendingMessage) throws IOException {
         Structure changeStepTariff = new Structure();
-        Integer stepCode = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.tariffCode));
-        changeStepTariff.addDataType(new Unsigned16(stepCode));
+        Integer tarrifCode = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.tariffCode));
+        String additionalTaxes = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.additionalTaxesType);
+        Integer additionalTaxesId = ChargeDeviceMessage.AdditionalTaxesType.entryForDescription(additionalTaxes).getId();
+        String graceRecalculation = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.graceRecalculationType);
+        Integer graceRecalculationId = ChargeDeviceMessage.GraceRecalculationType.entryForDescription(graceRecalculation).getId();
+        Integer graceRecalculationValue = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.graceRecalculationValue));
+        changeStepTariff.addDataType(new Unsigned16(tarrifCode));
+        changeStepTariff.addDataType(new TypeEnum(additionalTaxesId));
+        changeStepTariff.addDataType(new TypeEnum(graceRecalculationId));
+        changeStepTariff.addDataType(new Unsigned16(graceRecalculationValue));
         Array changeStepTariffArray = new Array();
         for (int i = 1; i <= 10; i++) {
             Integer price = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, PRICE_STEP + i));
-            String description = getDeviceMessageAttributeValue(pendingMessage, RECALCULATION_TYPE_STEP + i);
-            Integer recalculationId = ChargeDeviceMessage.RecalculationType.entryForDescription(description).getId();
+            String recalculation = getDeviceMessageAttributeValue(pendingMessage, RECALCULATION_TYPE_STEP + i);
+            Integer recalculationId = ChargeDeviceMessage.RecalculationType.entryForDescription(recalculation).getId();
             Integer graceWarning = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, GRACE_WARNING_STEP + i));
             Integer additionalTax = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, ADDITIONAL_TAX_STEP + i));
             Structure changeStep = new Structure();
             addStepTarifCharge(pendingMessage, changeStep, i);
-            changeStep.addDataType(new Integer32(price));
+            changeStep.addDataType(new Unsigned32(price));
             changeStep.addDataType(new TypeEnum(recalculationId));
-            changeStep.addDataType(new Unsigned32(graceWarning));
+            changeStep.addDataType(new Unsigned16(graceWarning));
             changeStep.addDataType(new Unsigned32(additionalTax));
             changeStepTariffArray.addDataType(changeStep);
         }

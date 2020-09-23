@@ -1958,6 +1958,12 @@ public final class DeviceMessageConstants {
 
     public static final String tariffCode = "tariffCode";
     public static final String tariffCodeDefaultTranslation = "Tariff Code";
+    public static final String additionalTaxesType = "additionalTaxesType";
+    public static final String additionalTaxesTypeDefaultTranslation = "Additional taxes configuration";
+    public static final String graceRecalculationType = "graceRecalculationType";
+    public static final String graceRecalculationTypeDefaultTranslation = "Active Import Grace Recalculation Type";
+    public static final String graceRecalculationValue = "graceRecalculationValue";
+    public static final String graceRecalculationValueDefaultTranslation = "Active Import Grace Recalculation Value";
 
     public static final String chargeStep1 = "chargeStep1";
     public static final String chargeStep1DefaultTranslation = "Step1 Charge";

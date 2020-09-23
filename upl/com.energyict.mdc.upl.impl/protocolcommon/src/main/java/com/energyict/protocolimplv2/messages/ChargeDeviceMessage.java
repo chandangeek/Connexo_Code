@@ -124,6 +124,9 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.tariffCode, DeviceMessageConstants.tariffCodeDefaultTranslation),
+                    this.stringDefSpec(service, DeviceMessageConstants.additionalTaxesType, DeviceMessageConstants.additionalTaxesTypeDefaultTranslation, ChargeDeviceMessage.AdditionalTaxesType.getDescriptionValues()),
+                    this.stringDefSpec(service, DeviceMessageConstants.graceRecalculationType, DeviceMessageConstants.graceRecalculationTypeDefaultTranslation, ChargeDeviceMessage.GraceRecalculationType.getDescriptionValues()),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.graceRecalculationValue, DeviceMessageConstants.graceRecalculationValueDefaultTranslation, new BigDecimal(0)),
 
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeStep1, DeviceMessageConstants.chargeStep1DefaultTranslation, new BigDecimal(0)),
                     this.bigDecimalSpec(service, DeviceMessageConstants.priceStep1, DeviceMessageConstants.priceStep1DefaultTranslation, new BigDecimal(0)),
@@ -257,6 +260,83 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                 propertySpecService, nlsService, converter);
     }
 
+    public enum ChargeMode {
+        Prepaid_charge(0, "Prepaid"),
+        Postpaid_charge(1, "Postpaid");
+
+        private final int id;
+        private final String description;
+
+        ChargeMode(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static ChargeMode entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            ChargeMode[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum AdditionalTaxesType {
+        Enum0(0, "Enum 0,"),
+        Enum1(1, "Enum 1,"),
+        Enum2(2, "Enum 2,");
+
+        private final int id;
+        private final String description;
+
+        AdditionalTaxesType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static AdditionalTaxesType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            AdditionalTaxesType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
     public enum RecalculationType {
         Disable(0, "Disable"),
         Recalculate_Only(1, "Recalculate Only"),
@@ -296,19 +376,19 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         }
     }
 
-    public enum ChargeMode {
-        Prepaid_charge(0, "Prepaid"),
-        Postpaid_charge(1, "Postpaid");
+    public enum GraceRecalculationType {
+        ValueInDays(0, "Value in days,"),
+        ValueInConsumption(1, "Value in consumption,");
 
         private final int id;
         private final String description;
 
-        ChargeMode(int id, String description) {
+        GraceRecalculationType(int id, String description) {
             this.id = id;
             this.description = description;
         }
 
-        public static ChargeMode entryForDescription(String description) {
+        public static GraceRecalculationType entryForDescription(String description) {
             return Stream
                     .of(values())
                     .filter(each -> each.getDescription().equals(description))
@@ -317,7 +397,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         }
 
         public static String[] getDescriptionValues() {
-            ChargeMode[] allObjects = values();
+            GraceRecalculationType[] allObjects = values();
             String[] result = new String[allObjects.length];
             for (int index = 0; index < allObjects.length; index++) {
                 result[index] = allObjects[index].getDescription();

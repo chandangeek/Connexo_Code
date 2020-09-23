@@ -84,7 +84,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     @Override
     protected void addStepTarifCharge(OfflineDeviceMessage pendingMessage, Structure changeStep, Integer step) throws IOException {
         Integer charge = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, CHARGE_STEP + step));
-        changeStep.addDataType(new Unsigned32(charge));
+        changeStep.addDataType(new Unsigned16(charge));
     }
 
     private void updateLoadLimits(OfflineDeviceMessage pendingMessage) throws IOException {
