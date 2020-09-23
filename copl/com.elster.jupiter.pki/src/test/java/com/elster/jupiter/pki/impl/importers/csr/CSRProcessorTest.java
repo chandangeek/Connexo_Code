@@ -5,6 +5,8 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.CaService;
@@ -32,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -63,6 +66,10 @@ public class CSRProcessorTest {
     private PKCS10CertificationRequest csr1, csr2;
     @Mock
     private X509Certificate cert1, cert2;
+    @Mock
+    FileImportOccurrence fileImportOccurrence;
+    @Mock
+    private Thesaurus thesaurus;
     @Mock
     private RequestableCertificateWrapper wrapper, newWrapper;
     private CSRProcessor processor;
@@ -235,5 +242,30 @@ public class CSRProcessorTest {
         verify(logger).log(MessageSeeds.CSR_IMPORTED_SUCCESSFULLY, "CDE-123-123-123");
         verify(logger).log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, "CDE-123-123-123");
         verify(logger).log(MessageSeeds.CERTIFICATE_IMPORTED_SUCCESSFULLY, "CDE-123-123-123");
+    }
+    @Test
+    public void testProcessingFlatFile() throws Exception {
+        String zipFileName = getClass().getClassLoader().getResource("testCSRflat.zip").getPath();
+
+        when(fileImportOccurrence.getPath()).thenReturn(zipFileName);
+
+        CSRZipFileParser csrZipFileParser = new CSRZipFileParser(fileImportOccurrence, thesaurus);
+        Map<String, Map<String, PKCS10CertificationRequest>> csrMap = csrZipFileParser.parse();
+
+        properties.put(CSRImporterTranslatedProperty.SAVE_CERTIFICATE.getPropertyKey(), false);
+        when(caService.signCsr( Matchers.anyObject(), Matchers.anyObject() )).thenReturn(cert1);
+        processor.process(csrMap);
+
+        verify(logger).log(MessageSeeds.PROCESSING_CSR, "454C536301234567", "dlms-tls-454C536301234567");
+        verify(logger).log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY,  "454C536301234567-dlms-tls");
+
+        verify(logger).log(MessageSeeds.PROCESSING_CSR, "454C536301234567", "dlms-tls-454C536301234567");
+        verify(logger).log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY,  "454C536301234568-tls");
+
+        verify(logger).log(MessageSeeds.PROCESSING_CSR, "454C536301234568", "dlms-agreement-454C536301234568");
+        verify(logger).log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY,  "454C536301234568-dlms-agreement");
+
+        verify(logger).log(MessageSeeds.PROCESSING_CSR, "454C536301234567", "dlms-signature-454C536301234567");
+        verify(logger).log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY,  "454C536301234567-dlms-signature");
     }
 }

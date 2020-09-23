@@ -60,16 +60,18 @@ class CSRImporter implements FileImporter {
     public void process(FileImportOccurrence fileImportOccurrence) {
         CSRImporterLogger logger = new CSRImporterLogger(fileImportOccurrence, thesaurus);
         try {
-            ReusableInputStream reusableInputStream = ReusableInputStream.from(fileImportOccurrence.getContents());
             if ((Boolean) properties.get(CSRImporterTranslatedProperty.CHECK_FILE_SIGNATURE.getPropertyKey())) {
+                ReusableInputStream reusableInputStream = ReusableInputStream.from(fileImportOccurrence.getContents());
                 verifyInputFileSignature(reusableInputStream);
                 logger.log(MessageSeeds.OK_SIGNATURE);
             } else {
                 logger.log(MessageSeeds.SKIPPING_SIGNATURE_VERIFICATION);
             }
 
-            Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
-                    .parseInputStream(reusableInputStream.stream());
+            CSRZipFileParser zipFileParser = new CSRZipFileParser(fileImportOccurrence, thesaurus);
+
+            Map<String, Map<String, PKCS10CertificationRequest>> csrMap = zipFileParser.parse();
+
             // kind of ugly but model forced us to send optional later on ...
             Optional<CertificateRequestData> certificateUserData = Optional.of(CertificateRequestData.from(properties));
             Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, properties, logger, certificateUserData)
