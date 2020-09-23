@@ -1,9 +1,11 @@
 package com.elster.partners.jbpm.extension;
 
+import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.UserTaskService;
+import org.jbpm.services.api.query.QueryService;
 import org.kie.server.services.api.KieServerApplicationComponentsService;
 import org.kie.server.services.api.KieServerRegistry;
 import org.kie.server.services.api.SupportedTransports;
-import org.kie.server.services.drools.RulesExecutionService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,21 +24,32 @@ public class CustomJbpmKieServerApplicationComponentsService implements KieServe
         }
 
         KieServerRegistry context = null;
+        UserTaskService taskService = null;
+        RuntimeDataService runtimeDataService = null;
+        QueryService queryService = null;
 
-        System.out.println("****************************");
-        System.out.println("****************************");
-        System.out.println("****************************");
         for( Object object : services ) {
-            System.out.println(object.getClass() + object.toString());
             if( KieServerRegistry.class.isAssignableFrom(object.getClass()) ) {
                 context = (KieServerRegistry) object;
+                continue;
+            }
+            if( UserTaskService.class.isAssignableFrom(object.getClass()) ) {
+                taskService = (UserTaskService) object;
+                continue;
+            }
+            if( RuntimeDataService.class.isAssignableFrom(object.getClass()) ) {
+                runtimeDataService = (RuntimeDataService) object;
+                continue;
+            }
+            if( QueryService.class.isAssignableFrom(object.getClass()) ) {
+                queryService = (QueryService) object;
                 continue;
             }
         }
 
         List<Object> components = new ArrayList<Object>(1);
         if( SupportedTransports.REST.equals(type) ) {
-            components.add(new CustomJbpmResource(context));
+            components.add(new CustomJbpmResource(context, taskService, runtimeDataService, queryService));
         }
 
         return components;
