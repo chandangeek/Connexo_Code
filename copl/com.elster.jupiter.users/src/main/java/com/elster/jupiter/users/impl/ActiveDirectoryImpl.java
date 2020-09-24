@@ -71,7 +71,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     protected List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
         User user = (User) args[0];
         List<Group> groupList = new ArrayList<>();
-        SearchControls controls = new SearchControls(getScopeForUserSearch(), 0, 0, ARRAY_MEMBER_OF, true, true);
+        SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, ARRAY_MEMBER_OF, true, true);
         NamingEnumeration<SearchResult> answer = context.search(getNameForUserSearch(),
                 "(&(objectClass=person)(sAMAccountName=" + user.getName() + "))", controls);
         if (answer.hasMoreElements()) {
@@ -249,7 +249,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     private boolean getUserStatusFromContext(DirContext context, Object... args) throws NamingException {
         String user = (String) args[0];
         SearchControls controls = new SearchControls();
-        controls.setSearchScope(getScopeForUserSearch());
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration<SearchResult> results = context.search(getNameForUserSearch(),
                 "(sAMAccountName=" + user + ")", controls);
         while (results.hasMore()) {
