@@ -190,12 +190,21 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_CHARGE_MODE(41008, "Change charge mode prepaid/postpaid") {
+    SWITCH_CHARGE_MODE(41008, "Switch charge mode prepaid - postpaid") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.chargeModeAttributeName, DeviceMessageConstants.chargeModeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeMode.getDescriptionValues()),
-                    this.dateTimeSpec(service, DeviceMessageConstants.modeActivationDateAttributeName, DeviceMessageConstants.modeActivationDateAttributeNameDefaultTranslation)
+                    this.dateTimeSpec(service, DeviceMessageConstants.activationDateAttributeName, DeviceMessageConstants.activationDateAttributeNameDefaultTranslation)
+            );
+        }
+    },
+    SWITCH_TAX_AND_STEP_TARIFF(41009, "Switch to passive tax and step tariff") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.tariffTypeAttributeName, DeviceMessageConstants.tariffTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.TariffType.getDescriptionValues()),
+                    this.dateTimeSpec(service, DeviceMessageConstants.activationDateAttributeName, DeviceMessageConstants.activationDateAttributeNameDefaultTranslation)
             );
         }
     },
@@ -261,8 +270,8 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
     }
 
     public enum ChargeMode {
-        Prepaid_charge(0, "Prepaid"),
-        Postpaid_charge(1, "Postpaid");
+        Prepaid_charge(1, "Prepaid"),
+        Postpaid_charge(2, "Postpaid");
 
         private final int id;
         private final String description;
@@ -298,10 +307,48 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         }
     }
 
+    public enum TariffType {
+        Passive_step_tariff(3, "Passive step tariff"),
+        Passive_TOU_tariff(4, "Passive TOU tariff");
+
+        private final int id;
+        private final String description;
+
+        TariffType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static TariffType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            TariffType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
     public enum AdditionalTaxesType {
-        Enum0(0, "Enum 0,"),
-        Enum1(1, "Enum 1,"),
-        Enum2(2, "Enum 2,");
+        Enum0(0, "Enum 0"),
+        Enum1(1, "Enum 1"),
+        Enum2(2, "Enum 2");
 
         private final int id;
         private final String description;
@@ -377,8 +424,8 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
     }
 
     public enum GraceRecalculationType {
-        ValueInDays(0, "Value in days,"),
-        ValueInConsumption(1, "Value in consumption,");
+        ValueInDays(0, "Value in days"),
+        ValueInConsumption(1, "Value in consumption");
 
         private final int id;
         private final String description;

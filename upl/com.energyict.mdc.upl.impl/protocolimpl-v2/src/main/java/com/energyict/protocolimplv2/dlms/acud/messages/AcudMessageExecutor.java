@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
@@ -25,26 +24,21 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.List;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
 
-    public static final ObisCode STEP_TARIFF_CONFIGURATION = ObisCode.fromString("0.0.94.20.75.255");
     public static final ObisCode CREDIT_DAYS_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
     public static final ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
     public static final ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
     public static final ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
+    public static final ObisCode SCRIPTS_OBIS = ObisCode.fromString("0.0.10.0.2.255");
 
-    private static final ObisCode CHARGE_MODE = ObisCode.fromString("0.0.15.0.8.255");
+    private static final ObisCode CHARGE_MODE_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.8.255");
     private static final ObisCode CHARGE_TOU_IMPORT = ObisCode.fromString("0.0.19.20.0.255");
     private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
     private static final ObisCode CHARGE_MONTHLY_TAX = ObisCode.fromString("0.0.19.20.2.255");
-
-    private static final int OBIS_DATA_TYPE = 1;
-    private static final ObisCode PREPAID_MODE = ObisCode.fromString("0.0.10.0.2.255");
-    private static final ObisCode POSTPAID_MODE = ObisCode.fromString("0.0.10.0.2.255");
 
     private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
     private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
@@ -112,14 +106,12 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             changePassiveUnitChargeWithActivationDate(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.UPDATE_UNIT_CHARGE)) {
             updateUnitCharge(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_MODE)) {
-            changeChargeMode(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.SWITCH_CHARGE_MODE)) {
+            switchChargeMode(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_PERIOD)) {
             changeChargePeriod(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION)) {
             changeChargeProportion(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_STEP_TARIFF_CONFIGURATION)) {
-            changeStepTariffConfig(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
             getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
@@ -130,17 +122,6 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
         }
         return collectedMessage;
-    }
-
-    private ObisCode getChargeModeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeModeAttributeName);
-        int chargeMode = ChargeDeviceMessage.ChargeMode.entryForDescription(description).getId();
-        switch (chargeMode) {
-            case 0:
-                return PREPAID_MODE;
-            default:
-                return POSTPAID_MODE;
-        }
     }
 
     private ObisCode getCreditTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
@@ -287,17 +268,21 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getChargeSetup(chargeObisCode).invokeChargeMethod(ChargeSetupMethods.UPDATE_UNIT_CHARGE);
     }
 
-    private void changeChargeMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        ObisCode chargeObisCode = getChargeModeObiscode(pendingMessage);
-        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modeActivationDateAttributeName).getValue();
+    private void switchChargeMode(OfflineDeviceMessage pendingMessage) throws IOException {
+        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activationDateAttributeName).getValue();
         Calendar activationTime = Calendar.getInstance(getProtocol().getTimeZone());
         activationTime.setTimeInMillis(Long.valueOf(attributeTime));
-        SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(CHARGE_MODE);
+        SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(CHARGE_MODE_SCHEDULER_OBIS);
         Structure scriptStruct = new Structure();
-        scriptStruct.addDataType(new OctetString(chargeObisCode.getLN()));
-        scriptStruct.addDataType(new Unsigned16(OBIS_DATA_TYPE));
+        scriptStruct.addDataType(new OctetString(SCRIPTS_OBIS.getLN()));
+        scriptStruct.addDataType(new Unsigned16(getChargeMode(pendingMessage)));
         singleActionSchedule.writeExecutedScript(scriptStruct);
         singleActionSchedule.writeExecutionTime(convertDateToDLMSArray(activationTime));
+    }
+
+    private int getChargeMode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeModeAttributeName);
+        return ChargeDeviceMessage.ChargeMode.entryForDescription(description).getId();
     }
 
     private void changeChargePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -312,42 +297,6 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         ChargeSetup chargeSetup = getCosemObjectFactory().getChargeSetup(chargeObisCode);
         Integer chargeProportion = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeProportion));
         chargeSetup.writeChargeAttribute(ChargeSetupAttributes.PROPORTION, new Unsigned16(chargeProportion));
-    }
-
-    private void changeStepTariffConfig(OfflineDeviceMessage pendingMessage) throws IOException {
-        Structure changeStepTariff = new Structure();
-        Integer tarrifCode = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.tariffCode));
-        String additionalTaxes = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.additionalTaxesType);
-        Integer additionalTaxesId = ChargeDeviceMessage.AdditionalTaxesType.entryForDescription(additionalTaxes).getId();
-        String graceRecalculation = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.graceRecalculationType);
-        Integer graceRecalculationId = ChargeDeviceMessage.GraceRecalculationType.entryForDescription(graceRecalculation).getId();
-        Integer graceRecalculationValue = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.graceRecalculationValue));
-        changeStepTariff.addDataType(new Unsigned16(tarrifCode));
-        changeStepTariff.addDataType(new TypeEnum(additionalTaxesId));
-        changeStepTariff.addDataType(new TypeEnum(graceRecalculationId));
-        changeStepTariff.addDataType(new Unsigned16(graceRecalculationValue));
-        Array changeStepTariffArray = new Array();
-        for (int i = 1; i <= 10; i++) {
-            Integer price = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, PRICE_STEP + i));
-            String recalculation = getDeviceMessageAttributeValue(pendingMessage, RECALCULATION_TYPE_STEP + i);
-            Integer recalculationId = ChargeDeviceMessage.RecalculationType.entryForDescription(recalculation).getId();
-            Integer graceWarning = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, GRACE_WARNING_STEP + i));
-            Integer additionalTax = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, ADDITIONAL_TAX_STEP + i));
-            Structure changeStep = new Structure();
-            addStepTarifCharge(pendingMessage, changeStep, i);
-            changeStep.addDataType(new Unsigned32(price));
-            changeStep.addDataType(new TypeEnum(recalculationId));
-            changeStep.addDataType(new Unsigned16(graceWarning));
-            changeStep.addDataType(new Unsigned32(additionalTax));
-            changeStepTariffArray.addDataType(changeStep);
-        }
-        changeStepTariff.addDataType(changeStepTariffArray);
-        getCosemObjectFactory().writeObject(STEP_TARIFF_CONFIGURATION, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), changeStepTariff.getBEREncodedByteArray());
-    }
-
-    protected void addStepTarifCharge(OfflineDeviceMessage pendingMessage, Structure changeStep, Integer step) throws IOException {
-        BigInteger charge = new BigInteger(getDeviceMessageAttributeValue(pendingMessage, CHARGE_STEP + step));
-        changeStep.addDataType(new Unsigned64(charge));
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {

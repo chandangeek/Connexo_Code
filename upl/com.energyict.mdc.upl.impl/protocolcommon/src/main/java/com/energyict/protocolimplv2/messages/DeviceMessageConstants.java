@@ -1873,9 +1873,11 @@ public final class DeviceMessageConstants {
     public static final String repetitionDelayDefaultTranslation = "Repetition Delay";
 
     public static final String chargeModeAttributeName = "chargeMode";
-    public static final String chargeModeAttributeNameDefaultTranslation = "Charge Mode";
-    public static final String modeActivationDateAttributeName = "modeActivationDate";
-    public static final String modeActivationDateAttributeNameDefaultTranslation = "Activation Date";
+    public static final String chargeModeAttributeNameDefaultTranslation = "Choose charge mode";
+    public static final String tariffTypeAttributeName = "tariffType";
+    public static final String tariffTypeAttributeNameDefaultTranslation = "Tariff to switch";
+    public static final String activationDateAttributeName = "activationDate";
+    public static final String activationDateAttributeNameDefaultTranslation = "Activation Date";
 
     public static final String chargeTypeAttributeName = "chargeType";
     public static final String chargeTypeAttributeNameDefaultTranslation = "Charge Type";
