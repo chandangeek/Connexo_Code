@@ -1,5 +1,6 @@
 package com.elster.partners.jbpm.extension;
 
+import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.query.QueryService;
@@ -27,6 +28,7 @@ public class CustomJbpmKieServerApplicationComponentsService implements KieServe
         UserTaskService taskService = null;
         RuntimeDataService runtimeDataService = null;
         QueryService queryService = null;
+        FormManagerService formManagerService = null;
 
         for( Object object : services ) {
             if( KieServerRegistry.class.isAssignableFrom(object.getClass()) ) {
@@ -45,11 +47,15 @@ public class CustomJbpmKieServerApplicationComponentsService implements KieServe
                 queryService = (QueryService) object;
                 continue;
             }
+            if( FormManagerService.class.isAssignableFrom(object.getClass()) ) {
+                formManagerService = (FormManagerService) object;
+                continue;
+            }
         }
 
         List<Object> components = new ArrayList<Object>(1);
         if( SupportedTransports.REST.equals(type) ) {
-            components.add(new CustomJbpmResource(context, taskService, runtimeDataService, queryService));
+            components.add(new CustomJbpmResource(context, taskService, runtimeDataService, queryService, formManagerService));
         }
 
         return components;

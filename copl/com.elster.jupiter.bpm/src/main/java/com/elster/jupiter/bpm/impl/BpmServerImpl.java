@@ -252,7 +252,7 @@ public class BpmServerImpl implements BpmServer {
         String jsonContent;
         JSONArray processes = null;
         try {
-            String rest = "/rest/tasks/runningprocesses";
+            String rest = "services/rest/tasks/runningprocesses";
             if (!filter.isEmpty()) {
                 rest += filter.startsWith("?") ? filter : "?" + filter;
             }
