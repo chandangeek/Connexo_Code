@@ -822,6 +822,29 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int COMM_PORT_STATUS_CHANGE = 397;
     public static final int OUTPUT_VALVE_CONTROL = 398;
 
+    public static final int END_OF_NONPERIODIC_BILLING_INTERVAL = 399;
+    public static final int LOADPROFILE_1_CAPTURING_ENABLED = 400;
+    public static final int LOADPROFILE_1_CAPTURING_DISABLED = 401;
+    public static final int LOADPROFILE_2_CAPTURING_ENABLED = 402;
+    public static final int LOADPROFILE_2_CAPTURING_DISABLED = 403;
+    public static final int FOTA_UPGRADING_INITIATED = 404;
+    public static final int FOTA_UPGRADING_FINISH_SUCCESS = 405;
+    public static final int FOTA_UPGRADING_FAILED = 406;
+    public static final int TARIFF_SCHEME_CHANGED = 407;
+    public static final int START_CERTIFICATION_MODE = 408;
+    public static final int END_CERTIFICATION_MODE = 409;
+    public static final int LOAD_MANAGEMENT_PASSIVE_CALENDAR_ACTIVATED = 410;
+    public static final int LOAD_MANAGEMENT_ACTIVITY_CALENDAR_PROGRAMMED = 411;
+    public static final int CONSUMER_MESSAGE_UPDATE = 412;
+    public static final int CONSUMER_INTERFACE_DEACTIVATED = 413;
+    public static final int CONSUMER_INTERFACE_REACTIVATED = 414;
+    public static final int MODEM_REMOVED = 415;
+    public static final int PLC_G3_PSK_CHANGE = 416;
+    public static final int LOAD_RELAY_CHANGE_REQUEST_REMOTE = 417;
+    public static final int REINITIALIZATION_RNG = 418;
+    public static final int LOCAL_INTERFACE_DEACTIVATED = 419;
+    public static final int LOCAL_INTERFACE_REACTIVATED = 420;
+    public static final int CURRENT_REVERSAL = 421;
 
     /**
      * Start of Beacon3100 custom codes
