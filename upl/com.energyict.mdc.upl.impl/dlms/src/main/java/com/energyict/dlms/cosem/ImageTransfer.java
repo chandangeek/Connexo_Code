@@ -213,12 +213,20 @@ public class ImageTransfer extends AbstractCosemObject {
     }
 
     public void initiateImageTransfer(String imageIdentifier) throws IOException {
-        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
+        int imageSize = (size != null) ? size.intValue() : 0;
+        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, imageSize, 0);
         Structure imageInitiateStructure = new Structure();
         imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier, charSet));
         imageInitiateStructure.addDataType(this.size);
         if (!isResume()) {
+            getLogger().info("Image transfer initialization parameters:" +
+                    "\n - image identifier: " + imageIdentifier +
+                    "\n - block count: " + blockCount +
+                    "\n - image size: " + imageSize);
             imageTransferInitiate(imageInitiateStructure);
+        } else {
+            getLogger().info("Skipping image transfer initialization because we're resuming ... ");
+
         }
     }
 
@@ -323,11 +331,14 @@ public class ImageTransfer extends AbstractCosemObject {
     public final void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier) throws IOException {
         this.dataSupplier = dataSupplier;
         this.size = new Unsigned32(dataSupplier.getSize());
-        // TODO - add a flag to force transfer from zero, else we can lock ourselves out and keep trying
+        getLogger().info("Firmware Image size: " + this.size);
+        getLogger().info("Reading first not transferred block (so we can check resume)");
         int lastTransferredBlockNumber = readFirstNotTransferedBlockNumber().intValue();
         if (lastTransferredBlockNumber > 0) {
             getLogger().log(Level.INFO, "Resuming session, starting from block " + (lastTransferredBlockNumber-1));
             setStartIndex(lastTransferredBlockNumber - 1);
+        } else {
+            getLogger().info("Resume not applicable, starting from zero.");
         }
         // Step1: Get the maximum image block size
         // and calculate the amount of blocks in one step
@@ -338,6 +349,7 @@ public class ImageTransfer extends AbstractCosemObject {
         getLogger().info("ImageTransfer block count = [" + blockCount + "] blocks");
 
         if (isResume()) {
+            getLogger().info("Resuming image transfer from "+startIndex);
             readImageTransferStatus();
             if (imageTransferStatus.getValue() < 1 || imageTransferStatus.getValue() > 3) {
                 getLogger().warning("Cannot resume the image transfer. The current transfer state (" + imageTransferStatus.getValue() + ") should be 'Image transfer initiated (1)', 'Image verification initiated (2)' or 'Image verification successful (3)'. Will start from block 0.");
@@ -351,8 +363,9 @@ public class ImageTransfer extends AbstractCosemObject {
 
         // Step2: Initiate the image transfer
         if (isInitiateImageTransfer()) {
+        getLogger().info("Initiating image transfer");
         initiateImageTransfer(imageIdentifier);
-        getLogger().finest("ImageTransfer initiated");
+        getLogger().info("ImageTransfer initiated");
         }
 
         //add delay
@@ -360,6 +373,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
         // Step3: Transfer image blocks
         if (isTransferBlocks()) {
+        getLogger().info("Transferring blocks ... ");
         transferImageBlocks(additionalZeros);
         getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
     }
@@ -459,8 +473,18 @@ public class ImageTransfer extends AbstractCosemObject {
                 getLogger().info("All blocks were already sent in previous session, moving on to verification");
             }
         }
+
+        if (this.dataSupplier == null){
+            getLogger().severe("The image is empty, cannot transfer!");
+        }
+
+        getLogger().info("Confirming again the block size:");
+        int blockSize = (int)this.readImageBlockSize().getValue();
+        getLogger().info("Block size: " + blockSize);
+
         for (int i = startIndex; i < blockCount; i++) {
-            octetStringData = this.dataSupplier.getBlock(i, (int)this.readImageBlockSize().getValue(), additionalZeros);
+            getLogger().info("BlockIndex " + i);
+            octetStringData = this.dataSupplier.getBlock(i, blockSize, additionalZeros);
             os = OctetString.fromByteArray(octetStringData);
             imageBlockTransfer = new Structure();
             imageBlockTransfer.addDataType(new Unsigned32(i));
@@ -815,9 +839,11 @@ public class ImageTransfer extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public ImageTransferStatus readImageTransferStatus() throws IOException {
+        getLogger().info("Checking image transfer status");
         final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TRANSFER_STATUS);
         final TypeEnum typeEnum = AXDRDecoder.decode(berEncodedData, TypeEnum.class);
         this.imageTransferStatus = ImageTransferStatus.fromValue(typeEnum.getValue());
+        getLogger().info("imageTransferStatus is " + this.imageTransferStatus.toString());
         return this.imageTransferStatus;
     }
 

@@ -2210,6 +2210,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         it.setDelayBeforeSendingBlocks(5000);
 
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+            try {
+                //TODO: add a protocol property and check support in beacon
+                //int blockSize = 65400; // original 65463, but need to leave room for headers and signature
+                //getLogger().info("Setting transfer block size to " + blockSize);
+                //it.writeImageBlockSize(new Unsigned32(blockSize));
+            } catch (Exception ex){
+                getLogger().warning("Cannot set block size: " + ex.getMessage());
+            }
             it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
             it.imageActivation();
@@ -2217,6 +2225,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             if (isTemporaryFailure(e)) {
                 getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
             } else {
+                getLogger().severe(e.getMessage());
                 throw e;
             }
         }
