@@ -21,14 +21,20 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component(
         name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory",
@@ -45,6 +51,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public static final String MAIN_CHECK_VALIDATOR = MainCheckValidator.class.getName();
     public static final String REFERENCE_COMPARISON_VALIDATOR = ReferenceComparisonValidator.class.getName();
     public static final String CONSECUTIVE_ZEROS_VALIDATOR = ConsecutiveZerosValidator.class.getName();
+    public static final Logger LOGGER = Logger.getLogger(ValidatorFactory.class.getName());
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -69,33 +76,49 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
         setMeteringService(meteringService);
     }
 
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
+    @Activate
+    public void activate() {
+        LOGGER.log(Level.INFO, "Default validation factory activated");
     }
 
     @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        LOGGER.log(Level.INFO, "Default validation factory: set metering service");
+        this.meteringService = meteringService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     public void setValidationService(ValidationService validationService) {
+        LOGGER.log(Level.INFO, "Default validation factory: set validation service");
         this.validationService = validationService;
+    }
+
+    public void unsetValidationService(ValidationService validationService) {
+        LOGGER.log(Level.INFO, "Default validation factory: set validation service");
+        this.validationService = null;
     }
 
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        LOGGER.log(Level.INFO, "Default validation factory: set metrology configuration service");
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        LOGGER.log(Level.INFO, "Default validation factory: set nls service");
         thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
+        LOGGER.log(Level.INFO, "Default validation factory: set property spec service");
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        LOGGER.log(Level.INFO, "Default validation factory: set property value info service");
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
