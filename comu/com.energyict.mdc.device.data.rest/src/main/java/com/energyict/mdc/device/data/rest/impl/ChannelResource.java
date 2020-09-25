@@ -162,6 +162,7 @@ public class ChannelResource {
         channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
         channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
         channelUpdater.setObisCode(channelInfo.overruledObisCode);
+        channelUpdater.setOffset(channelInfo.endOfInterval);
         channelUpdater.update();
         return Response.ok().build();
     }

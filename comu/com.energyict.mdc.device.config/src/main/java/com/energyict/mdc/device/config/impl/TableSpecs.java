@@ -59,6 +59,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Version.version;
@@ -262,7 +263,7 @@ public enum TableSpecs {
                     .number()
                     .conversion(ColumnConversion.NUMBER2BOOLEAN)
                     .map(DeviceConfigurationImpl.Fields.IS_DEFAULT.fieldName())
-                    .since(version(10,4, 2))
+                    .since(version(10, 4, 2))
                     .add();
             Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(DeviceConfigurationImpl.Fields.OBSOLETE_DATE.fieldName()).since(version(10, 8)).add();
             table.setJournalTableName("DTC_DEVICECONFIGJRNL").since(version(10, 2));
@@ -275,8 +276,8 @@ public enum TableSpecs {
                     .reverseMap("deviceConfigurations")
                     .composition()
                     .add();
-            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).upTo(Version.version(10,8)).add();
-            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn, obsoleteDate).since(Version.version(10,8)).add();
+            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).upTo(Version.version(10, 8)).add();
+            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn, obsoleteDate).since(Version.version(10, 8)).add();
             table.cacheWholeTable(true);
         }
     },
@@ -324,6 +325,7 @@ public enum TableSpecs {
             table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_COUNT.fieldName()).add();
             table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_CODE.fieldName()).add();
             table.column("USEMULTIPLIER").number().conversion(NUMBER2BOOLEAN).map(ChannelSpecImpl.ChannelSpecFields.USEMULTIPLIER.fieldName()).add();
+            table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map(ChannelSpecImpl.ChannelSpecFields.OFFSET.fieldName()).since(version(10, 9)).add();
             Column calculatedReadingType = table.column("CALCULATEDREADINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.setJournalTableName("DTC_CHANNELSPECJRNL").since(version(10, 2));
             table.addAuditColumns();
@@ -1045,14 +1047,19 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.class);
             Column deviceTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
             Column secAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name()).number().notNull().add();
-            Column wrappingSecAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.WRAPPINGSECACCTYPE.name()).number().since(version(10,7)).add();
+            Column wrappingSecAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.WRAPPINGSECACCTYPE.name()).number().since(version(10, 7)).add();
             Column defaultKeyColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.name())
-                   .varChar(Table.MAX_STRING_LENGTH)
-                   .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.fieldName())
-                   .since(Version.version(10, 6))
-                   .add();
+                    .varChar(Table.MAX_STRING_LENGTH)
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.fieldName())
+                    .since(Version.version(10, 6))
+                    .add();
             table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.KEYRENEWALMESSAGEID.name()).number().conversion(NUMBER2LONG).map("keyRenewalMessageIdIdDbValue").since(version(10, 7)).add();
-            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SERVICEKEYRENEWALMSGID.name()).number().conversion(NUMBER2LONG).map("serviceKeyRenewalMessageIdDbValue").since(version(10, 8)).add();
+            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SERVICEKEYRENEWALMSGID.name())
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .map("serviceKeyRenewalMessageIdDbValue")
+                    .since(version(10, 8))
+                    .add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
             table.addAuditColumns();
             table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
@@ -1072,7 +1079,7 @@ public enum TableSpecs {
                     .references(SecurityAccessorType.class)
                     .on(wrappingSecAccTypeColumn)
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.WRAPPINGSECACCTYPE.fieldName())
-                    .since(version(10,7))
+                    .since(version(10, 7))
                     .add();
         }
     },

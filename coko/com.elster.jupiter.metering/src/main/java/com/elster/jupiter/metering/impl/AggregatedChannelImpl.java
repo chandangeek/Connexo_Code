@@ -145,6 +145,16 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     @Override
+    public long getOffset() {
+        return persistedChannel.getOffset();
+    }
+
+    @Override
+    public void updateOffset(long offset) {
+        persistedChannel.updateOffset(offset);
+    }
+
+    @Override
     public Optional<CimChannel> getCimChannel(ReadingType readingType) {
         if (!getMainReadingType().equals(readingType)) {
             return Optional.empty();

@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -98,8 +99,13 @@ public class EndPointConfigurationInfoFactory {
         List<PropertySpec> propertySpecs = endPointConfiguration.getPropertySpecs();
         info.properties = propertySpecs.isEmpty() ? Collections.emptyList()
                 : propertyValueInfoService.getPropertyInfos(propertySpecs, endPointConfiguration.getPropertiesWithValue());
-
-        webService.ifPresent(ws -> info.applicationName = ws.getApplicationName());
+        if (webService.isPresent()) {
+            if (webService.get().getApplicationName().equals(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName())) {
+                info.applicationName = thesaurus.getFormat(TranslationKeys.NAME_UNSPECIFIED).format();
+            } else {
+                info.applicationName = webService.get().getApplicationName();
+            }
+        }
         return info;
     }
 
