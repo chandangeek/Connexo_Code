@@ -151,7 +151,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             String model = structure.getDataType(0).getVisibleString().getStr();
             String version = structure.getDataType(1).getVisibleString().getStr();
             String crc = structure.getDataType(2).getVisibleString().getStr();
-            description = "Model=" +model + ", Firmware Version=" + version + ", Firmware CRC=" + crc;
+            description = "Model=" + model + ", Firmware Version=" + version + ", Firmware CRC=" + crc;
         } else
             throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
         return new RegisterValue(obisCode, description);
